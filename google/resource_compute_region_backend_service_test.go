@@ -44,6 +44,29 @@ func TestAccComputeRegionBackendService_basic(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionBackendService_ilbBasic_withUnspecifiedProtocol(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_ilbBasic_withUnspecifiedProtocol(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_region_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionBackendService_withBackendInternal(t *testing.T) {
 	t.Parallel()
 
@@ -262,6 +285,25 @@ func TestAccComputeRegionBackendService_UDPFailOverPolicyUpdate(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccComputeRegionBackendService_ilbBasic_withUnspecifiedProtocol(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_region_backend_service" "foobar" {
+  name                  = "%s"
+  health_checks         = [google_compute_health_check.health_check.self_link]
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "INTERNAL"
+  region        = "us-central1"
+}
+
+resource "google_compute_health_check" "health_check" {
+  name     = "%s"
+  http_health_check {
+    port = 80
+  }
+}
+`, serviceName, checkName)
 }
 
 func testAccComputeRegionBackendService_ilbBasic(serviceName, checkName string) string {

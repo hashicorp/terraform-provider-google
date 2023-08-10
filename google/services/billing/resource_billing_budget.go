@@ -203,7 +203,7 @@ canonical start. Grammatically, "the start of the current CalendarPeriod".
 All calendar times begin at 12 AM US and Canadian Pacific Time (UTC-8).
 
 Exactly one of 'calendar_period', 'custom_period' must be provided. Possible values: ["MONTH", "QUARTER", "YEAR", "CALENDAR_PERIOD_UNSPECIFIED"]`,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"credit_types": {
 							Type:     schema.TypeList,
@@ -217,7 +217,7 @@ If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be emp
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"credit_types_treatment": {
 							Type:         schema.TypeString,
@@ -226,7 +226,7 @@ If creditTypesTreatment is not INCLUDE_SPECIFIED_CREDITS, this field must be emp
 							Description: `Specifies how credits should be treated when determining spend
 for threshold calculations. Default value: "INCLUDE_ALL_CREDITS" Possible values: ["INCLUDE_ALL_CREDITS", "EXCLUDE_ALL_CREDITS", "INCLUDE_SPECIFIED_CREDITS"]`,
 							Default:      "INCLUDE_ALL_CREDITS",
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"custom_period": {
 							Type:     schema.TypeList,
@@ -297,7 +297,7 @@ If unset, specifies to track all usage incurred since the startDate.`,
 									},
 								},
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"labels": {
 							Type:     schema.TypeMap,
@@ -306,7 +306,7 @@ If unset, specifies to track all usage incurred since the startDate.`,
 							Description: `A single label and value pair specifying that usage from only
 this set of labeled resources should be included in the budget.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"projects": {
 							Type:     schema.TypeSet,
@@ -320,7 +320,20 @@ the usage occurred on.`,
 								Type: schema.TypeString,
 							},
 							Set:          schema.HashString,
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+						},
+						"resource_ancestors": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `A set of folder and organization names of the form folders/{folderId} or organizations/{organizationId},
+specifying that usage from only this set of folders and organizations should be included in the budget.
+If omitted, the budget includes all usage that the billing account pays for. If the folder or organization
+contains projects that are paid for by a different Cloud Billing account, the budget doesn't apply to those projects.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Set:          schema.HashString,
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"services": {
 							Type:     schema.TypeList,
@@ -335,7 +348,7 @@ https://cloud.google.com/billing/v1/how-tos/catalog-api.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 						"subaccounts": {
 							Type:     schema.TypeList,
@@ -352,7 +365,7 @@ account and all subaccounts, if they exist.
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
-							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
+							AtLeastOneOf: []string{"budget_filter.0.projects", "budget_filter.0.resource_ancestors", "budget_filter.0.credit_types_treatment", "budget_filter.0.services", "budget_filter.0.subaccounts", "budget_filter.0.labels", "budget_filter.0.calendar_period", "budget_filter.0.custom_period"},
 						},
 					},
 				},
@@ -586,6 +599,7 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("budget_filter") {
 		updateMask = append(updateMask, "budgetFilter.projects",
+			"budgetFilter.resourceAncestors",
 			"budgetFilter.labels",
 			"budgetFilter.calendarPeriod",
 			"budgetFilter.customPeriod",
@@ -723,6 +737,8 @@ func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, con
 	transformed := make(map[string]interface{})
 	transformed["projects"] =
 		flattenBillingBudgetBudgetFilterProjects(original["projects"], d, config)
+	transformed["resource_ancestors"] =
+		flattenBillingBudgetBudgetFilterResourceAncestors(original["resourceAncestors"], d, config)
 	transformed["credit_types_treatment"] =
 		flattenBillingBudgetBudgetFilterCreditTypesTreatment(original["creditTypesTreatment"], d, config)
 	transformed["services"] =
@@ -740,6 +756,13 @@ func flattenBillingBudgetBudgetFilter(v interface{}, d *schema.ResourceData, con
 	return []interface{}{transformed}
 }
 func flattenBillingBudgetBudgetFilterProjects(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
+func flattenBillingBudgetBudgetFilterResourceAncestors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -1089,6 +1112,13 @@ func expandBillingBudgetBudgetFilter(v interface{}, d tpgresource.TerraformResou
 		transformed["projects"] = transformedProjects
 	}
 
+	transformedResourceAncestors, err := expandBillingBudgetBudgetFilterResourceAncestors(original["resource_ancestors"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceAncestors); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceAncestors"] = transformedResourceAncestors
+	}
+
 	transformedCreditTypesTreatment, err := expandBillingBudgetBudgetFilterCreditTypesTreatment(original["credit_types_treatment"], d, config)
 	if err != nil {
 		return nil, err
@@ -1142,6 +1172,11 @@ func expandBillingBudgetBudgetFilter(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandBillingBudgetBudgetFilterProjects(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandBillingBudgetBudgetFilterResourceAncestors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	return v, nil
 }

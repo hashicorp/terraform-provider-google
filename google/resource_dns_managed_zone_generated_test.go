@@ -297,9 +297,6 @@ resource "google_dns_managed_zone" "private-zone-gke" {
   visibility = "private"
 
   private_visibility_config {
-    networks {
-      network_url = google_compute_network.network-1.id
-    }
     gke_clusters {
       gke_cluster_name = google_container_cluster.cluster-1.id
     }

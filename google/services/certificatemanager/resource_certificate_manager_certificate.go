@@ -88,6 +88,7 @@ and all following characters must be a dash, underscore, letter or digit.`,
 			"location": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The Certificate Manager location. If not specified, "global" is used.`,
 				Default:     "global",
 			},

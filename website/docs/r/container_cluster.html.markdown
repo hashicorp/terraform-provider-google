@@ -595,9 +595,16 @@ This block also contains several computed attributes, documented below.
 
 *  `managed_prometheus` - (Optional) Configuration for Managed Service for Prometheus. Structure is [documented below](#nested_managed_prometheus).
 
+* `advanced_datapath_observability_config` - (Optional) Configuration for Advanced Datapath Monitoring. Structure is [documented below](#nested_advanced_datapath_observability_config).
+
 <a name="nested_managed_prometheus"></a>The `managed_prometheus` block supports:
 
 * `enabled` - (Required) Whether or not the managed collection is enabled.
+
+<a name="nested_advanced_datapath_observability_config"></a>The `advanced_datapath_observability_config` block supports:
+
+* `enabled_metrics` - (Required) Whether or not the advanced datapath metrics are enabled.
+* `relay_mode` - (Optional) Mode used to make Relay available.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.
@@ -712,7 +719,7 @@ to have a range chosen with a specific netmask. Set to a CIDR notation (e.g. 10.
 from the RFC-1918 private networks (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to
 pick a specific range to use.
 
-* `stack_type` - (Optional) The IP Stack Type of the cluster. 
+* `stack_type` - (Optional) The IP Stack Type of the cluster.
 Default value is `IPV4`.
 Possible values are `IPV4` and `IPV4_IPV6`.
 

@@ -9,16 +9,19 @@
 var defaultStartHour = 4
 
 // specifies the default level of parallelism per-service-package
-var defaultParallelism = 12
+var defaultParallelism = 20
 
 // specifies the default version of Terraform Core which should be used for testing
 var defaultTerraformCoreVersion = "1.2.5"
 
 // This represents a cron view of days of the week
-const val defaultDaysOfWeek = "1-3,5-7" // All nights except Thursday for GA; feature branch testing happens on Thursdays
+const val defaultDaysOfWeek = "1-4,6-7" // All nights except Thursday (5) for GA; feature branch testing happens on Thursdays and TeamCity numbers days Sun=1...Sat=7
 
 // Cron value for any day of month
 const val defaultDaysOfMonth = "*"
+
+// Value used to make long-running builds fail due to a timeout
+const val defaultBuildTimeoutDuration = 60 * 12 //12 hours in minutes
 
 // Values that `environment` parameter is checked against,
 // when deciding to change how TeamCity objects are configured

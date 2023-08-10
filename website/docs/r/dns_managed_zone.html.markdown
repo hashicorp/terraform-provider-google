@@ -155,9 +155,6 @@ resource "google_dns_managed_zone" "private-zone-gke" {
   visibility = "private"
 
   private_visibility_config {
-    networks {
-      network_url = google_compute_network.network-1.id
-    }
     gke_clusters {
       gke_cluster_name = google_container_cluster.cluster-1.id
     }
@@ -357,7 +354,7 @@ The following arguments are supported:
 * `private_visibility_config` -
   (Optional)
   For privately visible zones, the set of Virtual Private Cloud
-  resources that the zone is visible from.
+  resources that the zone is visible from. At least one of `gke_clusters` or `networks` must be specified.
   Structure is [documented below](#nested_private_visibility_config).
 
 * `forwarding_config` -
@@ -453,7 +450,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_gke_clusters).
 
 * `networks` -
-  (Required)
+  (Optional)
   The list of VPC networks that can see this zone. Until the provider updates to use the Terraform 0.12 SDK in a future release, you
   may experience issues with this resource while updating. If you've defined a `networks` block and
   add another `networks` block while keeping the old block, Terraform will see an incorrect diff

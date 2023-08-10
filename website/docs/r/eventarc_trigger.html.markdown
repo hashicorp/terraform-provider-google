@@ -135,6 +135,10 @@ The `matching_criteria` block supports:
   (Optional)
   Optional. The name of the channel associated with the trigger in `projects/{project}/locations/{location}/channels/{channel}` format. You must provide a channel to receive events from Eventarc SaaS partners.
   
+* `event_data_content_type` -
+  (Optional)
+  Optional. EventDataContentType specifies the type of payload in MIME format that is expected from the CloudEvent data field. This is set to `application/json` if the value is not defined.
+  
 * `labels` -
   (Optional)
   Optional. User labels attached to the triggers that can be used to group resources.

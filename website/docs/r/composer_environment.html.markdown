@@ -469,6 +469,11 @@ The following arguments are supported:
 
 See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. <a name="nested_private_environment_config"></a>The `private_environment_config` block supports:
 
+* `connection_type` -
+  (Optional, Cloud Composer 2 only)
+  Mode of internal communication within the Composer environment. Must be one
+  of `"VPC_PEERING"` or `"PRIVATE_SERVICE_CONNECT"`.
+ 
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
   If this field is set to true, the `ip_allocation_policy.use_ip_aliases` field must
