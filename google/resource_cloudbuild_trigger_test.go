@@ -465,7 +465,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
 func testAccCloudBuildTrigger_pubsub_config(name string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "build-trigger" {
-  name = "topic-name"
+  name = "%s"
 }
 
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -487,13 +487,13 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     google_pubsub_topic.build-trigger
   ]
 }
-`, name)
+`, name, name)
 }
 
 func testAccCloudBuildTrigger_pubsub_config_update(name string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "build-trigger" {
-  name = "topic-name"
+  name = "%s"
 }
 
 resource "google_cloudbuild_trigger" "build_trigger" {
@@ -515,7 +515,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     google_pubsub_topic.build-trigger
   ]
 }
-`, name)
+`, name, name)
 }
 
 func testAccCloudBuildTrigger_webhook_config(name string) string {
