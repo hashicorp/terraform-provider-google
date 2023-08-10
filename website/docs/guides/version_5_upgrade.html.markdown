@@ -107,3 +107,15 @@ Description of the change and how users should adjust their configuration (if ne
 ### Resource-level change example header
 
 Description of the change and how users should adjust their configuration (if needed).
+
+## Resource: `google_bigquery_table`
+
+### At most one of `view`, `materialized_view`, and `schema` can be set.
+
+The provider will now enforce at plan time that at most one of these fields be set.
+
+## Resource: `google_firebase_web_app`
+
+### `deletion_policy` now defaults to `DELETE`
+
+Previously, `google_firebase_web_app` deletions default to `ABANDON`, which means to only stop tracking the WebApp in Terraform. The actual app is not deleted from the Firebase project. If you are relying on this behavior, set `deletion_policy` to `ABANDON` explicitly in the new version.

@@ -903,6 +903,199 @@ resource "google_compute_global_forwarding_rule" "default" {
   port_range = "80"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=global_internal_http_lb_with_mig_backend&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Global Internal Http Lb With Mig Backend
+
+
+```hcl
+# Global Internal HTTP load balancer with a managed instance group backend
+
+# VPC network
+resource "google_compute_network" "gilb_network" {
+  name                    = "l7-gilb-network"
+  provider                = google-beta
+  auto_create_subnetworks = false
+}
+
+# proxy-only subnet
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "l7-gilb-proxy-subnet"
+  provider      = google-beta
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "europe-west1"
+  purpose       = "GLOBAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.gilb_network.id
+}
+
+# backend subnet
+resource "google_compute_subnetwork" "gilb_subnet" {
+  name          = "l7-gilb-subnet"
+  provider      = google-beta
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "europe-west1"
+  network       = google_compute_network.gilb_network.id
+}
+
+# forwarding rule
+resource "google_compute_global_forwarding_rule" "google_compute_forwarding_rule" {
+  name                  = "l7-gilb-forwarding-rule"
+  provider              = google-beta
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  target                = google_compute_target_http_proxy.default.id
+  network               = google_compute_network.gilb_network.id
+  subnetwork            = google_compute_subnetwork.gilb_subnet.id
+}
+
+# HTTP target proxy
+resource "google_compute_target_http_proxy" "default" {
+  name     = "l7-gilb-target-http-proxy"
+  provider = google-beta
+  url_map  = google_compute_url_map.default.id
+}
+
+# URL map
+resource "google_compute_url_map" "default" {
+  name            = "l7-gilb-url-map"
+  provider        = google-beta
+  default_service = google_compute_backend_service.default.id
+}
+
+# backend service
+resource "google_compute_backend_service" "default" {
+  name                  = "l7-gilb-backend-subnet"
+  provider              = google-beta
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  health_checks         = [google_compute_health_check.default.id]
+  backend {
+    group           = google_compute_instance_group_manager.mig.instance_group
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+  }
+}
+
+# instance template
+resource "google_compute_instance_template" "instance_template" {
+  name         = "l7-gilb-mig-template"
+  provider     = google-beta
+  machine_type = "e2-small"
+  tags         = ["http-server"]
+
+  network_interface {
+    network    = google_compute_network.gilb_network.id
+    subnetwork = google_compute_subnetwork.gilb_subnet.id
+    access_config {
+      # add external ip to fetch packages
+    }
+  }
+  disk {
+    source_image = "debian-cloud/debian-10"
+    auto_delete  = true
+    boot         = true
+  }
+
+  # install nginx and serve a simple web page
+  metadata = {
+    startup-script = <<-EOF1
+      #! /bin/bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y nginx-light jq
+
+      NAME=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/hostname")
+      IP=$(curl -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+      METADATA=$(curl -f -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/attributes/?recursive=True" | jq 'del(.["startup-script"])')
+
+      cat <<EOF > /var/www/html/index.html
+      <pre>
+      Name: $NAME
+      IP: $IP
+      Metadata: $METADATA
+      </pre>
+      EOF
+    EOF1
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# health check
+resource "google_compute_health_check" "default" {
+  name     = "l7-gilb-hc"
+  provider = google-beta
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+# MIG
+resource "google_compute_instance_group_manager" "mig" {
+  name     = "l7-gilb-mig1"
+  provider = google-beta
+  zone = "europe-west1-b"
+  version {
+    instance_template = google_compute_instance_template.instance_template.id
+    name              = "primary"
+  }
+  base_instance_name = "vm"
+  target_size        = 2
+}
+
+# allow all access from IAP and health check ranges
+resource "google_compute_firewall" "fw-iap" {
+  name          = "l7-gilb-fw-allow-iap-hc"
+  provider      = google-beta
+  direction     = "INGRESS"
+  network       = google_compute_network.gilb_network.id
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "35.235.240.0/20"]
+  allow {
+    protocol = "tcp"
+  }
+}
+
+# allow http from proxy subnet to backends
+resource "google_compute_firewall" "fw-gilb-to-backends" {
+  name          = "l7-gilb-fw-allow-gilb-to-backends"
+  provider      = google-beta
+  direction     = "INGRESS"
+  network       = google_compute_network.gilb_network.id
+  source_ranges = ["10.0.0.0/24"]
+  target_tags   = ["http-server"]
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443", "8080"]
+  }
+}
+
+# test instance
+resource "google_compute_instance" "vm-test" {
+  name         = "l7-gilb-test-vm"
+  provider     = google-beta
+  zone         = "europe-west1-b"
+  machine_type = "e2-small"
+  network_interface {
+    network    = google_compute_network.gilb_network.id
+    subnetwork = google_compute_subnetwork.gilb_subnet.id
+  }
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-10"
+    }
+  }
+}
+```
 ## Example Usage - Private Service Connect Google Apis
 
 
@@ -1092,7 +1285,7 @@ The following arguments are supported:
   For more information about forwarding rules, refer to
   [Forwarding rule concepts](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts).
   Default value is `EXTERNAL`.
-  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
+  Possible values are: `EXTERNAL`, `EXTERNAL_MANAGED`, `INTERNAL_MANAGED`, `INTERNAL_SELF_MANAGED`.
 
 * `metadata_filters` -
   (Optional)
@@ -1141,6 +1334,15 @@ The following arguments are supported:
   * TargetSslProxy: 25, 43, 110, 143, 195, 443, 465, 587, 700, 993, 995,
                     1883, 5222
   * TargetVpnGateway: 500, 4500
+
+* `subnetwork` -
+  (Optional)
+  This field identifies the subnetwork that the load balanced IP should
+  belong to for this Forwarding Rule, used in internal load balancing and
+  network load balancing with IPv6.
+  If the network specified is in auto subnet mode, this field is optional.
+  However, a subnetwork must be specified if the network is in custom subnet
+  mode or when creating external forwarding rule with IPv6.
 
 * `source_ip_ranges` -
   (Optional)

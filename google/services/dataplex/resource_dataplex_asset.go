@@ -90,7 +90,6 @@ func ResourceDataplexAsset() *schema.Resource {
 			"resource_spec": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Required. Immutable. Specification of the resource that is referenced by this asset.",
 				MaxItems:    1,
 				Elem:        DataplexAssetResourceSpecSchema(),
@@ -285,6 +284,13 @@ func DataplexAssetResourceSpecSchema() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Immutable. Relative name of the cloud resource that contains the data that is being managed within a lake. For example: `projects/{project_number}/buckets/{bucket_id}` `projects/{project_number}/datasets/{dataset_id}`",
+			},
+
+			"read_access_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. Determines how read permissions are handled for each asset and their associated tables. Only available to storage buckets assets. Possible values: DIRECT, MANAGED",
 			},
 		},
 	}
@@ -788,8 +794,9 @@ func expandDataplexAssetResourceSpec(o interface{}) *dataplex.AssetResourceSpec 
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &dataplex.AssetResourceSpec{
-		Type: dataplex.AssetResourceSpecTypeEnumRef(obj["type"].(string)),
-		Name: dcl.String(obj["name"].(string)),
+		Type:           dataplex.AssetResourceSpecTypeEnumRef(obj["type"].(string)),
+		Name:           dcl.String(obj["name"].(string)),
+		ReadAccessMode: dataplex.AssetResourceSpecReadAccessModeEnumRef(obj["read_access_mode"].(string)),
 	}
 }
 
@@ -798,8 +805,9 @@ func flattenDataplexAssetResourceSpec(obj *dataplex.AssetResourceSpec) interface
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"type": obj.Type,
-		"name": obj.Name,
+		"type":             obj.Type,
+		"name":             obj.Name,
+		"read_access_mode": obj.ReadAccessMode,
 	}
 
 	return []interface{}{transformed}

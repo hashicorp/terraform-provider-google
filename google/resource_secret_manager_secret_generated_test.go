@@ -78,6 +78,55 @@ resource "google_secret_manager_secret" "secret-basic" {
 `, context)
 }
 
+func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_secretWithAnnotationsExample(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
+			},
+		},
+	})
+}
+
+func testAccSecretManagerSecret_secretWithAnnotationsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-with-annotations" {
+  secret_id = "secret%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  annotations = {
+    key1 = "someval"
+    key2 = "someval2"
+    key3 = "someval3"
+    key4 = "someval4"
+    key5 = "someval5"
+  }
+
+  replication {
+    automatic = true
+  }
+}
+`, context)
+}
+
 func testAccCheckSecretManagerSecretDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

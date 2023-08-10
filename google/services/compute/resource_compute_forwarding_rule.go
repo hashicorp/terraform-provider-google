@@ -130,7 +130,11 @@ options are 'TCP', 'UDP', 'ESP',
 
 The valid IP protocols are different for different load balancing products
 as described in [Load balancing
-features](https://cloud.google.com/load-balancing/docs/features#protocols_from_the_load_balancer_to_the_backends). Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT"]`,
+features](https://cloud.google.com/load-balancing/docs/features#protocols_from_the_load_balancer_to_the_backends).
+
+A Forwarding Rule with protocol L3_DEFAULT can attach with target instance or
+backend service with UNSPECIFIED protocol.
+A forwarding rule with "L3_DEFAULT" IPProtocal cannot be attached to a backend service with TCP or UDP. Possible values: ["TCP", "UDP", "ESP", "AH", "SCTP", "ICMP", "L3_DEFAULT"]`,
 			},
 			"all_ports": {
 				Type:     schema.TypeBool,
@@ -141,6 +145,8 @@ features](https://cloud.google.com/load-balancing/docs/features#protocols_from_t
 * By internal TCP/UDP load balancers, backend service-based network load
 balancers, and internal and external protocol forwarding.
 
+This option should be set to TRUE when the Forwarding Rule
+IPProtocol is set to L3_DEFAULT.
 
 Set this field to true to allow packets addressed to any port or packets
 lacking destination port information (for example, UDP fragments after the
@@ -185,6 +191,17 @@ must be omitted for all other load balancer types.`,
 				ForceNew: true,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
+			},
+			"ip_version": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				Description: `The IP address version that will be used by this forwarding rule.
+Valid options are IPV4 and IPV6.
+
+If not set, the IPv4 address will be used by default. Possible values: ["IPV4", "IPV6"]`,
 			},
 			"is_mirroring_collector": {
 				Type:     schema.TypeBool,
@@ -294,7 +311,7 @@ pair, and cannot have overlapping 'portRange's.`,
 
 * If 'IPProtocol' is one of TCP, UDP, or SCTP.
 * By internal TCP/UDP load balancers, backend service-based network load
-balancers, and internal protocol forwarding.
+balancers, internal protocol forwarding and when protocol is not L3_DEFAULT.
 
 
 You can specify a list of up to five ports by number, separated by commas.
@@ -602,6 +619,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("no_automate_dns_zone"); ok || !reflect.DeepEqual(v, noAutomateDnsZoneProp) {
 		obj["noAutomateDnsZone"] = noAutomateDnsZoneProp
 	}
+	ipVersionProp, err := expandComputeForwardingRuleIpVersion(d.Get("ip_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipVersionProp)) && (ok || !reflect.DeepEqual(v, ipVersionProp)) {
+		obj["ipVersion"] = ipVersionProp
+	}
 	regionProp, err := expandComputeForwardingRuleRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -825,6 +848,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("allow_psc_global_access", flattenComputeForwardingRuleAllowPscGlobalAccess(res["allowPscGlobalAccess"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("ip_version", flattenComputeForwardingRuleIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("region", flattenComputeForwardingRuleRegion(res["region"], d, config)); err != nil {
@@ -1210,6 +1236,10 @@ func flattenComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d *schema.R
 	return v
 }
 
+func flattenComputeForwardingRuleIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1408,6 +1438,10 @@ func expandComputeForwardingRuleAllowPscGlobalAccess(v interface{}, d tpgresourc
 }
 
 func expandComputeForwardingRuleNoAutomateDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeForwardingRuleIpVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

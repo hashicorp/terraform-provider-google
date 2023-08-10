@@ -401,6 +401,12 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigK
 				Required:    true,
 				Description: "Required. Name of the Kubernetes Service.",
 			},
+
+			"route_update_wait_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. The time to wait for route updates to propagate. The maximum configurable time is 3 hours, in seconds format. If unspecified, there is no wait time.",
+			},
 		},
 	}
 }
@@ -1189,9 +1195,10 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeC
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigKubernetesGatewayServiceMesh{
-		Deployment: dcl.String(obj["deployment"].(string)),
-		HttpRoute:  dcl.String(obj["http_route"].(string)),
-		Service:    dcl.String(obj["service"].(string)),
+		Deployment:          dcl.String(obj["deployment"].(string)),
+		HttpRoute:           dcl.String(obj["http_route"].(string)),
+		Service:             dcl.String(obj["service"].(string)),
+		RouteUpdateWaitTime: dcl.String(obj["route_update_wait_time"].(string)),
 	}
 }
 
@@ -1200,9 +1207,10 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntime
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"deployment": obj.Deployment,
-		"http_route": obj.HttpRoute,
-		"service":    obj.Service,
+		"deployment":             obj.Deployment,
+		"http_route":             obj.HttpRoute,
+		"service":                obj.Service,
+		"route_update_wait_time": obj.RouteUpdateWaitTime,
 	}
 
 	return []interface{}{transformed}

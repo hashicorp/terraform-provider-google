@@ -1,5 +1,5 @@
 ---
-subcategory: "Alloydb"
+subcategory: "AlloyDB"
 description: |-
   Fetches the list of supported alloydb database flags in a location.
 ---

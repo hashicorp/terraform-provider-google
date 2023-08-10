@@ -33,6 +33,8 @@ In addition to the arguments listed above, the following attributes are exported
 * `name` -
   The resource name of the Membership, of the form groups/{group_id}/memberships/{membership_id}.
 
+* `type` - The type of the membership.
+
 * `roles` - The MembershipRoles that apply to the Membership. Structure is [documented below](#nested_roles).
 
 * `member_key` -

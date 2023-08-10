@@ -548,8 +548,10 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
     The [service accounts documentation](https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam)
     explains that access scopes are the legacy method of specifying permissions for your instance.
-    If you are following best practices and using IAM roles to grant permissions to service accounts,
-    then you can define this field as an empty list.
+    To follow best practices you should create a dedicated service account with the minimum permissions the VM requires.
+    To use a dedicated service account this field should be configured as a list containing the `cloud-platform` scope.
+    See [Authenticate workloads using service accounts best practices](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#best_practices)
+    and [Best practices for using service accounts](https://cloud.google.com/iam/docs/best-practices-service-accounts#single-purpose).
 
 <a name="nested_scheduling"></a>The `scheduling` block supports:
 
@@ -571,7 +573,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    Structure [documented below](#nested_node_affinities).
    
 * `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`, 
-    `preemptible` should be `true` and `auto_restart` should be
+    `preemptible` should be `true` and `automatic_restart` should be
     `false`. For more info about
     `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
     

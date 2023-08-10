@@ -1,5 +1,5 @@
 ---
-subcategory: "Alloydb"
+subcategory: "AlloyDB"
 description: |-
   Fetches the details of available locations.
 ---

@@ -277,6 +277,14 @@ The `phase_configs` block supports:
   (Required)
   Required. The ID to assign to the `Rollout` phase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.
     
+* `postdeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.
+    
+* `predeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.
+    
 * `profiles` -
   (Optional)
   Skaffold profiles to use when rendering the manifest for this phase. These are in addition to the profiles list specified in the `DeliveryPipeline` stage.
@@ -377,15 +385,47 @@ The `canary_deployment` block supports:
   (Required)
   Required. The percentage based deployments that will occur as a part of a `Rollout`. List is expected in ascending order and each integer n is 0 <= n < 100.
     
+* `postdeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the postdeploy job of the last phase. If this is not configured, postdeploy job will not be present.
+    
+* `predeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the predeploy job of the first phase. If this is not configured, predeploy job will not be present.
+    
 * `verify` -
   (Optional)
   Whether to run verify tests after each percentage deployment.
+    
+The `postdeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
+    
+The `predeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
 The `custom_canary_deployment` block supports:
     
 * `phase_configs` -
   (Required)
   Required. Configuration for each phase in the canary deployment in the order executed.
+    
+The `postdeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
+    
+The `predeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
 The `runtime_config` block supports:
     
@@ -423,6 +463,10 @@ The `gateway_service_mesh` block supports:
   (Required)
   Required. Name of the Gateway API HTTPRoute.
     
+* `route_update_wait_time` -
+  (Optional)
+  Optional. The time to wait for route updates to propagate. The maximum configurable time is 3 hours, in seconds format. If unspecified, there is no wait time.
+    
 * `service` -
   (Required)
   Required. Name of the Kubernetes Service.
@@ -443,9 +487,29 @@ The `service_networking` block supports:
     
 The `standard` block supports:
     
+* `postdeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the postdeploy job. If this is not configured, postdeploy job will not be present.
+    
+* `predeploy` -
+  (Optional)
+  (Beta only) Optional. Configuration for the predeploy job. If this is not configured, predeploy job will not be present.
+    
 * `verify` -
   (Optional)
   Whether to verify a deployment.
+    
+The `postdeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.
+    
+The `predeploy` block supports:
+    
+* `actions` -
+  (Optional)
+  Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.
     
 ## Attributes Reference
 
