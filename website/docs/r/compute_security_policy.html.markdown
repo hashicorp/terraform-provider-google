@@ -204,6 +204,8 @@ The following arguments are supported:
   * NORMAL - Normal log level.
   * VERBOSE - Verbose log level.
 
+* `user_ip_request_headers` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) An optional list of case-insensitive request header names to use for resolving the callers client IP address.
+
 <a name="nested_json_custom_config"></a>The `json_custom_config` block supports:
 
 * `content_types` - A list of custom Content-Type header values to apply the JSON parsing. The
