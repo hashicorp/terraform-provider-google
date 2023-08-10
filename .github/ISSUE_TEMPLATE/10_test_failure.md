@@ -12,6 +12,22 @@ title: "Failing test(s): TestAccWhatever"
 - 100% since YYYY-MM-DD
 - X% in MONTH
 
+<!--
+
+Note: test history data will be split between the old TeamCity projects and the new projects for a while. By October the new projects will have enough new test data to avoid you needing to refer to both places.
+
+New TC projects can be found here:
+- [GA](https://hashicorp.teamcity.com/project/TerraformProviders_Google_NightlyTests)
+- [Beta](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleBeta_NightlyTests)
+
+Old TC projects can be found here:
+- [GA](https://ci-oss.hashicorp.engineering/viewType.html?buildTypeId=GoogleCloud_ProviderGoogleCloudGoogleProject)
+- [Beta](https://ci-oss.hashicorp.engineering/viewType.html?buildTypeId=GoogleCloudBeta_ProviderGoogleCloudBetaGoogleProject)
+
+-->
+
+
+
 ### Impacted tests
 <!-- List all impacted tests for searchability. The title of the issue can instead list one or more groups of tests, or describe the overall root cause. -->
 
@@ -25,7 +41,7 @@ title: "Failing test(s): TestAccWhatever"
 
 ### Nightly build test history
 
-<!-- Link to the test failure(s) page ie https://ci-oss.hashicorp.engineering/test/4373437493444570564?currentProjectId=GoogleCloudBeta&branch=%3Cdefault%3E -->
+<!-- Link to the test failure(s) page ie https://hashicorp.teamcity.com/test/-4508774451323501918?currentProjectId=TerraformProviders_Google_NightlyTests&testTab=overview -->
 - Link
 
 <!-- The error message that displays in the tests tab, for reference -->
