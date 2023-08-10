@@ -1134,13 +1134,14 @@ resource "google_composer_environment" "test" {
       subnetwork = google_compute_subnetwork.test.self_link
       enable_ip_masq_agent = true
       ip_allocation_policy {
-        cluster_ipv4_cidr_block = "10.0.0.0/16"
+        cluster_ipv4_cidr_block = "10.56.0.0/14"
       }
     }
     software_config {
       image_version  = "composer-2-airflow-2"
     }
     private_environment_config {
+      connection_type = "VPC_PEERING"
       enable_private_endpoint = true
       enable_privately_used_public_ips = true
   	}
