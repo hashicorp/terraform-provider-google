@@ -108,6 +108,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 Description of the change and how users should adjust their configuration (if needed).
 
+## Resource: `google_bigquery_table`
+
+### At most one of `view`, `materialized_view`, and `schema` can be set.
+
+The provider will now enforce at plan time that at most one of these fields be set.
+
 ## Resource: `google_firebase_web_app`
 
 ### `deletion_policy` now defaults to `DELETE`
