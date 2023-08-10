@@ -119,3 +119,15 @@ The provider will now enforce at plan time that at most one of these fields be s
 ### `deletion_policy` now defaults to `DELETE`
 
 Previously, `google_firebase_web_app` deletions default to `ABANDON`, which means to only stop tracking the WebApp in Terraform. The actual app is not deleted from the Firebase project. If you are relying on this behavior, set `deletion_policy` to `ABANDON` explicitly in the new version.
+
+## Resource: `google_cloud_run_v2_job`
+
+### `startup_probe` and `liveness_probe` are now removed
+
+These two unsupported fields were introduced incorrectly. They are now removed.
+
+## Resource: `google_cloud_run_v2_service`
+
+### `liveness_probe.tcp_socket` is now removed
+
+This unsupported field was introduced incorrectly. It is now removed.
