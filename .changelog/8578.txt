@@ -1,0 +1,3 @@
+```release-note:bug
+dataplex: fixed a bug when importing `google_dataplex_datascan` after running a job
+```
