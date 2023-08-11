@@ -305,6 +305,7 @@ resource "google_cloudbuild_trigger" "build_trigger" {
     uri       = "https://bitbucket.org/myorg/myrepo"
     revision  = "refs/heads/develop"
     repo_type = "BITBUCKET_SERVER"
+    bitbucket_server_config = "projects/123456789/locations/us-central1/bitbucketServerConfigs/myBitbucketConfig"
   }
 }
 `, name)

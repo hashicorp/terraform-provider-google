@@ -369,6 +369,34 @@ git_file_source {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_manual_bitbucket_server&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudbuild Trigger Manual Bitbucket Server
+
+
+```hcl
+resource "google_cloudbuild_trigger" "manual-bitbucket-trigger" {
+  name        = "terraform-manual-bbs-trigger"
+
+  source_to_build {
+    uri       = "https://bbs.com/scm/stag/test-repo.git"
+    ref       = "refs/heads/main"
+    repo_type = "BITBUCKET_SERVER"
+    bitbucket_server_config = "projects/myProject/locations/global/bitbucketServerConfigs/configID"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://bbs.com/scm/stag/test-repo.git"
+    revision  = "refs/heads/main"
+    repo_type = "BITBUCKET_SERVER"
+    bitbucket_server_config = "projects/myProject/locations/global/bitbucketServerConfigs/configID"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudbuild_trigger_repo&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -868,6 +896,11 @@ The following arguments are supported:
   The full resource name of the github enterprise config.
   Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.
 
+* `bitbucket_server_config` -
+  (Optional)
+  The full resource name of the bitbucket server config.
+  Format: projects/{project}/locations/{location}/bitbucketServerConfigs/{id}.
+
 <a name="nested_repository_event_config"></a>The `repository_event_config` block supports:
 
 * `repository` -
@@ -945,6 +978,11 @@ The following arguments are supported:
   (Optional)
   The full resource name of the github enterprise config.
   Format: projects/{project}/locations/{location}/githubEnterpriseConfigs/{id}. projects/{project}/githubEnterpriseConfigs/{id}.
+
+* `bitbucket_server_config` -
+  (Optional)
+  The full resource name of the bitbucket server config.
+  Format: projects/{project}/locations/{location}/bitbucketServerConfigs/{id}.
 
 <a name="nested_trigger_template"></a>The `trigger_template` block supports:
 
