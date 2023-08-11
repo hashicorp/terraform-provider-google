@@ -3,9 +3,12 @@
 package acctest
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
@@ -149,4 +152,48 @@ func Nprintf(format string, params map[string]interface{}) string {
 		format = strings.Replace(format, "%{"+key+"}", fmt.Sprintf("%v", val), -1)
 	}
 	return format
+}
+
+func TestBucketName(t *testing.T) string {
+	return fmt.Sprintf("%s-%d", "tf-test-bucket", RandInt(t))
+}
+
+func CreateZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) string {
+	source, err := ioutil.ReadFile(sourcePath)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	// Create a buffer to write our archive to.
+	buf := new(bytes.Buffer)
+
+	// Create a new zip archive.
+	w := zip.NewWriter(buf)
+
+	f, err := w.Create("index.js")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	_, err = f.Write(source)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	// Make sure to check the error on Close.
+	err = w.Close()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	// Create temp file to write zip to
+	tmpfile, err := ioutil.TempFile("", "sourceArchivePrefix")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	if _, err := tmpfile.Write(buf.Bytes()); err != nil {
+		t.Fatal(err.Error())
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err.Error())
+	}
+	return tmpfile.Name()
 }

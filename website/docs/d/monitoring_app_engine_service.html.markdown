@@ -61,7 +61,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "object" {
   name   = "hello-world.zip"
   bucket = google_storage_bucket.bucket.name
-  source = "./test-fixtures/appengine/hello-world.zip"
+  source = "./test-fixtures/hello-world.zip"
 }
 
 ```

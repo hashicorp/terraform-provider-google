@@ -55,3 +55,15 @@ func serviceAccountCanonicalEmail(account string) string {
 func getResourceAttributes(n string, s *terraform.State) (map[string]string, error) {
 	return tpgresource.GetResourceAttributes(n, s)
 }
+
+// Deprecated: For backward compatibility testBucketName is still working,
+// but all new code should use TestBucketName in the acctest package instead.
+func testBucketName(t *testing.T) string {
+	return acctest.TestBucketName(t)
+}
+
+// Deprecated: For backward compatibility createZIPArchiveForCloudFunctionSource is still working,
+// but all new code should use CreateZIPArchiveForCloudFunctionSource in the acctest package instead.
+func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) string {
+	return acctest.CreateZIPArchiveForCloudFunctionSource(t, sourcePath)
+}
