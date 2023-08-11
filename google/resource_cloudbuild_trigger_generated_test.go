@@ -445,6 +445,54 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
 `, context)
 }
 
+func TestAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudBuildTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(context),
+			},
+			{
+				ResourceName:            "google_cloudbuild_trigger.manual-bitbucket-trigger",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudBuildTrigger_cloudbuildTriggerManualBitbucketServerExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloudbuild_trigger" "manual-bitbucket-trigger" {
+  name        = "terraform-manual-bbs-trigger"
+
+  source_to_build {
+    uri       = "https://bbs.com/scm/stag/test-repo.git"
+    ref       = "refs/heads/main"
+    repo_type = "BITBUCKET_SERVER"
+    bitbucket_server_config = "projects/myProject/locations/global/bitbucketServerConfigs/configID"
+  }
+
+  git_file_source {
+    path      = "cloudbuild.yaml"
+    uri       = "https://bbs.com/scm/stag/test-repo.git"
+    revision  = "refs/heads/main"
+    repo_type = "BITBUCKET_SERVER"
+    bitbucket_server_config = "projects/myProject/locations/global/bitbucketServerConfigs/configID"
+  }
+}
+`, context)
+}
+
 func TestAccCloudBuildTrigger_cloudbuildTriggerRepoExample(t *testing.T) {
 	t.Parallel()
 
