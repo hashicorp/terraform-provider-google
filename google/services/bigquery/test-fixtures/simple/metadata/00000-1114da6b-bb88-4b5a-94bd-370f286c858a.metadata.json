@@ -1,0 +1,70 @@
+{
+  "format-version": 1,
+  "table-uuid": "20f6c20d-d535-4c0c-be82-cb25d31e9250",
+  "location": "/home/iceberg/warehouse/simple",
+  "last-updated-ms": 1686356696798,
+  "last-column-id": 2,
+  "schema": {
+    "type": "struct",
+    "schema-id": 0,
+    "fields": [
+      {
+        "id": 1,
+        "name": "one",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "id": 2,
+        "name": "two",
+        "required": false,
+        "type": "long"
+      }
+    ]
+  },
+  "current-schema-id": 0,
+  "schemas": [
+    {
+      "type": "struct",
+      "schema-id": 0,
+      "fields": [
+        {
+          "id": 1,
+          "name": "one",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "id": 2,
+          "name": "two",
+          "required": false,
+          "type": "long"
+        }
+      ]
+    }
+  ],
+  "partition-spec": [],
+  "default-spec-id": 0,
+  "partition-specs": [
+    {
+      "spec-id": 0,
+      "fields": []
+    }
+  ],
+  "last-partition-id": 999,
+  "default-sort-order-id": 0,
+  "sort-orders": [
+    {
+      "order-id": 0,
+      "fields": []
+    }
+  ],
+  "properties": {
+    "owner": "root"
+  },
+  "current-snapshot-id": -1,
+  "refs": {},
+  "snapshots": [],
+  "snapshot-log": [],
+  "metadata-log": []
+}

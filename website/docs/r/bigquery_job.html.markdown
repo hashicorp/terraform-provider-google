@@ -253,7 +253,7 @@ resource "google_storage_bucket" "test" {
 
 resource "google_storage_bucket_object" "test" {
   name   =  "job_load_bucket_object"
-  source = "./test-fixtures/bigquerytable/test.parquet.gzip"
+  source = "./test-fixtures/test.parquet.gzip"
   bucket = google_storage_bucket.test.name
 }
 
