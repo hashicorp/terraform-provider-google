@@ -190,6 +190,144 @@ resource "google_dataproc_metastore_service" "telemetry" {
 `, context)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.dpms2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "dpms2" {
+  service_id = "dpms2%{random_suffix}"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    instance_size = "EXTRA_SMALL"
+  }
+}
+`, context)
+}
+
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
+  service_id = "dpms2sf%{random_suffix}"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    scaling_factor = "2"
+  }
+}
+`, context)
+}
+
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.dpms2_scaling_factor_lt1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
+  service_id = "dpms2sflt1%{random_suffix}"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    scaling_factor = "0.1"
+  }
+}
+`, context)
+}
+
 func testAccCheckDataprocMetastoreServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

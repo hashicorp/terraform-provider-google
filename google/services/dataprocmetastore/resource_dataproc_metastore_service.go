@@ -239,6 +239,29 @@ There must be at least one IP address available in the subnet's primary range. T
 				Description:  `The release channel of the service. If unspecified, defaults to 'STABLE'. Default value: "STABLE" Possible values: ["CANARY", "STABLE"]`,
 				Default:      "STABLE",
 			},
+			"scaling_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Represents the scaling configuration of a metastore service.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"instance_size": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ValidateFunc:  verify.ValidateEnum([]string{"EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", ""}),
+							Description:   `Metastore instance sizes. Possible values: ["EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE"]`,
+							ConflictsWith: []string{"tier"},
+							ExactlyOneOf:  []string{"scaling_config.0.instance_size", "scaling_config.0.scaling_factor"},
+						},
+						"scaling_factor": {
+							Type:        schema.TypeFloat,
+							Optional:    true,
+							Description: `Scaling factor, in increments of 0.1 for values less than 1.0, and increments of 1.0 for values greater than 1.0.`,
+						},
+					},
+				},
+			},
 			"telemetry_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -258,11 +281,12 @@ There must be at least one IP address available in the subnet's primary range. T
 				},
 			},
 			"tier": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DEVELOPER", "ENTERPRISE", ""}),
-				Description:  `The tier of the service. Possible values: ["DEVELOPER", "ENTERPRISE"]`,
+				Type:          schema.TypeString,
+				Computed:      true,
+				Optional:      true,
+				ValidateFunc:  verify.ValidateEnum([]string{"DEVELOPER", "ENTERPRISE", ""}),
+				Description:   `The tier of the service. Possible values: ["DEVELOPER", "ENTERPRISE"]`,
+				ConflictsWith: []string{"scaling_config"},
 			},
 			"artifact_gcs_uri": {
 				Type:        schema.TypeString,
@@ -336,6 +360,12 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(tierProp)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
+	}
+	scalingConfigProp, err := expandDataprocMetastoreServiceScalingConfig(d.Get("scaling_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scaling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(scalingConfigProp)) && (ok || !reflect.DeepEqual(v, scalingConfigProp)) {
+		obj["scalingConfig"] = scalingConfigProp
 	}
 	maintenanceWindowProp, err := expandDataprocMetastoreServiceMaintenanceWindow(d.Get("maintenance_window"), d, config)
 	if err != nil {
@@ -501,6 +531,9 @@ func resourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface
 	if err := d.Set("tier", flattenDataprocMetastoreServiceTier(res["tier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("scaling_config", flattenDataprocMetastoreServiceScalingConfig(res["scalingConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("maintenance_window", flattenDataprocMetastoreServiceMaintenanceWindow(res["maintenanceWindow"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -563,6 +596,12 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tierProp)) {
 		obj["tier"] = tierProp
 	}
+	scalingConfigProp, err := expandDataprocMetastoreServiceScalingConfig(d.Get("scaling_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scaling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scalingConfigProp)) {
+		obj["scalingConfig"] = scalingConfigProp
+	}
 	maintenanceWindowProp, err := expandDataprocMetastoreServiceMaintenanceWindow(d.Get("maintenance_window"), d, config)
 	if err != nil {
 		return err
@@ -606,6 +645,10 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("tier") {
 		updateMask = append(updateMask, "tier")
+	}
+
+	if d.HasChange("scaling_config") {
+		updateMask = append(updateMask, "scalingConfig")
 	}
 
 	if d.HasChange("maintenance_window") {
@@ -781,6 +824,29 @@ func flattenDataprocMetastoreServiceArtifactGcsUri(v interface{}, d *schema.Reso
 }
 
 func flattenDataprocMetastoreServiceTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["instance_size"] =
+		flattenDataprocMetastoreServiceScalingConfigInstanceSize(original["instanceSize"], d, config)
+	transformed["scaling_factor"] =
+		flattenDataprocMetastoreServiceScalingConfigScalingFactor(original["scalingFactor"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataprocMetastoreServiceScalingConfigInstanceSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataprocMetastoreServiceScalingConfigScalingFactor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -993,6 +1059,40 @@ func expandDataprocMetastoreServicePort(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandDataprocMetastoreServiceTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstanceSize, err := expandDataprocMetastoreServiceScalingConfigInstanceSize(original["instance_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstanceSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["instanceSize"] = transformedInstanceSize
+	}
+
+	transformedScalingFactor, err := expandDataprocMetastoreServiceScalingConfigScalingFactor(original["scaling_factor"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScalingFactor); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scalingFactor"] = transformedScalingFactor
+	}
+
+	return transformed, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigInstanceSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataprocMetastoreServiceScalingConfigScalingFactor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
