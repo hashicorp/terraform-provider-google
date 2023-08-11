@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc_metastore: added `scaling_config` field to `google_dataproc_metastore_service` resource
+```
