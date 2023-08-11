@@ -280,8 +280,8 @@ The following arguments are supported:
 
 * `enable_endpoint_independent_mapping` -
   (Optional)
-  Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
-  see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
+  Enable endpoint independent mapping.
+  For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
 
 * `region` -
   (Optional)

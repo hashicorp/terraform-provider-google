@@ -1,0 +1,4 @@
+```release-note:bug
+compute: used APIs default value for field `enable_endpoint_independent_mapping` in resource `google_compute_router_nat`
+
+```
