@@ -77,6 +77,50 @@ func TestAccContainerAwsCluster_BasicHandWritten(t *testing.T) {
 		},
 	})
 }
+func TestAccContainerAwsCluster_BasicEnumHandWritten(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"aws_acct_id":    "111111111111",
+		"aws_db_key":     "00000000-0000-0000-0000-17aad2f0f61f",
+		"aws_region":     "us-west-2",
+		"aws_sg":         "sg-0b3f63cb91b247628",
+		"aws_subnet":     "subnet-0b3f63cb91b247628",
+		"aws_vol_key":    "00000000-0000-0000-0000-17aad2f0f61f",
+		"aws_vpc":        "vpc-0b3f63cb91b247628",
+		"byo_prefix":     "mmv2",
+		"project_name":   envvar.GetTestProjectFromEnv(),
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"service_acct":   envvar.GetTestServiceAccountFromEnv(t),
+		"random_suffix":  acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerAwsClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerAwsCluster_BasicEnumHandWritten(context),
+			},
+			{
+				ResourceName:            "google_container_aws_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"fleet.0.project"},
+			},
+			{
+				Config: testAccContainerAwsCluster_BasicEnumHandWrittenUpdate0(context),
+			},
+			{
+				ResourceName:            "google_container_aws_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"fleet.0.project"},
+			},
+		},
+	})
+}
 
 func testAccContainerAwsCluster_BasicHandWritten(context map[string]interface{}) string {
 	return acctest.Nprintf(`
@@ -220,6 +264,186 @@ resource "google_container_aws_cluster" "primary" {
       kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_vol_key}"
       size_gib    = 10
       volume_type = "GP3"
+    }
+
+    security_group_ids = ["%{aws_sg}"]
+
+    ssh_config {
+      ec2_key_pair = "%{byo_prefix}-1p-dev-ssh"
+    }
+
+    tags = {
+      owner = "%{service_acct}"
+    }
+  }
+
+  fleet {
+    project = "%{project_number}"
+  }
+
+  location = "us-west1"
+  name     = "tf-test-name%{random_suffix}"
+
+  networking {
+    pod_address_cidr_blocks     = ["10.2.0.0/16"]
+    service_address_cidr_blocks = ["10.1.0.0/16"]
+    vpc_id                      = "%{aws_vpc}"
+  }
+
+  annotations = {
+    label-two = "value-two"
+  }
+
+  description = "An updated sample aws cluster"
+  project     = "%{project_name}"
+}
+
+
+`, context)
+}
+
+func testAccContainerAwsCluster_BasicEnumHandWritten(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_container_aws_versions" "versions" {
+  project = "%{project_name}"
+  location = "us-west1"
+}
+
+resource "google_container_aws_cluster" "primary" {
+  authorization {
+    admin_users {
+      username = "%{service_acct}"
+    }
+  }
+
+  aws_region = "%{aws_region}"
+
+  control_plane {
+    aws_services_authentication {
+      role_arn          = "arn:aws:iam::%{aws_acct_id}:role/%{byo_prefix}-1p-dev-oneplatform"
+      role_session_name = "%{byo_prefix}-1p-dev-session"
+    }
+
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_db_key}"
+    }
+
+    database_encryption {
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_db_key}"
+    }
+
+    iam_instance_profile = "%{byo_prefix}-1p-dev-controlplane"
+    subnet_ids           = ["%{aws_subnet}"]
+    version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+    instance_type        = "t3.medium"
+
+    main_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_vol_key}"
+      size_gib    = 10
+      volume_type = "gp3"
+    }
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_vol_key}"
+      size_gib    = 10
+      volume_type = "gp3"
+    }
+
+    security_group_ids = ["%{aws_sg}"]
+
+    ssh_config {
+      ec2_key_pair = "%{byo_prefix}-1p-dev-ssh"
+    }
+
+    tags = {
+      owner = "%{service_acct}"
+    }
+  }
+
+  fleet {
+    project = "%{project_number}"
+  }
+
+  location = "us-west1"
+  name     = "tf-test-name%{random_suffix}"
+
+  networking {
+    pod_address_cidr_blocks     = ["10.2.0.0/16"]
+    service_address_cidr_blocks = ["10.1.0.0/16"]
+    vpc_id                      = "%{aws_vpc}"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+
+  description = "A sample aws cluster"
+  project     = "%{project_name}"
+}
+
+
+`, context)
+}
+
+func testAccContainerAwsCluster_BasicEnumHandWrittenUpdate0(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_container_aws_versions" "versions" {
+  project = "%{project_name}"
+  location = "us-west1"
+}
+
+resource "google_container_aws_cluster" "primary" {
+  authorization {
+    admin_users {
+      username = "%{service_acct}"
+    }
+  }
+
+  aws_region = "%{aws_region}"
+
+  control_plane {
+    aws_services_authentication {
+      role_arn          = "arn:aws:iam::%{aws_acct_id}:role/%{byo_prefix}-1p-dev-oneplatform"
+      role_session_name = "%{byo_prefix}-1p-dev-session"
+    }
+
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_db_key}"
+    }
+
+    database_encryption {
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_db_key}"
+    }
+
+    iam_instance_profile = "%{byo_prefix}-1p-dev-controlplane"
+    subnet_ids           = ["%{aws_subnet}"]
+    version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+    instance_type        = "t3.medium"
+
+    main_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_vol_key}"
+      size_gib    = 10
+      volume_type = "gp3"
+    }
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:%{aws_region}:%{aws_acct_id}:key/%{aws_vol_key}"
+      size_gib    = 10
+      volume_type = "gp3"
     }
 
     security_group_ids = ["%{aws_sg}"]
