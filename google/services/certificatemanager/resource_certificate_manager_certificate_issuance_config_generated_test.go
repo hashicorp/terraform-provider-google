@@ -58,7 +58,7 @@ func TestAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertif
 func testAccCertificateManagerCertificateIssuanceConfig_certificateManagerCertificateIssuanceConfigExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_certificate_manager_certificate_issuance_config" "default" {
-  name    = "issuanceconfigtestterraform"
+  name    = "tf-test-issuance-config%{random_suffix}"
   description = "sample description for the certificate issuanceConfigs"
   certificate_authority_config {
     certificate_authority_service_config {
@@ -74,7 +74,7 @@ resource "google_certificate_manager_certificate_issuance_config" "default" {
 }
   
 resource "google_privateca_ca_pool" "pool" {
-  name     = "tf-test-my-ca-pool%{random_suffix}"
+  name     = "tf-test-ca-pool%{random_suffix}"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -82,7 +82,7 @@ resource "google_privateca_ca_pool" "pool" {
 resource "google_privateca_certificate_authority" "ca_authority" {
   location = "us-central1"
   pool = google_privateca_ca_pool.pool.name
-  certificate_authority_id = "tf-test-my-ca%{random_suffix}"
+  certificate_authority_id = "tf-test-ca-authority%{random_suffix}"
   config {
     subject_config {
       subject {
