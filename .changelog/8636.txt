@@ -1,0 +1,3 @@
+```release-note:none
+docs: added the breaking change of the resource `google_firebaserules_release` to the 5.0.0 guides
+```
