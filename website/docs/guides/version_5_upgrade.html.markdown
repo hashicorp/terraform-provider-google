@@ -114,6 +114,60 @@ Description of the change and how users should adjust their configuration (if ne
 
 The provider will now enforce at plan time that at most one of these fields be set.
 
+## Resource: `google_firebaserules_release`
+
+### Changing `ruleset_name` now triggers replacement
+
+In 4.X.X, changing the `ruleset_name` in `google_firebaserules_release` updates the `Release` in place, which prevents the old `Ruleset` referred to by `ruleset_name` from being destroyed. A workaround is to use a `replace_triggered_by` lifecycle field on the `google_firebaserules_release`. In version 5.0.0, changing `ruleset_name` will trigger a replacement, which allows the `Ruleset` to be deleted. The `replace_triggered_by` workaround becomes unnecessary.
+
+#### Old Config
+
+```hcl
+resource "google_firebaserules_release" "primary" {
+  name         = "cloud.firestore"
+  ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
+  project      = "my-project-name"
+
+  lifecycle {
+    replace_triggered_by = [
+      google_firebaserules_ruleset.firestore
+    ]
+  }
+}
+
+resource "google_firebaserules_ruleset" "firestore" {
+  source {
+    files {
+      content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
+      name    = "firestore.rules"
+    }
+  }
+
+  project = "my-project-name"
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_firebaserules_release" "primary" {
+  name         = "cloud.firestore"
+  ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
+  project      = "my-project-name"
+}
+
+resource "google_firebaserules_ruleset" "firestore" {
+  source {
+    files {
+      content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
+      name    = "firestore.rules"
+    }
+  }
+
+  project = "my-project-name"
+}
+```
+
 ## Resource: `google_firebase_web_app`
 
 ### `deletion_policy` now defaults to `DELETE`
