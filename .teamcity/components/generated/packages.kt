@@ -58,6 +58,6 @@ var sweepers = mapOf(
     "sweeper" to mapOf(
         "name" to "sweeper",
         "displayName" to "Sweeper",
-        "path" to "./google"
+        "path" to "./google/sweeper"
     )
 )
