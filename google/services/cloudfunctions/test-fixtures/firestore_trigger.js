@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+/**
  * Background Cloud Function to be triggered by Firestore.
  *
  * @param {object} event The Cloud Functions event.

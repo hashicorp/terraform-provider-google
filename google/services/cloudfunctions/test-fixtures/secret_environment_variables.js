@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+/**
  * HTTP Cloud Function for testing environment variable Secrets.
  */
 exports.echoSecret = (req, res) => {
