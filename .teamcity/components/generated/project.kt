@@ -48,6 +48,15 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
 
             buildType(postSweeperConfig)
         }
+
+        // Set the configuration parameter BRANCH_NAME in the project, used to control the default branch of the VCS Root
+        // The value we set here is taken from a context parameter (see .teamcity/settings.kts file)
+        // The VCS root's default branch is set to `%BRANCH_NAME%` to make it controlled by those values.
+        // Adding this allows custom builds to use alternative branches. E.g. testing release branches in the downstreams
+
+        params {
+            param("BRANCH_NAME", branchRef)
+        }
     }
 }
 
