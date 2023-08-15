@@ -1,0 +1,4 @@
+```release-note:enhancement
+dns: added `globalL7ilb` enum support to the `routing_policy.load_balancer_type` field in `google_dns_record_set`
+
+```
