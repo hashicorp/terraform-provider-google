@@ -72,6 +72,13 @@ If language=SQL, it is the substring inside (but excluding) the parentheses.`,
 				Description: `The ID of the the routine. The ID must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum length is 256 characters.`,
 			},
 
+			"routine_type": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"}),
+				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"]`,
+			},
 			"arguments": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -163,13 +170,6 @@ changed. If the API returns a different value for the same schema, e.g. it switc
 d the order of values or replaced STRUCT field type with RECORD field type, we currently
 cannot suppress the recurring diff this causes. As a workaround, we recommend using
 the schema as returned by the API.`,
-			},
-			"routine_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION", ""}),
-				Description:  `The type of routine. Possible values: ["SCALAR_FUNCTION", "PROCEDURE", "TABLE_VALUED_FUNCTION"]`,
 			},
 			"creation_time": {
 				Type:     schema.TypeInt,

@@ -125,6 +125,11 @@ The following arguments are supported:
   (Required)
   The ID of the the routine. The ID must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum length is 256 characters.
 
+* `routine_type` -
+  (Required)
+  The type of routine.
+  Possible values are: `SCALAR_FUNCTION`, `PROCEDURE`, `TABLE_VALUED_FUNCTION`.
+
 * `definition_body` -
   (Required)
   The body of the routine. For functions, this is the expression in the AS clause.
@@ -133,11 +138,6 @@ The following arguments are supported:
 
 - - -
 
-
-* `routine_type` -
-  (Optional)
-  The type of routine.
-  Possible values are: `SCALAR_FUNCTION`, `PROCEDURE`, `TABLE_VALUED_FUNCTION`.
 
 * `language` -
   (Optional)
