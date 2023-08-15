@@ -891,6 +891,24 @@ In addition to the arguments listed above, the following computed attributes are
 * `generation` -
   A number that monotonically increases every time the user modifies the desired state. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a string instead of an integer.
 
+* `create_time` -
+  The creation time.
+
+* `update_time` -
+  The last-modified time.
+
+* `delete_time` -
+  The deletion time.
+
+* `expire_time` -
+  For a deleted resource, the time after which it will be permamently deleted.
+
+* `creator` -
+  Email address of the authenticated creator.
+
+* `last_modifier` -
+  Email address of the last authenticated modifier.
+
 * `observed_generation` -
   The generation of this Service currently serving traffic. See comments in reconciling for additional information on reconciliation process in Cloud Run. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a string instead of an integer.
 

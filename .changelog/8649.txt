@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrunv2: Added the following output only fields to `google_cloud_run_v2_job` resource: `create_time`, `update_time`, `delete_time`, `expire_time`, `creator` and `last_modifier`.
+```
+```release-note:enhancement
+cloudrunv2: Added the following output only fields to `google_cloud_run_v2_service` resource: `create_time`, `update_time`, `delete_time`, `expire_time`, `creator` and `last_modifier`.
+```

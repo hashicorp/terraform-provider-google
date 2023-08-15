@@ -680,6 +680,21 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 					},
 				},
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time.`,
+			},
+			"creator": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Email address of the authenticated creator.`,
+			},
+			"delete_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The deletion time.`,
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -690,10 +705,20 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 				Computed:    true,
 				Description: `Number of executions created for this job.`,
 			},
+			"expire_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `For a deleted resource, the time after which it will be permamently deleted.`,
+			},
 			"generation": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `A number that monotonically increases every time the user modifies the desired state.`,
+			},
+			"last_modifier": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Email address of the last authenticated modifier.`,
 			},
 			"latest_created_execution": {
 				Type:        schema.TypeList,
@@ -794,6 +819,11 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Server assigned unique identifier for the Execution. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The last-modified time.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -971,6 +1001,24 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err := d.Set("annotations", flattenCloudRunV2JobAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("create_time", flattenCloudRunV2JobCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("update_time", flattenCloudRunV2JobUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("delete_time", flattenCloudRunV2JobDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("expire_time", flattenCloudRunV2JobExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("creator", flattenCloudRunV2JobCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("last_modifier", flattenCloudRunV2JobLastModifier(res["lastModifier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
 	if err := d.Set("client", flattenCloudRunV2JobClient(res["client"], d, config)); err != nil {
@@ -1197,6 +1245,30 @@ func flattenCloudRunV2JobLabels(v interface{}, d *schema.ResourceData, config *t
 }
 
 func flattenCloudRunV2JobAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobDeleteTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobCreator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobLastModifier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
