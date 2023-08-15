@@ -1,4 +1,34 @@
-## 4.78.0 (Unreleased)
+## 4.79.0 (Unreleased)
+
+## 4.78.0 (August 15, 2023)
+
+FEATURES:
+* **New Resource:** `google_billing_project_info` ([#15400](https://github.com/hashicorp/terraform-provider-google/pull/15400))
+* **New Resource:** `google_network_connectivity_service_connection_policy` ([#15381](https://github.com/hashicorp/terraform-provider-google/pull/15381))
+
+IMPROVEMENTS:
+* alloydb: added `continuous_backup_config` and `continuous_backup_info` fields to `cluster` resource ([#15370](https://github.com/hashicorp/terraform-provider-google/pull/15370))
+* bigquery: added `external_data_configuration.file_set_spec_type` to `google_bigquery_table` ([#15402](https://github.com/hashicorp/terraform-provider-google/pull/15402))
+* bigquery: added `max_staleness` to `google_bigquery_table` ([#15395](https://github.com/hashicorp/terraform-provider-google/pull/15395))
+* billingbudget: added `resource_ancestors` field to `google_billing_budget` resource ([#15393](https://github.com/hashicorp/terraform-provider-google/pull/15393))
+* cloudfunctions2: added support for GCF Gen2 CMEK ([#15385](https://github.com/hashicorp/terraform-provider-google/pull/15385))
+* cloudidentity: added field `type` to `google_cloud_identity_group_memberships` ([#15398](https://github.com/hashicorp/terraform-provider-google/pull/15398))
+* compute: added `subnetwork` field to the resource `google_compute_global_forwarding_rule` ([#15424](https://github.com/hashicorp/terraform-provider-google/pull/15424))
+* compute: added support for `INTERNAL_MANAGED` to the field `load_balancing_scheme` in the resource `google_compute_backend_service` ([#15424](https://github.com/hashicorp/terraform-provider-google/pull/15424))
+* compute: added support for `INTERNAL_MANAGED` to the field `load_balancing_scheme` in the resource `google_compute_global_forwarding_rule` ([#15424](https://github.com/hashicorp/terraform-provider-google/pull/15424))
+* compute: added support for `ip_version` to `google_compute_forwarding_rule` ([#15388](https://github.com/hashicorp/terraform-provider-google/pull/15388))
+* container: marked `master_ipv4_cidr_block` as not required when `private_endpoint_subnetwork` is provided for `google_container_cluster` ([#15422](https://github.com/hashicorp/terraform-provider-google/pull/15422))
+* container: added support for `advanced_datapath_observability_config` to `google_container_cluster` ([#15425](https://github.com/hashicorp/terraform-provider-google/pull/15425))
+* eventarc: added field `event_data_content_type` to `google_eventarc_trigger` ([#15433](https://github.com/hashicorp/terraform-provider-google/pull/15433))
+* healthcare: added `send_previous_resource_on_delete` field to `notification_configs` of `google_healthcare_fhir_store` ([#15380](https://github.com/hashicorp/terraform-provider-google/pull/15380))
+* pubsub: added `cloud_storage_config` field to `google_pubsub_subscription` resource ([#15420](https://github.com/hashicorp/terraform-provider-google/pull/15420))
+* secretmanager: added `annotations` field to `google_secret_manager_secret` resource ([#15392](https://github.com/hashicorp/terraform-provider-google/pull/15392))
+
+BUG FIXES:
+* certificatemanager: added recreation behavior to the `google_certificate_manager_certificate` resource when its location changes ([#15432](https://github.com/hashicorp/terraform-provider-google/pull/15432))
+* cloudfunctions2: fixed creation failure state inconsistency in `google_cloudfunctions2_function` ([#15418](https://github.com/hashicorp/terraform-provider-google/pull/15418))
+* monitoring: updated `evaluation_interval` on `condition_prometheus_query_language` to be optional ([#15429](https://github.com/hashicorp/terraform-provider-google/pull/15429))
+
 ## 4.77.0 (August 7, 2023)
 
 NOTES:
