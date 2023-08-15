@@ -47,9 +47,10 @@ func TestAccBigQueryDataset_bigqueryDatasetBasicExample(t *testing.T) {
 				Config: testAccBigQueryDataset_bigqueryDatasetBasicExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.dataset",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -101,9 +102,10 @@ func TestAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(t *test
 				Config: testAccBigQueryDataset_bigqueryDatasetWithMaxTimeTravelHoursExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.dataset",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -156,9 +158,10 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(t *testing.T
 				Config: testAccBigQueryDataset_bigqueryDatasetAuthorizedDatasetExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.dataset",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -243,9 +246,10 @@ func TestAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(t *testing.T
 				Config: testAccBigQueryDataset_bigqueryDatasetAuthorizedRoutineExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.private",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.private",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -310,9 +314,10 @@ func TestAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(t *testin
 				Config: testAccBigQueryDataset_bigqueryDatasetCaseInsensitiveNamesExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.dataset",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -365,9 +370,10 @@ func TestAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(t *testing
 				Config: testAccBigQueryDataset_bigqueryDatasetDefaultCollationSetExample(context),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.dataset",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

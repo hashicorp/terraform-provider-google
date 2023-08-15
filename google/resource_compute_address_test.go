@@ -20,11 +20,10 @@ func TestAccComputeAddress_networkTier(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_networkTier(acctest.RandString(t, 10)),
-			},
-			{
-				ResourceName:      "google_compute_address.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "effective_labels.%"),
+				),
 			},
 		},
 	})
