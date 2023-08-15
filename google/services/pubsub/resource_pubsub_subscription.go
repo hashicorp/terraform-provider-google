@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -173,9 +172,8 @@ If all three are empty, then the subscriber will pull and ack messages using API
 							Description: `User-provided suffix for Cloud Storage filename. Must not end in "/".`,
 						},
 						"max_bytes": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(1000, 10737418240),
+							Type:     schema.TypeInt,
+							Optional: true,
 							Description: `The maximum bytes that can be written to a Cloud Storage file before a new file is created. Min 1 KB, max 10 GiB.
 The maxBytes limit may be exceeded in cases where messages are larger than the limit.`,
 						},
