@@ -48,7 +48,7 @@ func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 
 // suppress on a list when 1) its items have dups that need to be ignored
 // and 2) string comparison on the items may need a special parse function
-// example of usage can be found ../../../third_party/terraform/tests/resource_dns_record_set_test.go.erb
+// example of usage can be found ../../../third_party/terraform/services/dns/resource_dns_record_set_test.go.erb
 func RrdatasListDiffSuppress(oldList, newList []string, fun func(x string) string, _ *schema.ResourceData) bool {
 	// compare two lists of unordered records
 	diff := make(map[string]bool, len(oldList))
