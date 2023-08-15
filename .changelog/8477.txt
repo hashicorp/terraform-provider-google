@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_region_security_policy_rule`
+```
+```release-note:enhancement
+compute: added support for `user_defined_fields` to `google_compute_region_security_policy`
+```
