@@ -256,6 +256,7 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 	t.Parallel()
 
 	networkName := fmt.Sprintf("tf-test-network-%s", acctest.RandString(t, 10))
+	backendSubnetName := fmt.Sprintf("tf-test-backend-subnet-%s", acctest.RandString(t, 10))
 	proxySubnetName := fmt.Sprintf("tf-test-proxy-subnet-%s", acctest.RandString(t, 10))
 	httpHealthCheckName := fmt.Sprintf("tf-test-http-health-check-%s", acctest.RandString(t, 10))
 	backendName := fmt.Sprintf("tf-test-backend-%s", acctest.RandString(t, 10))
@@ -297,6 +298,15 @@ func TestAccDNSRecordSet_routingPolicy(t *testing.T) {
 			},
 			{
 				Config: testAccDnsRecordSet_routingPolicyRegionalL7PrimaryBackup(networkName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccDnsRecordSet_routingPolicyCrossRegionL7PrimaryBackup(networkName, backendSubnetName, proxySubnetName, httpHealthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, 300),
 			},
 			{
 				ResourceName:      "google_dns_record_set.foobar",
@@ -826,6 +836,108 @@ resource "google_dns_record_set" "foobar" {
   }
 }
 `, networkName, proxySubnetName, healthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
+}
+
+func testAccDnsRecordSet_routingPolicyCrossRegionL7PrimaryBackup(networkName, backendSubnetName, proxySubnetName, healthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName string, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "default" {
+  name = "%s"
+}
+
+resource "google_compute_subnetwork" "backend_subnet" {
+  name          = "%s"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "%s"
+  ip_cidr_range = "10.100.0.0/24"
+  region        = "us-central1"
+  purpose       = "GLOBAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_health_check" "health_check" {
+  name   = "%s"
+
+  http_health_check {
+    port = 80
+  }
+}
+
+resource "google_compute_backend_service" "backend" {
+  name                  = "%s"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  protocol              = "HTTP"
+  health_checks         = [google_compute_health_check.health_check.id]
+}
+
+resource "google_compute_url_map" "url_map" {
+  name            = "%s"
+  default_service = google_compute_backend_service.backend.id
+}
+
+resource "google_compute_target_http_proxy" "http_proxy" {
+  name    = "%s"
+  url_map = google_compute_url_map.url_map.id
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "%s"
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  target                = google_compute_target_http_proxy.http_proxy.id
+  port_range            = "80"
+  network               = google_compute_network.default.name
+  subnetwork            = google_compute_subnetwork.backend_subnet.name
+  ip_protocol           = "TCP"
+}
+
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+  visibility = "private"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = "test-record.%s.hashicorptest.com."
+  type         = "A"
+  ttl          = %d
+
+  routing_policy {
+    primary_backup {
+      trickle_ratio                  = 0.1
+      enable_geo_fencing_for_backups = true
+
+      primary {
+        internal_load_balancers {
+          load_balancer_type = "globalL7ilb"
+          ip_address         = google_compute_global_forwarding_rule.default.ip_address
+          port               = "80"
+          ip_protocol        = "tcp"
+          network_url        = google_compute_network.default.id
+          project            = google_compute_global_forwarding_rule.default.project
+        }
+      }
+
+      backup_geo {
+        location = "us-west1"
+        rrdatas  = ["1.2.3.4"]
+      }
+
+      backup_geo {
+        location = "asia-east1"
+        rrdatas  = ["5.6.7.8"]
+      }
+    }
+  }
+}
+`, networkName, backendSubnetName, proxySubnetName, healthCheckName, backendName, urlMapName, httpProxyName, forwardingRuleName, zoneName, zoneName, zoneName, ttl)
 }
 
 func testAccDnsRecordSet_interpolated(zoneName string) string {
