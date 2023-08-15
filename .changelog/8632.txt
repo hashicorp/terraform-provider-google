@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: added `defaultSearchHandlingStrict` field to `google_healthcare_fhir_store` resource
+```
