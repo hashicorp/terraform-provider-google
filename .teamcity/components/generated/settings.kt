@@ -26,3 +26,4 @@ const val defaultBuildTimeoutDuration = 60 * 12 //12 hours in minutes
 // Values that `environment` parameter is checked against,
 // when deciding to change how TeamCity objects are configured
 const val MAJOR_RELEASE_TESTING = "major-release-5.0.0-testing"
+const val MM_UPSTREAM = "mm-upstream"
