@@ -1,0 +1,3 @@
+```release-note:note
+bigquery: added google_bigquery_table to version 5 upgrade doc for #8573.
+```

@@ -118,6 +118,12 @@ The provider will now enforce at plan time that at most one of these fields be s
 
 The provider will now enforce at plan time that `schema` is a valid JSON array with non-null elements.
 
+## Resource: `google_bigquery_routine`
+
+### `routine_type` is now required.
+
+The provider will now enforce at plan time that `routine_type` be set.
+
 ## Resource: `google_firebaserules_release`
 
 ### Changing `ruleset_name` now triggers replacement
