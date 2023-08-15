@@ -68,6 +68,37 @@ resource "google_compute_region_security_policy" "region-sec-policy-ddos-protect
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_security_policy_with_user_defined_fields&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Security Policy With User Defined Fields
+
+
+```hcl
+resource "google_compute_region_security_policy" "region-sec-policy-user-defined-fields" {
+  provider    = google-beta  
+
+  name        = "my-sec-policy-user-defined-fields"
+  description = "with user defined fields"
+  type        = "CLOUD_ARMOR_NETWORK"
+  user_defined_fields {
+    name = "SIG1_AT_0"
+    base = "UDP"
+    offset = 8
+    size = 2
+    mask = "0x8F00"
+  }
+  user_defined_fields {
+    name = "SIG2_AT_8"
+    base = "UDP"
+    offset = 16
+    size = 4
+    mask = "0xFFFFFFFF"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -101,6 +132,13 @@ The following arguments are supported:
   Configuration for Google Cloud Armor DDOS Proctection Config.
   Structure is [documented below](#nested_ddos_protection_config).
 
+* `user_defined_fields` -
+  (Optional)
+  Definitions of user-defined fields for CLOUD_ARMOR_NETWORK policies.
+  A user-defined field consists of up to 4 bytes extracted from a fixed offset in the packet, relative to the IPv4, IPv6, TCP, or UDP header, with an optional mask to select certain bits.
+  Rules may then specify matching values for these fields.
+  Structure is [documented below](#nested_user_defined_fields).
+
 * `region` -
   (Optional)
   The Region in which the created Region Security Policy should reside.
@@ -119,6 +157,35 @@ The following arguments are supported:
   - ADVANCED: additional protections for Managed Protection Plus subscribers who use network load balancers, protocol forwarding, or VMs with public IP addresses.
   - ADVANCED_PREVIEW: flag to enable the security policy in preview mode.
   Possible values are: `ADVANCED`, `ADVANCED_PREVIEW`, `STANDARD`.
+
+<a name="nested_user_defined_fields"></a>The `user_defined_fields` block supports:
+
+* `name` -
+  (Optional)
+  The name of this field. Must be unique within the policy.
+
+* `base` -
+  (Required)
+  The base relative to which 'offset' is measured. Possible values are:
+  - IPV4: Points to the beginning of the IPv4 header.
+  - IPV6: Points to the beginning of the IPv6 header.
+  - TCP: Points to the beginning of the TCP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments.
+  - UDP: Points to the beginning of the UDP header, skipping over any IPv4 options or IPv6 extension headers. Not present for non-first fragments.
+  Possible values are: `IPV4`, `IPV6`, `TCP`, `UDP`.
+
+* `offset` -
+  (Optional)
+  Offset of the first byte of the field (in network byte order) relative to 'base'.
+
+* `size` -
+  (Optional)
+  Size of the field in bytes. Valid values: 1-4.
+
+* `mask` -
+  (Optional)
+  If specified, apply this mask (bitwise AND) to the field to ignore bits before matching.
+  Encoded as a hexadecimal number (starting with "0x").
+  The last byte of the field (in network byte order) corresponds to the least significant byte of the mask.
 
 ## Attributes Reference
 
