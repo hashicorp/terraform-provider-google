@@ -1,6 +1,6 @@
 ---
 subcategory: "Apigee"
-page_title: "Google: google_apigee_shared_flow"
+page_title: "Google: google_apigee_sharedflow"
 description: |-
   You can combine policies and resources into a shared flow that you can consume from multiple API proxies, and even from other shared flows.
 ---
@@ -89,6 +89,6 @@ This resource provides the following
 SharedFlow can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_apigee_shared_flow.default {{org_id}}/sharedflows/{{name}}
+$ terraform import google_apigee_sharedflow.default {{org_id}}/sharedflows/{{name}}
 $ terraform import google_apigee_sharedflow.default {{org_id}}/{{name}}
 ```
