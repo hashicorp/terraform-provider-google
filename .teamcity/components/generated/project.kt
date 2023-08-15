@@ -22,9 +22,12 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
     val preSweeperConfig = buildConfigurationForSweeper("Pre-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
     val postSweeperConfig = buildConfigurationForSweeper("Post-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
 
-    // Add trigger to last step of build chain (post-sweeper)
-    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
-    postSweeperConfig.addTrigger(triggerConfig)
+    // Add trigger to last step of build chain (post-sweeper) if the project allows
+    if (ShouldAddTrigger(environment)){
+        val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
+        postSweeperConfig.addTrigger(triggerConfig)
+    }
+
     
     return Project{
 
@@ -56,6 +59,9 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
 
         params {
             param("BRANCH_NAME", branchRef)
+            
+            // Not used, but making `environment` a param makes the value visible to non-admins in TeamCity
+            param("ENVIRONMENT", environment)
         }
     }
 }
@@ -83,6 +89,16 @@ fun buildConfigurationForSweeper(sweeperName: String, packages: Map<String, Map<
     val s = sweeperDetails()
 
     return s.sweeperBuildConfig(sweeperName, sweeperPath, providerName, manualVcsRoot, defaultParallelism, environmentVariables)
+}
+
+fun ShouldAddTrigger(environment: String): Boolean {
+    if (environment == MM_UPSTREAM) {
+        // The 'MM uptream' projects are only ever used for ad hoc builds,
+        // never run on a schedule, so no cron trigger is needed
+        return false
+    }
+
+    return true
 }
 
 class NightlyTriggerConfiguration(environment: String, branchRef: String, nightlyTestsEnabled: Boolean = true, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {

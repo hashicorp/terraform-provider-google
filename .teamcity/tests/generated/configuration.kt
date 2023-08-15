@@ -15,7 +15,7 @@ import useTeamCityGoTest
 class ConfigurationTests {
     @Test
     fun buildShouldFailOnError() {
-        val project = Google("default", TestVcsRootId(), "refs/heads/main", TestConfiguration())
+        val project = Google("default", testVcsRootId(), "refs/heads/main", testConfiguration())
         project.buildTypes.forEach { bt ->
             assertTrue("Build '${bt.id}' should fail on errors!", bt.failureConditions.errorMessage)
         }
@@ -23,7 +23,7 @@ class ConfigurationTests {
 
     @Test
     fun buildShouldHaveGoTestFeature() {
-        val project = Google("default",  TestVcsRootId(), "refs/heads/main",TestConfiguration())
+        val project = Google("default",  testVcsRootId(), "refs/heads/main",testConfiguration())
         project.buildTypes.forEach{ bt ->
             var exists = false
             bt.features.items.forEach { f ->
@@ -42,7 +42,7 @@ class ConfigurationTests {
     // Once I have the ability to run tests I'll address this - writing new tests for the new config
     // @Test
     // fun buildShouldHaveTrigger() {
-    //     val project = Google("default",  TestVcsRootId(), "refs/heads/main", TestConfiguration())
+    //     val project = Google("default",  testVcsRootId(), "refs/heads/main", testConfiguration())
     //     var exists = false
     //     project.buildTypes.forEach{ bt ->
     //         bt.triggers.items.forEach { t ->

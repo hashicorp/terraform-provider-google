@@ -7,14 +7,29 @@
 
 package tests
 
-import jetbrains.buildServer.configs.kotlin.AbsoluteId
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
+import org.junit.Test
+import ShouldAddTrigger
+import MM_UPSTREAM
+import MAJOR_RELEASE_TESTING
 
-import ClientConfiguration
+class HelperTests {
+    @Test
+    fun funShouldAddTrigger_random_string() {
+        val environment = "foobar"
+        assertTrue("Cron triggers should be added to projects with a random environment value" , ShouldAddTrigger(environment))
+    }
 
-fun TestConfiguration() : ClientConfiguration {
-    return ClientConfiguration("custId", "org", "org2", "billingAccount", "billingAccount2", "masterBillingAccount", "credentials", "project", "orgDomain", "projectNumber", "region", "serviceAccount", "zone", "firestoreProject", "identityUser")
-}
+    @Test
+    fun funShouldAddTrigger_MAJOR_RELEASE_TESTING() {
+        val environment = MAJOR_RELEASE_TESTING
+        assertTrue("Cron triggers should be added to projects used for testing the 5.0.0 major release" , ShouldAddTrigger(environment))
+    }
 
-fun TestVcsRootId() : AbsoluteId {
-    return AbsoluteId("TerraformProviderFoobar")
+    @Test
+    fun funShouldAddTrigger_MM_UPSTREAM() {
+        val environment = MM_UPSTREAM
+        assertFalse("Cron triggers should NOT be added to projects using the MM upstream repo" , ShouldAddTrigger(environment))
+    }
 }
