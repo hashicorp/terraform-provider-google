@@ -44,10 +44,11 @@ resource "google_healthcare_fhir_store" "default" {
   version = "R4"
   complex_data_type_reference_parsing = "DISABLED"
 
-  enable_update_create          = false
-  disable_referential_integrity = false
-  disable_resource_versioning   = false
-  enable_history_import         = false
+  enable_update_create           = false
+  disable_referential_integrity  = false
+  disable_resource_versioning    = false
+  enable_history_import          = false
+  default_search_handling_strict = false
 
   notification_config {
     pubsub_topic = google_pubsub_topic.topic.id
@@ -293,6 +294,12 @@ The following arguments are supported:
   bigquery.dataEditor role to your project's Cloud Healthcare Service Agent service account. Some lag (typically on
   the order of dozens of seconds) is expected before the results show up in the streaming destination.
   Structure is [documented below](#nested_stream_configs).
+
+* `default_search_handling_strict` -
+  (Optional)
+  If true, overrides the default search behavior for this FHIR store to handling=strict which returns an error for unrecognized search parameters.
+  If false, uses the FHIR specification default handling=lenient which ignores unrecognized search parameters.
+  The handling can always be changed from the default on an individual API call by setting the HTTP header Prefer: handling=strict or Prefer: handling=lenient.
 
 * `notification_configs` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
