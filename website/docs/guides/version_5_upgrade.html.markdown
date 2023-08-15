@@ -205,3 +205,8 @@ it will use the default value from the API which is `FALSE`. If you want to
 enable endpoint independent mapping, then explicity set the value of
 `enable_endpoint_independent_mapping` field to `TRUE`.
 
+## Resource: `google_compute_autoscaler` (beta)
+
+### `metric.filter` now defaults to `resource.type = gce_instance`
+
+Previously, `metric.filter` doesn't have the defult value and causes a UI error.
