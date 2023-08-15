@@ -58,6 +58,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `project` -
   (Optional)
@@ -73,6 +75,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. The time the hub was created.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `routing_vpcs` -
   The VPC network associated with this hub's spokes. All of the VPN tunnels, VLAN attachments, and router appliance instances referenced by this hub's spokes must belong to this VPC network. This field is read-only. Network Connectivity Center automatically populates it based on the set of spokes attached to the hub.

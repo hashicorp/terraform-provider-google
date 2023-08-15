@@ -92,7 +92,7 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.",
+				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -126,6 +126,12 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time template was created.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"update_time": {
@@ -2189,7 +2195,7 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	if err = d.Set("dag_timeout", res.DagTimeout); err != nil {
 		return fmt.Errorf("error setting dag_timeout in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenDataprocWorkflowTemplateLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("parameters", flattenDataprocWorkflowTemplateParametersArray(res.Parameters)); err != nil {
@@ -2203,6 +2209,9 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("error setting update_time in state: %s", err)
@@ -4082,6 +4091,22 @@ func flattenDataprocWorkflowTemplateParametersValidationValues(obj *dataproc.Wor
 	return []interface{}{transformed}
 
 }
+
+func flattenDataprocWorkflowTemplateLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(obj []dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum) interface{} {
 	if obj == nil {
 		return nil

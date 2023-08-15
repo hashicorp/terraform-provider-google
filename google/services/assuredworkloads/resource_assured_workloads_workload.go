@@ -100,7 +100,7 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. Labels applied to the workload.",
+				Description: "Optional. Labels applied to the workload.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -123,6 +123,12 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Immutable. The Workload creation timestamp.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"name": {
@@ -318,7 +324,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("kms_settings", flattenAssuredWorkloadsWorkloadKmsSettings(res.KmsSettings)); err != nil {
 		return fmt.Errorf("error setting kms_settings in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenAssuredWorkloadsWorkloadLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("provisioned_resources_parent", res.ProvisionedResourcesParent); err != nil {
@@ -329,6 +335,9 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
@@ -572,4 +581,19 @@ func flattenAssuredWorkloadsWorkloadResources(obj *assuredworkloads.WorkloadReso
 
 	return transformed
 
+}
+
+func flattenAssuredWorkloadsWorkloadLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

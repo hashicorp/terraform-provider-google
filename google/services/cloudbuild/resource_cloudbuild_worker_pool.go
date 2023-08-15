@@ -69,7 +69,7 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.",
+				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -116,6 +116,12 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Time at which the request to delete the `WorkerPool` was received.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"state": {
@@ -284,7 +290,7 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
+	if err = d.Set("annotations", flattenCloudbuildWorkerPoolAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("display_name", res.DisplayName); err != nil {
@@ -304,6 +310,9 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if err = d.Set("delete_time", res.DeleteTime); err != nil {
 		return fmt.Errorf("error setting delete_time in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("state", res.State); err != nil {
 		return fmt.Errorf("error setting state in state: %s", err)
@@ -485,4 +494,19 @@ func flattenCloudbuildWorkerPoolWorkerConfig(obj *cloudbuild.WorkerPoolWorkerCon
 
 	return []interface{}{transformed}
 
+}
+
+func flattenCloudbuildWorkerPoolAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

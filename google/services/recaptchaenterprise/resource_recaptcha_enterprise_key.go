@@ -79,7 +79,7 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "See [Creating and managing labels](https://cloud.google.com/recaptcha-enterprise/docs/labels).",
+				Description: "See [Creating and managing labels](https://cloud.google.com/recaptcha-enterprise/docs/labels).\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -114,6 +114,12 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The timestamp corresponding to the creation of this Key.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"name": {
@@ -337,7 +343,7 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("ios_settings", flattenRecaptchaEnterpriseKeyIosSettings(res.IosSettings)); err != nil {
 		return fmt.Errorf("error setting ios_settings in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenRecaptchaEnterpriseKeyLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
@@ -351,6 +357,9 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
@@ -588,4 +597,19 @@ func flattenRecaptchaEnterpriseKeyWebSettings(obj *recaptchaenterprise.KeyWebSet
 
 	return []interface{}{transformed}
 
+}
+
+func flattenRecaptchaEnterpriseKeyLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

@@ -69,7 +69,7 @@ func ResourceCloudbuildv2Connection() *schema.Resource {
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Allows clients to store small amounts of arbitrary data.",
+				Description: "Allows clients to store small amounts of arbitrary data.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -119,6 +119,12 @@ func ResourceCloudbuildv2Connection() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Server assigned timestamp for when the connection was created.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"etag": {
@@ -491,7 +497,7 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
+	if err = d.Set("annotations", flattenCloudbuildv2ConnectionAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("disabled", res.Disabled); err != nil {
@@ -511,6 +517,9 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("etag", res.Etag); err != nil {
 		return fmt.Errorf("error setting etag in state: %s", err)
@@ -891,4 +900,19 @@ func flattenCloudbuildv2ConnectionInstallationState(obj *cloudbuildv2.Connection
 
 	return []interface{}{transformed}
 
+}
+
+func flattenCloudbuildv2ConnectionAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

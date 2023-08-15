@@ -63,7 +63,7 @@ func TestAccContainerAwsNodePool_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "annotations"},
 			},
 			{
 				Config: testAccContainerAwsNodePool_BasicHandWrittenUpdate0(context),
@@ -72,7 +72,7 @@ func TestAccContainerAwsNodePool_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "annotations"},
 			},
 		},
 	})

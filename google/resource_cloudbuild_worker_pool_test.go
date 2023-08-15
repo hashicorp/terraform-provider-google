@@ -40,9 +40,10 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 				Config: testAccCloudbuildWorkerPool_updated(context),
 			},
 			{
-				ImportState:       true,
-				ImportStateVerify: true,
-				ResourceName:      "google_cloudbuild_worker_pool.pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
+				ResourceName:            "google_cloudbuild_worker_pool.pool",
 			},
 			{
 				Config: testAccCloudbuildWorkerPool_noWorkerConfig(context),
@@ -79,6 +80,11 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		disk_size_gb = 101
 		machine_type = "e2-standard-4"
 		no_external_ip = false
+	}
+
+	annotations = {
+		env                   = "foo"
+		default_expiration_ms = 3600000
 	}
 }
 `, context)

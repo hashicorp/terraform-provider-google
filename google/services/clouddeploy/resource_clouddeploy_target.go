@@ -69,7 +69,7 @@ func ResourceClouddeployTarget() *schema.Resource {
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.",
+				Description: "Optional. User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -115,7 +115,7 @@ func ResourceClouddeployTarget() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.",
+				Description: "Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -147,6 +147,18 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Time at which the `Target` was created.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"etag": {
@@ -370,7 +382,7 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
+	if err = d.Set("annotations", flattenClouddeployTargetAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("anthos_cluster", flattenClouddeployTargetAnthosCluster(res.AnthosCluster)); err != nil {
@@ -388,7 +400,7 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("gke", flattenClouddeployTargetGke(res.Gke)); err != nil {
 		return fmt.Errorf("error setting gke in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenClouddeployTargetLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
@@ -402,6 +414,12 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("etag", res.Etag); err != nil {
 		return fmt.Errorf("error setting etag in state: %s", err)
@@ -682,6 +700,37 @@ func flattenClouddeployTargetRun(obj *clouddeploy.TargetRun) interface{} {
 	return []interface{}{transformed}
 
 }
+
+func flattenClouddeployTargetLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenClouddeployTargetAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenClouddeployTargetExecutionConfigsUsagesArray(obj []clouddeploy.TargetExecutionConfigsUsagesEnum) interface{} {
 	if obj == nil {
 		return nil

@@ -50,17 +50,19 @@ func TestAccNetworkConnectivityHub_BasicHub(t *testing.T) {
 				Config: testAccNetworkConnectivityHub_BasicHub(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_hub.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityHub_BasicHubUpdate0(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_hub.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

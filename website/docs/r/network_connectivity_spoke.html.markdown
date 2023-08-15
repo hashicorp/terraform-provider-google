@@ -121,6 +121,8 @@ The `instances` block supports:
 * `labels` -
   (Optional)
   Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `linked_interconnect_attachments` -
   (Optional)
@@ -178,6 +180,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. The time the spoke was created.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `state` -
   Output only. The current lifecycle state of this spoke. Possible values: STATE_UNSPECIFIED, CREATING, ACTIVE, DELETING

@@ -51,9 +51,10 @@ func TestAccCloudbuildv2Connection_GheCompleteConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GheCompleteConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -76,17 +77,19 @@ func TestAccCloudbuildv2Connection_GheConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GheConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GheConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -109,9 +112,10 @@ func TestAccCloudbuildv2Connection_GhePrivConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GhePrivConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -134,17 +138,19 @@ func TestAccCloudbuildv2Connection_GhePrivUpdateConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GhePrivUpdateConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GhePrivUpdateConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -167,17 +173,19 @@ func TestAccCloudbuildv2Connection_GithubConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GithubConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GithubConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -199,9 +207,10 @@ func TestAccCloudbuildv2Connection_GitlabConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GitlabConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -223,17 +232,19 @@ func TestAccCloudbuildv2Connection_GleConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GleConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GleConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -255,17 +266,19 @@ func TestAccCloudbuildv2Connection_GleOldConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GleOldConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GleOldConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -287,9 +300,10 @@ func TestAccCloudbuildv2Connection_GlePrivConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GlePrivConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -311,17 +325,19 @@ func TestAccCloudbuildv2Connection_GlePrivUpdateConnection(t *testing.T) {
 				Config: testAccCloudbuildv2Connection_GlePrivUpdateConnection(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccCloudbuildv2Connection_GlePrivUpdateConnectionUpdate0(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_connection.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_connection.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})

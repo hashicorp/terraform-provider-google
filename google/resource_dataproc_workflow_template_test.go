@@ -38,7 +38,11 @@ func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
 			{
 				ImportState:       true,
 				ImportStateVerify: true,
-				ResourceName:      "google_dataproc_workflow_template.template",
+				// The "labels" field in the state are decided by the configuration.
+				// During importing, as the configuration is unavailableafter, the "labels" field in the state will be empty.
+				// So add the "labels" to the ImportStateVerifyIgnore list.
+				ImportStateVerifyIgnore: []string{"labels"},
+				ResourceName:            "google_dataproc_workflow_template.template",
 			},
 		},
 	})
@@ -124,6 +128,11 @@ resource "google_dataproc_workflow_template" "template" {
     presto_job {
       query_file_uri = "someuri"
     }
+  }
+
+  labels = {
+    env     = "foo"
+    somekey = "somevalue"
   }
 }
 `, context)

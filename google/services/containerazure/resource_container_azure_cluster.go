@@ -118,7 +118,7 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.",
+				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -158,6 +158,12 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time at which this cluster was created.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"endpoint": {
@@ -633,7 +639,7 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("resource_group_id", res.ResourceGroupId); err != nil {
 		return fmt.Errorf("error setting resource_group_id in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
+	if err = d.Set("annotations", flattenContainerAzureClusterAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("azure_services_authentication", flattenContainerAzureClusterAzureServicesAuthentication(res.AzureServicesAuthentication)); err != nil {
@@ -650,6 +656,9 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("endpoint", res.Endpoint); err != nil {
 		return fmt.Errorf("error setting endpoint in state: %s", err)
@@ -1210,4 +1219,19 @@ func flattenContainerAzureClusterWorkloadIdentityConfig(obj *containerazure.Clus
 
 	return []interface{}{transformed}
 
+}
+
+func flattenContainerAzureClusterAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }
