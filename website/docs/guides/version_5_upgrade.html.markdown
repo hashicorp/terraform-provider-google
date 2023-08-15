@@ -185,3 +185,13 @@ These two unsupported fields were introduced incorrectly. They are now removed.
 ### `liveness_probe.tcp_socket` is now removed
 
 This unsupported field was introduced incorrectly. It is now removed.
+
+## Resource: `google_compute_router_nat`
+
+### `enable_endpoint_independent_mapping` now defaults to API's default value which is `FALSE`
+
+Previously, the default value of `enable_endpoint_independent_mapping` was `TRUE`. Now,
+it will use the default value from the API which is `FALSE`. If you want to
+enable endpoint independent mapping, then explicity set the value of
+`enable_endpoint_independent_mapping` field to `TRUE`.
+
