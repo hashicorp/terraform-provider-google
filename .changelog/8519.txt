@@ -1,0 +1,12 @@
+```release-note:breaking-change
+bigquery: made the field `labels` in the resource `google-bigquery-dataset` only manage resource labels configured through Terraform
+```
+```release-note:enhancement
+bigquery: added new output-only filed `effective_labels` to list all of the labels on the resource in GCP in the resource `google-bigquery-dataset`
+```
+```release-note:breaking-change
+compute: made the field `labels` only manage resource labels configured through Terraform in the resource `google-compute-address`
+```
+```release-note:enhancement
+compute: added new output-only filed `effective_labels` to list all of the labels on the resource in GCP in the resource `google-compute-address`
+```

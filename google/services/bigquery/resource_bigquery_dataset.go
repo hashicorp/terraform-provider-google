@@ -185,10 +185,12 @@ case-sensitive. This field does not affect routine references.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
-				Computed: true,
 				Optional: true,
 				Description: `The labels associated with this dataset. You can use these to
-organize and group your datasets`,
+organize and group your datasets
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
@@ -231,6 +233,12 @@ LOGICAL is the default if this flag isn't specified.`,
 				Computed: true,
 				Description: `The time when this dataset was created, in milliseconds since the
 epoch.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"etag": {
 				Type:        schema.TypeString,
@@ -652,6 +660,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err := d.Set("storage_billing_model", flattenBigQueryDatasetStorageBillingModel(res["storageBillingModel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenBigQueryDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -1087,7 +1098,18 @@ func flattenBigQueryDatasetFriendlyName(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenBigQueryDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1143,6 +1165,10 @@ func flattenBigQueryDatasetDefaultCollation(v interface{}, d *schema.ResourceDat
 }
 
 func flattenBigQueryDatasetStorageBillingModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

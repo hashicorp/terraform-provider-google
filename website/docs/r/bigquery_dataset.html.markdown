@@ -272,6 +272,8 @@ The following arguments are supported:
   (Optional)
   The labels associated with this dataset. You can use these to
   organize and group your datasets
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `location` -
   (Optional)
@@ -465,6 +467,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `last_modified_time` -
   The date when this dataset or any of its tables was last modified, in
   milliseconds since the epoch.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
 
