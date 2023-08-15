@@ -1,0 +1,3 @@
+```release-note:enhancement
+dms: added `edition` field on the `google_database_migration_service_connection_profile` resource
+```

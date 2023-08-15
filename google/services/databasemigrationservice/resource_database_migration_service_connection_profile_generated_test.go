@@ -72,7 +72,7 @@ resource "google_sql_database_instance" "cloudsqldb" {
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
   common_name = "tf-test-my-cert%{random_suffix}"
-  instance = google_sql_database_instance.cloudsqldb.name
+  instance    = google_sql_database_instance.cloudsqldb.name
   
   depends_on = [google_sql_database_instance.cloudsqldb]
 }
@@ -88,21 +88,21 @@ resource "google_sql_user" "sqldb_user" {
 
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile" {
-  location = "us-central1"
+  location              = "us-central1"
   connection_profile_id = "tf-test-my-fromprofileid%{random_suffix}"
-  display_name = "tf-test-my-fromprofileid%{random_suffix}_display"
+  display_name          = "tf-test-my-fromprofileid%{random_suffix}_display"
   labels = { 
     foo = "bar"
   }
   mysql {
-    host = google_sql_database_instance.cloudsqldb.ip_address.0.ip_address
-    port = 3306
+    host     = google_sql_database_instance.cloudsqldb.ip_address.0.ip_address
+    port     = 3306
     username = google_sql_user.sqldb_user.name
     password = google_sql_user.sqldb_user.password
     ssl {
-      client_key = google_sql_ssl_cert.sql_client_cert.private_key
+      client_key         = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
-      ca_certificate = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      ca_certificate     = google_sql_ssl_cert.sql_client_cert.server_ca_cert
     }
     cloud_sql_id = "tf-test-my-database%{random_suffix}"
   }
@@ -112,9 +112,9 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
 
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile_destination" {
-  location = "us-central1"
+  location              = "us-central1"
   connection_profile_id = "tf-test-my-toprofileid%{random_suffix}"
-  display_name = "tf-test-my-toprofileid%{random_suffix}_displayname"
+  display_name          = "tf-test-my-toprofileid%{random_suffix}_displayname"
   labels = { 
     foo = "bar"
   }
@@ -124,22 +124,21 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       user_labels = { 
         cloudfoo = "cloudbar"
       }
-    tier = "db-n1-standard-1"
-    storage_auto_resize_limit = "0"
-    activation_policy = "ALWAYS"
-    ip_config {
-      enable_ipv4 = true
-      require_ssl = "true"
+      tier                      = "db-n1-standard-1"
+      edition                   = "ENTERPRISE"
+      storage_auto_resize_limit = "0"
+      activation_policy         = "ALWAYS"
+      ip_config {
+        enable_ipv4 = true
+        require_ssl = true
+      }
+      auto_storage_increase = true
+      data_disk_type        = "PD_HDD"
+      data_disk_size_gb     = "11"
+      zone                  = "us-central1-b"
+      source_id             = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/tf-test-my-fromprofileid%{random_suffix}"
+      root_password         = "testpasscloudsql"
     }
-    auto_storage_increase = true
-    data_disk_type = "PD_HDD"
-    data_disk_size_gb = "11"
-    zone = "us-central1-b"
-    source_id = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/tf-test-my-fromprofileid%{random_suffix}"
-    root_password = "testpasscloudsql"
-    }
-
-
   }
   depends_on = [google_database_migration_service_connection_profile.cloudsqlprofile]
 }

@@ -56,7 +56,7 @@ resource "google_sql_database_instance" "cloudsqldb" {
 
 resource "google_sql_ssl_cert" "sql_client_cert" {
   common_name = "my-cert"
-  instance = google_sql_database_instance.cloudsqldb.name
+  instance    = google_sql_database_instance.cloudsqldb.name
   
   depends_on = [google_sql_database_instance.cloudsqldb]
 }
@@ -72,21 +72,21 @@ resource "google_sql_user" "sqldb_user" {
 
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile" {
-  location = "us-central1"
+  location              = "us-central1"
   connection_profile_id = "my-fromprofileid"
-  display_name = "my-fromprofileid_display"
+  display_name          = "my-fromprofileid_display"
   labels = { 
     foo = "bar"
   }
   mysql {
-    host = google_sql_database_instance.cloudsqldb.ip_address.0.ip_address
-    port = 3306
+    host     = google_sql_database_instance.cloudsqldb.ip_address.0.ip_address
+    port     = 3306
     username = google_sql_user.sqldb_user.name
     password = google_sql_user.sqldb_user.password
     ssl {
-      client_key = google_sql_ssl_cert.sql_client_cert.private_key
+      client_key         = google_sql_ssl_cert.sql_client_cert.private_key
       client_certificate = google_sql_ssl_cert.sql_client_cert.cert
-      ca_certificate = google_sql_ssl_cert.sql_client_cert.server_ca_cert
+      ca_certificate     = google_sql_ssl_cert.sql_client_cert.server_ca_cert
     }
     cloud_sql_id = "my-database"
   }
@@ -96,9 +96,9 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
 
 
 resource "google_database_migration_service_connection_profile" "cloudsqlprofile_destination" {
-  location = "us-central1"
+  location              = "us-central1"
   connection_profile_id = "my-toprofileid"
-  display_name = "my-toprofileid_displayname"
+  display_name          = "my-toprofileid_displayname"
   labels = { 
     foo = "bar"
   }
@@ -108,22 +108,21 @@ resource "google_database_migration_service_connection_profile" "cloudsqlprofile
       user_labels = { 
         cloudfoo = "cloudbar"
       }
-    tier = "db-n1-standard-1"
-    storage_auto_resize_limit = "0"
-    activation_policy = "ALWAYS"
-    ip_config {
-      enable_ipv4 = true
-      require_ssl = "true"
+      tier                      = "db-n1-standard-1"
+      edition                   = "ENTERPRISE"
+      storage_auto_resize_limit = "0"
+      activation_policy         = "ALWAYS"
+      ip_config {
+        enable_ipv4 = true
+        require_ssl = true
+      }
+      auto_storage_increase = true
+      data_disk_type        = "PD_HDD"
+      data_disk_size_gb     = "11"
+      zone                  = "us-central1-b"
+      source_id             = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/my-fromprofileid"
+      root_password         = "testpasscloudsql"
     }
-    auto_storage_increase = true
-    data_disk_type = "PD_HDD"
-    data_disk_size_gb = "11"
-    zone = "us-central1-b"
-    source_id = "projects/${data.google_project.project.project_id}/locations/us-central1/connectionProfiles/my-fromprofileid"
-    root_password = "testpasscloudsql"
-    }
-
-
   }
   depends_on = [google_database_migration_service_connection_profile.cloudsqlprofile]
 }
@@ -512,6 +511,11 @@ The following arguments are supported:
 * `cmek_key_name` -
   (Optional)
   The KMS key name used for the csql instance.
+
+* `edition` -
+  (Optional)
+  The edition of the given Cloud SQL instance.
+  Possible values are: `ENTERPRISE`, `ENTERPRISE_PLUS`.
 
 
 <a name="nested_ip_config"></a>The `ip_config` block supports:
