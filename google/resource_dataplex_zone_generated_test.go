@@ -51,17 +51,19 @@ func TestAccDataplexZone_BasicZone(t *testing.T) {
 				Config: testAccDataplexZone_BasicZone(context),
 			},
 			{
-				ResourceName:      "google_dataplex_zone.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_zone.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccDataplexZone_BasicZoneUpdate0(context),
 			},
 			{
-				ResourceName:      "google_dataplex_zone.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_zone.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

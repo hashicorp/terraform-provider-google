@@ -81,7 +81,7 @@ func ResourceDataplexLake() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. User-defined labels for the lake.",
+				Description: "Optional. User-defined labels for the lake.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -113,6 +113,12 @@ func ResourceDataplexLake() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time when the lake was created.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"metastore_status": {
@@ -320,7 +326,7 @@ func resourceDataplexLakeRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("display_name", res.DisplayName); err != nil {
 		return fmt.Errorf("error setting display_name in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenDataplexLakeLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("metastore", flattenDataplexLakeMetastore(res.Metastore)); err != nil {
@@ -334,6 +340,9 @@ func resourceDataplexLakeRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("metastore_status", flattenDataplexLakeMetastoreStatus(res.MetastoreStatus)); err != nil {
 		return fmt.Errorf("error setting metastore_status in state: %s", err)
@@ -518,4 +527,19 @@ func flattenDataplexLakeMetastoreStatus(obj *dataplex.LakeMetastoreStatus) inter
 
 	return []interface{}{transformed}
 
+}
+
+func flattenDataplexLakeLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

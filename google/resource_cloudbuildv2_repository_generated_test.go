@@ -51,9 +51,10 @@ func TestAccCloudbuildv2Repository_GheRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GheRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -76,9 +77,10 @@ func TestAccCloudbuildv2Repository_GithubRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GithubRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -100,9 +102,10 @@ func TestAccCloudbuildv2Repository_GitlabRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GitlabRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -124,9 +127,10 @@ func TestAccCloudbuildv2Repository_GleRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GleRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})

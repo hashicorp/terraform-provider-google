@@ -54,7 +54,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 				ResourceName:            "google_privateca_certificate_template.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage"},
+				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage", "labels"},
 			},
 			{
 				Config: testAccPrivatecaCertificateTemplate_BasicCertificateTemplateUpdate0(context),
@@ -63,7 +63,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 				ResourceName:            "google_privateca_certificate_template.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage"},
+				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage", "labels"},
 			},
 		},
 	})

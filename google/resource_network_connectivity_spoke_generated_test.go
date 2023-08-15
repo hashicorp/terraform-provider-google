@@ -52,17 +52,19 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 				Config: testAccNetworkConnectivitySpoke_RouterApplianceHandWritten(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccNetworkConnectivitySpoke_RouterApplianceHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

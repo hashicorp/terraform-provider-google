@@ -51,17 +51,19 @@ func TestAccClouddeployDeliveryPipeline_DeliveryPipeline(t *testing.T) {
 				Config: testAccClouddeployDeliveryPipeline_DeliveryPipeline(context),
 			},
 			{
-				ResourceName:      "google_clouddeploy_delivery_pipeline.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_clouddeploy_delivery_pipeline.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "annotations"},
 			},
 			{
 				Config: testAccClouddeployDeliveryPipeline_DeliveryPipelineUpdate0(context),
 			},
 			{
-				ResourceName:      "google_clouddeploy_delivery_pipeline.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_clouddeploy_delivery_pipeline.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "annotations"},
 			},
 		},
 	})

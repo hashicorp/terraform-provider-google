@@ -95,6 +95,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Optional. Labels applied to the workload.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `provisioned_resources_parent` -
   (Optional)
@@ -134,6 +136,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. Immutable. The Workload creation timestamp.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `name` -
   Output only. The resource name of the workload.

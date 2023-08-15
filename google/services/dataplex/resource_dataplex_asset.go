@@ -110,7 +110,7 @@ func ResourceDataplexAsset() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. User defined labels for the asset.",
+				Description: "Optional. User defined labels for the asset.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -134,6 +134,12 @@ func ResourceDataplexAsset() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. Status of the discovery feature applied to data referenced by this asset.",
 				Elem:        DataplexAssetDiscoveryStatusSchema(),
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"resource_status": {
@@ -540,7 +546,7 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("display_name", res.DisplayName); err != nil {
 		return fmt.Errorf("error setting display_name in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenDataplexAssetLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
@@ -551,6 +557,9 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err = d.Set("discovery_status", flattenDataplexAssetDiscoveryStatus(res.DiscoveryStatus)); err != nil {
 		return fmt.Errorf("error setting discovery_status in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("resource_status", flattenDataplexAssetResourceStatus(res.ResourceStatus)); err != nil {
 		return fmt.Errorf("error setting resource_status in state: %s", err)
@@ -872,4 +881,19 @@ func flattenDataplexAssetSecurityStatus(obj *dataplex.AssetSecurityStatus) inter
 
 	return []interface{}{transformed}
 
+}
+
+func flattenDataplexAssetLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
 }

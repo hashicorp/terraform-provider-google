@@ -56,17 +56,19 @@ func TestAccContainerAzureNodePool_BasicHandWritten(t *testing.T) {
 				Config: testAccContainerAzureNodePool_BasicHandWritten(context),
 			},
 			{
-				ResourceName:      "google_container_azure_node_pool.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_azure_node_pool.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 			{
 				Config: testAccContainerAzureNodePool_BasicHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_container_azure_node_pool.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_azure_node_pool.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})

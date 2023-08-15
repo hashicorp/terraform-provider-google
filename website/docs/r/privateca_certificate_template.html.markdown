@@ -145,6 +145,8 @@ The `object_id` block supports:
 * `labels` -
   (Optional)
   Optional. Labels with user-defined metadata.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `passthrough_extensions` -
   (Optional)
@@ -352,6 +354,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. The time at which this CertificateTemplate was created.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `update_time` -
   Output only. The time at which this CertificateTemplate was updated.

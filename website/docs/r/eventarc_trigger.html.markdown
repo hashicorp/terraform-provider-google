@@ -142,6 +142,8 @@ The `matching_criteria` block supports:
 * `labels` -
   (Optional)
   Optional. User labels attached to the triggers that can be used to group resources.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `project` -
   (Optional)
@@ -219,6 +221,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `create_time` -
   Output only. The creation time.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `etag` -
   Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.

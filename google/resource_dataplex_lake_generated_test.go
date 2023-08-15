@@ -51,17 +51,19 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 				Config: testAccDataplexLake_BasicLake(context),
 			},
 			{
-				ResourceName:      "google_dataplex_lake.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_lake.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccDataplexLake_BasicLakeUpdate0(context),
 			},
 			{
-				ResourceName:      "google_dataplex_lake.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_lake.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

@@ -68,6 +68,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Optional. User-defined labels for the lake.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `metastore` -
   (Optional)
@@ -96,6 +98,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `create_time` -
   Output only. The time when the lake was created.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `metastore_status` -
   Output only. Metastore status of the lake.

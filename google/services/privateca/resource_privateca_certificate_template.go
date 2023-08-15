@@ -83,7 +83,7 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. Labels with user-defined metadata.",
+				Description: "Optional. Labels with user-defined metadata.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -116,6 +116,12 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time at which this CertificateTemplate was created.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"update_time": {
@@ -580,7 +586,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	if err = d.Set("identity_constraints", flattenPrivatecaCertificateTemplateIdentityConstraints(res.IdentityConstraints)); err != nil {
 		return fmt.Errorf("error setting identity_constraints in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
+	if err = d.Set("labels", flattenPrivatecaCertificateTemplateLabels(res.Labels, d)); err != nil {
 		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("passthrough_extensions", flattenPrivatecaCertificateTemplatePassthroughExtensions(res.PassthroughExtensions)); err != nil {
@@ -594,6 +600,9 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("error setting update_time in state: %s", err)
@@ -1224,6 +1233,22 @@ func flattenPrivatecaCertificateTemplatePredefinedValuesPolicyIds(obj *privateca
 	return transformed
 
 }
+
+func flattenPrivatecaCertificateTemplateLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = l[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenPrivatecaCertificateTemplatePassthroughExtensionsKnownExtensionsArray(obj []privateca.CertificateTemplatePassthroughExtensionsKnownExtensionsEnum) interface{} {
 	if obj == nil {
 		return nil

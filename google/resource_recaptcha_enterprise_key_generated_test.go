@@ -50,17 +50,19 @@ func TestAccRecaptchaEnterpriseKey_AndroidKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_AndroidKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_AndroidKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -82,17 +84,19 @@ func TestAccRecaptchaEnterpriseKey_IosKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_IosKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_IosKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -114,9 +118,10 @@ func TestAccRecaptchaEnterpriseKey_MinimalKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_MinimalKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -138,17 +143,19 @@ func TestAccRecaptchaEnterpriseKey_WebKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_WebKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -170,17 +177,19 @@ func TestAccRecaptchaEnterpriseKey_WebScoreKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_WebScoreKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebScoreKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
