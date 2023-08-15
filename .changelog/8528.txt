@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `disk.provisioned_iops` to `google_compute_instance_template`
+```
+```release-note:enhancement
+compute: added `disk.provisioned_iops` to `google_compute_region_instance_template`
+```

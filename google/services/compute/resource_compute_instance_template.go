@@ -161,6 +161,14 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Description: `A set of key/value label pairs to assign to disks,`,
 						},
 
+						"provisioned_iops": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							ForceNew:    true,
+							Computed:    true,
+							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
+						},
+
 						"source_image": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1040,7 +1048,7 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 		}
 		if v, ok := d.GetOk(prefix + ".source"); ok {
 			disk.Source = v.(string)
-			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "source_image", "source_snapshot", "labels"}
+			conflicts := []string{"disk_size_gb", "disk_name", "disk_type", "provisioned_iops", "source_image", "source_snapshot", "labels"}
 			for _, conflict := range conflicts {
 				if _, ok := d.GetOk(prefix + "." + conflict); ok {
 					return nil, fmt.Errorf("Cannot use `source` with any of the fields in %s", conflicts)
@@ -1059,6 +1067,9 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			disk.InitializeParams.DiskType = "pd-standard"
 			if v, ok := d.GetOk(prefix + ".disk_type"); ok {
 				disk.InitializeParams.DiskType = v.(string)
+			}
+			if v, ok := d.GetOk(prefix + ".provisioned_iops"); ok {
+				disk.InitializeParams.ProvisionedIops = int64(v.(int))
 			}
 
 			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, prefix+".labels")
@@ -1256,11 +1267,12 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 }
 
 type diskCharacteristics struct {
-	mode        string
-	diskType    string
-	diskSizeGb  string
-	autoDelete  bool
-	sourceImage string
+	mode            string
+	diskType        string
+	diskSizeGb      string
+	autoDelete      bool
+	sourceImage     string
+	provisionedIops string
 }
 
 func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
@@ -1289,6 +1301,13 @@ func diskCharacteristicsFromMap(m map[string]interface{}) diskCharacteristics {
 	if v := m["source_image"]; v != nil {
 		dc.sourceImage = v.(string)
 	}
+
+	if v := m["provisioned_iops"]; v != nil {
+		// Terraform and GCP return ints as different types (int vs int64), so just
+		// use strings to compare for simplicity.
+		dc.provisionedIops = fmt.Sprintf("%v", v)
+	}
+
 	return dc
 }
 
@@ -1311,6 +1330,7 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 			diskMap["source_image"] = ""
 		}
 		diskMap["disk_type"] = disk.InitializeParams.DiskType
+		diskMap["provisioned_iops"] = disk.InitializeParams.ProvisionedIops
 		diskMap["disk_name"] = disk.InitializeParams.DiskName
 		diskMap["labels"] = disk.InitializeParams.Labels
 		// The API does not return a disk size value for scratch disks. They are largely only one size,
