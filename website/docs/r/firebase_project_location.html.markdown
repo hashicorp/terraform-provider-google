@@ -37,6 +37,9 @@ To get more information about ProjectLocation, see:
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/)
 
+~> **Warning:** google_firebase_project_location is deprecated in favor of explicitly configuring `google_app_engine_application`
+and `google_firestore_database`. This resource will be removed in the next major release of the provider.
+
 ## Example Usage - Firebase Project Location Basic
 
 

@@ -178,12 +178,6 @@ resource "google_firebaserules_ruleset" "firestore" {
 }
 ```
 
-## Resource: `google_firebase_web_app`
-
-### `deletion_policy` now defaults to `DELETE`
-
-Previously, `google_firebase_web_app` deletions default to `ABANDON`, which means to only stop tracking the WebApp in Terraform. The actual app is not deleted from the Firebase project. If you are relying on this behavior, set `deletion_policy` to `ABANDON` explicitly in the new version.
-
 ## Resource: `google_cloud_run_v2_job`
 
 ### `startup_probe` and `liveness_probe` are now removed
@@ -205,6 +199,71 @@ it will use the default value from the API which is `FALSE`. If you want to
 enable endpoint independent mapping, then explicity set the value of
 `enable_endpoint_independent_mapping` field to `TRUE`.
 
+
+## Resource: `google_firebase_project_location`
+
+### `google_firebase_project_location` is now removed
+
+In `4.X`, `google_firebase_project_location` would implicitly trigger creation of an App Engine application with a default Cloud Storage bucket and Firestore database, located in the specified `location_id`. In `5.0.0`, these resources should instead be set up explicitly using `google_app_engine_application` `google_firebase_storage_bucket`, and `google_firestore_database`.
+
+For more information on configuring Firebase resources with Terraform, see [Get started with Terraform and Firebase](https://firebase.google.com/docs/projects/terraform/get-started).
+
+#### Upgrade instructions
+
+If you have existing resources created using `google_firebase_project_location`:
+1. Remove the `google_firebase_project_location` block
+1. Add blocks according to "New config" in this section for any of the following that you need: `google_app_engine_application`, `google_firebase_storage_bucket`, and/or `google_firestore_database`.
+1. Import the existing resources corresponding to the blocks added in the previous step:
+   `terraform import google_app_engine_application.default <project-id>`
+   `terraform import google_firebase_storage_bucket.default-bucket <project-id>/<project-id>.appspot.com`
+   `terraform import google_firestore_database.default "<project-id>/(default)"`
+
+#### Old config
+
+```hcl
+resource "google_firebase_project_location" "basic" {
+    provider = google-beta
+    project = google_firebase_project.default.project
+
+    location_id = "us-central"
+}
+```
+
+#### New config
+
+Assuming you use both the default Storage bucket and Firestore, an equivalent configuration would be:
+
+```hcl
+resource "google_app_engine_application" "default" {
+  provider      = google-beta
+  project       = google_firebase_project.default.project
+  location_id   = "us-central"
+  database_type = "CLOUD_FIRESTORE"
+
+  depends_on = [
+    google_firestore_database.default
+  ]
+}
+
+resource "google_firebase_storage_bucket" "default-bucket" {
+  provider  = google-beta
+  project   = google_firebase_project.default.project
+  bucket_id = google_app_engine_application.default.default_bucket
+}
+
+resource "google_firestore_database" "default" {
+  project     = google_firebase_project.default.project
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+}
+```
+
+## Resource: `google_firebase_web_app`
+
+### `deletion_policy` now defaults to `DELETE`
+
+Previously, `google_firebase_web_app` deletions default to `ABANDON`, which means to only stop tracking the WebApp in Terraform. The actual app is not deleted from the Firebase project. If you are relying on this behavior, set `deletion_policy` to `ABANDON` explicitly in the new version.
 ## Resource: `google_compute_autoscaler` (beta)
 
 ### `metric.filter` now defaults to `resource.type = gce_instance`

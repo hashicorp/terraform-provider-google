@@ -1,0 +1,3 @@
+```release-note: deprecation
+firebase: deprecated `google_firebase_project_location` in favor of `google_firebase_storage_bucket` and `google_firestore_database`
+```
