@@ -686,153 +686,6 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 								},
 							},
 						},
-						"config_values": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Deprecated:  "Deprecated in favor of `x509_description`.",
-							Description: `Describes some of the technical fields in a certificate.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key_usage": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: `Indicates the intended use for keys that correspond to a certificate.`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"base_key_usage": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: `Describes high-level ways in which a key may be used.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"key_usage_options": {
-																Type:        schema.TypeList,
-																Computed:    true,
-																Description: `Describes high-level ways in which a key may be used.`,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"cert_sign": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used to sign certificates.`,
-																		},
-																		"content_commitment": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".`,
-																		},
-																		"crl_sign": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used sign certificate revocation lists.`,
-																		},
-																		"data_encipherment": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used to encipher data.`,
-																		},
-																		"decipher_only": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used to decipher only.`,
-																		},
-																		"digital_signature": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used for digital signatures.`,
-																		},
-																		"encipher_only": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used to encipher only.`,
-																		},
-																		"key_agreement": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used in a key agreement protocol.`,
-																		},
-																		"key_encipherment": {
-																			Type:        schema.TypeBool,
-																			Computed:    true,
-																			Description: `The key may be used to encipher other keys.`,
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-												"extended_key_usage": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: `Describes high-level ways in which a key may be used.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"client_auth": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.`,
-															},
-															"code_signing": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".`,
-															},
-															"email_protection": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".`,
-															},
-															"ocsp_signing": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".`,
-															},
-															"server_auth": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.`,
-															},
-															"time_stamping": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Description: `Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".`,
-															},
-														},
-													},
-												},
-												"unknown_extended_key_usages": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"obect_id": {
-																Type:        schema.TypeList,
-																Computed:    true,
-																Description: `Required. Describes how some of the technical fields in a certificate should be populated.`,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"object_id_path": {
-																			Type:        schema.TypeList,
-																			Computed:    true,
-																			Description: `An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.`,
-																			Elem: &schema.Schema{
-																				Type: schema.TypeInt,
-																			},
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
 						"crl_distribution_points": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -1369,15 +1222,6 @@ This is in RFC3339 text format.`,
 					Type: schema.TypeString,
 				},
 			},
-			"pem_certificates": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Deprecated:  "Deprecated in favor of `pem_certificate_chain`.",
-				Description: `Required. Expected to be in leaf-to-root order according to RFC 5246.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"revocation_details": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -1561,9 +1405,6 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("pem_certificate_chain", flattenPrivatecaCertificatePemCertificateChain(res["pemCertificateChain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Certificate: %s", err)
-	}
-	if err := d.Set("pem_certificates", flattenPrivatecaCertificatePemCertificates(res["pemCertificates"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("create_time", flattenPrivatecaCertificateCreateTime(res["createTime"], d, config)); err != nil {
@@ -1766,8 +1607,6 @@ func flattenPrivatecaCertificateCertificateDescription(v interface{}, d *schema.
 		flattenPrivatecaCertificateCertificateDescriptionSubjectDescription(original["subjectDescription"], d, config)
 	transformed["x509_description"] =
 		flattenPrivatecaCertificateCertificateDescriptionX509Description(original["x509Description"], d, config)
-	transformed["config_values"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValues(original["configValues"], d, config)
 	transformed["public_key"] =
 		flattenPrivatecaCertificateCertificateDescriptionPublicKey(original["publicKey"], d, config)
 	transformed["subject_key_id"] =
@@ -2308,196 +2147,6 @@ func flattenPrivatecaCertificateCertificateDescriptionX509DescriptionNameConstra
 	return v
 }
 
-func flattenPrivatecaCertificateCertificateDescriptionConfigValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["key_usage"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(original["keyUsage"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["base_key_usage"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsage(original["baseKeyUsage"], d, config)
-	transformed["extended_key_usage"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsage(original["extendedKeyUsage"], d, config)
-	transformed["unknown_extended_key_usages"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsages(original["unknownExtendedKeyUsages"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["key_usage_options"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptions(original["keyUsageOptions"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["digital_signature"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDigitalSignature(original["digitalSignature"], d, config)
-	transformed["content_commitment"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsContentCommitment(original["contentCommitment"], d, config)
-	transformed["key_encipherment"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyEncipherment(original["keyEncipherment"], d, config)
-	transformed["data_encipherment"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDataEncipherment(original["dataEncipherment"], d, config)
-	transformed["key_agreement"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyAgreement(original["keyAgreement"], d, config)
-	transformed["cert_sign"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCertSign(original["certSign"], d, config)
-	transformed["crl_sign"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCrlSign(original["crlSign"], d, config)
-	transformed["encipher_only"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsEncipherOnly(original["encipherOnly"], d, config)
-	transformed["decipher_only"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDecipherOnly(original["decipherOnly"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDigitalSignature(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsContentCommitment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDataEncipherment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsKeyAgreement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCertSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsCrlSign(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsEncipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageBaseKeyUsageKeyUsageOptionsDecipherOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["server_auth"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageServerAuth(original["serverAuth"], d, config)
-	transformed["client_auth"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageClientAuth(original["clientAuth"], d, config)
-	transformed["code_signing"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageCodeSigning(original["codeSigning"], d, config)
-	transformed["email_protection"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageEmailProtection(original["emailProtection"], d, config)
-	transformed["time_stamping"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageTimeStamping(original["timeStamping"], d, config)
-	transformed["ocsp_signing"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageOcspSigning(original["ocspSigning"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageServerAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageClientAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageCodeSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageEmailProtection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageTimeStamping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageExtendedKeyUsageOcspSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"obect_id": flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectId(original["obectId"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["object_id_path"] =
-		flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectIdObjectIdPath(original["objectIdPath"], d, config)
-	return []interface{}{transformed}
-}
-func flattenPrivatecaCertificateCertificateDescriptionConfigValuesKeyUsageUnknownExtendedKeyUsagesObectIdObjectIdPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenPrivatecaCertificateCertificateDescriptionPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2581,10 +2230,6 @@ func flattenPrivatecaCertificateCertificateDescriptionCertFingerprintSha256Hash(
 }
 
 func flattenPrivatecaCertificatePemCertificateChain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenPrivatecaCertificatePemCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
