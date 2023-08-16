@@ -1,0 +1,3 @@
+```release-note:new-resource
+google_bigquery_bi_reservation
+```

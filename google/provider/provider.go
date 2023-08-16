@@ -965,9 +965,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 307
+// Generated resources: 308
 // Generated IAM resources: 204
-// Total generated resources: 511
+// Total generated resources: 512
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1054,6 +1054,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_datapolicy_data_policy_iam_member":              tpgiamresource.ResourceIamMember(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 			"google_bigquery_datapolicy_data_policy_iam_policy":              tpgiamresource.ResourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 			"google_bigquery_data_transfer_config":                           bigquerydatatransfer.ResourceBigqueryDataTransferConfig(),
+			"google_bigquery_bi_reservation":                                 bigqueryreservation.ResourceBigqueryReservationBiReservation(),
 			"google_bigquery_capacity_commitment":                            bigqueryreservation.ResourceBigqueryReservationCapacityCommitment(),
 			"google_bigquery_reservation":                                    bigqueryreservation.ResourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                    bigtable.ResourceBigtableAppProfile(),
