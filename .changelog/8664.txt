@@ -1,0 +1,3 @@
+```release-note:bug
+containerazure: added diff suppression for case changes of enum values in `google_container_azure_cluster`
+```
