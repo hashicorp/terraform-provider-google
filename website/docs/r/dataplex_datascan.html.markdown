@@ -499,10 +499,12 @@ In addition to the arguments listed above, the following computed attributes are
   The type of DataScan.
 
 * `data_quality_result` -
+  (Deprecated)
   The result of the data quality scan.
   Structure is [documented below](#nested_data_quality_result).
 
 * `data_profile_result` -
+  (Deprecated)
   The result of the data profile scan.
   Structure is [documented below](#nested_data_profile_result).
 

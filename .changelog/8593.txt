@@ -1,0 +1,3 @@
+```release-note:deprecation
+dataplex: deprecated the following `google_dataplex_datascan` fields: `dataProfileResult` and `dataQualityResult`
+```

@@ -190,6 +190,12 @@ These two unsupported fields were introduced incorrectly. They are now removed.
 
 This unsupported field was introduced incorrectly. It is now removed.
 
+## Resource: `google_dataplex_datascan`
+
+### `dataQualityResult` and `dataProfileResult` output fields are now removed 
+
+`dataQualityResult` and `dataProfileResult` were output-only fields which listed results for the latest job created under a Datascan. These were problematic fields that are unlikely to be relevant in a Terraform context. Removing them reduces the likelihood of additional parsing errors, and reduces maintenance overhead for the API surface.
+
 ## Resource: `google_compute_router_nat`
 
 ### `enable_endpoint_independent_mapping` now defaults to API's default value which is `FALSE`
