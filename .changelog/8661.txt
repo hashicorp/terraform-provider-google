@@ -1,0 +1,3 @@
+```release-note:none
+bigquery: Clarify usage of `schema` in `google_bigquery_table`
+```
