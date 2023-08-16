@@ -392,6 +392,7 @@ Only relevant if a minValue has been defined. Default = false.`,
 			"data_profile_result": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "dataProfileResult will be removed from Terraform output fields in 5.0.0",
 				Description: `The result of the data profile scan.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -608,6 +609,7 @@ Only relevant if a minValue has been defined. Default = false.`,
 			"data_quality_result": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "dataQualityResult will be removed from Terraform output fields in 5.0.0",
 				Description: `The result of the data quality scan.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
