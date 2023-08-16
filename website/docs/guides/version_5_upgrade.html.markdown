@@ -88,9 +88,35 @@ terraform {
 
 ## Provider
 
-### Provider-level change example header
+### Provider-level Labels Rework
 
-Description of the change and how users should adjust their configuration (if needed).
+Labels and annotations are key-value pairs attached on Google cloud resources. Cloud labels are used for organizing resources, filtering resources, breaking down billing, and so on. Annotations are used to attach metadata to Kubernetes resources.
+
+Not all of Google cloud resources support labels and annotations. Please check the Terraform Google provider resource documentation to figure out if the resource supports the `labels` and `annotations` fields.
+
+#### Provider default labels
+
+Default labels configured on the provider through the new `default_labels` field are now supported. The default labels configured on the provider will be applied to all of the resources with the top level `labels` field or the nested `labels` field inside the top level `metadata` field.
+
+Provider-level default annotations are not supported.
+
+#### Resource labels
+
+The new labels model will be applied to all of the resources with the top level `labels` field or the nested `labels` field inside the top level `metadata` field. Some labels fields are for child resources, so the new model will not be applied to labels fields for child resources.
+
+There are now three label-related fields with the new model:
+
+* The `labels` field will be non-authoritative and only manage the labels defined by the users on the resource through Terraform.
+* The output-only `effective_labels` will list all of labels present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+* The output-only `terraform_labels` will merge the labels defined by the users on the resource through Terraform and the default labels configured on the provider. If the same label exists on both the resource labels and provider default labels, the label on the resource will override the provider label.
+
+After upgrading to `5.0.0`, and then running `terraform refresh` or `terraform apply`, these three fields should show in the state file of the resources with a self-applying `labels` field.
+
+#### Resource annotations
+
+The new annotations model is similar to the new labels model and will be applied to all of the resources with the top level `annotations` field or the nested `annotations` field inside the top level `metadata` field.
+
+There are now two annotation-related fields with the new model, the `annotations` and the output-only `effective_annotations` fields.
 
 ## Datasources
 
