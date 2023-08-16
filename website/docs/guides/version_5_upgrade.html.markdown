@@ -301,3 +301,13 @@ Previously, `google_firebase_web_app` deletions default to `ABANDON`, which mean
 ### `metric.filter` now defaults to `resource.type = gce_instance`
 
 Previously, `metric.filter` doesn't have the defult value and causes a UI error.
+
+## Resource: `google_privateca_certificate`
+
+### `config_values` is now removed
+
+Deprecated in favor of field `x509_description`. It is now removed.
+
+### `pem_certificates` is now removed
+
+Deprecated in favor of field `pem_certificate_chain`. It is now removed.
