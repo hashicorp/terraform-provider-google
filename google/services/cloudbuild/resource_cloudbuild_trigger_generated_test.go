@@ -103,6 +103,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerBuildExample(t *testing.T) {
 func testAccCloudBuildTrigger_cloudbuildTriggerBuildExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "build-trigger" {
+  name = "tf-test-my-trigger%{random_suffix}"
   location = "global"
 
   trigger_template {
@@ -677,6 +678,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(t *testing.T)
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowFailureExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-failure-trigger" {
+  name = "tf-test-my-trigger%{random_suffix}"
   location = "global"
 
   trigger_template {
@@ -773,6 +775,7 @@ func TestAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(t *testing.
 func testAccCloudBuildTrigger_cloudbuildTriggerAllowExitCodesExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
+  name = "tf-test-my-trigger%{random_suffix}"
   location = "global"
 
   trigger_template {

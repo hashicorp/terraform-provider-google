@@ -65,6 +65,7 @@ resource "google_cloudbuild_trigger" "filename-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "build-trigger" {
+  name = "my-trigger"
   location = "global"
 
   trigger_template {
@@ -519,6 +520,7 @@ resource "google_cloudbuild_trigger" "ghe-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "allow-failure-trigger" {
+  name = "my-trigger"
   location = "global"
 
   trigger_template {
@@ -595,6 +597,7 @@ resource "google_cloudbuild_trigger" "allow-failure-trigger" {
 
 ```hcl
 resource "google_cloudbuild_trigger" "allow-exit-codes-trigger" {
+  name = "my-trigger"
   location = "global"
 
   trigger_template {
