@@ -135,7 +135,7 @@ The following arguments are supported:
 
 * `read_pool_config` -
   (Optional)
-  Read pool specific config.
+  Read pool specific config. If the instance type is READ_POOL, this configuration must be provided.
   Structure is [documented below](#nested_read_pool_config).
 
 * `machine_config` -

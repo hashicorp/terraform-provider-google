@@ -130,7 +130,7 @@ can have regional availability (nodes are present in 2 or more zones in a region
 			"read_pool_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `Read pool specific config.`,
+				Description: `Read pool specific config. If the instance type is READ_POOL, this configuration must be provided.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
