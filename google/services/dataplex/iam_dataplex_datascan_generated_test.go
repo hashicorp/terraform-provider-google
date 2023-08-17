@@ -142,8 +142,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
@@ -174,8 +173,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
@@ -221,8 +219,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
@@ -255,8 +252,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
@@ -287,8 +283,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
