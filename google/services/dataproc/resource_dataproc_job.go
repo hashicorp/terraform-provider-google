@@ -144,10 +144,20 @@ func ResourceDataprocJob() *schema.Resource {
 			},
 
 			"labels": {
+				Type: schema.TypeMap,
+				Description: `Optional. The labels to associate with this job.
+
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Description: "Optional. The labels to associate with this job.",
-				Optional:    true,
-				ForceNew:    true,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -312,8 +322,11 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("force_delete", d.Get("force_delete")); err != nil {
 		return fmt.Errorf("Error setting force_delete: %s", err)
 	}
-	if err := d.Set("labels", job.Labels); err != nil {
+	if err := d.Set("labels", tpgresource.FlattenLabels(job.Labels, d)); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("effective_labels", job.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err := d.Set("driver_output_resource_uri", job.DriverOutputResourceUri); err != nil {
 		return fmt.Errorf("Error setting driver_output_resource_uri: %s", err)

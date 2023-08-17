@@ -44,9 +44,10 @@ func TestAccComputeInstanceTemplate_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -70,9 +71,10 @@ func TestAccComputeInstanceTemplate_imageShorthand(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -545,9 +547,10 @@ func TestAccComputeInstanceTemplate_EncryptKMS(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -854,9 +857,10 @@ func TestAccComputeInstanceTemplate_diskResourcePolicies(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})
@@ -931,9 +935,10 @@ func TestAccComputeInstanceTemplate_managedEnvoy(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels"},
 			},
 		},
 	})

@@ -105,10 +105,20 @@ func ResourceGoogleProject() *schema.Resource {
 				Description: `The alphanumeric ID of the billing account this project belongs to. The user or service account performing this operation with Terraform must have Billing Account Administrator privileges (roles/billing.admin) in the organization. See Google Cloud Billing API Access Control for more details.`,
 			},
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the project.
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A set of key/value label pairs to assign to the project.`,
 			},
 		},
 		UseJSONNumber: true,
@@ -288,8 +298,11 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("name", p.Name); err != nil {
 		return fmt.Errorf("Error setting name: %s", err)
 	}
-	if err := d.Set("labels", p.Labels); err != nil {
+	if err := d.Set("labels", tpgresource.FlattenLabels(p.Labels, d)); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := d.Set("effective_labels", p.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 
 	if p.Parent != nil {

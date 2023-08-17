@@ -588,10 +588,20 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs assigned to the instance.
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A set of key/value label pairs assigned to the instance.`,
 			},
 
 			"metadata": {
@@ -1333,7 +1343,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if err := d.Set("labels", instance.Labels); err != nil {
+	if err := d.Set("labels", tpgresource.FlattenLabels(instance.Labels, d)); err != nil {
+		return err
+	}
+
+	if err := d.Set("effective_labels", instance.Labels); err != nil {
 		return err
 	}
 
