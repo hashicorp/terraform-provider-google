@@ -1,0 +1,3 @@
+```release-note:bug
+container: updated `resource_container_cluster` to ignore `dns_config` diff when `enable_autopilot = true` 
+```
