@@ -1717,11 +1717,12 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 			"dns_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				ForceNew:    true,
-				Description: `Configuration for Cloud DNS for Kubernetes Engine.`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				ForceNew:         true,
+				DiffSuppressFunc: suppressDiffForAutopilot,
+				Description:      `Configuration for Cloud DNS for Kubernetes Engine.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_dns": {
