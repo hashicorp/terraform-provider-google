@@ -73,8 +73,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "%{project_name}"
 }
@@ -133,6 +132,12 @@ resource "google_dataplex_datascan" "full_profile" {
   data_profile_spec {
     sampling_percent = 80
     row_filter = "word_count > 10"
+    include_fields {
+      field_names = ["word_count"]
+    }
+    exclude_fields {
+      field_names = ["property_type"]
+    }
   }
 
   project = "%{project_name}"
@@ -185,6 +190,8 @@ resource "google_dataplex_datascan" "basic_quality" {
   data_quality_spec {
     rules {
       dimension = "VALIDITY"
+      name = "rule1"
+      description = "rule 1 for validity dimension"
       table_condition_expectation {
         sql_expression = "COUNT(*) > 0"
       }
