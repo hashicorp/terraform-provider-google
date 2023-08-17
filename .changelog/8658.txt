@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: added support to unset policy tags in table schema
+```
