@@ -122,8 +122,8 @@ func TestAccSqlDatabaseInstance_basicMSSQL(t *testing.T) {
 func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 	t.Parallel()
 
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	// 1. Create an instance.
 	// 2. Add a root@'%' user.
 	// 3. Create a replica and assert it succeeds (it'll fail if we try to delete the root user thinking it's a
@@ -1655,8 +1655,8 @@ func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 func TestAccSqlDatabaseInstance_ReplicaPromoteSuccessful(t *testing.T) {
 	t.Parallel()
 
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1699,8 +1699,8 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteSuccessful(t *testing.T) {
 
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNamePresent(t *testing.T) {
 	t.Parallel()
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1745,8 +1745,8 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNamePresen
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithReplicaConfigurationPresent(t *testing.T) {
 	t.Parallel()
 
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1791,8 +1791,8 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithReplicaConfigurationPres
 func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNameAndReplicaConfigurationPresent(t *testing.T) {
 	t.Parallel()
 
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1836,8 +1836,8 @@ func TestAccSqlDatabaseInstance_ReplicaPromoteFailedWithMasterInstanceNameAndRep
 func TestAccSqlDatabaseInstance_ReplicaPromoteSkippedWithNoMasterInstanceNameAndNoReplicaConfigurationPresent(t *testing.T) {
 	t.Parallel()
 
-	databaseName := "sql-instance-test-" + acctest.RandString(t, 10)
-	failoverName := "sql-instance-test-failover-" + acctest.RandString(t, 10)
+	databaseName := "tf-test-sql-instance-" + acctest.RandString(t, 10)
+	failoverName := "tf-test-sql-instance-failover-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
