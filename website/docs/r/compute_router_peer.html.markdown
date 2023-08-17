@@ -253,10 +253,10 @@ The following arguments are supported:
 * `advertised_groups` -
   (Optional)
   User-specified list of prefix groups to advertise in custom
-  mode, which can take one of the following options:
-  * `ALL_SUBNETS`: Advertises all available subnets, including peer VPC subnets.
-  * `ALL_VPC_SUBNETS`: Advertises the router's own VPC subnets.
-  * `ALL_PEER_VPC_SUBNETS`: Advertises peer subnets of the router's VPC network.
+  mode, which currently supports the following option:
+  * `ALL_SUBNETS`: Advertises all of the router's own VPC subnets.
+  This excludes any routes learned for subnets that use VPC Network
+  Peering.
 
   Note that this field can only be populated if advertiseMode is `CUSTOM`
   and overrides the list defined for the router (in the "bgp" message).
