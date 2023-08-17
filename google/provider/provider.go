@@ -852,6 +852,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_spanner_instance":                             spanner.DataSourceSpannerInstance(),
 		"google_sql_ca_certs":                                 sql.DataSourceGoogleSQLCaCerts(),
 		"google_sql_tiers":                                    sql.DataSourceGoogleSQLTiers(),
+		"google_sql_database_instance_latest_recovery_time":   sql.DataSourceSqlDatabaseInstanceLatestRecoveryTime(),
 		"google_sql_backup_run":                               sql.DataSourceSqlBackupRun(),
 		"google_sql_databases":                                sql.DataSourceSqlDatabases(),
 		"google_sql_database":                                 sql.DataSourceSqlDatabase(),
