@@ -137,7 +137,7 @@ func TestAccProject_labels(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "labels"},
 			},
 			// update project with labels
 			{

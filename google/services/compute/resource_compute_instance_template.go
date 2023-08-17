@@ -832,12 +832,22 @@ be from 0 to 999,999,999 inclusive.`,
 			},
 
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Description: `A set of key/value label pairs to assign to instances created from this template.
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Set:         schema.HashString,
-				Description: `A set of key/value label pairs to assign to instances created from this template,`,
 			},
 
 			"resource_policies": {
@@ -1534,9 +1544,12 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.Labels != nil {
-		if err := d.Set("labels", instanceTemplate.Properties.Labels); err != nil {
+		if err := d.Set("labels", tpgresource.FlattenLabels(instanceTemplate.Properties.Labels, d)); err != nil {
 			return fmt.Errorf("Error setting labels: %s", err)
 		}
+	}
+	if err := d.Set("effective_labels", instanceTemplate.Properties.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err = d.Set("self_link", instanceTemplate.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
