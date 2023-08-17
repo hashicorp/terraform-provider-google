@@ -31,4 +31,4 @@ jobs:
         GITHUB_TOKEN: ${{github.token}}
       run: |
         cd repo/tools/issue-labeler
-        go run . -backfill-date=${{inputs.since}} -backfill-dry-run=${{inputs.dry_run}}
+        go run . -backfill-date=${{inputs.since}} -backfill-dry-run=${{inputs.dry_run}} -logtostderr=true
