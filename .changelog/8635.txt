@@ -1,0 +1,3 @@
+```release-note:new-resource
+dataform_repository_workflow_config (beta)
+```
