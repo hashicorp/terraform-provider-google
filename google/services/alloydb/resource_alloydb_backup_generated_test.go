@@ -34,7 +34,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-basic"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-backup-basic"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -104,7 +104,7 @@ func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-full"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-backup-full"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

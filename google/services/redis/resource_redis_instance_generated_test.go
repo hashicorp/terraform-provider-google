@@ -182,11 +182,10 @@ resource "google_redis_instance" "cache-persis" {
 }
 
 func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-private"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-private-service"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
