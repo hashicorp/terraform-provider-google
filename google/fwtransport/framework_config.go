@@ -100,7 +100,6 @@ type FrameworkProviderConfig struct {
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
 	FirestoreBasePath                string
-	GameServicesBasePath             string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
 	GKEHub2BasePath                  string
@@ -238,7 +237,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.EssentialContactsBasePath = data.EssentialContactsCustomEndpoint.ValueString()
 	p.FilestoreBasePath = data.FilestoreCustomEndpoint.ValueString()
 	p.FirestoreBasePath = data.FirestoreCustomEndpoint.ValueString()
-	p.GameServicesBasePath = data.GameServicesCustomEndpoint.ValueString()
 	p.GKEBackupBasePath = data.GKEBackupCustomEndpoint.ValueString()
 	p.GKEHubBasePath = data.GKEHubCustomEndpoint.ValueString()
 	p.GKEHub2BasePath = data.GKEHub2CustomEndpoint.ValueString()
@@ -817,14 +815,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.FirestoreBasePathKey])
 		if customEndpoint != nil {
 			data.FirestoreCustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
-	if data.GameServicesCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_GAME_SERVICES_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.GameServicesBasePathKey])
-		if customEndpoint != nil {
-			data.GameServicesCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.GKEBackupCustomEndpoint.IsNull() {

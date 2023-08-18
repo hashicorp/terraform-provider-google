@@ -326,11 +326,6 @@ var services = mapOf(
         "displayName" to "Firestore",
         "path" to "./google/services/firestore"
     ),
-    "gameservices" to mapOf(
-        "name" to "gameservices",
-        "displayName" to "Gameservices",
-        "path" to "./google/services/gameservices"
-    ),
     "gkebackup" to mapOf(
         "name" to "gkebackup",
         "displayName" to "Gkebackup",
