@@ -59,7 +59,6 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firestore"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/gameservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/gkehub2"

@@ -64,7 +64,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	"github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	"github.com/hashicorp/terraform-provider-google/google/services/firestore"
-	"github.com/hashicorp/terraform-provider-google/google/services/gameservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
@@ -481,11 +480,6 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
-			"game_services_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
-			},
 			"gke_backup_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -810,7 +804,6 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_container_registry_repository":                containeranalysis.DataSourceGoogleContainerRepo(),
 		"google_dataproc_metastore_service":                   dataprocmetastore.DataSourceDataprocMetastoreService(),
 		"google_datastream_static_ips":                        datastream.DataSourceGoogleDatastreamStaticIps(),
-		"google_game_services_game_server_deployment_rollout": gameservices.DataSourceGameServicesGameServerDeploymentRollout(),
 		"google_iam_policy":                                   resourcemanager.DataSourceGoogleIamPolicy(),
 		"google_iam_role":                                     resourcemanager.DataSourceGoogleIamRole(),
 		"google_iam_testable_permissions":                     resourcemanager.DataSourceGoogleIamTestablePermissions(),
@@ -965,9 +958,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 307
+// Generated resources: 302
 // Generated IAM resources: 204
-// Total generated resources: 511
+// Total generated resources: 506
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1288,11 +1281,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_firestore_document":                                      firestore.ResourceFirestoreDocument(),
 			"google_firestore_field":                                         firestore.ResourceFirestoreField(),
 			"google_firestore_index":                                         firestore.ResourceFirestoreIndex(),
-			"google_game_services_game_server_cluster":                       gameservices.ResourceGameServicesGameServerCluster(),
-			"google_game_services_game_server_config":                        gameservices.ResourceGameServicesGameServerConfig(),
-			"google_game_services_game_server_deployment":                    gameservices.ResourceGameServicesGameServerDeployment(),
-			"google_game_services_game_server_deployment_rollout":            gameservices.ResourceGameServicesGameServerDeploymentRollout(),
-			"google_game_services_realm":                                     gameservices.ResourceGameServicesRealm(),
 			"google_gke_backup_backup_plan":                                  gkebackup.ResourceGKEBackupBackupPlan(),
 			"google_gke_backup_backup_plan_iam_binding":                      tpgiamresource.ResourceIamBinding(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
 			"google_gke_backup_backup_plan_iam_member":                       tpgiamresource.ResourceIamMember(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
@@ -1763,7 +1751,6 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
-	config.GameServicesBasePath = d.Get("game_services_custom_endpoint").(string)
 	config.GKEBackupBasePath = d.Get("gke_backup_custom_endpoint").(string)
 	config.GKEHubBasePath = d.Get("gke_hub_custom_endpoint").(string)
 	config.GKEHub2BasePath = d.Get("gke_hub2_custom_endpoint").(string)
