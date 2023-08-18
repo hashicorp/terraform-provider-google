@@ -176,13 +176,12 @@ func TestAccSqlDatabaseInstance_dontDeleteDefaultUserOnReplica(t *testing.T) {
 // possible, and we should attempt to find any other scenarios where the root user could otherwise
 // be left on the instance.
 func TestAccSqlDatabaseInstance_deleteDefaultUserBeforeSubsequentApiCalls(t *testing.T) {
-	// Service Networking
-	acctest.SkipIfVcr(t)
+
 	t.Parallel()
 
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	addressName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-clone-2")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network-clone-2")
 
 	// 1. Create an instance.
 	// 2. Add a root@'%' user.
@@ -740,7 +739,7 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withoutAllocatedIpRange(t *te
 
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	addressName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -968,15 +967,14 @@ func TestAccSqlDatabaseInstance_withPSCEnabled_withIpV4Enabled(t *testing.T) {
 }
 
 func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testing.T) {
-	// Service Networking
-	acctest.SkipIfVcr(t)
+
 	t.Parallel()
 
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	addressName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-allocated-ip-range")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network-allocated")
 	addressName_update := "tf-test-" + acctest.RandString(t, 10) + "update"
-	networkName_update := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-allocated-ip-range-update")
+	networkName_update := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network-allocated-update")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1006,13 +1004,12 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRange(t *testi
 }
 
 func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(t *testing.T) {
-	// Service Networking
-	acctest.SkipIfVcr(t)
+
 	t.Parallel()
 
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	addressName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-replica")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network-replica")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -1039,13 +1036,12 @@ func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeReplica(t
 }
 
 func TestAccSqlDatabaseInstance_withPrivateNetwork_withAllocatedIpRangeClone(t *testing.T) {
-	// Service Networking
-	acctest.SkipIfVcr(t)
+
 	t.Parallel()
 
 	databaseName := "tf-test-" + acctest.RandString(t, 10)
 	addressName := "tf-test-" + acctest.RandString(t, 10)
-	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-clone")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "sql-instance-private-network-clone")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

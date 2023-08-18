@@ -31,11 +31,10 @@ import (
 )
 
 func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "memcache-private"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "memcache-instance-basic"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

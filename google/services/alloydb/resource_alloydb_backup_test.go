@@ -13,7 +13,7 @@ func TestAccAlloydbBackup_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-update"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-backup-update"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -174,7 +174,7 @@ func TestAccAlloydbBackup_usingCMEK(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-cmek"),
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydb-backup-cmek"),
 		"random_suffix": acctest.RandString(t, 10),
 		"key_name":      "tf-test-key-" + acctest.RandString(t, 10),
 	}
