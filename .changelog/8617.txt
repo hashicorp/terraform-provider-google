@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: added `enable_nested_virtualization` field to `google_workstations_workstation_config` resource
+```
