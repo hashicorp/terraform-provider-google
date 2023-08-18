@@ -1,0 +1,6 @@
+```release-note:enhancement
+clouddeploy: promoted `multi_target` to GA in `google_clouddelploy_target`
+```
+```release-note:enhancement
+containeraws: made `config.labels` updatable in `google_container_aws_node_pool`
+```

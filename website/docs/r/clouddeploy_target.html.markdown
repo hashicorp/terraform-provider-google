@@ -178,7 +178,7 @@ The following arguments are supported:
   
 * `multi_target` -
   (Optional)
-  (Beta only) Information specifying a multiTarget.
+  Information specifying a multiTarget.
   
 * `project` -
   (Optional)
