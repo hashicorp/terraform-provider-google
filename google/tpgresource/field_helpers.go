@@ -88,6 +88,10 @@ func ParseSecurityPolicyFieldValue(securityPolicy string, d TerraformResourceDat
 	return ParseGlobalFieldValue("securityPolicies", securityPolicy, "project", d, config, true)
 }
 
+func ParseSecurityPolicyRegionalFieldValue(securityPolicy string, d TerraformResourceData, config *transport_tpg.Config) (*RegionalFieldValue, error) {
+	return ParseRegionalFieldValue("securityPolicies", securityPolicy, "project", "region", "zone", d, config, true)
+}
+
 func ParseNetworkEndpointGroupFieldValue(networkEndpointGroup string, d TerraformResourceData, config *transport_tpg.Config) (*ZonalFieldValue, error) {
 	return ParseZonalFieldValue("networkEndpointGroups", networkEndpointGroup, "project", "zone", d, config, false)
 }
