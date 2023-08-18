@@ -173,6 +173,30 @@ resource "google_sql_database_instance" "main" {
 }
 ```
 
+### Cloud SQL Instance with PSC connectivity
+
+```hcl
+resource "google_sql_database_instance" "main" {
+  name             = "psc-enabled-main-instance"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier    = "db-f1-micro"
+    ip_configuration {
+      psc_config {
+        psc_enabled = true
+        allowed_consumer_projects = ["allowed-consumer-project-name"]
+      }
+      ipv4_enabled = false
+    }
+    backup_configuration {
+      enabled = true
+      binary_log_enabled = true
+    }
+    availability_type = "REGIONAL"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -325,7 +349,7 @@ The optional `settings.backup_configuration` subblock supports:
 
 * `location` - (Optional) The region where the backup will be stored
 
-* `transaction_log_retention_days` - (Optional) The number of days of transaction logs we retain for point in time restore, from 1-7. For PostgreSQL Enterprise Plus instances, the number of days of retained transaction logs can be set from 1 to 35. 
+* `transaction_log_retention_days` - (Optional) The number of days of transaction logs we retain for point in time restore, from 1-7. For PostgreSQL Enterprise Plus instances, the number of days of retained transaction logs can be set from 1 to 35.
 
 * `backup_retention_settings` - (Optional) Backup retention settings. The configuration is detailed below.
 
@@ -364,6 +388,12 @@ The optional `settings.ip_configuration.authorized_networks[]` sublist supports:
 * `value` - (Required) A CIDR notation IPv4 or IPv6 address that is allowed to
     access this instance. Must be set even if other two attributes are not for
     the whitelist to become active.
+
+The optional `settings.ip_configuration.psc_config` sublist supports:
+
+* `psc_enabled` - (Optional) Whether PSC connectivity is enabled for this instance.
+
+* `allowed_consumer_projects` - (Optional) List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).
 
 The optional `settings.location_preference` subblock supports:
 

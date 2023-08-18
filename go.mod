@@ -25,9 +25,9 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/net v0.12.0
 	golang.org/x/oauth2 v0.10.0
-	google.golang.org/api v0.132.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98
-	google.golang.org/grpc v1.56.2
+	google.golang.org/api v0.135.0
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230726155614-23370e0ffb3e
+	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -85,6 +85,7 @@ require (
 	github.com/zclconf/go-cty v1.11.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
