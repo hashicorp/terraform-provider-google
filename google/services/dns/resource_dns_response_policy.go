@@ -127,7 +127,7 @@ func resourceDNSResponsePolicyCreate(d *schema.ResourceData, meta interface{}) e
 	networksProp, err := expandDNSResponsePolicyNetworks(d.Get("networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(networksProp)) && (ok || !reflect.DeepEqual(v, networksProp)) {
+	} else if v, ok := d.GetOkExists("networks"); ok || !reflect.DeepEqual(v, networksProp) {
 		obj["networks"] = networksProp
 	}
 	gkeClustersProp, err := expandDNSResponsePolicyGkeClusters(d.Get("gke_clusters"), d, config)
@@ -262,7 +262,7 @@ func resourceDNSResponsePolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	networksProp, err := expandDNSResponsePolicyNetworks(d.Get("networks"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("networks"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networksProp)) {
+	} else if v, ok := d.GetOkExists("networks"); ok || !reflect.DeepEqual(v, networksProp) {
 		obj["networks"] = networksProp
 	}
 	gkeClustersProp, err := expandDNSResponsePolicyGkeClusters(d.Get("gke_clusters"), d, config)

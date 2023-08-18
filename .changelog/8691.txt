@@ -1,0 +1,4 @@
+```release-note:bug
+dns: supported removing the networks block from the configuration in the resource `google_dns_response_policy`
+
+```
