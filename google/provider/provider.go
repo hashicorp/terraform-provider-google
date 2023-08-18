@@ -966,9 +966,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 309
+// Generated resources: 310
 // Generated IAM resources: 204
-// Total generated resources: 513
+// Total generated resources: 514
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1070,6 +1070,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_certificate_manager_certificate_map":                     certificatemanager.ResourceCertificateManagerCertificateMap(),
 			"google_certificate_manager_certificate_map_entry":               certificatemanager.ResourceCertificateManagerCertificateMapEntry(),
 			"google_certificate_manager_dns_authorization":                   certificatemanager.ResourceCertificateManagerDnsAuthorization(),
+			"google_certificate_manager_trust_config":                        certificatemanager.ResourceCertificateManagerTrustConfig(),
 			"google_cloud_asset_folder_feed":                                 cloudasset.ResourceCloudAssetFolderFeed(),
 			"google_cloud_asset_organization_feed":                           cloudasset.ResourceCloudAssetOrganizationFeed(),
 			"google_cloud_asset_project_feed":                                cloudasset.ResourceCloudAssetProjectFeed(),
