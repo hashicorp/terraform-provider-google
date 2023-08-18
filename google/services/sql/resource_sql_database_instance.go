@@ -64,6 +64,7 @@ var (
 		"settings.0.ip_configuration.0.private_network",
 		"settings.0.ip_configuration.0.allocated_ip_range",
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
+		"settings.0.ip_configuration.0.psc_config",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -449,6 +450,29 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										AtLeastOneOf: ipConfigurationKeys,
 										Description:  `Whether Google Cloud services such as BigQuery are allowed to access data in this Cloud SQL instance over a private IP connection. SQLSERVER database type is not supported.`,
+									},
+									"psc_config": {
+										Type:        schema.TypeSet,
+										Optional:    true,
+										Description: `PSC settings for a Cloud SQL instance.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"psc_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Whether PSC connectivity is enabled for this instance.`,
+												},
+												"allowed_consumer_projects": {
+													Type:     schema.TypeSet,
+													Optional: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Set:         schema.HashString,
+													Description: `List of consumer projects that are allow-listed for PSC connections to this instance. This instance can be connected to with PSC from any network in these projects. Each consumer project in this list may be represented by a project number (numeric) or by a project id (alphanumeric).`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -866,6 +890,16 @@ is set to true. Defaults to ZONAL.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The URI of the created resource.`,
+			},
+			"psc_service_attachment_link": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The link to service attachment of PSC instance.`,
+			},
+			"dns_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The dns name of the instance.`,
 			},
 			"restore_backup_context": {
 				Type:     schema.TypeList,
@@ -1335,7 +1369,20 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		AuthorizedNetworks:                      expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
 		ForceSendFields:                         forceSendFields,
+		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 	}
+}
+
+func expandPscConfig(configured []interface{}) *sqladmin.PscConfig {
+	for _, _pscConfig := range configured {
+		_entry := _pscConfig.(map[string]interface{})
+		return &sqladmin.PscConfig{
+			PscEnabled:              _entry["psc_enabled"].(bool),
+			AllowedConsumerProjects: tpgresource.ConvertStringArr(_entry["allowed_consumer_projects"].(*schema.Set).List()),
+		}
+	}
+
+	return nil
 }
 
 func expandAuthorizedNetworks(configured []interface{}) []*sqladmin.AclEntry {
@@ -1601,6 +1648,12 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("self_link", instance.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
+	}
+	if err := d.Set("psc_service_attachment_link", instance.PscServiceAttachmentLink); err != nil {
+		return fmt.Errorf("Error setting psc_service_attachment_link: %s", err)
+	}
+	if err := d.Set("dns_name", instance.DnsName); err != nil {
+		return fmt.Errorf("Error setting dns_name: %s", err)
 	}
 	d.SetId(instance.Name)
 
@@ -2126,6 +2179,19 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface
 
 	if ipConfiguration.AuthorizedNetworks != nil {
 		data["authorized_networks"] = flattenAuthorizedNetworks(ipConfiguration.AuthorizedNetworks)
+	}
+
+	if ipConfiguration.PscConfig != nil {
+		data["psc_config"] = flattenPscConfigs(ipConfiguration.PscConfig)
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenPscConfigs(pscConfig *sqladmin.PscConfig) interface{} {
+	data := map[string]interface{}{
+		"psc_enabled":               pscConfig.PscEnabled,
+		"allowed_consumer_projects": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(pscConfig.AllowedConsumerProjects)),
 	}
 
 	return []map[string]interface{}{data}
