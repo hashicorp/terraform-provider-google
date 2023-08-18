@@ -113,6 +113,94 @@ resource "google_compute_instance" "target-vm" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_instance_with_security_policy&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Instance With Security Policy
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "custom-default-network"
+  auto_create_subnetworks = false
+  routing_mode            = "REGIONAL"
+}
+      
+resource "google_compute_subnetwork" "default" {
+  provider                   = google-beta
+  name                       = "custom-default-subnet"
+  ip_cidr_range              = "10.1.2.0/24"
+  network                    = google_compute_network.default.id
+  private_ipv6_google_access = "DISABLE_GOOGLE_ACCESS"
+  purpose                    = "PRIVATE"
+  region                     = "southamerica-west1"
+  stack_type                 = "IPV4_ONLY"
+}
+
+data "google_compute_image" "vmimage" {
+  provider = google-beta
+  family   = "debian-11"
+  project  = "debian-cloud"
+}
+
+resource "google_compute_instance" "target-vm" {
+  provider     = google-beta
+  name         = "target-vm"
+  machine_type = "e2-medium"
+  zone         = "southamerica-west1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.vmimage.self_link
+    }
+  }
+
+  network_interface {       
+    network = google_compute_network.default.self_link
+    subnetwork = google_compute_subnetwork.default.self_link
+    access_config {
+    }
+  }
+}
+
+resource "google_compute_region_security_policy" "policyddosprotection" {
+  provider    = google-beta
+  region      = "southamerica-west1"
+  name        = "tf-test-policyddos%{random_suffix}"
+  description = "ddos protection security policy to set target instance"
+  type        = "CLOUD_ARMOR_NETWORK"
+  ddos_protection_config {
+    ddos_protection = "ADVANCED_PREVIEW"
+  }
+}
+
+resource "google_compute_network_edge_security_service" "edge_sec_service" {
+  provider        = google-beta
+  region          = "southamerica-west1"
+  name            = "tf-test-edgesec%{random_suffix}"
+  security_policy = google_compute_region_security_policy.policyddosprotection.self_link
+}
+
+resource "google_compute_region_security_policy" "regionsecuritypolicy" {
+  provider    = google-beta
+  name        = "region-secpolicy"
+  region      = "southamerica-west1"
+  description = "basic security policy for target instance"
+  type        = "CLOUD_ARMOR_NETWORK"
+  depends_on  = [google_compute_network_edge_security_service.edge_sec_service]
+}
+
+resource "google_compute_target_instance" "default" {
+  provider        = google-beta
+  name            = "target-instance"
+  zone            = "southamerica-west1-a"
+  instance        = google_compute_instance.target-vm.id
+  security_policy = google_compute_region_security_policy.regionsecuritypolicy.self_link
+}
+```
 
 ## Argument Reference
 
@@ -157,6 +245,10 @@ The following arguments are supported:
   Default value is `NO_NAT`.
   Possible values are: `NO_NAT`.
 
+* `security_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The resource URL for the security policy associated with this target instance.
+
 * `zone` -
   (Optional)
   URL of the zone where the target instance resides.
@@ -182,6 +274,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import
