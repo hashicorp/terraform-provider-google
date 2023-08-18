@@ -422,6 +422,8 @@ The following arguments are supported:
   It is expected
   that the system will manipulate this based on routability and load.
 
+  ~> **Warning:** `serving_state` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
+
 
 <a name="nested_containers"></a>The `containers` block supports:
 
@@ -434,6 +436,8 @@ The following arguments are supported:
   Container's working directory.
   If not specified, the container runtime's default will be used, which
   might be configured in the container image.
+
+  ~> **Warning:** `working_dir` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
 
 * `args` -
   (Optional)
@@ -448,6 +452,8 @@ The following arguments are supported:
   take precedence. Values defined by an Env with a duplicate key will take
   precedence.
   Structure is [documented below](#nested_env_from).
+
+  ~> **Warning:** `env_from` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
 
 * `image` -
   (Required)

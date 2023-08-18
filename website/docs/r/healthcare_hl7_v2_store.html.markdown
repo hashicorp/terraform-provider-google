@@ -241,6 +241,8 @@ The following arguments are supported:
   A nested object resource
   Structure is [documented below](#nested_notification_config).
 
+  ~> **Warning:** `notification_config` is deprecated and will be removed in a future major release. Use `notification_configs` instead.
+
 
 <a name="nested_parser_config"></a>The `parser_config` block supports:
 

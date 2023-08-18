@@ -182,9 +182,11 @@ The following arguments are supported:
   The monitoring schedule for snapshot analysis. For EntityType-level config: unset / disabled = true indicates disabled by default for Features under it; otherwise by default enable snapshot analysis monitoring with monitoringInterval for Features under it.
 
 * `monitoring_interval` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
   Configuration of the snapshot analysis based monitoring pipeline running interval. The value is rolled up to full day.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+  ~> **Warning:** `monitoring_interval` is deprecated and will be removed in a future release.
 
 * `monitoring_interval_days` -
   (Optional)

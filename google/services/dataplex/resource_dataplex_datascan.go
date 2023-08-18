@@ -505,7 +505,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 			"data_profile_result": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Deprecated:  "dataProfileResult will be removed from Terraform output fields in 5.0.0",
+				Deprecated:  "`data_profile_result` is deprecated and will be removed in a future major release.",
 				Description: `The result of the data profile scan.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -722,7 +722,7 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 			"data_quality_result": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Deprecated:  "dataQualityResult will be removed from Terraform output fields in 5.0.0",
+				Deprecated:  "`data_quality_result` is deprecated and will be removed in a future major release.",
 				Description: `The result of the data quality scan.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

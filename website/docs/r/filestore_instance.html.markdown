@@ -261,6 +261,8 @@ The following arguments are supported:
   (Optional, Deprecated)
   The name of the Filestore zone of the instance.
 
+  ~> **Warning:** `zone` is deprecated and will be removed in a future major release. Use `location` instead.
+
 * `location` -
   (Optional)
   The name of the location of the instance. This can be a region for ENTERPRISE tier instances.

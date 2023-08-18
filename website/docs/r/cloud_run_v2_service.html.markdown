@@ -583,6 +583,8 @@ The following arguments are supported:
   TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.
   Structure is [documented below](#nested_tcp_socket).
 
+  ~> **Warning:** `tcp_socket` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
+
 * `grpc` -
   (Optional)
   GRPC specifies an action involving a GRPC port.

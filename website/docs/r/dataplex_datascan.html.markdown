@@ -596,10 +596,14 @@ In addition to the arguments listed above, the following computed attributes are
   The result of the data quality scan.
   Structure is [documented below](#nested_data_quality_result).
 
+  ~> **Warning:** `data_quality_result` is deprecated and will be removed in a future major release.
+
 * `data_profile_result` -
   (Deprecated)
   The result of the data profile scan.
   Structure is [documented below](#nested_data_profile_result).
+
+  ~> **Warning:** `data_profile_result` is deprecated and will be removed in a future major release.
 
 
 <a name="nested_execution_status"></a>The `execution_status` block contains:

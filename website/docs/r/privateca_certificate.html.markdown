@@ -843,6 +843,8 @@ In addition to the arguments listed above, the following computed attributes are
   (Deprecated)
   Required. Expected to be in leaf-to-root order according to RFC 5246.
 
+  ~> **Warning:** `pem_certificates` is deprecated and will be removed in a future major release. Use `pem_certificate_chain` instead.
+
 * `create_time` -
   The time that this resource was created on the server.
   This is in RFC3339 text format.
@@ -878,6 +880,8 @@ In addition to the arguments listed above, the following computed attributes are
   (Output, Deprecated)
   Describes some of the technical fields in a certificate.
   Structure is [documented below](#nested_config_values).
+
+  ~> **Warning:** `config_values` is deprecated and will be removed in a future release. Use `x509_description` instead.
 
 * `public_key` -
   (Output)

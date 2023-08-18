@@ -689,7 +689,7 @@ fractional digits, terminated by 's'. Example: "3.5s".`,
 						"config_values": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Deprecated:  "Deprecated in favor of `x509_description`.",
+							Deprecated:  "`config_values` is deprecated and will be removed in a future release. Use `x509_description` instead.",
 							Description: `Describes some of the technical fields in a certificate.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -1372,7 +1372,7 @@ This is in RFC3339 text format.`,
 			"pem_certificates": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Deprecated:  "Deprecated in favor of `pem_certificate_chain`.",
+				Deprecated:  "`pem_certificates` is deprecated and will be removed in a future major release. Use `pem_certificate_chain` instead.",
 				Description: `Required. Expected to be in leaf-to-root order according to RFC 5246.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
