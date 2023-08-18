@@ -311,3 +311,9 @@ Deprecated in favor of field `x509_description`. It is now removed.
 ### `pem_certificates` is now removed
 
 Deprecated in favor of field `pem_certificate_chain`. It is now removed.
+
+## Product: `gameservices`
+
+### `gameservices` is now removed
+
+This change involved the following resources: `google_game_services_game_server_cluster`, `google_game_services_game_server_deployment`, `google_game_services_game_server_config`, `google_game_services_realm` and `google_game_services_game_server_deployment_rollout`.
