@@ -10,7 +10,7 @@ IMPROVEMENTS:
 * composer: added `config.private_environment_config.connection_type` field to `google_composer_environment` resource ([#15460](https://github.com/hashicorp/terraform-provider-google/pull/15460))
 * compute: added `disk.provisioned_iops` field to `google_compute_instance_template` and `google_compute_region_instance_template` resources ([#15506](https://github.com/hashicorp/terraform-provider-google/pull/15506))
 * compute: added `user_defined_fields` field to `google_compute_region_security_policy` resource ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
-* dms: added `edition` field to `google_database_migration_service_connection_profile` resource ([#15510](https://github.com/hashicorp/terraform-provider-google/pull/15510))
+* databasemigrationservice: added `edition` field to `google_database_migration_service_connection_profile` resource ([#15510](https://github.com/hashicorp/terraform-provider-google/pull/15510))
 * dns: added `globalL7ilb` enum support to the `routing_policy.load_balancer_type` field in `google_dns_record_set` resource ([#15521](https://github.com/hashicorp/terraform-provider-google/pull/15521))
 * healthcare: added `default_search_handling_strict` field to `google_healthcare_fhir_store` resource ([#15514](https://github.com/hashicorp/terraform-provider-google/pull/15514))
 * metastore: added `scaling_config` field to `google_dataproc_metastore_service` resource ([#15476](https://github.com/hashicorp/terraform-provider-google/pull/15476))
