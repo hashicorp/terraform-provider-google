@@ -149,7 +149,7 @@ func ResourceCloudRunV2Job() *schema.Resource {
 												"liveness_probe": {
 													Type:       schema.TypeList,
 													Optional:   true,
-													Deprecated: "Cloud Run Job does not support liveness probe and `liveness_probe` field will be removed in a future major release.",
+													Deprecated: "`liveness_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 													Description: `Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 This field is not supported in Cloud Run Job currently.`,
 													MaxItems: 1,
@@ -281,7 +281,7 @@ If omitted, a port number will be chosen and passed to the container through the
 													Type:       schema.TypeList,
 													Computed:   true,
 													Optional:   true,
-													Deprecated: "Cloud Run Job does not support startup probe and `startup_probe` field will be removed in a future major release.",
+													Deprecated: "`startup_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 													Description: `Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 This field is not supported in Cloud Run Job currently.`,
 													MaxItems: 1,

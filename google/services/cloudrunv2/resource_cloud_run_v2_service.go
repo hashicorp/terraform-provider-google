@@ -245,7 +245,7 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 												"tcp_socket": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Deprecated:  "Cloud Run does not support tcp socket in liveness probe and `liveness_probe.tcp_socket` field will be removed in a future major release.",
+													Deprecated:  "`tcp_socket` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 													Description: `TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{

@@ -224,7 +224,7 @@ The docker image's ENTRYPOINT is used if this is not provided.`,
 												"env_from": {
 													Type:       schema.TypeList,
 													Optional:   true,
-													Deprecated: "Not supported by Cloud Run fully managed",
+													Deprecated: "`env_from` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 													ForceNew:   true,
 													Description: `List of sources to populate environment variables in the container.
 All invalid keys will be reported as an event when the container is starting.
@@ -626,7 +626,7 @@ not contain ':'.`,
 												"working_dir": {
 													Type:       schema.TypeString,
 													Optional:   true,
-													Deprecated: "Not supported by Cloud Run fully managed",
+													Deprecated: "`working_dir` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 													ForceNew:   true,
 													Description: `Container's working directory.
 If not specified, the container runtime's default will be used, which
@@ -746,7 +746,7 @@ the result can be other mode bits set.`,
 									"serving_state": {
 										Type:       schema.TypeString,
 										Computed:   true,
-										Deprecated: "Not supported by Cloud Run fully managed",
+										Deprecated: "`serving_state` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
 										Description: `ServingState holds a value describing the state the resources
 are in for this Revision.
 It is expected

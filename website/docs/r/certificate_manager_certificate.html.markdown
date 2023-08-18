@@ -246,14 +246,18 @@ The following arguments are supported:
 
 * `certificate_pem` -
   (Optional, Deprecated)
-  **Deprecated** The certificate chain in PEM-encoded form.
+  The certificate chain in PEM-encoded form.
   Leaf certificate comes first, followed by intermediate ones if any.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
+  ~> **Warning:** `certificate_pem` is deprecated and will be removed in a future major release. Use `pem_certificate` instead.
+
 * `private_key_pem` -
   (Optional, Deprecated)
-  **Deprecated** The private key of the leaf certificate in PEM-encoded form.
+  The private key of the leaf certificate in PEM-encoded form.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+  ~> **Warning:** `private_key_pem` is deprecated and will be removed in a future major release. Use `pem_private_key` instead.
 
 * `pem_certificate` -
   (Optional)

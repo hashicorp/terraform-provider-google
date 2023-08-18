@@ -18,6 +18,7 @@ description: |-
 ---
 
 # google\_firebase\_project\_location
+~> **Warning:** `google_firebase_project_location` is deprecated in favor of explicitly configuring `google_app_engine_application` and `google_firestore_database`. This resource will be removed in the next major release of the provider.
 
 Sets the default Google Cloud Platform (GCP) resource location for the specified FirebaseProject.
 This method creates an App Engine application with a default Cloud Storage bucket, located in the specified
@@ -36,9 +37,6 @@ To get more information about ProjectLocation, see:
 * [API documentation](https://firebase.google.com/docs/reference/firebase-management/rest/v1beta1/projects.defaultLocation/finalize)
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/)
-
-~> **Warning:** google_firebase_project_location is deprecated in favor of explicitly configuring `google_app_engine_application`
-and `google_firestore_database`. This resource will be removed in the next major release of the provider.
 
 ## Example Usage - Firebase Project Location Basic
 

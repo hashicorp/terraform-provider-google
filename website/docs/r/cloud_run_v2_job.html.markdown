@@ -442,11 +442,15 @@ The following arguments are supported:
   This field is not supported in Cloud Run Job currently.
   Structure is [documented below](#nested_liveness_probe).
 
+  ~> **Warning:** `liveness_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
+
 * `startup_probe` -
   (Optional, Deprecated)
   Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
   This field is not supported in Cloud Run Job currently.
   Structure is [documented below](#nested_startup_probe).
+
+  ~> **Warning:** `startup_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
 
 
 <a name="nested_env"></a>The `env` block supports:

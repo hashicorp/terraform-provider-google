@@ -200,8 +200,10 @@ The following arguments are supported:
   create the disk. Provide this when creating the disk.
 
 * `interface` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
   Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+
+  ~> **Warning:** `interface` is deprecated and will be removed in a future major release. This field is no longer used and can be safely removed from your configurations; disk interfaces are automatically determined on attachment.
 
 * `source_disk` -
   (Optional)
