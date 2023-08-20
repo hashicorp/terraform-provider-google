@@ -21,12 +21,10 @@ description: |-
 
 Represents a collection of denial policies to apply to a given resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about DenyPolicy, see:
 
-* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v2beta/policies)
+* [API documentation](https://cloud.google.com/iam/docs/reference/rest/v2/policies)
 * How-to Guides
     * [Permissions supported in deny policies](https://cloud.google.com/iam/docs/deny-permissions-support)
 
@@ -35,7 +33,6 @@ To get more information about DenyPolicy, see:
 
 ```hcl
 resource "google_project" "project" {
-  provider        = google-beta
   project_id      = "my-project"
   name            = "my-project"
   org_id          = "123456789"
@@ -43,7 +40,6 @@ resource "google_project" "project" {
 }
 
 resource "google_iam_deny_policy" "example" {
-  provider = google-beta
   parent   = urlencode("cloudresourcemanager.googleapis.com/projects/${google_project.project.project_id}")
   name     = "my-deny-policy"
   display_name = "A deny rule"
@@ -73,7 +69,6 @@ resource "google_iam_deny_policy" "example" {
 }
 
 resource "google_service_account" "test-account" {
-  provider = google-beta
   account_id   = "svc-acc"
   display_name = "Test Service Account"
   project      = google_project.project.project_id
