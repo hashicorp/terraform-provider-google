@@ -966,9 +966,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 310
+// Generated resources: 311
 // Generated IAM resources: 204
-// Total generated resources: 514
+// Total generated resources: 515
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1318,6 +1318,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_healthcare_fhir_store":                                   healthcare.ResourceHealthcareFhirStore(),
 			"google_healthcare_hl7_v2_store":                                 healthcare.ResourceHealthcareHl7V2Store(),
 			"google_iam_access_boundary_policy":                              iam2.ResourceIAM2AccessBoundaryPolicy(),
+			"google_iam_deny_policy":                                         iam2.ResourceIAM2DenyPolicy(),
 			"google_iam_workload_identity_pool":                              iambeta.ResourceIAMBetaWorkloadIdentityPool(),
 			"google_iam_workload_identity_pool_provider":                     iambeta.ResourceIAMBetaWorkloadIdentityPoolProvider(),
 			"google_iam_workforce_pool":                                      iamworkforcepool.ResourceIAMWorkforcePoolWorkforcePool(),
