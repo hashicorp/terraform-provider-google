@@ -57,6 +57,7 @@ func ResourceIdentityPlatformTenantDefaultSupportedIdpConfig() *schema.Resource 
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `OAuth client secret`,
+				Sensitive:   true,
 			},
 			"idp_id": {
 				Type:     schema.TypeString,
