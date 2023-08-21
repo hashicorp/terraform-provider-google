@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `restore_backup_source` and `restore_continuous_backup_source` fields to support restore feature in `google_alloydb_cluster` resource.
+```

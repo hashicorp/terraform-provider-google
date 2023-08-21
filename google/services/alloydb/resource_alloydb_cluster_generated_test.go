@@ -49,7 +49,7 @@ func TestAccAlloydbCluster_alloydbClusterBasicExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+				ImportStateVerifyIgnore: []string{"initial_user", "restore_backup_source", "restore_continuous_backup_source", "cluster_id", "location"},
 			},
 		},
 	})
@@ -90,7 +90,7 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 				ResourceName:            "google_alloydb_cluster.full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"initial_user", "cluster_id", "location"},
+				ImportStateVerifyIgnore: []string{"initial_user", "restore_backup_source", "restore_continuous_backup_source", "cluster_id", "location"},
 			},
 		},
 	})
