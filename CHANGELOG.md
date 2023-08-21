@@ -17,11 +17,10 @@ IMPROVEMENTS:
 * secretmanager: added `version_aliases` field to `google_secret_manager_secret` resource ([#15483](https://github.com/hashicorp/terraform-provider-google/pull/15483))
 
 BUG FIXES:
-* alloydb: changed `backup_window`, `enabled` and `location` fields to default to API value when unset in `google_alloydb_cluster` resource ([#15444](https://github.com/hashicorp/terraform-provider-google/pull/15444))
-* containeraws: added diff suppression for case changes of enum values in `google_container_aws_cluster` and `google_container_aws_node_pool` resources ([#15491](https://github.com/hashicorp/terraform-provider-google/pull/15491))
+* alloydb: fixed a permadiff on `google_alloydb_cluster` when `backup_window`, `enabled` or `location` fields are unset ([#15444](https://github.com/hashicorp/terraform-provider-google/pull/15444))
+* containeraws: fixed permadiffs on `google_container_aws_cluster` and `google_container_aws_node_pool` resources ([#15491](https://github.com/hashicorp/terraform-provider-google/pull/15491))
 * dataplex: fixed a bug when importing `google_dataplex_datascan` after running a job ([#15468](https://github.com/hashicorp/terraform-provider-google/pull/15468))
 * dns: changed `private_visibility_config.networks` from `required` to requiring at least one of `private_visibility_config.networks` or `private_visibility_config.gke_clusters` in `google_dns_managed_zone` resource ([#15443](https://github.com/hashicorp/terraform-provider-google/pull/15443))
-* eventarc: added required field `event_data_content_type` to `google_eventarc_trigger` resource ([#15433](https://github.com/hashicorp/terraform-provider-google/pull/15433))
 
 ## 4.78.0 (August 15, 2023)
 
