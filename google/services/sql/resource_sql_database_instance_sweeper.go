@@ -77,9 +77,11 @@ func testSweepSQLDatabaseInstance(region string) error {
 			// need to stop replication before being able to destroy a database
 			op, err := config.NewSqlAdminClient(config.UserAgent).Instances.StopReplica(config.Project, replicaName).Do()
 
+			// if the replica can't be stopped, still try deleting it later (in case it is stopped by then)
 			if err != nil {
 				log.Printf("error, failed to stop replica instance (%s) for instance (%s): %s", replicaName, d.Name, err)
-				return nil
+				ordering = append(ordering, replicaName)
+				continue
 			}
 
 			err = SqlAdminOperationWaitTime(config, op, config.Project, "Stop Replica", config.UserAgent, 10*time.Minute)
@@ -88,7 +90,6 @@ func testSweepSQLDatabaseInstance(region string) error {
 					log.Printf("Replication operation not found")
 				} else {
 					log.Printf("Error waiting for sqlAdmin operation: %s", err)
-					return nil
 				}
 			}
 
@@ -111,7 +112,7 @@ func testSweepSQLDatabaseInstance(region string) error {
 				}
 
 				log.Printf("Error, failed to delete instance %s: %s", db, err)
-				return nil
+				continue
 			}
 
 			err = SqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.UserAgent, 10*time.Minute)
@@ -121,7 +122,6 @@ func testSweepSQLDatabaseInstance(region string) error {
 					continue
 				}
 				log.Printf("Error, failed to delete instance %s: %s", db, err)
-				return nil
 			}
 		}
 	}
