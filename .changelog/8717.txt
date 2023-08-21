@@ -1,0 +1,3 @@
+```release-note:note
+alloydb: fixed import path doc for `google_alloydb_instance`
+```

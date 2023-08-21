@@ -199,6 +199,7 @@ This resource provides the following
 Instance can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_alloydb_instance.default {{cluster}}/instances/{{instance_id}}
-$ terraform import google_alloydb_instance.default {{cluster}}/{{instance_id}}
+$ terraform import google_alloydb_instance.default projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/instances/{{instance_id}}
+$ terraform import google_alloydb_instance.default {{project}}/{{location}}/{{cluster}}/{{instance_id}}
+$ terraform import google_alloydb_instance.default {{location}}/{{cluster}}/{{instance_id}}
 ```
