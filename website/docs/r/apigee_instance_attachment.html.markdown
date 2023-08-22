@@ -117,7 +117,7 @@ The following arguments are supported:
 * `instance_id` -
   (Required)
   The Apigee instance associated with the Apigee environment,
-  in the format `organisations/{{org_name}}/instances/{{instance_name}}`.
+  in the format `organizations/{{org_name}}/instances/{{instance_name}}`.
 
 
 - - -
