@@ -2465,6 +2465,31 @@ func TestAccComputeInstance_metadataStartupScript_update(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_regionBootDisk(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var diskName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var suffix = acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_regionBootDisk(instanceName, diskName, suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.regional_vm_instance", &instance),
+					testAccCheckComputeInstanceBootDisk(&instance, diskName),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -6655,4 +6680,53 @@ resource "google_compute_instance" "foobar" {
   allow_stopping_for_update = true
 }
 `, instance, machineType, metadata)
+}
+
+func testAccComputeInstance_regionBootDisk(instance, diskName, suffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_instance" "regional_vm_instance" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone = "us-central1-c"
+
+  boot_disk {
+    source = google_compute_region_disk.regionaldisk.self_link
+  }
+  network_interface {
+    network = google_compute_network.vpc_network.name
+    access_config {}
+  }
+}
+
+resource "google_compute_region_disk" "regionaldisk" {
+  name          = "%s"
+  type          = "pd-ssd"
+  region        = "us-central1"
+  replica_zones = ["us-central1-c", "us-central1-a"]
+  size          = 50
+  snapshot      = google_compute_snapshot.debian.id
+}
+
+resource "google_compute_network" "vpc_network" {
+  name = "tf-test-%s"
+}
+
+data "google_compute_image" "debian" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_snapshot" "debian" {
+  name        = "tf-test-%s"
+  source_disk = google_compute_disk.debian.id
+}
+
+resource "google_compute_disk" "debian" {
+  name  = "tf-test-%s"
+  image = data.google_compute_image.debian.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-c"
+}
+`, instance, diskName, suffix, suffix, suffix)
 }
