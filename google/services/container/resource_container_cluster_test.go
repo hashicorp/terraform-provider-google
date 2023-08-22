@@ -3267,6 +3267,80 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_additional_pod_ranges_config_on_create(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 1),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_additional_pod_ranges_config_on_update(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 2),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 1),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
+			},
+			{
+				ResourceName:      "google_container_cluster.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccContainerCluster_masterAuthorizedNetworksDisabled(t *testing.T, resource_name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource_name]
@@ -6857,4 +6931,84 @@ resource "google_container_cluster" "cluster" {
     }
   }
 }`, policyName, cluster, np)
+}
+
+func testAccContainerCluster_additional_pod_ranges_config(name string, nameCount int) string {
+	var podRangeNamesStr string
+	names := []string{"\"gke-autopilot-pods-add\",", "\"gke-autopilot-pods-add-2\""}
+	for i := 0; i < nameCount; i++ {
+		podRangeNamesStr += names[i]
+	}
+	var aprc string
+	if len(podRangeNamesStr) > 0 {
+		aprc = fmt.Sprintf(`
+			additional_pod_ranges_config {
+				pod_range_names = [%s]
+			}
+		`, podRangeNamesStr)
+	}
+
+	return fmt.Sprintf(`
+	resource "google_compute_network" "main" {
+		name                    = "%s"
+		auto_create_subnetworks = false
+	}
+	resource "google_compute_subnetwork" "main" {
+		ip_cidr_range = "10.10.0.0/16"
+		name          = "%s"
+		network       = google_compute_network.main.self_link
+		region        = "us-central1"
+
+		secondary_ip_range {
+			range_name    = "gke-autopilot-services"
+			ip_cidr_range = "10.11.0.0/20"
+		}
+
+		secondary_ip_range {
+			range_name    = "gke-autopilot-pods"
+			ip_cidr_range = "10.12.0.0/16"
+		}
+
+		secondary_ip_range {
+			range_name    = "gke-autopilot-pods-add"
+			ip_cidr_range = "10.100.0.0/16"
+		}
+		secondary_ip_range {
+			range_name    = "gke-autopilot-pods-add-2"
+			ip_cidr_range = "100.0.0.0/16"
+		}
+	}
+	resource "google_container_cluster" "primary" {
+		name     = "%s"
+		location = "us-central1"
+
+		enable_autopilot = true
+
+		release_channel {
+			channel = "REGULAR"
+		}
+
+		network    = google_compute_network.main.name
+		subnetwork = google_compute_subnetwork.main.name
+
+		private_cluster_config {
+			enable_private_endpoint = false
+			enable_private_nodes    = true
+			master_ipv4_cidr_block  = "172.16.0.0/28"
+		}
+
+		# supresses permadiff
+		dns_config {
+			cluster_dns = "CLOUD_DNS"
+			cluster_dns_domain = "cluster.local"
+			cluster_dns_scope = "CLUSTER_SCOPE"
+		}
+
+		ip_allocation_policy {
+			cluster_secondary_range_name  = "gke-autopilot-pods"
+			services_secondary_range_name = "gke-autopilot-services"
+			%s
+		}
+	}
+	`, name, name, name, aprc)
 }
