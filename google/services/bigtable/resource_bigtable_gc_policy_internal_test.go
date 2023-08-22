@@ -4,6 +4,7 @@ package bigtable
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -144,6 +145,47 @@ func TestUnitBigtableGCPolicy_getGCPolicyFromJSON(t *testing.T) {
 	}
 }
 
+func TestGCRulesDiffSuppress(t *testing.T) {
+	format := "{\"rules\": [{\"max_age\":\"%s\"}]}"
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"compound": {
+			Old:                "1d1h",
+			New:                "25h",
+			ExpectDiffSuppress: true,
+		},
+		"s->h": {
+			Old:                "3600s",
+			New:                "1h",
+			ExpectDiffSuppress: true,
+		},
+		"s->m": {
+			Old:                "3600s",
+			New:                "60m",
+			ExpectDiffSuppress: true,
+		},
+		"compound-diff": {
+			Old:                "1d1h",
+			New:                "26h",
+			ExpectDiffSuppress: false,
+		},
+
+		"s->h-diff": {
+			Old:                "3601s",
+			New:                "1h",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if gcRulesDiffSuppress(fmt.Sprintf(format, tc.Old), fmt.Sprintf(format, tc.New)) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 type testUnitBigtableGCPolicyCustomizeDiffTestcase struct {
 	testName    string
 	arraySize   int
@@ -179,6 +221,20 @@ var testUnitBigtableGCPolicyCustomizeDiffTestcases = []testUnitBigtableGCPolicyC
 		arraySize:   1,
 		oldDays:     3,
 		newDuration: "72h",
+		cleared:     true,
+	},
+	{
+		testName:    "DaysToDurationEqUsingDayDuration",
+		arraySize:   1,
+		oldDays:     3,
+		newDuration: "3d",
+		cleared:     true,
+	},
+	{
+		testName:    "DaysToDurationEqUsingCompoundWeekDayDuration",
+		arraySize:   1,
+		oldDays:     8,
+		newDuration: "1w1d",
 		cleared:     true,
 	},
 	{
