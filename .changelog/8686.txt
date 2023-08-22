@@ -1,0 +1,6 @@
+```release-note:bug
+bigtable: fixed permadiff in `google_bigtable_gc_policy.gc_rules` when `mode` is specified
+```
+```release-note:bug
+bigtable: fixed permadiff in `google_bigtable_gc_policy.gc_rules` when `max_age` is specified using increments larger than hours
+```

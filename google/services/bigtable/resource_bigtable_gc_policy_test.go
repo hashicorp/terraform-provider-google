@@ -176,7 +176,7 @@ func TestAccBigtableGCPolicy_gcRulesPolicy(t *testing.T) {
 	familyName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	gcRulesOriginal := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"10h\"},{\"max_version\":2}]}"
-	gcRulesUpdate := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
+	gcRulesUpdate := "{\"mode\":\"intersection\",\"rules\":[{\"max_age\":\"40h\"},{\"max_version\":1}]}"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -255,14 +255,14 @@ var testUnitGcPolicyToGCRuleStringTestCases = []testUnitGcPolicyToGCRuleString{
 		errorExpected: false,
 	},
 	{
-		name:          "MaxVersionPolicyNotTopeLevel",
+		name:          "MaxVersionPolicyNotTopLevel",
 		policy:        bigtable.MaxVersionsPolicy(1),
 		topLevel:      false,
 		want:          `{"max_version":1}`,
 		errorExpected: false,
 	},
 	{
-		name:          "MaxAgePolicyNotTopeLevel",
+		name:          "MaxAgePolicyNotTopLevel",
 		policy:        bigtable.MaxAgePolicy(time.Hour),
 		topLevel:      false,
 		want:          `{"max_age":"1h"}`,
@@ -795,7 +795,7 @@ func testAccBigtableGCPolicy_gcRulesUpdate(instanceName, tableName, family strin
 		table         = google_bigtable_table.table.name
 		column_family = "%s"
 
-		gc_rules = "{\"mode\":\"intersection\", \"rules\":[{\"max_age\":\"16h\"},{\"max_version\":1}]}"
+		gc_rules = "{\"mode\":\"intersection\", \"rules\":[{\"max_age\":\"1d16h\"},{\"max_version\":1}]}"
 	}
 `, instanceName, instanceName, tableName, family, family)
 }
