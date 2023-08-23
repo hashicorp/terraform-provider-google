@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	"github.com/hashicorp/terraform-provider-google/google/services/eventarc"
 	"github.com/hashicorp/terraform-provider-google/google/services/firebaserules"
+	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
@@ -71,6 +72,7 @@ var dclResources = map[string]*schema.Resource{
 	"google_eventarc_trigger":                                   eventarc.ResourceEventarcTrigger(),
 	"google_firebaserules_release":                              firebaserules.ResourceFirebaserulesRelease(),
 	"google_firebaserules_ruleset":                              firebaserules.ResourceFirebaserulesRuleset(),
+	"google_gke_hub_feature_membership":                         gkehub.ResourceGkeHubFeatureMembership(),
 	"google_network_connectivity_hub":                           networkconnectivity.ResourceNetworkConnectivityHub(),
 	"google_network_connectivity_spoke":                         networkconnectivity.ResourceNetworkConnectivitySpoke(),
 	"google_org_policy_policy":                                  orgpolicy.ResourceOrgPolicyPolicy(),
