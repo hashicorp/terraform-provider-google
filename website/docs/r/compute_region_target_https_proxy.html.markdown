@@ -130,7 +130,7 @@ The following arguments are supported:
   An optional description of this resource.
 
 * `ssl_policy` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A reference to the Region SslPolicy resource that will be associated with
   the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
   resource will not have any SSL policy configured.
