@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: made `password` mutable in `google_datastream_connection_profile` resource.
+```
