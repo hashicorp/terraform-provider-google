@@ -9,7 +9,7 @@
 var defaultStartHour = 4
 
 // specifies the default level of parallelism per-service-package
-var defaultParallelism = 12
+var defaultParallelism = 6
 
 // specifies the default version of Terraform Core which should be used for testing
 var defaultTerraformCoreVersion = "1.2.5"
