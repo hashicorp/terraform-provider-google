@@ -160,7 +160,6 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 						"password": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `Password for the MySQL connection.`,
 							Sensitive:   true,
 						},
