@@ -35,6 +35,7 @@ class packageDetails(packageName: String, displayName: String, providerName: Str
 
             steps {
                 SetGitCommitBuildId()
+                TagBuildToIndicatePurpose()
                 ConfigureGoEnv()
                 DownloadTerraformBinary()
                 RunAcceptanceTests()
