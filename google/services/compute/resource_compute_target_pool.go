@@ -245,6 +245,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+
 	return resourceComputeTargetPoolRead(d, meta)
 }
 

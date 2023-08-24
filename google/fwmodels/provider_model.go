@@ -144,6 +144,8 @@ type ProviderModel struct {
 	FirebaserulesCustomEndpoint        types.String `tfsdk:"firebaserules_custom_endpoint"`
 	OrgPolicyCustomEndpoint            types.String `tfsdk:"org_policy_custom_endpoint"`
 	RecaptchaEnterpriseCustomEndpoint  types.String `tfsdk:"recaptcha_enterprise_custom_endpoint"`
+
+	GkehubFeatureCustomEndpoint types.String `tfsdk:"gkehub_feature_custom_endpoint"`
 }
 
 type ProviderBatching struct {

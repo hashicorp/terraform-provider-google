@@ -1369,6 +1369,23 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"additional_pod_ranges_config": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: `AdditionalPodRangesConfig is the configuration for additional pod secondary ranges supporting the ClusterUpdate message.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pod_range_names": {
+										Type:        schema.TypeSet,
+										MinItems:    1,
+										Required:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `Name for pod secondary ipv4 range which has the actual range defined ahead.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1717,11 +1734,12 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 			"dns_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				MaxItems:    1,
-				ForceNew:    true,
-				Description: `Configuration for Cloud DNS for Kubernetes Engine.`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				ForceNew:         true,
+				DiffSuppressFunc: suppressDiffForAutopilot,
+				Description:      `Configuration for Cloud DNS for Kubernetes Engine.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cluster_dns": {
@@ -2145,6 +2163,38 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		err = ContainerOperationWait(config, op, project, location, "updating enable private endpoint", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return errwrap.Wrapf("Error while waiting to enable private endpoint: {{err}}", err)
+		}
+	}
+
+	if names, ok := d.GetOk("ip_allocation_policy.0.additional_pod_ranges_config.0.pod_range_names"); ok {
+		name := containerClusterFullName(project, location, clusterName)
+		additionalPodRangesConfig := &container.AdditionalPodRangesConfig{
+			PodRangeNames: tpgresource.ConvertStringSet(names.(*schema.Set)),
+		}
+
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				AdditionalPodRangesConfig: additionalPodRangesConfig,
+			},
+		}
+
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				clusterUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Update(name, req)
+				if config.UserProjectOverride {
+					clusterUpdateCall.Header().Add("X-Goog-User-Project", project)
+				}
+				op, err = clusterUpdateCall.Do()
+				return err
+			},
+		})
+		if err != nil {
+			return errwrap.Wrapf("Error updating AdditionalPodRangesConfig: {{err}}", err)
+		}
+
+		err = ContainerOperationWait(config, op, project, location, "updating AdditionalPodRangesConfig", userAgent, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return errwrap.Wrapf("Error while waiting to update AdditionalPodRangesConfig: {{err}}", err)
 		}
 	}
 
@@ -3035,6 +3085,51 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 
 		log.Printf("[INFO] Network policy for GKE cluster %s has been updated", d.Id())
 
+	}
+
+	if d.HasChange("ip_allocation_policy.0.additional_pod_ranges_config") {
+		o, n := d.GetChange("ip_allocation_policy.0.additional_pod_ranges_config.0.pod_range_names")
+		old_names := o.(*schema.Set)
+		new_names := n.(*schema.Set)
+
+		// Filter unchanged names.
+		removed_names := old_names.Difference(new_names)
+		added_names := new_names.Difference(old_names)
+
+		var additional_config *container.AdditionalPodRangesConfig
+		var removed_config *container.AdditionalPodRangesConfig
+		if added_names.Len() > 0 {
+			var names []string
+			for _, name := range added_names.List() {
+				names = append(names, name.(string))
+			}
+			additional_config = &container.AdditionalPodRangesConfig{
+				PodRangeNames: names,
+			}
+		}
+		if removed_names.Len() > 0 {
+			var names []string
+			for _, name := range removed_names.List() {
+				names = append(names, name.(string))
+			}
+			removed_config = &container.AdditionalPodRangesConfig{
+				PodRangeNames: names,
+			}
+		}
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				AdditionalPodRangesConfig:        additional_config,
+				RemovedAdditionalPodRangesConfig: removed_config,
+			},
+		}
+
+		updateF := updateFunc(req, "updating AdditionalPodRangesConfig")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's AdditionalPodRangesConfig has been updated", d.Id())
 	}
 
 	if n, ok := d.GetOk("node_pool.#"); ok {
@@ -4107,6 +4202,25 @@ func flattenSecurityPostureConfig(spc *container.SecurityPostureConfig) []map[st
 	return []map[string]interface{}{result}
 }
 
+func flattenAdditionalPodRangesConfig(ipAllocationPolicy *container.IPAllocationPolicy) []map[string]interface{} {
+	if ipAllocationPolicy == nil {
+		return nil
+	}
+	result := make(map[string]interface{})
+
+	if aprc := ipAllocationPolicy.AdditionalPodRangesConfig; aprc != nil {
+		if len(aprc.PodRangeNames) > 0 {
+			result["pod_range_names"] = aprc.PodRangeNames
+		} else {
+			return nil
+		}
+	} else {
+		return nil
+	}
+
+	return []map[string]interface{}{result}
+}
+
 func expandNotificationConfig(configured interface{}) *container.NotificationConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -4877,6 +4991,7 @@ func flattenIPAllocationPolicy(c *container.Cluster, d *schema.ResourceData, con
 			"services_secondary_range_name": p.ServicesSecondaryRangeName,
 			"stack_type":                    p.StackType,
 			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(p.PodCidrOverprovisionConfig),
+			"additional_pod_ranges_config":  flattenAdditionalPodRangesConfig(c.IpAllocationPolicy),
 		},
 	}, nil
 }

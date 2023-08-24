@@ -26,6 +26,11 @@ var services = mapOf(
         "displayName" to "Alloydb",
         "path" to "./google/services/alloydb"
     ),
+    "apigateway" to mapOf(
+        "name" to "apigateway",
+        "displayName" to "Apigateway",
+        "path" to "./google/services/apigateway"
+    ),
     "apigee" to mapOf(
         "name" to "apigee",
         "displayName" to "Apigee",
@@ -226,6 +231,11 @@ var services = mapOf(
         "displayName" to "Dataflow",
         "path" to "./google/services/dataflow"
     ),
+    "dataform" to mapOf(
+        "name" to "dataform",
+        "displayName" to "Dataform",
+        "path" to "./google/services/dataform"
+    ),
     "datafusion" to mapOf(
         "name" to "datafusion",
         "displayName" to "Datafusion",
@@ -310,6 +320,16 @@ var services = mapOf(
         "name" to "firebase",
         "displayName" to "Firebase",
         "path" to "./google/services/firebase"
+    ),
+    "firebasedatabase" to mapOf(
+        "name" to "firebasedatabase",
+        "displayName" to "Firebasedatabase",
+        "path" to "./google/services/firebasedatabase"
+    ),
+    "firebaseextensions" to mapOf(
+        "name" to "firebaseextensions",
+        "displayName" to "Firebaseextensions",
+        "path" to "./google/services/firebaseextensions"
     ),
     "firebasehosting" to mapOf(
         "name" to "firebasehosting",
@@ -496,6 +516,16 @@ var services = mapOf(
         "displayName" to "Securitycenter",
         "path" to "./google/services/securitycenter"
     ),
+    "securityscanner" to mapOf(
+        "name" to "securityscanner",
+        "displayName" to "Securityscanner",
+        "path" to "./google/services/securityscanner"
+    ),
+    "servicedirectory" to mapOf(
+        "name" to "servicedirectory",
+        "displayName" to "Servicedirectory",
+        "path" to "./google/services/servicedirectory"
+    ),
     "servicemanagement" to mapOf(
         "name" to "servicemanagement",
         "displayName" to "Servicemanagement",
@@ -565,5 +595,10 @@ var services = mapOf(
         "name" to "workflows",
         "displayName" to "Workflows",
         "path" to "./google/services/workflows"
+    ),
+    "workstations" to mapOf(
+        "name" to "workstations",
+        "displayName" to "Workstations",
+        "path" to "./google/services/workstations"
     )
 )

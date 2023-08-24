@@ -787,15 +787,40 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 					},
 				},
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time.`,
+			},
+			"creator": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Email address of the authenticated creator.`,
+			},
+			"delete_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The deletion time.`,
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during updates.`,
 			},
+			"expire_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `For a deleted resource, the time after which it will be permamently deleted.`,
+			},
 			"generation": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `A number that monotonically increases every time the user modifies the desired state. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a string instead of an integer.`,
+			},
+			"last_modifier": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Email address of the last authenticated modifier.`,
 			},
 			"latest_created_revision": {
 				Type:        schema.TypeString,
@@ -910,6 +935,11 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The last-modified time.`,
 			},
 			"uri": {
 				Type:        schema.TypeString,
@@ -1113,6 +1143,24 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 	if err := d.Set("annotations", flattenCloudRunV2ServiceAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("create_time", flattenCloudRunV2ServiceCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("update_time", flattenCloudRunV2ServiceUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("delete_time", flattenCloudRunV2ServiceDeleteTime(res["deleteTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("expire_time", flattenCloudRunV2ServiceExpireTime(res["expireTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("creator", flattenCloudRunV2ServiceCreator(res["creator"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("last_modifier", flattenCloudRunV2ServiceLastModifier(res["lastModifier"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
 	if err := d.Set("client", flattenCloudRunV2ServiceClient(res["client"], d, config)); err != nil {
@@ -1373,6 +1421,30 @@ func flattenCloudRunV2ServiceLabels(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenCloudRunV2ServiceAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceDeleteTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceCreator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceLastModifier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

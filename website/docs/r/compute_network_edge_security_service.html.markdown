@@ -38,7 +38,7 @@ resource "google_compute_network_edge_security_service" "default" {
   provider     = google-beta  
 
   name         = "my-edge-security-service"
-  region       = "asia-southeast1"
+  region       = "us-east1"
   description  = "My basic resource"
 }
 ```

@@ -723,6 +723,16 @@ pick a specific range to use.
 Default value is `IPV4`.
 Possible values are `IPV4` and `IPV4_IPV6`.
 
+* `additional_pod_ranges_config` - (Optional) The configuration for additional pod secondary ranges at
+the cluster level. Used for Autopilot clusters and Standard clusters with which control of the 
+secondary Pod IP address assignment to node pools isn't needed. Structure is [documented below](#nested_additional_pod_ranges_config).
+
+
+<a name="nested_additional_pod_ranges_config"></a>The `additional_pod_ranges_config` block supports:
+
+* `pod_range_names` - (Required) The names of the Pod ranges to add to the cluster.
+
+
 <a name="nested_master_auth"></a>The `master_auth` block supports:
 
 * `client_certificate_config` - (Required) Whether client certificate authorization is enabled for this cluster.  For example:

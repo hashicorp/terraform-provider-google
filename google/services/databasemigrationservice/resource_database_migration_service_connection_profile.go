@@ -234,6 +234,12 @@ If the available storage repeatedly falls below the threshold size, Cloud SQL co
 										Description: `The database engine type and version.
 Currently supported values located at https://cloud.google.com/database-migration/docs/reference/rest/v1/projects.locations.connectionProfiles#sqldatabaseversion`,
 									},
+									"edition": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ENTERPRISE", "ENTERPRISE_PLUS", ""}),
+										Description:  `The edition of the given Cloud SQL instance. Possible values: ["ENTERPRISE", "ENTERPRISE_PLUS"]`,
+									},
 									"ip_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1297,6 +1303,8 @@ func flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettings(v interfac
 		flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCollation(original["collation"], d, config)
 	transformed["cmek_key_name"] =
 		flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCmekKeyName(original["cmekKeyName"], d, config)
+	transformed["edition"] =
+		flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsEdition(original["edition"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsDatabaseVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1424,6 +1432,10 @@ func flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCollation(v
 }
 
 func flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCmekKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDatabaseMigrationServiceConnectionProfileCloudsqlSettingsEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2050,6 +2062,13 @@ func expandDatabaseMigrationServiceConnectionProfileCloudsqlSettings(v interface
 		transformed["cmekKeyName"] = transformedCmekKeyName
 	}
 
+	transformedEdition, err := expandDatabaseMigrationServiceConnectionProfileCloudsqlSettingsEdition(original["edition"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEdition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["edition"] = transformedEdition
+	}
+
 	return transformed, nil
 }
 
@@ -2235,6 +2254,10 @@ func expandDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCollation(v 
 }
 
 func expandDatabaseMigrationServiceConnectionProfileCloudsqlSettingsCmekKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDatabaseMigrationServiceConnectionProfileCloudsqlSettingsEdition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

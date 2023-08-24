@@ -38,6 +38,7 @@ import (
 	dataproc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/dataproc"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
 	firebaserules "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/firebaserules"
+	gkehub "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/gkehub"
 	networkconnectivity "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/networkconnectivity"
 	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
 	privateca "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/privateca"
@@ -364,6 +365,29 @@ func NewDCLFirebaserulesClient(config *Config, userAgent, billingProject string,
 
 	dclConfig := dcl.NewConfig(configOptions...)
 	return firebaserules.NewClient(dclConfig)
+}
+
+func NewDCLGkeHubClient(config *Config, userAgent, billingProject string, timeout time.Duration) *gkehub.Client {
+	configOptions := []dcl.ConfigOption{
+		dcl.WithHTTPClient(config.Client),
+		dcl.WithUserAgent(userAgent),
+		dcl.WithLogger(dclLogger{}),
+		dcl.WithBasePath(config.GKEHubFeatureBasePath),
+	}
+
+	if timeout != 0 {
+		configOptions = append(configOptions, dcl.WithTimeout(timeout))
+	}
+
+	if config.UserProjectOverride {
+		configOptions = append(configOptions, dcl.WithUserProjectOverride())
+		if billingProject != "" {
+			configOptions = append(configOptions, dcl.WithBillingProject(billingProject))
+		}
+	}
+
+	dclConfig := dcl.NewConfig(configOptions...)
+	return gkehub.NewClient(dclConfig)
 }
 
 func NewDCLNetworkConnectivityClient(config *Config, userAgent, billingProject string, timeout time.Duration) *networkconnectivity.Client {

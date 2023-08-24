@@ -297,6 +297,10 @@ The following arguments are supported:
   (Output)
   The Vsphere datastore used by the Control Plane Node.
 
+* `storage_policy_name` -
+  (Output)
+  The Vsphere storage policy used by the control plane Node.
+
 - - -
 
 
@@ -790,6 +794,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `address` -
   (Output)
   The vCenter IP address.
+
+* `storage_policy_name` -
+  (Output)
+  The name of the vCenter storage policy for the user cluster.
 
 <a name="nested_status"></a>The `status` block contains:
 

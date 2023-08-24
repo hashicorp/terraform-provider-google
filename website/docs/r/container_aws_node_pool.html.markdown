@@ -180,6 +180,327 @@ resource "google_container_aws_node_pool" "primary" {
 
 
 ```
+## Example Usage - basic_enum_aws_cluster
+A basic example of a containeraws node pool with lowercase enums
+```hcl
+data "google_container_aws_versions" "versions" {
+  project = "my-project-name"
+  location = "us-west1"
+}
+
+resource "google_container_aws_cluster" "primary" {
+  authorization {
+    admin_users {
+      username = "my@service-account.com"
+    }
+  }
+
+  aws_region = "my-aws-region"
+
+  control_plane {
+    aws_services_authentication {
+      role_arn          = "arn:aws:iam::012345678910:role/my--1p-dev-oneplatform"
+      role_session_name = "my--1p-dev-session"
+    }
+
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    database_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    iam_instance_profile = "my--1p-dev-controlplane"
+    subnet_ids           = ["subnet-00000000000000000"]
+    version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+    instance_type        = "t3.medium"
+
+    main_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "GP3"
+    }
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "GP3"
+    }
+
+    security_group_ids = ["sg-00000000000000000"]
+
+    ssh_config {
+      ec2_key_pair = "my--1p-dev-ssh"
+    }
+
+    tags = {
+      owner = "my@service-account.com"
+    }
+  }
+
+  fleet {
+    project = "my-project-number"
+  }
+
+  location = "us-west1"
+  name     = "name"
+
+  networking {
+    pod_address_cidr_blocks     = ["10.2.0.0/16"]
+    service_address_cidr_blocks = ["10.1.0.0/16"]
+    vpc_id                      = "vpc-00000000000000000"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+
+  description = "A sample aws cluster"
+  project     = "my-project-name"
+}
+
+
+resource "google_container_aws_node_pool" "primary" {
+  autoscaling {
+    max_node_count = 5
+    min_node_count = 1
+  }
+
+  cluster = google_container_aws_cluster.primary.name
+
+  config {
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    iam_instance_profile = "my--1p-dev-nodepool"
+    instance_type        = "t3.medium"
+
+    labels = {
+      label-one = "value-one"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "gp3"
+    }
+
+    security_group_ids = ["sg-00000000000000000"]
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    ssh_config {
+      ec2_key_pair = "my--1p-dev-ssh"
+    }
+
+    tags = {
+      tag-one = "value-one"
+    }
+
+    taints {
+      effect = "prefer_no_schedule"
+      key    = "taint-key"
+      value  = "taint-value"
+    }
+  }
+
+  location = "us-west1"
+
+  max_pods_constraint {
+    max_pods_per_node = 110
+  }
+
+  name      = "node-pool-name"
+  subnet_id = "subnet-00000000000000000"
+  version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+
+  annotations = {
+    label-one = "value-one"
+  }
+
+  project = "my-project-name"
+}
+
+
+```
+## Example Usage - beta_basic_enum_aws_cluster
+A basic example of a containeraws node pool with lowercase enums (beta)
+```hcl
+data "google_container_aws_versions" "versions" {
+  provider = google-beta
+  project = "my-project-name"
+  location = "us-west1"
+}
+
+resource "google_container_aws_cluster" "primary" {
+  provider = google-beta
+  authorization {
+    admin_users {
+      username = "my@service-account.com"
+    }
+  }
+
+  aws_region = "my-aws-region"
+
+  control_plane {
+    aws_services_authentication {
+      role_arn          = "arn:aws:iam::012345678910:role/my--1p-dev-oneplatform"
+      role_session_name = "my--1p-dev-session"
+    }
+
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    database_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    iam_instance_profile = "my--1p-dev-controlplane"
+    subnet_ids           = ["subnet-00000000000000000"]
+    version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+    instance_type        = "t3.medium"
+
+    main_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "GP3"
+    }
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "GP3"
+    }
+
+    security_group_ids = ["sg-00000000000000000"]
+
+    ssh_config {
+      ec2_key_pair = "my--1p-dev-ssh"
+    }
+
+    tags = {
+      owner = "my@service-account.com"
+    }
+  }
+
+  fleet {
+    project = "my-project-number"
+  }
+
+  location = "us-west1"
+  name     = "name"
+
+  networking {
+    pod_address_cidr_blocks     = ["10.2.0.0/16"]
+    service_address_cidr_blocks = ["10.1.0.0/16"]
+    vpc_id                      = "vpc-00000000000000000"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+
+  description = "A sample aws cluster"
+  project     = "my-project-name"
+}
+
+
+resource "google_container_aws_node_pool" "primary" {
+  provider = google-beta
+  autoscaling {
+    max_node_count = 5
+    min_node_count = 1
+  }
+
+  cluster = google_container_aws_cluster.primary.name
+
+  config {
+    config_encryption {
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+    }
+
+    iam_instance_profile = "my--1p-dev-nodepool"
+    instance_type        = "t3.medium"
+
+    labels = {
+      label-one = "value-one"
+    }
+
+    root_volume {
+      iops        = 3000
+      kms_key_arn = "arn:aws:kms:my-aws-region:012345678910:key/12345678-1234-1234-1234-123456789111"
+      size_gib    = 10
+      volume_type = "gp3"
+    }
+
+    security_group_ids = ["sg-00000000000000000"]
+
+    proxy_config {
+      secret_arn     = "arn:aws:secretsmanager:us-west-2:126285863215:secret:proxy_config20210824150329476300000001-ABCDEF"
+      secret_version = "12345678-ABCD-EFGH-IJKL-987654321098"
+    }
+
+    ssh_config {
+      ec2_key_pair = "my--1p-dev-ssh"
+    }
+
+    tags = {
+      tag-one = "value-one"
+    }
+
+    taints {
+      effect = "prefer_no_schedule"
+      key    = "taint-key"
+      value  = "taint-value"
+    }
+
+    instance_placement {
+      tenancy = "dedicated"
+    }
+
+    image_type = "ubuntu"
+  }
+
+  location = "us-west1"
+
+  max_pods_constraint {
+    max_pods_per_node = 110
+  }
+
+  name      = "node-pool-name"
+  subnet_id = "subnet-00000000000000000"
+  version   = "${data.google_container_aws_versions.versions.valid_versions[0]}"
+
+  annotations = {
+    label-one = "value-one"
+  }
+
+  project = "my-project-name"
+}
+
+
+```
 
 ## Argument Reference
 

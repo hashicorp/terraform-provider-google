@@ -22,9 +22,12 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
     val preSweeperConfig = buildConfigurationForSweeper("Pre-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
     val postSweeperConfig = buildConfigurationForSweeper("Post-Sweeper", sweepers, providerName, manualVcsRoot, configuration)
 
-    // Add trigger to last step of build chain (post-sweeper)
-    val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
-    postSweeperConfig.addTrigger(triggerConfig)
+    // Add trigger to last step of build chain (post-sweeper) if the project allows
+    if (ShouldAddTrigger(environment)){
+        val triggerConfig = NightlyTriggerConfiguration(environment, branchRef)
+        postSweeperConfig.addTrigger(triggerConfig)
+    }
+
     
     return Project{
 
@@ -47,6 +50,18 @@ fun Google(environment: String, manualVcsRoot: AbsoluteId, branchRef: String, co
             }
 
             buildType(postSweeperConfig)
+        }
+
+        // Set the configuration parameter BRANCH_NAME in the project, used to control the default branch of the VCS Root
+        // The value we set here is taken from a context parameter (see .teamcity/settings.kts file)
+        // The VCS root's default branch is set to `%BRANCH_NAME%` to make it controlled by those values.
+        // Adding this allows custom builds to use alternative branches. E.g. testing release branches in the downstreams
+
+        params {
+            param("BRANCH_NAME", branchRef)
+            
+            // Not used, but making `environment` a param makes the value visible to non-admins in TeamCity
+            param("ENVIRONMENT", environment)
         }
     }
 }
@@ -74,6 +89,16 @@ fun buildConfigurationForSweeper(sweeperName: String, packages: Map<String, Map<
     val s = sweeperDetails()
 
     return s.sweeperBuildConfig(sweeperName, sweeperPath, providerName, manualVcsRoot, defaultParallelism, environmentVariables)
+}
+
+fun ShouldAddTrigger(environment: String): Boolean {
+    if (environment == MM_UPSTREAM) {
+        // The 'MM uptream' projects are only ever used for ad hoc builds,
+        // never run on a schedule, so no cron trigger is needed
+        return false
+    }
+
+    return true
 }
 
 class NightlyTriggerConfiguration(environment: String, branchRef: String, nightlyTestsEnabled: Boolean = true, startHour: Int = defaultStartHour, daysOfWeek: String = defaultDaysOfWeek, daysOfMonth: String = defaultDaysOfMonth) {

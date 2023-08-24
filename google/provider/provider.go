@@ -845,6 +845,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_spanner_instance":                             spanner.DataSourceSpannerInstance(),
 		"google_sql_ca_certs":                                 sql.DataSourceGoogleSQLCaCerts(),
 		"google_sql_tiers":                                    sql.DataSourceGoogleSQLTiers(),
+		"google_sql_database_instance_latest_recovery_time":   sql.DataSourceSqlDatabaseInstanceLatestRecoveryTime(),
 		"google_sql_backup_run":                               sql.DataSourceSqlBackupRun(),
 		"google_sql_databases":                                sql.DataSourceSqlDatabases(),
 		"google_sql_database":                                 sql.DataSourceSqlDatabase(),
@@ -958,9 +959,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 302
+// Generated resources: 306
 // Generated IAM resources: 204
-// Total generated resources: 506
+// Total generated resources: 510
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1047,6 +1048,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_bigquery_datapolicy_data_policy_iam_member":              tpgiamresource.ResourceIamMember(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 			"google_bigquery_datapolicy_data_policy_iam_policy":              tpgiamresource.ResourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIdParseFunc),
 			"google_bigquery_data_transfer_config":                           bigquerydatatransfer.ResourceBigqueryDataTransferConfig(),
+			"google_bigquery_bi_reservation":                                 bigqueryreservation.ResourceBigqueryReservationBiReservation(),
 			"google_bigquery_capacity_commitment":                            bigqueryreservation.ResourceBigqueryReservationCapacityCommitment(),
 			"google_bigquery_reservation":                                    bigqueryreservation.ResourceBigqueryReservationReservation(),
 			"google_bigtable_app_profile":                                    bigtable.ResourceBigtableAppProfile(),
@@ -1061,6 +1063,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_certificate_manager_certificate_map":                     certificatemanager.ResourceCertificateManagerCertificateMap(),
 			"google_certificate_manager_certificate_map_entry":               certificatemanager.ResourceCertificateManagerCertificateMapEntry(),
 			"google_certificate_manager_dns_authorization":                   certificatemanager.ResourceCertificateManagerDnsAuthorization(),
+			"google_certificate_manager_trust_config":                        certificatemanager.ResourceCertificateManagerTrustConfig(),
 			"google_cloud_asset_folder_feed":                                 cloudasset.ResourceCloudAssetFolderFeed(),
 			"google_cloud_asset_organization_feed":                           cloudasset.ResourceCloudAssetOrganizationFeed(),
 			"google_cloud_asset_project_feed":                                cloudasset.ResourceCloudAssetProjectFeed(),
@@ -1293,6 +1296,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_feature_iam_binding":                             tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_member":                              tpgiamresource.ResourceIamMember(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_policy":                              tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
+			"google_gke_hub_membership_rbac_role_binding":                    gkehub2.ResourceGKEHub2MembershipRBACRoleBinding(),
 			"google_healthcare_consent_store":                                healthcare.ResourceHealthcareConsentStore(),
 			"google_healthcare_consent_store_iam_binding":                    tpgiamresource.ResourceIamBinding(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
 			"google_healthcare_consent_store_iam_member":                     tpgiamresource.ResourceIamMember(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
@@ -1302,6 +1306,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_healthcare_fhir_store":                                   healthcare.ResourceHealthcareFhirStore(),
 			"google_healthcare_hl7_v2_store":                                 healthcare.ResourceHealthcareHl7V2Store(),
 			"google_iam_access_boundary_policy":                              iam2.ResourceIAM2AccessBoundaryPolicy(),
+			"google_iam_deny_policy":                                         iam2.ResourceIAM2DenyPolicy(),
 			"google_iam_workload_identity_pool":                              iambeta.ResourceIAMBetaWorkloadIdentityPool(),
 			"google_iam_workload_identity_pool_provider":                     iambeta.ResourceIAMBetaWorkloadIdentityPoolProvider(),
 			"google_iam_workforce_pool":                                      iamworkforcepool.ResourceIAMWorkforcePoolWorkforcePool(),

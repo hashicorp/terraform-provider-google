@@ -79,6 +79,13 @@ func ResourceHealthcareFhirStore() *schema.Resource {
 				ValidateFunc: verify.ValidateEnum([]string{"COMPLEX_DATA_TYPE_REFERENCE_PARSING_UNSPECIFIED", "DISABLED", "ENABLED", ""}),
 				Description:  `Enable parsing of references within complex FHIR data types such as Extensions. If this value is set to ENABLED, then features like referential integrity and Bundle reference rewriting apply to all references. If this flag has not been specified the behavior of the FHIR store will not change, references in complex data types will not be parsed. New stores will have this value set to ENABLED by default after a notification period. Warning: turning on this flag causes processing existing resources to fail if they contain references to non-existent resources. Possible values: ["COMPLEX_DATA_TYPE_REFERENCE_PARSING_UNSPECIFIED", "DISABLED", "ENABLED"]`,
 			},
+			"default_search_handling_strict": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `If true, overrides the default search behavior for this FHIR store to handling=strict which returns an error for unrecognized search parameters.
+If false, uses the FHIR specification default handling=lenient which ignores unrecognized search parameters.
+The handling can always be changed from the default on an individual API call by setting the HTTP header Prefer: handling=strict or Prefer: handling=lenient.`,
+			},
 			"disable_referential_integrity": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -334,6 +341,12 @@ func resourceHealthcareFhirStoreCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("stream_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(streamConfigsProp)) && (ok || !reflect.DeepEqual(v, streamConfigsProp)) {
 		obj["streamConfigs"] = streamConfigsProp
 	}
+	defaultSearchHandlingStrictProp, err := expandHealthcareFhirStoreDefaultSearchHandlingStrict(d.Get("default_search_handling_strict"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_search_handling_strict"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultSearchHandlingStrictProp)) && (ok || !reflect.DeepEqual(v, defaultSearchHandlingStrictProp)) {
+		obj["defaultSearchHandlingStrict"] = defaultSearchHandlingStrictProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores?fhirStoreId={{name}}")
 	if err != nil {
@@ -445,6 +458,9 @@ func resourceHealthcareFhirStoreRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("stream_configs", flattenHealthcareFhirStoreStreamConfigs(res["streamConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FhirStore: %s", err)
 	}
+	if err := d.Set("default_search_handling_strict", flattenHealthcareFhirStoreDefaultSearchHandlingStrict(res["defaultSearchHandlingStrict"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FhirStore: %s", err)
+	}
 
 	return nil
 }
@@ -489,6 +505,12 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("stream_configs"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, streamConfigsProp)) {
 		obj["streamConfigs"] = streamConfigsProp
 	}
+	defaultSearchHandlingStrictProp, err := expandHealthcareFhirStoreDefaultSearchHandlingStrict(d.Get("default_search_handling_strict"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_search_handling_strict"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultSearchHandlingStrictProp)) {
+		obj["defaultSearchHandlingStrict"] = defaultSearchHandlingStrictProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/fhirStores/{{name}}")
 	if err != nil {
@@ -516,6 +538,10 @@ func resourceHealthcareFhirStoreUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("stream_configs") {
 		updateMask = append(updateMask, "streamConfigs")
+	}
+
+	if d.HasChange("default_search_handling_strict") {
+		updateMask = append(updateMask, "defaultSearchHandlingStrict")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -758,6 +784,10 @@ func flattenHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastU
 	return v
 }
 
+func flattenHealthcareFhirStoreDefaultSearchHandlingStrict(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandHealthcareFhirStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -955,6 +985,10 @@ func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUp
 }
 
 func expandHealthcareFhirStoreStreamConfigsBigqueryDestinationSchemaConfigLastUpdatedPartitionConfigExpirationMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHealthcareFhirStoreDefaultSearchHandlingStrict(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -239,7 +239,7 @@ Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				Deprecated:   "Deprecated in favor of location.",
+				Deprecated:   "`zone` is deprecated and will be removed in a future major release. Use `location` instead.",
 				ForceNew:     true,
 				Description:  `The name of the Filestore zone of the instance.`,
 				ExactlyOneOf: []string{},

@@ -146,15 +146,85 @@ func ResourceDataplexDatascan() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"exclude_fields": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The fields to exclude from data profile.
+If specified, the fields will be excluded from data profile, regardless of 'include_fields' value.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"field_names": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Expected input is a list of fully qualified names of fields as in the schema.
+Only top-level field names for nested fields are supported.
+For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"include_fields": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The fields to include in data profile.
+If not specified, all fields at the time of profile scan job execution are included, except for ones listed in 'exclude_fields'.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"field_names": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Expected input is a list of fully qualified names of fields as in the schema.
+Only top-level field names for nested fields are supported.
+For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"post_scan_actions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Actions to take upon job completion.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bigquery_export": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `If set, results will be exported to the provided BigQuery table.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"results_table": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The BigQuery table to export DataProfileScan results to.
+Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"row_filter": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `A filter applied to all rows in a single DataScan job. The filter needs to be a valid SQL expression for a WHERE clause in BigQuery standard SQL syntax. Example: col1 >= 0 AND col2 < 10`,
 						},
 						"sampling_percent": {
-							Type:        schema.TypeFloat,
-							Optional:    true,
-							Description: `The percentage of the records to be selected from the dataset for DataScan.`,
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Description: `The percentage of the records to be selected from the dataset for DataScan.
+Value can range between 0.0 and 100.0 with up to 3 significant decimal digits.
+Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
@@ -167,6 +237,32 @@ func ResourceDataplexDatascan() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"post_scan_actions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Actions to take upon job completion.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bigquery_export": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `If set, results will be exported to the provided BigQuery table.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"results_table": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The BigQuery table to export DataQualityScan results to.
+Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"row_filter": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -189,10 +285,25 @@ func ResourceDataplexDatascan() *schema.Resource {
 										Optional:    true,
 										Description: `The unnested column which this rule is evaluated against.`,
 									},
+									"description": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Description of the rule.
+The maximum length is 1,024 characters.`,
+									},
 									"ignore_null": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: `Rows with null values will automatically fail a rule, unless ignoreNull is true. In that case, such null rows are trivially considered passing. Only applicable to ColumnMap rules.`,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `A mutable name for the rule.
+The name must contain only letters (a-z, A-Z), numbers (0-9), or hyphens (-).
+The maximum length is 63 characters.
+Must start with a letter.
+Must end with a number or a letter.`,
 									},
 									"non_null_expectation": {
 										Type:        schema.TypeList,
@@ -350,7 +461,7 @@ Only relevant if a minValue has been defined. Default = false.`,
 									"uniqueness_expectation": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `ColumnAggregate rule which evaluates whether the column has duplicates.`,
+										Description: `Row-level rule which evaluates whether each column value is unique.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
@@ -360,9 +471,11 @@ Only relevant if a minValue has been defined. Default = false.`,
 							},
 						},
 						"sampling_percent": {
-							Type:        schema.TypeFloat,
-							Optional:    true,
-							Description: `The percentage of the records to be selected from the dataset for DataScan.`,
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Description: `The percentage of the records to be selected from the dataset for DataScan.
+Value can range between 0.0 and 100.0 with up to 3 significant decimal digits.
+Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 						},
 					},
 				},
@@ -986,6 +1099,8 @@ func flattenDataplexDatascanDataQualitySpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataQualitySpecSamplingPercent(original["samplingPercent"], d, config)
 	transformed["row_filter"] =
 		flattenDataplexDatascanDataQualitySpecRowFilter(original["rowFilter"], d, config)
+	transformed["post_scan_actions"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActions(original["postScanActions"], d, config)
 	transformed["rules"] =
 		flattenDataplexDatascanDataQualitySpecRules(original["rules"], d, config)
 	return []interface{}{transformed}
@@ -995,6 +1110,36 @@ func flattenDataplexDatascanDataQualitySpecSamplingPercent(v interface{}, d *sch
 }
 
 func flattenDataplexDatascanDataQualitySpecRowFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecPostScanActions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bigquery_export"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(original["bigqueryExport"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["results_table"] =
+		flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(original["resultsTable"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1015,6 +1160,8 @@ func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.Resour
 			"ignore_null":                 flattenDataplexDatascanDataQualitySpecRulesIgnoreNull(original["ignoreNull"], d, config),
 			"dimension":                   flattenDataplexDatascanDataQualitySpecRulesDimension(original["dimension"], d, config),
 			"threshold":                   flattenDataplexDatascanDataQualitySpecRulesThreshold(original["threshold"], d, config),
+			"name":                        flattenDataplexDatascanDataQualitySpecRulesName(original["name"], d, config),
+			"description":                 flattenDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config),
 			"range_expectation":           flattenDataplexDatascanDataQualitySpecRulesRangeExpectation(original["rangeExpectation"], d, config),
 			"non_null_expectation":        flattenDataplexDatascanDataQualitySpecRulesNonNullExpectation(original["nonNullExpectation"], d, config),
 			"set_expectation":             flattenDataplexDatascanDataQualitySpecRulesSetExpectation(original["setExpectation"], d, config),
@@ -1040,6 +1187,14 @@ func flattenDataplexDatascanDataQualitySpecRulesDimension(v interface{}, d *sche
 }
 
 func flattenDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1213,6 +1368,12 @@ func flattenDataplexDatascanDataProfileSpec(v interface{}, d *schema.ResourceDat
 		flattenDataplexDatascanDataProfileSpecSamplingPercent(original["samplingPercent"], d, config)
 	transformed["row_filter"] =
 		flattenDataplexDatascanDataProfileSpecRowFilter(original["rowFilter"], d, config)
+	transformed["post_scan_actions"] =
+		flattenDataplexDatascanDataProfileSpecPostScanActions(original["postScanActions"], d, config)
+	transformed["include_fields"] =
+		flattenDataplexDatascanDataProfileSpecIncludeFields(original["includeFields"], d, config)
+	transformed["exclude_fields"] =
+		flattenDataplexDatascanDataProfileSpecExcludeFields(original["excludeFields"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataProfileSpecSamplingPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1220,6 +1381,70 @@ func flattenDataplexDatascanDataProfileSpecSamplingPercent(v interface{}, d *sch
 }
 
 func flattenDataplexDatascanDataProfileSpecRowFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataProfileSpecPostScanActions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bigquery_export"] =
+		flattenDataplexDatascanDataProfileSpecPostScanActionsBigqueryExport(original["bigqueryExport"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataProfileSpecPostScanActionsBigqueryExport(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["results_table"] =
+		flattenDataplexDatascanDataProfileSpecPostScanActionsBigqueryExportResultsTable(original["resultsTable"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataProfileSpecPostScanActionsBigqueryExportResultsTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataProfileSpecIncludeFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["field_names"] =
+		flattenDataplexDatascanDataProfileSpecIncludeFieldsFieldNames(original["fieldNames"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataProfileSpecIncludeFieldsFieldNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["field_names"] =
+		flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(original["fieldNames"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1393,6 +1618,13 @@ func expandDataplexDatascanDataQualitySpec(v interface{}, d tpgresource.Terrafor
 		transformed["rowFilter"] = transformedRowFilter
 	}
 
+	transformedPostScanActions, err := expandDataplexDatascanDataQualitySpecPostScanActions(original["post_scan_actions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostScanActions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postScanActions"] = transformedPostScanActions
+	}
+
 	transformedRules, err := expandDataplexDatascanDataQualitySpecRules(original["rules"], d, config)
 	if err != nil {
 		return nil, err
@@ -1408,6 +1640,48 @@ func expandDataplexDatascanDataQualitySpecSamplingPercent(v interface{}, d tpgre
 }
 
 func expandDataplexDatascanDataQualitySpecRowFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBigqueryExport, err := expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(original["bigquery_export"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBigqueryExport); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bigqueryExport"] = transformedBigqueryExport
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExport(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResultsTable, err := expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(original["results_table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResultsTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resultsTable"] = transformedResultsTable
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecPostScanActionsBigqueryExportResultsTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1447,6 +1721,20 @@ func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.Ter
 			return nil, err
 		} else if val := reflect.ValueOf(transformedThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["threshold"] = transformedThreshold
+		}
+
+		transformedName, err := expandDataplexDatascanDataQualitySpecRulesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedDescription, err := expandDataplexDatascanDataQualitySpecRulesDescription(original["description"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDescription); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["description"] = transformedDescription
 		}
 
 		transformedRangeExpectation, err := expandDataplexDatascanDataQualitySpecRulesRangeExpectation(original["range_expectation"], d, config)
@@ -1523,6 +1811,14 @@ func expandDataplexDatascanDataQualitySpecRulesDimension(v interface{}, d tpgres
 }
 
 func expandDataplexDatascanDataQualitySpecRulesThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1799,6 +2095,27 @@ func expandDataplexDatascanDataProfileSpec(v interface{}, d tpgresource.Terrafor
 		transformed["rowFilter"] = transformedRowFilter
 	}
 
+	transformedPostScanActions, err := expandDataplexDatascanDataProfileSpecPostScanActions(original["post_scan_actions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPostScanActions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["postScanActions"] = transformedPostScanActions
+	}
+
+	transformedIncludeFields, err := expandDataplexDatascanDataProfileSpecIncludeFields(original["include_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludeFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["includeFields"] = transformedIncludeFields
+	}
+
+	transformedExcludeFields, err := expandDataplexDatascanDataProfileSpecExcludeFields(original["exclude_fields"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExcludeFields); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["excludeFields"] = transformedExcludeFields
+	}
+
 	return transformed, nil
 }
 
@@ -1807,5 +2124,93 @@ func expandDataplexDatascanDataProfileSpecSamplingPercent(v interface{}, d tpgre
 }
 
 func expandDataplexDatascanDataProfileSpecRowFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataProfileSpecPostScanActions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBigqueryExport, err := expandDataplexDatascanDataProfileSpecPostScanActionsBigqueryExport(original["bigquery_export"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBigqueryExport); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bigqueryExport"] = transformedBigqueryExport
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataProfileSpecPostScanActionsBigqueryExport(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResultsTable, err := expandDataplexDatascanDataProfileSpecPostScanActionsBigqueryExportResultsTable(original["results_table"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResultsTable); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resultsTable"] = transformedResultsTable
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataProfileSpecPostScanActionsBigqueryExportResultsTable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataProfileSpecIncludeFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFieldNames, err := expandDataplexDatascanDataProfileSpecIncludeFieldsFieldNames(original["field_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFieldNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fieldNames"] = transformedFieldNames
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataProfileSpecIncludeFieldsFieldNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFieldNames, err := expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(original["field_names"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFieldNames); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["fieldNames"] = transformedFieldNames
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

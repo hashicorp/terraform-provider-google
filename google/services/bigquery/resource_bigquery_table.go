@@ -149,6 +149,9 @@ func bigQueryTableMapKeyOverride(key string, objectA, objectB map[string]interfa
 			return false
 		}
 		return bigQueryTableTypeEq(valA.(string), valB.(string))
+	case "policyTags":
+		eq := bigQueryTableNormalizePolicyTags(valA) == nil && bigQueryTableNormalizePolicyTags(valB) == nil
+		return eq
 	}
 
 	// otherwise rely on default behavior
@@ -223,6 +226,23 @@ func bigQueryTableModeIsForceNew(old, new string) bool {
 	eq := old == new
 	reqToNull := old == "REQUIRED" && new == "NULLABLE"
 	return !eq && !reqToNull
+}
+
+func bigQueryTableNormalizePolicyTags(val interface{}) interface{} {
+	if val == nil {
+		return nil
+	}
+	if policyTags, ok := val.(map[string]interface{}); ok {
+		// policyTags = {} is same as nil.
+		if len(policyTags) == 0 {
+			return nil
+		}
+		// policyTags = {names = []} is same as nil.
+		if names, ok := policyTags["names"].([]interface{}); ok && len(names) == 0 {
+			return nil
+		}
+	}
+	return val
 }
 
 // Compares two existing schema implementations and decides if
@@ -1154,7 +1174,10 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 	}
 
 	if v, ok := d.GetOk("schema"); ok {
-		schema, err := expandSchema(v)
+		_, viewPresent := d.GetOk("view")
+		_, materializedViewPresent := d.GetOk("materialized_view")
+		managePolicyTags := !viewPresent && !materializedViewPresent
+		schema, err := expandSchema(v, managePolicyTags)
 		if err != nil {
 			return nil, err
 		}
@@ -1480,7 +1503,8 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 		edc.MaxBadRecords = int64(v.(int))
 	}
 	if v, ok := raw["schema"]; ok {
-		schema, err := expandSchema(v)
+		managePolicyTags := true
+		schema, err := expandSchema(v, managePolicyTags)
 		if err != nil {
 			return nil, err
 		}
@@ -1799,7 +1823,7 @@ func flattenJsonOptions(opts *bigquery.JsonOptions) []map[string]interface{} {
 	return []map[string]interface{}{result}
 }
 
-func expandSchema(raw interface{}) (*bigquery.TableSchema, error) {
+func expandSchema(raw interface{}, managePolicyTags bool) (*bigquery.TableSchema, error) {
 	var fields []*bigquery.TableFieldSchema
 
 	if len(raw.(string)) == 0 {
@@ -1808,6 +1832,12 @@ func expandSchema(raw interface{}) (*bigquery.TableSchema, error) {
 
 	if err := json.Unmarshal([]byte(raw.(string)), &fields); err != nil {
 		return nil, err
+	}
+
+	if managePolicyTags {
+		for _, field := range fields {
+			setEmptyPolicyTagsInSchema(field)
+		}
 	}
 
 	return &bigquery.TableSchema{Fields: fields}, nil
@@ -1820,6 +1850,21 @@ func flattenSchema(tableSchema *bigquery.TableSchema) (string, error) {
 	}
 
 	return string(schema), nil
+}
+
+// Explicitly set empty PolicyTags unless the PolicyTags field is specified in the schema.
+func setEmptyPolicyTagsInSchema(field *bigquery.TableFieldSchema) {
+	// Field has children fields.
+	if len(field.Fields) > 0 {
+		for _, subField := range field.Fields {
+			setEmptyPolicyTagsInSchema(subField)
+		}
+		return
+	}
+	// Field is a leaf.
+	if field.PolicyTags == nil {
+		field.PolicyTags = &bigquery.TableFieldSchemaPolicyTags{Names: []string{}}
+	}
 }
 
 func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {
