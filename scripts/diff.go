@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	googleOld "github.com/hashicorp/terraform-provider-clean-google/google"
-	google "github.com/hashicorp/terraform-provider-google/google"
+	googleOld "github.com/hashicorp/terraform-provider-clean-google/google/provider"
+	google "github.com/hashicorp/terraform-provider-google/google/provider"
 )
 
 var verbose bool
