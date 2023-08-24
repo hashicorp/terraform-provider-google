@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `synthetic_monitor` to `google_monitoring_uptime_check_config` resource
+```
