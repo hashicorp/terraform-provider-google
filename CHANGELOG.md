@@ -20,7 +20,7 @@ FEATURES:
 IMPROVEMENTS:
 * alloydb: added `restore_backup_source` and `restore_continuous_backup_source` fields to support restore feature in `google_alloydb_cluster` resource. ([#15580](https://github.com/hashicorp/terraform-provider-google/pull/15580))
 * artifactregistry: added `cleanup_policies` and `cleanup_policy_dry_run` fields to resource `google_artifact_registry_repository` ([#15561](https://github.com/hashicorp/terraform-provider-google/pull/15561))
-* clouddeploy: promoted `multi_target` to GA in `google_clouddelploy_target` ([#15564](https://github.com/hashicorp/terraform-provider-google/pull/15564))
+* clouddeploy: added `multi_target` to in `google_clouddelploy_target` ([#15564](https://github.com/hashicorp/terraform-provider-google/pull/15564))
 * compute: added `security_policy` field to `google_compute_target_instance` resource (beta) ([#15566](https://github.com/hashicorp/terraform-provider-google/pull/15566))
 * compute: added support for `security_policy` field to `google_compute_target_pool` ([#15569](https://github.com/hashicorp/terraform-provider-google/pull/15569))
 * compute: added support for `user_defined_fields` to `google_compute_region_security_policy` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
