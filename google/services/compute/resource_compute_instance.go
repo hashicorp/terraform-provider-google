@@ -2497,7 +2497,15 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 	}
 
 	if v, ok := d.GetOk("boot_disk.0.source"); ok {
-		source, err := tpgresource.ParseDiskFieldValue(v.(string), d, config)
+		var err error
+		var source interface {
+			RelativeLink() string
+		}
+		if strings.Contains(v.(string), "regions/") {
+			source, err = tpgresource.ParseRegionDiskFieldValue(v.(string), d, config)
+		} else {
+			source, err = tpgresource.ParseDiskFieldValue(v.(string), d, config)
+		}
 		if err != nil {
 			return nil, err
 		}

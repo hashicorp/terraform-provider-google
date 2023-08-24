@@ -246,7 +246,7 @@ following ordered by precedence.
 the provider should wait for individual HTTP requests. This will not adjust the
 amount of time the provider will wait for a logical operation - use the resource
 timeout blocks for that. This will adjust only the amount of time that a single
-synchronous request will wait for a response. The default is 30 seconds, and
+synchronous request will wait for a response. The default is 120 seconds, and
 that should be a suitable value in most cases. Many GCP APIs will cancel a
 request if no response is forthcoming within 30 seconds in any event. In
 limited cases, such as DNS record set creation, there is a synchronous request

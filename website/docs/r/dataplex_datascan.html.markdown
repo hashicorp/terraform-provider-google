@@ -46,8 +46,7 @@ resource "google_dataplex_datascan" "basic_profile" {
     }
   }
 
-  data_profile_spec {  
-  }
+data_profile_spec {}
 
   project = "my-project-name"
 }
@@ -80,6 +79,12 @@ resource "google_dataplex_datascan" "full_profile" {
   data_profile_spec {
     sampling_percent = 80
     row_filter = "word_count > 10"
+    include_fields {
+      field_names = ["word_count"]
+    }
+    exclude_fields {
+      field_names = ["property_type"]
+    }
   }
 
   project = "my-project-name"
@@ -106,6 +111,8 @@ resource "google_dataplex_datascan" "basic_quality" {
   data_quality_spec {
     rules {
       dimension = "VALIDITY"
+      name = "rule1"
+      description = "rule 1 for validity dimension"
       table_condition_expectation {
         sql_expression = "COUNT(*) > 0"
       }
@@ -321,16 +328,38 @@ The following arguments are supported:
 * `sampling_percent` -
   (Optional)
   The percentage of the records to be selected from the dataset for DataScan.
+  Value can range between 0.0 and 100.0 with up to 3 significant decimal digits.
+  Sampling is not applied if `sampling_percent` is not specified, 0 or 100.
 
 * `row_filter` -
   (Optional)
   A filter applied to all rows in a single DataScan job. The filter needs to be a valid SQL expression for a WHERE clause in BigQuery standard SQL syntax. Example: col1 >= 0 AND col2 < 10
+
+* `post_scan_actions` -
+  (Optional)
+  Actions to take upon job completion.
+  Structure is [documented below](#nested_post_scan_actions).
 
 * `rules` -
   (Optional)
   The list of rules to evaluate against a data source. At least one rule is required.
   Structure is [documented below](#nested_rules).
 
+
+<a name="nested_post_scan_actions"></a>The `post_scan_actions` block supports:
+
+* `bigquery_export` -
+  (Optional)
+  If set, results will be exported to the provided BigQuery table.
+  Structure is [documented below](#nested_bigquery_export).
+
+
+<a name="nested_bigquery_export"></a>The `bigquery_export` block supports:
+
+* `results_table` -
+  (Optional)
+  The BigQuery table to export DataQualityScan results to.
+  Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID
 
 <a name="nested_rules"></a>The `rules` block supports:
 
@@ -349,6 +378,19 @@ The following arguments are supported:
 * `threshold` -
   (Optional)
   The minimum ratio of passing_rows / total_rows required to pass this rule, with a range of [0.0, 1.0]. 0 indicates default value (i.e. 1.0).
+
+* `name` -
+  (Optional)
+  A mutable name for the rule.
+  The name must contain only letters (a-z, A-Z), numbers (0-9), or hyphens (-).
+  The maximum length is 63 characters.
+  Must start with a letter.
+  Must end with a number or a letter.
+
+* `description` -
+  (Optional)
+  Description of the rule.
+  The maximum length is 1,024 characters.
 
 * `range_expectation` -
   (Optional)
@@ -371,7 +413,7 @@ The following arguments are supported:
 
 * `uniqueness_expectation` -
   (Optional)
-  ColumnAggregate rule which evaluates whether the column has duplicates.
+  Row-level rule which evaluates whether each column value is unique.
 
 * `statistic_range_expectation` -
   (Optional)
@@ -465,10 +507,61 @@ The following arguments are supported:
 * `sampling_percent` -
   (Optional)
   The percentage of the records to be selected from the dataset for DataScan.
+  Value can range between 0.0 and 100.0 with up to 3 significant decimal digits.
+  Sampling is not applied if `sampling_percent` is not specified, 0 or 100.
 
 * `row_filter` -
   (Optional)
   A filter applied to all rows in a single DataScan job. The filter needs to be a valid SQL expression for a WHERE clause in BigQuery standard SQL syntax. Example: col1 >= 0 AND col2 < 10
+
+* `post_scan_actions` -
+  (Optional)
+  Actions to take upon job completion.
+  Structure is [documented below](#nested_post_scan_actions).
+
+* `include_fields` -
+  (Optional)
+  The fields to include in data profile.
+  If not specified, all fields at the time of profile scan job execution are included, except for ones listed in `exclude_fields`.
+  Structure is [documented below](#nested_include_fields).
+
+* `exclude_fields` -
+  (Optional)
+  The fields to exclude from data profile.
+  If specified, the fields will be excluded from data profile, regardless of `include_fields` value.
+  Structure is [documented below](#nested_exclude_fields).
+
+
+<a name="nested_post_scan_actions"></a>The `post_scan_actions` block supports:
+
+* `bigquery_export` -
+  (Optional)
+  If set, results will be exported to the provided BigQuery table.
+  Structure is [documented below](#nested_bigquery_export).
+
+
+<a name="nested_bigquery_export"></a>The `bigquery_export` block supports:
+
+* `results_table` -
+  (Optional)
+  The BigQuery table to export DataProfileScan results to.
+  Format://bigquery.googleapis.com/projects/PROJECT_ID/datasets/DATASET_ID/tables/TABLE_ID
+
+<a name="nested_include_fields"></a>The `include_fields` block supports:
+
+* `field_names` -
+  (Optional)
+  Expected input is a list of fully qualified names of fields as in the schema.
+  Only top-level field names for nested fields are supported.
+  For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.
+
+<a name="nested_exclude_fields"></a>The `exclude_fields` block supports:
+
+* `field_names` -
+  (Optional)
+  Expected input is a list of fully qualified names of fields as in the schema.
+  Only top-level field names for nested fields are supported.
+  For instance, if 'x' is of nested field type, listing 'x' is supported but 'x.y.z' is not supported. Here 'y' and 'y.z' are nested fields of 'x'.
 
 ## Attributes Reference
 

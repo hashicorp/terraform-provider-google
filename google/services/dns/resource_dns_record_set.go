@@ -48,7 +48,7 @@ func rrdatasDnsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 
 // suppress on a list when 1) its items have dups that need to be ignored
 // and 2) string comparison on the items may need a special parse function
-// example of usage can be found ../../../third_party/terraform/tests/resource_dns_record_set_test.go.erb
+// example of usage can be found ../../../third_party/terraform/services/dns/resource_dns_record_set_test.go.erb
 func RrdatasListDiffSuppress(oldList, newList []string, fun func(x string) string, _ *schema.ResourceData) bool {
 	// compare two lists of unordered records
 	diff := make(map[string]bool, len(oldList))
@@ -260,8 +260,8 @@ var healthCheckedTargetSchema *schema.Resource = &schema.Resource{
 					"load_balancer_type": {
 						Type:         schema.TypeString,
 						Required:     true,
-						Description:  `The type of load balancer. This value is case-sensitive. Possible values: ["regionalL4ilb", "regionalL7ilb]`,
-						ValidateFunc: validation.StringInSlice([]string{"regionalL4ilb", "regionalL7ilb"}, false),
+						Description:  `The type of load balancer. This value is case-sensitive. Possible values: ["regionalL4ilb", "regionalL7ilb", "globalL7ilb"]`,
+						ValidateFunc: validation.StringInSlice([]string{"regionalL4ilb", "regionalL7ilb", "globalL7ilb"}, false),
 					},
 					"ip_address": {
 						Type:        schema.TypeString,

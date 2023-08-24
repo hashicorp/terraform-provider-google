@@ -89,8 +89,8 @@ resources of that resource. A maximum of 50 email addresses are allowed.`,
 			"project": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Deprecated:  "Deprecated in favor of `project_id`",
-				Description: `Deprecated in favor of 'project_id'`,
+				Deprecated:  "`project` is deprecated and will be removed in a future major release. Use `project_id` instead.",
+				Description: `Project id.`,
 			},
 			"ancestor_has_active_key_version": {
 				Type:        schema.TypeBool,

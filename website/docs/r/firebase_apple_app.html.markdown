@@ -52,6 +52,21 @@ resource "google_firebase_apple_app" "full" {
   bundle_id = "apple.app.12345"
   app_store_id = "12345"
   team_id = "9987654321"
+  api_key_id = google_apikeys_key.apple.uid
+}
+
+resource "google_apikeys_key" "apple" {
+  provider = google-beta
+
+  name         = "api-key"
+  display_name = "Display Name Full"
+  project = "my-project-name"
+  
+  restrictions {
+    ios_key_restrictions {
+      allowed_bundle_ids = ["apple.app.12345"]
+    }
+  }
 }
 ```
 
@@ -79,6 +94,12 @@ The following arguments are supported:
 * `team_id` -
   (Optional)
   The Apple Developer Team ID associated with the App in the App Store.
+
+* `api_key_id` -
+  (Optional)
+  The globally unique, Google-assigned identifier (UID) for the Firebase API key associated with the AppleApp.
+  If apiKeyId is not set during creation, then Firebase automatically associates an apiKeyId with the AppleApp.
+  This auto-associated key may be an existing valid key or, if no valid key exists, a new one will be provisioned.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

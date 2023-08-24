@@ -82,7 +82,7 @@ resource "google_compute_router_peer" "peer" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=router_peer_router_appliance&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=router_peer_router_appliance&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
@@ -253,10 +253,10 @@ The following arguments are supported:
 * `advertised_groups` -
   (Optional)
   User-specified list of prefix groups to advertise in custom
-  mode, which can take one of the following options:
-  * `ALL_SUBNETS`: Advertises all available subnets, including peer VPC subnets.
-  * `ALL_VPC_SUBNETS`: Advertises the router's own VPC subnets.
-  * `ALL_PEER_VPC_SUBNETS`: Advertises peer subnets of the router's VPC network.
+  mode, which currently supports the following option:
+  * `ALL_SUBNETS`: Advertises all of the router's own VPC subnets.
+  This excludes any routes learned for subnets that use VPC Network
+  Peering.
 
   Note that this field can only be populated if advertiseMode is `CUSTOM`
   and overrides the list defined for the router (in the "bgp" message).

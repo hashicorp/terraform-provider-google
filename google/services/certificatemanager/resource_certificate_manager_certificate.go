@@ -205,7 +205,9 @@ If unsure, choose this option.
 
 EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates,
 served from non-core Google data centers.
-Currently allowed only for managed certificates.`,
+
+ALL_REGIONS: Certificates with ALL_REGIONS scope are served from all GCP regions (You can only use ALL_REGIONS with global certs).
+see https://cloud.google.com/compute/docs/regions-zones`,
 				Default: "DEFAULT",
 			},
 			"self_managed": {
@@ -221,9 +223,9 @@ certificates before they expire remains the user's responsibility.`,
 						"certificate_pem": {
 							Type:       schema.TypeString,
 							Optional:   true,
-							Deprecated: "Deprecated in favor of `pem_certificate`",
+							Deprecated: "`certificate_pem` is deprecated and will be removed in a future major release. Use `pem_certificate` instead.",
 							ForceNew:   true,
-							Description: `**Deprecated** The certificate chain in PEM-encoded form.
+							Description: `The certificate chain in PEM-encoded form.
 
 Leaf certificate comes first, followed by intermediate ones if any.`,
 							Sensitive:    true,
@@ -249,9 +251,9 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 						"private_key_pem": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Deprecated:   "Deprecated in favor of `pem_private_key`",
+							Deprecated:   "`private_key_pem` is deprecated and will be removed in a future major release. Use `pem_private_key` instead.",
 							ForceNew:     true,
-							Description:  `**Deprecated** The private key of the leaf certificate in PEM-encoded form.`,
+							Description:  `The private key of the leaf certificate in PEM-encoded form.`,
 							Sensitive:    true,
 							ExactlyOneOf: []string{"self_managed.0.private_key_pem", "self_managed.0.pem_private_key"},
 						},

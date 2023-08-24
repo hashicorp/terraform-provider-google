@@ -29,7 +29,7 @@ To get more information about CertificateIssuanceConfig, see:
     * [Manage certificate issuance configs](https://cloud.google.com/certificate-manager/docs/issuance-configs)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_certificate_issuance_config&cloudshell_image=gcr.io%2Fgraphite-cloud-shell-images%2Fterraform%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_certificate_issuance_config&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
@@ -38,7 +38,7 @@ To get more information about CertificateIssuanceConfig, see:
 
 ```hcl
 resource "google_certificate_manager_certificate_issuance_config" "default" {
-  name    = "issuanceconfigtestterraform"
+  name    = "issuance-config"
   description = "sample description for the certificate issuanceConfigs"
   certificate_authority_config {
     certificate_authority_service_config {
@@ -54,7 +54,7 @@ resource "google_certificate_manager_certificate_issuance_config" "default" {
 }
   
 resource "google_privateca_ca_pool" "pool" {
-  name     = "my-ca-pool"
+  name     = "ca-pool"
   location = "us-central1"
   tier     = "ENTERPRISE"
 }
@@ -62,7 +62,7 @@ resource "google_privateca_ca_pool" "pool" {
 resource "google_privateca_certificate_authority" "ca_authority" {
   location = "us-central1"
   pool = google_privateca_ca_pool.pool.name
-  certificate_authority_id = "my-ca"
+  certificate_authority_id = "ca-authority"
   config {
     subject_config {
       subject {

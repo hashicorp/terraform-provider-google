@@ -7,8 +7,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 // Deprecated: For backward compatibility CheckDataSourceStateMatchesResourceState is still working,
@@ -44,4 +46,24 @@ func ProtoV5ProviderFactories(t *testing.T) map[string]func() (tfprotov5.Provide
 // normal beta tests should continue to use ProtoV5ProviderFactories
 func ProtoV5ProviderBetaFactories(t *testing.T) map[string]func() (tfprotov5.ProviderServer, error) {
 	return acctest.ProtoV5ProviderBetaFactories(t)
+}
+
+func serviceAccountCanonicalEmail(account string) string {
+	return envvar.ServiceAccountCanonicalEmail(account)
+}
+
+func getResourceAttributes(n string, s *terraform.State) (map[string]string, error) {
+	return tpgresource.GetResourceAttributes(n, s)
+}
+
+// Deprecated: For backward compatibility testBucketName is still working,
+// but all new code should use TestBucketName in the acctest package instead.
+func testBucketName(t *testing.T) string {
+	return acctest.TestBucketName(t)
+}
+
+// Deprecated: For backward compatibility createZIPArchiveForCloudFunctionSource is still working,
+// but all new code should use CreateZIPArchiveForCloudFunctionSource in the acctest package instead.
+func createZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) string {
+	return acctest.CreateZIPArchiveForCloudFunctionSource(t, sourcePath)
 }

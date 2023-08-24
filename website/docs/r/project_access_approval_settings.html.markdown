@@ -143,7 +143,9 @@ The following arguments are supported:
 
 * `project` -
   (Optional, Deprecated)
-  Deprecated in favor of `project_id`
+  Project id.
+
+  ~> **Warning:** `project` is deprecated and will be removed in a future major release. Use `project_id` instead.
 
 
 ## Attributes Reference

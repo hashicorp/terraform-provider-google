@@ -67,6 +67,31 @@ resource "google_storage_bucket_object" "default" {
     })
 }
 ```
+## Example Usage - Firebase Web App Custom Api Key
+
+
+```hcl
+resource "google_firebase_web_app" "default" {
+	provider = google-beta
+	project = "my-project-name"
+	display_name = "Display Name"
+	api_key_id = google_apikeys_key.web.uid
+	deletion_policy = "DELETE"
+}
+
+resource "google_apikeys_key" "web" {
+	provider = google-beta
+	project  = "my-project-name"
+	name         = "api-key"
+	display_name = "Display Name"
+
+	restrictions {
+	    browser_key_restrictions {
+	        allowed_referrers = ["*"]
+	    }
+	}
+}
+```
 
 ## Argument Reference
 
@@ -80,6 +105,12 @@ The following arguments are supported:
 
 - - -
 
+
+* `api_key_id` -
+  (Optional)
+  The globally unique, Google-assigned identifier (UID) for the Firebase API key associated with the WebApp.
+  If apiKeyId is not set during creation, then Firebase automatically associates an apiKeyId with the WebApp.
+  This auto-associated key may be an existing valid key or, if no valid key exists, a new one will be provisioned.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

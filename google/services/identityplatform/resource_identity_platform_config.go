@@ -50,6 +50,7 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"authorized_domains": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `List of domains authorized for OAuth redirects.`,
 				Elem: &schema.Schema{

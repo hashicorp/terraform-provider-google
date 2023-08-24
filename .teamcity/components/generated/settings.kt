@@ -9,7 +9,7 @@
 var defaultStartHour = 4
 
 // specifies the default level of parallelism per-service-package
-var defaultParallelism = 20
+var defaultParallelism = 12
 
 // specifies the default version of Terraform Core which should be used for testing
 var defaultTerraformCoreVersion = "1.2.5"
@@ -26,3 +26,4 @@ const val defaultBuildTimeoutDuration = 60 * 12 //12 hours in minutes
 // Values that `environment` parameter is checked against,
 // when deciding to change how TeamCity objects are configured
 const val MAJOR_RELEASE_TESTING = "major-release-5.0.0-testing"
+const val MM_UPSTREAM = "mm-upstream"
