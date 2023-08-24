@@ -181,6 +181,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     web_sso_config {
       response_type             = "CODE"
       assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["groups", "roles"]
     }
   }
   display_name        = "Display name"
@@ -217,6 +218,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     web_sso_config {
       response_type             = "ID_TOKEN"
       assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["new-groups"]
     }
   }
   display_name        = "New Display name"
@@ -248,6 +250,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     web_sso_config {
       response_type             = "ID_TOKEN"
       assertion_claims_behavior = "ONLY_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["new-groups"]
     }
   }
   display_name        = "New Display name"
