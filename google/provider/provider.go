@@ -139,7 +139,7 @@ func Provider() *schema.Provider {
 			"credentials": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ValidateFunc:  validateCredentials,
+				ValidateFunc:  ValidateCredentials,
 				ConflictsWith: []string{"access_token"},
 			},
 
@@ -725,7 +725,7 @@ func Provider() *schema.Provider {
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		return providerConfigure(ctx, d, provider)
+		return ProviderConfigure(ctx, d, provider)
 	}
 
 	transport_tpg.ConfigureDCLProvider(provider)
@@ -1629,7 +1629,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
+func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
 	err := transport_tpg.HandleSDKDefaults(d)
 	if err != nil {
 		return nil, diag.FromErr(err)
@@ -1840,7 +1840,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	return transport_tpg.ProviderDCLConfigure(d, &config), nil
 }
 
-func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {
+func ValidateCredentials(v interface{}, k string) (warnings []string, errors []error) {
 	if v == nil || v.(string) == "" {
 		return
 	}
