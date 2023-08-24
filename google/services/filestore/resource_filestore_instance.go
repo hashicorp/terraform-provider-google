@@ -791,7 +791,7 @@ func flattenFilestoreInstanceNetworksModes(v interface{}, d *schema.ResourceData
 }
 
 func flattenFilestoreInstanceNetworksReservedIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("networks.0.reserved_ip_range")
 }
 
 func flattenFilestoreInstanceNetworksIpAddresses(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
