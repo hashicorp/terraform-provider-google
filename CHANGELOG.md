@@ -14,7 +14,7 @@ FEATURES:
 * **New Resource:** `google_certificate_manager_trust_config` ([#15562](https://github.com/hashicorp/terraform-provider-google/pull/15562))
 * **New Resource:** `google_compute_region_security_policy_rule` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
 * **New Resource:** `google_gke_hub_membership_rbac_role_binding` ([#15544](https://github.com/hashicorp/terraform-provider-google/pull/15544))
-* **New Resource:** `google_iam_deny_policy` (ga only) ([#15571](https://github.com/hashicorp/terraform-provider-google/pull/15571))
+* **New Resource:** `google_iam_deny_policy` ([#15571](https://github.com/hashicorp/terraform-provider-google/pull/15571))
 * **New Resource:** dataform_repository_workflow_config (beta) ([#15543](https://github.com/hashicorp/terraform-provider-google/pull/15543))
 * **New Resource:** google_bigquery_bi_reservation ([#15527](https://github.com/hashicorp/terraform-provider-google/pull/15527))
 
