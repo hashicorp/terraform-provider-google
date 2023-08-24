@@ -40,9 +40,10 @@ var manualVcsRoot = DslContext.settingsRootId
 // Values of these context parameters change configuration code behaviour.
 var environment = DslContext.getParameter("environment", "default")
 var branchRef = DslContext.getParameter("branch", "refs/heads/main")
+var projDescription = DslContext.getParameter("description", "")
 
 var clientConfig = ClientConfiguration(custId, org, org2, billingAccount, billingAccount2, masterBillingAccount, credentials, project, orgDomain, projectNumber, region, serviceAccount, zone, firestoreProject, identityUser)
 
 // This is the entry point of the code in .teamcity/
 // See https://teamcity.jetbrains.com/app/dsl-documentation/root/project.html
-project(Google(environment, manualVcsRoot, branchRef, clientConfig))
+project(Google(environment, projDescription, manualVcsRoot, branchRef, clientConfig))
