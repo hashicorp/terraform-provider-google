@@ -1,10 +1,4 @@
 ## 4.80.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Add workflow for issue labeler backfill ([#15552](https://github.com/hashicorp/terraform-provider-google/pull/15552))
-* Allow to remove the networks block in the resource google_dns_response_policy ([#15557](https://github.com/hashicorp/terraform-provider-google/pull/15557))
-* Update RouterBgpPeer.yaml ([#15541](https://github.com/hashicorp/terraform-provider-google/pull/15541))
-NOTES:
-* alloydb: fixed import path doc for `google_alloydb_instance` ([#15578](https://github.com/hashicorp/terraform-provider-google/pull/15578))
 DEPRECATIONS:
 * dataplex: deprecated the following `google_dataplex_datascan` fields: `dataProfileResult` and `dataQualityResult` ([#15528](https://github.com/hashicorp/terraform-provider-google/pull/15528))
 * firebase: deprecated `google_firebase_project_location` in favor of `google_firebase_storage_bucket` and `google_firestore_database` ([#15526](https://github.com/hashicorp/terraform-provider-google/pull/15526))
@@ -15,7 +9,7 @@ FEATURES:
 * **New Resource:** `google_compute_region_security_policy_rule` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
 * **New Resource:** `google_gke_hub_membership_rbac_role_binding` ([#15544](https://github.com/hashicorp/terraform-provider-google/pull/15544))
 * **New Resource:** `google_iam_deny_policy` ([#15571](https://github.com/hashicorp/terraform-provider-google/pull/15571))
-* **New Resource:** google_bigquery_bi_reservation ([#15527](https://github.com/hashicorp/terraform-provider-google/pull/15527))
+* **New Resource:** `google_bigquery_bi_reservation` ([#15527](https://github.com/hashicorp/terraform-provider-google/pull/15527))
 
 IMPROVEMENTS:
 * alloydb: added `restore_backup_source` and `restore_continuous_backup_source` fields to support restore feature in `google_alloydb_cluster` resource. ([#15580](https://github.com/hashicorp/terraform-provider-google/pull/15580))
@@ -28,6 +22,7 @@ IMPROVEMENTS:
 * container: added `additional_pod_ranges_config` field to `google_container_cluster` resource ([#15600](https://github.com/hashicorp/terraform-provider-google/pull/15600))
 * containeraws: made `config.labels` updatable in `google_container_aws_node_pool` ([#15564](https://github.com/hashicorp/terraform-provider-google/pull/15564))
 * dataplex: added fields `data_profile_spec.post_scan_actions`, `data_profile_spec.include_fields` and `data_profile_spec.exclude_fields` ([#15545](https://github.com/hashicorp/terraform-provider-google/pull/15545))
+* dns: supported removing the networks block from the configuration in the resource `google_dns_response_policy` ([#15557](https://github.com/hashicorp/terraform-provider-google/pull/15557))
 * firebase: added `api_key_id` field to `google_firebase_web_app`, `google_firebase_android_app`, and `google_firebase_apple_app`. ([#15577](https://github.com/hashicorp/terraform-provider-google/pull/15577))
 * gkehub: promoted the `google_gke_hub_feature_membership` resource to GA ([#15604](https://github.com/hashicorp/terraform-provider-google/pull/15604))
 * sql: added `psc_config` , `psc_service_attachment_link`, and `dns_name` fields to `google_sql_database_instance` ([#15563](https://github.com/hashicorp/terraform-provider-google/pull/15563))
