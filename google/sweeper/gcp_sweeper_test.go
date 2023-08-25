@@ -15,6 +15,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/appengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/biglake"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"

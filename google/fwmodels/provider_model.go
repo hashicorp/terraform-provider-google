@@ -32,6 +32,7 @@ type ProviderModel struct {
 	AppEngineCustomEndpoint                types.String `tfsdk:"app_engine_custom_endpoint"`
 	ArtifactRegistryCustomEndpoint         types.String `tfsdk:"artifact_registry_custom_endpoint"`
 	BeyondcorpCustomEndpoint               types.String `tfsdk:"beyondcorp_custom_endpoint"`
+	BiglakeCustomEndpoint                  types.String `tfsdk:"biglake_custom_endpoint"`
 	BigQueryCustomEndpoint                 types.String `tfsdk:"big_query_custom_endpoint"`
 	BigqueryAnalyticsHubCustomEndpoint     types.String `tfsdk:"bigquery_analytics_hub_custom_endpoint"`
 	BigqueryConnectionCustomEndpoint       types.String `tfsdk:"bigquery_connection_custom_endpoint"`
