@@ -310,6 +310,15 @@ func TestAccRegionInstanceGroupManager_distributionPolicy(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"status"},
 			},
+			{
+				Config: testAccRegionInstanceGroupManager_distributionPolicyUpdate(template, igm, zones),
+			},
+			{
+				ResourceName:            "google_compute_region_instance_group_manager.igm-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"status"},
+			},
 		},
 	})
 }
@@ -1052,6 +1061,62 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
   target_size                      = 2
   distribution_policy_zones        = ["%s"]
   distribution_policy_target_shape = "ANY"
+
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+}
+`, template, igm, strings.Join(zones, "\",\""))
+}
+
+func testAccRegionInstanceGroupManager_distributionPolicyUpdate(template, igm string, zones []string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%s"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name               = "tf-test-igm-basic"
+  region                           = "us-central1"
+  target_size                      = 2
+  distribution_policy_zones        = ["%s"]
+  distribution_policy_target_shape = "BALANCED"
+
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
 }
 `, template, igm, strings.Join(zones, "\",\""))
 }
