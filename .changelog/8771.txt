@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrunv2: Changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_job` resource to a non-required field.
+```
+```release-note:enhancement
+cloudrunv2: Changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_service` resource to a non-required field.
+```
