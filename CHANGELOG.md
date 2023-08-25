@@ -7,7 +7,6 @@ FEATURES:
 * **New Data Source:** `google_sql_database_instance_latest_recovery_time` ([#15551](https://github.com/hashicorp/terraform-provider-google/pull/15551))
 * **New Resource:** `google_certificate_manager_trust_config` ([#15562](https://github.com/hashicorp/terraform-provider-google/pull/15562))
 * **New Resource:** `google_compute_region_security_policy_rule` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
-* **New Resource:** `google_gke_hub_membership_rbac_role_binding` ([#15544](https://github.com/hashicorp/terraform-provider-google/pull/15544))
 * **New Resource:** `google_iam_deny_policy` ([#15571](https://github.com/hashicorp/terraform-provider-google/pull/15571))
 * **New Resource:** `google_bigquery_bi_reservation` ([#15527](https://github.com/hashicorp/terraform-provider-google/pull/15527))
 * **New Resource:** `google_gke_hub_feature_membership` ([#15604](https://github.com/hashicorp/terraform-provider-google/pull/15604))
