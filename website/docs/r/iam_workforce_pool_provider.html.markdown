@@ -304,6 +304,32 @@ The following arguments are supported:
   Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.
   Structure is [documented below](#nested_web_sso_config).
 
+* `jwks_json` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  OIDC JWKs in JSON String format. For details on definition of a
+  JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+  use the `jwks_uri` from the discovery document fetched from the
+  .well-known path for the `issuer_uri`. Currently, RSA and EC asymmetric
+  keys are supported. The JWK must use following format and include only
+  the following fields:
+  ```
+  {
+    "keys": [
+      {
+            "kty": "RSA/EC",
+            "alg": "<algorithm>",
+            "use": "sig",
+            "kid": "<key-id>",
+            "n": "",
+            "e": "",
+            "x": "",
+            "y": "",
+            "crv": ""
+      }
+    ]
+  }
+  ```
+
 
 <a name="nested_client_secret"></a>The `client_secret` block supports:
 
