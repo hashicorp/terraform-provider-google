@@ -21,6 +21,8 @@ description: |-
 
 RBACRoleBinding represents a rbacrolebinding across the Fleet.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about MembershipRBACRoleBinding, see:
 
@@ -33,23 +35,26 @@ To get more information about MembershipRBACRoleBinding, see:
 
 ```hcl
 resource "google_container_cluster" "primary" {
+  provider = google-beta
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
 }
 
 resource "google_gke_hub_membership" "membershiprbacrolebinding" {
+  provider = google-beta
   membership_id = "tf-test-membership%{random_suffix}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-  
+
   depends_on = [google_container_cluster.primary]
 }
 
 resource "google_gke_hub_membership_rbac_role_binding" "membershiprbacrolebinding" {
+  provider = google-beta
   membership_rbac_role_binding_id = "tf-test-membership-rbac-role-binding%{random_suffix}"
   membership_id = "tf-test-membership%{random_suffix}"
   user = "service-${data.google_project.project.number}@gcp-sa-anthossupport.iam.gserviceaccount.com"
@@ -60,7 +65,9 @@ resource "google_gke_hub_membership_rbac_role_binding" "membershiprbacrolebindin
   depends_on = [google_gke_hub_membership.membershiprbacrolebinding]
 }
 
-data "google_project" "project" {}
+data "google_project" "project" {
+  provider = google-beta
+}
 ```
 
 ## Argument Reference
