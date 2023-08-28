@@ -1,4 +1,42 @@
-## 4.80.0 (Unreleased)
+## 4.81.0 (Unreleased)
+
+## 4.80.0 (August 28, 2023)
+
+DEPRECATIONS:
+* dataplex: deprecated the following `google_dataplex_datascan` fields: `dataProfileResult` and `dataQualityResult` ([#15528](https://github.com/hashicorp/terraform-provider-google/pull/15528))
+* firebase: deprecated `google_firebase_project_location` in favor of `google_firebase_storage_bucket` and `google_firestore_database` ([#15526](https://github.com/hashicorp/terraform-provider-google/pull/15526))
+
+FEATURES:
+* **New Data Source:** `google_sql_database_instance_latest_recovery_time` ([#15551](https://github.com/hashicorp/terraform-provider-google/pull/15551))
+* **New Resource:** `google_certificate_manager_trust_config` ([#15562](https://github.com/hashicorp/terraform-provider-google/pull/15562))
+* **New Resource:** `google_compute_region_security_policy_rule` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
+* **New Resource:** `google_iam_deny_policy` ([#15571](https://github.com/hashicorp/terraform-provider-google/pull/15571))
+* **New Resource:** `google_bigquery_bi_reservation` ([#15527](https://github.com/hashicorp/terraform-provider-google/pull/15527))
+* **New Resource:** `google_gke_hub_feature_membership` ([#15604](https://github.com/hashicorp/terraform-provider-google/pull/15604))
+
+IMPROVEMENTS:
+* alloydb: added `restore_backup_source` and `restore_continuous_backup_source` fields to support restore feature in `google_alloydb_cluster` resource. ([#15580](https://github.com/hashicorp/terraform-provider-google/pull/15580))
+* artifactregistry: added `cleanup_policies` and `cleanup_policy_dry_run` fields to resource `google_artifact_registry_repository` ([#15561](https://github.com/hashicorp/terraform-provider-google/pull/15561))
+* clouddeploy: added `multi_target` to in `google_clouddelploy_target` ([#15564](https://github.com/hashicorp/terraform-provider-google/pull/15564))
+* compute: added `security_policy` field to `google_compute_target_instance` resource (beta) ([#15566](https://github.com/hashicorp/terraform-provider-google/pull/15566))
+* compute: added support for `security_policy` field to `google_compute_target_pool` ([#15569](https://github.com/hashicorp/terraform-provider-google/pull/15569))
+* compute: added support for `user_defined_fields` to `google_compute_region_security_policy` ([#15523](https://github.com/hashicorp/terraform-provider-google/pull/15523))
+* compute: added support for specifying regional disks for `google_compute_instance` `boot_disk.source` ([#15597](https://github.com/hashicorp/terraform-provider-google/pull/15597))
+* container: added `additional_pod_ranges_config` field to `google_container_cluster` resource ([#15600](https://github.com/hashicorp/terraform-provider-google/pull/15600))
+* containeraws: made `config.labels` updatable in `google_container_aws_node_pool` ([#15564](https://github.com/hashicorp/terraform-provider-google/pull/15564))
+* dataplex: added fields `data_profile_spec.post_scan_actions`, `data_profile_spec.include_fields` and `data_profile_spec.exclude_fields` ([#15545](https://github.com/hashicorp/terraform-provider-google/pull/15545))
+* dns: added support for removing the networks block from the configuration in the resource `google_dns_response_policy` ([#15557](https://github.com/hashicorp/terraform-provider-google/pull/15557))
+* firebase: added `api_key_id` field to `google_firebase_web_app`, `google_firebase_android_app`, and `google_firebase_apple_app`. ([#15577](https://github.com/hashicorp/terraform-provider-google/pull/15577))
+* sql: added `psc_config` , `psc_service_attachment_link`, and `dns_name` fields to `google_sql_database_instance` ([#15563](https://github.com/hashicorp/terraform-provider-google/pull/15563))
+* workstations: added `enable_nested_virtualization` field to `google_workstations_workstation_config` resource ([#15567](https://github.com/hashicorp/terraform-provider-google/pull/15567))
+
+BUG FIXES:
+* bigquery: added support to unset policy tags in table schema ([#15547](https://github.com/hashicorp/terraform-provider-google/pull/15547))
+* bigtable: fixed permadiff in `google_bigtable_gc_policy.gc_rules` when `max_age` is specified using increments larger than hours ([#15595](https://github.com/hashicorp/terraform-provider-google/pull/15595))
+* bigtable: fixed permadiff in `google_bigtable_gc_policy.gc_rules` when `mode` is specified ([#15595](https://github.com/hashicorp/terraform-provider-google/pull/15595))
+* container: updated `resource_container_cluster` to ignore `dns_config` diff when `enable_autopilot = true` ([#15549](https://github.com/hashicorp/terraform-provider-google/pull/15549))
+* containerazure: added diff suppression for case changes of enum values in `google_container_azure_cluster` ([#15536](https://github.com/hashicorp/terraform-provider-google/pull/15536))
+
 
 ## 4.79.0 (August 21, 2023)
 FEATURES:
