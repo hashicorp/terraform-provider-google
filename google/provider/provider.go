@@ -972,9 +972,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 311
+// Generated resources: 312
 // Generated IAM resources: 204
-// Total generated resources: 515
+// Total generated resources: 516
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1038,6 +1038,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_beyondcorp_app_connector":                                beyondcorp.ResourceBeyondcorpAppConnector(),
 			"google_beyondcorp_app_gateway":                                  beyondcorp.ResourceBeyondcorpAppGateway(),
 			"google_biglake_catalog":                                         biglake.ResourceBiglakeCatalog(),
+			"google_biglake_database":                                        biglake.ResourceBiglakeDatabase(),
 			"google_bigquery_dataset":                                        bigquery.ResourceBigQueryDataset(),
 			"google_bigquery_dataset_access":                                 bigquery.ResourceBigQueryDatasetAccess(),
 			"google_bigquery_job":                                            bigquery.ResourceBigQueryJob(),
