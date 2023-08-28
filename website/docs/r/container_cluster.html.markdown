@@ -352,6 +352,9 @@ subnetwork in which the cluster's instances are launched.
 * `enable_multi_networking` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
     Whether multi-networking is enabled for this cluster.
 
+* `enable_fqdn_network_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+    Whether FQDN Network Policy is enabled on this cluster. Users who enable this feature for existing Standard clusters must restart the GKE Dataplane V2 `anetd` DaemonSet after enabling it. See the [Enable FQDN Network Policy in an existing cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/fqdn-network-policies#enable_fqdn_network_policy_in_an_existing_cluster) for more information.
+
 * `private_ipv6_google_access` - (Optional)
     The desired state of IPv6 connectivity to Google Services. By default, no private IPv6 access to or from Google Services (all access will be via IPv4).
 
