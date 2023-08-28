@@ -132,10 +132,79 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `psc_connections` -
   Information about each Private Service Connect connection.
+  Structure is [documented below](#nested_psc_connections).
 
 * `infrastructure` -
   The type of underlying resources used to create the connection.
 
+
+<a name="nested_psc_connections"></a>The `psc_connections` block contains:
+
+* `state` -
+  (Optional)
+  The state of the PSC connection.
+  Possible values are: `STATE_UNSPECIFIED`, `ACTIVE`, `CREATING`, `DELETING`, `FAILED`.
+
+* `consumer_forwarding_rule` -
+  (Optional)
+  The resource reference of the PSC Forwarding Rule within the consumer VPC.
+
+* `consumer_address` -
+  (Optional)
+  The resource reference of the consumer address.
+
+* `error_type` -
+  (Optional)
+  The error type indicates whether the error is consumer facing, producer
+  facing or system internal.
+  Possible values are: `CONNECTION_ERROR_TYPE_UNSPECIFIED`, `ERROR_INTERNAL`, `ERROR_CONSUMER_SIDE`, `ERROR_PRODUCER_SIDE`.
+
+* `error` -
+  (Optional)
+  The most recent error during operating this connection.
+  Structure is [documented below](#nested_error).
+
+* `gce_operation` -
+  (Optional)
+  The last Compute Engine operation to setup PSC connection.
+
+* `consumer_target_project` -
+  (Optional)
+  The project where the PSC connection is created.
+
+* `psc_connection_id` -
+  (Optional)
+  The PSC connection id of the PSC forwarding rule.
+
+* `error_info` -
+  (Optional)
+  The error info for the latest error during operating this connection.
+  Structure is [documented below](#nested_error_info).
+
+
+<a name="nested_error"></a>The `error` block supports:
+
+* `message` -
+  (Optional)
+  A developer-facing error message.
+
+* `code` -
+  (Optional)
+  The status code, which should be an enum value of [google.rpc.Code][].
+
+<a name="nested_error_info"></a>The `error_info` block supports:
+
+* `reason` -
+  (Optional)
+  The reason of the error.
+
+* `domain` -
+  (Optional)
+  The logical grouping to which the "reason" belongs.
+
+* `metadata` -
+  (Optional)
+  Additional structured details about this error.
 
 ## Timeouts
 
