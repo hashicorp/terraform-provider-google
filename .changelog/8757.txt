@@ -1,0 +1,6 @@
+```release-note:enhancement
+dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_flow` resource
+```
+```release-note:enhancement
+dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `reprompt_event_handlers`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_page` resource
+```
