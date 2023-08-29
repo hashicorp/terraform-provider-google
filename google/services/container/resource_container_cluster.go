@@ -4277,17 +4277,6 @@ func expandBinaryAuthorization(configured interface{}, legacy_enabled bool) *con
 	}
 }
 
-func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
-	l := configured.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil
-	}
-	config := l[0].(map[string]interface{})
-	return &container.ConfidentialNodes{
-		Enabled: config["enabled"].(bool),
-	}
-}
-
 func expandMasterAuth(configured interface{}) *container.MasterAuth {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -4730,16 +4719,6 @@ func flattenBinaryAuthorization(c *container.BinaryAuthorization) []map[string]i
 		result = append(result, map[string]interface{}{
 			"enabled":         c.Enabled,
 			"evaluation_mode": c.EvaluationMode,
-		})
-	}
-	return result
-}
-
-func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
-	result := []map[string]interface{}{}
-	if c != nil {
-		result = append(result, map[string]interface{}{
-			"enabled": c.Enabled,
 		})
 	}
 	return result

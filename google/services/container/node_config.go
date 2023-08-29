@@ -571,6 +571,24 @@ func schemaNodeConfig() *schema.Schema {
 						},
 					},
 				},
+				"confidential_nodes": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
+					MaxItems:    1,
+					Description: `Configuration for the confidential nodes feature, which makes nodes run on confidential VMs. Warning: This configuration can't be changed (or added/removed) after pool creation without deleting and recreating the entire pool.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"enabled": {
+								Type:        schema.TypeBool,
+								Required:    true,
+								ForceNew:    true,
+								Description: `Whether Confidential Nodes feature is enabled for all nodes in this pool.`,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -824,6 +842,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.SoleTenantConfig = expandSoleTenantConfig(v)
 	}
 
+	if v, ok := nodeConfig["confidential_nodes"]; ok {
+		nc.ConfidentialNodes = expandConfidentialNodes(v)
+	}
+
 	return nc
 }
 
@@ -922,6 +944,17 @@ func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
 	}
 }
 
+func expandConfidentialNodes(configured interface{}) *container.ConfidentialNodes {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+	config := l[0].(map[string]interface{})
+	return &container.ConfidentialNodes{
+		Enabled: config["enabled"].(bool),
+	}
+}
+
 func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, 1)
 
@@ -967,6 +1000,7 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"shielded_instance_config":           flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
 		"taint":                              flattenTaints(c.Taints),
 		"workload_metadata_config":           flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
+		"confidential_nodes":                 flattenConfidentialNodes(c.ConfidentialNodes),
 		"boot_disk_kms_key":                  c.BootDiskKmsKey,
 		"kubelet_config":                     flattenKubeletConfig(c.KubeletConfig),
 		"linux_node_config":                  flattenLinuxNodeConfig(c.LinuxNodeConfig),
@@ -1131,6 +1165,16 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 	if c != nil {
 		result = append(result, map[string]interface{}{
 			"sysctls": c.Sysctls,
+		})
+	}
+	return result
+}
+
+func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"enabled": c.Enabled,
 		})
 	}
 	return result
