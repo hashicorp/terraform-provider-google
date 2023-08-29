@@ -355,6 +355,12 @@ The following arguments are supported:
   Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
   Structure is [documented below](#nested_cloud_function).
 
+* `serverless_deployment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Only valid when networkEndpointType is "SERVERLESS".
+  Only one of cloudRun, appEngine, cloudFunction or serverlessDeployment may be set.
+  Structure is [documented below](#nested_serverless_deployment).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -424,6 +430,31 @@ The following arguments are supported:
   For example, request URLs "mydomain.com/function1" and "mydomain.com/function2"
   can be backed by the same Serverless NEG with URL mask "/". The URL mask
   will parse them to { function = "function1" } and { function = "function2" } respectively.
+
+<a name="nested_serverless_deployment"></a>The `serverless_deployment` block supports:
+
+* `platform` -
+  (Required)
+  The platform of the NEG backend target(s). Possible values:
+  API Gateway: apigateway.googleapis.com
+
+* `resource` -
+  (Optional)
+  The user-defined name of the workload/instance. This value must be provided explicitly or in the urlMask.
+  The resource identified by this value is platform-specific and is as follows: API Gateway: The gateway ID, App Engine: The service name,
+  Cloud Functions: The function name, Cloud Run: The service name
+
+* `version` -
+  (Optional)
+  The optional resource version. The version identified by this value is platform-specific and is follows:
+  API Gateway: Unused, App Engine: The service version, Cloud Functions: Unused, Cloud Run: The service tag
+
+* `url_mask` -
+  (Optional)
+  A template to parse platform-specific fields from a request URL. URL mask allows for routing to multiple resources
+  on the same serverless platform without having to create multiple Network Endpoint Groups and backend resources.
+  The fields parsed by this template are platform-specific and are as follows: API Gateway: The gateway ID,
+  App Engine: The service and version, Cloud Functions: The function name, Cloud Run: The service and tag
 
 ## Attributes Reference
 

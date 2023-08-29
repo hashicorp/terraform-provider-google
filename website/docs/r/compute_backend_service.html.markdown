@@ -656,6 +656,11 @@ The following arguments are supported:
 
 <a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
+* `connect_timeout` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The timeout for new network connections to hosts.
+  Structure is [documented below](#nested_connect_timeout).
+
 * `max_requests_per_connection` -
   (Optional)
   Maximum requests for a single backend connection. This parameter
@@ -682,6 +687,21 @@ The following arguments are supported:
   (Optional)
   The maximum number of parallel retries to the backend cluster.
   Defaults to 3.
+
+
+<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second.
+  Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond
+  resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must
+  be from 0 to 999,999,999 inclusive.
 
 <a name="nested_consistent_hash"></a>The `consistent_hash` block supports:
 

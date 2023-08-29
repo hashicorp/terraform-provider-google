@@ -163,6 +163,10 @@ The following arguments are supported:
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
 
+* `tls_inspection_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Name of a TlsInspectionPolicy resource that defines how TLS inspection is performed for any rule that enables it.
+
 * `location` -
   (Optional)
   The location of the gateway security policy.

@@ -513,11 +513,22 @@ The following arguments are supported:
   types and may result in errors if used with the GA API.
   Possible values are: `HTTP`, `HTTPS`, `HTTP2`, `SSL`, `TCP`, `UDP`, `GRPC`, `UNSPECIFIED`.
 
+* `security_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The security policy associated with this backend service.
+
 * `session_affinity` -
   (Optional)
   Type of session affinity to use. The default is NONE. Session affinity is
   not applicable if the protocol is UDP.
   Possible values are: `NONE`, `CLIENT_IP`, `CLIENT_IP_PORT_PROTO`, `CLIENT_IP_PROTO`, `GENERATED_COOKIE`, `HEADER_FIELD`, `HTTP_COOKIE`, `CLIENT_IP_NO_DESTINATION`.
+
+* `connection_tracking_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Connection Tracking configuration for this BackendService.
+  This is available only for Layer 4 Internal Load Balancing and
+  Network Load Balancing.
+  Structure is [documented below](#nested_connection_tracking_policy).
 
 * `timeout_sec` -
   (Optional)
@@ -534,6 +545,11 @@ The following arguments are supported:
   (Optional)
   The URL of the network to which this backend service belongs.
   This field can only be specified when the load balancing scheme is set to INTERNAL.
+
+* `subsetting` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Subsetting configuration for this BackendService. Currently this is applicable only for Internal TCP/UDP load balancing and Internal HTTP(S) load balancing.
+  Structure is [documented below](#nested_subsetting).
 
 * `region` -
   (Optional)
@@ -656,6 +672,11 @@ The following arguments are supported:
 
 <a name="nested_circuit_breakers"></a>The `circuit_breakers` block supports:
 
+* `connect_timeout` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The timeout for new network connections to hosts.
+  Structure is [documented below](#nested_connect_timeout).
+
 * `max_requests_per_connection` -
   (Optional)
   Maximum requests for a single backend connection. This parameter
@@ -682,6 +703,21 @@ The following arguments are supported:
   (Optional)
   The maximum number of parallel retries to the backend cluster.
   Defaults to 3.
+
+
+<a name="nested_connect_timeout"></a>The `connect_timeout` block supports:
+
+* `seconds` -
+  (Required)
+  Span of time at a resolution of a second.
+  Must be from 0 to 315,576,000,000 inclusive.
+
+* `nanos` -
+  (Optional)
+  Span of time that's a fraction of a second at nanosecond
+  resolution. Durations less than one second are represented
+  with a 0 seconds field and a positive nanos field. Must
+  be from 0 to 999,999,999 inclusive.
 
 <a name="nested_consistent_hash"></a>The `consistent_hash` block supports:
 
@@ -837,6 +873,11 @@ The following arguments are supported:
   The HTTP status code to define a TTL against. Only HTTP status codes 300, 301, 308, 404, 405, 410, 421, 451 and 501
   can be specified as values, and you cannot specify a status code more than once.
 
+* `ttl` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The TTL (in seconds) for which to cache responses with the corresponding status code. The maximum allowed value is 1800s
+  (30 minutes), noting that infrequently accessed objects may be evicted from the cache before the defined TTL.
+
 <a name="nested_failover_policy"></a>The `failover_policy` block supports:
 
 * `disable_connection_drain_on_failover` -
@@ -985,6 +1026,47 @@ The following arguments are supported:
   less than one second are represented with a 0 `seconds` field and a positive
   `nanos` field. Must be from 0 to 999,999,999 inclusive.
 
+<a name="nested_connection_tracking_policy"></a>The `connection_tracking_policy` block supports:
+
+* `idle_timeout_sec` -
+  (Optional)
+  Specifies how long to keep a Connection Tracking entry while there is
+  no matching traffic (in seconds).
+  For L4 ILB the minimum(default) is 10 minutes and maximum is 16 hours.
+  For NLB the minimum(default) is 60 seconds and the maximum is 16 hours.
+
+* `tracking_mode` -
+  (Optional)
+  Specifies the key used for connection tracking. There are two options:
+  `PER_CONNECTION`: The Connection Tracking is performed as per the
+  Connection Key (default Hash Method) for the specific protocol.
+  `PER_SESSION`: The Connection Tracking is performed as per the
+  configured Session Affinity. It matches the configured Session Affinity.
+  Default value is `PER_CONNECTION`.
+  Possible values are: `PER_CONNECTION`, `PER_SESSION`.
+
+* `connection_persistence_on_unhealthy_backends` -
+  (Optional)
+  Specifies connection persistence when backends are unhealthy.
+  If set to `DEFAULT_FOR_PROTOCOL`, the existing connections persist on
+  unhealthy backends only for connection-oriented protocols (TCP and SCTP)
+  and only if the Tracking Mode is PER_CONNECTION (default tracking mode)
+  or the Session Affinity is configured for 5-tuple. They do not persist
+  for UDP.
+  If set to `NEVER_PERSIST`, after a backend becomes unhealthy, the existing
+  connections on the unhealthy backend are never persisted on the unhealthy
+  backend. They are always diverted to newly selected healthy backends
+  (unless all backends are unhealthy).
+  If set to `ALWAYS_PERSIST`, existing connections always persist on
+  unhealthy backends regardless of protocol and session affinity. It is
+  generally not recommended to use this mode overriding the default.
+  Default value is `DEFAULT_FOR_PROTOCOL`.
+  Possible values are: `DEFAULT_FOR_PROTOCOL`, `NEVER_PERSIST`, `ALWAYS_PERSIST`.
+
+* `enable_strong_affinity` -
+  (Optional)
+  Enable Strong Session Affinity for Network Load Balancing. This option is not available publicly.
+
 <a name="nested_log_config"></a>The `log_config` block supports:
 
 * `enable` -
@@ -997,6 +1079,13 @@ The following arguments are supported:
   the field must be in [0, 1]. This configures the sampling rate of requests to the load balancer
   where 1.0 means all logged requests are reported and 0.0 means no logged requests are reported.
   The default value is 1.0.
+
+<a name="nested_subsetting"></a>The `subsetting` block supports:
+
+* `policy` -
+  (Required)
+  The algorithm used for subsetting.
+  Possible values are: `CONSISTENT_HASH_SUBSETTING`.
 
 ## Attributes Reference
 

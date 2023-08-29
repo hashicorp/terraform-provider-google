@@ -807,6 +807,11 @@ The following arguments are supported:
   the file is the secret_name.
   Structure is [documented below](#nested_secret).
 
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage which can be backed by real disks (HD, SSD), network storage or memory (i.e. tmpfs). For now only in memory (tmpfs) is supported. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs).
+  Structure is [documented below](#nested_empty_dir).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -859,6 +864,16 @@ The following arguments are supported:
   not specified, the volume defaultMode will be used. This might be in
   conflict with other options that affect the file mode, like fsGroup, and
   the result can be other mode bits set.
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The medium on which the data is stored. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
 
 - - -
 

@@ -482,6 +482,10 @@ The following arguments are supported:
   Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
   Structure is [documented below](#nested_startup_probe).
 
+* `depends_on` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
+
 
 <a name="nested_env"></a>The `env` block supports:
 
@@ -717,6 +721,11 @@ The following arguments are supported:
   For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run.
   Structure is [documented below](#nested_cloud_sql_instance).
 
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage used as a shared volume.
+  Structure is [documented below](#nested_empty_dir).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -753,6 +762,18 @@ The following arguments are supported:
 * `instances` -
   (Optional)
   The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The different types of medium supported for EmptyDir.
+  Default value is `MEMORY`.
+  Possible values are: `MEMORY`.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
 
 - - -
 
@@ -799,6 +820,11 @@ The following arguments are supported:
   (Optional)
   Settings for the Binary Authorization feature.
   Structure is [documented below](#nested_binary_authorization).
+
+* `custom_audiences` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  One or more custom audiences that you want this service to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
+  For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
 
 * `traffic` -
   (Optional)

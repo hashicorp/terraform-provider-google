@@ -230,6 +230,10 @@ The following arguments are supported:
 - - -
 
 
+* `network` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The URL of the network this target instance uses to forward traffic. If not specified, the traffic will be forwarded to the network that the default network interface belongs to.
+
 * `description` -
   (Optional)
   An optional description of this resource.
@@ -240,6 +244,10 @@ The following arguments are supported:
   Currently only NO_NAT (default value) is supported.
   Default value is `NO_NAT`.
   Possible values are: `NO_NAT`.
+
+* `security_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The resource URL for the security policy associated with this target instance.
 
 * `zone` -
   (Optional)
@@ -266,6 +274,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

@@ -275,6 +275,10 @@ The following arguments are supported:
   for example `192.168.0.0/16`. The ranges should be disjoint.
   Only IPv4 is supported.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this VpnTunnel.
+
 * `region` -
   (Optional)
   The region where the tunnel is located. If unset, is set to the region of `target_vpn_gateway`.
@@ -298,6 +302,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `shared_secret_hash` -
   Hash of the shared secret.
 
+* `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
+
 * `detailed_status` -
   Detailed status message for the VPN tunnel.
 * `self_link` - The URI of the created resource.
@@ -309,6 +318,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

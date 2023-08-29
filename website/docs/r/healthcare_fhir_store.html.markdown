@@ -213,11 +213,6 @@ The following arguments are supported:
   The resource name for the FhirStore.
   ** Changing this property may recreate the FHIR store (removing all data) **
 
-* `version` -
-  (Required)
-  The FHIR specification version.
-  Possible values are: `DSTU2`, `STU3`, `R4`.
-
 * `dataset` -
   (Required)
   Identifies the dataset addressed by this request. Must be in the format
@@ -226,6 +221,12 @@ The following arguments are supported:
 
 - - -
 
+
+* `version` -
+  (Optional)
+  The FHIR specification version.
+  Default value is `STU3`.
+  Possible values are: `DSTU2`, `STU3`, `R4`.
 
 * `complex_data_type_reference_parsing` -
   (Optional)
@@ -299,6 +300,11 @@ The following arguments are supported:
   If true, overrides the default search behavior for this FHIR store to handling=strict which returns an error for unrecognized search parameters.
   If false, uses the FHIR specification default handling=lenient which ignores unrecognized search parameters.
   The handling can always be changed from the default on an individual API call by setting the HTTP header Prefer: handling=strict or Prefer: handling=lenient.
+
+* `notification_configs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
+  Structure is [documented below](#nested_notification_configs).
 
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
@@ -377,6 +383,33 @@ The following arguments are supported:
 * `expiration_ms` -
   (Optional)
   Number of milliseconds for which to keep the storage for a partition.
+
+<a name="nested_notification_configs"></a>The `notification_configs` block supports:
+
+* `pubsub_topic` -
+  (Required)
+  The Cloud Pub/Sub topic that notifications of changes are published on. Supplied by the client.
+  PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
+  It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
+  was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
+  Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+* `send_full_resource` -
+  (Optional)
+  Whether to send full FHIR resource to this Pub/Sub topic for Create and Update operation.
+  Note that setting this to true does not guarantee that all resources will be sent in the format of
+  full FHIR resource. When a resource change is too large or during heavy traffic, only the resource name will be
+  sent. Clients should always check the "payloadType" label from a Pub/Sub message to determine whether
+  it needs to fetch the full resource as a separate operation.
+
+* `send_previous_resource_on_delete` -
+  (Optional)
+  Whether to send full FHIR resource to this Pub/Sub topic for deleting FHIR resource. Note that setting this to
+  true does not guarantee that all previous resources will be sent in the format of full FHIR resource. When a
+  resource change is too large or during heavy traffic, only the resource name will be sent. Clients should always
+  check the "payloadType" label from a Pub/Sub message to determine whether it needs to fetch the full previous
+  resource as a separate operation.
 
 ## Attributes Reference
 

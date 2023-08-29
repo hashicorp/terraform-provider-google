@@ -158,6 +158,12 @@ The following arguments are supported:
   A nested object resource
   Structure is [documented below](#nested_notification_config).
 
+* `stream_configs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  To enable streaming to BigQuery, configure the streamConfigs object in your DICOM store.
+  streamConfigs is an array, so you can specify multiple BigQuery destinations. You can stream metadata from a single DICOM store to up to five BigQuery tables in a BigQuery dataset.
+  Structure is [documented below](#nested_stream_configs).
+
 
 <a name="nested_notification_config"></a>The `notification_config` block supports:
 
@@ -169,6 +175,20 @@ The following arguments are supported:
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
   project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+<a name="nested_stream_configs"></a>The `stream_configs` block supports:
+
+* `bigquery_destination` -
+  (Required)
+  BigQueryDestination to include a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
+  Structure is [documented below](#nested_bigquery_destination).
+
+
+<a name="nested_bigquery_destination"></a>The `bigquery_destination` block supports:
+
+* `table_uri` -
+  (Required)
+  a fully qualified BigQuery table URI where DICOM instance metadata will be streamed.
 
 ## Attributes Reference
 
