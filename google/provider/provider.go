@@ -922,6 +922,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_backup_backup_plan_iam_policy":               tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer),
 			"google_gke_hub_membership_iam_policy":                   tpgiamresource.DataSourceIamPolicy(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer),
 			"google_gke_hub_feature_iam_policy":                      tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer),
+			"google_gke_hub_scope_iam_policy":                        tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer),
 			"google_healthcare_consent_store_iam_policy":             tpgiamresource.DataSourceIamPolicy(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer),
 			"google_iap_app_engine_service_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineServiceIamSchema, iap.IapAppEngineServiceIamUpdaterProducer),
 			"google_iap_app_engine_version_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineVersionIamSchema, iap.IapAppEngineVersionIamUpdaterProducer),
@@ -972,9 +973,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 312
-// Generated IAM resources: 204
-// Total generated resources: 516
+// Generated resources: 316
+// Generated IAM resources: 207
+// Total generated resources: 523
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1316,6 +1317,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_feature_iam_binding":                             tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_member":                              tpgiamresource.ResourceIamMember(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_policy":                              tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
+			"google_gke_hub_membership_binding":                              gkehub2.ResourceGKEHub2MembershipBinding(),
+			"google_gke_hub_namespace":                                       gkehub2.ResourceGKEHub2Namespace(),
+			"google_gke_hub_scope":                                           gkehub2.ResourceGKEHub2Scope(),
+			"google_gke_hub_scope_iam_binding":                               tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_iam_member":                                tpgiamresource.ResourceIamMember(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_iam_policy":                                tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_rbac_role_binding":                         gkehub2.ResourceGKEHub2ScopeRBACRoleBinding(),
 			"google_healthcare_consent_store":                                healthcare.ResourceHealthcareConsentStore(),
 			"google_healthcare_consent_store_iam_binding":                    tpgiamresource.ResourceIamBinding(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
 			"google_healthcare_consent_store_iam_member":                     tpgiamresource.ResourceIamMember(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
