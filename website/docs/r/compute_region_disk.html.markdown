@@ -199,6 +199,12 @@ The following arguments are supported:
   URL of the disk type resource describing which disk type to use to
   create the disk. Provide this when creating the disk.
 
+* `interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+
+  ~> **Warning:** `interface` is deprecated and will be removed in a future major release. This field is no longer used and can be safely removed from your configurations; disk interfaces are automatically determined on attachment.
+
 * `source_disk` -
   (Optional)
   The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
@@ -299,6 +305,10 @@ The following arguments are supported:
   (Optional)
   Specifies a 256-bit customer-supplied encryption key, encoded in
   RFC 4648 base64 to either encrypt or decrypt this resource.
+
+* `kms_key_name` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name of the encryption key that is stored in Google Cloud KMS.
 
 * `sha256` -
   (Output)

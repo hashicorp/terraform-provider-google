@@ -236,6 +236,13 @@ The following arguments are supported:
   is sent as part of the notification. Supplied by the client.
   Structure is [documented below](#nested_notification_configs).
 
+* `notification_config` -
+  (Optional, Deprecated)
+  A nested object resource
+  Structure is [documented below](#nested_notification_config).
+
+  ~> **Warning:** `notification_config` is deprecated and will be removed in a future major release. Use `notification_configs` instead.
+
 
 <a name="nested_parser_config"></a>The `parser_config` block supports:
 
@@ -282,6 +289,17 @@ The following arguments are supported:
   * sendFacility, the care center that the message came from, from the MSH-4 segment. For example, sendFacility = "ABC".
   * PatientId(value, type), which matches if the message lists a patient having an ID of the given value and type in the PID-2, PID-3, or PID-4 segments. For example, PatientId("123456", "MRN").
   * labels.x, a string value of the label with key x as set using the Message.labels map. For example, labels."priority"="high". The operator :* can be used to assert the existence of a label. For example, labels."priority":*.
+
+<a name="nested_notification_config"></a>The `notification_config` block supports:
+
+* `pubsub_topic` -
+  (Required)
+  The Cloud Pub/Sub topic that notifications of changes are published on. Supplied by the client.
+  PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
+  It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
+  was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
+  Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
 
 ## Attributes Reference
 

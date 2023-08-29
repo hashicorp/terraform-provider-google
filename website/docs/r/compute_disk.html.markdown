@@ -181,6 +181,12 @@ The following arguments are supported:
   If an unsupported value is requested, the error message will list
   the supported values for the caller's project.
 
+* `interface` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  Specifies the disk interface to use for attaching this disk, which is either SCSI or NVME. The default is SCSI.
+
+  ~> **Warning:** `interface` is deprecated and will be removed in a future major release. This field is no longer used and can be safely removed from your configurations; disk interfaces are automatically determined on attachment.
+
 * `source_disk` -
   (Optional)
   The source disk used to create this disk. You can provide this as a partial or full URL to the resource.
@@ -208,6 +214,24 @@ The following arguments are supported:
   [google_compute_image data source](/docs/providers/google/d/compute_image.html).
   For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
   These images can be referred by family name here.
+
+* `resource_policies` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Resource policies applied to this disk for automatic snapshot creations.
+  ~>**NOTE** This value does not support updating the
+  resource policy, as resource policies can not be updated more than
+  one at a time. Use
+  [`google_compute_disk_resource_policy_attachment`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_disk_resource_policy_attachment)
+  to allow for updating the resource policy attached to the disk.
+
+* `enable_confidential_compute` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Whether this disk is using confidential compute mode.
+  Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true
+
+* `multi_writer` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether or not the disk can be read/write attached to more than one instance.
 
 * `provisioned_iops` -
   (Optional)

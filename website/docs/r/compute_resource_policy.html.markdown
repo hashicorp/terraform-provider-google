@@ -383,6 +383,10 @@ The following arguments are supported:
   attached.
   Possible values are: `COLLOCATED`.
 
+* `max_distance` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the number of max logical switches.
+
 <a name="nested_instance_schedule_policy"></a>The `instance_schedule_policy` block supports:
 
 * `vm_start_schedule` -

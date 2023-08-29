@@ -100,6 +100,10 @@ The following arguments are supported:
   in particular they override private zones, the public internet, and GCP internal DNS. No SOA nor NS types are allowed.
   Structure is [documented below](#nested_local_data).
 
+* `behavior` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Answer this query with a behavior rather than DNS data. Acceptable values are 'behaviorUnspecified', and 'bypassResponsePolicy'
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

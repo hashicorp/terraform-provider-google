@@ -96,6 +96,10 @@ The following arguments are supported:
   (Optional)
   An optional description of this resource.
 
+* `labels` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Labels to apply to this address.  A list of key->value pairs.
+
 * `ip_version` -
   (Optional)
   The IP Version that will be used by this address. The default value is `IPV4`.
@@ -141,6 +145,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `label_fingerprint` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The fingerprint used for optimistic locking of this resource.  Used
+  internally during updates.
 * `self_link` - The URI of the created resource.
 
 
@@ -150,6 +159,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

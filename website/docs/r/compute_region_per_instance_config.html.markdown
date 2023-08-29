@@ -169,6 +169,16 @@ State will be removed on the next instance recreation or update.
   Stateful disks for the instance.
   Structure is [documented below](#nested_disk).
 
+* `internal_ip` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Preserved internal IPs defined for this instance. This map is keyed with the name of the network interface.
+  Structure is [documented below](#nested_internal_ip).
+
+* `external_ip` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Preserved external IPs defined for this instance. This map is keyed with the name of the network interface.
+  Structure is [documented below](#nested_external_ip).
+
 
 <a name="nested_disk"></a>The `disk` block supports:
 
@@ -196,6 +206,50 @@ State will be removed on the next instance recreation or update.
   deleted from the instance group.
   Default value is `NEVER`.
   Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
+
+<a name="nested_internal_ip"></a>The `internal_ip` block supports:
+
+* `interface_name` - (Required) The identifier for this object. Format specified above.
+
+* `auto_delete` -
+  (Optional)
+  These stateful IPs will never be released during autohealing, update or VM instance recreate operations. This flag is used to configure if the IP reservation should be deleted after it is no longer used by the group, e.g. when the given instance or the whole group is deleted.
+  Default value is `NEVER`.
+  Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
+
+* `ip_address` -
+  (Optional)
+  Ip address representation
+  Structure is [documented below](#nested_ip_address).
+
+
+<a name="nested_ip_address"></a>The `ip_address` block supports:
+
+* `address` -
+  (Optional)
+  The URL of the reservation for this IP address.
+
+<a name="nested_external_ip"></a>The `external_ip` block supports:
+
+* `interface_name` - (Required) The identifier for this object. Format specified above.
+
+* `auto_delete` -
+  (Optional)
+  These stateful IPs will never be released during autohealing, update or VM instance recreate operations. This flag is used to configure if the IP reservation should be deleted after it is no longer used by the group, e.g. when the given instance or the whole group is deleted.
+  Default value is `NEVER`.
+  Possible values are: `NEVER`, `ON_PERMANENT_INSTANCE_DELETION`.
+
+* `ip_address` -
+  (Optional)
+  Ip address representation
+  Structure is [documented below](#nested_ip_address).
+
+
+<a name="nested_ip_address"></a>The `ip_address` block supports:
+
+* `address` -
+  (Optional)
+  The URL of the reservation for this IP address.
 
 ## Attributes Reference
 

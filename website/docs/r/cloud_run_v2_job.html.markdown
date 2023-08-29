@@ -513,6 +513,11 @@ The following arguments are supported:
   For Cloud SQL volumes, contains the specific instances that should be mounted. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run.
   Structure is [documented below](#nested_cloud_sql_instance).
 
+* `empty_dir` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Ephemeral storage used as a shared volume.
+  Structure is [documented below](#nested_empty_dir).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -549,6 +554,18 @@ The following arguments are supported:
 * `instances` -
   (Optional)
   The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}
+
+<a name="nested_empty_dir"></a>The `empty_dir` block supports:
+
+* `medium` -
+  (Optional)
+  The different types of medium supported for EmptyDir.
+  Default value is `MEMORY`.
+  Possible values are: `MEMORY`.
+
+* `size_limit` -
+  (Optional)
+  Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
