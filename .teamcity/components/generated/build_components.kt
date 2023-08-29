@@ -136,6 +136,17 @@ fun ParametrizedWithType.TerraformAcceptanceTestParameters(parallelism : Int, pr
     text("SWEEP_RUN", sweepRun)
 }
 
+fun ParametrizedWithType.TerraformLoggingParameters() {
+    // Set logging levels to match old projects
+    text("env.TF_LOG", "DEBUG")
+    text("env.TF_LOG_CORE", "WARN")
+    text("env.TF_LOG_SDK_FRAMEWORK", "INFO")
+
+    // Set where logs are sent
+    text("PROVIDER_NAME", providerName)
+    text("env.TF_LOG_PATH_MASK", "%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.txt")
+}
+
 fun ParametrizedWithType.ReadOnlySettings() {
     hiddenVariable("teamcity.ui.settings.readOnly", "true", "Requires build configurations be edited via Kotlin")
 }
