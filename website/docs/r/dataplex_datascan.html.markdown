@@ -34,7 +34,7 @@ To get more information about Datascan, see:
 ```hcl
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "dataprofile-basic"
 
   data {
 	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -58,7 +58,7 @@ data_profile_spec {}
 resource "google_dataplex_datascan" "full_profile" {
   location     = "us-central1"
   display_name = "Full Datascan Profile"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "dataprofile-full"
   description  = "Example resource - Full Datascan Profile"
   labels = {
     author = "billing"
@@ -85,9 +85,26 @@ resource "google_dataplex_datascan" "full_profile" {
     exclude_fields {
       field_names = ["property_type"]
     }
+    post_scan_actions {
+      bigquery_export {
+        results_table = "//bigquery.googleapis.com/projects/my-project-name/datasets/dataplex_dataset/tables/profile_export"
+      }
+    }
   }
 
   project = "my-project-name"
+
+  depends_on = [
+    google_bigquery_dataset.source
+  ]
+}
+
+resource "google_bigquery_dataset" "source" {
+  dataset_id                  = "dataplex_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+  delete_contents_on_destroy = true
 }
 ```
 ## Example Usage - Dataplex Datascan Basic Quality
@@ -96,7 +113,7 @@ resource "google_dataplex_datascan" "full_profile" {
 ```hcl
 resource "google_dataplex_datascan" "basic_quality" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "dataquality-basic"
 
   data {
     resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -129,7 +146,7 @@ resource "google_dataplex_datascan" "basic_quality" {
 resource "google_dataplex_datascan" "full_quality" {
   location = "us-central1"
   display_name = "Full Datascan Quality"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "dataquality-full"
   description = "Example resource - Full Datascan Quality"
   labels = {
     author = "billing"
