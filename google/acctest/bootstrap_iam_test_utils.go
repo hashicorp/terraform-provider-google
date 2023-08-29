@@ -94,11 +94,3 @@ func BootstrapPSARoles(t *testing.T, prefix, agentName string, roles []string) b
 func BootstrapPSARole(t *testing.T, prefix, agentName, role string) bool {
 	return BootstrapPSARoles(t, prefix, agentName, []string{role})
 }
-
-// Returns the bindings that are in the first set of bindings but not the second.
-//
-// Deprecated: For backward compatibility missingBindings is still working,
-// but all new code should use MissingBindings in the tpgiamresource package instead.
-func missingBindings(a, b []*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-	return tpgiamresource.MissingBindings(a, b)
-}

@@ -546,7 +546,7 @@ The following arguments are supported:
   The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version
 
 * `mode` -
-  (Required)
+  (Optional)
   Integer octal mode bits to use on this file, must be a value between 01 and 0777 (octal). If 0 or not set, the Volume's default mode will be used.
 
 <a name="nested_cloud_sql_instance"></a>The `cloud_sql_instance` block supports:

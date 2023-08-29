@@ -238,7 +238,6 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 			"distribution_policy_target_shape": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `The shape to which the group converges either proactively or on resize events (depending on the value set in updatePolicy.instanceRedistributionType).`,
 			},
@@ -692,6 +691,11 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("version") {
 		updatedManager.Versions = expandVersions(d.Get("version").([]interface{}))
+		change = true
+	}
+
+	if d.HasChange("distribution_policy_target_shape") {
+		updatedManager.DistributionPolicy = expandDistributionPolicy(d)
 		change = true
 	}
 

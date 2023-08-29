@@ -268,6 +268,81 @@ resource "google_monitoring_group" "check" {
 `, context)
 }
 
+func TestAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"zip_path":      "./test-fixtures/synthetic-fn-source.zip",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(context),
+			},
+			{
+				ResourceName:      "google_monitoring_uptime_check_config.synthetic_monitor",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigSyntheticMonitorExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "%{project_id}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"  # Add path to the zipped function source code
+}
+ 
+resource "google_cloudfunctions2_function" "function" {
+  name = "tf_test_synthetic_function%{random_suffix}"
+  location = "us-central1"
+ 
+  build_config {
+    runtime = "nodejs16"
+    entry_point = "SyntheticFunction"  # Set the entry point 
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+ 
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+  }
+}
+
+resource "google_monitoring_uptime_check_config" "synthetic_monitor" {
+  display_name = "tf_test_synthetic_monitor%{random_suffix}"
+  timeout = "60s"
+
+  synthetic_monitor {
+    cloud_function_v2 {
+      name = google_cloudfunctions2_function.function.id
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckMonitoringUptimeCheckConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

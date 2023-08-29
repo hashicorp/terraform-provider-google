@@ -58,6 +58,29 @@ fun BuildSteps.SetGitCommitBuildId() {
     })
 }
 
+fun BuildSteps.TagBuildToIndicatePurpose() {
+    step(ScriptBuildStep {
+        name = "Set build tag to indicate if build is run automatically or manually triggered"
+        scriptContent = """
+            #!/bin/bash
+            TRIGGERED_BY_USERNAME=%teamcity.build.triggeredBy.username%
+
+            if [[ "${'$'}TRIGGERED_BY_USERNAME" = "n/a" ]] ; then
+                echo "Build was triggered as part of automated testing. We know this because the `triggeredBy.username` value was `n/a`, value: ${'$'}{TRIGGERED_BY_USERNAME}"
+                TAG="nightly-test"
+                echo "##teamcity[addBuildTag '${'$'}{TAG}']"
+            else
+                echo "Build wasn't triggered as part of automated testing. We know this because the `triggeredBy.username` value was not `n/a`, value: ${'$'}{TRIGGERED_BY_USERNAME}"
+                TAG="one-off-build"
+                echo "##teamcity[addBuildTag '${'$'}{TAG}']"
+            fi
+        """.trimIndent()
+        // ${'$'} is required to allow creating a script in TeamCity that contains
+        // parts like ${GIT_HASH_SHORT} without having Kotlin syntax issues. For more info see:
+        // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
+    })
+}
+
 fun BuildSteps.DownloadTerraformBinary() {
     // https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
     var terraformUrl = "https://releases.hashicorp.com/terraform/%env.TERRAFORM_CORE_VERSION%/terraform_%env.TERRAFORM_CORE_VERSION%_linux_amd64.zip"

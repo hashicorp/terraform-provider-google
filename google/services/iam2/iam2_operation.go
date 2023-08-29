@@ -18,6 +18,8 @@
 package iam2
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -55,6 +57,22 @@ func createIAM2Waiter(config *transport_tpg.Config, op map[string]interface{}, a
 		return nil, err
 	}
 	return w, nil
+}
+
+// nolint: deadcode,unused
+func IAM2OperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, activity, userAgent string, timeout time.Duration) error {
+	w, err := createIAM2Waiter(config, op, activity, userAgent)
+	if err != nil {
+		return err
+	}
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+		return err
+	}
+	rawResponse := []byte(w.CommonOperationWaiter.Op.Response)
+	if len(rawResponse) == 0 {
+		return errors.New("`resource` not set in operation response")
+	}
+	return json.Unmarshal(rawResponse, response)
 }
 
 func IAM2OperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {

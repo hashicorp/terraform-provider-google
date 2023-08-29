@@ -18,6 +18,8 @@
 package networkconnectivity
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -58,6 +60,22 @@ func createNetworkConnectivityWaiter(config *transport_tpg.Config, op map[string
 		return nil, err
 	}
 	return w, nil
+}
+
+// nolint: deadcode,unused
+func NetworkConnectivityOperationWaitTimeWithResponse(config *transport_tpg.Config, op map[string]interface{}, response *map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {
+	w, err := createNetworkConnectivityWaiter(config, op, project, activity, userAgent)
+	if err != nil {
+		return err
+	}
+	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
+		return err
+	}
+	rawResponse := []byte(w.CommonOperationWaiter.Op.Response)
+	if len(rawResponse) == 0 {
+		return errors.New("`resource` not set in operation response")
+	}
+	return json.Unmarshal(rawResponse, response)
 }
 
 func NetworkConnectivityOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {

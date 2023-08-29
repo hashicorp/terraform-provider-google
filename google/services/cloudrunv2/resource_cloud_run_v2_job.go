@@ -301,11 +301,6 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 																Description: `If unspecified, the volume will expose a file whose name is the secret, relative to VolumeMount.mount_path. If specified, the key will be used as the version to fetch from Cloud Secret Manager and the path will be the name of the file exposed in the volume. When items are defined, they must specify a path and a version.`,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
-																		"mode": {
-																			Type:        schema.TypeInt,
-																			Required:    true,
-																			Description: `Integer octal mode bits to use on this file, must be a value between 01 and 0777 (octal). If 0 or not set, the Volume's default mode will be used.`,
-																		},
 																		"path": {
 																			Type:        schema.TypeString,
 																			Required:    true,
@@ -315,6 +310,11 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 																			Type:        schema.TypeString,
 																			Required:    true,
 																			Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version`,
+																		},
+																		"mode": {
+																			Type:        schema.TypeInt,
+																			Optional:    true,
+																			Description: `Integer octal mode bits to use on this file, must be a value between 01 and 0777 (octal). If 0 or not set, the Volume's default mode will be used.`,
 																		},
 																	},
 																},

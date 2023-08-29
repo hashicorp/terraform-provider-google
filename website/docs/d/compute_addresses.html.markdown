@@ -8,12 +8,12 @@ description: |-
 
 List IP addresses in a project. For more information see
 the official API [list](https://cloud.google.com/compute/docs/reference/latest/addresses/list) and 
-[aggregated lsit](https://cloud.google.com/compute/docs/reference/rest/v1/addresses/aggregatedList) documentation.
+[aggregated list](https://cloud.google.com/compute/docs/reference/rest/v1/addresses/aggregatedList) documentation.
 
 ## Example Usage
 
 ```hcl
-data "google_compute_addresses" "my_addresses" {
+data "google_compute_addresses" "test" {
     filter = "name:test-*"
 }
 
@@ -24,7 +24,7 @@ resource "google_dns_record_set" "frontend" {
 
   managed_zone = google_dns_managed_zone.prod.name
 
-  rrdatas = data.google_compute_addresses.my_addresses[*].address
+  rrdatas = data.google_compute_addresses.test.addresses[*].address
 }
 
 resource "google_dns_managed_zone" "prod" {

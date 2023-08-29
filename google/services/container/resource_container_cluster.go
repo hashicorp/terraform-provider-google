@@ -153,7 +153,7 @@ func rfc5545RecurrenceDiffSuppress(k, o, n string, d *schema.ResourceData) bool 
 	return false
 }
 
-// Has enable_l4_ilb_subsetting been enabled before?
+// Has the field (e.g. enable_l4_ilb_subsetting and enable_fqdn_network_policy) been enabled before?
 func isBeenEnabled(_ context.Context, old, new, _ interface{}) bool {
 	if old == nil || new == nil {
 		return false

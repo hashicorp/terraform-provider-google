@@ -143,6 +143,7 @@ resource "google_iam_workforce_pool_provider" "example" {
     web_sso_config {
       response_type             = "CODE"
       assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["groups", "roles"]
     }
   }
   display_name        = "Display name"
@@ -303,6 +304,32 @@ The following arguments are supported:
   Configuration for web single sign-on for the OIDC provider. Here, web sign-in refers to console sign-in and gcloud sign-in through the browser.
   Structure is [documented below](#nested_web_sso_config).
 
+* `jwks_json` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  OIDC JWKs in JSON String format. For details on definition of a
+  JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+  use the `jwks_uri` from the discovery document fetched from the
+  .well-known path for the `issuer_uri`. Currently, RSA and EC asymmetric
+  keys are supported. The JWK must use following format and include only
+  the following fields:
+  ```
+  {
+    "keys": [
+      {
+            "kty": "RSA/EC",
+            "alg": "<algorithm>",
+            "use": "sig",
+            "kid": "<key-id>",
+            "n": "",
+            "e": "",
+            "x": "",
+            "y": "",
+            "crv": ""
+      }
+    ]
+  }
+  ```
+
 
 <a name="nested_client_secret"></a>The `client_secret` block supports:
 
@@ -339,6 +366,11 @@ The following arguments are supported:
   * MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS: Merge the UserInfo Endpoint Claims with ID Token Claims, preferring UserInfo Claim Values for the same Claim Name. This option is available only for the Authorization Code Flow.
   * ONLY_ID_TOKEN_CLAIMS: Only include ID Token Claims.
   Possible values are: `MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS`, `ONLY_ID_TOKEN_CLAIMS`.
+
+* `additional_scopes` -
+  (Optional)
+  Additional scopes to request for in the OIDC authentication request on top of scopes requested by default. By default, the `openid`, `profile` and `email` scopes that are supported by the identity provider are requested.
+  Each additional scope may be at most 256 characters. A maximum of 10 additional scopes may be configured.
 
 ## Attributes Reference
 

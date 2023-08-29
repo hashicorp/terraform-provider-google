@@ -28,6 +28,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetworkConnectivityServiceConnectionPolicy() *schema.Resource {
@@ -126,8 +127,93 @@ It is provided by the Service Producer. Google services have a prefix of gcp. Fo
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Information about each Private Service Connect connection.`,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"consumer_address": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The resource reference of the consumer address.`,
+						},
+						"consumer_forwarding_rule": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The resource reference of the PSC Forwarding Rule within the consumer VPC.`,
+						},
+						"consumer_target_project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The project where the PSC connection is created.`,
+						},
+						"error": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The most recent error during operating this connection.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `The status code, which should be an enum value of [google.rpc.Code][].`,
+									},
+									"message": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `A developer-facing error message.`,
+									},
+								},
+							},
+						},
+						"error_info": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The error info for the latest error during operating this connection.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"domain": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The logical grouping to which the "reason" belongs.`,
+									},
+									"metadata": {
+										Type:        schema.TypeMap,
+										Optional:    true,
+										Description: `Additional structured details about this error.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+									"reason": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The reason of the error.`,
+									},
+								},
+							},
+						},
+						"error_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"CONNECTION_ERROR_TYPE_UNSPECIFIED", "ERROR_INTERNAL", "ERROR_CONSUMER_SIDE", "ERROR_PRODUCER_SIDE", ""}),
+							Description: `The error type indicates whether the error is consumer facing, producer
+facing or system internal. Possible values: ["CONNECTION_ERROR_TYPE_UNSPECIFIED", "ERROR_INTERNAL", "ERROR_CONSUMER_SIDE", "ERROR_PRODUCER_SIDE"]`,
+						},
+						"gce_operation": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The last Compute Engine operation to setup PSC connection.`,
+						},
+						"psc_connection_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The PSC connection id of the PSC forwarding rule.`,
+						},
+						"state": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"STATE_UNSPECIFIED", "ACTIVE", "CREATING", "DELETING", "FAILED", ""}),
+							Description:  `The state of the PSC connection. Possible values: ["STATE_UNSPECIFIED", "ACTIVE", "CREATING", "DELETING", "FAILED"]`,
+						},
+					},
 				},
 			},
 			"update_time": {
@@ -548,6 +634,121 @@ func flattenNetworkConnectivityServiceConnectionPolicyEtag(v interface{}, d *sch
 }
 
 func flattenNetworkConnectivityServiceConnectionPolicyPscConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"state":                    flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsState(original["state"], d, config),
+			"consumer_forwarding_rule": flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerForwardingRule(original["consumerForwardingRule"], d, config),
+			"consumer_address":         flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerAddress(original["consumerAddress"], d, config),
+			"error_type":               flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorType(original["errorType"], d, config),
+			"error":                    flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsError(original["error"], d, config),
+			"gce_operation":            flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsGceOperation(original["gceOperation"], d, config),
+			"consumer_target_project":  flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerTargetProject(original["consumerTargetProject"], d, config),
+			"psc_connection_id":        flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsPscConnectionId(original["pscConnectionId"], d, config),
+			"error_info":               flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfo(original["errorInfo"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerForwardingRule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsError(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["message"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorMessage(original["message"], d, config)
+	transformed["code"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorCode(original["code"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsGceOperation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsConsumerTargetProject(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsPscConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["reason"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoReason(original["reason"], d, config)
+	transformed["domain"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoDomain(original["domain"], d, config)
+	transformed["metadata"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoMetadata(original["metadata"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorInfoMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
