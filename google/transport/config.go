@@ -190,6 +190,7 @@ type Config struct {
 	AppEngineBasePath                string
 	ArtifactRegistryBasePath         string
 	BeyondcorpBasePath               string
+	BiglakeBasePath                  string
 	BigQueryBasePath                 string
 	BigqueryAnalyticsHubBasePath     string
 	BigqueryConnectionBasePath       string
@@ -305,6 +306,7 @@ const ApigeeBasePathKey = "Apigee"
 const AppEngineBasePathKey = "AppEngine"
 const ArtifactRegistryBasePathKey = "ArtifactRegistry"
 const BeyondcorpBasePathKey = "Beyondcorp"
+const BiglakeBasePathKey = "Biglake"
 const BigQueryBasePathKey = "BigQuery"
 const BigqueryAnalyticsHubBasePathKey = "BigqueryAnalyticsHub"
 const BigqueryConnectionBasePathKey = "BigqueryConnection"
@@ -414,6 +416,7 @@ var DefaultBasePaths = map[string]string{
 	AppEngineBasePathKey:                "https://appengine.googleapis.com/v1/",
 	ArtifactRegistryBasePathKey:         "https://artifactregistry.googleapis.com/v1/",
 	BeyondcorpBasePathKey:               "https://beyondcorp.googleapis.com/v1/",
+	BiglakeBasePathKey:                  "https://biglake.googleapis.com/v1/",
 	BigQueryBasePathKey:                 "https://bigquery.googleapis.com/bigquery/v2/",
 	BigqueryAnalyticsHubBasePathKey:     "https://analyticshub.googleapis.com/v1/",
 	BigqueryConnectionBasePathKey:       "https://bigqueryconnection.googleapis.com/v1/",
@@ -617,6 +620,11 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("beyondcorp_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_BEYONDCORP_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[BeyondcorpBasePathKey]))
+	}
+	if d.Get("biglake_custom_endpoint") == "" {
+		d.Set("biglake_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_BIGLAKE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[BiglakeBasePathKey]))
 	}
 	if d.Get("big_query_custom_endpoint") == "" {
 		d.Set("big_query_custom_endpoint", MultiEnvDefault([]string{
@@ -1896,6 +1904,7 @@ func ConfigureBasePaths(c *Config) {
 	c.AppEngineBasePath = DefaultBasePaths[AppEngineBasePathKey]
 	c.ArtifactRegistryBasePath = DefaultBasePaths[ArtifactRegistryBasePathKey]
 	c.BeyondcorpBasePath = DefaultBasePaths[BeyondcorpBasePathKey]
+	c.BiglakeBasePath = DefaultBasePaths[BiglakeBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigqueryAnalyticsHubBasePath = DefaultBasePaths[BigqueryAnalyticsHubBasePathKey]
 	c.BigqueryConnectionBasePath = DefaultBasePaths[BigqueryConnectionBasePathKey]

@@ -224,7 +224,6 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"monitored_resource": {
 				Type:        schema.TypeList,
@@ -249,7 +248,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group", "synthetic_monitor"},
 			},
 			"period": {
 				Type:        schema.TypeString,
@@ -283,7 +282,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"monitored_resource", "resource_group"},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group", "synthetic_monitor"},
 			},
 			"selected_regions": {
 				Type:        schema.TypeList,
@@ -292,6 +291,36 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"synthetic_monitor": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `A Synthetic Monitor deployed to a Cloud Functions V2 instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cloud_function_v2": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Target a Synthetic Monitor GCFv2 Instance`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `The fully qualified name of the cloud function resource.`,
+									},
+								},
+							},
+							ExactlyOneOf: []string{},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"monitored_resource", "resource_group", "synthetic_monitor"},
 			},
 			"tcp_check": {
 				Type:        schema.TypeList,
@@ -307,7 +336,6 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"http_check", "tcp_check"},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -397,6 +425,12 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("monitored_resource"); !tpgresource.IsEmptyValue(reflect.ValueOf(monitoredResourceProp)) && (ok || !reflect.DeepEqual(v, monitoredResourceProp)) {
 		obj["monitoredResource"] = monitoredResourceProp
+	}
+	syntheticMonitorProp, err := expandMonitoringUptimeCheckConfigSyntheticMonitor(d.Get("synthetic_monitor"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("synthetic_monitor"); !tpgresource.IsEmptyValue(reflect.ValueOf(syntheticMonitorProp)) && (ok || !reflect.DeepEqual(v, syntheticMonitorProp)) {
+		obj["syntheticMonitor"] = syntheticMonitorProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "stackdriver/groups/{{project}}")
@@ -547,6 +581,9 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 	if err := d.Set("monitored_resource", flattenMonitoringUptimeCheckConfigMonitoredResource(res["monitoredResource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
+	}
+	if err := d.Set("synthetic_monitor", flattenMonitoringUptimeCheckConfigSyntheticMonitor(res["syntheticMonitor"], d, config)); err != nil {
 		return fmt.Errorf("Error reading UptimeCheckConfig: %s", err)
 	}
 
@@ -1053,6 +1090,36 @@ func flattenMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d 
 	return v
 }
 
+func flattenMonitoringUptimeCheckConfigSyntheticMonitor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["cloud_function_v2"] =
+		flattenMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(original["cloudFunctionV2"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2Name(original["name"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2Name(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandMonitoringUptimeCheckConfigDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1450,4 +1517,46 @@ func expandMonitoringUptimeCheckConfigMonitoredResourceLabels(v interface{}, d t
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandMonitoringUptimeCheckConfigSyntheticMonitor(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCloudFunctionV2, err := expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(original["cloud_function_v2"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCloudFunctionV2); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cloudFunctionV2"] = transformedCloudFunctionV2
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2Name(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigSyntheticMonitorCloudFunctionV2Name(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }

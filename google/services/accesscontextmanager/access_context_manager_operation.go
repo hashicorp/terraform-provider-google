@@ -19,6 +19,7 @@ package accesscontextmanager
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -67,7 +68,11 @@ func AccessContextManagerOperationWaitTimeWithResponse(config *transport_tpg.Con
 	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
-	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
+	rawResponse := []byte(w.CommonOperationWaiter.Op.Response)
+	if len(rawResponse) == 0 {
+		return errors.New("`resource` not set in operation response")
+	}
+	return json.Unmarshal(rawResponse, response)
 }
 
 func AccessContextManagerOperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, activity, userAgent string, timeout time.Duration) error {

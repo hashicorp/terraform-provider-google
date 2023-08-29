@@ -37,6 +37,7 @@ class sweeperDetails() {
 
             steps {
                 SetGitCommitBuildId()
+                TagBuildToIndicatePurpose()
                 ConfigureGoEnv()
                 DownloadTerraformBinary()
                 RunSweepers(sweeperName)

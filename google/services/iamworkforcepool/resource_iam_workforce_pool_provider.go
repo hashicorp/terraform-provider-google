@@ -265,6 +265,15 @@ The 'CODE' Response Type is recommended to avoid the Implicit Flow, for security
 * CODE: The 'response_type=code' selection uses the Authorization Code Flow for web sign-in. Requires a configured client secret.
 * ID_TOKEN: The 'response_type=id_token' selection uses the Implicit Flow for web sign-in. Possible values: ["CODE", "ID_TOKEN"]`,
 									},
+									"additional_scopes": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Additional scopes to request for in the OIDC authentication request on top of scopes requested by default. By default, the 'openid', 'profile' and 'email' scopes that are supported by the identity provider are requested.
+Each additional scope may be at most 256 characters. A maximum of 10 additional scopes may be configured.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
@@ -841,6 +850,8 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{},
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(original["responseType"], d, config)
 	transformed["assertion_claims_behavior"] =
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(original["assertionClaimsBehavior"], d, config)
+	transformed["additional_scopes"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(original["additionalScopes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -848,6 +859,10 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v 
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1025,6 +1040,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(v interface{}, 
 		transformed["assertionClaimsBehavior"] = transformedAssertionClaimsBehavior
 	}
 
+	transformedAdditionalScopes, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(original["additional_scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAdditionalScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["additionalScopes"] = transformedAdditionalScopes
+	}
+
 	return transformed, nil
 }
 
@@ -1033,6 +1055,10 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigResponseType(v i
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsBehavior(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

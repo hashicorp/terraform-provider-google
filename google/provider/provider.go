@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
 	"github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
+	"github.com/hashicorp/terraform-provider-google/google/services/biglake"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigquery"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryanalyticshub"
 	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryconnection"
@@ -138,7 +139,7 @@ func Provider() *schema.Provider {
 			"credentials": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ValidateFunc:  validateCredentials,
+				ValidateFunc:  ValidateCredentials,
 				ConflictsWith: []string{"access_token"},
 			},
 
@@ -256,6 +257,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"beyondcorp_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"biglake_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -719,7 +725,7 @@ func Provider() *schema.Provider {
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		return providerConfigure(ctx, d, provider)
+		return ProviderConfigure(ctx, d, provider)
 	}
 
 	transport_tpg.ConfigureDCLProvider(provider)
@@ -1024,6 +1030,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_beyondcorp_app_connection":                               beyondcorp.ResourceBeyondcorpAppConnection(),
 			"google_beyondcorp_app_connector":                                beyondcorp.ResourceBeyondcorpAppConnector(),
 			"google_beyondcorp_app_gateway":                                  beyondcorp.ResourceBeyondcorpAppGateway(),
+			"google_biglake_catalog":                                         biglake.ResourceBiglakeCatalog(),
 			"google_bigquery_dataset":                                        bigquery.ResourceBigQueryDataset(),
 			"google_bigquery_dataset_access":                                 bigquery.ResourceBigQueryDatasetAccess(),
 			"google_bigquery_job":                                            bigquery.ResourceBigQueryJob(),
@@ -1296,7 +1303,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_feature_iam_binding":                             tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_member":                              tpgiamresource.ResourceIamMember(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_policy":                              tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
-			"google_gke_hub_membership_rbac_role_binding":                    gkehub2.ResourceGKEHub2MembershipRBACRoleBinding(),
 			"google_healthcare_consent_store":                                healthcare.ResourceHealthcareConsentStore(),
 			"google_healthcare_consent_store_iam_binding":                    tpgiamresource.ResourceIamBinding(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
 			"google_healthcare_consent_store_iam_member":                     tpgiamresource.ResourceIamMember(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
@@ -1617,7 +1623,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 	)
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
+func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider) (interface{}, diag.Diagnostics) {
 	err := transport_tpg.HandleSDKDefaults(d)
 	if err != nil {
 		return nil, diag.FromErr(err)
@@ -1712,6 +1718,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
 	config.ArtifactRegistryBasePath = d.Get("artifact_registry_custom_endpoint").(string)
 	config.BeyondcorpBasePath = d.Get("beyondcorp_custom_endpoint").(string)
+	config.BiglakeBasePath = d.Get("biglake_custom_endpoint").(string)
 	config.BigQueryBasePath = d.Get("big_query_custom_endpoint").(string)
 	config.BigqueryAnalyticsHubBasePath = d.Get("bigquery_analytics_hub_custom_endpoint").(string)
 	config.BigqueryConnectionBasePath = d.Get("bigquery_connection_custom_endpoint").(string)
@@ -1827,7 +1834,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	return transport_tpg.ProviderDCLConfigure(d, &config), nil
 }
 
-func validateCredentials(v interface{}, k string) (warnings []string, errors []error) {
+func ValidateCredentials(v interface{}, k string) (warnings []string, errors []error) {
 	if v == nil || v.(string) == "" {
 		return
 	}

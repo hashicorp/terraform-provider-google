@@ -19,6 +19,7 @@ package cloudrunv2
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -70,7 +71,11 @@ func CloudRunV2OperationWaitTimeWithResponse(config *transport_tpg.Config, op ma
 	if err := tpgresource.OperationWait(w, activity, timeout, config.PollInterval); err != nil {
 		return err
 	}
-	return json.Unmarshal([]byte(w.CommonOperationWaiter.Op.Response), response)
+	rawResponse := []byte(w.CommonOperationWaiter.Op.Response)
+	if len(rawResponse) == 0 {
+		return errors.New("`resource` not set in operation response")
+	}
+	return json.Unmarshal(rawResponse, response)
 }
 
 func CloudRunV2OperationWaitTime(config *transport_tpg.Config, op map[string]interface{}, project, activity, userAgent string, timeout time.Duration) error {

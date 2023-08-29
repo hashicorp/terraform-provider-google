@@ -57,7 +57,7 @@ func TestAccProjectIamMember_multiple(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	acctest.SkipIfEnvNotSet(t, "GOOGLE_ORG")
+	envvar.SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
@@ -100,7 +100,7 @@ func TestAccProjectIamMember_remove(t *testing.T) {
 	t.Parallel()
 
 	org := envvar.GetTestOrgFromEnv(t)
-	acctest.SkipIfEnvNotSet(t, "GOOGLE_ORG")
+	envvar.SkipIfEnvNotSet(t, "GOOGLE_ORG")
 
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
 	resourceName := "google_project_iam_member.acceptance"
