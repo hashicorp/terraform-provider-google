@@ -177,7 +177,7 @@ resource "google_vpc_access_connector" "bar" {
   project = google_project.my_project.project_id
   name = "bar"
   region = "us-central1"
-  ip_cidr_range = "10.8.0.0/28"
+  ip_cidr_range = "10.8.0.16/28"
   network = "default"
 }
 
