@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/fwresource"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 )
 
@@ -91,7 +92,7 @@ func testAccCheckDnsRecordSetDestroyProducerFramework(t *testing.T) func(s *terr
 
 			p := acctest.GetFwTestProvider(t)
 
-			url, err := acctest.ReplaceVarsForFrameworkTest(&p.FrameworkProvider.FrameworkProviderConfig, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{managed_zone}}/rrsets/{{name}}/{{type}}")
+			url, err := fwresource.ReplaceVarsForFrameworkTest(&p.FrameworkProvider.FrameworkProviderConfig, rs, "{{DNSBasePath}}projects/{{project}}/managedZones/{{managed_zone}}/rrsets/{{name}}/{{type}}")
 			if err != nil {
 				return err
 			}
