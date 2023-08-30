@@ -46,6 +46,21 @@ var sqlDatabaseAuthorizedNetWorkSchemaElem *schema.Resource = &schema.Resource{
 	},
 }
 
+var sqlDatabaseFlagSchemaElem *schema.Resource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"value": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: `Value of the flag.`,
+		},
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: `Name of the flag.`,
+		},
+	},
+}
+
 var (
 	backupConfigurationKeys = []string{
 		"settings.0.backup_configuration.0.binary_log_enabled",
@@ -361,22 +376,10 @@ is set to true. Defaults to ZONAL.`,
 							Description: `The name of server instance collation.`,
 						},
 						"database_flags": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Value of the flag.`,
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: `Name of the flag.`,
-									},
-								},
-							},
+							Set:      schema.HashResource(sqlDatabaseFlagSchemaElem),
+							Elem:     sqlDatabaseFlagSchemaElem,
 						},
 						"disk_autoresize": {
 							Type:        schema.TypeBool,
@@ -1260,7 +1263,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
-		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].([]interface{})),
+		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
 		IpConfiguration:           expandIpConfiguration(_settings["ip_configuration"].([]interface{}), databaseVersion),
 		LocationPreference:        expandLocationPreference(_settings["location_preference"].([]interface{})),
 		MaintenanceWindow:         expandMaintenanceWindow(_settings["maintenance_window"].([]interface{})),

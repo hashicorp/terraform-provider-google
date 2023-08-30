@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed diffs when re-ordering existing `database_flags`
+```
