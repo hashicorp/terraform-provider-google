@@ -1067,7 +1067,8 @@ notification_config {
 
 <a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
 
-* `enabled` (Required) - Enable Confidential Nodes for this cluster.
+* `enabled` (Required) - Enable Confidential GKE Nodes for this cluster, to
+    enforce encryption of data in-use.
 
 <a name="nested_pod_security_policy_config"></a>The `pod_security_policy_config` block supports:
 
