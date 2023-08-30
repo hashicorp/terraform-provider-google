@@ -121,7 +121,15 @@ func TestAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(t *testing.T
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context),
+				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, true),
+			},
+			{
+				ResourceName:      "google_compute_forwarding_rule.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, false),
 			},
 			{
 				ResourceName:      "google_compute_forwarding_rule.default",
@@ -251,7 +259,15 @@ resource "google_compute_forwarding_rule" "foobar" {
 `, poolName, ruleName)
 }
 
-func testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context map[string]interface{}) string {
+func testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context map[string]interface{}, preventDestroy bool) string {
+	context["lifecycle_block"] = ""
+	if preventDestroy {
+		context["lifecycle_block"] = `
+		lifecycle {
+			prevent_destroy = true
+		}`
+	}
+
 	return acctest.Nprintf(`
 // Forwarding rule for VPC private service connect
 resource "google_compute_forwarding_rule" "default" {
@@ -262,6 +278,7 @@ resource "google_compute_forwarding_rule" "default" {
   network                 = google_compute_network.consumer_net.name
   ip_address              = google_compute_address.consumer_address.id
   allow_psc_global_access = false
+  %{lifecycle_block}
 }
 
 // Consumer service endpoint

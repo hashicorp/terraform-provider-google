@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: field `allowPscGlobalAccess` is now updatable in `google_compute_forwarding_rule` resource
+```
