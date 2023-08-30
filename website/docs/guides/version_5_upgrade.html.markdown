@@ -325,3 +325,9 @@ This change involved the following resources: `google_game_services_game_server_
 Previously, `database_flags` was a list, making it order-dependent. It is now a set.
 
 If you were relying on accessing an individual flag by index (for example, `google_sql_database_instance.instance.settings.0.database_flags.0.name`), then that will now need to by hash (for example, `google_sql_database_instance.instance.settings.0.database_flags.<some-hash>.name`).
+
+## Resource: `google_compute_security_policy`
+
+### `rule.rate_limit_options.encorce_on_key` no longer has default value
+
+Previously, the default value for `rule.rate_limit_options.encorce_on_key` is "ALL", now this field no longer has a default value.
