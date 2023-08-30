@@ -29,11 +29,11 @@ To get more information about Database, see:
     * [Manage open source metadata with BigLake Metastore](https://cloud.google.com/bigquery/docs/manage-open-source-metadata#create_databases)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_biglake_database&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=biglake_database&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Bigquery Biglake Database
+## Example Usage - Biglake Database
 
 
 ```hcl
@@ -57,8 +57,7 @@ resource "google_storage_bucket_object" "metadata_folder" {
 
 resource "google_biglake_database" "database"  {
     name = "my_database"
-    catalog_id = google_biglake_catalog.catalog.name
-    location = google_biglake_catalog.catalog.location
+    catalog = google_biglake_catalog.catalog.id
     type = "HIVE"
     hive_options {
         location_uri = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.metadata_folder.name}"
@@ -83,17 +82,13 @@ The following arguments are supported:
   Options of a Hive database.
   Structure is [documented below](#nested_hive_options).
 
-* `location` -
+* `catalog` -
   (Required)
-  The geographic location where the Database should reside.
+  The parent catalog.
 
 * `name` -
   (Required)
   The name of the database.
-
-* `catalog_id` -
-  (Required)
-  The name of the parent catalog.
 
 
 <a name="nested_hive_options"></a>The `hive_options` block supports:
@@ -111,15 +106,12 @@ The following arguments are supported:
 - - -
 
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}`
+* `id` - an identifier for the resource with format `{{catalog}}/databases/{{name}}`
 
 * `create_time` -
   Output only. The creation time of the database. A timestamp in RFC3339
@@ -161,11 +153,5 @@ This resource provides the following
 Database can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_biglake_database.default projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}
-$ terraform import google_biglake_database.default {{project}}/{{location}}/{{catalog_id}}/{{name}}
-$ terraform import google_biglake_database.default {{location}}/{{catalog_id}}/{{name}}
+$ terraform import google_biglake_database.default {{catalog}}/databases/{{name}}
 ```
-
-## User Project Overrides
-
-This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).

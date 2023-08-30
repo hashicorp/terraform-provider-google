@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccBiglakeDatabase_bigqueryBiglakeDatabaseExample(t *testing.T) {
+func TestAccBiglakeDatabase_biglakeDatabaseExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -43,19 +43,19 @@ func TestAccBiglakeDatabase_bigqueryBiglakeDatabaseExample(t *testing.T) {
 		CheckDestroy:             testAccCheckBiglakeDatabaseDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBiglakeDatabase_bigqueryBiglakeDatabaseExample(context),
+				Config: testAccBiglakeDatabase_biglakeDatabaseExample(context),
 			},
 			{
 				ResourceName:            "google_biglake_database.database",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "catalog_id"},
+				ImportStateVerifyIgnore: []string{"catalog", "name"},
 			},
 		},
 	})
 }
 
-func testAccBiglakeDatabase_bigqueryBiglakeDatabaseExample(context map[string]interface{}) string {
+func testAccBiglakeDatabase_biglakeDatabaseExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_biglake_catalog" "catalog" {
     name = "tf_test_my_catalog%{random_suffix}"
@@ -77,8 +77,7 @@ resource "google_storage_bucket_object" "metadata_folder" {
 
 resource "google_biglake_database" "database"  {
     name = "tf_test_my_database%{random_suffix}"
-    catalog_id = google_biglake_catalog.catalog.name
-    location = google_biglake_catalog.catalog.location
+    catalog = google_biglake_catalog.catalog.id
     type = "HIVE"
     hive_options {
         location_uri = "gs://${google_storage_bucket.bucket.name}/${google_storage_bucket_object.metadata_folder.name}"
@@ -102,7 +101,7 @@ func testAccCheckBiglakeDatabaseDestroyProducer(t *testing.T) func(s *terraform.
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BiglakeBasePath}}projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
 			if err != nil {
 				return err
 			}
