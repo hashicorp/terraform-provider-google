@@ -48,11 +48,11 @@ func ResourceBiglakeDatabase() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"catalog_id": {
+			"catalog": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The name of the parent catalog.`,
+				Description: `The parent catalog.`,
 			},
 			"hive_options": {
 				Type:        schema.TypeList,
@@ -76,12 +76,6 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 						},
 					},
 				},
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The geographic location where the Database should reside.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -126,12 +120,6 @@ RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
 fractional digits. Examples: "2014-10-02T15:01:23Z" and
 "2014-10-02T15:01:23.045123456Z".`,
 			},
-			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
 		},
 		UseJSONNumber: true,
 	}
@@ -158,19 +146,13 @@ func resourceBiglakeDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 		obj["hiveOptions"] = hiveOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases?databaseId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases?databaseId={{name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Creating new Database: %#v", obj)
 	billingProject := ""
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -191,7 +173,7 @@ func resourceBiglakeDatabaseCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{catalog}}/databases/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -209,18 +191,12 @@ func resourceBiglakeDatabaseRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
 
 	billingProject := ""
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -236,10 +212,6 @@ func resourceBiglakeDatabaseRead(d *schema.ResourceData, meta interface{}) error
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("BiglakeDatabase %q", d.Id()))
-	}
-
-	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading Database: %s", err)
 	}
 
 	if err := d.Set("create_time", flattenBiglakeDatabaseCreateTime(res["createTime"], d, config)); err != nil {
@@ -273,12 +245,6 @@ func resourceBiglakeDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 
 	billingProject := ""
 
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
-
 	obj := make(map[string]interface{})
 	typeProp, err := expandBiglakeDatabaseType(d.Get("type"), d, config)
 	if err != nil {
@@ -293,7 +259,7 @@ func resourceBiglakeDatabaseUpdate(d *schema.ResourceData, meta interface{}) err
 		obj["hiveOptions"] = hiveOptionsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -348,13 +314,7 @@ func resourceBiglakeDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 
 	billingProject := ""
 
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return fmt.Errorf("Error fetching project for Database: %s", err)
-	}
-	billingProject = project
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BiglakeBasePath}}{{catalog}}/databases/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -387,15 +347,13 @@ func resourceBiglakeDatabaseDelete(d *schema.ResourceData, meta interface{}) err
 func resourceBiglakeDatabaseImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/catalogs/(?P<catalog_id>[^/]+)/databases/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<catalog_id>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<catalog_id>[^/]+)/(?P<name>[^/]+)",
+		"(?P<catalog>.+)/databases/(?P<name>[^/]+)",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{catalog}}/databases/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -64,7 +64,7 @@ func testSweepBiglakeDatabase(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://biglake.googleapis.com/v1/projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases", "?")[0]
+	listTemplate := strings.Split("https://biglake.googleapis.com/v1/{{catalog}}/databases", "?")[0]
 	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -96,23 +96,19 @@ func testSweepBiglakeDatabase(region string) error {
 	nonPrefixCount := 0
 	for _, ri := range rl {
 		obj := ri.(map[string]interface{})
-		var name string
-		// Id detected in the delete URL, attempt to use id.
-		if obj["id"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
-		} else if obj["name"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-		} else {
-			log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
+		if obj["name"] == nil {
+			log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
 			return nil
 		}
+
+		name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 		// Skip resources that shouldn't be sweeped
 		if !sweeper.IsSweepableTestResource(name) {
 			nonPrefixCount++
 			continue
 		}
 
-		deleteTemplate := "https://biglake.googleapis.com/v1/projects/{{project}}/locations/{{location}}/catalogs/{{catalog_id}}/databases/{{name}}"
+		deleteTemplate := "https://biglake.googleapis.com/v1/{{catalog}}/databases/{{name}}"
 		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
