@@ -212,7 +212,6 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 									"enforce_on_key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										Default:      "ALL",
 										Description:  `Determines the key to enforce the rateLimitThreshold on`,
 										ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", ""}, false),
 									},
