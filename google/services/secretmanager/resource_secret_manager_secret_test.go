@@ -160,6 +160,64 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
+	t.Parallel()
+
+	kmscentral := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key1")
+	kmseast := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-secret-manager-managed-east-key1")
+	kmscentralother := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-secret-manager-managed-central-key2")
+	context := map[string]interface{}{
+		"pid":                        envvar.GetTestProjectFromEnv(),
+		"random_suffix":              acctest.RandString(t, 10),
+		"kms_key_name_central":       kmscentral.CryptoKey.Name,
+		"kms_key_name_east":          kmseast.CryptoKey.Name,
+		"kms_key_name_central_other": kmscentralother.CryptoKey.Name,
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretMangerSecret_userManagedCmekBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_userManagedCmekUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_userManagedCmekUpdate2(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_userManagedCmekBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -424,6 +482,153 @@ resource "google_secret_manager_secret_version" "secret-version-4" {
   secret = google_secret_manager_secret.secret-basic.id
 
   secret_data = "some-secret-data-%{random_suffix}-4"
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_userManagedCmekBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-1" {
+  crypto_key_id = "%{kms_key_name_central}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-2" {
+  crypto_key_id = "%{kms_key_name_central_other}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-east-binding" {
+  crypto_key_id = "%{kms_key_name_east}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-central-binding-1,
+    google_kms_crypto_key_iam_member.kms-central-binding-2,
+    google_kms_crypto_key_iam_member.kms-east-binding,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_userManagedCmekUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-1" {
+  crypto_key_id = "%{kms_key_name_central}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-2" {
+  crypto_key_id = "%{kms_key_name_central_other}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-east-binding" {
+  crypto_key_id = "%{kms_key_name_east}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+        customer_managed_encryption {
+          kms_key_name = "%{kms_key_name_central}"
+        }
+      }
+      replicas {
+        location = "us-east1"
+        customer_managed_encryption {
+          kms_key_name = "%{kms_key_name_east}"
+        }
+      }
+    }
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-central-binding-1,
+    google_kms_crypto_key_iam_member.kms-central-binding-2,
+    google_kms_crypto_key_iam_member.kms-east-binding,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_userManagedCmekUpdate2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-1" {
+  crypto_key_id = "%{kms_key_name_central}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-central-binding-2" {
+  crypto_key_id = "%{kms_key_name_central_other}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-east-binding" {
+  crypto_key_id = "%{kms_key_name_east}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+        customer_managed_encryption {
+          kms_key_name = "%{kms_key_name_central_other}"
+        }
+      }
+      replicas {
+        location = "us-east1"
+        customer_managed_encryption {
+          kms_key_name = "%{kms_key_name_east}"
+        }
+      }
+    }
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-central-binding-1,
+    google_kms_crypto_key_iam_member.kms-central-binding-2,
+    google_kms_crypto_key_iam_member.kms-east-binding,
+  ]
 }
 `, context)
 }
