@@ -1673,6 +1673,34 @@ func TestAccSqlDatabaseInstance_Timezone(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_updateDifferentFlagOrder(t *testing.T) {
+	t.Parallel()
+
+	instance := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_flags(instance),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config:             testGoogleSqlDatabaseInstance_flags_update(instance),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_sqlMysqlInstancePvpExample(t *testing.T) {
 	t.Parallel()
 
@@ -3830,6 +3858,50 @@ func checkInstanceTypeIsPresent(resourceName string) func(*terraform.State) erro
 		}
 		return nil
 	}
+}
+
+func testGoogleSqlDatabaseInstance_flags(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+
+    database_flags {
+      name  = "character_set_server"
+      value = "utf8mb4"
+    }
+    database_flags {
+      name  = "auto_increment_increment"
+      value = "2"
+    }
+  }
+}`, instance)
+}
+
+func testGoogleSqlDatabaseInstance_flags_update(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_5_7"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+
+    database_flags {
+      name  = "auto_increment_increment"
+      value = "2"
+    }
+    database_flags {
+      name  = "character_set_server"
+      value = "utf8mb4"
+    }
+  }
+}`, instance)
 }
 
 func testGoogleSqlDatabaseInstance_readReplica(instance string) string {
