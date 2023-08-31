@@ -1,5 +1,32 @@
 ## 4.81.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_biglake_catalog` ([#15634](https://github.com/hashicorp/terraform-provider-google/pull/15634))
+* **New Resource:** `google_redis_cluster` ([#15645](https://github.com/hashicorp/terraform-provider-google/pull/15645))
+* **New Resource:** google_biglake_database ([#15651](https://github.com/hashicorp/terraform-provider-google/pull/15651))
+* **New Resource:** google_compute_network_attachment ([#15648](https://github.com/hashicorp/terraform-provider-google/pull/15648))
+
+IMPROVEMENTS:
+* cloudrunv2: Changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_job` resource to a non-required field. ([#15638](https://github.com/hashicorp/terraform-provider-google/pull/15638))
+* cloudrunv2: Changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_service` resource to a non-required field. ([#15638](https://github.com/hashicorp/terraform-provider-google/pull/15638))
+* compute: promoted the `ssl_policy` field on the `google_compute_region_target_https_proxy` resource to GA. ([#15608](https://github.com/hashicorp/terraform-provider-google/pull/15608))
+* container: added `enable_fqdn_network_policy` field to `google_container_cluster` ([#15642](https://github.com/hashicorp/terraform-provider-google/pull/15642))
+* container: added `node_config.confidential_compute` field to `google_container_node_pool` resource ([#15662](https://github.com/hashicorp/terraform-provider-google/pull/15662))
+* dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `reprompt_event_handlers`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_page` resource ([#15668](https://github.com/hashicorp/terraform-provider-google/pull/15668))
+* dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_flow` resource ([#15668](https://github.com/hashicorp/terraform-provider-google/pull/15668))
+* gkehub: added `Namespace`, `Scope`, `MembershipBinding`, `MembershipRBACRoleBinding`, `ScopeRBACRoleBinding` resources ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* gkehub: promoted the `google_gke_hub_feature_membership` resource to GA ([#15604](https://github.com/hashicorp/terraform-provider-google/pull/15604))
+* iam: added `web_sso_config.additional_scopes` field to `google_iam_workforce_pool_provider` resource under ([#15616](https://github.com/hashicorp/terraform-provider-google/pull/15616))
+* monitoring: added `synthetic_monitor` to `google_monitoring_uptime_check_config` resource ([#15623](https://github.com/hashicorp/terraform-provider-google/pull/15623))
+
+BUG FIXES:
+* compute: removed ForceNew on `distribution_policy_target_shape` of `google_compute_region_instance_group_manager` ([#15641](https://github.com/hashicorp/terraform-provider-google/pull/15641))
+* datastream: made `password` mutable in `google_datastream_connection_profile` resource. ([#15610](https://github.com/hashicorp/terraform-provider-google/pull/15610))
+* filestore: fixed a bug causing premadiff on `reserved_ip_range` field in `google_filestore_instance` ([#15614](https://github.com/hashicorp/terraform-provider-google/pull/15614))
+* identityplatform: fixed a permadiff on `authorized_domains` in `google_identity_platform_config` resource ([#15607](https://github.com/hashicorp/terraform-provider-google/pull/15607))
+* provider: Improved error message when resource creation fails to to invalid API response ([#15629](https://github.com/hashicorp/terraform-provider-google/pull/15629))
+
+
 ## 4.80.0 (August 28, 2023)
 
 DEPRECATIONS:
