@@ -36,6 +36,7 @@ func ResourceBigtableInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
 			resourceBigtableInstanceClusterReorderTypeList,
 			resourceBigtableInstanceUniqueClusterID,
 		),

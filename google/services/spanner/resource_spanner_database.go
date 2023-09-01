@@ -140,6 +140,7 @@ func ResourceSpannerDatabase() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceSpannerDBDdlCustomDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

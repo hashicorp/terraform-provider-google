@@ -120,6 +120,7 @@ func ResourceDatastreamStream() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceDatastreamStreamCustomDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

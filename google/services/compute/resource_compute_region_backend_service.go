@@ -144,6 +144,7 @@ func ResourceComputeRegionBackendService() *schema.Resource {
 		MigrateState:  tpgresource.MigrateStateNoop,
 		CustomizeDiff: customdiff.All(
 			customDiffRegionBackendService,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

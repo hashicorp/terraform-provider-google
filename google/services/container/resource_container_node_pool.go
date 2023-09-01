@@ -45,6 +45,7 @@ func ResourceContainerNodePool() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
 			resourceNodeConfigEmptyGuestAccelerator,
 		),
 

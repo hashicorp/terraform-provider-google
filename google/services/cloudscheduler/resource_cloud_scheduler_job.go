@@ -121,6 +121,8 @@ func ResourceCloudSchedulerJob() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			validateAuthHeaders,
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
 		),
 
 		Schema: map[string]*schema.Schema{

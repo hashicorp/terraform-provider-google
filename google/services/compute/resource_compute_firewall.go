@@ -159,6 +159,7 @@ func ResourceComputeFirewall() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceComputeFirewallEnableLoggingCustomizeDiff,
 			resourceComputeFirewallSourceFieldsCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -29,7 +30,10 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceSecurityPolicyStateImporter,
 		},
-		CustomizeDiff: rulesCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			rulesCustomizeDiff,
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(8 * time.Minute),

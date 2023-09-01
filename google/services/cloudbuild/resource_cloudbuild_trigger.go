@@ -103,6 +103,7 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			stepTimeoutCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

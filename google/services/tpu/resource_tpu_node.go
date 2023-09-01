@@ -102,6 +102,7 @@ func ResourceTPUNode() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpuNodeCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

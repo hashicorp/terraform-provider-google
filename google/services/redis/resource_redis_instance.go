@@ -93,6 +93,7 @@ func ResourceRedisInstance() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("redis_version", isRedisVersionDecreasing),
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

@@ -74,6 +74,7 @@ func ResourceComputeSubnetwork() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

@@ -69,6 +69,7 @@ func ResourceComputeRouter() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceComputeRouterCustomDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

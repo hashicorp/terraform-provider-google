@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -107,6 +108,9 @@ func ResourceLoggingBucketConfig(parentType string, parentSpecificSchema map[str
 		},
 		Schema:        tpgresource.MergeSchemas(loggingBucketConfigSchema, parentSpecificSchema),
 		UseJSONNumber: true,
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 	}
 }
 
