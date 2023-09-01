@@ -1,0 +1,3 @@
+```release-note:note
+compute: graduated `google_compute_region_instance_template` to GA
+```
