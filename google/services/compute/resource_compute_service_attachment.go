@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -45,6 +46,11 @@ func ResourceComputeServiceAttachment() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"connection_preference": {
@@ -373,6 +379,14 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 
+	region, err := tpgresource.GetRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+
 	if err := d.Set("name", flattenComputeServiceAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
@@ -407,9 +421,6 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("reconcile_connections", flattenComputeServiceAttachmentReconcileConnections(res["reconcileConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("region", flattenComputeServiceAttachmentRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -701,13 +712,6 @@ func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interfa
 
 func flattenComputeServiceAttachmentReconcileConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenComputeServiceAttachmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeServiceAttachmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -181,6 +181,7 @@ func ResourceComputeRouterNat() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceComputeRouterNatDrainNatIpsCustomDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

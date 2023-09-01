@@ -63,6 +63,7 @@ func ResourceMonitoringNotificationChannel() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			sensitiveLabelCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

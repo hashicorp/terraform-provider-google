@@ -72,6 +72,7 @@ func ResourceComputeSslPolicy() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			sslPolicyCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

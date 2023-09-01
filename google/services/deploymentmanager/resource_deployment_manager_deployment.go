@@ -76,6 +76,7 @@ func ResourceDeploymentManagerDeployment() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			customDiffDeploymentManagerDeployment,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

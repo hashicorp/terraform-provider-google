@@ -50,6 +50,7 @@ func ResourceComputeRegionHealthCheck() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			healthCheckCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

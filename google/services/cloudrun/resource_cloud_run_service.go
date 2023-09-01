@@ -141,6 +141,7 @@ func ResourceCloudRunService() *schema.Resource {
 		SchemaVersion: 1,
 		CustomizeDiff: customdiff.All(
 			revisionNameCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

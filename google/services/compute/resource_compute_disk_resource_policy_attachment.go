@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -43,6 +44,11 @@ func ResourceComputeDiskResourcePolicyAttachment() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderZone,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"disk": {
@@ -213,6 +219,14 @@ func resourceComputeDiskResourcePolicyAttachmentRead(d *schema.ResourceData, met
 	}
 
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
+	}
+
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading DiskResourcePolicyAttachment: %s", err)
 	}
 
