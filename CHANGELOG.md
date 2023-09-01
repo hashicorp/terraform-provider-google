@@ -6,6 +6,13 @@ FEATURES:
 * **New Resource:** `google_biglake_database` ([#15651](https://github.com/hashicorp/terraform-provider-google/pull/15651))
 * **New Resource:** `google_compute_network_attachment` ([#15648](https://github.com/hashicorp/terraform-provider-google/pull/15648))
 * **New Resource:** `google_gke_hub_feature_membership` ([#15604](https://github.com/hashicorp/terraform-provider-google/pull/15604))
+* **New Resource:** `google_gke_hub_membership_binding` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_namespace` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_scope` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_scope_iam_member` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_scope_iam_policy` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_membership_binding` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
+* **New Resource:** `google_gke_hub_scope_rbac_role_binding` ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
 
 IMPROVEMENTS:
 * compute: made the field `distribution_policy_target_shape` of `google_compute_region_instance_group_manager` not cause recreation of the resource. ([#15641](https://github.com/hashicorp/terraform-provider-google/pull/15641))
@@ -15,16 +22,15 @@ IMPROVEMENTS:
 * datastream: made `password` in `google_datastream_connection_profile` not cause recreation of the resource. ([#15610](https://github.com/hashicorp/terraform-provider-google/pull/15610))
 * dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `reprompt_event_handlers`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_page` resource ([#15668](https://github.com/hashicorp/terraform-provider-google/pull/15668))
 * dialogflowcx: added `response_type`, `channel`, `payload`, `conversation_success`, `output_audio_text`, `live_agent_handoff`, `play_audo`, `telephony_transfer_call`, `set_parameter_actions`, and `conditional_cases` fields to `google_dialogflow_cx_flow` resource ([#15668](https://github.com/hashicorp/terraform-provider-google/pull/15668))
-* gkehub: added `Namespace`, `Scope`, `MembershipBinding`, `MembershipRBACRoleBinding`, `ScopeRBACRoleBinding` resources ([#15670](https://github.com/hashicorp/terraform-provider-google/pull/15670))
 * iam: added `web_sso_config.additional_scopes` field to `google_iam_workforce_pool_provider` resource under ([#15616](https://github.com/hashicorp/terraform-provider-google/pull/15616))
 * monitoring: added `synthetic_monitor` to `google_monitoring_uptime_check_config` resource ([#15623](https://github.com/hashicorp/terraform-provider-google/pull/15623))
+* provider: improved error message when resource creation fails to to invalid API response ([#15629](https://github.com/hashicorp/terraform-provider-google/pull/15629))
 
 BUG FIXES:
 * cloudrunv2: changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_job` resource to a non-required field. ([#15638](https://github.com/hashicorp/terraform-provider-google/pull/15638))
 * cloudrunv2: changed `template.volumes.secret.items.mode` field in `google_cloud_run_v2_service` resource to a non-required field. ([#15638](https://github.com/hashicorp/terraform-provider-google/pull/15638))
 * filestore: fixed a bug causing permadiff on `reserved_ip_range` field in `google_filestore_instance` ([#15614](https://github.com/hashicorp/terraform-provider-google/pull/15614))
 * identityplatform: fixed a permadiff on `authorized_domains` in `google_identity_platform_config` resource ([#15607](https://github.com/hashicorp/terraform-provider-google/pull/15607))
-* provider: improved error message when resource creation fails to to invalid API response ([#15629](https://github.com/hashicorp/terraform-provider-google/pull/15629))
 
 
 ## 4.80.0 (August 28, 2023)
