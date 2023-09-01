@@ -144,6 +144,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
     connection_limit  = 4
   }
 
+  reconcile_connections = false
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
