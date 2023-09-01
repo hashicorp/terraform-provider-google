@@ -11,9 +11,6 @@ Manages a VM instance template resource within GCE. For more information see
 and
 [API](https://cloud.google.com/compute/docs/reference/rest/v1/regionInstanceTemplates).
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 ## Example Usage
 
 ```hcl
