@@ -56,7 +56,6 @@ values include "ACCEPT_AUTOMATIC", "ACCEPT_MANUAL".`,
 			"enable_proxy_protocol": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: true,
 				Description: `If true, enable the proxy protocol which is for supplying client TCP/IP
 address data in TCP connections that traverse proxies on their way to
 destination servers.`,
@@ -457,6 +456,12 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("nat_subnets"); ok || !reflect.DeepEqual(v, natSubnetsProp) {
 		obj["natSubnets"] = natSubnetsProp
+	}
+	enableProxyProtocolProp, err := expandComputeServiceAttachmentEnableProxyProtocol(d.Get("enable_proxy_protocol"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
+		obj["enableProxyProtocol"] = enableProxyProtocolProp
 	}
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
 	if err != nil {
