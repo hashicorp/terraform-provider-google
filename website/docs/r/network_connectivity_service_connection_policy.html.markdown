@@ -192,6 +192,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Optional)
   The status code, which should be an enum value of [google.rpc.Code][].
 
+* `details` -
+  (Output)
+  A list of messages that carry the error details.
+
 <a name="nested_error_info"></a>The `error_info` block supports:
 
 * `reason` -

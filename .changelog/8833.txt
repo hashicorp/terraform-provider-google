@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkconnectivity: added `psc_connections.error.details` field to `google_network_connectivity_service_connection_policy` resource
+```
