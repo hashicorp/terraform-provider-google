@@ -44,8 +44,8 @@ func sensitiveParamCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 	return nil
 }
 
-// This customizeDiff is to use ForceNew for params fields data_path_template and
-// destination_table_name_template only if the value of "data_source_id" is "google_cloud_storage".
+// This customizeDiff is to use ForceNew for params fields data_path_template or data_path and
+// destination_table_name_template only if the value of "data_source_id" is "google_cloud_storage" or "amazon_s3".
 func ParamsCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
 	old, new := diff.GetChange("params")
 	dsId := diff.Get("data_source_id").(string)
@@ -53,7 +53,8 @@ func ParamsCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
 	newParams := new.(map[string]interface{})
 	var err error
 
-	if dsId == "google_cloud_storage" {
+	switch dsId {
+	case "google_cloud_storage":
 		if oldParams["data_path_template"] != nil && newParams["data_path_template"] != nil && oldParams["data_path_template"].(string) != newParams["data_path_template"].(string) {
 			err = diff.ForceNew("params")
 			if err != nil {
@@ -69,11 +70,25 @@ func ParamsCustomizeDiffFunc(diff tpgresource.TerraformResourceDiff) error {
 			}
 			return nil
 		}
-	}
+	case "amazon_s3":
+		if oldParams["data_path"] != nil && newParams["data_path"] != nil && oldParams["data_path"].(string) != newParams["data_path"].(string) {
+			err = diff.ForceNew("params")
+			if err != nil {
+				return fmt.Errorf("ForceNew failed for params, old - %v and new - %v", oldParams, newParams)
+			}
+			return nil
+		}
 
+		if oldParams["destination_table_name_template"] != nil && newParams["destination_table_name_template"] != nil && oldParams["destination_table_name_template"].(string) != newParams["destination_table_name_template"].(string) {
+			err = diff.ForceNew("params")
+			if err != nil {
+				return fmt.Errorf("ForceNew failed for params, old - %v and new - %v", oldParams, newParams)
+			}
+			return nil
+		}
+	}
 	return nil
 }
-
 func paramsCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 	return ParamsCustomizeDiffFunc(diff)
 }
