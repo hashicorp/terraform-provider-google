@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: supported in-place update for `unique_writer_identity` in `google_logging_project_sink`
+```
