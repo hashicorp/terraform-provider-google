@@ -1,0 +1,3 @@
+```release-note:none
+Remove unnecessary if statements for OperationWait
+```

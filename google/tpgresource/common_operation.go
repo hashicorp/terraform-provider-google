@@ -140,10 +140,7 @@ func CommonRefreshFunc(w Waiter) resource.StateRefreshFunc {
 
 func OperationWait(w Waiter, activity string, timeout time.Duration, pollInterval time.Duration) error {
 	if OperationDone(w) {
-		if w.Error() != nil {
-			return w.Error()
-		}
-		return nil
+		return w.Error()
 	}
 
 	c := &resource.StateChangeConf{
@@ -163,11 +160,8 @@ func OperationWait(w Waiter, activity string, timeout time.Duration, pollInterva
 	if err != nil {
 		return err
 	}
-	if w.Error() != nil {
-		return w.Error()
-	}
 
-	return nil
+	return w.Error()
 }
 
 // The cloud resource manager API operation is an example of one of many
