@@ -43,6 +43,9 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   role {
     predefined_role = "ADMIN"
   }
+  labels = {
+      key = "value" 
+  }
   depends_on = [google_gke_hub_scope.scoperbacrolebinding]
 }
 ```
@@ -88,6 +91,10 @@ The following arguments are supported:
   Principal that is be authorized in the cluster (at least of one the oneof
   is required). Updating one will unset the other automatically.
   group is the group, as seen by the kubernetes cluster.
+
+* `labels` -
+  (Optional)
+  Labels for this ScopeRBACRoleBinding.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
