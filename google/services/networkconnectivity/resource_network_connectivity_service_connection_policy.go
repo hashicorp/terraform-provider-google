@@ -161,6 +161,14 @@ It is provided by the Service Producer. Google services have a prefix of gcp. Fo
 										Optional:    true,
 										Description: `A developer-facing error message.`,
 									},
+									"details": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: `A list of messages that carry the error details.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeMap,
+										},
+									},
 								},
 							},
 						},
@@ -688,6 +696,8 @@ func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsError(v inte
 		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorMessage(original["message"], d, config)
 	transformed["code"] =
 		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorCode(original["code"], d, config)
+	transformed["details"] =
+		flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorDetails(original["details"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorMessage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -709,6 +719,10 @@ func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorCode(v 
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsErrorDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenNetworkConnectivityServiceConnectionPolicyPscConnectionsGceOperation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
