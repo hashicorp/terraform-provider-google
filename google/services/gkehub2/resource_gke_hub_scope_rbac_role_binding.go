@@ -85,6 +85,12 @@ is required). Updating one will unset the other automatically.
 group is the group, as seen by the kubernetes cluster.`,
 				ExactlyOneOf: []string{"user", "group"},
 			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels for this ScopeRBACRoleBinding.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"user": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -169,6 +175,12 @@ func resourceGKEHub2ScopeRBACRoleBindingCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(roleProp)) && (ok || !reflect.DeepEqual(v, roleProp)) {
 		obj["role"] = roleProp
+	}
+	labelsProp, err := expandGKEHub2ScopeRBACRoleBindingLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes/{{scope_id}}/rbacrolebindings/?rbacrolebinding_id={{scope_rbac_role_binding_id}}")
@@ -306,6 +318,9 @@ func resourceGKEHub2ScopeRBACRoleBindingRead(d *schema.ResourceData, meta interf
 	if err := d.Set("role", flattenGKEHub2ScopeRBACRoleBindingRole(res["role"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ScopeRBACRoleBinding: %s", err)
 	}
+	if err := d.Set("labels", flattenGKEHub2ScopeRBACRoleBindingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ScopeRBACRoleBinding: %s", err)
+	}
 
 	return nil
 }
@@ -344,6 +359,12 @@ func resourceGKEHub2ScopeRBACRoleBindingUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("role"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, roleProp)) {
 		obj["role"] = roleProp
 	}
+	labelsProp, err := expandGKEHub2ScopeRBACRoleBindingLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes/{{scope_id}}/rbacrolebindings/{{scope_rbac_role_binding_id}}")
 	if err != nil {
@@ -363,6 +384,10 @@ func resourceGKEHub2ScopeRBACRoleBindingUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("role") {
 		updateMask = append(updateMask, "role")
+	}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -538,6 +563,10 @@ func flattenGKEHub2ScopeRBACRoleBindingRolePredefinedRole(v interface{}, d *sche
 	return v
 }
 
+func flattenGKEHub2ScopeRBACRoleBindingLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandGKEHub2ScopeRBACRoleBindingUser(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -567,4 +596,15 @@ func expandGKEHub2ScopeRBACRoleBindingRole(v interface{}, d tpgresource.Terrafor
 
 func expandGKEHub2ScopeRBACRoleBindingRolePredefinedRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandGKEHub2ScopeRBACRoleBindingLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

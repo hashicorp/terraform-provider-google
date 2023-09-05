@@ -58,6 +58,9 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   role {
     predefined_role = "ADMIN"
   }
+  labels = {
+      key = "value" 
+  }
   depends_on = [google_gke_hub_scope.scoperbacrolebinding]
 }
 `, context)
@@ -75,6 +78,9 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   group = "test-email2@gmail.com"
   role {
     predefined_role = "VIEW"
+  }
+  labels = {
+      key = "updated_value" 
   }
   depends_on = [google_gke_hub_scope.scoperbacrolebinding]
 }
