@@ -113,7 +113,7 @@ Defaults to no logging if not set.`,
 				Set: func(v interface{}) int {
 					raw := v.(map[string]interface{})
 					if url, ok := raw["network_url"]; ok {
-						return tpgresource.SelfLinkNameHash(url)
+						return tpgresource.SelfLinkRelativePathHash(url)
 					}
 					var buf bytes.Buffer
 					schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())
@@ -560,7 +560,7 @@ func flattenDNSPolicyNetworks(v interface{}, d *schema.ResourceData, config *tra
 	transformed := schema.NewSet(func(v interface{}) int {
 		raw := v.(map[string]interface{})
 		if url, ok := raw["network_url"]; ok {
-			return tpgresource.SelfLinkNameHash(url)
+			return tpgresource.SelfLinkRelativePathHash(url)
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsPolicyNetworksSchema())

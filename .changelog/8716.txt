@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fix hash function for network_url in ManagedZone and Policy resources
+```

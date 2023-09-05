@@ -266,7 +266,7 @@ blocks in an update and then apply another update adding all of them back simult
 								}
 								raw := v.(map[string]interface{})
 								if url, ok := raw["network_url"]; ok {
-									return tpgresource.SelfLinkNameHash(url)
+									return tpgresource.SelfLinkRelativePathHash(url)
 								}
 								var buf bytes.Buffer
 								schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
@@ -992,7 +992,7 @@ func flattenDNSManagedZonePrivateVisibilityConfigNetworks(v interface{}, d *sche
 		}
 		raw := v.(map[string]interface{})
 		if url, ok := raw["network_url"]; ok {
-			return tpgresource.SelfLinkNameHash(url)
+			return tpgresource.SelfLinkRelativePathHash(url)
 		}
 		var buf bytes.Buffer
 		schema.SerializeResourceForHash(&buf, raw, dnsManagedZonePrivateVisibilityConfigNetworksSchema())
