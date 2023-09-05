@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -256,6 +257,155 @@ resource "google_compute_network" "network-1" {
 resource "google_compute_network" "network-2" {
   name                    = "tf-test-network-2%{random_suffix}"
   auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(context),
+			},
+			{
+				ResourceName:      "google_dns_managed_zone.private-zone",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dns_managed_zone" "private-zone" {
+  name        = "tf-test-private-zone%{random_suffix}"
+  dns_name    = "multiproject.private.example.com."
+  description = "Example private DNS zone"
+  labels = {
+    foo = "bar"
+  }
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.network_1_project_1.id
+    }
+    networks {
+      network_url = google_compute_network.network_2_project_1.id
+    }
+    networks {
+      network_url = google_compute_network.network_1_project_2.id
+    }
+    networks {
+      network_url = google_compute_network.network_2_project_2.id
+    }
+  }
+
+  depends_on = [
+    google_project_service.compute_project_1,
+    google_project_service.dns_project_1,
+    google_project_service.compute_project_2,
+    google_project_service.dns_project_2,
+  ]
+}
+
+resource "google_project" "project_1" {
+  name            = "tf-test-project-1%{random_suffix}"
+  project_id      = "tf-test-project-1%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_project" "project_2" {
+  name            = "tf-test-project-2%{random_suffix}"
+  project_id      = "tf-test-project-2%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_compute_network" "network_1_project_1" {
+  name                    = "tf-test-network-1%{random_suffix}"
+  project                 = google_project.project_1.project_id
+  auto_create_subnetworks = false
+  depends_on              = [ 
+    google_project_service.compute_project_1,
+    google_project_service.dns_project_1,
+  ]
+}
+
+resource "google_compute_network" "network_2_project_1" {
+  name                    = "tf-test-network-2%{random_suffix}"
+  project                 = google_project.project_1.project_id
+  auto_create_subnetworks = false
+  depends_on              = [ 
+    google_project_service.compute_project_1,
+    google_project_service.dns_project_1,
+  ]
+}
+
+resource "google_compute_network" "network_1_project_2" {
+  name                    = "tf-test-network-1%{random_suffix}"
+  project                 = google_project.project_2.project_id
+  auto_create_subnetworks = false
+  depends_on              = [ 
+    google_project_service.compute_project_2,
+    google_project_service.dns_project_2,
+  ]
+}
+
+resource "google_compute_network" "network_2_project_2" {
+  name                    = "tf-test-network-2%{random_suffix}"
+  project                 = google_project.project_2.project_id
+  auto_create_subnetworks = false
+  depends_on              = [ 
+    google_project_service.compute_project_2,
+    google_project_service.dns_project_2,
+  ]
+}
+
+resource "google_project_service" "compute_project_1" {
+  project    = google_project.project_1.project_id
+  service    = "compute.googleapis.com"
+  depends_on = [
+    google_project.project_1,
+  ]
+}
+
+resource "google_project_service" "compute_project_2" {
+  project    = google_project.project_2.project_id
+  service    = "compute.googleapis.com"
+  depends_on = [
+    google_project_service.dns_project_1
+  ]
+}
+
+resource "google_project_service" "dns_project_1" {
+  project    = google_project.project_1.project_id
+  service    = "dns.googleapis.com"
+  depends_on = [
+    google_project_service.compute_project_1
+  ]
+}
+
+resource "google_project_service" "dns_project_2" {
+  project    = google_project.project_2.project_id
+  service    = "dns.googleapis.com"
+  depends_on = [
+    google_project_service.compute_project_2,
+  ]
 }
 `, context)
 }
