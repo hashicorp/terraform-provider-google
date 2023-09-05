@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added additional options in `monitoring_config.enable_components`
+```
