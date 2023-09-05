@@ -335,7 +335,7 @@ resource "google_logging_project_sink" "described" {
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
   description = "description updated"
 
-  unique_writer_identity = false
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "log-bucket" {
@@ -470,7 +470,7 @@ resource "google_logging_project_sink" "bigquery" {
   destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.logging_sink.dataset_id}"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
 
-  unique_writer_identity = false
+  unique_writer_identity = true
 }
 
 resource "google_bigquery_dataset" "logging_sink" {
