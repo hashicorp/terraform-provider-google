@@ -1,0 +1,3 @@
+```release-note:none
+docs: added deprecation message for resource `google_cloudiot_device` and `google_cloudiot_registry` and updated the 5.0.0 guide
+```

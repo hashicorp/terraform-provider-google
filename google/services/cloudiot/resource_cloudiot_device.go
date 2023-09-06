@@ -48,6 +48,8 @@ func ResourceCloudIotDevice() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		DeprecationMessage: "`google_cloudiot_device` is deprecated in the API. This resource will be removed in the next major release of the provider.",
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
