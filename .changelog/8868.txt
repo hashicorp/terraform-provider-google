@@ -1,0 +1,12 @@
+```release-note:deprecation
+cloudiot: deprecated resource  `google_cloudiot_registry`
+```
+```release-note:deprecation
+cloudiot:  deprecated resource `google_cloudiot_device`
+```
+```release-note:deprecation
+cloudiot: deprecated resource `google_cloudiot_registry_iam_*`
+```
+```release-note:deprecation
+cloudiot:  deprecated datasource `google_cloudiot_registry_iam_policy`
+```

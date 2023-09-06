@@ -38,7 +38,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudids"
-	"github.com/hashicorp/terraform-provider-google/google/services/cloudiot"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
@@ -347,11 +346,6 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_ids_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
-			},
-			"cloud_iot_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -887,7 +881,6 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
 			"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
 			"google_cloudfunctions2_function_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudfunctions2.Cloudfunctions2functionIamSchema, cloudfunctions2.Cloudfunctions2functionIamUpdaterProducer),
-			"google_cloudiot_registry_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer),
 			"google_cloud_run_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer),
 			"google_cloud_run_v2_job_iam_policy":                     tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2JobIamSchema, cloudrunv2.CloudRunV2JobIamUpdaterProducer),
 			"google_cloud_run_v2_service_iam_policy":                 tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer),
@@ -965,9 +958,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 306
-// Generated IAM resources: 204
-// Total generated resources: 510
+// Generated resources: 304
+// Generated IAM resources: 201
+// Total generated resources: 505
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1089,11 +1082,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloud_identity_group":                                    cloudidentity.ResourceCloudIdentityGroup(),
 			"google_cloud_identity_group_membership":                         cloudidentity.ResourceCloudIdentityGroupMembership(),
 			"google_cloud_ids_endpoint":                                      cloudids.ResourceCloudIdsEndpoint(),
-			"google_cloudiot_device":                                         cloudiot.ResourceCloudIotDevice(),
-			"google_cloudiot_registry":                                       cloudiot.ResourceCloudIotDeviceRegistry(),
-			"google_cloudiot_registry_iam_binding":                           tpgiamresource.ResourceIamBinding(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
-			"google_cloudiot_registry_iam_member":                            tpgiamresource.ResourceIamMember(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
-			"google_cloudiot_registry_iam_policy":                            tpgiamresource.ResourceIamPolicy(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
 			"google_cloud_run_domain_mapping":                                cloudrun.ResourceCloudRunDomainMapping(),
 			"google_cloud_run_service":                                       cloudrun.ResourceCloudRunService(),
 			"google_cloud_run_service_iam_binding":                           tpgiamresource.ResourceIamBinding(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer, cloudrun.CloudRunServiceIdParseFunc),
@@ -1736,7 +1724,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)
 	config.CloudIdsBasePath = d.Get("cloud_ids_custom_endpoint").(string)
-	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
 	config.CloudRunV2BasePath = d.Get("cloud_run_v2_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
