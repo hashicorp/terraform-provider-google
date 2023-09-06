@@ -171,6 +171,7 @@ type Config struct {
 	UserProjectOverride                bool
 	RequestReason                      string
 	RequestTimeout                     time.Duration
+	DefaultLabels                      map[string]string
 	// PollInterval is passed to resource.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration

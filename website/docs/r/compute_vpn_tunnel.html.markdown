@@ -309,6 +309,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `detailed_status` -
   Detailed status message for the VPN tunnel.
+
+* `terraform_labels` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
 

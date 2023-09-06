@@ -53,7 +53,7 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				ImportStateVerify: true,
 				// The labels field in the state is decided by the configuration.
 				// During importing, the configuration is unavailable, so the labels field in the state after importing is empty.
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated(datasetID),
@@ -71,7 +71,7 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated2(datasetID),
@@ -80,7 +80,7 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDataset_withoutLabels(datasetID),
@@ -158,7 +158,7 @@ func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.contents_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels"},
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -183,7 +183,7 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.access_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
@@ -192,7 +192,7 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.access_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
@@ -201,7 +201,7 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.access_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
@@ -210,7 +210,7 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.access_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -233,7 +233,7 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -279,7 +279,7 @@ func TestAccBigQueryDataset_storageBillModel(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
