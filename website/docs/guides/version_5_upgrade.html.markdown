@@ -331,3 +331,42 @@ If you were relying on accessing an individual flag by index (for example, `goog
 ### `rule.rate_limit_options.encorce_on_key` no longer has default value
 
 Previously, the default value for `rule.rate_limit_options.encorce_on_key` is "ALL", now this field no longer has a default value.
+
+## Resource: `google_logging_project_sink`
+
+### `unique_writer_identity` now defaults to `TRUE`
+
+Previously, the default value of `unique_writer_identity` was `FALSE`. Now it will be `TRUE`.
+
+This will change the behavior for new sinks created using the default value. Previously, all sinks created using the default value had a `writer_identity` of `serviceAccount:cloud-logs@system.gserviceaccount.com`. Now sinks created using the default value will have a `writer_identity` that differs depending on the parent resource, for example: `serviceAccount:service-<PROJECT_NUMBER>@gcp-sa-logging.iam.gserviceaccount.com` for a project-level sink.
+
+IAM permissions that were manually configured for `cloud-logs@system.gserviceaccount.com` and `iam_bindings` that are hard-coded to use `cloud-logs@system.gserviceaccount.com` will not properly apply permissions to the `writer_identity` of new sinks created using the default value.  **If a sink is missing the proper permissions it will be successfully created but it will fail to export log data.**
+
+Currently there are only two types of log sinks that populate `writer_identity` and can be created with `unique_writer_identity = false`.  Only these types of sinks may be affected:
+* Sinks with a Cloud Pub/Sub topic `destination` for which the topic is in the same project as the sink.
+* Sinks for a BigQuery dataset `destination` for which the dataset is in the same project as the sink.
+
+To ensure that proper permissions are in place for new sinks created using the default value, check that the related `iam_bindings` are configured and reference the sink's `writer_identity` property.
+
+Here is an example of proper `iam_bindings`:
+
+```hcl
+resource "google_logging_project_sink" "gcs-bucket-sink" {
+  name        = "my-gcs-bucket-sink"
+  description = "Routes all admin activity logs to a GCS bucket"
+  destination = "storage.googleapis.com/${google_storage_bucket.log-bucket.name}"
+  filter      = "log_id(\"cloudaudit.googleapis.com/activity\")"
+  # `unique_writer_identity is explicitly set to true here, but will now default to 'true'.
+  unique_writer_identity = true
+}
+
+# We must grant proper permissions for the log sink to access the GCS bucket.
+resource "google_project_iam_binding" "gcs-bucket-writer" {
+  project = "your-project-id"
+  role = "roles/storage.objectCreator"
+
+  members = [
+    google_logging_project_sink.gcs-bucket-sink.writer_identity,
+  ]
+}
+```
