@@ -18,6 +18,7 @@ description: |-
 ---
 
 # google\_cloudiot\_device
+~> **Warning:** `google_cloudiot_device` is deprecated in the API. This resource will be removed in the next major release of the provider.
 
 A Google Cloud IoT Core device.
 

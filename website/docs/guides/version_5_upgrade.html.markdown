@@ -423,3 +423,12 @@ resource "google_project_iam_binding" "gcs-bucket-writer" {
   ]
 }
 ```
+## Product: `cloudiot`
+
+### resource `google_cloudiot_device` is now removed
+
+### resource `google_cloudiot_registry` is now removed
+
+### resource `google_cloudiot_registry_iam_*` is now removed
+
+### datasource `google_cloudiot_registry_iam_policy` is now removed

@@ -18,6 +18,7 @@ description: |-
 ---
 
 # google\_cloudiot\_registry
+~> **Warning:** `google_cloudiot_registry` is deprecated in the API. This resource will be removed in the next major release of the provider.
 
 A Google Cloud IoT Core device registry.
 
