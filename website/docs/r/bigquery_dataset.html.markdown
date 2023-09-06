@@ -468,6 +468,10 @@ In addition to the arguments listed above, the following computed attributes are
   The date when this dataset or any of its tables was last modified, in
   milliseconds since the epoch.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.

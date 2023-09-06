@@ -219,6 +219,12 @@ func Provider() *schema.Provider {
 				Optional: true,
 			},
 
+			"default_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			// Generated Products
 			"access_approval_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -1689,6 +1695,13 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	for i, scope := range scopes {
 		config.Scopes[i] = scope.(string)
+	}
+
+	config.DefaultLabels = make(map[string]string)
+	defaultLabels := d.Get("default_labels").(map[string]interface{})
+
+	for k, v := range defaultLabels {
+		config.DefaultLabels[k] = v.(string)
 	}
 
 	batchCfg, err := transport_tpg.ExpandProviderBatchingConfig(d.Get("batching"))

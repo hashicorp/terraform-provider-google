@@ -111,6 +111,10 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"request_reason": schema.StringAttribute{
 				Optional: true,
 			},
+			"default_labels": schema.MapAttribute{
+				Optional:    true,
+				ElementType: types.StringType,
+			},
 
 			// Generated Products
 			"access_approval_custom_endpoint": &schema.StringAttribute{
