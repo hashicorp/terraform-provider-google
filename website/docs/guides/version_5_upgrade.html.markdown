@@ -134,6 +134,59 @@ Description of the change and how users should adjust their configuration (if ne
 
 Description of the change and how users should adjust their configuration (if needed).
 
+## Resource: `google_access_context_manager_service_perimeters`
+
+### Fields changed from lists to sets where appropriate
+
+The following fields have been changed from a list to a set:
+
+`google_access_context_manager_service_perimeters.spec.access_levels`
+`google_access_context_manager_service_perimeters.spec.resources`
+`google_access_context_manager_service_perimeters.spec.restricted_services`
+`google_access_context_manager_service_perimeters.spec.vpc_accessible_services.allowed_services`
+`google_access_context_manager_service_perimeters.spec.egress_policies.egress_from.identities`
+`google_access_context_manager_service_perimeters.spec.egress_policies.egress_to.external_resources`
+`google_access_context_manager_service_perimeters.spec.egress_policies.egress_to.resources`
+`google_access_context_manager_service_perimeters.spec.ingress_policies.ingress_from.identities`
+`google_access_context_manager_service_perimeters.spec.ingress_policies.ingress_to.resources`
+`google_access_context_manager_service_perimeters.status.access_levels`
+`google_access_context_manager_service_perimeters.status.resources`
+`google_access_context_manager_service_perimeters.status.restricted_services`
+`google_access_context_manager_service_perimeters.status.egress_policies.egress_from.identities`
+`google_access_context_manager_service_perimeters.status.egress_policies.egress_to.external_resources`
+`google_access_context_manager_service_perimeters.status.egress_policies.egress_to.resources`
+`google_access_context_manager_service_perimeters.status.ingress_policies.ingress_from.identities`
+`google_access_context_manager_service_perimeters.status.ingress_policies.ingress_to.resources`
+
+If you were relying on accessing an individual field by index (for example, google_access_context_manager_service_perimeters.spec.access_levels.0, then that will now need to by hash (for example, google_access_context_manager_service_perimeters.spec.access_levels.\<some-hash\>).
+
+## Resource: `google_access_context_manager_service_perimeter`
+
+### Fields changed from lists to sets where appropriate
+
+The following fields have been changed from a list to a set:
+
+`google_access_context_manager_service_perimeter.spec.access_levels`
+`google_access_context_manager_service_perimeter.spec.resources`
+`google_access_context_manager_service_perimeter.spec.restricted_services`
+`google_access_context_manager_service_perimeter.spec.vpc_accessible_services.allowed_services`
+`google_access_context_manager_service_perimeter.spec.egress_policies.egress_from.identities`
+`google_access_context_manager_service_perimeter.spec.egress_policies.egress_to.external_resources`
+`google_access_context_manager_service_perimeter.spec.egress_policies.egress_to.resources`
+`google_access_context_manager_service_perimeter.spec.ingress_policies.ingress_from.identities`
+`google_access_context_manager_service_perimeter.spec.ingress_policies.ingress_to.resources`
+`google_access_context_manager_service_perimeter.status.access_levels`
+`google_access_context_manager_service_perimeter.status.resources`
+`google_access_context_manager_service_perimeter.status.restricted_services`
+`google_access_context_manager_service_perimeter.status.egress_policies.egress_from.identities`
+`google_access_context_manager_service_perimeter.status.egress_policies.egress_to.external_resources`
+`google_access_context_manager_service_perimeter.status.egress_policies.egress_to.resources`
+`google_access_context_manager_service_perimeter.status.ingress_policies.ingress_from.identities`
+`google_access_context_manager_service_perimeter.status.ingress_policies.ingress_to.resources`
+
+If you were relying on accessing an individual field by index (for example, google_access_context_manager_service_perimeter.spec.access_levels.0, then that will now need to by hash (for example, google_access_context_manager_service_perimeter.spec.access_levels.\<some-hash\>).
+
+
 ## Resource: `google_bigquery_table`
 
 ### At most one of `view`, `materialized_view`, and `schema` can be set.
