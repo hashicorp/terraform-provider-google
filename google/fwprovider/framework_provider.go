@@ -793,7 +793,7 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	// Configuration values are now available.
-	p.LoadAndValidateFramework(ctx, data, req.TerraformVersion, &resp.Diagnostics, p.Version)
+	p.LoadAndValidateFramework(ctx, &data, req.TerraformVersion, &resp.Diagnostics, p.Version)
 	if resp.Diagnostics.HasError() {
 		return
 	}
