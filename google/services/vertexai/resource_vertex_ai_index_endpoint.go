@@ -73,6 +73,12 @@ Private services access must already be configured for the network. If left unsp
 [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): 'projects/{project}/global/networks/{network}'.
 Where '{project}' is a project number, as in '12345', and '{network}' is network name.`,
 			},
+			"public_endpoint_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If true, the deployed index will be accessible through public endpoint.`,
+			},
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -93,6 +99,11 @@ Where '{project}' is a project number, as in '12345', and '{network}' is network
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the Index.`,
+			},
+			"public_endpoint_domain_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `If publicEndpointEnabled is true, this field will be populated with the domain name to use for this index endpoint.`,
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -141,6 +152,12 @@ func resourceVertexAIIndexEndpointCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	publicEndpointEnabledProp, err := expandVertexAIIndexEndpointPublicEndpointEnabled(d.Get("public_endpoint_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("public_endpoint_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(publicEndpointEnabledProp)) && (ok || !reflect.DeepEqual(v, publicEndpointEnabledProp)) {
+		obj["publicEndpointEnabled"] = publicEndpointEnabledProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/indexEndpoints")
@@ -270,6 +287,9 @@ func resourceVertexAIIndexEndpointRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
 	}
 	if err := d.Set("network", flattenVertexAIIndexEndpointNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
+	}
+	if err := d.Set("public_endpoint_domain_name", flattenVertexAIIndexEndpointPublicEndpointDomainName(res["publicEndpointDomainName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading IndexEndpoint: %s", err)
 	}
 
@@ -466,6 +486,10 @@ func flattenVertexAIIndexEndpointNetwork(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
+func flattenVertexAIIndexEndpointPublicEndpointDomainName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandVertexAIIndexEndpointDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -486,5 +510,9 @@ func expandVertexAIIndexEndpointLabels(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandVertexAIIndexEndpointNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIIndexEndpointPublicEndpointEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

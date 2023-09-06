@@ -68,6 +68,26 @@ data "google_compute_network" "vertex_network" {
 
 data "google_project" "project" {}
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_index_endpoint_with_public_endpoint&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Index Endpoint With Public Endpoint
+
+
+```hcl
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint with an public endpoint"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+
+  public_endpoint_enabled = true
+}
+```
 
 ## Argument Reference
 
@@ -97,6 +117,10 @@ The following arguments are supported:
   [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`.
   Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
 
+* `public_endpoint_enabled` -
+  (Optional)
+  If true, the deployed index will be accessible through public endpoint.
+
 * `region` -
   (Optional)
   The region of the index endpoint. eg us-central1
@@ -122,6 +146,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+
+* `public_endpoint_domain_name` -
+  If publicEndpointEnabled is true, this field will be populated with the domain name to use for this index endpoint.
 
 
 ## Timeouts
