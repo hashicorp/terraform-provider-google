@@ -153,9 +153,9 @@ var defaultClientScopes = []string{
 
 // LoadAndValidateFramework handles the bulk of configuring the provider
 // it is pulled out so that we can manually call this from our testing provider as well
-func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, data fwmodels.ProviderModel, tfVersion string, diags *diag.Diagnostics, providerversion string) {
+func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, data *fwmodels.ProviderModel, tfVersion string, diags *diag.Diagnostics, providerversion string) {
 	// Set defaults if needed
-	p.HandleDefaults(ctx, &data, diags)
+	p.HandleDefaults(ctx, data, diags)
 	if diags.HasError() {
 		return
 	}
@@ -171,7 +171,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	}
 
 	// Set up client configuration
-	p.SetupClient(ctx, data, diags)
+	p.SetupClient(ctx, *data, diags)
 	if diags.HasError() {
 		return
 	}
@@ -285,10 +285,10 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.WorkflowsBasePath = data.WorkflowsCustomEndpoint.ValueString()
 
 	p.Context = ctx
+	p.Project = data.Project
 	p.Region = data.Region
 	p.Zone = data.Zone
 	p.PollInterval = 10 * time.Second
-	p.Project = data.Project
 	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
 }
