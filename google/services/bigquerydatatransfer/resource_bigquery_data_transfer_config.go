@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -271,8 +272,9 @@ requesting user calling this API has permissions to act as this service account.
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The resource name of the transfer config. Transfer config names have the
-form projects/{projectId}/locations/{location}/transferConfigs/{configId}.
-Where configId is usually a uuid, but this is not required.
+form projects/{projectId}/locations/{location}/transferConfigs/{configId}
+or projects/{projectId}/transferConfigs/{configId},
+where configId is usually a uuid, but this is not required.
 The name is ignored when creating a transfer config.`,
 			},
 			"project": {
@@ -677,6 +679,17 @@ func resourceBigqueryDataTransferConfigImport(d *schema.ResourceData, meta inter
 	// current import_formats can't import fields with forward slashes in their value
 	if err := tpgresource.ParseImportId([]string{"(?P<project>[^ ]+) (?P<name>[^ ]+)", "(?P<name>[^ ]+)"}, d, config); err != nil {
 		return nil, err
+	}
+
+	// import location if the name format follows: projects/{{project}}/locations/{{location}}/transferConfigs/{{config_id}}
+	name := d.Get("name").(string)
+	stringParts := strings.Split(name, "/")
+	if len(stringParts) == 6 {
+		if err := d.Set("location", stringParts[3]); err != nil {
+			return nil, fmt.Errorf("Error setting location: %s", err)
+		}
+	} else {
+		log.Printf("[INFO] Transfer config location not imported as it is not included in the name: %s", name)
 	}
 
 	return []*schema.ResourceData{d}, nil
