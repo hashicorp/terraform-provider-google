@@ -1,0 +1,3 @@
+```release-note:breaking-change
+logging: changed the default value of `unique_writer_identity` from `false` to `true` in `google_logging_project_sink`.
+```
