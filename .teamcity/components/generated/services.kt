@@ -156,11 +156,6 @@ var services = mapOf(
         "displayName" to "Cloudids",
         "path" to "./google/services/cloudids"
     ),
-    "cloudiot" to mapOf(
-        "name" to "cloudiot",
-        "displayName" to "Cloudiot",
-        "path" to "./google/services/cloudiot"
-    ),
     "cloudrun" to mapOf(
         "name" to "cloudrun",
         "displayName" to "Cloudrun",
