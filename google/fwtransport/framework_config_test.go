@@ -392,3 +392,109 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 // 		}
 // 	})
 // }
+
+func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues              fwmodels.ProviderModel
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    basetypes.StringValue
+		ExpectedConfigStructValue basetypes.StringValue
+		ExpectError               bool
+	}{
+		"billing_project value set in the provider schema is not overridden by environment variables": {
+			ConfigValues: fwmodels.ProviderModel{
+				BillingProject: types.StringValue("billing-project-from-config"),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("billing-project-from-config"),
+			ExpectedConfigStructValue: types.StringValue("billing-project-from-config"),
+		},
+		"billing_project can be set by environment variable, when no value supplied via the config": {
+			ConfigValues: fwmodels.ProviderModel{
+				BillingProject: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("billing-project-from-env"),
+			ExpectedConfigStructValue: types.StringValue("billing-project-from-env"),
+		},
+		"when no billing_project values are provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				BillingProject: types.StringNull(),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// "when billing_project is set as an empty string the field is treated as if it's unset, without error": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		BillingProject: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// 	ExpectedConfigStructValue: types.StringNull(),
+		// },
+		// "when billing_project is set as an empty string an environment variable will be used": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		BillingProject: types.StringValue(""),
+		// 	},
+		// 	EnvVariables: map[string]string{
+		// 		"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringValue("billing-project-from-env"),
+		// 	ExpectedConfigStructValue: types.StringValue("billing-project-from-env"),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.BillingProject.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want billing_project in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.BillingProject.String())
+			}
+			// Checking the value passed to the config structs
+			if !p.BillingProject.Equal(tc.ExpectedConfigStructValue) {
+				t.Fatalf("want billing_project in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.BillingProject.String())
+			}
+		})
+	}
+}

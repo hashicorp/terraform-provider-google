@@ -743,21 +743,21 @@ func TestProvider_ProviderConfigure_billingProject(t *testing.T) {
 				"credentials":     transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
 			ExpectedValue: "my-billing-project-from-config",
 		},
-		"billing project can be set by environment variable, when no value supplied via the config": {
+		"billing_project can be set by environment variable, when no value supplied via the config": {
 			ConfigValues: map[string]interface{}{
 				// billing_project unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
-			ExpectedValue: "my-billing-project-from-env",
+			ExpectedValue: "billing-project-from-env",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no billing_project values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// billing_project unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -781,9 +781,9 @@ func TestProvider_ProviderConfigure_billingProject(t *testing.T) {
 				"credentials":     transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
-			ExpectedValue: "my-billing-project-from-env",
+			ExpectedValue: "billing-project-from-env",
 		},
 	}
 
