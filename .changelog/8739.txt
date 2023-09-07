@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: fixed issue where setting `no_wrapper.write_metadata` to false wasn't passed to the API for `google_pubsub_subscription`
+```
