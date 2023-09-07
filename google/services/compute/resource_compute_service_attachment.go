@@ -62,7 +62,6 @@ values include "ACCEPT_AUTOMATIC", "ACCEPT_MANUAL".`,
 			"enable_proxy_protocol": {
 				Type:     schema.TypeBool,
 				Required: true,
-				ForceNew: true,
 				Description: `If true, enable the proxy protocol which is for supplying client TCP/IP
 address data in TCP connections that traverse proxies on their way to
 destination servers.`,
@@ -145,7 +144,6 @@ supported is 1.`,
 			"reconcile_connections": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 				Description: `This flag determines whether a consumer accept/reject list change can reconcile the statuses of existing ACCEPTED or REJECTED PSC endpoints.
 
 If false, connection policy update will only affect existing PENDING PSC endpoints. Existing ACCEPTED/REJECTED endpoints will remain untouched regardless how the connection policy is modified .
@@ -470,6 +468,12 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("nat_subnets"); ok || !reflect.DeepEqual(v, natSubnetsProp) {
 		obj["natSubnets"] = natSubnetsProp
 	}
+	enableProxyProtocolProp, err := expandComputeServiceAttachmentEnableProxyProtocol(d.Get("enable_proxy_protocol"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_proxy_protocol"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableProxyProtocolProp)) {
+		obj["enableProxyProtocol"] = enableProxyProtocolProp
+	}
 	consumerRejectListsProp, err := expandComputeServiceAttachmentConsumerRejectLists(d.Get("consumer_reject_lists"), d, config)
 	if err != nil {
 		return err
@@ -481,6 +485,12 @@ func resourceComputeServiceAttachmentUpdate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("consumer_accept_lists"); ok || !reflect.DeepEqual(v, consumerAcceptListsProp) {
 		obj["consumerAcceptLists"] = consumerAcceptListsProp
+	}
+	reconcileConnectionsProp, err := expandComputeServiceAttachmentReconcileConnections(d.Get("reconcile_connections"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reconcile_connections"); ok || !reflect.DeepEqual(v, reconcileConnectionsProp) {
+		obj["reconcileConnections"] = reconcileConnectionsProp
 	}
 
 	obj, err = resourceComputeServiceAttachmentUpdateEncoder(d, meta, obj)

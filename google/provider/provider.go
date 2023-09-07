@@ -789,6 +789,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_compute_regions":                              compute.DataSourceGoogleComputeRegions(),
 		"google_compute_region_network_endpoint_group":        compute.DataSourceGoogleComputeRegionNetworkEndpointGroup(),
 		"google_compute_region_instance_group":                compute.DataSourceGoogleComputeRegionInstanceGroup(),
+		"google_compute_region_instance_template":             compute.DataSourceGoogleComputeRegionInstanceTemplate(),
 		"google_compute_region_ssl_certificate":               compute.DataSourceGoogleRegionComputeSslCertificate(),
 		"google_compute_resource_policy":                      compute.DataSourceGoogleComputeResourcePolicy(),
 		"google_compute_router":                               compute.DataSourceGoogleComputeRouter(),
@@ -914,6 +915,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_backup_backup_plan_iam_policy":               tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer),
 			"google_gke_hub_membership_iam_policy":                   tpgiamresource.DataSourceIamPolicy(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer),
 			"google_gke_hub_feature_iam_policy":                      tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer),
+			"google_gke_hub_scope_iam_policy":                        tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer),
 			"google_healthcare_consent_store_iam_policy":             tpgiamresource.DataSourceIamPolicy(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer),
 			"google_iap_app_engine_service_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineServiceIamSchema, iap.IapAppEngineServiceIamUpdaterProducer),
 			"google_iap_app_engine_version_iam_policy":               tpgiamresource.DataSourceIamPolicy(iap.IapAppEngineVersionIamSchema, iap.IapAppEngineVersionIamUpdaterProducer),
@@ -964,9 +966,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 304
-// Generated IAM resources: 201
-// Total generated resources: 505
+// Generated resources: 309
+// Generated IAM resources: 204
+// Total generated resources: 513
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1030,6 +1032,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_beyondcorp_app_connector":                                beyondcorp.ResourceBeyondcorpAppConnector(),
 			"google_beyondcorp_app_gateway":                                  beyondcorp.ResourceBeyondcorpAppGateway(),
 			"google_biglake_catalog":                                         biglake.ResourceBiglakeCatalog(),
+			"google_biglake_database":                                        biglake.ResourceBiglakeDatabase(),
 			"google_bigquery_dataset":                                        bigquery.ResourceBigQueryDataset(),
 			"google_bigquery_dataset_access":                                 bigquery.ResourceBigQueryDatasetAccess(),
 			"google_bigquery_job":                                            bigquery.ResourceBigQueryJob(),
@@ -1297,6 +1300,13 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_hub_feature_iam_binding":                             tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_member":                              tpgiamresource.ResourceIamMember(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
 			"google_gke_hub_feature_iam_policy":                              tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer, gkehub2.GKEHub2FeatureIdParseFunc),
+			"google_gke_hub_membership_binding":                              gkehub2.ResourceGKEHub2MembershipBinding(),
+			"google_gke_hub_namespace":                                       gkehub2.ResourceGKEHub2Namespace(),
+			"google_gke_hub_scope":                                           gkehub2.ResourceGKEHub2Scope(),
+			"google_gke_hub_scope_iam_binding":                               tpgiamresource.ResourceIamBinding(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_iam_member":                                tpgiamresource.ResourceIamMember(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_iam_policy":                                tpgiamresource.ResourceIamPolicy(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer, gkehub2.GKEHub2ScopeIdParseFunc),
+			"google_gke_hub_scope_rbac_role_binding":                         gkehub2.ResourceGKEHub2ScopeRBACRoleBinding(),
 			"google_healthcare_consent_store":                                healthcare.ResourceHealthcareConsentStore(),
 			"google_healthcare_consent_store_iam_binding":                    tpgiamresource.ResourceIamBinding(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
 			"google_healthcare_consent_store_iam_member":                     tpgiamresource.ResourceIamMember(healthcare.HealthcareConsentStoreIamSchema, healthcare.HealthcareConsentStoreIamUpdaterProducer, healthcare.HealthcareConsentStoreIdParseFunc),
@@ -1493,6 +1503,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_compute_project_metadata":               compute.ResourceComputeProjectMetadata(),
 			"google_compute_project_metadata_item":          compute.ResourceComputeProjectMetadataItem(),
 			"google_compute_region_instance_group_manager":  compute.ResourceComputeRegionInstanceGroupManager(),
+			"google_compute_region_instance_template":       compute.ResourceComputeRegionInstanceTemplate(),
 			"google_compute_router_interface":               compute.ResourceComputeRouterInterface(),
 			"google_compute_security_policy":                compute.ResourceComputeSecurityPolicy(),
 			"google_compute_shared_vpc_host_project":        compute.ResourceComputeSharedVpcHostProject(),

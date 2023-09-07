@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func CheckDataSourceStateMatchesResourceState(dataSourceName, resourceName string) func(*terraform.State) error {
@@ -196,4 +197,57 @@ func CreateZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) str
 		t.Fatal(err.Error())
 	}
 	return tmpfile.Name()
+}
+
+// providerConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
+func providerConfigEnvNames() []string {
+
+	envs := []string{}
+
+	// Use existing collections of ENV names
+	envVarsSets := [][]string{
+		envvar.CredsEnvVars,   // credentials field
+		envvar.ProjectEnvVars, // project field
+		envvar.RegionEnvVars,  //region field
+		envvar.ZoneEnvVars,    // zone field
+	}
+	for _, set := range envVarsSets {
+		envs = append(envs, set...)
+	}
+
+	// Add remaining ENVs
+	envs = append(envs, "GOOGLE_OAUTH_ACCESS_TOKEN")          // access_token field
+	envs = append(envs, "GOOGLE_BILLING_PROJECT")             // billing_project field
+	envs = append(envs, "GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") // impersonate_service_account field
+	envs = append(envs, "USER_PROJECT_OVERRIDE")              // user_project_override field
+	envs = append(envs, "CLOUDSDK_CORE_REQUEST_REASON")       // request_reason field
+
+	return envs
+}
+
+// UnsetProviderConfigEnvs unsets any ENVs in the test environment that
+// configure the provider.
+// The testing package will restore the original values after the test
+func UnsetTestProviderConfigEnvs(t *testing.T) {
+	envs := providerConfigEnvNames()
+	if len(envs) > 0 {
+		for _, k := range envs {
+			t.Setenv(k, "")
+		}
+	}
+}
+
+func SetupTestEnvs(t *testing.T, envValues map[string]string) {
+	// Set ENVs
+	if len(envValues) > 0 {
+		for k, v := range envValues {
+			t.Setenv(k, v)
+		}
+	}
+}
+
+// Returns a fake credentials JSON string with the client_email set to a test-specific value
+func GenerateFakeCredentialsJson(testId string) string {
+	json := fmt.Sprintf(`{"private_key_id": "foo","private_key": "bar","client_email": "%s@example.com","client_id": "id@foo.com","type": "service_account"}`, testId)
+	return json
 }

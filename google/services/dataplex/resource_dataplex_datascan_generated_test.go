@@ -61,7 +61,7 @@ func testAccDataplexDatascan_dataplexDatascanBasicProfileExample(context map[str
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_profile" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "tf-test-dataprofile-basic%{random_suffix}"
 
   data {
 	  resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -111,7 +111,7 @@ func testAccDataplexDatascan_dataplexDatascanFullProfileExample(context map[stri
 resource "google_dataplex_datascan" "full_profile" {
   location     = "us-central1"
   display_name = "Full Datascan Profile"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "tf-test-dataprofile-full%{random_suffix}"
   description  = "Example resource - Full Datascan Profile"
   labels = {
     author = "billing"
@@ -138,9 +138,26 @@ resource "google_dataplex_datascan" "full_profile" {
     exclude_fields {
       field_names = ["property_type"]
     }
+    post_scan_actions {
+      bigquery_export {
+        results_table = "//bigquery.googleapis.com/projects/%{project_name}/datasets/tf_test_dataplex_dataset%{random_suffix}/tables/profile_export"
+      }
+    }
   }
 
   project = "%{project_name}"
+
+  depends_on = [
+    google_bigquery_dataset.source
+  ]
+}
+
+resource "google_bigquery_dataset" "source" {
+  dataset_id                  = "tf_test_dataplex_dataset%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+  delete_contents_on_destroy = true
 }
 `, context)
 }
@@ -175,7 +192,7 @@ func testAccDataplexDatascan_dataplexDatascanBasicQualityExample(context map[str
 	return acctest.Nprintf(`
 resource "google_dataplex_datascan" "basic_quality" {
   location     = "us-central1"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "tf-test-dataquality-basic%{random_suffix}"
 
   data {
     resource = "//bigquery.googleapis.com/projects/bigquery-public-data/datasets/samples/tables/shakespeare"
@@ -234,7 +251,7 @@ func testAccDataplexDatascan_dataplexDatascanFullQualityExample(context map[stri
 resource "google_dataplex_datascan" "full_quality" {
   location = "us-central1"
   display_name = "Full Datascan Quality"
-  data_scan_id = "tf-test-datascan%{random_suffix}"
+  data_scan_id = "tf-test-dataquality-full%{random_suffix}"
   description = "Example resource - Full Datascan Quality"
   labels = {
     author = "billing"

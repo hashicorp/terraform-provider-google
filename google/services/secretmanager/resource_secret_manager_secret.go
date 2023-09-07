@@ -94,7 +94,6 @@ after the Secret has been created.`,
 												"customer_managed_encryption": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													ForceNew:    true,
 													Description: `Customer Managed Encryption for the secret.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
@@ -102,7 +101,6 @@ after the Secret has been created.`,
 															"kms_key_name": {
 																Type:        schema.TypeString,
 																Required:    true,
-																ForceNew:    true,
 																Description: `Describes the Cloud KMS encryption key that will be used to protect destination secret.`,
 															},
 														},
@@ -515,6 +513,24 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	replicationProp, err := expandSecretManagerSecretReplication(d.Get("replication"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("replication"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicationProp)) {
+		obj["replication"] = replicationProp
+	}
+
+	if d.HasChange("replication") {
+		updateMask = append(updateMask, "replication")
+	}
+
+	// Refreshing updateMask after adding extra schema entries
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Update URL %q: %v", d.Id(), url)
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {

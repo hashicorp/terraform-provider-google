@@ -19,7 +19,7 @@ import (
 
 const testOauthScope = "https://www.googleapis.com/auth/compute"
 
-func TestHandleSDKDefaults_RequestReason(t *testing.T) {
+func TestHandleSDKDefaults_BillingProject(t *testing.T) {
 	cases := map[string]struct {
 		ConfigValue      string
 		EnvVariables     map[string]string
@@ -27,22 +27,22 @@ func TestHandleSDKDefaults_RequestReason(t *testing.T) {
 		ValueNotProvided bool
 		ExpectError      bool
 	}{
-		"request_reason value set in the provider config is not overridden by ENVs": {
-			ConfigValue: "request-reason-from-config",
+		"billing project value set in the provider config is not overridden by ENVs": {
+			ConfigValue: "my-billing-project-from-config",
 			EnvVariables: map[string]string{
-				"CLOUDSDK_CORE_REQUEST_REASON": "request-reason-from-env",
+				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
 			},
-			ExpectedValue: "request-reason-from-config",
+			ExpectedValue: "my-billing-project-from-config",
 		},
-		"request_reason can be set by environment variable, when no value supplied via the config": {
+		"billing project can be set by environment variable, when no value supplied via the config": {
 			EnvVariables: map[string]string{
-				"CLOUDSDK_CORE_REQUEST_REASON": "request-reason-from-env",
+				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
 			},
-			ExpectedValue: "request-reason-from-env",
+			ExpectedValue: "my-billing-project-from-env",
 		},
 		"when no values are provided via config or environment variables, the field remains unset without error": {
 			EnvVariables: map[string]string{
-				"CLOUDSDK_CORE_REQUEST_REASON": "", // CLOUDSDK_CORE_REQUEST_REASON unset
+				"GOOGLE_BILLING_PROJECT": "", // GOOGLE_BILLING_PROJECT unset
 			},
 			ValueNotProvided: true,
 		},
@@ -58,7 +58,7 @@ func TestHandleSDKDefaults_RequestReason(t *testing.T) {
 
 			// Set config value(s)
 			if tc.ConfigValue != "" {
-				d.Set("request_reason", tc.ConfigValue)
+				d.Set("billing_project", tc.ConfigValue)
 			}
 
 			// Set ENVs
@@ -80,12 +80,326 @@ func TestHandleSDKDefaults_RequestReason(t *testing.T) {
 			}
 
 			// Assert
-			v, ok := d.GetOk("request_reason")
+			v, ok := d.GetOk("billing_project")
 			if !ok && !tc.ValueNotProvided {
-				t.Fatal("expected request_reason to be set in the provider data")
+				t.Fatal("expected billing_project to be set in the provider data")
 			}
 			if ok && tc.ValueNotProvided {
-				t.Fatal("expected request_reason to not be set in the provider data")
+				t.Fatal("expected billing_project to not be set in the provider data")
+			}
+
+			if v != tc.ExpectedValue {
+				t.Fatalf("unexpected value: wanted %v, got, %v", tc.ExpectedValue, v)
+			}
+		})
+	}
+}
+
+func TestHandleSDKDefaults_Region(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue      string
+		EnvVariables     map[string]string
+		ExpectedValue    string
+		ValueNotProvided bool
+		ExpectError      bool
+	}{
+		"region value set in the provider config is not overridden by ENVs": {
+			ConfigValue: "region-from-config",
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "region-from-env",
+				"GCLOUD_REGION":           "", // GCLOUD_REGION unset
+				"CLOUDSDK_COMPUTE_REGION": "", // CLOUDSDK_COMPUTE_REGION unset
+			},
+			ExpectedValue: "region-from-config",
+		},
+		"region can be set by environment variable, when no value supplied via the config": {
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "region-from-env",
+				"GCLOUD_REGION":           "", // GCLOUD_REGION unset
+				"CLOUDSDK_COMPUTE_REGION": "", // CLOUDSDK_COMPUTE_REGION unset
+			},
+			ExpectedValue: "region-from-env",
+		},
+		"when multiple region environment variables are provided, `GOOGLE_REGION` is used first": {
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "project-from-GOOGLE_REGION",
+				"GCLOUD_REGION":           "project-from-GCLOUD_REGION",
+				"CLOUDSDK_COMPUTE_REGION": "project-from-CLOUDSDK_COMPUTE_REGION",
+			},
+			ExpectedValue: "project-from-GOOGLE_REGION",
+		},
+		"when multiple region environment variables are provided, `GCLOUD_REGION` is used second": {
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "", // GOOGLE_REGION unset
+				"GCLOUD_REGION":           "project-from-GCLOUD_REGION",
+				"CLOUDSDK_COMPUTE_REGION": "project-from-CLOUDSDK_COMPUTE_REGION",
+			},
+			ExpectedValue: "project-from-GCLOUD_REGION",
+		},
+		"when multiple region environment variables are provided, `CLOUDSDK_COMPUTE_REGION` is the last-used ENV": {
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "", // GOOGLE_REGION unset
+				"GCLOUD_REGION":           "", // GCLOUD_REGION unset
+				"CLOUDSDK_COMPUTE_REGION": "project-from-CLOUDSDK_COMPUTE_REGION",
+			},
+			ExpectedValue: "project-from-CLOUDSDK_COMPUTE_REGION",
+		},
+		"when no values are provided via config or environment variables, the field remains unset without error": {
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION":           "", // GOOGLE_REGION unset
+				"GCLOUD_REGION":           "", // GCLOUD_REGION unset
+				"CLOUDSDK_COMPUTE_REGION": "", // CLOUDSDK_COMPUTE_REGION unset
+			},
+			ValueNotProvided: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			// Create empty schema.ResourceData using the SDK Provider schema
+			emptyConfigMap := map[string]interface{}{}
+			d := schema.TestResourceDataRaw(t, provider.Provider().Schema, emptyConfigMap)
+
+			// Set config value(s)
+			if tc.ConfigValue != "" {
+				d.Set("region", tc.ConfigValue)
+			}
+
+			// Set ENVs
+			if len(tc.EnvVariables) > 0 {
+				for k, v := range tc.EnvVariables {
+					t.Setenv(k, v)
+				}
+			}
+
+			// Act
+			err := transport_tpg.HandleSDKDefaults(d)
+
+			// Assert
+			if err != nil {
+				if !tc.ExpectError {
+					t.Fatalf("error: %v", err)
+				}
+				return
+			}
+
+			// Assert
+			v, ok := d.GetOk("region")
+			if !ok && !tc.ValueNotProvided {
+				t.Fatal("expected region to be set in the provider data")
+			}
+			if ok && tc.ValueNotProvided {
+				t.Fatal("expected region to not be set in the provider data")
+			}
+
+			if v != tc.ExpectedValue {
+				t.Fatalf("unexpected value: wanted %v, got, %v", tc.ExpectedValue, v)
+			}
+		})
+	}
+}
+
+func TestHandleSDKDefaults_Zone(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue      string
+		EnvVariables     map[string]string
+		ExpectedValue    string
+		ValueNotProvided bool
+		ExpectError      bool
+	}{
+		"region value set in the provider config is not overridden by ENVs": {
+			ConfigValue: "zone-from-config",
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "zone-from-env",
+				"GCLOUD_ZONE":           "", // GCLOUD_ZONE unset
+				"CLOUDSDK_COMPUTE_ZONE": "", // CLOUDSDK_COMPUTE_ZONE unset
+			},
+			ExpectedValue: "zone-from-config",
+		},
+		"zone can be set by environment variable, when no value supplied via the config": {
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "zone-from-env",
+				"GCLOUD_ZONE":           "", // GCLOUD_ZONE unset
+				"CLOUDSDK_COMPUTE_ZONE": "", // CLOUDSDK_COMPUTE_ZONE unset
+			},
+			ExpectedValue: "zone-from-env",
+		},
+		"when multiple zone environment variables are provided, `GOOGLE_ZONE` is used first": {
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "zone-from-GOOGLE_ZONE",
+				"GCLOUD_ZONE":           "zone-from-GCLOUD_ZONE",
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedValue: "zone-from-GOOGLE_ZONE",
+		},
+		"when multiple zone environment variables are provided, `GCLOUD_ZONE` is used second": {
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "", // GOOGLE_ZONE unset
+				"GCLOUD_ZONE":           "zone-from-GCLOUD_ZONE",
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedValue: "zone-from-GCLOUD_ZONE",
+		},
+		"when multiple zone environment variables are provided, `CLOUDSDK_COMPUTE_ZONE` is the last-used ENV": {
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "", // GOOGLE_ZONE unset
+				"GCLOUD_ZONE":           "", // GCLOUD_ZONE unset
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedValue: "zone-from-CLOUDSDK_COMPUTE_ZONE",
+		},
+		"when no values are provided via config or environment variables, the field remains unset without error": {
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "", // GOOGLE_ZONE unset
+				"GCLOUD_ZONE":           "", // GCLOUD_ZONE unset
+				"CLOUDSDK_COMPUTE_ZONE": "", // CLOUDSDK_COMPUTE_ZONE unset
+			},
+			ValueNotProvided: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			// Create empty schema.ResourceData using the SDK Provider schema
+			emptyConfigMap := map[string]interface{}{}
+			d := schema.TestResourceDataRaw(t, provider.Provider().Schema, emptyConfigMap)
+
+			// Set config value(s)
+			if tc.ConfigValue != "" {
+				d.Set("zone", tc.ConfigValue)
+			}
+
+			// Set ENVs
+			if len(tc.EnvVariables) > 0 {
+				for k, v := range tc.EnvVariables {
+					t.Setenv(k, v)
+				}
+			}
+
+			// Act
+			err := transport_tpg.HandleSDKDefaults(d)
+
+			// Assert
+			if err != nil {
+				if !tc.ExpectError {
+					t.Fatalf("error: %v", err)
+				}
+				return
+			}
+
+			// Assert
+			v, ok := d.GetOk("zone")
+			if !ok && !tc.ValueNotProvided {
+				t.Fatal("expected zone to be set in the provider data")
+			}
+			if ok && tc.ValueNotProvided {
+				t.Fatal("expected zone to not be set in the provider data")
+			}
+
+			if v != tc.ExpectedValue {
+				t.Fatalf("unexpected value: wanted %v, got, %v", tc.ExpectedValue, v)
+			}
+		})
+	}
+}
+
+// The `user_project_override` field is an odd one out, as other provider schema fields tend to be strings
+// and `user_project_override` is a boolean
+func TestHandleSDKDefaults_UserProjectOverride(t *testing.T) {
+	cases := map[string]struct {
+		SetViaConfig     bool // Awkward, but necessary as zero value of ConfigValue could be intended
+		ConfigValue      bool
+		ValueNotProvided bool
+		EnvVariables     map[string]string
+		ExpectedValue    bool
+		ExpectError      bool
+	}{
+		"user_project_override value set in the provider schema is not overridden by ENVs": {
+			SetViaConfig: true,
+			ConfigValue:  false,
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "true",
+			},
+			ExpectedValue: false,
+		},
+		"user_project_override can be set by environment variable: true": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "true",
+			},
+			ExpectedValue: true,
+		},
+		"user_project_override can be set by environment variable: false": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "false",
+			},
+			ExpectedValue: false,
+		},
+		"user_project_override can be set by environment variable: 1": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "1",
+			},
+			ExpectedValue: true,
+		},
+		"user_project_override can be set by environment variable: 0": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "0",
+			},
+			ExpectedValue: false,
+		},
+		"error returned due to non-boolean environment variables": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "I'm not a boolean",
+			},
+			ExpectError: true,
+		},
+		"when no values are provided via config or environment variables, the field remains unset without error": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "", // USER_PROJECT_OVERRIDE unset
+			},
+			ValueNotProvided: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			// Arrange
+			// Create empty schema.ResourceData using the SDK Provider schema
+			emptyConfigMap := map[string]interface{}{}
+			d := schema.TestResourceDataRaw(t, provider.Provider().Schema, emptyConfigMap)
+
+			// Set config value(s)
+			if tc.SetViaConfig {
+				d.Set("user_project_override", tc.ConfigValue)
+			}
+
+			// Set ENVs
+			if len(tc.EnvVariables) > 0 {
+				for k, v := range tc.EnvVariables {
+					t.Setenv(k, v)
+				}
+			}
+
+			// Act
+			err := transport_tpg.HandleSDKDefaults(d)
+
+			// Assert
+			if err != nil {
+				if !tc.ExpectError {
+					t.Fatalf("error: %v", err)
+				}
+				return
+			}
+
+			v, ok := d.GetOkExists("user_project_override")
+			if !ok && !tc.ValueNotProvided {
+				t.Fatal("expected user_project_override to be set in the provider data")
+			}
+			if ok && tc.ValueNotProvided {
+				t.Fatal("expected user_project_override to not be set in the provider data")
 			}
 
 			if v != tc.ExpectedValue {

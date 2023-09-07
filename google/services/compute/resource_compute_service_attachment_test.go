@@ -31,7 +31,16 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(t *test
 				ImportStateVerifyIgnore: []string{"target_service", "region"},
 			},
 			{
-				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context),
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, true),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+			{
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context, false),
 			},
 			{
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
@@ -50,7 +59,7 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   region      = "us-west2"
   description = "A service attachment configured with Terraform"
 
-  enable_proxy_protocol    = true
+  enable_proxy_protocol    = false
   connection_preference    = "ACCEPT_AUTOMATIC"
   nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
   target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
@@ -126,7 +135,15 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 `, context)
 }
 
-func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}) string {
+func testAccComputeServiceAttachment_serviceAttachmentBasicExampleUpdate(context map[string]interface{}, preventDestroy bool) string {
+	context["lifecycle_block"] = ""
+	if preventDestroy {
+		context["lifecycle_block"] = `
+		lifecycle {
+			prevent_destroy = true
+		}`
+	}
+
 	return acctest.Nprintf(`
 resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
   name        = "tf-test-my-psc-ilb%{random_suffix}"
@@ -143,7 +160,8 @@ resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
     project_id_or_num = "658859330310"
     connection_limit  = 4
   }
-
+  reconcile_connections = false
+  %{lifecycle_block}
 }
 
 resource "google_compute_address" "psc_ilb_consumer_address" {
