@@ -58,6 +58,11 @@ resource "google_gke_hub_membership_binding" "example" {
   scope = google_gke_hub_scope.example.name
   membership_id = "tf-test-membership%{random_suffix}"
   location = "global"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
   depends_on = [
     google_gke_hub_membership.example,
     google_gke_hub_scope.example
@@ -90,6 +95,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `labels` -
+  (Optional)
+  Labels for this Membership binding.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
