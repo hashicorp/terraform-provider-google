@@ -432,3 +432,9 @@ resource "google_project_iam_binding" "gcs-bucket-writer" {
 ### resource `google_cloudiot_registry_iam_*` is now removed
 
 ### datasource `google_cloudiot_registry_iam_policy` is now removed
+
+## Resource: `google_service_networking_connection`
+
+### `Create` endpoint is used to create the resource
+
+`google_service_networking_connection` now uses the Create endpoint instead of the Patch endpoint during the creation step. Previously, Patch was used as a workaround for an issue that has since been resolved.
