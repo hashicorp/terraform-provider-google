@@ -16,7 +16,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForceNew(t *testing.T) {
+func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForceNewWhenGoogleCloudStorage(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
@@ -127,6 +127,144 @@ func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForce
 					"data_path_template": "gs://bq-bucket-new/*.json",
 					"query":              "SELECT 1 AS a",
 					"write_disposition":  "WRITE_APPEND",
+				},
+			},
+			forcenew: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		d := &tpgresource.ResourceDiffMock{
+			Before: map[string]interface{}{
+				"params":         tc.before["params"],
+				"data_source_id": tc.before["data_source_id"],
+			},
+			After: map[string]interface{}{
+				"params":         tc.after["params"],
+				"data_source_id": tc.after["data_source_id"],
+			},
+		}
+		err := bigquerydatatransfer.ParamsCustomizeDiffFunc(d)
+		if err != nil {
+			t.Errorf("failed, expected no error but received - %s for the condition %s", err, tn)
+		}
+		if d.IsForceNew != tc.forcenew {
+			t.Errorf("ForceNew not setup correctly for the condition-'%s', expected:%v; actual:%v", tn, tc.forcenew, d.IsForceNew)
+		}
+	}
+}
+
+func TestBigqueryDataTransferConfig_resourceBigqueryDTCParamsCustomDiffFuncForceNewWhenAmazonS3(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		before   map[string]interface{}
+		after    map[string]interface{}
+		forcenew bool
+	}{
+		"changing_data_path": {
+			before: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp-new/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			forcenew: true,
+		},
+		"changing_destination_table_name_template": {
+			before: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp/*.json",
+					"destination_table_name_template": "table-new",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			forcenew: true,
+		},
+		"changing_non_force_new_fields": {
+			before: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 10,
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "amazon_s3",
+				"params": map[string]interface{}{
+					"data_path":                       "s3://s3-bucket-temp/*.json",
+					"destination_table_name_template": "table-old",
+					"file_format":                     "JSON",
+					"max_bad_records":                 1000,
+					"write_disposition":               "APPEND",
+				},
+			},
+			forcenew: false,
+		},
+		"changing_destination_table_name_template_for_different_data_source_id": {
+			before: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"destination_table_name_template": "table-old",
+					"query":                           "SELECT 1 AS a",
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"destination_table_name_template": "table-new",
+					"query":                           "SELECT 1 AS a",
+					"write_disposition":               "WRITE_APPEND",
+				},
+			},
+			forcenew: false,
+		},
+		"changing_data_path_template_for_different_data_source_id": {
+			before: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"data_path":         "s3://s3-bucket-temp/*.json",
+					"query":             "SELECT 1 AS a",
+					"write_disposition": "WRITE_APPEND",
+				},
+			},
+			after: map[string]interface{}{
+				"data_source_id": "scheduled_query",
+				"params": map[string]interface{}{
+					"data_path":         "s3://s3-bucket-temp-new/*.json",
+					"query":             "SELECT 1 AS a",
+					"write_disposition": "WRITE_APPEND",
 				},
 			},
 			forcenew: false,

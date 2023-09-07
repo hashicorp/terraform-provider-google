@@ -313,6 +313,8 @@ resource "google_logging_project_sink" "described" {
   destination = "storage.googleapis.com/${google_storage_bucket.gcs-bucket.name}"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
   description = "this is a description for a project level logging sink"
+  
+  unique_writer_identity = false
 }
 
 resource "google_storage_bucket" "gcs-bucket" {
@@ -330,6 +332,8 @@ resource "google_logging_project_sink" "described" {
   destination = "storage.googleapis.com/${google_storage_bucket.gcs-bucket.name}"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
   description = "description updated"
+  
+  unique_writer_identity = true
 }
 
 resource "google_storage_bucket" "gcs-bucket" {
@@ -463,6 +467,8 @@ resource "google_logging_project_sink" "bigquery" {
   name        = "%s"
   destination = "bigquery.googleapis.com/projects/%s/datasets/${google_bigquery_dataset.bq_dataset.dataset_id}"
   filter      = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=WARNING"
+
+  unique_writer_identity = true
 }
 
 resource "google_bigquery_dataset" "bq_dataset" {

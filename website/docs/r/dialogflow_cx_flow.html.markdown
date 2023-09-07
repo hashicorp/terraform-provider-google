@@ -38,18 +38,18 @@ To get more information about Flow, see:
 
 ```hcl
 resource "google_dialogflow_cx_agent" "agent" {
-  display_name = "dialogflowcx-agent"
-  location = "global"
-  default_language_code = "en"
-  supported_language_codes = ["fr","de","es"]
-  time_zone = "America/New_York"
-  description = "Example description."
-  avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  display_name               = "dialogflowcx-agent"
+  location                   = "global"
+  default_language_code      = "en"
+  supported_language_codes   = ["fr", "de", "es"]
+  time_zone                  = "America/New_York"
+  description                = "Example description."
+  avatar_uri                 = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
   enable_stackdriver_logging = true
   enable_spell_correction    = true
-	speech_to_text_settings {
-		enable_speech_adaptation = true
-	}
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
 }
 
 
@@ -59,45 +59,248 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
   description  = "Test Flow"
 
   nlu_settings {
-		classification_threshold = 0.3 
-		model_type               = "MODEL_TYPE_STANDARD"
-	}
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
 
   event_handlers {
-		   event                    = "custom-event"
-		   trigger_fulfillment {
-			    return_partial_responses = false
-				messages {
-					text {
-						text  = ["I didn't get that. Can you say it again?"]
-					}
-				}
-		    }
-		}
+    event = "custom-event"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["I didn't get that. Can you say it again?"]
+        }
+      }
+    }
+  }
 
-		event_handlers {
-			event                    = "sys.no-match-default"
-			trigger_fulfillment {
-				 return_partial_responses = false
-				 messages {
-					 text {
-						 text  = ["Sorry, could you say that again?"]
-					 }
-				 }
-			 }
-		 }
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["Sorry, could you say that again?"]
+        }
+      }
+    }
+  }
 
-		 event_handlers {
-			event                    = "sys.no-input-default"
-			trigger_fulfillment {
-				 return_partial_responses = false
-				 messages {
-					 text {
-						 text  = ["One more time?"]
-					 }
-				 }
-			 }
-		 }
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["One more time?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "another-event"
+    trigger_fulfillment {
+      return_partial_responses = true
+      messages {
+        channel = "some-channel"
+        text {
+          text = ["Some text"]
+        }
+      }
+      messages {
+        payload = <<EOF
+          {"some-key": "some-value", "other-key": ["other-value"]}
+        EOF
+      }
+      messages {
+        conversation_success {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        output_audio_text {
+          text = "some output text"
+        }
+      }
+      messages {
+        output_audio_text {
+          ssml = <<EOF
+            <speak>Some example <say-as interpret-as="characters">SSML XML</say-as></speak>
+          EOF
+        }
+      }
+      messages {
+        live_agent_handoff {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        play_audio {
+          audio_uri = "http://example.com/some-audio-file.mp3"
+        }
+      }
+      messages {
+        telephony_transfer_call {
+          phone_number = "1-234-567-8901"
+        }
+      }
+
+      set_parameter_actions {
+        parameter = "some-param"
+        value     = "123.45"
+      }
+      set_parameter_actions {
+        parameter = "another-param"
+        value     = jsonencode("abc")
+      }
+      set_parameter_actions {
+        parameter = "other-param"
+        value     = jsonencode(["foo"])
+      }
+
+      conditional_cases {
+        cases = jsonencode([
+          {
+            condition = "$sys.func.RAND() < 0.5",
+            caseContent = [
+              {
+                message = { text = { text = ["First case"] } }
+              },
+              {
+                additionalCases = {
+                  cases = [
+                    {
+                      condition = "$sys.func.RAND() < 0.2"
+                      caseContent = [
+                        {
+                          message = { text = { text = ["Nested case"] } }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            caseContent = [
+              {
+                message = { text = { text = ["Final case"] } }
+              }
+            ]
+          },
+        ])
+      }
+    }
+  }
+
+  transition_routes {
+    condition = "true"
+    trigger_fulfillment {
+      return_partial_responses = true
+      messages {
+        channel = "some-channel"
+        text {
+          text = ["Some text"]
+        }
+      }
+      messages {
+        payload = <<EOF
+          {"some-key": "some-value", "other-key": ["other-value"]}
+        EOF
+      }
+      messages {
+        conversation_success {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        output_audio_text {
+          text = "some output text"
+        }
+      }
+      messages {
+        output_audio_text {
+          ssml = <<EOF
+            <speak>Some example <say-as interpret-as="characters">SSML XML</say-as></speak>
+          EOF
+        }
+      }
+      messages {
+        live_agent_handoff {
+          metadata = <<EOF
+            {"some-metadata-key": "some-value", "other-metadata-key": 1234}
+          EOF
+        }
+      }
+      messages {
+        play_audio {
+          audio_uri = "http://example.com/some-audio-file.mp3"
+        }
+      }
+      messages {
+        telephony_transfer_call {
+          phone_number = "1-234-567-8901"
+        }
+      }
+
+      set_parameter_actions {
+        parameter = "some-param"
+        value     = "123.45"
+      }
+      set_parameter_actions {
+        parameter = "another-param"
+        value     = jsonencode("abc")
+      }
+      set_parameter_actions {
+        parameter = "other-param"
+        value     = jsonencode(["foo"])
+      }
+
+      conditional_cases {
+        cases = jsonencode([
+          {
+            condition = "$sys.func.RAND() < 0.5",
+            caseContent = [
+              {
+                message = { text = { text = ["First case"] } }
+              },
+              {
+                additionalCases = {
+                  cases = [
+                    {
+                      condition = "$sys.func.RAND() < 0.2"
+                      caseContent = [
+                        {
+                          message = { text = { text = ["Nested case"] } }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            caseContent = [
+              {
+                message = { text = { text = ["Final case"] } }
+              }
+            ]
+          },
+        ])
+      }
+    }
+    target_flow = google_dialogflow_cx_agent.agent.start_flow
+  }
 } 
 ```
 
@@ -215,13 +418,64 @@ The following arguments are supported:
   (Optional)
   The tag used by the webhook to identify which fulfillment is being called. This field is required if webhook is specified.
 
+* `set_parameter_actions` -
+  (Optional)
+  Set parameter values before executing the webhook.
+  Structure is [documented below](#nested_set_parameter_actions).
+
+* `conditional_cases` -
+  (Optional)
+  Conditional cases for this fulfillment.
+  Structure is [documented below](#nested_conditional_cases).
+
 
 <a name="nested_messages"></a>The `messages` block supports:
+
+* `channel` -
+  (Optional)
+  The channel which the response is associated with. Clients can specify the channel via QueryParameters.channel, and only associated channel response will be returned.
 
 * `text` -
   (Optional)
   The text response message.
   Structure is [documented below](#nested_text).
+
+* `payload` -
+  (Optional)
+  A custom, platform-specific payload.
+
+* `conversation_success` -
+  (Optional)
+  Indicates that the conversation succeeded, i.e., the bot handled the issue that the customer talked to it about.
+  Dialogflow only uses this to determine which conversations should be counted as successful and doesn't process the metadata in this message in any way. Note that Dialogflow also considers conversations that get to the conversation end page as successful even if they don't return ConversationSuccess.
+  You may set this, for example:
+  * In the entryFulfillment of a Page if entering the page indicates that the conversation succeeded.
+  * In a webhook response when you determine that you handled the customer issue.
+  Structure is [documented below](#nested_conversation_success).
+
+* `output_audio_text` -
+  (Optional)
+  A text or ssml response that is preferentially used for TTS output audio synthesis, as described in the comment on the ResponseMessage message.
+  Structure is [documented below](#nested_output_audio_text).
+
+* `live_agent_handoff` -
+  (Optional)
+  Indicates that the conversation should be handed off to a live agent.
+  Dialogflow only uses this to determine which conversations were handed off to a human agent for measurement purposes. What else to do with this signal is up to you and your handoff procedures.
+  You may set this, for example:
+  * In the entryFulfillment of a Page if entering the page indicates something went extremely wrong in the conversation.
+  * In a webhook response when you determine that the customer issue can only be handled by a human.
+  Structure is [documented below](#nested_live_agent_handoff).
+
+* `play_audio` -
+  (Optional)
+  Specifies an audio clip to be played by the client as part of the response.
+  Structure is [documented below](#nested_play_audio).
+
+* `telephony_transfer_call` -
+  (Optional)
+  Represents the signal that telles the client to transfer the phone call connected to the agent to a third-party endpoint.
+  Structure is [documented below](#nested_telephony_transfer_call).
 
 
 <a name="nested_text"></a>The `text` block supports:
@@ -233,6 +487,65 @@ The following arguments are supported:
 * `allow_playback_interruption` -
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+<a name="nested_conversation_success"></a>The `conversation_success` block supports:
+
+* `metadata` -
+  (Optional)
+  Custom metadata. Dialogflow doesn't impose any structure on this.
+
+<a name="nested_output_audio_text"></a>The `output_audio_text` block supports:
+
+* `allow_playback_interruption` -
+  (Output)
+  Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+* `text` -
+  (Optional)
+  The raw text to be synthesized.
+
+* `ssml` -
+  (Optional)
+  The SSML text to be synthesized. For more information, see SSML.
+
+<a name="nested_live_agent_handoff"></a>The `live_agent_handoff` block supports:
+
+* `metadata` -
+  (Optional)
+  Custom metadata. Dialogflow doesn't impose any structure on this.
+
+<a name="nested_play_audio"></a>The `play_audio` block supports:
+
+* `audio_uri` -
+  (Required)
+  URI of the audio clip. Dialogflow does not impose any validation on this value. It is specific to the client that reads it.
+
+* `allow_playback_interruption` -
+  (Output)
+  Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+<a name="nested_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
+
+* `phone_number` -
+  (Required)
+  Transfer the call to a phone number in E.164 format.
+
+<a name="nested_set_parameter_actions"></a>The `set_parameter_actions` block supports:
+
+* `parameter` -
+  (Optional)
+  Display name of the parameter.
+
+* `value` -
+  (Optional)
+  The new JSON-encoded value of the parameter. A null value clears the parameter.
+
+<a name="nested_conditional_cases"></a>The `conditional_cases` block supports:
+
+* `cases` -
+  (Optional)
+  A JSON encoded list of cascading if-else conditions. Cases are mutually exclusive. The first one with a matching condition is selected, all the rest ignored.
+  See [Case](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/Fulfillment#case) for the schema.
 
 <a name="nested_event_handlers"></a>The `event_handlers` block supports:
 
@@ -279,13 +592,64 @@ The following arguments are supported:
   (Optional)
   The tag used by the webhook to identify which fulfillment is being called. This field is required if webhook is specified.
 
+* `set_parameter_actions` -
+  (Optional)
+  Set parameter values before executing the webhook.
+  Structure is [documented below](#nested_set_parameter_actions).
+
+* `conditional_cases` -
+  (Optional)
+  Conditional cases for this fulfillment.
+  Structure is [documented below](#nested_conditional_cases).
+
 
 <a name="nested_messages"></a>The `messages` block supports:
+
+* `channel` -
+  (Optional)
+  The channel which the response is associated with. Clients can specify the channel via QueryParameters.channel, and only associated channel response will be returned.
 
 * `text` -
   (Optional)
   The text response message.
   Structure is [documented below](#nested_text).
+
+* `payload` -
+  (Optional)
+  A custom, platform-specific payload.
+
+* `conversation_success` -
+  (Optional)
+  Indicates that the conversation succeeded, i.e., the bot handled the issue that the customer talked to it about.
+  Dialogflow only uses this to determine which conversations should be counted as successful and doesn't process the metadata in this message in any way. Note that Dialogflow also considers conversations that get to the conversation end page as successful even if they don't return ConversationSuccess.
+  You may set this, for example:
+  * In the entryFulfillment of a Page if entering the page indicates that the conversation succeeded.
+  * In a webhook response when you determine that you handled the customer issue.
+  Structure is [documented below](#nested_conversation_success).
+
+* `output_audio_text` -
+  (Optional)
+  A text or ssml response that is preferentially used for TTS output audio synthesis, as described in the comment on the ResponseMessage message.
+  Structure is [documented below](#nested_output_audio_text).
+
+* `live_agent_handoff` -
+  (Optional)
+  Indicates that the conversation should be handed off to a live agent.
+  Dialogflow only uses this to determine which conversations were handed off to a human agent for measurement purposes. What else to do with this signal is up to you and your handoff procedures.
+  You may set this, for example:
+  * In the entryFulfillment of a Page if entering the page indicates something went extremely wrong in the conversation.
+  * In a webhook response when you determine that the customer issue can only be handled by a human.
+  Structure is [documented below](#nested_live_agent_handoff).
+
+* `play_audio` -
+  (Optional)
+  Specifies an audio clip to be played by the client as part of the response.
+  Structure is [documented below](#nested_play_audio).
+
+* `telephony_transfer_call` -
+  (Optional)
+  Represents the signal that telles the client to transfer the phone call connected to the agent to a third-party endpoint.
+  Structure is [documented below](#nested_telephony_transfer_call).
 
 
 <a name="nested_text"></a>The `text` block supports:
@@ -297,6 +661,65 @@ The following arguments are supported:
 * `allow_playback_interruption` -
   (Output)
   Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+<a name="nested_conversation_success"></a>The `conversation_success` block supports:
+
+* `metadata` -
+  (Optional)
+  Custom metadata. Dialogflow doesn't impose any structure on this.
+
+<a name="nested_output_audio_text"></a>The `output_audio_text` block supports:
+
+* `allow_playback_interruption` -
+  (Output)
+  Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+* `text` -
+  (Optional)
+  The raw text to be synthesized.
+
+* `ssml` -
+  (Optional)
+  The SSML text to be synthesized. For more information, see SSML.
+
+<a name="nested_live_agent_handoff"></a>The `live_agent_handoff` block supports:
+
+* `metadata` -
+  (Optional)
+  Custom metadata. Dialogflow doesn't impose any structure on this.
+
+<a name="nested_play_audio"></a>The `play_audio` block supports:
+
+* `audio_uri` -
+  (Required)
+  URI of the audio clip. Dialogflow does not impose any validation on this value. It is specific to the client that reads it.
+
+* `allow_playback_interruption` -
+  (Output)
+  Whether the playback of this message can be interrupted by the end user's speech and the client can then starts the next Dialogflow request.
+
+<a name="nested_telephony_transfer_call"></a>The `telephony_transfer_call` block supports:
+
+* `phone_number` -
+  (Required)
+  Transfer the call to a phone number in E.164 format.
+
+<a name="nested_set_parameter_actions"></a>The `set_parameter_actions` block supports:
+
+* `parameter` -
+  (Optional)
+  Display name of the parameter.
+
+* `value` -
+  (Optional)
+  The new JSON-encoded value of the parameter. A null value clears the parameter.
+
+<a name="nested_conditional_cases"></a>The `conditional_cases` block supports:
+
+* `cases` -
+  (Optional)
+  A JSON encoded list of cascading if-else conditions. Cases are mutually exclusive. The first one with a matching condition is selected, all the rest ignored.
+  See [Case](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/Fulfillment#case) for the schema.
 
 <a name="nested_nlu_settings"></a>The `nlu_settings` block supports:
 
