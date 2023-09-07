@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkeonprem: added `upgrade_policy` field in `google_gkeonprem_vmware_cluster` resource (beta)
+```
+```release-note:enhancement
+gkeonprem: added `upgrade_policy` and `binary_authorization` fields in `google_gkeonprem_bare_metal_cluster` resource (beta)
+```

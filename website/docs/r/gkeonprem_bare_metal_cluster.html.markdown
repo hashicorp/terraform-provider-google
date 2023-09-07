@@ -162,6 +162,12 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
       }
     }
   }
+  binary_authorization {
+    evaluation_mode = "DISABLED"
+  }
+  upgrade_policy {
+    policy = "SERIAL"
+  }
 }
 ```
 ## Example Usage - Gkeonprem Bare Metal Cluster Bgplb
@@ -926,6 +932,16 @@ The following arguments are supported:
   Specifies the security related settings for the Bare Metal User Cluster.
   Structure is [documented below](#nested_security_config).
 
+* `binary_authorization` -
+  (Optional)
+  Binary Authorization related configurations.
+  Structure is [documented below](#nested_binary_authorization).
+
+* `upgrade_policy` -
+  (Optional)
+  The cluster upgrade policy.
+  Structure is [documented below](#nested_upgrade_policy).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -1006,6 +1022,21 @@ The following arguments are supported:
 * `username` -
   (Required)
   The name of the user, e.g. `my-gcp-id@gmail.com`.
+
+<a name="nested_binary_authorization"></a>The `binary_authorization` block supports:
+
+* `evaluation_mode` -
+  (Optional)
+  Mode of operation for binauthz policy evaluation. If unspecified,
+  defaults to DISABLED.
+  Possible values are: `DISABLED`, `PROJECT_SINGLETON_POLICY_ENFORCE`.
+
+<a name="nested_upgrade_policy"></a>The `upgrade_policy` block supports:
+
+* `policy` -
+  (Optional)
+  Specifies which upgrade policy to use.
+  Possible values are: `SERIAL`, `CONCURRENT`.
 
 ## Attributes Reference
 
