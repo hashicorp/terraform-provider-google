@@ -96,27 +96,16 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	project := networkFieldValue.Project
 
 	parentService := formatParentService(d.Get("service").(string))
-	// We use Patch instead of Create, because we're getting
-	//  "Error waiting for Create Service Networking Connection:
-	//   Error code 9, message: Cannot modify allocated ranges in
-	//   CreateConnection. Please use UpdateConnection."
-	// if we're creating peerings to more than one VPC (like two
-	// CloudSQL instances within one project, peered with two
-	// clusters.)
-	//
-	// This is a workaround for:
-	// https://issuetracker.google.com/issues/131908322
-	//
-	// The API docs don't specify that you can do connections/-,
-	// but that's what gcloud does, and it's easier than grabbing
-	// the connection name.
+
+	// There is no blocker to use Create method, as the bug in CloudSQL has been fixed (https://b.corp.google.com/issues/123276199).
+	// Read more in https://stackoverflow.com/questions/55135559/unable-to-recreate-private-service-access-on-gcp
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		project = bp
 	}
 
-	createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+	createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Create(parentService, connection)
 	if config.UserProjectOverride {
 		createCall.Header().Add("X-Goog-User-Project", project)
 	}

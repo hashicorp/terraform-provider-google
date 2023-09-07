@@ -21,7 +21,7 @@ func TestAccAlloydbCluster_restore(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "alloydbinstance-restore"),
+		"network_name":  "tf-test-" + acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,7 +88,7 @@ func testAccAlloydbClusterAndInstanceAndBackup(context map[string]interface{}) s
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -109,7 +109,7 @@ resource "google_alloydb_backup" "default" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -118,11 +118,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -135,7 +135,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_OnlyOneSourceAllowed(context map[
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -157,7 +157,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored" {
   cluster_id             = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -173,7 +173,7 @@ resource "google_alloydb_cluster" "restored" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -182,11 +182,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -199,7 +199,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_SourceClusterAndPointInTimeRequir
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -221,7 +221,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored" {
   cluster_id             = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
 
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
@@ -234,7 +234,7 @@ resource "google_alloydb_cluster" "restored" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -243,11 +243,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -259,7 +259,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_RestoredFromBackup(context map[st
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -281,7 +281,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network               = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -293,7 +293,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -302,11 +302,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -320,7 +320,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_RestoredFromBackupAndRestoredFrom
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -342,7 +342,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network               = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -355,7 +355,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 resource "google_alloydb_cluster" "restored_from_point_in_time" {
   cluster_id             = "tf-test-alloydb-pitr-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
     point_in_time = google_alloydb_backup.default.update_time
@@ -368,7 +368,7 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -377,11 +377,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -395,7 +395,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_RestoredFromBackupAndRestoredFrom
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -417,7 +417,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network               = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -435,7 +435,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 resource "google_alloydb_cluster" "restored_from_point_in_time" {
   cluster_id             = "tf-test-alloydb-pitr-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
     point_in_time = google_alloydb_backup.default.update_time
@@ -453,7 +453,7 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -462,11 +462,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -480,7 +480,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_RestoredFromBackupAndRestoredFrom
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -510,7 +510,7 @@ resource "google_alloydb_backup" "default2" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network               = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default2.name
   }
@@ -530,7 +530,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 resource "google_alloydb_cluster" "restored_from_point_in_time" {
   cluster_id             = "tf-test-alloydb-pitr-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.restored_from_backup.name
     point_in_time = google_alloydb_backup.default.update_time
@@ -548,7 +548,7 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -557,11 +557,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -575,7 +575,7 @@ func testAccAlloydbClusterAndInstanceAndBackup_RestoredFromBackupAndRestoredFrom
 resource "google_alloydb_cluster" "source" {
   cluster_id   = "tf-test-alloydb-cluster%{random_suffix}"
   location     = "us-central1"
-  network      = data.google_compute_network.default.id
+  network      = google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "source" {
@@ -597,7 +597,7 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "tf-test-alloydb-backup-restored-cluster-%{random_suffix}"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network               = google_compute_network.default.id
   restore_backup_source {
     backup_name = google_alloydb_backup.default.name
   }
@@ -606,7 +606,7 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 resource "google_alloydb_cluster" "restored_from_point_in_time" {
   cluster_id             = "tf-test-alloydb-pitr-restored-cluster-%{random_suffix}"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
+  network                = google_compute_network.default.id
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
     point_in_time = google_alloydb_backup.default.update_time
@@ -615,7 +615,7 @@ resource "google_alloydb_cluster" "restored_from_point_in_time" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "%{network_name}"
 }
 
@@ -624,11 +624,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }

@@ -45,7 +45,7 @@ To get more information about Instance, see:
 // If this network hasn't been created and you are using this example in your
 // config, add an additional network resource or change
 // this from "data"to "resource"
-data "google_compute_network" "memcache_network" {
+resource "google_compute_network" "memcache_network" {
   name = "test-network"
 }
 
@@ -54,11 +54,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.memcache_network.id
+  network       = google_compute_network.memcache_network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.memcache_network.id
+  network                 = google_compute_network.memcache_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }

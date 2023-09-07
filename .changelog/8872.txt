@@ -1,0 +1,4 @@
+```release-note:breaking-change
+servicenetworking: used Create instead of Patch to create `google_service_networking_connection`
+
+```
