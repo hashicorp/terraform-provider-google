@@ -930,6 +930,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `etag` -
   A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during updates.
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_terminal_condition"></a>The `terminal_condition` block contains:
 

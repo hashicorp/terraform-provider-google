@@ -61,6 +61,7 @@ func ResourceContainerAttachedCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -254,6 +255,12 @@ this is an Azure region.`,
 				Computed:    true,
 				Description: `Output only. The time at which this cluster was created.`,
 			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"errors": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -381,12 +388,6 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("fleet"); !tpgresource.IsEmptyValue(reflect.ValueOf(fleetProp)) && (ok || !reflect.DeepEqual(v, fleetProp)) {
 		obj["fleet"] = fleetProp
 	}
-	annotationsProp, err := expandContainerAttachedClusterAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	loggingConfigProp, err := expandContainerAttachedClusterLoggingConfig(d.Get("logging_config"), d, config)
 	if err != nil {
 		return err
@@ -404,6 +405,12 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("monitoring_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(monitoringConfigProp)) && (ok || !reflect.DeepEqual(v, monitoringConfigProp)) {
 		obj["monitoringConfig"] = monitoringConfigProp
+	}
+	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters?attached_cluster_id={{name}}")
@@ -577,6 +584,9 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 	if err := d.Set("monitoring_config", flattenContainerAttachedClusterMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("effective_annotations", flattenContainerAttachedClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
 	return nil
 }
@@ -621,12 +631,6 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("fleet"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fleetProp)) {
 		obj["fleet"] = fleetProp
 	}
-	annotationsProp, err := expandContainerAttachedClusterAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	loggingConfigProp, err := expandContainerAttachedClusterLoggingConfig(d.Get("logging_config"), d, config)
 	if err != nil {
 		return err
@@ -644,6 +648,12 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("monitoring_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, monitoringConfigProp)) {
 		obj["monitoringConfig"] = monitoringConfigProp
+	}
+	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ContainerAttachedBasePath}}projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}")
@@ -670,10 +680,6 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		updateMask = append(updateMask, "fleet")
 	}
 
-	if d.HasChange("annotations") {
-		updateMask = append(updateMask, "annotations")
-	}
-
 	if d.HasChange("logging_config") {
 		updateMask = append(updateMask, "loggingConfig")
 	}
@@ -684,6 +690,10 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("monitoring_config") {
 		updateMask = append(updateMask, "monitoringConfig")
+	}
+
+	if d.HasChange("effective_annotations") {
+		updateMask = append(updateMask, "annotations")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -927,7 +937,18 @@ func flattenContainerAttachedClusterKubernetesVersion(v interface{}, d *schema.R
 }
 
 func flattenContainerAttachedClusterAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenContainerAttachedClusterWorkloadIdentityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1063,6 +1084,10 @@ func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabl
 	return v
 }
 
+func flattenContainerAttachedClusterEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandContainerAttachedClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1145,17 +1170,6 @@ func expandContainerAttachedClusterFleetMembership(v interface{}, d tpgresource.
 
 func expandContainerAttachedClusterFleetProject(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandContainerAttachedClusterAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandContainerAttachedClusterLoggingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1294,4 +1308,15 @@ func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v int
 
 func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandContainerAttachedClusterEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

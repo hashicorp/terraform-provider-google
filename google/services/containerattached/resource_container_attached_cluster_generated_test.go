@@ -49,7 +49,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterBasicExample(t *tes
 				ResourceName:            "google_container_attached_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "annotations"},
 			},
 		},
 	})
@@ -101,7 +101,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterFullExample(t *test
 				ResourceName:            "google_container_attached_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "annotations"},
 			},
 		},
 	})
@@ -170,7 +170,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 				ResourceName:            "google_container_attached_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"location", "annotations", "deletion_policy"},
 			},
 		},
 	})

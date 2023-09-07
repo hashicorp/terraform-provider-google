@@ -47,7 +47,7 @@ func ResourceComputeAddress() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			tpgresource.SetTerraformLabelsDiff,
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
