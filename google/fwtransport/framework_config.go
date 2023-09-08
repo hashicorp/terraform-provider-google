@@ -45,7 +45,7 @@ type FrameworkProviderConfig struct {
 	Scopes                     []string
 	TokenSource                oauth2.TokenSource
 	UserAgent                  string
-	UserProjectOverride        bool
+	UserProjectOverride        types.Bool
 
 	// paths for client setup
 	AccessApprovalBasePath           string
@@ -289,6 +289,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Project = data.Project
 	p.Region = data.Region
 	p.Zone = data.Zone
+	p.UserProjectOverride = data.UserProjectOverride
 	p.PollInterval = 10 * time.Second
 	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)

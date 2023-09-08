@@ -882,3 +882,136 @@ func TestFrameworkProvider_LoadAndValidateFramework_accessToken(t *testing.T) {
 		})
 	}
 }
+
+func TestFrameworkProvider_LoadAndValidateFramework_userProjectOverride(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues              fwmodels.ProviderModel
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    basetypes.BoolValue
+		ExpectedConfigStructValue basetypes.BoolValue
+		ExpectError               bool
+	}{
+		"user_project_override value set in the provider schema is not overridden by ENVs": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolValue(false),
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "true",
+			},
+			ExpectedDataModelValue:    types.BoolValue(false),
+			ExpectedConfigStructValue: types.BoolValue(false),
+		},
+		"user_project_override can be set by environment variable: value = true": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolNull(), // not set
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "true",
+			},
+			ExpectedDataModelValue:    types.BoolValue(true),
+			ExpectedConfigStructValue: types.BoolValue(true),
+		},
+		"user_project_override can be set by environment variable: value = false": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolNull(), // not set
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "false",
+			},
+			ExpectedDataModelValue:    types.BoolValue(false),
+			ExpectedConfigStructValue: types.BoolValue(false),
+		},
+		"user_project_override can be set by environment variable: value = 1": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolNull(), // not set
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "1",
+			},
+			ExpectedDataModelValue:    types.BoolValue(true),
+			ExpectedConfigStructValue: types.BoolValue(true),
+		},
+		"user_project_override can be set by environment variable: value = 0": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolNull(), // not set
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "0",
+			},
+			ExpectedDataModelValue:    types.BoolValue(false),
+			ExpectedConfigStructValue: types.BoolValue(false),
+		},
+		"setting user_project_override using a non-boolean environment variables results in an error": {
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "I'm not a boolean",
+			},
+			ExpectError: true,
+		},
+		"when no user_project_override values are provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolNull(), // not set
+			},
+			ExpectedDataModelValue:    types.BoolNull(),
+			ExpectedConfigStructValue: types.BoolNull(),
+		},
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when user_project_override is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		UserProjectOverride: types.BoolUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue:    types.BoolNull(),
+		// 	ExpectedConfigStructValue: types.BoolNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.UserProjectOverride.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want user_project_override in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.UserProjectOverride.String())
+			}
+			// Checking the value passed to the config structs
+			if !p.UserProjectOverride.Equal(tc.ExpectedConfigStructValue) {
+				t.Fatalf("want user_project_override in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.UserProjectOverride.String())
+			}
+		})
+	}
+}

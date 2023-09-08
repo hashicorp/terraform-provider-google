@@ -1175,7 +1175,7 @@ func TestProvider_ProviderConfigure_userProjectOverride(t *testing.T) {
 			},
 			ExpectedValue: false,
 		},
-		"error returned due to non-boolean environment variables": {
+		"setting user_project_override using a non-boolean environment variables results in an error": {
 			EnvVariables: map[string]string{
 				"USER_PROJECT_OVERRIDE": "I'm not a boolean",
 			},
