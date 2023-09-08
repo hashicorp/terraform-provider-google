@@ -274,14 +274,14 @@ func TestProvider_ProviderConfigure_accessToken(t *testing.T) {
 			ExpectedSchemaValue: "value-from-config",
 			ExpectedConfigValue: "value-from-config",
 		},
-		"when access_token is unset in the config, an environment variable is used but doesn't update the schema data": {
+		"when access_token is unset in the config, the GOOGLE_OAUTH_ACCESS_TOKEN environment variable is used": {
 			EnvVariables: map[string]string{
 				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
 			},
 			ExpectedSchemaValue: "",
 			ExpectedConfigValue: "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
 		},
-		"when no access_token values are provided via config or environment variables, the field remains unset without error": {
+		"when no access_token values are provided via config or environment variables there's no error": {
 			ConfigValues: map[string]interface{}{
 				// access_token unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -302,7 +302,7 @@ func TestProvider_ProviderConfigure_accessToken(t *testing.T) {
 			ExpectedSchemaValue: "",
 			ExpectedConfigValue: "",
 		},
-		"when access_token is set as an empty string in the config, an environment variable is used but doesn't update the schema data": {
+		"when access_token is set as an empty string in the config, an environment variable is used": {
 			ConfigValues: map[string]interface{}{
 				"access_token": "",
 			},
