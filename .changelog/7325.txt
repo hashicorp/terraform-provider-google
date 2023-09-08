@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_data_pipeline_pipeline`
+```

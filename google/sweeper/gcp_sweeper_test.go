@@ -46,6 +46,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datafusion"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/datapipeline"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataplex"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"

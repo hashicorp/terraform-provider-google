@@ -221,6 +221,7 @@ type Config struct {
 	DataCatalogBasePath              string
 	DataFusionBasePath               string
 	DataLossPreventionBasePath       string
+	DataPipelineBasePath             string
 	DataplexBasePath                 string
 	DataprocBasePath                 string
 	DataprocMetastoreBasePath        string
@@ -338,6 +339,7 @@ const DatabaseMigrationServiceBasePathKey = "DatabaseMigrationService"
 const DataCatalogBasePathKey = "DataCatalog"
 const DataFusionBasePathKey = "DataFusion"
 const DataLossPreventionBasePathKey = "DataLossPrevention"
+const DataPipelineBasePathKey = "DataPipeline"
 const DataplexBasePathKey = "Dataplex"
 const DataprocBasePathKey = "Dataproc"
 const DataprocMetastoreBasePathKey = "DataprocMetastore"
@@ -449,6 +451,7 @@ var DefaultBasePaths = map[string]string{
 	DataCatalogBasePathKey:              "https://datacatalog.googleapis.com/v1/",
 	DataFusionBasePathKey:               "https://datafusion.googleapis.com/v1/",
 	DataLossPreventionBasePathKey:       "https://dlp.googleapis.com/v2/",
+	DataPipelineBasePathKey:             "https://datapipelines.googleapis.com/v1/",
 	DataplexBasePathKey:                 "https://dataplex.googleapis.com/v1/",
 	DataprocBasePathKey:                 "https://dataproc.googleapis.com/v1/",
 	DataprocMetastoreBasePathKey:        "https://metastore.googleapis.com/v1/",
@@ -778,6 +781,11 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("data_loss_prevention_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATA_LOSS_PREVENTION_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataLossPreventionBasePathKey]))
+	}
+	if d.Get("data_pipeline_custom_endpoint") == "" {
+		d.Set("data_pipeline_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DATA_PIPELINE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DataPipelineBasePathKey]))
 	}
 	if d.Get("dataplex_custom_endpoint") == "" {
 		d.Set("dataplex_custom_endpoint", MultiEnvDefault([]string{
@@ -1943,6 +1951,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DataCatalogBasePath = DefaultBasePaths[DataCatalogBasePathKey]
 	c.DataFusionBasePath = DefaultBasePaths[DataFusionBasePathKey]
 	c.DataLossPreventionBasePath = DefaultBasePaths[DataLossPreventionBasePathKey]
+	c.DataPipelineBasePath = DefaultBasePaths[DataPipelineBasePathKey]
 	c.DataplexBasePath = DefaultBasePaths[DataplexBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
 	c.DataprocMetastoreBasePath = DefaultBasePaths[DataprocMetastoreBasePathKey]

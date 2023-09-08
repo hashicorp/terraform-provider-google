@@ -251,6 +251,11 @@ var services = mapOf(
         "displayName" to "Datalossprevention",
         "path" to "./google/services/datalossprevention"
     ),
+    "datapipeline" to mapOf(
+        "name" to "datapipeline",
+        "displayName" to "Datapipeline",
+        "path" to "./google/services/datapipeline"
+    ),
     "dataplex" to mapOf(
         "name" to "dataplex",
         "displayName" to "Dataplex",
