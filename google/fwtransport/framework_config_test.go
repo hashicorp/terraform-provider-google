@@ -19,7 +19,7 @@ import (
 func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 
 	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
-	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// this is to stop the code under test experiencing errors, and could be addressed in future refactoring.
 	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
 	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
 
@@ -32,7 +32,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 	}{
 		"project value set in the provider schema is not overridden by environment variables": {
 			ConfigValues: fwmodels.ProviderModel{
-				Project: types.StringValue("my-project-from-config"),
+				Project: types.StringValue("project-from-config"),
 			},
 			EnvVariables: map[string]string{
 				"GOOGLE_PROJECT":        "project-from-GOOGLE_PROJECT",
@@ -40,8 +40,8 @@ func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 				"GCLOUD_PROJECT":        "project-from-GCLOUD_PROJECT",
 				"CLOUDSDK_CORE_PROJECT": "project-from-CLOUDSDK_CORE_PROJECT",
 			},
-			ExpectedDataModelValue:    types.StringValue("my-project-from-config"),
-			ExpectedConfigStructValue: types.StringValue("my-project-from-config"),
+			ExpectedDataModelValue:    types.StringValue("project-from-config"),
+			ExpectedConfigStructValue: types.StringValue("project-from-config"),
 		},
 		"project value can be set by environment variable: GOOGLE_PROJECT is used first": {
 			ConfigValues: fwmodels.ProviderModel{
@@ -180,7 +180,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 
 	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
-	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// this is to stop the code under test experiencing errors, and could be addressed in future refactoring.
 	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
 
 	const pathToMissingFile string = "./this/path/doesnt/exist.json" // Doesn't exist
@@ -396,7 +396,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T) {
 
 	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
-	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// this is to stop the code under test experiencing errors, and could be addressed in future refactoring.
 	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
 	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
 
@@ -494,6 +494,280 @@ func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T)
 			// Checking the value passed to the config structs
 			if !p.BillingProject.Equal(tc.ExpectedConfigStructValue) {
 				t.Fatalf("want billing_project in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.BillingProject.String())
+			}
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_region(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under test experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues              fwmodels.ProviderModel
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    basetypes.StringValue
+		ExpectedConfigStructValue basetypes.StringValue
+		ExpectError               bool
+	}{
+		"region value set in the provider config is not overridden by ENVs": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringValue("region-from-config"),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION": "region-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("region-from-config"),
+			ExpectedConfigStructValue: types.StringValue("region-from-config"),
+		},
+		// This test currently fails - PF code doesn't behave like SDK code
+		// TODO(SarahFrench) - address https://github.com/hashicorp/terraform-provider-google/issues/15714
+		// "region values can be supplied as a self link": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Region: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+		// 	ExpectedConfigStructValue: types.StringValue("us-central1"),
+		// },
+		"region value can be set by environment variable: GOOGLE_REGION is used": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION": "region-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("region-from-env"),
+			ExpectedConfigStructValue: types.StringValue("region-from-env"),
+		},
+		"when no region values are provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringNull(),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when region is set as an empty string the field is treated as if it's unset, without error": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Region: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// 	ExpectedConfigStructValue: types.StringNull(),
+		// },
+		// "when region is set as an empty string an environment variable will be used": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Region: types.StringValue(""),
+		// 	},
+		// 	EnvVariables: map[string]string{
+		// 		"GOOGLE_REGION": "region-from-env",
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringValue("region-from-env"),
+		// 	ExpectedConfigStructValue: types.StringValue("region-from-env"),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when region is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Region: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// 	ExpectedConfigStructValue: types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.Region.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want region in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.Region.String())
+			}
+			// Checking the value passed to the config structs
+			if !p.Region.Equal(tc.ExpectedConfigStructValue) {
+				t.Fatalf("want region in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.Region.String())
+			}
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_zone(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under test experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues              fwmodels.ProviderModel
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    basetypes.StringValue
+		ExpectedConfigStructValue basetypes.StringValue
+		ExpectError               bool
+	}{
+		"zone value set in the provider config is not overridden by ENVs": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringValue("zone-from-config"),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE": "zone-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-config"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-config"),
+		},
+		"does not shorten zone values when provided as a self link": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1"),
+			},
+			ExpectedDataModelValue:    types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1"),
+			ExpectedConfigStructValue: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1"), // Value is not shortened from URI to name
+		},
+		"when multiple zone environment variables are provided, `GOOGLE_ZONE` is used first": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE":           "zone-from-GOOGLE_ZONE",
+				"GCLOUD_ZONE":           "zone-from-GCLOUD_ZONE",
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-GOOGLE_ZONE"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-GOOGLE_ZONE"),
+		},
+		"when multiple zone environment variables are provided, `GCLOUD_ZONE` is used second": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				// GOOGLE_ZONE unset
+				"GCLOUD_ZONE":           "zone-from-GCLOUD_ZONE",
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-GCLOUD_ZONE"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-GCLOUD_ZONE"),
+		},
+		"when multiple zone environment variables are provided, `CLOUDSDK_COMPUTE_ZONE` is used third": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				// GOOGLE_ZONE unset
+				// GCLOUD_ZONE unset
+				"CLOUDSDK_COMPUTE_ZONE": "zone-from-CLOUDSDK_COMPUTE_ZONE",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-CLOUDSDK_COMPUTE_ZONE"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-CLOUDSDK_COMPUTE_ZONE"),
+		},
+		"when no zone values are provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringNull(),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when zone is set as an empty string the field is treated as if it's unset, without error": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Zone: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// 	ExpectedConfigStructValue: types.StringNull(),
+		// },
+		// "when zone is set as an empty string an environment variable will be used": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Zone: types.StringValue(""),
+		// 	},
+		// 	EnvVariables: map[string]string{
+		// 		"GOOGLE_ZONE": "zone-from-env",
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringValue("zone-from-env"),
+		// 	ExpectedConfigStructValue: types.StringValue("zone-from-env"),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when zone is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		Zone: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// 	ExpectedConfigStructValue: types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.Zone.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want zone in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.Zone.String())
+			}
+			// Checking the value passed to the config structs
+			if !p.Zone.Equal(tc.ExpectedConfigStructValue) {
+				t.Fatalf("want zone in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.Zone.String())
 			}
 		})
 	}
