@@ -161,7 +161,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -324,7 +324,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -483,7 +483,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T)
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -608,7 +608,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_region(t *testing.T) {
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -757,7 +757,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_zone(t *testing.T) {
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -769,6 +769,116 @@ func TestFrameworkProvider_LoadAndValidateFramework_zone(t *testing.T) {
 			if !p.Zone.Equal(tc.ExpectedConfigStructValue) {
 				t.Fatalf("want zone in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.Zone.String())
 			}
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_accessToken(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues           fwmodels.ProviderModel
+		EnvVariables           map[string]string
+		ExpectedDataModelValue basetypes.StringValue // Sometimes the value is mutated, and no longer matches the original value we supply
+		// ExpectedConfigStructValue not used here, as credentials info isn't stored in the config struct
+		ExpectError bool
+	}{
+		"access_token configured in the provider can be invalid without resulting in errors": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringValue("This is not a valid token string"),
+			},
+			ExpectedDataModelValue: types.StringValue("This is not a valid token string"),
+		},
+		"access_token set in the provider config is not overridden by environment variables": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringValue("value-from-config"),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-env",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-config"),
+		},
+		"when access_token is unset in the config, the GOOGLE_OAUTH_ACCESS_TOKEN environment variable is used": {
+			EnvVariables: map[string]string{
+				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-GOOGLE_OAUTH_ACCESS_TOKEN"),
+		},
+		"when no access_token values are provided via config or environment variables there's no error (as long as credentials supplied in its absence)": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringNull(),
+				Credentials: types.StringValue(transport_tpg.TestFakeCredentialsPath),
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when access_token is set as an empty string the field is treated as if it's unset, without error (as long as credentials supplied in its absence)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		AccessToken: types.StringValue(""),
+		// 		Credentials: types.StringValue(transport_tpg.TestFakeCredentialsPath),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringNull(),
+		// },
+		// "when access_token is set as an empty string in the config, an environment variable is used": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		AccessToken: types.StringValue(""),
+		// 	},
+		// 	EnvVariables: map[string]string{
+		// 		"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
+		// 	},
+		// 	ExpectedDataModelValue: types.StringValue("value-from-GOOGLE_OAUTH_ACCESS_TOKEN"),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when access_token is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		AccessToken: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.AccessToken.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want project in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.AccessToken.String())
+			}
+			// fwtransport.FrameworkProviderConfig does not store the credentials info, so test does not make assertions on config struct
 		})
 	}
 }
