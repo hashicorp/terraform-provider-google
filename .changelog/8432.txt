@@ -1,0 +1,4 @@
+```release-note:enhancement
+compute: added `ipVersion` field to `google_compute_address` resource
+compute: added `ipv6Address` field to `google_compute_instance` resource
+```

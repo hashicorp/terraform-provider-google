@@ -344,6 +344,31 @@ func TestAccComputeInstance_ipv6ExternalReservation(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_internalIPv6(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var ipName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_internalIpv6(ipName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(&instance),
+				),
+			},
+			computeInstanceImportStep("us-west2-a", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_PTRRecord(t *testing.T) {
 	t.Parallel()
 
@@ -2650,6 +2675,18 @@ func testAccCheckComputeInstanceIpv6AccessConfigHasExternalIPv6(instance *comput
 	}
 }
 
+func testAccCheckComputeInstanceIpv6AccessConfigHasInternalIPv6(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			if i.Ipv6Address == "" {
+				return fmt.Errorf("no internal IPv6 address")
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceAccessConfigHasPTR(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
@@ -3637,6 +3674,65 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance, instance, ip, instance, record)
+}
+
+func testAccComputeInstance_internalIpv6(ip, instance string) string {
+	return fmt.Sprintf(`
+  data "google_compute_image" "my_image" {
+    family  = "debian-11"
+    project = "debian-cloud"
+  }
+
+  resource "google_compute_subnetwork" "subnetwork_ipv6" {
+    name          = "%s-subnetwork"
+
+    ip_cidr_range = "10.0.0.0/22"
+    region        = "us-west2"
+
+    stack_type       = "IPV4_IPV6"
+    ipv6_access_type = "INTERNAL"
+
+    network       = google_compute_network.custom-test.id
+  }
+
+  resource "google_compute_network" "custom-test" {
+    name                     = "%s-network"
+    enable_ula_internal_ipv6 = true
+    auto_create_subnetworks  = false
+  }
+
+  resource "google_compute_address" "ipv6" {
+    name         = "%s"
+    region       = "us-west2"
+    address_type = "INTERNAL"
+    purpose      = "GCE_ENDPOINT"
+    subnetwork   = google_compute_subnetwork.subnetwork_ipv6.id
+    ip_version   = "IPV6"
+  }
+
+  resource "google_compute_instance" "foobar" {
+    name         = "%s"
+    machine_type = "e2-medium"
+    zone         = "us-west2-a"
+    tags         = ["foo", "bar"]
+
+    boot_disk {
+      initialize_params {
+        image = data.google_compute_image.my_image.self_link
+      }
+    }
+
+    network_interface {
+      subnetwork = google_compute_subnetwork.subnetwork_ipv6.name
+      stack_type = "IPV4_IPV6"
+      ipv6_address = google_compute_address.ipv6.address
+    }
+
+    metadata = {
+      foo = "bar"
+    }
+  }
+  `, instance, instance, ip, instance)
 }
 
 func testAccComputeInstance_ipv6ExternalReservation(instance string) string {
