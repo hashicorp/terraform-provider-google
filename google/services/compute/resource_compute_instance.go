@@ -430,6 +430,21 @@ func ResourceComputeInstance() *schema.Resource {
 							},
 						},
 
+						"internal_ipv6_prefix_length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: `The prefix length of the primary internal IPv6 range.`,
+						},
+
+						"ipv6_address": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: ipv6RepresentationDiffSuppress,
+							Description:      `An IPv6 internal network address for this network interface. If not specified, Google Cloud will automatically assign an internal IPv6 address from the instance's subnetwork.`,
+						},
+
 						"queue_count": {
 							Type:        schema.TypeInt,
 							Optional:    true,
@@ -1788,6 +1803,40 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 
+		if !updateDuringStop && d.HasChange(prefix+".ipv6_address") {
+
+			networkInterfacePatchObj := &compute.NetworkInterface{
+				Ipv6Address: d.Get(prefix + ".ipv6_address").(string),
+				Fingerprint: instNetworkInterface.Fingerprint,
+			}
+			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			}
+			opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
+		if !updateDuringStop && d.HasChange(prefix+".internal_ipv6_prefix_length") {
+
+			networkInterfacePatchObj := &compute.NetworkInterface{
+				InternalIpv6PrefixLength: d.Get(prefix + ".internal_ipv6_prefix_length").(int64),
+				Fingerprint:              instNetworkInterface.Fingerprint,
+			}
+			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			}
+			opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
 		if updateDuringStop {
 			// Lets be explicit about what we are changing in the patch call
 			networkInterfacePatchObj := &compute.NetworkInterface{
@@ -1800,6 +1849,14 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			// otherwise this could fail if the network ip is not compatible with the new Subnetwork/Network.
 			if d.HasChange(prefix + ".network_ip") {
 				networkInterfacePatchObj.NetworkIP = networkInterface.NetworkIP
+			}
+
+			if d.HasChange(prefix + ".internal_ipv6_prefix_length") {
+				networkInterfacePatchObj.Ipv6Address = networkInterface.Ipv6Address
+			}
+
+			if d.HasChange(prefix + ".ipv6_address") {
+				networkInterfacePatchObj.Ipv6Address = networkInterface.Ipv6Address
 			}
 
 			// Access config can run into some issues since we can't tell the difference between
