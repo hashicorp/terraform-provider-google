@@ -51,6 +51,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/datacatalog"
 	"github.com/hashicorp/terraform-provider-google/google/services/datafusion"
 	"github.com/hashicorp/terraform-provider-google/google/services/datalossprevention"
+	"github.com/hashicorp/terraform-provider-google/google/services/datapipeline"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataplex"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"
@@ -413,6 +414,11 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"data_loss_prevention_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"data_pipeline_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -974,9 +980,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 318
+// Generated resources: 319
 // Generated IAM resources: 207
-// Total generated resources: 525
+// Total generated resources: 526
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1244,6 +1250,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_data_loss_prevention_inspect_template":                   datalossprevention.ResourceDataLossPreventionInspectTemplate(),
 			"google_data_loss_prevention_job_trigger":                        datalossprevention.ResourceDataLossPreventionJobTrigger(),
 			"google_data_loss_prevention_stored_info_type":                   datalossprevention.ResourceDataLossPreventionStoredInfoType(),
+			"google_data_pipeline_pipeline":                                  datapipeline.ResourceDataPipelinePipeline(),
 			"google_dataplex_asset_iam_binding":                              tpgiamresource.ResourceIamBinding(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
 			"google_dataplex_asset_iam_member":                               tpgiamresource.ResourceIamMember(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
 			"google_dataplex_asset_iam_policy":                               tpgiamresource.ResourceIamPolicy(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
@@ -1774,6 +1781,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DataCatalogBasePath = d.Get("data_catalog_custom_endpoint").(string)
 	config.DataFusionBasePath = d.Get("data_fusion_custom_endpoint").(string)
 	config.DataLossPreventionBasePath = d.Get("data_loss_prevention_custom_endpoint").(string)
+	config.DataPipelineBasePath = d.Get("data_pipeline_custom_endpoint").(string)
 	config.DataplexBasePath = d.Get("dataplex_custom_endpoint").(string)
 	config.DataprocBasePath = d.Get("dataproc_custom_endpoint").(string)
 	config.DataprocMetastoreBasePath = d.Get("dataproc_metastore_custom_endpoint").(string)
