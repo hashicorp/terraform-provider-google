@@ -501,7 +501,7 @@ func TestProvider_ProviderConfigure_impersonateServiceAccountDelegates(t *testin
 			ExpectedValue:    nil,
 		},
 		// Handling empty values in config
-		"when project is set as an empty array the field is treated as if it's unset, without error": {
+		"when impersonate_service_account_delegates is set as an empty array the field is treated as if it's unset, without error": {
 			ConfigValues: map[string]interface{}{
 				"impersonate_service_account_delegates": []string{},
 				"credentials":                           transport_tpg.TestFakeCredentialsPath,
