@@ -1,0 +1,3 @@
+```release-note:bug
+provider: fixed a bug where `user_project_override` would not be not used correctly when provisioning resources implemented using the plugin framework. Currently there are no resources implemented this way, so no-one should have been impacted.
+```

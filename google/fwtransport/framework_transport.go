@@ -25,7 +25,7 @@ func SendFrameworkRequestWithTimeout(p *FrameworkProviderConfig, method, project
 	reqHeaders.Set("User-Agent", userAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 
-	if p.UserProjectOverride && project != "" {
+	if p.UserProjectOverride.ValueBool() && project != "" {
 		// When project is "NO_BILLING_PROJECT_OVERRIDE" in the function GetCurrentUserEmail,
 		// set the header X-Goog-User-Project to be empty string.
 		if project == "NO_BILLING_PROJECT_OVERRIDE" {
