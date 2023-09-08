@@ -465,7 +465,6 @@ func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T)
 			tfVersion := "foobar"
 			providerversion := "999"
 			diags := diag.Diagnostics{}
-
 			data := tc.ConfigValues
 			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
 			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
@@ -1012,6 +1011,201 @@ func TestFrameworkProvider_LoadAndValidateFramework_userProjectOverride(t *testi
 			if !p.UserProjectOverride.Equal(tc.ExpectedConfigStructValue) {
 				t.Fatalf("want user_project_override in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.UserProjectOverride.String())
 			}
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccount(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues              fwmodels.ProviderModel
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    basetypes.StringValue
+		ExpectedConfigStructValue basetypes.StringValue
+		ExpectError               bool
+	}{
+		"impersonate_service_account value set in the provider schema is not overridden by environment variables": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringValue("value-from-config@example.com"),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT": "value-from-env@example.com",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-config@example.com"),
+		},
+		"impersonate_service_account value can be set by environment variable": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringNull(), // not set
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT": "value-from-env@example.com",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-env@example.com"),
+		},
+		"when no values are provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringNull(), // not set
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when impersonate_service_account is set as an empty array the field is treated as if it's unset, without error": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		ImpersonateServiceAccount: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringNull(),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when impersonate_service_account is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		ImpersonateServiceAccount: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue:    types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.ImpersonateServiceAccount.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want impersonate_service_account in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.ImpersonateServiceAccount.String())
+			}
+			// fwtransport.FrameworkProviderConfig does not store impersonate_service_account info, so test does not make assertions on config struct
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDelegates(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+
+	cases := map[string]struct {
+		// It's not easy to define basetypes.ListValue values directly in test case, so instead
+		// pass values into test function to control construction of basetypes.ListValue there.
+		SetAsNull                               bool
+		SetAsUnknown                            bool
+		ImpersonateServiceAccountDelegatesValue []string
+		EnvVariables                            map[string]string
+		ExpectedDataModelValue                  []string
+		// ExpectedConfigStructValue not used here, as impersonate_service_account_delegates info isn't stored in the config struct
+		ExpectError bool
+	}{
+		"impersonate_service_account_delegates value can be set in the provider schema": {
+			ImpersonateServiceAccountDelegatesValue: []string{
+				"projects/-/serviceAccounts/my-service-account-1@example.iam.gserviceaccount.com",
+				"projects/-/serviceAccounts/my-service-account-2@example.iam.gserviceaccount.com",
+			},
+			ExpectedDataModelValue: []string{
+				"projects/-/serviceAccounts/my-service-account-1@example.iam.gserviceaccount.com",
+				"projects/-/serviceAccounts/my-service-account-2@example.iam.gserviceaccount.com",
+			},
+		},
+		// Note: no environment variables can be used for impersonate_service_account_delegates
+		"when no impersonate_service_account_delegates value is provided via config, the field remains unset without error": {
+			SetAsNull:              true, // not setting impersonate_service_account_delegates
+			ExpectedDataModelValue: nil,
+		},
+		// Handling empty values in config
+		"when impersonate_service_account_delegates is set as an empty array the field is treated as if it's unset, without error": {
+			ImpersonateServiceAccountDelegatesValue: []string{},
+			ExpectedDataModelValue:                  []string{},
+		},
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when impersonate_service_account_delegates is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	SetAsUnknown: true,
+		// 	// Currently this causes an error at google/fwtransport/framework_config.go:1518
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := fwmodels.ProviderModel{}
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			// Set ImpersonateServiceAccountDelegates depending on test case
+			if !tc.SetAsNull && !tc.SetAsUnknown {
+				isad, _ := types.ListValueFrom(ctx, types.StringType, tc.ImpersonateServiceAccountDelegatesValue)
+				data.ImpersonateServiceAccountDelegates = isad
+			}
+			if tc.SetAsNull {
+				data.ImpersonateServiceAccountDelegates = types.ListNull(types.StringType)
+			}
+			if tc.SetAsUnknown {
+				data.ImpersonateServiceAccountDelegates = types.ListUnknown(types.StringType)
+			}
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			expected, _ := types.ListValueFrom(ctx, types.StringType, tc.ExpectedDataModelValue)
+			if !data.ImpersonateServiceAccountDelegates.Equal(expected) {
+				t.Fatalf("want impersonate_service_account in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", expected, data.ImpersonateServiceAccountDelegates.String())
+			}
+			// fwtransport.FrameworkProviderConfig does not store impersonate_service_account info, so test does not make assertions on config struct
 		})
 	}
 }
