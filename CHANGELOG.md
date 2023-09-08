@@ -13,7 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: made `params.destination_table_name_template` and `params.data_path` immutable as updating these fields if value of `data_source_id` is `amazon_s3` in `google_bigquery_data_transfer_config` resource ([#15723](https://github.com/hashicorp/terraform-provider-google/pull/15723))
-* dns: fixed hash function for `network_url` in `google_dns_managed_zone` and `google_dns_policy` resources to make sure that the private DNS zone can be attatched to all of the networks in different projects, even though the network name is the same across of those projects. ([#15728](https://github.com/hashicorp/terraform-provider-google/pull/15728))
+* dns: fixed hash function for `network_url` in `google_dns_managed_zone` and `google_dns_policy` resources to make sure that the private DNS zone or DNS policy can be attatched to all of the networks in different projects, even though the network name is the same across of those projects. ([#15728](https://github.com/hashicorp/terraform-provider-google/pull/15728))
 
 
 ## 4.81.0 (September 05, 2023)
