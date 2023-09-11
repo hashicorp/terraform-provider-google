@@ -90,12 +90,13 @@ resource "google_project_service" "firestore" {
 }
 
 resource "google_firestore_database" "database" {
-  project                     = google_project.project.project_id
-  name                        = "my-database"
-  location_id                 = "nam5"
-  type                        = "FIRESTORE_NATIVE"
-  concurrency_mode            = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
+  project                           = google_project.project.project_id
+  name                              = "my-database"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 
   depends_on = [google_project_service.firestore]
 }
@@ -158,12 +159,13 @@ resource "google_project_service" "firestore" {
 }
 
 resource "google_firestore_database" "database" {
-  project                     = google_project.project.project_id
-  name                        = "datastore-mode-database"
-  location_id                 = "nam5"
-  type                        = "DATASTORE_MODE"
-  concurrency_mode            = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
+  project                           = google_project.project.project_id
+  name                              = "datastore-mode-database"
+  location_id                       = "nam5"
+  type                              = "DATASTORE_MODE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 
   depends_on = [google_project_service.firestore]
 }
@@ -209,6 +211,16 @@ The following arguments are supported:
   The App Engine integration mode to use for this database.
   Possible values are: `ENABLED`, `DISABLED`.
 
+* `point_in_time_recovery_enablement` -
+  (Optional)
+  Whether to enable the PITR feature on this database.
+  If `POINT_IN_TIME_RECOVERY_ENABLED` is selected, reads are supported on selected versions of the data from within the past 7 days.
+  versionRetentionPeriod and earliestVersionTime can be used to determine the supported versions. These include reads against any timestamp within the past hour
+  and reads against 1-minute snapshots beyond 1 hour and within 7 days.
+  If `POINT_IN_TIME_RECOVERY_DISABLED` is selected, reads are supported on any version of the data from within the past 1 hour.
+  Default value is `POINT_IN_TIME_RECOVERY_DISABLED`.
+  Possible values are: `POINT_IN_TIME_RECOVERY_ENABLED`, `POINT_IN_TIME_RECOVERY_DISABLED`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -232,6 +244,17 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   The timestamp at which this database was created.
+
+* `version_retention_period` -
+  Output only. The period during which past versions of data are retained in the database.
+  Any read or query can specify a readTime within this window, and will read the state of the database at that time.
+  If the PITR feature is enabled, the retention period is 7 days. Otherwise, the retention period is 1 hour.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
+
+* `earliest_version_time` -
+  Output only. The earliest timestamp at which older versions of the data can be read from the database. See versionRetentionPeriod above; this field is populated with now - versionRetentionPeriod.
+  This value is continuously updated, and becomes stale the moment it is queried. If you are using this value to recover data, make sure to account for the time from the moment when the value is queried to the moment when you initiate the recovery.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 
 ## Timeouts
