@@ -3,6 +3,8 @@
 package compute
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -31,5 +33,14 @@ func dataSourceGoogleComputeHealthCheckRead(d *schema.ResourceData, meta interfa
 	}
 	d.SetId(id)
 
-	return resourceComputeHealthCheckRead(d, meta)
+	err = resourceComputeHealthCheckRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

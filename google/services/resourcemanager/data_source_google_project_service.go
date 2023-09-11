@@ -30,5 +30,13 @@ func dataSourceGoogleProjectServiceRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	return resourceGoogleProjectServiceRead(d, meta)
+	err = resourceGoogleProjectServiceRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

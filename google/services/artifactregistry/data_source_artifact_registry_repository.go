@@ -40,11 +40,16 @@ func dataSourceArtifactRegistryRepositoryRead(d *schema.ResourceData, meta inter
 	}
 
 	repository_id := d.Get("repository_id").(string)
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/repositories/%s", project, location, repository_id))
+	id := fmt.Sprintf("projects/%s/locations/%s/repositories/%s", project, location, repository_id)
+	d.SetId(id)
 
 	err = resourceArtifactRegistryRepositoryRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
 	}
 
 	return nil

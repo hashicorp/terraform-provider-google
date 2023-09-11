@@ -29,5 +29,13 @@ func dataSourceGoogleIapClientRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	return resourceIapClientRead(d, meta)
+	err = resourceIapClientRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

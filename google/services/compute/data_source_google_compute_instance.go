@@ -35,9 +35,11 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	id := fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, name)
+
 	instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Instance %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Instance %s", name), id)
 	}
 
 	md := flattenMetadataBeta(instance.Metadata)

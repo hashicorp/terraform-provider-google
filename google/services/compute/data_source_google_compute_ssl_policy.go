@@ -35,7 +35,17 @@ func datasourceComputeSslPolicyRead(d *schema.ResourceData, meta interface{}) er
 	}
 	policyName := d.Get("name").(string)
 
-	d.SetId(fmt.Sprintf("projects/%s/global/sslPolicies/%s", project, policyName))
+	id := fmt.Sprintf("projects/%s/global/sslPolicies/%s", project, policyName)
+	d.SetId(id)
 
-	return resourceComputeSslPolicyRead(d, meta)
+	err = resourceComputeSslPolicyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

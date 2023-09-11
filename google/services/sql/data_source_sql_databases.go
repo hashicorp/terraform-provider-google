@@ -62,7 +62,7 @@ func dataSourceSqlDatabasesRead(d *schema.ResourceData, meta interface{}) error 
 	})
 
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Databases in %q instance", d.Get("instance").(string)))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Databases in %q instance", d.Get("instance").(string)), fmt.Sprintf("Databases in %q instance", d.Get("instance").(string)))
 	}
 	flattenedDatabases := flattenDatabases(databases.Items)
 

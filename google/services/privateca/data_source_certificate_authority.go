@@ -75,7 +75,7 @@ func dataSourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta in
 			UserAgent: userAgent,
 		})
 		if err != nil {
-			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()))
+			return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()), url)
 		}
 		if err := d.Set("pem_csr", res["pemCsr"]); err != nil {
 			return fmt.Errorf("Error fetching CertificateAuthority: %s", err)

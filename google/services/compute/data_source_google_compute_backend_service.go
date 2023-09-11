@@ -35,7 +35,17 @@ func dataSourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/global/backendServices/%s", project, serviceName))
+	id := fmt.Sprintf("projects/%s/global/backendServices/%s", project, serviceName)
+	d.SetId(id)
 
-	return resourceComputeBackendServiceRead(d, meta)
+	err = resourceComputeBackendServiceRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

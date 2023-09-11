@@ -40,7 +40,17 @@ func dataSourceGoogleBeyondcorpAppGatewayRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/appGateways/%s", project, region, name))
+	id := fmt.Sprintf("projects/%s/locations/%s/appGateways/%s", project, region, name)
+	d.SetId(id)
 
-	return resourceBeyondcorpAppGatewayRead(d, meta)
+	err = resourceBeyondcorpAppGatewayRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

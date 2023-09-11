@@ -3,6 +3,8 @@
 package compute
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -24,5 +26,13 @@ func dataSourceComputeRouterRead(d *schema.ResourceData, meta interface{}) error
 	routerName := d.Get("name").(string)
 
 	d.SetId(routerName)
-	return resourceComputeRouterRead(d, meta)
+	err := resourceComputeRouterRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", routerName)
+	}
+	return nil
 }

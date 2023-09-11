@@ -32,5 +32,13 @@ func dataSourceVPCAccessConnectorRead(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(id)
 
-	return resourceVPCAccessConnectorRead(d, meta)
+	err = resourceVPCAccessConnectorRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

@@ -31,5 +31,14 @@ func dataSourceGoogleComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	return resourceComputeDiskRead(d, meta)
+	err = resourceComputeDiskRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

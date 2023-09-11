@@ -110,9 +110,11 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 	}
 	name := d.Get("name").(string)
 
+	id := fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name)
+
 	address, err := config.NewComputeClient(userAgent).Addresses.Get(project, region, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Address Not Found : %s", name), id)
 	}
 
 	if err := d.Set("address", address.Address); err != nil {
@@ -149,7 +151,7 @@ func dataSourceGoogleComputeAddressRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error setting region: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/addresses/%s", project, region, name))
+	d.SetId(id)
 	return nil
 }
 

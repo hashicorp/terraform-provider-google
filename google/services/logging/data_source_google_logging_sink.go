@@ -35,7 +35,7 @@ func dataSourceGoogleLoggingSinkRead(d *schema.ResourceData, meta interface{}) e
 
 	sink, err := config.NewLoggingClient(userAgent).Sinks.Get(sinkId).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Logging Sink %s", d.Id()))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Logging Sink %s", d.Id()), sinkId)
 	}
 
 	if err := flattenResourceLoggingSink(d, sink); err != nil {

@@ -33,5 +33,13 @@ func dataSourceGoogleSourceRepoRepositoryRead(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	return resourceSourceRepoRepositoryRead(d, meta)
+	err = resourceSourceRepoRepositoryRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }
