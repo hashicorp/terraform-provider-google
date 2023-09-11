@@ -112,6 +112,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/container"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containeraws"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/containerazure"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/eventarc"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebase"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firebaserules"
