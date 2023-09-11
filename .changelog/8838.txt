@@ -1,0 +1,6 @@
+```release-note:enhancement
+secretmanager: added `auto` field to `google_secret_manager_secret` resource
+```
+```release-note:deprecation
+secretmanager: deprecated `automatic` field on `google_secret_manager_secret`. Use `auto` instead.
+```

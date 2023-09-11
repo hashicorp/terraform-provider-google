@@ -57,12 +57,42 @@ after the Secret has been created.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auto": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `The Secret will automatically be replicated without any restrictions.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"customer_managed_encryption": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The customer-managed encryption configuration of the Secret.
+If no configuration is provided, Google-managed default
+encryption is used.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"kms_key_name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.`,
+												},
+											},
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
+						},
 						"automatic": {
 							Type:         schema.TypeBool,
 							Optional:     true,
+							Deprecated:   "`automatic` is deprecated and will be removed in a future major release. Use `auto` instead.",
 							ForceNew:     true,
 							Description:  `The Secret will automatically be replicated without any restrictions.`,
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed"},
+							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
 						},
 						"user_managed": {
 							Type:        schema.TypeList,
@@ -106,7 +136,7 @@ after the Secret has been created.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed"},
+							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
 						},
 					},
 				},
@@ -645,14 +675,47 @@ func flattenSecretManagerSecretReplication(v interface{}, d *schema.ResourceData
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["automatic"] =
-		flattenSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
+	_, ok := d.GetOk("replication.0.automatic")
+	if ok {
+		transformed["automatic"] =
+			flattenSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
+	} else {
+		transformed["auto"] =
+			flattenSecretManagerSecretReplicationAuto(original["automatic"], d, config)
+	}
 	transformed["user_managed"] =
 		flattenSecretManagerSecretReplicationUserManaged(original["userManaged"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSecretManagerSecretReplicationAutomatic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v != nil
+}
+
+func flattenSecretManagerSecretReplicationAuto(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["customer_managed_encryption"] =
+		flattenSecretManagerSecretReplicationAutoCustomerManagedEncryption(original["customerManagedEncryption"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecretManagerSecretReplicationAutoCustomerManagedEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenSecretManagerSecretReplicationAutoCustomerManagedEncryptionKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecretManagerSecretReplicationAutoCustomerManagedEncryptionKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenSecretManagerSecretReplicationUserManaged(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -799,11 +862,22 @@ func expandSecretManagerSecretReplication(v interface{}, d tpgresource.Terraform
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedAutomatic, err := expandSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedAutomatic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["automatic"] = transformedAutomatic
+	if _, ok := d.GetOk("replication.0.automatic"); ok {
+		transformedAutomatic, err := expandSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAutomatic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["automatic"] = transformedAutomatic
+		}
+	}
+
+	if _, ok := d.GetOk("replication.0.auto"); ok {
+		transformedAuto, err := expandSecretManagerSecretReplicationAuto(original["auto"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["automatic"] = transformedAuto
+		}
 	}
 
 	transformedUserManaged, err := expandSecretManagerSecretReplicationUserManaged(original["user_managed"], d, config)
@@ -822,6 +896,53 @@ func expandSecretManagerSecretReplicationAutomatic(v interface{}, d tpgresource.
 	}
 
 	return struct{}{}, nil
+}
+
+func expandSecretManagerSecretReplicationAuto(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCustomerManagedEncryption, err := expandSecretManagerSecretReplicationAutoCustomerManagedEncryption(original["customer_managed_encryption"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomerManagedEncryption); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customerManagedEncryption"] = transformedCustomerManagedEncryption
+	}
+
+	return transformed, nil
+}
+
+func expandSecretManagerSecretReplicationAutoCustomerManagedEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandSecretManagerSecretReplicationAutoCustomerManagedEncryptionKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandSecretManagerSecretReplicationAutoCustomerManagedEncryptionKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandSecretManagerSecretReplicationUserManaged(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

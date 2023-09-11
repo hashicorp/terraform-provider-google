@@ -79,8 +79,39 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
   }
 
   replication {
-    automatic = true
+    auto {}
   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secret_with_automatic_cmek&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secret With Automatic Cmek
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding" {
+  crypto_key_id = "kms-key"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "secret-with-automatic-cmek" {
+  secret_id = "secret"
+
+  replication {
+    auto {
+      customer_managed_encryption {
+        kms_key_name = "kms-key"
+      }
+    }
+  }
+
+  depends_on = [ google_kms_crypto_key_iam_member.kms-secret-binding ]
 }
 ```
 
@@ -103,14 +134,37 @@ The following arguments are supported:
 <a name="nested_replication"></a>The `replication` block supports:
 
 * `automatic` -
+  (Optional, Deprecated)
+  The Secret will automatically be replicated without any restrictions.
+
+  ~> **Warning:** `automatic` is deprecated and will be removed in a future major release. Use `auto` instead.
+
+* `auto` -
   (Optional)
   The Secret will automatically be replicated without any restrictions.
+  Structure is [documented below](#nested_auto).
 
 * `user_managed` -
   (Optional)
   The Secret will be replicated to the regions specified by the user.
   Structure is [documented below](#nested_user_managed).
 
+
+<a name="nested_auto"></a>The `auto` block supports:
+
+* `customer_managed_encryption` -
+  (Optional)
+  The customer-managed encryption configuration of the Secret.
+  If no configuration is provided, Google-managed default
+  encryption is used.
+  Structure is [documented below](#nested_customer_managed_encryption).
+
+
+<a name="nested_customer_managed_encryption"></a>The `customer_managed_encryption` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The resource name of the Cloud KMS CryptoKey used to encrypt secret payloads.
 
 <a name="nested_user_managed"></a>The `user_managed` block supports:
 
