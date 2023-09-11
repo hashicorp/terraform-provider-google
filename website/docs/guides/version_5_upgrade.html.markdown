@@ -385,6 +385,18 @@ If you were relying on accessing an individual flag by index (for example, `goog
 
 Previously, the default value for `rule.rate_limit_options.encorce_on_key` is "ALL", now this field no longer has a default value.
 
+## Resource: `google_logging_metric`
+
+### Additional `bucket_options` subfields are now properly required
+
+When setting the `bucket_options` block, the following fields may be required:
+
+* `num_finite_buckets`, `width`, and `offset` are now required when `bucket_options.linear_buckets` is set.
+
+* `num_finite_buckets`, `growth_factor`, and `scale` are now required when `bucket_options.exponential_buckets` is set.
+
+Previously these fields should have been required but were not, which allowed for invalid `google_logging_metric` configurations.
+
 ## Resource: `google_logging_project_sink`
 
 ### `unique_writer_identity` now defaults to `TRUE`

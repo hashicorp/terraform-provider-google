@@ -1,0 +1,3 @@
+```release-note:none
+Add google_logging_metric to version 5 upgrade doc for #8780
+```
