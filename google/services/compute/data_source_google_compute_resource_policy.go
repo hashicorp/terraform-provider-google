@@ -37,7 +37,17 @@ func dataSourceGoogleComputeResourcePolicyRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, name))
+	id := fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, name)
+	d.SetId(id)
 
-	return resourceComputeResourcePolicyRead(d, meta)
+	err = resourceComputeResourcePolicyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

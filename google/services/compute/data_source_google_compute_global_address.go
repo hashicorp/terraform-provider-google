@@ -91,9 +91,11 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	name := d.Get("name").(string)
+	id := fmt.Sprintf("projects/%s/global/addresses/%s", project, name)
+
 	address, err := config.NewComputeClient(userAgent).GlobalAddresses.Get(project, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Global Address Not Found : %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Global Address Not Found : %s", name), id)
 	}
 
 	if err := d.Set("address", address.Address); err != nil {
@@ -126,6 +128,6 @@ func dataSourceGoogleComputeGlobalAddressRead(d *schema.ResourceData, meta inter
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	d.SetId(fmt.Sprintf("projects/%s/global/addresses/%s", project, name))
+	d.SetId(id)
 	return nil
 }

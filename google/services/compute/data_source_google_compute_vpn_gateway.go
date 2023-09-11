@@ -69,12 +69,13 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	}
 
 	name := d.Get("name").(string)
+	id := fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name)
 
 	vpnGatewaysService := compute.NewTargetVpnGatewaysService(config.NewComputeClient(userAgent))
 
 	gateway, err := vpnGatewaysService.Get(project, region, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("VPN Gateway Not Found : %s", name), id)
 	}
 	if err := d.Set("network", tpgresource.ConvertSelfLinkToV1(gateway.Network)); err != nil {
 		return fmt.Errorf("Error setting network: %s", err)
@@ -91,6 +92,6 @@ func dataSourceGoogleComputeVpnGatewayRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/targetVpnGateways/%s", project, region, name))
+	d.SetId(id)
 	return nil
 }

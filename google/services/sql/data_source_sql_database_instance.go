@@ -3,6 +3,8 @@
 package sql
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 )
@@ -20,7 +22,15 @@ func DataSourceSqlDatabaseInstance() *schema.Resource {
 }
 
 func dataSourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) error {
+	id := d.Get("name").(string)
+	err := resourceSqlDatabaseInstanceRead(d, meta)
+	if err != nil {
+		return err
+	}
 
-	return resourceSqlDatabaseInstanceRead(d, meta)
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
 
+	return nil
 }

@@ -61,9 +61,12 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	name := d.Get("name").(string)
+
+	id := fmt.Sprintf("projects/%s/global/networks/%s", project, name)
+
 	network, err := config.NewComputeClient(userAgent).Networks.Get(project, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Network Not Found : %s", name), id)
 	}
 	if err := d.Set("gateway_ipv4", network.GatewayIPv4); err != nil {
 		return fmt.Errorf("Error setting gateway_ipv4: %s", err)
@@ -77,6 +80,6 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("subnetworks_self_links", network.Subnetworks); err != nil {
 		return fmt.Errorf("Error setting subnetworks_self_links: %s", err)
 	}
-	d.SetId(fmt.Sprintf("projects/%s/global/networks/%s", project, network.Name))
+	d.SetId(id)
 	return nil
 }

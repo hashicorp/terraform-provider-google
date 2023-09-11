@@ -87,10 +87,11 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+	id := fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name)
 
 	subnetwork, err := config.NewComputeClient(userAgent).Subnetworks.Get(project, region, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Subnetwork Not Found : %s", name), id)
 	}
 
 	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {
@@ -124,7 +125,7 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error setting secondary_ip_range: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/subnetworks/%s", project, region, name))
+	d.SetId(id)
 	return nil
 }
 

@@ -29,10 +29,14 @@ func dataSourceSqlDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Database: %s", err)
 	}
-	d.SetId(fmt.Sprintf("projects/%s/instances/%s/databases/%s", project, d.Get("instance").(string), d.Get("name").(string)))
+	id := fmt.Sprintf("projects/%s/instances/%s/databases/%s", project, d.Get("instance").(string), d.Get("name").(string))
+	d.SetId(id)
 	err = resourceSQLDatabaseRead(d, meta)
 	if err != nil {
 		return err
+	}
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
 	}
 	if err := d.Set("deletion_policy", nil); err != nil {
 		return fmt.Errorf("Error setting deletion_policy: %s", err)

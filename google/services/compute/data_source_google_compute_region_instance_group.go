@@ -101,11 +101,11 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-
+	id := fmt.Sprintf("projects/%s/regions/%s/instanceGroups/%s", project, region, name)
 	instanceGroup, err := config.NewComputeClient(userAgent).RegionInstanceGroups.Get(
 		project, region, name).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Region Instance Group %q", name), id)
 	}
 
 	members, err := config.NewComputeClient(userAgent).RegionInstanceGroups.ListInstances(
@@ -126,7 +126,7 @@ func dataSourceComputeRegionInstanceGroupRead(d *schema.ResourceData, meta inter
 			return fmt.Errorf("Error setting instances: %s", err)
 		}
 	}
-	d.SetId(fmt.Sprintf("projects/%s/regions/%s/instanceGroups/%s", project, region, name))
+	d.SetId(id)
 	if err := d.Set("self_link", instanceGroup.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)
 	}
