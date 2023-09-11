@@ -141,12 +141,13 @@ resource "google_project_service" "firestore" {
 }
 
 resource "google_firestore_database" "database" {
-  project                     = google_project.project.project_id
-  name                        = "my-database"
-  location_id                 = "nam5"
-  type                        = "FIRESTORE_NATIVE"
-  concurrency_mode            = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
+  project                           = google_project.project.project_id
+  name                              = "my-database"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 
   depends_on = [google_project_service.firestore]
 }
@@ -268,12 +269,13 @@ resource "google_project_service" "firestore" {
 }
 
 resource "google_firestore_database" "database" {
-  project                     = google_project.project.project_id
-  name                        = "datastore-mode-database"
-  location_id                 = "nam5"
-  type                        = "DATASTORE_MODE"
-  concurrency_mode            = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
+  project                           = google_project.project.project_id
+  name                              = "datastore-mode-database"
+  location_id                       = "nam5"
+  type                              = "DATASTORE_MODE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
 
   depends_on = [google_project_service.firestore]
 }
