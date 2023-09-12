@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: added `deletion_policy` field to `google_secret_manager_secret_version` resource
+```
