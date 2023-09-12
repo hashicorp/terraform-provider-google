@@ -1509,3 +1509,163 @@ func TestFrameworkProvider_LoadAndValidateFramework_requestTimeout(t *testing.T)
 		})
 	}
 }
+
+func TestFrameworkProvider_LoadAndValidateFramework_batching(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		// It's not easy to create the value of Batching in the test case, so these inputs are used in the test function
+		SetBatchingAsNull    bool
+		SetBatchingAsUnknown bool
+		EnableBatchingValue  basetypes.BoolValue
+		SendAfterValue       basetypes.StringValue
+
+		EnvVariables map[string]string
+
+		ExpectBatchingNull        bool
+		ExpectBatchingUnknown     bool
+		ExpectEnableBatchingValue basetypes.BoolValue
+		ExpectSendAfterValue      basetypes.StringValue
+		ExpectError               bool
+	}{
+		"batching can be configured with values for enable_batching and send_after": {
+			EnableBatchingValue:       types.BoolValue(true),
+			SendAfterValue:            types.StringValue("123s"),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("123s"),
+		},
+		"if batching is an empty block, it will set the default values for enable_batching and send_after": {
+			// In this test, we try to create a list containing only null values
+			EnableBatchingValue:       types.BoolNull(),
+			SendAfterValue:            types.StringNull(),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("10s"),
+		},
+		"when batching is configured with only enable_batching, send_after will be set to a default value": {
+			EnableBatchingValue:       types.BoolValue(true),
+			SendAfterValue:            types.StringNull(),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("10s"),
+		},
+		"when batching is configured with only send_after, enable_batching will be set to a default value": {
+			EnableBatchingValue:       types.BoolNull(),
+			SendAfterValue:            types.StringValue("123s"),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("123s"),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when batching is configured with send_after as an empty string, send_after will be set to a default value": {
+		// 	EnableBatchingValue:       types.BoolValue(true),
+		// 	SendAfterValue:            types.StringValue(""),
+		// 	ExpectEnableBatchingValue: types.BoolValue(true),
+		// 	ExpectSendAfterValue:      types.StringValue("10s"),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when batching is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	SetBatchingAsUnknown:      true,
+		// 	ExpectEnableBatchingValue: types.BoolValue(true),
+		// 	ExpectSendAfterValue:      types.StringValue("10s"),
+		// },
+		// "when batching is configured with send_after as an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	EnableBatchingValue:       types.BoolValue(true),
+		// 	SendAfterValue:            types.StringUnknown(),
+		// 	ExpectEnableBatchingValue: types.BoolValue(true),
+		// 	ExpectSendAfterValue:      types.StringValue("10s"),
+		// },
+		// "when batching is configured with enable_batching as an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	EnableBatchingValue:       types.BoolNull(),
+		// 	SendAfterValue:            types.StringValue("123s"),
+		// 	ExpectEnableBatchingValue: types.BoolValue(true),
+		// 	ExpectSendAfterValue:      types.StringValue("123s"),
+		// },
+		// Error states
+		"if batching is configured with send_after as an invalid value, there's an error": {
+			SendAfterValue: types.StringValue("invalid value"),
+			ExpectError:    true,
+		},
+		"if batching is configured with send_after as number value without seconds (s), there's an error": {
+			SendAfterValue: types.StringValue("123"),
+			ExpectError:    true,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := fwmodels.ProviderModel{}
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			// TODO(SarahFrench) - this code will change when batching is reworked
+			// See https://github.com/GoogleCloudPlatform/magic-modules/pull/7668
+			if !tc.SetBatchingAsNull && !tc.SetBatchingAsUnknown {
+				b, _ := types.ObjectValue(
+					map[string]attr.Type{
+						"enable_batching": types.BoolType,
+						"send_after":      types.StringType,
+					},
+					map[string]attr.Value{
+						"enable_batching": tc.EnableBatchingValue,
+						"send_after":      tc.SendAfterValue,
+					},
+				)
+				batching, _ := types.ListValue(types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes), []attr.Value{b})
+				data.Batching = batching
+			}
+			if tc.SetBatchingAsNull {
+				data.Batching = types.ListNull(types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes))
+			}
+			if tc.SetBatchingAsUnknown {
+				data.Batching = types.ListUnknown(types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes))
+			}
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.Batching.IsNull() && tc.ExpectBatchingNull {
+				t.Fatalf("want batching in the `fwmodels.ProviderModel` struct to be null, but got the value `%s`", data.Batching.String())
+			}
+			if !data.Batching.IsUnknown() && tc.ExpectBatchingUnknown {
+				t.Fatalf("want batching in the `fwmodels.ProviderModel` struct to be unknown, but got the value `%s`", data.Batching.String())
+			}
+			var pbConfigs []fwmodels.ProviderBatching
+			_ = data.Batching.ElementsAs(ctx, &pbConfigs, true)
+			if !pbConfigs[0].EnableBatching.Equal(tc.ExpectEnableBatchingValue) {
+				t.Fatalf("want batching.enable_batching in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectEnableBatchingValue.String(), data.Batching.String())
+			}
+			if !pbConfigs[0].SendAfter.Equal(tc.ExpectSendAfterValue) {
+				t.Fatalf("want batching.send_after in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), data.Batching.String())
+			}
+		})
+	}
+}
