@@ -1071,6 +1071,119 @@ func ResourceBigQueryTable() *schema.Resource {
 				Default:     true,
 				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
 			},
+
+			// TableConstraints: [Optional] Defines the primary key and foreign keys.
+			"table_constraints": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Defines the primary key and foreign keys.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// PrimaryKey: [Optional] Represents the primary key constraint
+						// on a table's columns. Present only if the table has a primary key.
+						// The primary key is not enforced.
+						"primary_key": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Description: `Represents a primary key constraint on a table's columns. Present only if the table has a primary key. The primary key is not enforced.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									//Columns: [Required] The columns that are composed of the primary key constraint.
+									"columns": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `The columns that are composed of the primary key constraint.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+
+						// ForeignKeys: [Optional] Present only if the table has a foreign key.
+						// The foreign key is not enforced.
+						"foreign_keys": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Present only if the table has a foreign key. The foreign key is not enforced.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									// Name: [Optional] Set only if the foreign key constraint is named.
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Set only if the foreign key constraint is named.`,
+									},
+
+									// ReferencedTable: [Required] The table that holds the primary key
+									// and is referenced by this foreign key.
+									"referenced_table": {
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
+										Description: `The table that holds the primary key and is referenced by this foreign key.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												// ProjectId: [Required] The ID of the project containing this table.
+												"project_id": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The ID of the project containing this table.`,
+												},
+
+												// DatasetId: [Required] The ID of the dataset containing this table.
+												"dataset_id": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The ID of the dataset containing this table.`,
+												},
+
+												// TableId: [Required] The ID of the table. The ID must contain only
+												// letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum
+												// length is 1,024 characters. Certain operations allow suffixing of
+												// the table ID with a partition decorator, such as
+												// sample_table$20190123.
+												"table_id": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The ID of the table. The ID must contain only letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum length is 1,024 characters. Certain operations allow suffixing of the table ID with a partition decorator, such as sample_table$20190123.`,
+												},
+											},
+										},
+									},
+
+									// ColumnReferences: [Required] The pair of the foreign key column and primary key column.
+									"column_references": {
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
+										Description: `The pair of the foreign key column and primary key column.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												// ReferencingColumn: [Required] The column that composes the foreign key.
+												"referencing_column": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The column that composes the foreign key.`,
+												},
+
+												// ReferencedColumn: [Required] The column in the primary key that are
+												// referenced by the referencingColumn
+												"referenced_column": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The column in the primary key that are referenced by the referencingColumn.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1170,6 +1283,15 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 			Fields:          tpgresource.ConvertStringArr(v.([]interface{})),
 			ForceSendFields: []string{"Fields"},
 		}
+	}
+
+	if v, ok := d.GetOk("table_constraints"); ok {
+		tableConstraints, err := expandTableConstraints(v)
+		if err != nil {
+			return nil, err
+		}
+
+		table.TableConstraints = tableConstraints
 	}
 
 	return table, nil
@@ -1380,6 +1502,14 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 
 		if err := d.Set("materialized_view", materialized_view); err != nil {
 			return fmt.Errorf("Error setting materialized view: %s", err)
+		}
+	}
+
+	if res.TableConstraints != nil {
+		table_constraints := flattenTableConstraints(res.TableConstraints)
+
+		if err := d.Set("table_constraints", table_constraints); err != nil {
+			return fmt.Errorf("Error setting table constraints: %s", err)
 		}
 	}
 
@@ -2005,6 +2135,166 @@ func flattenMaterializedView(mvd *bigquery.MaterializedViewDefinition) []map[str
 	result["enable_refresh"] = mvd.EnableRefresh
 	result["refresh_interval_ms"] = mvd.RefreshIntervalMs
 	result["allow_non_incremental_definition"] = mvd.AllowNonIncrementalDefinition
+
+	return []map[string]interface{}{result}
+}
+
+func expandPrimaryKey(configured interface{}) *bigquery.TableConstraintsPrimaryKey {
+	if len(configured.([]interface{})) == 0 {
+		return nil
+	}
+
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	pk := &bigquery.TableConstraintsPrimaryKey{}
+
+	columns := []string{}
+	for _, rawColumn := range raw["columns"].([]interface{}) {
+		columns = append(columns, rawColumn.(string))
+	}
+	if len(columns) > 0 {
+		pk.Columns = columns
+	}
+
+	return pk
+}
+
+func flattenPrimaryKey(edc *bigquery.TableConstraintsPrimaryKey) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if edc.Columns != nil {
+		result["columns"] = edc.Columns
+	}
+
+	return []map[string]interface{}{result}
+}
+
+func expandReferencedTable(configured interface{}) *bigquery.TableConstraintsForeignKeysReferencedTable {
+	raw := configured.([]interface{})[0].(map[string]interface{})
+	rt := &bigquery.TableConstraintsForeignKeysReferencedTable{}
+
+	if v, ok := raw["project_id"]; ok {
+		rt.ProjectId = v.(string)
+	}
+	if v, ok := raw["dataset_id"]; ok {
+		rt.DatasetId = v.(string)
+	}
+	if v, ok := raw["table_id"]; ok {
+		rt.TableId = v.(string)
+	}
+
+	return rt
+}
+
+func flattenReferencedTable(edc *bigquery.TableConstraintsForeignKeysReferencedTable) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	result["project_id"] = edc.ProjectId
+	result["dataset_id"] = edc.DatasetId
+	result["table_id"] = edc.TableId
+
+	return []map[string]interface{}{result}
+}
+
+func expandColumnReference(configured interface{}) *bigquery.TableConstraintsForeignKeysColumnReferences {
+	raw := configured.(map[string]interface{})
+
+	cr := &bigquery.TableConstraintsForeignKeysColumnReferences{}
+
+	if v, ok := raw["referencing_column"]; ok {
+		cr.ReferencingColumn = v.(string)
+	}
+	if v, ok := raw["referenced_column"]; ok {
+		cr.ReferencedColumn = v.(string)
+	}
+
+	return cr
+}
+
+func flattenColumnReferences(edc []*bigquery.TableConstraintsForeignKeysColumnReferences) []map[string]interface{} {
+	results := []map[string]interface{}{}
+
+	for _, cr := range edc {
+		result := map[string]interface{}{}
+		result["referenced_column"] = cr.ReferencedColumn
+		result["referencing_column"] = cr.ReferencingColumn
+		results = append(results, result)
+	}
+
+	return results
+}
+
+func expandForeignKey(configured interface{}) *bigquery.TableConstraintsForeignKeys {
+	raw := configured.(map[string]interface{})
+
+	fk := &bigquery.TableConstraintsForeignKeys{}
+	if v, ok := raw["name"]; ok {
+		fk.Name = v.(string)
+	}
+	if v, ok := raw["referenced_table"]; ok {
+		fk.ReferencedTable = expandReferencedTable(v)
+	}
+	crs := []*bigquery.TableConstraintsForeignKeysColumnReferences{}
+	if v, ok := raw["column_references"]; ok {
+		for _, rawColumnReferences := range v.([]interface{}) {
+			crs = append(crs, expandColumnReference(rawColumnReferences))
+		}
+	}
+
+	if len(crs) > 0 {
+		fk.ColumnReferences = crs
+	}
+
+	return fk
+}
+
+func flattenForeignKeys(edc []*bigquery.TableConstraintsForeignKeys) []map[string]interface{} {
+	results := []map[string]interface{}{}
+
+	for _, fr := range edc {
+		result := map[string]interface{}{}
+		result["name"] = fr.Name
+		result["column_references"] = flattenColumnReferences(fr.ColumnReferences)
+		result["referenced_table"] = flattenReferencedTable(fr.ReferencedTable)
+		results = append(results, result)
+	}
+
+	return results
+}
+
+func expandTableConstraints(cfg interface{}) (*bigquery.TableConstraints, error) {
+	raw := cfg.([]interface{})[0].(map[string]interface{})
+
+	edc := &bigquery.TableConstraints{}
+
+	if v, ok := raw["primary_key"]; ok {
+		edc.PrimaryKey = expandPrimaryKey(v)
+	}
+
+	fks := []*bigquery.TableConstraintsForeignKeys{}
+
+	if v, ok := raw["foreign_keys"]; ok {
+		for _, rawForeignKey := range v.([]interface{}) {
+			fks = append(fks, expandForeignKey(rawForeignKey))
+		}
+	}
+
+	if len(fks) > 0 {
+		edc.ForeignKeys = fks
+	}
+
+	return edc, nil
+
+}
+
+func flattenTableConstraints(edc *bigquery.TableConstraints) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if edc.PrimaryKey != nil {
+		result["primary_key"] = flattenPrimaryKey(edc.PrimaryKey)
+	}
+	if edc.ForeignKeys != nil {
+		result["foreign_keys"] = flattenForeignKeys(edc.ForeignKeys)
+	}
 
 	return []map[string]interface{}{result}
 }
