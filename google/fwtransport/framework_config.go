@@ -139,6 +139,7 @@ type FrameworkProviderConfig struct {
 	SpannerBasePath                  string
 	SQLBasePath                      string
 	StorageBasePath                  string
+	StorageInsightsBasePath          string
 	StorageTransferBasePath          string
 	TagsBasePath                     string
 	TPUBasePath                      string
@@ -274,6 +275,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.SpannerBasePath = data.SpannerCustomEndpoint.ValueString()
 	p.SQLBasePath = data.SQLCustomEndpoint.ValueString()
 	p.StorageBasePath = data.StorageCustomEndpoint.ValueString()
+	p.StorageInsightsBasePath = data.StorageInsightsCustomEndpoint.ValueString()
 	p.StorageTransferBasePath = data.StorageTransferCustomEndpoint.ValueString()
 	p.TagsBasePath = data.TagsCustomEndpoint.ValueString()
 	p.TPUBasePath = data.TPUCustomEndpoint.ValueString()
@@ -1131,6 +1133,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.StorageBasePathKey])
 		if customEndpoint != nil {
 			data.StorageCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.StorageInsightsCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_STORAGE_INSIGHTS_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.StorageInsightsBasePathKey])
+		if customEndpoint != nil {
+			data.StorageInsightsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.StorageTransferCustomEndpoint.IsNull() {

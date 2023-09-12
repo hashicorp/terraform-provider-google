@@ -98,6 +98,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/spanner"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/storageinsights"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storagetransfer"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tags"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/tpu"
