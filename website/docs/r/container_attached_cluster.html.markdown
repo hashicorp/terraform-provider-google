@@ -108,6 +108,9 @@ resource "google_container_attached_cluster" "primary" {
       enabled = true
     }
   }
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -240,6 +243,11 @@ The following arguments are supported:
   Monitoring configuration.
   Structure is [documented below](#nested_monitoring_config).
 
+* `binary_authorization` -
+  (Optional)
+  Binary Authorization configuration.
+  Structure is [documented below](#nested_binary_authorization).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -283,6 +291,13 @@ The following arguments are supported:
 * `enabled` -
   (Optional)
   Enable Managed Collection.
+
+<a name="nested_binary_authorization"></a>The `binary_authorization` block supports:
+
+* `evaluation_mode` -
+  (Optional)
+  Configure Binary Authorization evaluation mode.
+  Possible values are: `DISABLED`, `PROJECT_SINGLETON_POLICY_ENFORCE`.
 
 ## Attributes Reference
 
