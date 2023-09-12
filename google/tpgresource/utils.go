@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/errwrap"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/api/googleapi"
@@ -126,6 +125,20 @@ func IsFailedPreconditionError(err error) bool {
 		}
 	}
 	return false
+}
+
+func IsQuotaError(err error) bool {
+	gerr, ok := errwrap.GetType(err, &googleapi.Error{}).(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	if gerr == nil {
+		return false
+	}
+	if gerr.Code != 429 {
+		return false
+	}
+	return true
 }
 
 func IsConflictError(err error) bool {
@@ -501,22 +514,6 @@ func CheckGoogleIamPolicy(value string) error {
 		return fmt.Errorf("found an empty description field (should be omitted) in google_iam_policy data source: %s", value)
 	}
 	return nil
-}
-
-// Retries an operation while the canonical error code is FAILED_PRECONDTION
-// which indicates there is an incompatible operation already running on the
-// cluster. This error can be safely retried until the incompatible operation
-// completes, and the newly requested operation can begin.
-func RetryWhileIncompatibleOperation(timeout time.Duration, lockKey string, f func() error) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
-		if err := transport_tpg.LockedCall(lockKey, f); err != nil {
-			if IsFailedPreconditionError(err) {
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		return nil
-	})
 }
 
 func FrameworkDiagsToSdkDiags(fwD fwDiags.Diagnostics) *diag.Diagnostics {
