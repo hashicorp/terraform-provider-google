@@ -1209,3 +1209,101 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDel
 		})
 	}
 }
+
+func TestFrameworkProvider_LoadAndValidateFramework_scopes(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ScopesValue               []string
+		EnvVariables              map[string]string
+		ExpectedDataModelValue    []string
+		ExpectedConfigStructValue []string
+		SetAsNull                 bool
+		SetAsUnknown              bool
+		ExpectError               bool
+	}{
+		"scopes are set in the provider config as a list": {
+			ScopesValue:               []string{"fizz", "buzz", "baz"},
+			ExpectedDataModelValue:    []string{"fizz", "buzz", "baz"},
+			ExpectedConfigStructValue: []string{"fizz", "buzz", "baz"},
+		},
+		"scopes can be left unset in the provider config without any issues, and a default value is used": {
+			SetAsNull:                 true,
+			ExpectedDataModelValue:    transport_tpg.DefaultClientScopes,
+			ExpectedConfigStructValue: transport_tpg.DefaultClientScopes,
+		},
+		// Handling empty values in config
+		"scopes set as an empty list the field is treated as if it's unset and a default value is used without errors": {
+			ScopesValue:               []string{},
+			ExpectedDataModelValue:    transport_tpg.DefaultClientScopes,
+			ExpectedConfigStructValue: transport_tpg.DefaultClientScopes,
+		},
+		// Handling unknown values
+		"when scopes is an unknown value, the provider treats it as if it's unset and a default value is used without errors (align to SDK behaviour)": {
+			SetAsUnknown:              true,
+			ExpectedDataModelValue:    transport_tpg.DefaultClientScopes,
+			ExpectedConfigStructValue: transport_tpg.DefaultClientScopes,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := fwmodels.ProviderModel{}
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+			// Set ImpersonateServiceAccountDelegates depending on test case
+			if !tc.SetAsNull && !tc.SetAsUnknown {
+				s, _ := types.ListValueFrom(ctx, types.StringType, tc.ScopesValue)
+				data.Scopes = s
+			}
+			if tc.SetAsNull {
+				data.Scopes = types.ListNull(types.StringType)
+			}
+			if tc.SetAsUnknown {
+				data.Scopes = types.ListUnknown(types.StringType)
+			}
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s", num, err.Summary())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			expectedDm, _ := types.ListValueFrom(ctx, types.StringType, tc.ExpectedDataModelValue)
+			if !data.Scopes.Equal(expectedDm) {
+				t.Fatalf("want project in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.Scopes.String())
+			}
+			// Checking the value passed to the config structs
+			expectedFpc, _ := types.ListValueFrom(ctx, types.StringType, tc.ExpectedConfigStructValue)
+			if !p.Scopes.Equal(expectedFpc) {
+				t.Fatalf("want project in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.Scopes.String())
+			}
+		})
+	}
+}

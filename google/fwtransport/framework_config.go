@@ -42,7 +42,7 @@ type FrameworkProviderConfig struct {
 	Zone                       types.String
 	RequestBatcherIam          *transport_tpg.RequestBatcher
 	RequestBatcherServiceUsage *transport_tpg.RequestBatcher
-	Scopes                     []string
+	Scopes                     types.List
 	TokenSource                oauth2.TokenSource
 	UserAgent                  string
 	UserProjectOverride        types.Bool
@@ -145,11 +145,6 @@ type FrameworkProviderConfig struct {
 	VertexAIBasePath                 string
 	VPCAccessBasePath                string
 	WorkflowsBasePath                string
-}
-
-var defaultClientScopes = []string{
-	"https://www.googleapis.com/auth/cloud-platform",
-	"https://www.googleapis.com/auth/userinfo.email",
 }
 
 // LoadAndValidateFramework handles the bulk of configuring the provider
@@ -290,6 +285,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.BillingProject = data.BillingProject
 	p.Project = data.Project
 	p.Region = data.Region
+	p.Scopes = data.Scopes
 	p.Zone = data.Zone
 	p.UserProjectOverride = data.UserProjectOverride
 	p.PollInterval = 10 * time.Second
@@ -365,7 +361,7 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 
 	if len(data.Scopes.Elements()) == 0 {
 		var d diag.Diagnostics
-		data.Scopes, d = types.ListValueFrom(ctx, types.StringType, defaultClientScopes)
+		data.Scopes, d = types.ListValueFrom(ctx, types.StringType, transport_tpg.DefaultClientScopes)
 		diags.Append(d...)
 		if diags.HasError() {
 			return
