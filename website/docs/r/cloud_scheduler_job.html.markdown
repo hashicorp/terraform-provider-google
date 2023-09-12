@@ -248,7 +248,6 @@ The following arguments are supported:
   * For HTTP targets, between 15 seconds and 30 minutes.
   * For App Engine HTTP targets, between 15 seconds and 24 hours.
   * **Note**: For PubSub targets, this field is ignored - setting it will introduce an unresolvable diff.
-  
 
 * `retry_config` -
   (Optional)
