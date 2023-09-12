@@ -318,8 +318,7 @@ The following arguments are supported:
     this template. This can be specified multiple times for multiple networks.
     Structure is [documented below](#nested_network_interface).
 
-* `network_performance_config` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)
-    Configures network performance settings for the instance created from the
+* `network_performance_config` (Optional, Configures network performance settings for the instance created from the
     template. Structure is [documented below](#nested_network_performance_config). **Note**: [`machine_type`](#machine_type)
     must be a [supported type](https://cloud.google.com/compute/docs/networking/configure-vm-with-high-bandwidth-configuration),
     the [`image`](#image) used must include the [`GVNIC`](https://cloud.google.com/compute/docs/networking/using-gvnic#create-instance-gvnic-image)
