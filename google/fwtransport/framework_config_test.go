@@ -999,7 +999,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_userProjectOverride(t *testi
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -1100,7 +1100,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccount(t 
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -1196,7 +1196,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDel
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -1290,7 +1290,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_scopes(t *testing.T) {
 			if diags.HasError() && !tc.ExpectError {
 				for i, err := range diags.Errors() {
 					num := i + 1
-					t.Logf("unexpected error #%d : %s", num, err.Summary())
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
@@ -1304,6 +1304,208 @@ func TestFrameworkProvider_LoadAndValidateFramework_scopes(t *testing.T) {
 			if !p.Scopes.Equal(expectedFpc) {
 				t.Fatalf("want project in the `FrameworkProviderConfig` struct to be `%s`, but got the value `%s`", tc.ExpectedConfigStructValue, p.Scopes.String())
 			}
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_requestReason(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues           fwmodels.ProviderModel
+		EnvVariables           map[string]string
+		ExpectedDataModelValue basetypes.StringValue
+		// ExpectedConfigStructValue not used here, as credentials info isn't stored in the config struct
+		ExpectError bool
+	}{
+		"when request_reason is unset in the config, environment variable CLOUDSDK_CORE_REQUEST_REASON is used": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringNull(),
+			},
+			EnvVariables: map[string]string{
+				"CLOUDSDK_CORE_REQUEST_REASON": "foo",
+			},
+			ExpectedDataModelValue: types.StringValue("foo"),
+		},
+		"request_reason set in the config is not overridden by environment variables": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringValue("value-from-config"),
+			},
+			EnvVariables: map[string]string{
+				"CLOUDSDK_CORE_REQUEST_REASON": "value-from-env",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-config"),
+		},
+		"when no request_reason is provided via config or environment variables, the field remains unset without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringNull(),
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when request_reason is set as an empty string in the config it is overridden by environment variables": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		RequestReason: types.StringValue(""),
+		// 	},
+		// 	EnvVariables: map[string]string{
+		// 		"CLOUDSDK_CORE_REQUEST_REASON": "foo",
+		// 	},
+		// 	ExpectedDataModelValue: types.StringValue("foo"),
+		// },
+		// "when request_reason is set as an empty string in the config the field is treated as if it's unset, without error": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		RequestReason: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringNull(),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when request_timeout is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		RequestReason: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.RequestReason.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want request_reason in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.RequestReason.String())
+			}
+			// fwtransport.FrameworkProviderConfig does not store the request reason info, so test does not make assertions on config struct
+		})
+	}
+}
+
+func TestFrameworkProvider_LoadAndValidateFramework_requestTimeout(t *testing.T) {
+
+	// Note: In the test function we need to set the below fields in test case's fwmodels.ProviderModel value
+	// this is to stop the code under tests experiencing errors, and could be addressed in future refactoring.
+	// - Credentials: If we don't set this then the test looks for application default credentials and can fail depending on the machine running the test
+	// - ImpersonateServiceAccountDelegates: If we don't set this, we get a nil pointer exception ¯\_(ツ)_/¯
+
+	cases := map[string]struct {
+		ConfigValues           fwmodels.ProviderModel
+		EnvVariables           map[string]string
+		ExpectedDataModelValue basetypes.StringValue
+		// ExpectedConfigStructValue not used here, as credentials info isn't stored in the config struct
+		ExpectError bool
+	}{
+		"if a valid request_timeout is configured in the provider, no error will occur": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestTimeout: types.StringValue("10s"),
+			},
+			ExpectedDataModelValue: types.StringValue("10s"),
+		},
+		"if an invalid request_timeout is configured in the provider, an error will occur": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestTimeout: types.StringValue("timeout"),
+			},
+			ExpectError: true,
+		},
+		// In the SDK version of the provider config code, this scenario results in a value of "0s"
+		// instead of "120s", but the final 'effective' value is also "120s"
+		// See : https://github.com/hashicorp/terraform-provider-google/blob/09cb850ee64bcd78e4457df70905530c1ed75f19/google/transport/config.go#L1228-L1233
+		"when request_timeout is unset in the config, the default value is 120s.": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestTimeout: types.StringNull(),
+			},
+			ExpectedDataModelValue: types.StringValue("120s"),
+		},
+		// Handling empty strings in config
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
+		// "when request_timeout is set as an empty string, the default value is 120s.": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		RequestTimeout: types.StringValue(""),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringValue("120s"),
+		// },
+		// Handling unknown values
+		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
+		// "when request_timeout is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+		// 	ConfigValues: fwmodels.ProviderModel{
+		// 		RequestTimeout: types.StringUnknown(),
+		// 	},
+		// 	ExpectedDataModelValue: types.StringNull(),
+		// },
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			acctest.UnsetTestProviderConfigEnvs(t)
+			acctest.SetupTestEnvs(t, tc.EnvVariables)
+
+			ctx := context.Background()
+			tfVersion := "foobar"
+			providerversion := "999"
+			diags := diag.Diagnostics{}
+
+			data := tc.ConfigValues
+			data.Credentials = types.StringValue(transport_tpg.TestFakeCredentialsPath)
+			impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+			data.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+
+			p := fwtransport.FrameworkProviderConfig{}
+
+			// Act
+			p.LoadAndValidateFramework(ctx, &data, tfVersion, &diags, providerversion)
+
+			// Assert
+			if diags.HasError() && tc.ExpectError {
+				return
+			}
+			if diags.HasError() && !tc.ExpectError {
+				for i, err := range diags.Errors() {
+					num := i + 1
+					t.Logf("unexpected error #%d : %s : %s", num, err.Summary(), err.Detail())
+				}
+				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
+			}
+			// Checking mutation of the data model
+			if !data.RequestTimeout.Equal(tc.ExpectedDataModelValue) {
+				t.Fatalf("want request_timeout in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.RequestTimeout.String())
+			}
+			// fwtransport.FrameworkProviderConfig does not store the request timeout info, so test does not make assertions on config struct
 		})
 	}
 }
