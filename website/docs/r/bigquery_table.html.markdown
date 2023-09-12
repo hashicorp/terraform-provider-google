@@ -355,6 +355,9 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `refresh_interval_ms` - (Optional) The maximum frequency at which this materialized view will be refreshed.
     The default value is 1800000
 
+* `allow_non_incremental_definition` - (Optional) Allow non incremental materialized view definition.
+    The default value is false.
+
 <a name="nested_encryption_configuration"></a>The `encryption_configuration` block supports the following arguments:
 
 * `kms_key_name` - (Required) The self link or full name of a key which should be used to

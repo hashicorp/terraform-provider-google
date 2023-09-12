@@ -839,6 +839,14 @@ func ResourceBigQueryTable() *schema.Resource {
 							Description: `Specifies maximum frequency at which this materialized view will be refreshed. The default is 1800000`,
 						},
 
+						"allow_non_incremental_definition": {
+							Type:        schema.TypeBool,
+							Default:     false,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Allow non incremental materialized view definition. The default value is false.`,
+						},
+
 						// Query: [Required] A query whose result is persisted
 						"query": {
 							Type:        schema.TypeString,
@@ -1984,6 +1992,11 @@ func expandMaterializedView(configured interface{}) *bigquery.MaterializedViewDe
 		mvd.ForceSendFields = append(mvd.ForceSendFields, "RefreshIntervalMs")
 	}
 
+	if v, ok := raw["allow_non_incremental_definition"]; ok {
+		mvd.AllowNonIncrementalDefinition = v.(bool)
+		mvd.ForceSendFields = append(mvd.ForceSendFields, "AllowNonIncrementalDefinition")
+	}
+
 	return mvd
 }
 
@@ -1991,6 +2004,7 @@ func flattenMaterializedView(mvd *bigquery.MaterializedViewDefinition) []map[str
 	result := map[string]interface{}{"query": mvd.Query}
 	result["enable_refresh"] = mvd.EnableRefresh
 	result["refresh_interval_ms"] = mvd.RefreshIntervalMs
+	result["allow_non_incremental_definition"] = mvd.AllowNonIncrementalDefinition
 
 	return []map[string]interface{}{result}
 }
