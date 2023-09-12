@@ -1257,22 +1257,10 @@ func TestProvider_ProviderConfigure_scopes(t *testing.T) {
 		"scopes are set in the provider config as a list": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
-				"scopes": []string{
-					"fizz",
-					"buzz",
-					"fizzbuzz",
-				},
+				"scopes":      []string{"fizz", "buzz", "fizzbuzz"},
 			},
-			ExpectedSchemaValue: []string{
-				"fizz",
-				"buzz",
-				"fizzbuzz",
-			},
-			ExpectedConfigValue: []string{
-				"fizz",
-				"buzz",
-				"fizzbuzz",
-			},
+			ExpectedSchemaValue: []string{"fizz", "buzz", "fizzbuzz"},
+			ExpectedConfigValue: []string{"fizz", "buzz", "fizzbuzz"},
 		},
 		"scopes can be left unset in the provider config without any issues, and a default value is used": {
 			ConfigValues: map[string]interface{}{
