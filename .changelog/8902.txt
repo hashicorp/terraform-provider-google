@@ -1,0 +1,3 @@
+```release-note:bug
+pipeline: fixed issue where certain `google_dataflow_job` instances would crash the provider
+```

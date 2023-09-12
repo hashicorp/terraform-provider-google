@@ -351,25 +351,27 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error setting kms_key_name: %s", err)
 	}
 
+	// This map isn't provided on all responses. It's not clear why but we only want to set these fields
+	// if the API returns. Otherwise this execution will crash for the user.
+	// https://github.com/hashicorp/terraform-provider-google/issues/7449
 	sdkPipelineOptions, err := tpgresource.ConvertToMap(job.Environment.SdkPipelineOptions)
-	if err != nil {
-		return err
-	}
-	optionsMap := sdkPipelineOptions["options"].(map[string]interface{})
-	if err := d.Set("template_gcs_path", optionsMap["templateLocation"]); err != nil {
-		return fmt.Errorf("Error setting template_gcs_path: %s", err)
-	}
-	if err := d.Set("temp_gcs_location", optionsMap["tempLocation"]); err != nil {
-		return fmt.Errorf("Error setting temp_gcs_location: %s", err)
-	}
-	if err := d.Set("machine_type", optionsMap["machineType"]); err != nil {
-		return fmt.Errorf("Error setting machine_type: %s", err)
-	}
-	if err := d.Set("network", optionsMap["network"]); err != nil {
-		return fmt.Errorf("Error setting network: %s", err)
-	}
-	if err := d.Set("service_account_email", optionsMap["serviceAccountEmail"]); err != nil {
-		return fmt.Errorf("Error setting service_account_email: %s", err)
+	if err == nil {
+		optionsMap := sdkPipelineOptions["options"].(map[string]interface{})
+		if err := d.Set("template_gcs_path", optionsMap["templateLocation"]); err != nil {
+			return fmt.Errorf("Error setting template_gcs_path: %s", err)
+		}
+		if err := d.Set("temp_gcs_location", optionsMap["tempLocation"]); err != nil {
+			return fmt.Errorf("Error setting temp_gcs_location: %s", err)
+		}
+		if err := d.Set("machine_type", optionsMap["machineType"]); err != nil {
+			return fmt.Errorf("Error setting machine_type: %s", err)
+		}
+		if err := d.Set("network", optionsMap["network"]); err != nil {
+			return fmt.Errorf("Error setting network: %s", err)
+		}
+		if err := d.Set("service_account_email", optionsMap["serviceAccountEmail"]); err != nil {
+			return fmt.Errorf("Error setting service_account_email: %s", err)
+		}
 	}
 
 	if ok := shouldStopDataflowJobDeleteQuery(job.CurrentState, d.Get("skip_wait_on_job_termination").(bool)); ok {
