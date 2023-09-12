@@ -238,12 +238,18 @@ In addition to the arguments listed above, the following computed attributes are
   This value may be empty in which case the appid to use for URL-encoded keys is the project_id (eg: foo instead of v~foo).
 
 * `etag` -
-  This checksum is computed by the server based on the value of other fields,
+  Output only. This checksum is computed by the server based on the value of other fields,
   and may be sent on update and delete requests to ensure the client has an
   up-to-date value before proceeding.
 
 * `create_time` -
-  The timestamp at which this database was created.
+  Output only. The timestamp at which this database was created.
+
+* `update_time` -
+  Output only. The timestamp at which this database was most recently updated.
+
+* `uid` -
+  Output only. The system-generated UUID4 for this Database.
 
 * `version_retention_period` -
   Output only. The period during which past versions of data are retained in the database.

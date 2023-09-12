@@ -103,7 +103,7 @@ If 'POINT_IN_TIME_RECOVERY_DISABLED' is selected, reads are supported on any ver
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The timestamp at which this database was created.`,
+				Description: `Output only. The timestamp at which this database was created.`,
 			},
 			"earliest_version_time": {
 				Type:     schema.TypeString,
@@ -115,7 +115,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `This checksum is computed by the server based on the value of other fields,
+				Description: `Output only. This checksum is computed by the server based on the value of other fields,
 and may be sent on update and delete requests to ensure the client has an
 up-to-date value before proceeding.`,
 			},
@@ -126,6 +126,16 @@ up-to-date value before proceeding.`,
 This keyPrefix is used, in combination with the project id ("~") to construct the application id
 that is returned from the Cloud Datastore APIs in Google App Engine first generation runtimes.
 This value may be empty in which case the appid to use for URL-encoded keys is the project_id (eg: foo instead of v~foo).`,
+			},
+			"uid": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The system-generated UUID4 for this Database.`,
+			},
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The timestamp at which this database was most recently updated.`,
 			},
 			"version_retention_period": {
 				Type:     schema.TypeString,
@@ -332,6 +342,12 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("create_time", flattenFirestoreDatabaseCreateTime(res["create_time"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
+	if err := d.Set("update_time", flattenFirestoreDatabaseUpdateTime(res["update_time"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
+	if err := d.Set("uid", flattenFirestoreDatabaseUid(res["uid"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
 	if err := d.Set("version_retention_period", flattenFirestoreDatabaseVersionRetentionPeriod(res["versionRetentionPeriod"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -520,6 +536,14 @@ func flattenFirestoreDatabaseEtag(v interface{}, d *schema.ResourceData, config 
 }
 
 func flattenFirestoreDatabaseCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreDatabaseUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFirestoreDatabaseUid(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
