@@ -95,6 +95,10 @@ resource "google_workstations_workstation" "default" {
     "label" = "key"
   }
 
+  env = {
+    name = "foo"
+  }
+
   annotations = {
     label-one = "value-one"
   }
@@ -137,6 +141,10 @@ The following arguments are supported:
 * `annotations` -
   (Optional)
   Client-specified annotations. This is distinct from labels.
+
+* `env` -
+  (Optional)
+  'Client-specified environment variables passed to the workstation container's entrypoint.'
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

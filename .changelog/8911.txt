@@ -1,0 +1,3 @@
+```release-note:enhancement
+workstations: added `env` field to `google_workstations_workstation` resource (beta)
+```
