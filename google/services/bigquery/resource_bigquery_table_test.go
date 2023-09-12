@@ -489,6 +489,39 @@ func TestAccBigQueryTable_MaterializedView_DailyTimePartioning_Update(t *testing
 	})
 }
 
+func TestAccBigQueryTable_MaterializedView_NonIncremental_basic(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	materialized_viewID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	query := fmt.Sprintf("SELECT count(some_string) as count, some_int, ts FROM `%s.%s` WHERE DATE(ts) = '2019-01-01' GROUP BY some_int, ts", datasetID, tableID)
+	maxStaleness := "0-0 0 10:0:0"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithMatViewNonIncremental_basic(datasetID, tableID, materialized_viewID, query, maxStaleness),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+			{
+				ResourceName:            "google_bigquery_table.mv_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryExternalDataTable_parquet(t *testing.T) {
 	t.Parallel()
 
@@ -1838,6 +1871,86 @@ resource "google_bigquery_table" "mv_test" {
   ]
 }
 `, datasetID, tableID, mViewID, enable_refresh, refresh_interval, query)
+}
+
+func testAccBigQueryTableWithMatViewNonIncremental_basic(datasetID, tableID, mViewID, query, maxStaleness string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  time_partitioning {
+    type                     = "DAY"
+    field                    = "ts"
+    require_partition_filter = true
+  }
+  clustering = ["some_int", "some_string"]
+  schema     = <<EOH
+[
+  {
+    "name": "ts",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "some_string",
+    "type": "STRING"
+  },
+  {
+    "name": "some_int",
+    "type": "INTEGER"
+  },
+  {
+    "name": "city",
+    "type": "RECORD",
+    "fields": [
+  {
+    "name": "id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "coord",
+    "type": "RECORD",
+    "fields": [
+    {
+    "name": "lon",
+    "type": "FLOAT"
+    }
+    ]
+  }
+    ]
+  }
+]
+EOH
+
+}
+
+resource "google_bigquery_table" "mv_test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  time_partitioning {
+    type    = "DAY"
+    field   = "ts"
+  }
+
+  materialized_view {
+    query          = "%s"
+    allow_non_incremental_definition = true
+  }
+
+  depends_on = [
+    google_bigquery_table.test,
+  ]
+
+  max_staleness = "%s"
+}
+`, datasetID, tableID, mViewID, query, maxStaleness)
 }
 
 func testAccBigQueryTableUpdated(datasetID, tableID string) string {

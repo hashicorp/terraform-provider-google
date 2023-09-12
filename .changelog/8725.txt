@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `allow_non_incremental_definition` to `google_bigquery_table` resource
+```
