@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed concurrent ops' quota-error to be retriable in `google_container_node_pool `
+```
