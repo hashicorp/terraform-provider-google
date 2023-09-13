@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_tpu_v2_vm` (beta)
+```
