@@ -54,6 +54,12 @@ func ResourceCloudfunctions2function() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location of this cloud function.`,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -272,12 +278,6 @@ It must match the pattern projects/{project}/locations/{location}/keyRings/{key_
 				Optional:    true,
 				Description: `A set of key/value label pairs associated with this Cloud Function.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The location of this cloud function.`,
 			},
 			"service_config": {
 				Type:        schema.TypeList,
