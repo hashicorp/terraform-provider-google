@@ -39,9 +39,9 @@ func TestAccDataprocWorkflowTemplate_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				// The "labels" field in the state are decided by the configuration.
-				// During importing, as the configuration is unavailableafter, the "labels" field in the state will be empty.
+				// During importing, as the configuration is unavailable, the "labels" field in the state will be empty.
 				// So add the "labels" to the ImportStateVerifyIgnore list.
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 				ResourceName:            "google_dataproc_workflow_template.template",
 			},
 		},

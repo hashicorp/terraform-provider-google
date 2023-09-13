@@ -45,10 +45,6 @@ resource "google_privateca_certificate_template" "primary" {
     }
   }
 
-  labels = {
-    label-two = "value-two"
-  }
-
   passthrough_extensions {
     additional_extensions {
       object_id_path = [1, 6]
@@ -107,6 +103,10 @@ resource "google_privateca_certificate_template" "primary" {
   }
 
   project = "my-project-name"
+
+  labels = {
+    label-two = "value-two"
+  }
 }
 
 
@@ -357,6 +357,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `update_time` -
   Output only. The time at which this CertificateTemplate was updated.

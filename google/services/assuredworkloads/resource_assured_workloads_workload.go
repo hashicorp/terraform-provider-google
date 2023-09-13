@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,9 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"billing_account": {
@@ -88,6 +92,12 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description:      "The organization for the resource",
 			},
 
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+			},
+
 			"kms_settings": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -95,13 +105,6 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description: "Input only. Settings used to create a CMEK crypto key. When set a project with a KMS CMEK key is provisioned. This field is mandatory for a subset of Compliance Regimes.",
 				MaxItems:    1,
 				Elem:        AssuredWorkloadsWorkloadKmsSettingsSchema(),
-			},
-
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. Labels applied to the workload.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"provisioned_resources_parent": {
@@ -125,10 +128,11 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description: "Output only. Immutable. The Workload creation timestamp.",
 			},
 
-			"effective_labels": {
+			"labels": {
 				Type:        schema.TypeMap,
-				Computed:    true,
-				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+				Optional:    true,
+				Description: "Optional. Labels applied to the workload.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"name": {
@@ -142,6 +146,12 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Computed:    true,
 				Description: "Output only. The resources associated with this workload. These resources will be created when creating the workload. If any of the projects already exist, the workload creation will fail. Always read only.",
 				Elem:        AssuredWorkloadsWorkloadResourcesSchema(),
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 		},
 	}
@@ -214,8 +224,8 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		DisplayName:                dcl.String(d.Get("display_name").(string)),
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
+		Labels:                     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 	}
@@ -277,8 +287,8 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		DisplayName:                dcl.String(d.Get("display_name").(string)),
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
+		Labels:                     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -321,11 +331,11 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("organization", res.Organization); err != nil {
 		return fmt.Errorf("error setting organization in state: %s", err)
 	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	}
 	if err = d.Set("kms_settings", flattenAssuredWorkloadsWorkloadKmsSettings(res.KmsSettings)); err != nil {
 		return fmt.Errorf("error setting kms_settings in state: %s", err)
-	}
-	if err = d.Set("labels", flattenAssuredWorkloadsWorkloadLabels(res.Labels, d)); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("provisioned_resources_parent", res.ProvisionedResourcesParent); err != nil {
 		return fmt.Errorf("error setting provisioned_resources_parent in state: %s", err)
@@ -336,14 +346,17 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
-	if err = d.Set("effective_labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	if err = d.Set("labels", flattenAssuredWorkloadsWorkloadLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
 	if err = d.Set("resources", flattenAssuredWorkloadsWorkloadResourcesArray(res.Resources)); err != nil {
 		return fmt.Errorf("error setting resources in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenAssuredWorkloadsWorkloadTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 
 	return nil
@@ -357,8 +370,8 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		DisplayName:                dcl.String(d.Get("display_name").(string)),
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
+		Labels:                     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -370,8 +383,8 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		DisplayName:                dcl.String(tpgdclresource.OldValue(d.GetChange("display_name")).(string)),
 		Location:                   dcl.String(tpgdclresource.OldValue(d.GetChange("location")).(string)),
 		Organization:               dcl.String(tpgdclresource.OldValue(d.GetChange("organization")).(string)),
+		Labels:                     tpgresource.CheckStringMap(tpgdclresource.OldValue(d.GetChange("effective_labels"))),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(tpgdclresource.OldValue(d.GetChange("kms_settings"))),
-		Labels:                     tpgresource.CheckStringMap(tpgdclresource.OldValue(d.GetChange("labels"))),
 		ProvisionedResourcesParent: dcl.String(tpgdclresource.OldValue(d.GetChange("provisioned_resources_parent")).(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(tpgdclresource.OldValue(d.GetChange("resource_settings"))),
 		Name:                       dcl.StringOrNil(tpgdclresource.OldValue(d.GetChange("name")).(string)),
@@ -419,8 +432,8 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		DisplayName:                dcl.String(d.Get("display_name").(string)),
 		Location:                   dcl.String(d.Get("location").(string)),
 		Organization:               dcl.String(d.Get("organization").(string)),
+		Labels:                     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		KmsSettings:                expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
-		Labels:                     tpgresource.CheckStringMap(d.Get("labels")),
 		ProvisionedResourcesParent: dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:           expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		Name:                       dcl.StringOrNil(d.Get("name").(string)),
@@ -591,7 +604,22 @@ func flattenAssuredWorkloadsWorkloadLabels(v map[string]string, d *schema.Resour
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("labels").(map[string]interface{}); ok {
 		for k, _ := range l {
-			transformed[k] = l[k]
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenAssuredWorkloadsWorkloadTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
 		}
 	}
 

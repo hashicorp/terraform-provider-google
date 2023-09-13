@@ -187,6 +187,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Output only. The current lifecycle state of this spoke. Possible values: STATE_UNSPECIFIED, CREATING, ACTIVE, DELETING
   
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+  
 * `unique_id` -
   Output only. The Google-generated UUID for the spoke. This value is unique across all spoke resources. If a spoke is deleted and another with the same name is created, the new spoke is assigned a different unique_id.
   

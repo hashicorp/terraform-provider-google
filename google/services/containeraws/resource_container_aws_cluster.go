@@ -53,6 +53,7 @@ func ResourceContainerAwsCluster() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -110,17 +111,16 @@ func ResourceContainerAwsCluster() *schema.Resource {
 				Elem:        ContainerAwsClusterNetworkingSchema(),
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Key can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"project": {
@@ -132,16 +132,17 @@ func ResourceContainerAwsCluster() *schema.Resource {
 				Description:      "The project for the resource",
 			},
 
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Key can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time at which this cluster was created.",
-			},
-
-			"effective_annotations": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"endpoint": {
@@ -578,8 +579,8 @@ func resourceContainerAwsClusterCreate(d *schema.ResourceData, meta interface{})
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
 		Networking:    expandContainerAwsClusterNetworking(d.Get("networking")),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:   dcl.String(d.Get("description").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:       dcl.String(project),
 	}
 
@@ -635,8 +636,8 @@ func resourceContainerAwsClusterRead(d *schema.ResourceData, meta interface{}) e
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
 		Networking:    expandContainerAwsClusterNetworking(d.Get("networking")),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:   dcl.String(d.Get("description").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:       dcl.String(project),
 	}
 
@@ -683,20 +684,20 @@ func resourceContainerAwsClusterRead(d *schema.ResourceData, meta interface{}) e
 	if err = d.Set("networking", flattenContainerAwsClusterNetworking(res.Networking)); err != nil {
 		return fmt.Errorf("error setting networking in state: %s", err)
 	}
-	if err = d.Set("annotations", flattenContainerAwsClusterAnnotations(res.Annotations, d)); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
 	}
+	if err = d.Set("annotations", flattenContainerAwsClusterAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
+	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
-	}
-	if err = d.Set("effective_annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("endpoint", res.Endpoint); err != nil {
 		return fmt.Errorf("error setting endpoint in state: %s", err)
@@ -737,8 +738,8 @@ func resourceContainerAwsClusterUpdate(d *schema.ResourceData, meta interface{})
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
 		Networking:    expandContainerAwsClusterNetworking(d.Get("networking")),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:   dcl.String(d.Get("description").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:       dcl.String(project),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -789,8 +790,8 @@ func resourceContainerAwsClusterDelete(d *schema.ResourceData, meta interface{})
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
 		Networking:    expandContainerAwsClusterNetworking(d.Get("networking")),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:   dcl.String(d.Get("description").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:       dcl.String(project),
 	}
 
@@ -1254,7 +1255,7 @@ func flattenContainerAwsClusterAnnotations(v map[string]string, d *schema.Resour
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
 		for k, _ := range l {
-			transformed[k] = l[k]
+			transformed[k] = v[k]
 		}
 	}
 

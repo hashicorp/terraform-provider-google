@@ -54,7 +54,7 @@ func TestAccClouddeployTarget_Target(t *testing.T) {
 				ResourceName:            "google_clouddeploy_target.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccClouddeployTarget_TargetUpdate0(context),
@@ -63,7 +63,7 @@ func TestAccClouddeployTarget_Target(t *testing.T) {
 				ResourceName:            "google_clouddeploy_target.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccClouddeployTarget_TargetUpdate1(context),
@@ -72,7 +72,7 @@ func TestAccClouddeployTarget_Target(t *testing.T) {
 				ResourceName:            "google_clouddeploy_target.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccClouddeployTarget_TargetUpdate2(context),
@@ -81,7 +81,7 @@ func TestAccClouddeployTarget_Target(t *testing.T) {
 				ResourceName:            "google_clouddeploy_target.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccClouddeployTarget_TargetUpdate3(context),
@@ -90,7 +90,7 @@ func TestAccClouddeployTarget_Target(t *testing.T) {
 				ResourceName:            "google_clouddeploy_target.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
 			},
 		},
 	})
@@ -102,12 +102,6 @@ resource "google_clouddeploy_target" "primary" {
   location = "%{region}"
   name     = "tf-test-target%{random_suffix}"
 
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
   deploy_parameters = {
     deployParameterKey = "deployParameterValue"
   }
@@ -118,14 +112,20 @@ resource "google_clouddeploy_target" "primary" {
     cluster = "projects/%{project_name}/locations/%{region}/clusters/example-cluster-name"
   }
 
+  project          = "%{project_name}"
+  require_approval = false
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
   labels = {
     my_first_label = "example-label-1"
 
     my_second_label = "example-label-2"
   }
-
-  project          = "%{project_name}"
-  require_approval = false
 }
 
 
@@ -135,15 +135,8 @@ resource "google_clouddeploy_target" "primary" {
 func testAccClouddeployTarget_TargetUpdate0(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_target" "primary" {
-  location = "%{region}"
-  name     = "tf-test-target%{random_suffix}"
-
-  annotations = {
-    my_second_annotation = "updated-example-annotation-2"
-
-    my_third_annotation = "example-annotation-3"
-  }
-
+  location          = "%{region}"
+  name              = "tf-test-target%{random_suffix}"
   deploy_parameters = {}
   description       = "updated description"
 
@@ -152,14 +145,20 @@ resource "google_clouddeploy_target" "primary" {
     internal_ip = true
   }
 
+  project          = "%{project_name}"
+  require_approval = true
+
+  annotations = {
+    my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
+  }
+
   labels = {
     my_second_label = "updated-example-label-2"
 
     my_third_label = "example-label-3"
   }
-
-  project          = "%{project_name}"
-  require_approval = true
 }
 
 
@@ -169,15 +168,8 @@ resource "google_clouddeploy_target" "primary" {
 func testAccClouddeployTarget_TargetUpdate1(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_target" "primary" {
-  location = "%{region}"
-  name     = "tf-test-target%{random_suffix}"
-
-  annotations = {
-    my_second_annotation = "updated-example-annotation-2"
-
-    my_third_annotation = "example-annotation-3"
-  }
-
+  location          = "%{region}"
+  name              = "tf-test-target%{random_suffix}"
   deploy_parameters = {}
   description       = "updated description"
 
@@ -192,14 +184,20 @@ resource "google_clouddeploy_target" "primary" {
     internal_ip = true
   }
 
+  project          = "%{project_name}"
+  require_approval = true
+
+  annotations = {
+    my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
+  }
+
   labels = {
     my_second_label = "updated-example-label-2"
 
     my_third_label = "example-label-3"
   }
-
-  project          = "%{project_name}"
-  require_approval = true
 }
 
 
@@ -209,15 +207,8 @@ resource "google_clouddeploy_target" "primary" {
 func testAccClouddeployTarget_TargetUpdate2(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_target" "primary" {
-  location = "%{region}"
-  name     = "tf-test-target%{random_suffix}"
-
-  annotations = {
-    my_second_annotation = "updated-example-annotation-2"
-
-    my_third_annotation = "example-annotation-3"
-  }
-
+  location          = "%{region}"
+  name              = "tf-test-target%{random_suffix}"
   deploy_parameters = {}
   description       = "updated description"
 
@@ -239,14 +230,20 @@ resource "google_clouddeploy_target" "primary" {
     internal_ip = true
   }
 
+  project          = "%{project_name}"
+  require_approval = true
+
+  annotations = {
+    my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
+  }
+
   labels = {
     my_second_label = "updated-example-label-2"
 
     my_third_label = "example-label-3"
   }
-
-  project          = "%{project_name}"
-  require_approval = true
 }
 
 
@@ -256,15 +253,8 @@ resource "google_clouddeploy_target" "primary" {
 func testAccClouddeployTarget_TargetUpdate3(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_clouddeploy_target" "primary" {
-  location = "%{region}"
-  name     = "tf-test-target%{random_suffix}"
-
-  annotations = {
-    my_second_annotation = "updated-example-annotation-2"
-
-    my_third_annotation = "example-annotation-3"
-  }
-
+  location          = "%{region}"
+  name              = "tf-test-target%{random_suffix}"
   deploy_parameters = {}
   description       = "updated description"
 
@@ -286,14 +276,20 @@ resource "google_clouddeploy_target" "primary" {
     internal_ip = true
   }
 
+  project          = "%{project_name}"
+  require_approval = true
+
+  annotations = {
+    my_second_annotation = "updated-example-annotation-2"
+
+    my_third_annotation = "example-annotation-3"
+  }
+
   labels = {
     my_second_label = "updated-example-label-2"
 
     my_third_label = "example-label-3"
   }
-
-  project          = "%{project_name}"
-  require_approval = true
 }
 
 

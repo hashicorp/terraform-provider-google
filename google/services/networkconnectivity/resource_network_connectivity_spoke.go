@@ -53,6 +53,7 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -84,11 +85,10 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description: "An optional description of the spoke.",
 			},
 
-			"labels": {
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"linked_interconnect_attachments": {
@@ -136,16 +136,23 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description: "Output only. The time the spoke was created.",
 			},
 
-			"effective_labels": {
+			"labels": {
 				Type:        schema.TypeMap,
-				Computed:    true,
-				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+				Optional:    true,
+				Description: "Optional labels in key:value format. For more information about labels, see [Requirements for labels](https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements).\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The current lifecycle state of this spoke. Possible values: STATE_UNSPECIFIED, CREATING, ACTIVE, DELETING",
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"unique_id": {
@@ -259,7 +266,7 @@ func resourceNetworkConnectivitySpokeCreate(d *schema.ResourceData, meta interfa
 		Location:                       dcl.String(d.Get("location").(string)),
 		Name:                           dcl.String(d.Get("name").(string)),
 		Description:                    dcl.String(d.Get("description").(string)),
-		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:                         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
@@ -315,7 +322,7 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 		Location:                       dcl.String(d.Get("location").(string)),
 		Name:                           dcl.String(d.Get("name").(string)),
 		Description:                    dcl.String(d.Get("description").(string)),
-		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:                         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
@@ -356,8 +363,8 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
 	}
-	if err = d.Set("labels", flattenNetworkConnectivitySpokeLabels(res.Labels, d)); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("linked_interconnect_attachments", flattenNetworkConnectivitySpokeLinkedInterconnectAttachments(res.LinkedInterconnectAttachments)); err != nil {
 		return fmt.Errorf("error setting linked_interconnect_attachments in state: %s", err)
@@ -374,11 +381,14 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
-	if err = d.Set("effective_labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	if err = d.Set("labels", flattenNetworkConnectivitySpokeLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("state", res.State); err != nil {
 		return fmt.Errorf("error setting state in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenNetworkConnectivitySpokeTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("unique_id", res.UniqueId); err != nil {
 		return fmt.Errorf("error setting unique_id in state: %s", err)
@@ -401,7 +411,7 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 		Location:                       dcl.String(d.Get("location").(string)),
 		Name:                           dcl.String(d.Get("name").(string)),
 		Description:                    dcl.String(d.Get("description").(string)),
-		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:                         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
@@ -452,7 +462,7 @@ func resourceNetworkConnectivitySpokeDelete(d *schema.ResourceData, meta interfa
 		Location:                       dcl.String(d.Get("location").(string)),
 		Name:                           dcl.String(d.Get("name").(string)),
 		Description:                    dcl.String(d.Get("description").(string)),
-		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:                         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
@@ -654,7 +664,22 @@ func flattenNetworkConnectivitySpokeLabels(v map[string]string, d *schema.Resour
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("labels").(map[string]interface{}); ok {
 		for k, _ := range l {
-			transformed[k] = l[k]
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenNetworkConnectivitySpokeTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
 		}
 	}
 

@@ -41,8 +41,8 @@ resource "google_dataplex_zone" "primary" {
   type         = "RAW"
   description  = "Zone for DCL"
   display_name = "Zone for DCL"
-  labels       = {}
   project      = "my-project-name"
+  labels       = {}
 }
 
 resource "google_dataplex_lake" "basic" {
@@ -50,12 +50,11 @@ resource "google_dataplex_lake" "basic" {
   name         = "lake"
   description  = "Lake for DCL"
   display_name = "Lake for DCL"
+  project      = "my-project-name"
 
   labels = {
     my-lake = "exists"
   }
-
-  project = "my-project-name"
 }
 
 
@@ -190,6 +189,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `state` -
   Output only. Current state of the zone. Possible values: STATE_UNSPECIFIED, ACTIVE, CREATING, DELETING, ACTION_REQUIRED
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `uid` -
   Output only. System generated globally unique ID for the zone. This ID will be different if the zone is deleted and re-created with the same name.

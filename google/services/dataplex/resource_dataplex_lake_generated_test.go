@@ -54,7 +54,7 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 				ResourceName:            "google_dataplex_lake.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDataplexLake_BasicLakeUpdate0(context),
@@ -63,7 +63,7 @@ func TestAccDataplexLake_BasicLake(t *testing.T) {
 				ResourceName:            "google_dataplex_lake.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels"},
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -76,12 +76,11 @@ resource "google_dataplex_lake" "primary" {
   name         = "tf-test-lake%{random_suffix}"
   description  = "Lake for DCL"
   display_name = "Lake for DCL"
+  project      = "%{project_name}"
 
   labels = {
     my-lake = "exists"
   }
-
-  project = "%{project_name}"
 }
 
 
@@ -95,12 +94,11 @@ resource "google_dataplex_lake" "primary" {
   name         = "tf-test-lake%{random_suffix}"
   description  = "Updated description for lake"
   display_name = "Lake for DCL"
+  project      = "%{project_name}"
 
   labels = {
     my-lake = "exists"
   }
-
-  project = "%{project_name}"
 }
 
 
