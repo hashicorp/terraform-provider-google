@@ -53,6 +53,7 @@ func ResourceEventarcTrigger() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -94,17 +95,16 @@ func ResourceEventarcTrigger() *schema.Resource {
 				Description:      "Optional. The name of the channel associated with the trigger in `projects/{project}/locations/{location}/channels/{channel}` format. You must provide a channel to receive events from Eventarc SaaS partners.",
 			},
 
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+			},
+
 			"event_data_content_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Optional. EventDataContentType specifies the type of payload in MIME format that is expected from the CloudEvent data field. This is set to `application/json` if the value is not defined.",
-			},
-
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. User labels attached to the triggers that can be used to group resources.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"project": {
@@ -146,16 +146,23 @@ func ResourceEventarcTrigger() *schema.Resource {
 				Description: "Output only. The creation time.",
 			},
 
-			"effective_labels": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
-			},
-
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.",
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. User labels attached to the triggers that can be used to group resources.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"uid": {
@@ -344,8 +351,8 @@ func resourceEventarcTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:                 dcl.String(d.Get("name").(string)),
 		Channel:              dcl.String(d.Get("channel").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("effective_labels")),
 		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
-		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
 		Project:              dcl.String(project),
 		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
 		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
@@ -401,8 +408,8 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:                 dcl.String(d.Get("name").(string)),
 		Channel:              dcl.String(d.Get("channel").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("effective_labels")),
 		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
-		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
 		Project:              dcl.String(project),
 		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
 		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
@@ -445,11 +452,11 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if err = d.Set("channel", res.Channel); err != nil {
 		return fmt.Errorf("error setting channel in state: %s", err)
 	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	}
 	if err = d.Set("event_data_content_type", res.EventDataContentType); err != nil {
 		return fmt.Errorf("error setting event_data_content_type in state: %s", err)
-	}
-	if err = d.Set("labels", flattenEventarcTriggerLabels(res.Labels, d)); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
@@ -466,11 +473,14 @@ func resourceEventarcTriggerRead(d *schema.ResourceData, meta interface{}) error
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
-	if err = d.Set("effective_labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting effective_labels in state: %s", err)
-	}
 	if err = d.Set("etag", res.Etag); err != nil {
 		return fmt.Errorf("error setting etag in state: %s", err)
+	}
+	if err = d.Set("labels", flattenEventarcTriggerLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenEventarcTriggerTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("uid", res.Uid); err != nil {
 		return fmt.Errorf("error setting uid in state: %s", err)
@@ -494,8 +504,8 @@ func resourceEventarcTriggerUpdate(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:                 dcl.String(d.Get("name").(string)),
 		Channel:              dcl.String(d.Get("channel").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("effective_labels")),
 		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
-		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
 		Project:              dcl.String(project),
 		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
 		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
@@ -546,8 +556,8 @@ func resourceEventarcTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		MatchingCriteria:     expandEventarcTriggerMatchingCriteriaArray(d.Get("matching_criteria")),
 		Name:                 dcl.String(d.Get("name").(string)),
 		Channel:              dcl.String(d.Get("channel").(string)),
+		Labels:               tpgresource.CheckStringMap(d.Get("effective_labels")),
 		EventDataContentType: dcl.String(d.Get("event_data_content_type").(string)),
-		Labels:               tpgresource.CheckStringMap(d.Get("labels")),
 		Project:              dcl.String(project),
 		ServiceAccount:       dcl.String(d.Get("service_account").(string)),
 		Transport:            expandEventarcTriggerTransport(d.Get("transport")),
@@ -817,7 +827,22 @@ func flattenEventarcTriggerLabels(v map[string]string, d *schema.ResourceData) i
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("labels").(map[string]interface{}); ok {
 		for k, _ := range l {
-			transformed[k] = l[k]
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenEventarcTriggerTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
 		}
 	}
 

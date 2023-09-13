@@ -228,6 +228,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `etag` -
   Output only. This checksum is computed by the server based on the value of other fields, and may be sent only on create requests to ensure the client has an up-to-date value before proceeding.
   
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+  
 * `uid` -
   Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted.
   

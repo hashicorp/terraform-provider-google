@@ -53,6 +53,7 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -76,19 +77,18 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 				Description: "Optional. A human-readable description of scenarios this template is intended for.",
 			},
 
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+			},
+
 			"identity_constraints": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Optional. Describes constraints on identities that may be appear in Certificates issued using this template. If this is omitted, then this template will not add restrictions on a certificate's identity.",
 				MaxItems:    1,
 				Elem:        PrivatecaCertificateTemplateIdentityConstraintsSchema(),
-			},
-
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. Labels with user-defined metadata.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"passthrough_extensions": {
@@ -122,10 +122,17 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 				Description: "Output only. The time at which this CertificateTemplate was created.",
 			},
 
-			"effective_labels": {
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Labels with user-defined metadata.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"terraform_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"update_time": {
@@ -494,8 +501,8 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 		Location:              dcl.String(d.Get("location").(string)),
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
+		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -549,8 +556,8 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		Location:              dcl.String(d.Get("location").(string)),
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
+		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -587,11 +594,11 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
 	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	}
 	if err = d.Set("identity_constraints", flattenPrivatecaCertificateTemplateIdentityConstraints(res.IdentityConstraints)); err != nil {
 		return fmt.Errorf("error setting identity_constraints in state: %s", err)
-	}
-	if err = d.Set("labels", flattenPrivatecaCertificateTemplateLabels(res.Labels, d)); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("passthrough_extensions", flattenPrivatecaCertificateTemplatePassthroughExtensions(res.PassthroughExtensions)); err != nil {
 		return fmt.Errorf("error setting passthrough_extensions in state: %s", err)
@@ -605,8 +612,11 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
-	if err = d.Set("effective_labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	if err = d.Set("labels", flattenPrivatecaCertificateTemplateLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenPrivatecaCertificateTemplateTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("error setting update_time in state: %s", err)
@@ -625,8 +635,8 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		Location:              dcl.String(d.Get("location").(string)),
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
+		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -675,8 +685,8 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 		Location:              dcl.String(d.Get("location").(string)),
 		Name:                  dcl.String(d.Get("name").(string)),
 		Description:           dcl.String(d.Get("description").(string)),
+		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
-		Labels:                tpgresource.CheckStringMap(d.Get("labels")),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -1246,7 +1256,22 @@ func flattenPrivatecaCertificateTemplateLabels(v map[string]string, d *schema.Re
 	transformed := make(map[string]interface{})
 	if l, ok := d.Get("labels").(map[string]interface{}); ok {
 		for k, _ := range l {
-			transformed[k] = l[k]
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenPrivatecaCertificateTemplateTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
 		}
 	}
 

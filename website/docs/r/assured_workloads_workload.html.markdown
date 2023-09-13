@@ -37,10 +37,6 @@ resource "google_assured_workloads_workload" "primary" {
     rotation_period    = "10368000s"
   }
 
-  labels = {
-    label-one = "value-one"
-  }
-
   provisioned_resources_parent = "folders/519620126891"
 
   resource_settings {
@@ -54,6 +50,10 @@ resource "google_assured_workloads_workload" "primary" {
   resource_settings {
     resource_id   = "ring"
     resource_type = "KEYRING"
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -145,6 +145,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `resources` -
   Output only. The resources associated with this workload. These resources will be created when creating the workload. If any of the projects already exist, the workload creation will fail. Always read only.
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 ## Timeouts
 

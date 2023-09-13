@@ -54,7 +54,7 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 				ResourceName:            "google_dataplex_asset.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"resource_spec.0.name", "labels"},
+				ImportStateVerifyIgnore: []string{"resource_spec.0.name", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDataplexAsset_BasicAssetHandWrittenUpdate0(context),
@@ -63,7 +63,7 @@ func TestAccDataplexAsset_BasicAssetHandWritten(t *testing.T) {
 				ResourceName:            "google_dataplex_asset.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"resource_spec.0.name", "labels"},
+				ImportStateVerifyIgnore: []string{"resource_spec.0.name", "labels", "terraform_labels"},
 			},
 		},
 	})

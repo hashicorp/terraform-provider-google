@@ -26,24 +26,10 @@ The Cloud Deploy `DeliveryPipeline` resource
 Creates a basic Cloud Deploy delivery pipeline
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
-  location = "us-west1"
-  name     = "pipeline"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location    = "us-west1"
+  name        = "pipeline"
   description = "basic description"
-
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
-  project = "my-project-name"
+  project     = "my-project-name"
 
   serial_pipeline {
     stages {
@@ -64,7 +50,19 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
       target_id = "example-target-two"
     }
   }
-  provider = google-beta
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider    = google-beta
 }
 
 ```
@@ -72,24 +70,10 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 Creates a basic Cloud Deploy delivery pipeline
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
-  location = "us-west1"
-  name     = "pipeline"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location    = "us-west1"
+  name        = "pipeline"
   description = "basic description"
-
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
-  project = "my-project-name"
+  project     = "my-project-name"
 
   serial_pipeline {
     stages {
@@ -110,7 +94,19 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
       target_id = "example-target-two"
     }
   }
-  provider = google-beta
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider    = google-beta
 }
 
 ```
@@ -118,24 +114,10 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 Creates a basic Cloud Deploy delivery pipeline
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
-  location = "us-west1"
-  name     = "pipeline"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location    = "us-west1"
+  name        = "pipeline"
   description = "basic description"
-
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
-  project = "my-project-name"
+  project     = "my-project-name"
 
   serial_pipeline {
     stages {
@@ -156,7 +138,19 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
       target_id = "example-target-two"
     }
   }
-  provider = google-beta
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider    = google-beta
 }
 
 ```
@@ -164,24 +158,10 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 Creates a basic Cloud Deploy delivery pipeline
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
-  location = "us-west1"
-  name     = "pipeline"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location    = "us-west1"
+  name        = "pipeline"
   description = "basic description"
-
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
-  project = "my-project-name"
+  project     = "my-project-name"
 
   serial_pipeline {
     stages {
@@ -201,6 +181,18 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
       profiles  = []
       target_id = "example-target-two"
     }
+  }
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
   }
 }
 
@@ -210,24 +202,10 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
 tests creating and updating a delivery pipeline with deployment verification strategy
 ```hcl
 resource "google_clouddeploy_delivery_pipeline" "primary" {
-  location = "us-west1"
-  name     = "pipeline"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location    = "us-west1"
+  name        = "pipeline"
   description = "basic description"
-
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
-  project = "my-project-name"
+  project     = "my-project-name"
 
   serial_pipeline {
     stages {
@@ -248,7 +226,19 @@ resource "google_clouddeploy_delivery_pipeline" "primary" {
       target_id = "example-target-two"
     }
   }
-  provider = google-beta
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider    = google-beta
 }
 
 ```
@@ -535,6 +525,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `etag` -
   This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `uid` -
   Output only. Unique identifier of the `DeliveryPipeline`.

@@ -236,6 +236,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Output only. Current state of the asset. Possible values: STATE_UNSPECIFIED, ACTIVE, CREATING, DELETING, ACTION_REQUIRED
   
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+  
 * `uid` -
   Output only. System generated globally unique ID for the asset. This ID will be different if the asset is deleted and re-created with the same name.
   

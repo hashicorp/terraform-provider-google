@@ -28,12 +28,11 @@ A basic test of a networkconnectivity hub
 resource "google_network_connectivity_hub" "primary" {
   name        = "hub"
   description = "A sample hub"
+  project     = "my-project-name"
 
   labels = {
     label-one = "value-one"
   }
-
-  project = "my-project-name"
 }
 
 
@@ -84,6 +83,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `state` -
   Output only. The current lifecycle state of this hub. Possible values: STATE_UNSPECIFIED, CREATING, ACTIVE, DELETING
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `unique_id` -
   Output only. The Google-generated UUID for the hub. This value is unique across all hub resources. If a hub is deleted and another with the same name is created, the new hub is assigned a different unique_id.
