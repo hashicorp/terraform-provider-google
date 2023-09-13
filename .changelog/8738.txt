@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed scaling issues when deploying terraform changes with many `google_monitoring_monitored_project`
+```
