@@ -187,7 +187,7 @@ The following arguments are supported:
 
 * `location_id` -
   (Required)
-  The location of the database. Available databases are listed at
+  The location of the database. Available locations are listed at
   https://cloud.google.com/firestore/docs/locations.
 
 * `type` -
