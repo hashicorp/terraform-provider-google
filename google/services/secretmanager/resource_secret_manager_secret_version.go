@@ -116,6 +116,13 @@ disabled rather than deleted. Default is 'DELETE'. Possible values are:
   * DISABLE
   * ABANDON`,
 			},
+			"is_secret_data_base64": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Default:     false,
+				Description: `If set to 'true', the secret data is expected to be base64-encoded string and would be sent as is.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -217,6 +224,12 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
+	// Explicitly set the field to default value if unset
+	if _, ok := d.GetOkExists("is_secret_data_base64"); !ok {
+		if err := d.Set("is_secret_data_base64", false); err != nil {
+			return fmt.Errorf("Error setting is_secret_data_base64: %s", err)
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -429,11 +442,15 @@ func flattenSecretManagerSecretVersionPayload(v interface{}, d *schema.ResourceD
 		return err
 	}
 
-	data, err := base64.StdEncoding.DecodeString(accessRes["payload"].(map[string]interface{})["data"].(string))
-	if err != nil {
-		return err
+	if d.Get("is_secret_data_base64").(bool) {
+		transformed["secret_data"] = accessRes["payload"].(map[string]interface{})["data"].(string)
+	} else {
+		data, err := base64.StdEncoding.DecodeString(accessRes["payload"].(map[string]interface{})["data"].(string))
+		if err != nil {
+			return err
+		}
+		transformed["secret_data"] = string(data)
 	}
-	transformed["secret_data"] = string(data)
 	return []interface{}{transformed}
 }
 
@@ -493,6 +510,9 @@ func expandSecretManagerSecretVersionPayloadSecretData(v interface{}, d tpgresou
 		return nil, nil
 	}
 
+	if d.Get("is_secret_data_base64").(bool) {
+		return v, nil
+	}
 	return base64.StdEncoding.EncodeToString([]byte(v.(string))), nil
 }
 

@@ -174,6 +174,55 @@ resource "google_secret_manager_secret_version" "secret-version-deletion-policy"
 `, context)
 }
 
+func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"data":          "./test-fixtures/binary-file.pfx",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretVersionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataExample(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret_version.secret-version-base64",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"secret", "is_secret_data_base64"},
+			},
+		},
+	})
+}
+
+func testAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-version%{random_suffix}"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-base64" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  is_secret_data_base64 = true
+  secret_data = filebase64("%{data}")
+}
+`, context)
+}
+
 func testAccCheckSecretManagerSecretVersionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
