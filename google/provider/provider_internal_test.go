@@ -157,7 +157,7 @@ func TestProvider_ProviderConfigure_credentials(t *testing.T) {
 		},
 		"when credentials is unset in the config (and access_token unset), GOOGLE_APPLICATION_CREDENTIALS is used for auth but not to set values in the config": {
 			EnvVariables: map[string]string{
-				"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath,
+				"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath, // needs to be a path to a file when used
 			},
 			ExpectFieldUnset:    true,
 			ExpectedSchemaValue: "",
@@ -168,7 +168,7 @@ func TestProvider_ProviderConfigure_credentials(t *testing.T) {
 				"credentials": "",
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath,
+				"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath, // needs to be a path to a file when used
 			},
 			ExpectFieldUnset:    true,
 			ExpectedSchemaValue: "",
@@ -182,13 +182,13 @@ func TestProvider_ProviderConfigure_credentials(t *testing.T) {
 		// 		"credentials": "",
 		// 	},
 		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_APPLICATION_CREDENTIALS": "", // setting to empty string to help test run in CI
+		// 		"GOOGLE_APPLICATION_CREDENTIALS": "",
 		// 	},
 		// 	ExpectError: true,
 		// },
 		// "error returned if neither credentials nor access_token set in the provider config, and GOOGLE_APPLICATION_CREDENTIALS is unset": {
 		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_APPLICATION_CREDENTIALS": "", // setting to empty string to help test run in CI
+		// 		"GOOGLE_APPLICATION_CREDENTIALS": "",
 		// 	},
 		// 	ExpectError: true,
 		// },
@@ -274,14 +274,14 @@ func TestProvider_ProviderConfigure_accessToken(t *testing.T) {
 			ExpectedSchemaValue: "value-from-config",
 			ExpectedConfigValue: "value-from-config",
 		},
-		"when access_token is unset in the config, an environment variable is used but doesn't update the schema data": {
+		"when access_token is unset in the config, the GOOGLE_OAUTH_ACCESS_TOKEN environment variable is used": {
 			EnvVariables: map[string]string{
 				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
 			},
 			ExpectedSchemaValue: "",
 			ExpectedConfigValue: "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no access_token values are provided via config or environment variables there's no error": {
 			ConfigValues: map[string]interface{}{
 				// access_token unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -302,7 +302,7 @@ func TestProvider_ProviderConfigure_accessToken(t *testing.T) {
 			ExpectedSchemaValue: "",
 			ExpectedConfigValue: "",
 		},
-		"when access_token is set as an empty string in the config, an environment variable is used but doesn't update the schema data": {
+		"when access_token is set as an empty string in the config, an environment variable is used": {
 			ConfigValues: map[string]interface{}{
 				"access_token": "",
 			},
@@ -395,7 +395,7 @@ func TestProvider_ProviderConfigure_impersonateServiceAccount(t *testing.T) {
 			},
 			ExpectedValue: "value-from-env@example.com",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no impersonate_service_account values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// impersonate_service_account unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -501,7 +501,7 @@ func TestProvider_ProviderConfigure_impersonateServiceAccountDelegates(t *testin
 			ExpectedValue:    nil,
 		},
 		// Handling empty values in config
-		"when project is set as an empty array the field is treated as if it's unset, without error": {
+		"when impersonate_service_account_delegates is set as an empty array the field is treated as if it's unset, without error": {
 			ConfigValues: map[string]interface{}{
 				"impersonate_service_account_delegates": []string{},
 				"credentials":                           transport_tpg.TestFakeCredentialsPath,
@@ -584,7 +584,7 @@ func TestProvider_ProviderConfigure_project(t *testing.T) {
 	}{
 		"project value set in the provider schema is not overridden by environment variables": {
 			ConfigValues: map[string]interface{}{
-				"project":     "my-project-from-config",
+				"project":     "project-from-config",
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
@@ -593,7 +593,7 @@ func TestProvider_ProviderConfigure_project(t *testing.T) {
 				"GCLOUD_PROJECT":        "project-from-GCLOUD_PROJECT",
 				"CLOUDSDK_CORE_PROJECT": "project-from-CLOUDSDK_CORE_PROJECT",
 			},
-			ExpectedValue: "my-project-from-config",
+			ExpectedValue: "project-from-config",
 		},
 		"project value can be set by environment variable: GOOGLE_PROJECT is used first": {
 			ConfigValues: map[string]interface{}{
@@ -739,25 +739,25 @@ func TestProvider_ProviderConfigure_billingProject(t *testing.T) {
 	}{
 		"billing_project value set in the provider config is not overridden by ENVs": {
 			ConfigValues: map[string]interface{}{
-				"billing_project": "my-billing-project-from-config",
+				"billing_project": "billing-project-from-config",
 				"credentials":     transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
-			ExpectedValue: "my-billing-project-from-config",
+			ExpectedValue: "billing-project-from-config",
 		},
-		"billing project can be set by environment variable, when no value supplied via the config": {
+		"billing_project can be set by environment variable, when no value supplied via the config": {
 			ConfigValues: map[string]interface{}{
 				// billing_project unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
-			ExpectedValue: "my-billing-project-from-env",
+			ExpectedValue: "billing-project-from-env",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no billing_project values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// billing_project unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -781,9 +781,9 @@ func TestProvider_ProviderConfigure_billingProject(t *testing.T) {
 				"credentials":     transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
-				"GOOGLE_BILLING_PROJECT": "my-billing-project-from-env",
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
 			},
-			ExpectedValue: "my-billing-project-from-env",
+			ExpectedValue: "billing-project-from-env",
 		},
 	}
 
@@ -851,14 +851,14 @@ func TestProvider_ProviderConfigure_region(t *testing.T) {
 	}{
 		"region value set in the provider config is not overridden by ENVs": {
 			ConfigValues: map[string]interface{}{
-				"region":      "my-region-from-config",
+				"region":      "region-from-config",
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
 			EnvVariables: map[string]string{
 				"GOOGLE_REGION": "region-from-env",
 			},
-			ExpectedSchemaValue: "my-region-from-config",
-			ExpectedConfigValue: "my-region-from-config",
+			ExpectedSchemaValue: "region-from-config",
+			ExpectedConfigValue: "region-from-config",
 		},
 		"region values can be supplied as a self link": {
 			ConfigValues: map[string]interface{}{
@@ -879,7 +879,7 @@ func TestProvider_ProviderConfigure_region(t *testing.T) {
 			ExpectedSchemaValue: "region-from-env",
 			ExpectedConfigValue: "region-from-env",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no region values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// region unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -1032,7 +1032,7 @@ func TestProvider_ProviderConfigure_zone(t *testing.T) {
 			ExpectedSchemaValue: "zone-from-CLOUDSDK_COMPUTE_ZONE",
 			ExpectedConfigValue: "zone-from-CLOUDSDK_COMPUTE_ZONE",
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no zone values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// zone unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -1175,13 +1175,13 @@ func TestProvider_ProviderConfigure_userProjectOverride(t *testing.T) {
 			},
 			ExpectedValue: false,
 		},
-		"error returned due to non-boolean environment variables": {
+		"setting user_project_override using a non-boolean environment variables results in an error": {
 			EnvVariables: map[string]string{
 				"USER_PROJECT_OVERRIDE": "I'm not a boolean",
 			},
 			ExpectError: true,
 		},
-		"when no values are provided via config or environment variables, the field remains unset without error": {
+		"when no user_project_override values are provided via config or environment variables, the field remains unset without error": {
 			ConfigValues: map[string]interface{}{
 				// user_project_override unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
@@ -1257,22 +1257,10 @@ func TestProvider_ProviderConfigure_scopes(t *testing.T) {
 		"scopes are set in the provider config as a list": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
-				"scopes": []string{
-					"fizz",
-					"buzz",
-					"fizzbuzz",
-				},
+				"scopes":      []string{"fizz", "buzz", "fizzbuzz"},
 			},
-			ExpectedSchemaValue: []string{
-				"fizz",
-				"buzz",
-				"fizzbuzz",
-			},
-			ExpectedConfigValue: []string{
-				"fizz",
-				"buzz",
-				"fizzbuzz",
-			},
+			ExpectedSchemaValue: []string{"fizz", "buzz", "fizzbuzz"},
+			ExpectedConfigValue: []string{"fizz", "buzz", "fizzbuzz"},
 		},
 		"scopes can be left unset in the provider config without any issues, and a default value is used": {
 			ConfigValues: map[string]interface{}{
@@ -1391,17 +1379,17 @@ func TestProvider_ProviderConfigure_requestTimeout(t *testing.T) {
 			ExpectError:         true,
 			ExpectFieldUnset:    false,
 		},
-		// it's default value is set when RequestTimeout value is 0.
-		// This can be seen in this part of the config code where the default value is set to 120s
+		// RequestTimeout is "0s" if unset by the user, and logic elsewhere will supply a different value.
+		// This can be seen in this part of the config code where the default value is set to "120s"
 		// https://github.com/hashicorp/terraform-provider-google/blob/09cb850ee64bcd78e4457df70905530c1ed75f19/google/transport/config.go#L1228-L1233
-		"when config is unset, the value will be 0s in order to set the default value": {
+		"when request_timeout is unset in the config, the default value is 0s. (initially; this value is subsequently overwritten)": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
 			ExpectedValue:    "0s",
 			ExpectFieldUnset: true,
 		},
-		"when value is empty, the value will be 0s in order to set the default value": {
+		"when request_timeout is set as an empty string, the default value is 0s. (initially; this value is subsequently overwritten)": {
 			ConfigValues: map[string]interface{}{
 				"request_timeout": "",
 				"credentials":     transport_tpg.TestFakeCredentialsPath,
@@ -1495,6 +1483,27 @@ func TestProvider_ProviderConfigure_requestReason(t *testing.T) {
 				// request_reason unset
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 			},
+			ExpectedSchemaValue: "",
+			ExpectedConfigValue: "",
+		},
+		// Handling empty values in config
+		"when request_reason is set as an empty string in the config it is overridden by environment variables": {
+			ConfigValues: map[string]interface{}{
+				"request_reason": "",
+				"credentials":    transport_tpg.TestFakeCredentialsPath,
+			},
+			EnvVariables: map[string]string{
+				"CLOUDSDK_CORE_REQUEST_REASON": "test",
+			},
+			ExpectedSchemaValue: "test",
+			ExpectedConfigValue: "test",
+		},
+		"when request_reason is set as an empty string in the config, the field remains unset without error": {
+			ConfigValues: map[string]interface{}{
+				"request_reason": "",
+				"credentials":    transport_tpg.TestFakeCredentialsPath,
+			},
+			ExpectedSchemaValue: "",
 			ExpectedConfigValue: "",
 		},
 	}
@@ -1558,9 +1567,23 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 		ExpectedEnableBatchingValue bool
 		ExpectedSendAfterValue      string
 	}{
-		"if batch is an empty block, it will set the default values": {
+		"batching can be configured with values for enable_batching and send_after": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
+				"batching": []interface{}{
+					map[string]interface{}{
+						"enable_batching": true,
+						"send_after":      "123s",
+					},
+				},
+			},
+			ExpectedEnableBatchingValue: true,
+			ExpectedSendAfterValue:      "123s",
+		},
+		"if batching is an empty block, it will set the default values for enable_batching and send_after": {
+			ConfigValues: map[string]interface{}{
+				"credentials": transport_tpg.TestFakeCredentialsPath,
+				// batching not set
 			},
 			// Although at the schema level it's shown that by default it's set to false, the actual default value
 			// is true and can be seen in the `ExpanderProviderBatchingConfig` struct
@@ -1569,20 +1592,7 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 			ExpectedSendAfterValue:      "", // uses "" value to be able to set the default value of 30s
 			ExpectFieldUnset:            true,
 		},
-		"if batch is configured with both enable_batching and send_after": {
-			ConfigValues: map[string]interface{}{
-				"credentials": transport_tpg.TestFakeCredentialsPath,
-				"batching": []interface{}{
-					map[string]interface{}{
-						"enable_batching": true,
-						"send_after":      "10s",
-					},
-				},
-			},
-			ExpectedEnableBatchingValue: true,
-			ExpectedSendAfterValue:      "10s",
-		},
-		"if batch is configured with only enable_batching": {
+		"when batching is configured with only enable_batching, send_after will be set to a default value": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 				"batching": []interface{}{
@@ -1594,19 +1604,20 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 			ExpectedEnableBatchingValue: true,
 			ExpectedSendAfterValue:      "",
 		},
-		"if batch is configured with only send_after": {
+		"when batching is configured with only send_after, enable_batching will be set to a default value": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 				"batching": []interface{}{
 					map[string]interface{}{
-						"send_after": "10s",
+						"send_after": "123s",
 					},
 				},
 			},
 			ExpectedEnableBatchingValue: false,
-			ExpectedSendAfterValue:      "10s",
+			ExpectedSendAfterValue:      "123s",
 		},
-		"if batch is configured with invalid value for send_after": {
+		// Error states
+		"if batching is configured with send_after as an invalid value, there's an error": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 				"batching": []interface{}{
@@ -1618,7 +1629,7 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 			ExpectedSendAfterValue: "invalid value",
 			ExpectError:            true,
 		},
-		"if batch is configured with value without seconds (s) for send_after": {
+		"if batching is configured with send_after as number value without seconds (s), there's an error": {
 			ConfigValues: map[string]interface{}{
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 				"batching": []interface{}{
@@ -1667,10 +1678,10 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 				if ok {
 					val := v.(string)
 					if val != tc.ExpectedSendAfterValue {
-						t.Fatalf("expected request_timeout value set in provider data to be %v, got %v", tc.ExpectedSendAfterValue, val)
+						t.Fatalf("expected send_after value set in provider data to be %v, got %v", tc.ExpectedSendAfterValue, val)
 					}
 					if tc.ExpectFieldUnset {
-						t.Fatalf("expected request_timeout value to not be set in provider data, got %s", val)
+						t.Fatalf("expected send_after value to not be set in provider data, got %s", val)
 					}
 				}
 				// Return early in tests where errors expected

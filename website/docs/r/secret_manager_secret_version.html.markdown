@@ -44,7 +44,7 @@ resource "google_secret_manager_secret" "secret-basic" {
   }
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -53,6 +53,62 @@ resource "google_secret_manager_secret_version" "secret-version-basic" {
   secret = google_secret_manager_secret.secret-basic.id
 
   secret_data = "secret-data"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secret_version_deletion_policy_abandon&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secret Version Deletion Policy Abandon
+
+
+```hcl
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "secret-version"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-deletion-policy" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+  deletion_policy = "ABANDON"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secret_version_deletion_policy_disable&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secret Version Deletion Policy Disable
+
+
+```hcl
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "secret-version"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret-version-deletion-policy" {
+  secret = google_secret_manager_secret.secret-basic.id
+
+  secret_data = "secret-data"
+  deletion_policy = "DISABLE"
 }
 ```
 
@@ -77,6 +133,13 @@ The following arguments are supported:
 * `enabled` -
   (Optional)
   The current state of the SecretVersion.
+
+* `deletion_policy` - (Optional) The deletion policy for the secret version. Setting `ABANDON` allows the resource
+to be abandoned rather than deleted. Setting `DISABLE` allows the resource to be
+disabled rather than deleted. Default is `DELETE`. Possible values are:
+  * DELETE
+  * DISABLE
+  * ABANDON
 
 
 ## Attributes Reference

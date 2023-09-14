@@ -20,6 +20,8 @@ package gkehub2
 import (
 	"fmt"
 	"log"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -33,6 +35,7 @@ func ResourceGKEHub2Scope() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceGKEHub2ScopeCreate,
 		Read:   resourceGKEHub2ScopeRead,
+		Update: resourceGKEHub2ScopeUpdate,
 		Delete: resourceGKEHub2ScopeDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -41,6 +44,7 @@ func ResourceGKEHub2Scope() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -54,6 +58,12 @@ func ResourceGKEHub2Scope() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The client-provided identifier of the scope.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels for this Scope.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -113,6 +123,12 @@ func resourceGKEHub2ScopeCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	obj := make(map[string]interface{})
+	labelsProp, err := expandGKEHub2ScopeLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes?scopeId={{scope_id}}")
 	if err != nil {
@@ -240,8 +256,84 @@ func resourceGKEHub2ScopeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("state", flattenGKEHub2ScopeState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Scope: %s", err)
 	}
+	if err := d.Set("labels", flattenGKEHub2ScopeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Scope: %s", err)
+	}
 
 	return nil
+}
+
+func resourceGKEHub2ScopeUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Scope: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	labelsProp, err := expandGKEHub2ScopeLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/scopes/{{scope_id}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Scope %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating Scope %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating Scope %q: %#v", d.Id(), res)
+	}
+
+	err = GKEHub2OperationWaitTime(
+		config, res, project, "Updating Scope", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceGKEHub2ScopeRead(d, meta)
 }
 
 func resourceGKEHub2ScopeDelete(d *schema.ResourceData, meta interface{}) error {
@@ -352,4 +444,19 @@ func flattenGKEHub2ScopeState(v interface{}, d *schema.ResourceData, config *tra
 }
 func flattenGKEHub2ScopeStateCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenGKEHub2ScopeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandGKEHub2ScopeLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -257,13 +257,11 @@ func ResourceStorageBucket() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
 							Type:        schema.TypeBool,
 							Required:    true,
-							ForceNew:    true,
 							Description: `While set to true, autoclass automatically transitions objects in your bucket to appropriate storage classes based on each object's access pattern.`,
 						},
 					},

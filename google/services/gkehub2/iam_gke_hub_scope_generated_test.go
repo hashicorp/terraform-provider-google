@@ -130,6 +130,11 @@ func testAccGKEHub2ScopeIamMember_basicGenerated(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
 }
 
 resource "google_gke_hub_scope_iam_member" "foo" {
@@ -145,6 +150,11 @@ func testAccGKEHub2ScopeIamPolicy_basicGenerated(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
 }
 
 data "google_iam_policy" "foo" {
@@ -174,6 +184,11 @@ func testAccGKEHub2ScopeIamPolicy_emptyBinding(context map[string]interface{}) s
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
 }
 
 data "google_iam_policy" "foo" {
@@ -191,6 +206,11 @@ func testAccGKEHub2ScopeIamBinding_basicGenerated(context map[string]interface{}
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
 }
 
 resource "google_gke_hub_scope_iam_binding" "foo" {
@@ -206,6 +226,11 @@ func testAccGKEHub2ScopeIamBinding_updateGenerated(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
 }
 
 resource "google_gke_hub_scope_iam_binding" "foo" {

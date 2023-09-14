@@ -50,7 +50,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region"},
 			},
 		},
 	})
@@ -90,6 +90,47 @@ data "google_compute_network" "vertex_network" {
 }
 
 data "google_project" "project" {}
+`, context)
+}
+
+func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPublicEndpointExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedTestNetwork(t, "vertex-ai-index-endpoint"),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPublicEndpointExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPublicEndpointExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint with an public endpoint"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+
+  public_endpoint_enabled = true
+}
 `, context)
 }
 

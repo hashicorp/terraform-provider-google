@@ -105,6 +105,17 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 				Computed:    true,
 				Description: `The version of the Secret.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "DELETE",
+				Description: `The deletion policy for the secret version. Setting 'ABANDON' allows the resource
+to be abandoned rather than deleted. Setting 'DISABLE' allows the resource to be
+disabled rather than deleted. Default is 'DELETE'. Possible values are:
+  * DELETE
+  * DISABLE
+  * ABANDON`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -229,6 +240,13 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
+
 	if err := d.Set("enabled", flattenSecretManagerSecretVersionEnabled(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecretVersion: %s", err)
 	}
@@ -278,6 +296,16 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 	}
 
 	var obj map[string]interface{}
+	deletionPolicy := d.Get("deletion_policy")
+
+	if deletionPolicy == "ABANDON" {
+		return nil
+	} else if deletionPolicy == "DISABLE" {
+		url, err = tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}{{name}}:disable")
+		if err != nil {
+			return err
+		}
+	}
 	log.Printf("[DEBUG] Deleting SecretVersion %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -325,6 +353,11 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 	parts = versionRegex.FindStringSubmatch(name)
 
 	if err := d.Set("version", parts[3]); err != nil {
+		return nil, fmt.Errorf("Error setting version: %s", err)
+	}
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DELETE"); err != nil {
 		return nil, fmt.Errorf("Error setting version: %s", err)
 	}
 

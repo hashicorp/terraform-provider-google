@@ -118,6 +118,9 @@ resource "google_cloud_scheduler_job" "job" {
     http_method = "POST"
     uri         = "https://example.com/"
     body        = base64encode("{\"foo\":\"bar\"}")
+    headers = {
+      "Content-Type" = "application/json"
+    }
   }
 }
 `, context)
@@ -166,6 +169,9 @@ resource "google_cloud_scheduler_job" "job" {
     http_method = "POST"
     uri         = "https://example.com/ping"
     body        = base64encode("{\"foo\":\"bar\"}")
+    headers = {
+      "Content-Type" = "application/json"
+    }
   }
 }
 `, context)

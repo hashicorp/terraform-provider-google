@@ -218,6 +218,72 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	key1 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-secret-manager-automatic-key1")
+	key2 := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "global", "tf-secret-manager-automatic-key2")
+	context := map[string]interface{}{
+		"pid":            envvar.GetTestProjectFromEnv(),
+		"random_suffix":  suffix,
+		"kms_key_name_1": key1.CryptoKey.Name,
+		"kms_key_name_2": key2.CryptoKey.Name,
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretMangerSecret_automaticBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "replication.0.automatic", "replication.0.auto"},
+			},
+			{
+				Config: testAccSecretMangerSecret_automaticCmekBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_automaticCmekUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_automaticCmekUpdate2(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretMangerSecret_automaticCmekBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -300,7 +366,7 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
   }
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 `, context)
@@ -323,7 +389,7 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
   }
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 `, context)
@@ -628,6 +694,142 @@ resource "google_secret_manager_secret" "secret-basic" {
     google_kms_crypto_key_iam_member.kms-central-binding-1,
     google_kms_crypto_key_iam_member.kms-central-binding-2,
     google_kms_crypto_key_iam_member.kms-east-binding,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_automaticBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-1" {
+  crypto_key_id = "%{kms_key_name_1}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-2" {
+  crypto_key_id = "%{kms_key_name_2}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    automatic = true
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-secret-binding-1,
+    google_kms_crypto_key_iam_member.kms-secret-binding-2,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_automaticCmekBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-1" {
+  crypto_key_id = "%{kms_key_name_1}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-2" {
+  crypto_key_id = "%{kms_key_name_2}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    auto {}
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-secret-binding-1,
+    google_kms_crypto_key_iam_member.kms-secret-binding-2,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_automaticCmekUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-1" {
+  crypto_key_id = "%{kms_key_name_1}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-2" {
+  crypto_key_id = "%{kms_key_name_2}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    auto {
+      customer_managed_encryption {
+        kms_key_name = "%{kms_key_name_1}"
+      }
+    }
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-secret-binding-1,
+    google_kms_crypto_key_iam_member.kms-secret-binding-2,
+  ]
+}
+`, context)
+}
+
+func testAccSecretMangerSecret_automaticCmekUpdate2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+  project_id = "%{pid}"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-1" {
+  crypto_key_id = "%{kms_key_name_1}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_kms_crypto_key_iam_member" "kms-secret-binding-2" {
+  crypto_key_id = "%{kms_key_name_2}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+}
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+  
+  labels = {
+    label = "my-label"
+  }
+  replication {
+    auto {
+      customer_managed_encryption {
+        kms_key_name = "%{kms_key_name_2}"
+      }
+    }
+  }
+  depends_on = [
+    google_kms_crypto_key_iam_member.kms-secret-binding-1,
+    google_kms_crypto_key_iam_member.kms-secret-binding-2,
   ]
 }
 `, context)

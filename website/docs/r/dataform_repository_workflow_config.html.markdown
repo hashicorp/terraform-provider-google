@@ -49,7 +49,7 @@ resource "google_secret_manager_secret" "secret" {
   secret_id = "my_secret"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 

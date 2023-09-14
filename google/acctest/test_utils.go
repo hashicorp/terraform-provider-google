@@ -208,7 +208,7 @@ func providerConfigEnvNames() []string {
 	envVarsSets := [][]string{
 		envvar.CredsEnvVars,   // credentials field
 		envvar.ProjectEnvVars, // project field
-		envvar.RegionEnvVars,  //region field
+		envvar.RegionEnvVars,  // region field
 		envvar.ZoneEnvVars,    // zone field
 	}
 	for _, set := range envVarsSets {
@@ -221,6 +221,8 @@ func providerConfigEnvNames() []string {
 	envs = append(envs, "GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") // impersonate_service_account field
 	envs = append(envs, "USER_PROJECT_OVERRIDE")              // user_project_override field
 	envs = append(envs, "CLOUDSDK_CORE_REQUEST_REASON")       // request_reason field
+
+	envs = append(envs, "GOOGLE_APPLICATION_CREDENTIALS") // ADC used to configure clients when provider lacks credentials and access_token
 
 	return envs
 }

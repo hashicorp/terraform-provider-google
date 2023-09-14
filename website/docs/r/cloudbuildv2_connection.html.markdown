@@ -28,7 +28,7 @@ resource "google_secret_manager_secret" "private-key-secret" {
   secret_id = "ghe-pk-secret"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -41,7 +41,7 @@ resource "google_secret_manager_secret" "webhook-secret-secret" {
   secret_id = "github-token-secret"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -95,7 +95,7 @@ resource "google_secret_manager_secret" "github-token-secret" {
   secret_id = "github-token-secret"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 

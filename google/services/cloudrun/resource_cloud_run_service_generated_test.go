@@ -306,7 +306,7 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret" {
   secret_id = "secret%{random_suffix}"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -400,7 +400,7 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret" {
   secret_id = "secret%{random_suffix}"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
