@@ -181,6 +181,49 @@ func TestAccProviderIndirectUserProjectOverride(t *testing.T) {
 	})
 }
 
+func TestAccProviderCredentialsEmptyString(t *testing.T) {
+	// Test is not parallel because ENVs are set.
+	// Need to skip VCR as this test downloads providers from the Terraform Registry
+	acctest.SkipIfVcr(t)
+
+	creds := envvar.GetTestCredsFromEnv()
+	project := envvar.GetTestProjectFromEnv()
+	t.Setenv("GOOGLE_CREDENTIALS", creds)
+	t.Setenv("GOOGLE_PROJECT", project)
+
+	pid := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck: func() { acctest.AccTestPreCheck(t) },
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			{
+				Config:                   testAccProviderCredentials_actWithCredsFromEnv(pid),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+			},
+			{
+				// Assert that errors are expected with credentials when
+				// - GOOGLE_CREDENTIALS is set
+				// - provider block has credentials = ""
+				// - TPG v4.60.2 is used
+				Config: testAccProviderCredentials_actWithCredsFromEnv_emptyString(pid),
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "4.60.2",
+						Source:            "hashicorp/google",
+					},
+				},
+				ExpectError: regexp.MustCompile(`unexpected end of JSON input`),
+			},
+			{
+				// Errors are not expected when using the latest 4.x.x version of the provider
+				Config:                   testAccProviderCredentials_actWithCredsFromEnv_emptyString(pid),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+			},
+		},
+	})
+}
+
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
@@ -321,4 +364,30 @@ func testAccCheckComputeAddressDestroyProducer(t *testing.T) func(s *terraform.S
 
 		return nil
 	}
+}
+
+func testAccProviderCredentials_actWithCredsFromEnv(name string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  alias       = "testing_credentials"
+
+}
+
+resource "google_compute_address" "default" {
+  provider = google.testing_credentials
+  name     = "%s"
+}`, name)
+}
+
+func testAccProviderCredentials_actWithCredsFromEnv_emptyString(name string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  alias       = "testing_credentials"
+  credentials = ""
+}
+
+resource "google_compute_address" "default" {
+  provider = google.testing_credentials
+  name     = "%s"
+}`, name)
 }
