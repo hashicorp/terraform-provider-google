@@ -53,7 +53,7 @@ func ResourceFirestoreDatabase() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The location of the database. Available databases are listed at
+				Description: `The location of the database. Available locations are listed at
 https://cloud.google.com/firestore/docs/locations.`,
 			},
 			"name": {
