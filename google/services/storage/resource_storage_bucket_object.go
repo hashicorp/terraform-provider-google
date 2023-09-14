@@ -93,6 +93,7 @@ func ResourceStorageBucketObject() *schema.Resource {
 				ForceNew:     true,
 				ExactlyOneOf: []string{"source"},
 				Sensitive:    true,
+				Computed:     true,
 				Description:  `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
 			},
 

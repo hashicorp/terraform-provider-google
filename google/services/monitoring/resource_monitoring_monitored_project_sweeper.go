@@ -108,7 +108,7 @@ func testSweepMonitoringMonitoredProject(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://monitoring.googleapis.com/v1/locations/global/metricsScopes/{{metrics_scope}}/projects/{{name}}"
+		deleteTemplate := "https://monitoring.googleapis.com/v1/{{name}}"
 		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

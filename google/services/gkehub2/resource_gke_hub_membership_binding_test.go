@@ -74,6 +74,11 @@ resource "google_gke_hub_membership_binding" "example" {
   scope = google_gke_hub_scope.example.name
   membership_id = "tf-test-membership%{random_suffix}"
   location = "global"
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
   depends_on = [
     google_gke_hub_membership.example,
     google_gke_hub_scope.example
@@ -110,6 +115,11 @@ resource "google_gke_hub_membership_binding" "example" {
   scope = google_gke_hub_scope.example2.name
   membership_id = "tf-test-membership%{random_suffix}"
   location = "global"
+  labels = {
+      updated_keyb = "updated_valueb"
+      updated_keya = "updated_valuea"
+      updated_keyc = "updated_valuec" 
+  }
   depends_on = [
     google_gke_hub_membership.example,
     google_gke_hub_scope.example2

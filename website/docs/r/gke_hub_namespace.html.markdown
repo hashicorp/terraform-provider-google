@@ -41,6 +41,16 @@ resource "google_gke_hub_namespace" "namespace" {
   scope_namespace_id = "tf-test-namespace%{random_suffix}"
   scope_id = "tf-test-scope%{random_suffix}"
   scope = "${google_gke_hub_scope.namespace.name}"
+  namespace_labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec"
+  }
+  labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
   depends_on = [google_gke_hub_scope.namespace]
 }
 ```
@@ -65,6 +75,18 @@ The following arguments are supported:
 
 - - -
 
+
+* `namespace_labels` -
+  (Optional)
+  Namespace-level cluster namespace labels. These labels are applied
+  to the related namespace of the member clusters bound to the parent
+  Scope. Scope-level labels (`namespace_labels` in the Fleet Scope
+  resource) take precedence over Namespace-level labels if they share
+  a key. Keys and values must be Kubernetes-conformant.
+
+* `labels` -
+  (Optional)
+  Labels for this Namespace.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -108,6 +130,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

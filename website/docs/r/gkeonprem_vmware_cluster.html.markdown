@@ -213,6 +213,9 @@ resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
   }
   vm_tracking_enabled = true
   enable_control_plane_v2 = true
+  upgrade_policy {
+    control_plane_only = true
+  }
   authorization {
     admin_users {
       username = "testuser@gmail.com"
@@ -362,6 +365,11 @@ The following arguments are supported:
 * `enable_control_plane_v2` -
   (Optional)
   Enable control plane V2. Default to false.
+
+* `upgrade_policy` -
+  (Optional)
+  Specifies upgrade policy for the cluster.
+  Structure is [documented below](#nested_upgrade_policy).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -646,6 +654,12 @@ The following arguments are supported:
 * `username` -
   (Required)
   The name of the user, e.g. `my-gcp-id@gmail.com`.
+
+<a name="nested_upgrade_policy"></a>The `upgrade_policy` block supports:
+
+* `control_plane_only` -
+  (Optional)
+  Controls whether the upgrade applies to the control plane only.
 
 ## Attributes Reference
 

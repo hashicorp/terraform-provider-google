@@ -152,7 +152,7 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret" {
   secret_id = "tf-test-secret-1%{random_suffix}"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -361,7 +361,7 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret" {
   secret_id = "tf-test-secret-1%{random_suffix}"
   replication {
-    automatic = true
+    auto {}
   }
 }
 

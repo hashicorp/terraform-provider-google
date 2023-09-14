@@ -78,6 +78,12 @@ func ResourceGKEHub2MembershipBinding() *schema.Resource {
 				Description: `A Workspace resource name in the format
 'projects/*/locations/*/scopes/*'.`,
 			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: `Labels for this Membership binding.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -141,6 +147,12 @@ func resourceGKEHub2MembershipBindingCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopeProp)) && (ok || !reflect.DeepEqual(v, scopeProp)) {
 		obj["scope"] = scopeProp
+	}
+	labelsProp, err := expandGKEHub2MembershipBindingLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}/bindings/?membership_binding_id={{membership_binding_id}}")
@@ -272,6 +284,9 @@ func resourceGKEHub2MembershipBindingRead(d *schema.ResourceData, meta interface
 	if err := d.Set("state", flattenGKEHub2MembershipBindingState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MembershipBinding: %s", err)
 	}
+	if err := d.Set("labels", flattenGKEHub2MembershipBindingLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MembershipBinding: %s", err)
+	}
 
 	return nil
 }
@@ -298,6 +313,12 @@ func resourceGKEHub2MembershipBindingUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopeProp)) {
 		obj["scope"] = scopeProp
 	}
+	labelsProp, err := expandGKEHub2MembershipBindingLabels(d.Get("labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}/bindings/{{membership_binding_id}}")
 	if err != nil {
@@ -309,6 +330,10 @@ func resourceGKEHub2MembershipBindingUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("scope") {
 		updateMask = append(updateMask, "scope")
+	}
+
+	if d.HasChange("labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -466,6 +491,21 @@ func flattenGKEHub2MembershipBindingStateCode(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenGKEHub2MembershipBindingLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandGKEHub2MembershipBindingScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandGKEHub2MembershipBindingLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

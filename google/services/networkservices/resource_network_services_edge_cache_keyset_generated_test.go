@@ -104,7 +104,7 @@ resource "google_secret_manager_secret" "secret-basic" {
   secret_id = "tf-test-secret-name%{random_suffix}"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 

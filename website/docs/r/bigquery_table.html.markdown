@@ -148,6 +148,9 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
 in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
 
+* `table_constraints` - (Optional) Defines the primary key and foreign keys. 
+    Structure is [documented below](#nested_table_constraints).
+
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 
 * `autodetect` - (Required) - Let BigQuery try to autodetect the schema
@@ -355,6 +358,9 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `refresh_interval_ms` - (Optional) The maximum frequency at which this materialized view will be refreshed.
     The default value is 1800000
 
+* `allow_non_incremental_definition` - (Optional) Allow non incremental materialized view definition.
+    The default value is false.
+
 <a name="nested_encryption_configuration"></a>The `encryption_configuration` block supports the following arguments:
 
 * `kms_key_name` - (Required) The self link or full name of a key which should be used to
@@ -362,6 +368,51 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     encrypt/decrypt permissions on this key - you may want to see the
     `google_bigquery_default_service_account` datasource and the
     `google_kms_crypto_key_iam_binding` resource.
+
+<a name="nested_table_constraints"></a>The `table_constraints` block supports:
+
+* `primary_key` - (Optional) Represents the primary key constraint
+    on a table's columns. Present only if the table has a primary key.
+    The primary key is not enforced.
+    Structure is [documented below](#nested_primary_key).
+
+* `foreign_keys` - (Optional) Present only if the table has a foreign key.
+    The foreign key is not enforced.
+    Structure is [documented below](#nested_foreign_keys).
+
+<a name="nested_primary_key"></a>The `primary_key` block supports:
+
+* `columns`: (Required) The columns that are composed of the primary key constraint.
+
+<a name="nested_foreign_keys"></a>The `foreign_keys` block supports:
+
+* `name`: (Optional) Set only if the foreign key constraint is named.
+
+* `referenced_table`: (Required) The table that holds the primary key
+    and is referenced by this foreign key.
+    Structure is [documented below](#nested_referenced_table).
+
+* `column_references`: (Required) The pair of the foreign key column and primary key column.
+    Structure is [documented below](#nested_column_references).
+
+<a name="nested_referenced_table"></a>The `referenced_table` block supports:
+
+* `project_id`: (Required) The ID of the project containing this table.
+
+* `dataset_id`: (Required) The ID of the dataset containing this table.
+
+* `table_id`: (Required) The ID of the table. The ID must contain only
+	letters (a-z, A-Z), numbers (0-9), or underscores (_). The maximum
+	length is 1,024 characters. Certain operations allow suffixing of
+	the table ID with a partition decorator, such as
+	sample_table$20190123.
+
+<a name="nested_column_references"></a>The `column_references` block supports:
+
+* `referencing_column`: (Required) The column that composes the foreign key.
+
+* `referenced_column`: (Required) The column in the primary key that are
+    referenced by the referencingColumn
 
 ## Attributes Reference
 

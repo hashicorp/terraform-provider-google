@@ -1172,17 +1172,17 @@ func flattenPubsubSubscriptionPushConfigNoWrapper(v interface{}, d *schema.Resou
 	if v == nil {
 		return nil
 	}
+
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
-	transformed["write_metadata"] =
-		flattenPubsubSubscriptionPushConfigNoWrapperWriteMetadata(original["writeMetadata"], d, config)
+
+	if original["writeMetadata"] == nil {
+		transformed["write_metadata"] = false
+	} else {
+		transformed["write_metadata"] = original["writeMetadata"]
+	}
+
 	return []interface{}{transformed}
-}
-func flattenPubsubSubscriptionPushConfigNoWrapperWriteMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenPubsubSubscriptionAckDeadlineSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1597,7 +1597,7 @@ func expandPubsubSubscriptionPushConfigNoWrapper(v interface{}, d tpgresource.Te
 	transformedWriteMetadata, err := expandPubsubSubscriptionPushConfigNoWrapperWriteMetadata(original["write_metadata"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedWriteMetadata); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["writeMetadata"] = transformedWriteMetadata
 	}
 

@@ -185,14 +185,14 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret1" {
   secret_id = "%s"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
 resource "google_secret_manager_secret" "secret2" {
   secret_id = "%s"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -309,14 +309,14 @@ data "google_project" "project" {
 resource "google_secret_manager_secret" "secret1" {
   secret_id = "%s"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
 resource "google_secret_manager_secret" "secret2" {
   secret_id = "%s"
   replication {
-    automatic = true
+    auto {}
   }
 }
 

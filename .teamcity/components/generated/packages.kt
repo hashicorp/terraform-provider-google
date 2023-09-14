@@ -7,11 +7,6 @@
 
 
 var packages = mapOf(
-    "acctest" to mapOf(
-        "name" to "acctest",
-        "displayName" to "AccTest",
-        "path" to "./google/acctest"
-    ),
     "envvar" to mapOf(
         "name" to "envvar",
         "displayName" to "Environment Variables",

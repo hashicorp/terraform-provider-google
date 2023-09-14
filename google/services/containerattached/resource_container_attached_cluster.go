@@ -180,6 +180,23 @@ https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles`
 					},
 				},
 			},
+			"binary_authorization": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Binary Authorization configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"evaluation_mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "PROJECT_SINGLETON_POLICY_ENFORCE", ""}),
+							Description:  `Configure Binary Authorization evaluation mode. Possible values: ["DISABLED", "PROJECT_SINGLETON_POLICY_ENFORCE"]`,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -406,6 +423,12 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("monitoring_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(monitoringConfigProp)) && (ok || !reflect.DeepEqual(v, monitoringConfigProp)) {
 		obj["monitoringConfig"] = monitoringConfigProp
 	}
+	binaryAuthorizationProp, err := expandContainerAttachedClusterBinaryAuthorization(d.Get("binary_authorization"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(binaryAuthorizationProp)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
+		obj["binaryAuthorization"] = binaryAuthorizationProp
+	}
 	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
@@ -584,6 +607,9 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 	if err := d.Set("monitoring_config", flattenContainerAttachedClusterMonitoringConfig(res["monitoringConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("binary_authorization", flattenContainerAttachedClusterBinaryAuthorization(res["binaryAuthorization"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("effective_annotations", flattenContainerAttachedClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -649,6 +675,12 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("monitoring_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, monitoringConfigProp)) {
 		obj["monitoringConfig"] = monitoringConfigProp
 	}
+	binaryAuthorizationProp, err := expandContainerAttachedClusterBinaryAuthorization(d.Get("binary_authorization"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("binary_authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, binaryAuthorizationProp)) {
+		obj["binaryAuthorization"] = binaryAuthorizationProp
+	}
 	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
@@ -692,6 +724,10 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		updateMask = append(updateMask, "monitoringConfig")
 	}
 
+	if d.HasChange("binary_authorization") {
+		updateMask = append(updateMask, "binaryAuthorization")
+	}
+
 	if d.HasChange("effective_annotations") {
 		updateMask = append(updateMask, "annotations")
 	}
@@ -712,9 +748,12 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	if d.HasChange("monitoring_config") {
 		newUpdateMask = append(newUpdateMask, "monitoring_config.managed_prometheus_config.enabled")
 	}
+	if d.HasChange("binary_authorization") {
+		newUpdateMask = append(newUpdateMask, "binary_authorization.evaluation_mode")
+	}
 	// Pull out any other set fields from the generated mask.
 	for _, mask := range updateMask {
-		if mask == "authorization" || mask == "loggingConfig" || mask == "monitoringConfig" {
+		if mask == "authorization" || mask == "loggingConfig" || mask == "monitoringConfig" || mask == "binaryAuthorization" {
 			continue
 		}
 		newUpdateMask = append(newUpdateMask, mask)
@@ -1084,6 +1123,20 @@ func flattenContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabl
 	return v
 }
 
+func flattenContainerAttachedClusterBinaryAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["evaluation_mode"] =
+		flattenContainerAttachedClusterBinaryAuthorizationEvaluationMode(original["evaluationMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenContainerAttachedClusterBinaryAuthorizationEvaluationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenContainerAttachedClusterEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1307,6 +1360,34 @@ func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfig(v int
 }
 
 func expandContainerAttachedClusterMonitoringConfigManagedPrometheusConfigEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandContainerAttachedClusterBinaryAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEvaluationMode, err := expandContainerAttachedClusterBinaryAuthorizationEvaluationMode(original["evaluation_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["evaluationMode"] = transformedEvaluationMode
+	}
+
+	return transformed, nil
+}
+
+func expandContainerAttachedClusterBinaryAuthorizationEvaluationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
