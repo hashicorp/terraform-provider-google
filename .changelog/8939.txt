@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed validation of `service_id` on `google_monitoring_custom_service` and `slo_id` on `google_monitoring_slo` 
+```

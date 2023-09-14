@@ -59,7 +59,7 @@ func ResourceMonitoringService() *schema.Resource {
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z0-9\-]+$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-zA-Z0-9\-_:.]+$`),
 				Description: `An optional service ID to use. If not given, the server will generate a
 service ID.`,
 			},
