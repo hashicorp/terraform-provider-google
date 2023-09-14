@@ -22,6 +22,9 @@ description: |-
 EdgeCacheOrigin represents a HTTP-reachable backend for an EdgeCacheService.
 
 
+To get more information about EdgeCacheOrigin, see:
+
+* [API documentation](https://cloud.google.com/media-cdn/docs/reference/rest/v1/projects.locations.edgeCacheOrigins)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_services_edge_cache_origin_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -358,9 +361,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 60 minutes.
-- `update` - Default is 60 minutes.
-- `delete` - Default is 60 minutes.
+- `create` - Default is 120 minutes.
+- `update` - Default is 120 minutes.
+- `delete` - Default is 120 minutes.
 
 ## Import
 
