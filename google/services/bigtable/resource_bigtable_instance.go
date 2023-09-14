@@ -33,6 +33,7 @@ func ResourceBigtableInstance() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
 			Update: schema.DefaultTimeout(60 * time.Minute),
+			Read:   schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -257,7 +258,9 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	instanceName := d.Get("name").(string)
 
-	instance, err := c.InstanceInfo(ctx, instanceName)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutRead))
+	defer cancel()
+	instance, err := c.InstanceInfo(ctxWithTimeout, instanceName)
 	if err != nil {
 		if tpgresource.IsNotFoundGrpcError(err) {
 			log.Printf("[WARN] Removing %s because it's gone", instanceName)
@@ -271,7 +274,7 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
-	clusters, err := c.Clusters(ctx, instance.Name)
+	clusters, err := c.Clusters(ctxWithTimeout, instance.Name)
 	if err != nil {
 		partiallyUnavailableErr, ok := err.(bigtable.ErrPartiallyUnavailable)
 
