@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: added a read timeout to `google_bigtable_instance`
+```
