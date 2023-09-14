@@ -49,7 +49,7 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_target_https_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map"},
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "server_tls_policy"},
 			},
 		},
 	})
@@ -128,7 +128,7 @@ func TestAccComputeTargetHttpsProxy_targetHttpsProxyHttpKeepAliveTimeoutExample(
 				ResourceName:            "google_compute_target_https_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map"},
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "server_tls_policy"},
 			},
 		},
 	})
