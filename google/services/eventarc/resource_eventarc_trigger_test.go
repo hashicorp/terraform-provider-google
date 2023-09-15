@@ -125,11 +125,11 @@ resource "google_eventarc_trigger" "primary" {
 			region = "%{region}"
 		}
 	}
-	service_account= "%{service_account}"
+	service_account = "%{service_account}"
 
     channel = "projects/${data.google_project.test_project.project_id}/locations/%{region}/channels/${google_eventarc_channel.test_channel.name}"
 
-    depends_on =[google_cloud_run_service.default,google_eventarc_channel.test_channel]
+    depends_on = [google_cloud_run_service.default,google_eventarc_channel.test_channel]
 }
 `, context)
 }
@@ -152,15 +152,16 @@ func testAccCheckEventarcChannelTriggerDestroyProducer(t *testing.T) func(s *ter
 			}
 
 			obj := &eventarc.Trigger{
-				Location:       dcl.String(rs.Primary.Attributes["location"]),
-				Name:           dcl.String(rs.Primary.Attributes["name"]),
-				Project:        dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				ServiceAccount: dcl.String(rs.Primary.Attributes["service_account"]),
-				CreateTime:     dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
-				Etag:           dcl.StringOrNil(rs.Primary.Attributes["etag"]),
-				Uid:            dcl.StringOrNil(rs.Primary.Attributes["uid"]),
-				UpdateTime:     dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
-				Channel:        dcl.StringOrNil(rs.Primary.Attributes["channel"]),
+				Location:             dcl.String(rs.Primary.Attributes["location"]),
+				Name:                 dcl.String(rs.Primary.Attributes["name"]),
+				Project:              dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				ServiceAccount:       dcl.String(rs.Primary.Attributes["service_account"]),
+				CreateTime:           dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
+				Etag:                 dcl.StringOrNil(rs.Primary.Attributes["etag"]),
+				Uid:                  dcl.StringOrNil(rs.Primary.Attributes["uid"]),
+				UpdateTime:           dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
+				Channel:              dcl.StringOrNil(rs.Primary.Attributes["channel"]),
+				EventDataContentType: dcl.StringOrNil(rs.Primary.Attributes["event_data_content_type"]),
 			}
 
 			client := transport_tpg.NewDCLEventarcClient(config, config.UserAgent, billingProject, 0)
