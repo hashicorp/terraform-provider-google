@@ -8,10 +8,10 @@ FEATURES:
 * **New Resource:** `google_data_pipeline_pipeline` ([#15785](https://github.com/hashicorp/terraform-provider-google/pull/15785))
 * **New Resource:** `google_dialogflow_cx_test_case` ([#15814](https://github.com/hashicorp/terraform-provider-google/pull/15814))
 * **New Resource:** `google_storage_insights_report_config` ([#15819](https://github.com/hashicorp/terraform-provider-google/pull/15819))
-* **New Resource:** google_apigee_target_server ([#15751](https://github.com/hashicorp/terraform-provider-google/pull/15751))
+* **New Resource:** `google_apigee_target_server` ([#15751](https://github.com/hashicorp/terraform-provider-google/pull/15751))
 
 IMPROVEMENTS:
-* GKEHUB: added `labels` fields to `google_gke_hub_membership_binding` resource ([#15753](https://github.com/hashicorp/terraform-provider-google/pull/15753))
+* gkehub: added `labels` fields to `google_gke_hub_membership_binding` resource ([#15753](https://github.com/hashicorp/terraform-provider-google/pull/15753))
 * bigquery: added `allow_non_incremental_definition` to `google_bigquery_table` resource ([#15813](https://github.com/hashicorp/terraform-provider-google/pull/15813))
 * bigquery: added `table_constraints` field to `google_bigquery_table` resource ([#15815](https://github.com/hashicorp/terraform-provider-google/pull/15815))
 * compute: added internal IPV6 support for `google_compute_address` and `google_compute_instance` resources ([#15780](https://github.com/hashicorp/terraform-provider-google/pull/15780))
@@ -26,10 +26,9 @@ IMPROVEMENTS:
 * secretmanager: added `deletion_policy` field to `google_secret_manager_secret_version` resource ([#15818](https://github.com/hashicorp/terraform-provider-google/pull/15818))
 * storage: supported in-place update for `autoclass` field in `google_storage_bucket` resource ([#15782](https://github.com/hashicorp/terraform-provider-google/pull/15782))
 * vertexai: added `public_endpoint_enabled` to `google_vertex_ai_index_endpoint` ([#15741](https://github.com/hashicorp/terraform-provider-google/pull/15741))
-* workstations: added `env` field to `google_workstations_workstation` resource (beta) ([#15824](https://github.com/hashicorp/terraform-provider-google/pull/15824))
 
 BUG FIXES:
-* bigquerydatatransfer: fixed a bug when importing 'location' of 'google_bigquery_data_transfer_config' ([#15734](https://github.com/hashicorp/terraform-provider-google/pull/15734))
+* bigquerydatatransfer: fixed a bug when importing `location` of `google_bigquery_data_transfer_config` ([#15734](https://github.com/hashicorp/terraform-provider-google/pull/15734))
 * container: fixed concurrent ops' quota-error to be retriable in `google_container_node_pool ` ([#15820](https://github.com/hashicorp/terraform-provider-google/pull/15820))
 * pipeline: fixed issue where certain `google_dataflow_job` instances would crash the provider ([#15821](https://github.com/hashicorp/terraform-provider-google/pull/15821))
 * provider: fixed a bug where `user_project_override` would not be not used correctly when provisioning resources implemented using the plugin framework. Currently there are no resources implemented this way, so no-one should have been impacted. ([#15776](https://github.com/hashicorp/terraform-provider-google/pull/15776))
