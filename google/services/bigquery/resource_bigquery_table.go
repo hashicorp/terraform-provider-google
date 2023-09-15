@@ -867,8 +867,11 @@ func ResourceBigQueryTable() *schema.Resource {
 				Description: `If specified, configures time-based partitioning for this table.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						// ExpirationMs: [Optional] Number of milliseconds for which to keep the
-						// storage for a partition.
+						// ExpirationMs: [Optional] Number of milliseconds for which to keep the storage for a
+						// partition. If unspecified when the table is created in a dataset that has
+						// `defaultPartitionExpirationMs`, it will inherit the value of
+						// `defaultPartitionExpirationMs` from the dataset.
+						// To specify a unlimited expiration, set the value to 0.
 						"expiration_ms": {
 							Type:        schema.TypeInt,
 							Optional:    true,
