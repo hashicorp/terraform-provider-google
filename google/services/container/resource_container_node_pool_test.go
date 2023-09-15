@@ -2955,3 +2955,72 @@ resource "google_container_node_pool" "np" {
 }
 `, clusterName, np)
 }
+
+func TestAccContainerNodePool_tpuTopology(t *testing.T) {
+	t.Parallel()
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/15254#issuecomment-1646277473")
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np1 := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	np2 := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_tpuTopology(cluster, np1, np2, "2x2x2"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.regular_pool", "node_config.0.machine_type", "n1-standard-4"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tpu_topology", "node_config.0.machine_type", "ct4p-hightpu-4t"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tpu_topology", "placement_policy.0.tpu_topology", "2x2x2"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tpu_topology", "placement_policy.0.type", "COMPACT"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_tpu_topology",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_tpuTopology(cluster, np1, np2, tpuTopology string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central2-b"
+  initial_node_count = 1
+}
+
+resource "google_container_node_pool" "regular_pool" {
+	name               = "%s"
+	location           = "us-central2-b"
+	cluster            = google_container_cluster.cluster.name
+	initial_node_count = 1
+  
+	node_config {
+	  machine_type = "n1-standard-4"
+  
+	}
+  }
+
+resource "google_container_node_pool" "with_tpu_topology" {
+  name               = "%s"
+  location           = "us-central2-b"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+
+  node_config {
+    machine_type = "ct4p-hightpu-4t"
+
+  }
+  placement_policy {
+	type = "COMPACT"
+	tpu_topology = "%s"
+  }
+}
+`, cluster, np1, np2, tpuTopology)
+}

@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: promoted field `placement_policy.tpu_topology` in resource `google_container_node_pool` to GA
+```
