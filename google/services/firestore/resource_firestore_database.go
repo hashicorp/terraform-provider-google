@@ -89,6 +89,13 @@ for information about how to choose. Possible values: ["FIRESTORE_NATIVE", "DATA
 				ValidateFunc: verify.ValidateEnum([]string{"OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS", ""}),
 				Description:  `The concurrency control mode to use for this database. Possible values: ["OPTIMISTIC", "PESSIMISTIC", "OPTIMISTIC_WITH_ENTITY_GROUPS"]`,
 			},
+			"delete_protection_state": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED", ""}),
+				Description:  `State of delete protection for the database. Possible values: ["DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED"]`,
+			},
 			"point_in_time_recovery_enablement": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -199,6 +206,12 @@ func resourceFirestoreDatabaseCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("point_in_time_recovery_enablement"); !tpgresource.IsEmptyValue(reflect.ValueOf(pointInTimeRecoveryEnablementProp)) && (ok || !reflect.DeepEqual(v, pointInTimeRecoveryEnablementProp)) {
 		obj["pointInTimeRecoveryEnablement"] = pointInTimeRecoveryEnablementProp
+	}
+	deleteProtectionStateProp, err := expandFirestoreDatabaseDeleteProtectionState(d.Get("delete_protection_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("delete_protection_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(deleteProtectionStateProp)) && (ok || !reflect.DeepEqual(v, deleteProtectionStateProp)) {
+		obj["deleteProtectionState"] = deleteProtectionStateProp
 	}
 	etagProp, err := expandFirestoreDatabaseEtag(d.Get("etag"), d, config)
 	if err != nil {
@@ -336,6 +349,9 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("key_prefix", flattenFirestoreDatabaseKeyPrefix(res["key_prefix"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
+	if err := d.Set("delete_protection_state", flattenFirestoreDatabaseDeleteProtectionState(res["deleteProtectionState"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Database: %s", err)
+	}
 	if err := d.Set("etag", flattenFirestoreDatabaseEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -398,6 +414,12 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("point_in_time_recovery_enablement"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, pointInTimeRecoveryEnablementProp)) {
 		obj["pointInTimeRecoveryEnablement"] = pointInTimeRecoveryEnablementProp
 	}
+	deleteProtectionStateProp, err := expandFirestoreDatabaseDeleteProtectionState(d.Get("delete_protection_state"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("delete_protection_state"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deleteProtectionStateProp)) {
+		obj["deleteProtectionState"] = deleteProtectionStateProp
+	}
 	etagProp, err := expandFirestoreDatabaseEtag(d.Get("etag"), d, config)
 	if err != nil {
 		return err
@@ -427,6 +449,10 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("point_in_time_recovery_enablement") {
 		updateMask = append(updateMask, "pointInTimeRecoveryEnablement")
+	}
+
+	if d.HasChange("delete_protection_state") {
+		updateMask = append(updateMask, "deleteProtectionState")
 	}
 
 	if d.HasChange("etag") {
@@ -531,6 +557,10 @@ func flattenFirestoreDatabaseKeyPrefix(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenFirestoreDatabaseDeleteProtectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFirestoreDatabaseEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -576,6 +606,10 @@ func expandFirestoreDatabaseAppEngineIntegrationMode(v interface{}, d tpgresourc
 }
 
 func expandFirestoreDatabasePointInTimeRecoveryEnablement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreDatabaseDeleteProtectionState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
