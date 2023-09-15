@@ -133,12 +133,6 @@ The following arguments are supported:
 
 <a name="nested_replication"></a>The `replication` block supports:
 
-* `automatic` -
-  (Optional, Deprecated)
-  The Secret will automatically be replicated without any restrictions.
-
-  ~> **Warning:** `automatic` is deprecated and will be removed in a future major release. Use `auto` instead.
-
 * `auto` -
   (Optional)
   The Secret will automatically be replicated without any restrictions.

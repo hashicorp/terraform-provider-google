@@ -89,15 +89,7 @@ encryption is used.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
-						},
-						"automatic": {
-							Type:         schema.TypeBool,
-							Optional:     true,
-							Deprecated:   "`automatic` is deprecated and will be removed in a future major release. Use `auto` instead.",
-							ForceNew:     true,
-							Description:  `The Secret will automatically be replicated without any restrictions.`,
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
+							ExactlyOneOf: []string{"replication.0.user_managed", "replication.0.auto"},
 						},
 						"user_managed": {
 							Type:        schema.TypeList,
@@ -141,7 +133,7 @@ encryption is used.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
+							ExactlyOneOf: []string{"replication.0.user_managed", "replication.0.auto"},
 						},
 					},
 				},
@@ -680,22 +672,12 @@ func flattenSecretManagerSecretReplication(v interface{}, d *schema.ResourceData
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	_, ok := d.GetOk("replication.0.automatic")
-	if ok {
-		transformed["automatic"] =
-			flattenSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
-	} else {
-		transformed["auto"] =
-			flattenSecretManagerSecretReplicationAuto(original["automatic"], d, config)
-	}
+	transformed["auto"] =
+		flattenSecretManagerSecretReplicationAuto(original["automatic"], d, config)
 	transformed["user_managed"] =
 		flattenSecretManagerSecretReplicationUserManaged(original["userManaged"], d, config)
 	return []interface{}{transformed}
 }
-func flattenSecretManagerSecretReplicationAutomatic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v != nil
-}
-
 func flattenSecretManagerSecretReplicationAuto(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -867,22 +849,11 @@ func expandSecretManagerSecretReplication(v interface{}, d tpgresource.Terraform
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	if _, ok := d.GetOk("replication.0.automatic"); ok {
-		transformedAutomatic, err := expandSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedAutomatic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["automatic"] = transformedAutomatic
-		}
-	}
-
-	if _, ok := d.GetOk("replication.0.auto"); ok {
-		transformedAuto, err := expandSecretManagerSecretReplicationAuto(original["auto"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["automatic"] = transformedAuto
-		}
+	transformedAuto, err := expandSecretManagerSecretReplicationAuto(original["auto"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["automatic"] = transformedAuto
 	}
 
 	transformedUserManaged, err := expandSecretManagerSecretReplicationUserManaged(original["user_managed"], d, config)
@@ -893,14 +864,6 @@ func expandSecretManagerSecretReplication(v interface{}, d tpgresource.Terraform
 	}
 
 	return transformed, nil
-}
-
-func expandSecretManagerSecretReplicationAutomatic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil || !v.(bool) {
-		return nil, nil
-	}
-
-	return struct{}{}, nil
 }
 
 func expandSecretManagerSecretReplicationAuto(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
