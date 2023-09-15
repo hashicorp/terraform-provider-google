@@ -206,6 +206,13 @@ In addition to the arguments listed above, the following computed attributes are
   EncryptionInfo describes the encryption information of a cluster or a backup.
   Structure is [documented below](#nested_encryption_info).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 <a name="nested_encryption_info"></a>The `encryption_info` block contains:
 

@@ -1081,6 +1081,15 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   The type of the job.
 
+* `terraform_labels` -
+  (Output)
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  (Output)
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * `status` -
   The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.
   Structure is [documented below](#nested_status).

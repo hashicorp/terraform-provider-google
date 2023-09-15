@@ -49,7 +49,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryBasicExample(t 
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -85,7 +85,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryDockerExample(t
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -126,7 +126,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryCmekExample(t *
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -174,7 +174,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -226,7 +226,7 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteExample(t
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})

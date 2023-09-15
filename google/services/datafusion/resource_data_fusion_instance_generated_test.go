@@ -50,7 +50,7 @@ func TestAccDataFusionInstance_dataFusionInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_data_fusion_instance.basic_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -87,7 +87,7 @@ func TestAccDataFusionInstance_dataFusionInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_data_fusion_instance.extended_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -158,7 +158,7 @@ func TestAccDataFusionInstance_dataFusionInstanceCmekExample(t *testing.T) {
 				ResourceName:            "google_data_fusion_instance.cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -221,7 +221,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEnterpriseExample(t *testing.T)
 				ResourceName:            "google_data_fusion_instance.enterprise_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -258,7 +258,7 @@ func TestAccDataFusionInstance_dataFusionInstanceEventExample(t *testing.T) {
 				ResourceName:            "google_data_fusion_instance.event",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -302,7 +302,7 @@ func TestAccDataFusionInstance_dataFusionInstanceZoneExample(t *testing.T) {
 				ResourceName:            "google_data_fusion_instance.zone",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "labels", "terraform_labels"},
 			},
 		},
 	})

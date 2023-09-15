@@ -50,6 +50,7 @@ func ResourceDataplexDatascan() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -507,6 +508,12 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 				Computed:    true,
 				Description: `The time when the scan was created.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"execution_status": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -535,6 +542,13 @@ Sampling is not applied if 'sampling_percent' is not specified, 0 or 100.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Current state of the DataScan.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -582,12 +596,6 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDataplexDatascanLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	dataProp, err := expandDataplexDatascanData(d.Get("data"), d, config)
 	if err != nil {
 		return err
@@ -611,6 +619,12 @@ func resourceDataplexDatascanCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("data_profile_spec"); ok || !reflect.DeepEqual(v, dataProfileSpecProp) {
 		obj["dataProfileSpec"] = dataProfileSpecProp
+	}
+	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans?dataScanId={{data_scan_id}}")
@@ -749,6 +763,12 @@ func resourceDataplexDatascanRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("data_profile_spec", flattenDataplexDatascanDataProfileSpec(res["dataProfileSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Datascan: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDataplexDatascanTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDataplexDatascanEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Datascan: %s", err)
+	}
 
 	return nil
 }
@@ -781,12 +801,6 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDataplexDatascanLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	executionSpecProp, err := expandDataplexDatascanExecutionSpec(d.Get("execution_spec"), d, config)
 	if err != nil {
 		return err
@@ -805,6 +819,12 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("data_profile_spec"); ok || !reflect.DeepEqual(v, dataProfileSpecProp) {
 		obj["dataProfileSpec"] = dataProfileSpecProp
 	}
+	labelsProp, err := expandDataplexDatascanEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/dataScans/{{data_scan_id}}")
 	if err != nil {
@@ -822,10 +842,6 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 		updateMask = append(updateMask, "displayName")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("execution_spec") {
 		updateMask = append(updateMask, "executionSpec")
 	}
@@ -836,6 +852,10 @@ func resourceDataplexDatascanUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("data_profile_spec") {
 		updateMask = append(updateMask, "dataProfileSpec")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -967,7 +987,18 @@ func flattenDataplexDatascanDisplayName(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenDataplexDatascanLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDataplexDatascanState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1453,23 +1484,31 @@ func flattenDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}
 	return v
 }
 
+func flattenDataplexDatascanTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenDataplexDatascanEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDataplexDatascanDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandDataplexDatascanDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandDataplexDatascanLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandDataplexDatascanData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2218,4 +2257,15 @@ func expandDataplexDatascanDataProfileSpecExcludeFields(v interface{}, d tpgreso
 
 func expandDataplexDatascanDataProfileSpecExcludeFieldsFieldNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataplexDatascanEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

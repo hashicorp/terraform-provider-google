@@ -125,6 +125,13 @@ In addition to the arguments listed above, the following computed attributes are
   A list of connections allocated for the Gateway.
   Structure is [documented below](#nested_allocated_connections).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 <a name="nested_allocated_connections"></a>The `allocated_connections` block contains:
 

@@ -49,6 +49,7 @@ func ResourceCertificateManagerCertificateMap() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -67,7 +68,6 @@ globally and match the pattern 'projects/*/locations/*/certificateMaps/*'.`,
 			},
 			"labels": {
 				Type:        schema.TypeMap,
-				Computed:    true,
 				Optional:    true,
 				Description: `Set of labels associated with a Certificate Map resource.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -78,6 +78,12 @@ globally and match the pattern 'projects/*/locations/*/certificateMaps/*'.`,
 				Description: `Creation timestamp of a Certificate Map. Timestamp is in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds with up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"gclb_targets": {
 				Type:        schema.TypeList,
@@ -124,6 +130,13 @@ This field is part of a union field 'target_proxy': Only one of 'targetHttpsProx
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -156,10 +169,10 @@ func resourceCertificateManagerCertificateMapCreate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandCertificateManagerCertificateMapEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -272,6 +285,12 @@ func resourceCertificateManagerCertificateMapRead(d *schema.ResourceData, meta i
 	if err := d.Set("gclb_targets", flattenCertificateManagerCertificateMapGclbTargets(res["gclbTargets"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateMap: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCertificateManagerCertificateMapTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMap: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCertificateManagerCertificateMapEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMap: %s", err)
+	}
 
 	return nil
 }
@@ -298,10 +317,10 @@ func resourceCertificateManagerCertificateMapUpdate(d *schema.ResourceData, meta
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandCertificateManagerCertificateMapEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -317,7 +336,7 @@ func resourceCertificateManagerCertificateMapUpdate(d *schema.ResourceData, meta
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -445,7 +464,18 @@ func flattenCertificateManagerCertificateMapUpdateTime(v interface{}, d *schema.
 }
 
 func flattenCertificateManagerCertificateMapLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCertificateManagerCertificateMapGclbTargets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -503,11 +533,30 @@ func flattenCertificateManagerCertificateMapGclbTargetsTargetSslProxy(v interfac
 	return v
 }
 
+func flattenCertificateManagerCertificateMapTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCertificateManagerCertificateMapEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandCertificateManagerCertificateMapDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandCertificateManagerCertificateMapLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandCertificateManagerCertificateMapEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

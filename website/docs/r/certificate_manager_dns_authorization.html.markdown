@@ -96,6 +96,13 @@ In addition to the arguments listed above, the following computed attributes are
   certificate.
   Structure is [documented below](#nested_dns_resource_record).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 <a name="nested_dns_resource_record"></a>The `dns_resource_record` block contains:
 
