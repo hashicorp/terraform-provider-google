@@ -84,7 +84,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccSecretManagerSecret_annotationsUpdate(context),
@@ -93,7 +93,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccSecretManagerSecret_annotationsBasic(context),
@@ -102,7 +102,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 		},
 	})

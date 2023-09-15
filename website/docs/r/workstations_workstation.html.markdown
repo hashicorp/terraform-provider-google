@@ -173,6 +173,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   Current state of the workstation.
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 ## Timeouts
 
