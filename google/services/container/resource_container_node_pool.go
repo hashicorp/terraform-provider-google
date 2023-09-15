@@ -1547,7 +1547,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 					timeout)
 			}
 
-			if err := tpgresource.RetryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
 
