@@ -724,6 +724,9 @@ In addition to the arguments listed above, the following computed attributes are
   ResourceStatus representing detailed cluster state.
   Structure is [documented below](#nested_status).
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_validation_check"></a>The `validation_check` block contains:
 

@@ -10,6 +10,20 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func FlattenLabels(labels map[string]string, d *schema.ResourceData) map[string]interface{} {
+	transformed := make(map[string]interface{})
+
+	if v, ok := d.GetOk("labels"); ok {
+		if labels != nil {
+			for k, _ := range v.(map[string]interface{}) {
+				transformed[k] = labels[k]
+			}
+		}
+	}
+
+	return transformed
+}
+
 func SetLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 

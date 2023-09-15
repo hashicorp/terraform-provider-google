@@ -342,6 +342,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `on_prem_version` -
   Anthos version for the node pool. Defaults to the user cluster version.
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_status"></a>The `status` block contains:
 

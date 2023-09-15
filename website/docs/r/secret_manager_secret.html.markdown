@@ -279,6 +279,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `create_time` -
   The time at which the Secret was created.
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 ## Timeouts
 

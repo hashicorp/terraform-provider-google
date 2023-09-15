@@ -49,7 +49,7 @@ func TestAccSecretManagerSecret_secretConfigBasicExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
+				ImportStateVerifyIgnore: []string{"annotations", "ttl", "secret_id"},
 			},
 		},
 	})
@@ -97,7 +97,7 @@ func TestAccSecretManagerSecret_secretWithAnnotationsExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
+				ImportStateVerifyIgnore: []string{"annotations", "ttl", "secret_id"},
 			},
 		},
 	})
@@ -147,7 +147,7 @@ func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-automatic-cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl", "secret_id"},
+				ImportStateVerifyIgnore: []string{"annotations", "ttl", "secret_id"},
 			},
 		},
 	})

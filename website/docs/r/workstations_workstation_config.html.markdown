@@ -78,6 +78,10 @@ resource "google_workstations_workstation_config" "default" {
   idle_timeout = "600s"
   running_timeout = "21600s"
 
+  annotations = {
+    label-one = "value-one"
+  }
+
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -738,6 +742,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `conditions` -
   Status conditions describing the current resource state.
   Structure is [documented below](#nested_conditions).
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 <a name="nested_conditions"></a>The `conditions` block contains:
