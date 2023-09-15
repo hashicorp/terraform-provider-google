@@ -1518,7 +1518,41 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 			log.Printf("[INFO] Updated linux_node_config for node pool %s", name)
 		}
+		if d.HasChange(prefix + "node_config.0.fast_socket") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				FastSocket: &container.FastSocket{},
+			}
+			if v, ok := d.GetOk(prefix + "node_config.0.fast_socket"); ok {
+				fastSocket := v.([]interface{})[0].(map[string]interface{})
+				req.FastSocket = &container.FastSocket{
+					Enabled: fastSocket["enabled"].(bool),
+				}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
 
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool fast_socket", userAgent,
+					timeout)
+			}
+
+			if err := tpgresource.RetryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated fast_socket for node pool %s", name)
+		}
 	}
 
 	if d.HasChange(prefix + "node_count") {
