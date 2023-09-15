@@ -170,6 +170,24 @@ resource "google_firestore_database" "database" {
   depends_on = [google_project_service.firestore]
 }
 ```
+## Example Usage - Firestore Database With Delete Protection
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project                           = google_project.project.project_id
+  name                              = "my-database"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+
+  # Prevents accidental deletion of the database.
+  # To delete the database, first set this field to `DELETE_PROTECTION_DISABLED`, apply the changes.
+  # Then delete the database resource and apply the changes again.
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+
+  depends_on = [google_project_service.firestore]
+}
+```
 
 ## Argument Reference
 
@@ -220,6 +238,11 @@ The following arguments are supported:
   If `POINT_IN_TIME_RECOVERY_DISABLED` is selected, reads are supported on any version of the data from within the past 1 hour.
   Default value is `POINT_IN_TIME_RECOVERY_DISABLED`.
   Possible values are: `POINT_IN_TIME_RECOVERY_ENABLED`, `POINT_IN_TIME_RECOVERY_DISABLED`.
+
+* `delete_protection_state` -
+  (Optional)
+  State of delete protection for the database.
+  Possible values are: `DELETE_PROTECTION_STATE_UNSPECIFIED`, `DELETE_PROTECTION_ENABLED`, `DELETE_PROTECTION_DISABLED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
