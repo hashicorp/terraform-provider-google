@@ -56,17 +56,19 @@ func TestAccContainerAzureNodePool_BasicHandWritten(t *testing.T) {
 				Config: testAccContainerAzureNodePool_BasicHandWritten(context),
 			},
 			{
-				ResourceName:      "google_container_azure_node_pool.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_azure_node_pool.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"management.#", "management.0.%", "management.0.auto_repair"},
 			},
 			{
 				Config: testAccContainerAzureNodePool_BasicHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_container_azure_node_pool.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_azure_node_pool.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"management.#", "management.0.%", "management.0.auto_repair"},
 			},
 		},
 	})
@@ -164,6 +166,10 @@ resource "google_container_azure_node_pool" "primary" {
 
   annotations = {
     annotation-one = "value-one"
+  }
+
+  management {
+    auto_repair = true
   }
 
   project = "%{project_name}"
@@ -266,6 +272,10 @@ resource "google_container_azure_node_pool" "primary" {
 
   annotations = {
     annotation-two = "value-two"
+  }
+
+  management {
+    auto_repair = false
   }
 
   project = "%{project_name}"

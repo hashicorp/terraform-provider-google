@@ -119,6 +119,10 @@ resource "google_container_azure_node_pool" "primary" {
     annotation-one = "value-one"
   }
 
+  management {
+    auto_repair = true
+  }
+
   project = "my-project-name"
 }
 
@@ -221,6 +225,10 @@ The `max_pods_constraint` block supports:
   (Optional)
   Optional. The Azure availability zone of the nodes in this nodepool. When unspecified, it defaults to `1`.
   
+* `management` -
+  (Optional)
+  The Management configuration for this node pool.
+  
 * `project` -
   (Optional)
   The project for the resource
@@ -242,6 +250,12 @@ The `root_volume` block supports:
 * `size_gib` -
   (Optional)
   Optional. The size of the disk, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
+    
+The `management` block supports:
+    
+* `auto_repair` -
+  (Optional)
+  Optional. Whether or not the nodes will be automatically repaired.
     
 ## Attributes Reference
 

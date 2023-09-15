@@ -94,7 +94,7 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description:   "A collection of VLAN attachment resources. These resources should be redundant attachments that all advertise the same prefixes to Google Cloud. Alternatively, in active/passive configurations, all attachments should be capable of advertising the same prefixes.",
 				MaxItems:      1,
 				Elem:          NetworkConnectivitySpokeLinkedInterconnectAttachmentsSchema(),
-				ConflictsWith: []string{"linked_vpn_tunnels", "linked_router_appliance_instances"},
+				ConflictsWith: []string{"linked_vpn_tunnels", "linked_router_appliance_instances", "linked_vpc_network"},
 			},
 
 			"linked_router_appliance_instances": {
@@ -104,7 +104,17 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description:   "The URIs of linked Router appliance resources",
 				MaxItems:      1,
 				Elem:          NetworkConnectivitySpokeLinkedRouterApplianceInstancesSchema(),
-				ConflictsWith: []string{"linked_vpn_tunnels", "linked_interconnect_attachments"},
+				ConflictsWith: []string{"linked_vpn_tunnels", "linked_interconnect_attachments", "linked_vpc_network"},
+			},
+
+			"linked_vpc_network": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   "VPC network that is associated with the spoke.",
+				MaxItems:      1,
+				Elem:          NetworkConnectivitySpokeLinkedVPCNetworkSchema(),
+				ConflictsWith: []string{"linked_vpn_tunnels", "linked_interconnect_attachments", "linked_router_appliance_instances"},
 			},
 
 			"linked_vpn_tunnels": {
@@ -114,7 +124,7 @@ func ResourceNetworkConnectivitySpoke() *schema.Resource {
 				Description:   "The URIs of linked VPN tunnel resources",
 				MaxItems:      1,
 				Elem:          NetworkConnectivitySpokeLinkedVpnTunnelsSchema(),
-				ConflictsWith: []string{"linked_interconnect_attachments", "linked_router_appliance_instances"},
+				ConflictsWith: []string{"linked_interconnect_attachments", "linked_router_appliance_instances", "linked_vpc_network"},
 			},
 
 			"project": {
@@ -216,6 +226,28 @@ func NetworkConnectivitySpokeLinkedRouterApplianceInstancesInstancesSchema() *sc
 	}
 }
 
+func NetworkConnectivitySpokeLinkedVPCNetworkSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      "The URI of the VPC network resource.",
+			},
+
+			"exclude_export_ranges": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "IP ranges encompassing the subnets to be excluded from peering.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
 func NetworkConnectivitySpokeLinkedVpnTunnelsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -252,6 +284,7 @@ func resourceNetworkConnectivitySpokeCreate(d *schema.ResourceData, meta interfa
 		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
+		LinkedVPCNetwork:               expandNetworkConnectivitySpokeLinkedVPCNetwork(d.Get("linked_vpc_network")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
 		Project:                        dcl.String(project),
 	}
@@ -308,6 +341,7 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
+		LinkedVPCNetwork:               expandNetworkConnectivitySpokeLinkedVPCNetwork(d.Get("linked_vpc_network")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
 		Project:                        dcl.String(project),
 	}
@@ -355,6 +389,9 @@ func resourceNetworkConnectivitySpokeRead(d *schema.ResourceData, meta interface
 	if err = d.Set("linked_router_appliance_instances", flattenNetworkConnectivitySpokeLinkedRouterApplianceInstances(res.LinkedRouterApplianceInstances)); err != nil {
 		return fmt.Errorf("error setting linked_router_appliance_instances in state: %s", err)
 	}
+	if err = d.Set("linked_vpc_network", flattenNetworkConnectivitySpokeLinkedVPCNetwork(res.LinkedVPCNetwork)); err != nil {
+		return fmt.Errorf("error setting linked_vpc_network in state: %s", err)
+	}
 	if err = d.Set("linked_vpn_tunnels", flattenNetworkConnectivitySpokeLinkedVpnTunnels(res.LinkedVpnTunnels)); err != nil {
 		return fmt.Errorf("error setting linked_vpn_tunnels in state: %s", err)
 	}
@@ -391,6 +428,7 @@ func resourceNetworkConnectivitySpokeUpdate(d *schema.ResourceData, meta interfa
 		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
+		LinkedVPCNetwork:               expandNetworkConnectivitySpokeLinkedVPCNetwork(d.Get("linked_vpc_network")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
 		Project:                        dcl.String(project),
 	}
@@ -442,6 +480,7 @@ func resourceNetworkConnectivitySpokeDelete(d *schema.ResourceData, meta interfa
 		Labels:                         tpgresource.CheckStringMap(d.Get("labels")),
 		LinkedInterconnectAttachments:  expandNetworkConnectivitySpokeLinkedInterconnectAttachments(d.Get("linked_interconnect_attachments")),
 		LinkedRouterApplianceInstances: expandNetworkConnectivitySpokeLinkedRouterApplianceInstances(d.Get("linked_router_appliance_instances")),
+		LinkedVPCNetwork:               expandNetworkConnectivitySpokeLinkedVPCNetwork(d.Get("linked_vpc_network")),
 		LinkedVpnTunnels:               expandNetworkConnectivitySpokeLinkedVpnTunnels(d.Get("linked_vpn_tunnels")),
 		Project:                        dcl.String(project),
 	}
@@ -602,6 +641,34 @@ func flattenNetworkConnectivitySpokeLinkedRouterApplianceInstancesInstances(obj 
 	}
 
 	return transformed
+
+}
+
+func expandNetworkConnectivitySpokeLinkedVPCNetwork(o interface{}) *networkconnectivity.SpokeLinkedVPCNetwork {
+	if o == nil {
+		return networkconnectivity.EmptySpokeLinkedVPCNetwork
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return networkconnectivity.EmptySpokeLinkedVPCNetwork
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &networkconnectivity.SpokeLinkedVPCNetwork{
+		Uri:                 dcl.String(obj["uri"].(string)),
+		ExcludeExportRanges: tpgdclresource.ExpandStringArray(obj["exclude_export_ranges"]),
+	}
+}
+
+func flattenNetworkConnectivitySpokeLinkedVPCNetwork(obj *networkconnectivity.SpokeLinkedVPCNetwork) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri":                   obj.Uri,
+		"exclude_export_ranges": obj.ExcludeExportRanges,
+	}
+
+	return []interface{}{transformed}
 
 }
 

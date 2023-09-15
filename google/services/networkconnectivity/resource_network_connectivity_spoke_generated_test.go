@@ -33,6 +33,39 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func TestAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWritten(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"region":        envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWritten(context),
+			},
+			{
+				ResourceName:      "google_network_connectivity_spoke.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWrittenUpdate0(context),
+			},
+			{
+				ResourceName:      "google_network_connectivity_spoke.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
 func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 	t.Parallel()
 
@@ -66,6 +99,76 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWritten(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "tf-test-hub%{random_suffix}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name = "tf-test-name%{random_suffix}"
+  location = "global"
+  description = "A sample spoke with a linked routher appliance instance"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+}
+`, context)
+}
+
+func testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWrittenUpdate0(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "tf-test-hub%{random_suffix}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name = "tf-test-name%{random_suffix}"
+  location = "global"
+  description = "A sample spoke with a linked routher appliance instance"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+}
+`, context)
 }
 
 func testAccNetworkConnectivitySpoke_RouterApplianceHandWritten(context map[string]interface{}) string {
