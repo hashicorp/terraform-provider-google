@@ -1,0 +1,6 @@
+```release-note:enhancement
+identityplayform: added `sign-in` field to `google_identity_platform_config` resource
+```
+```release-note:deprecation
+identityplayform: deprecated `google_identity_platform_project_default_config` resource. Use `google_identity_platform_config` resource instead
+```

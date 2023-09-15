@@ -53,10 +53,26 @@ resource "google_project_service" "identitytoolkit" {
   service = "identitytoolkit.googleapis.com"
 }
 
-
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
   autodelete_anonymous_users = true
+  sign_in {
+    allow_duplicate_emails = true
+   
+    anonymous {
+        enabled = true
+    }
+    email {
+        enabled = true
+        password_required = false
+    }
+    phone_number {
+        enabled = true
+        test_phone_numbers = {
+            "+11231231234" = "000000"
+        }
+    }
+  }
   blocking_functions {
     triggers {
       event_type = "beforeSignIn"
@@ -96,6 +112,11 @@ The following arguments are supported:
   (Optional)
   Whether anonymous users will be auto-deleted after a period of 30 days
 
+* `sign_in` -
+  (Optional)
+  Configuration related to local sign in methods.
+  Structure is [documented below](#nested_sign_in).
+
 * `blocking_functions` -
   (Optional)
   Configuration related to blocking functions.
@@ -113,6 +134,83 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_sign_in"></a>The `sign_in` block supports:
+
+* `email` -
+  (Optional)
+  Configuration options related to authenticating a user by their email address.
+  Structure is [documented below](#nested_email).
+
+* `phone_number` -
+  (Optional)
+  Configuration options related to authenticated a user by their phone number.
+  Structure is [documented below](#nested_phone_number).
+
+* `anonymous` -
+  (Optional)
+  Configuration options related to authenticating an anonymous user.
+  Structure is [documented below](#nested_anonymous).
+
+* `allow_duplicate_emails` -
+  (Optional)
+  Whether to allow more than one account to have the same email.
+
+* `hash_config` -
+  (Output)
+  Output only. Hash config information.
+  Structure is [documented below](#nested_hash_config).
+
+
+<a name="nested_email"></a>The `email` block supports:
+
+* `enabled` -
+  (Required)
+  Whether email auth is enabled for the project or not.
+
+* `password_required` -
+  (Optional)
+  Whether a password is required for email auth or not. If true, both an email and
+  password must be provided to sign in. If false, a user may sign in via either
+  email/password or email link.
+
+<a name="nested_phone_number"></a>The `phone_number` block supports:
+
+* `enabled` -
+  (Required)
+  Whether phone number auth is enabled for the project or not.
+
+* `test_phone_numbers` -
+  (Optional)
+  A map of <test phone number, fake code> that can be used for phone auth testing.
+
+<a name="nested_anonymous"></a>The `anonymous` block supports:
+
+* `enabled` -
+  (Required)
+  Whether anonymous user auth is enabled for the project or not.
+
+<a name="nested_hash_config"></a>The `hash_config` block contains:
+
+* `algorithm` -
+  (Output)
+  Different password hash algorithms used in Identity Toolkit.
+
+* `signer_key` -
+  (Output)
+  Signer key in base64.
+
+* `salt_separator` -
+  (Output)
+  Non-printable character to be inserted between the salt and plain text password in base64.
+
+* `rounds` -
+  (Output)
+  How many rounds for hash calculation. Used by scrypt and other similar password derivation algorithms.
+
+* `memory_cost` -
+  (Output)
+  Memory cost for hash calculation. Used by scrypt and other similar password derivation algorithms. See https://tools.ietf.org/html/rfc7914 for explanation of field.
 
 <a name="nested_blocking_functions"></a>The `blocking_functions` block supports:
 

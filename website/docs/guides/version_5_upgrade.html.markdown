@@ -510,3 +510,9 @@ resource "google_secret_manager_secret" "my-secret" {
   }
 }
 ```
+
+## Resource: `google_identity_platform_project_default_config`
+
+### `google_identity_platform_project_default_config` has been removed from the provider
+
+Use the `google_identity_platform_config` resource instead. It contains a more comprehensive list of fields, and was created before `google_identity_platform_project_default_config` was added.

@@ -155,6 +155,113 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 					},
 				},
 			},
+			"sign_in": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration related to local sign in methods.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_duplicate_emails": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Whether to allow more than one account to have the same email.`,
+						},
+						"anonymous": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration options related to authenticating an anonymous user.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether anonymous user auth is enabled for the project or not.`,
+									},
+								},
+							},
+						},
+						"email": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration options related to authenticating a user by their email address.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether email auth is enabled for the project or not.`,
+									},
+									"password_required": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Whether a password is required for email auth or not. If true, both an email and
+password must be provided to sign in. If false, a user may sign in via either
+email/password or email link.`,
+									},
+								},
+							},
+						},
+						"phone_number": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration options related to authenticated a user by their phone number.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether phone number auth is enabled for the project or not.`,
+									},
+									"test_phone_numbers": {
+										Type:        schema.TypeMap,
+										Optional:    true,
+										Description: `A map of <test phone number, fake code> that can be used for phone auth testing.`,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"hash_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Output only. Hash config information.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"algorithm": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Different password hash algorithms used in Identity Toolkit.`,
+									},
+									"memory_cost": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `Memory cost for hash calculation. Used by scrypt and other similar password derivation algorithms. See https://tools.ietf.org/html/rfc7914 for explanation of field.`,
+									},
+									"rounds": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `How many rounds for hash calculation. Used by scrypt and other similar password derivation algorithms.`,
+									},
+									"salt_separator": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Non-printable character to be inserted between the salt and plain text password in base64.`,
+									},
+									"signer_key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Signer key in base64.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -274,6 +381,9 @@ func resourceIdentityPlatformConfigRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("autodelete_anonymous_users", flattenIdentityPlatformConfigAutodeleteAnonymousUsers(res["autodeleteAnonymousUsers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("sign_in", flattenIdentityPlatformConfigSignIn(res["signIn"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("blocking_functions", flattenIdentityPlatformConfigBlockingFunctions(res["blockingFunctions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -309,6 +419,12 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("autodelete_anonymous_users"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autodeleteAnonymousUsersProp)) {
 		obj["autodeleteAnonymousUsers"] = autodeleteAnonymousUsersProp
 	}
+	signInProp, err := expandIdentityPlatformConfigSignIn(d.Get("sign_in"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sign_in"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, signInProp)) {
+		obj["signIn"] = signInProp
+	}
 	blockingFunctionsProp, err := expandIdentityPlatformConfigBlockingFunctions(d.Get("blocking_functions"), d, config)
 	if err != nil {
 		return err
@@ -338,6 +454,10 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("autodelete_anonymous_users") {
 		updateMask = append(updateMask, "autodeleteAnonymousUsers")
+	}
+
+	if d.HasChange("sign_in") {
+		updateMask = append(updateMask, "signIn")
 	}
 
 	if d.HasChange("blocking_functions") {
@@ -417,6 +537,161 @@ func flattenIdentityPlatformConfigName(v interface{}, d *schema.ResourceData, co
 
 func flattenIdentityPlatformConfigAutodeleteAnonymousUsers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenIdentityPlatformConfigSignIn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["email"] =
+		flattenIdentityPlatformConfigSignInEmail(original["email"], d, config)
+	transformed["phone_number"] =
+		flattenIdentityPlatformConfigSignInPhoneNumber(original["phoneNumber"], d, config)
+	transformed["anonymous"] =
+		flattenIdentityPlatformConfigSignInAnonymous(original["anonymous"], d, config)
+	transformed["allow_duplicate_emails"] =
+		flattenIdentityPlatformConfigSignInAllowDuplicateEmails(original["allowDuplicateEmails"], d, config)
+	transformed["hash_config"] =
+		flattenIdentityPlatformConfigSignInHashConfig(original["hashConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSignInEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenIdentityPlatformConfigSignInEmailEnabled(original["enabled"], d, config)
+	transformed["password_required"] =
+		flattenIdentityPlatformConfigSignInEmailPasswordRequired(original["passwordRequired"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSignInEmailEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInEmailPasswordRequired(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInPhoneNumber(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenIdentityPlatformConfigSignInPhoneNumberEnabled(original["enabled"], d, config)
+	transformed["test_phone_numbers"] =
+		flattenIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(original["testPhoneNumbers"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSignInPhoneNumberEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInAnonymous(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	if original["enabled"] == nil {
+		transformed["enabled"] = false
+	} else {
+		transformed["enabled"] = original["enabled"]
+	}
+
+	return []interface{}{transformed}
+}
+
+func flattenIdentityPlatformConfigSignInAllowDuplicateEmails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInHashConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["algorithm"] =
+		flattenIdentityPlatformConfigSignInHashConfigAlgorithm(original["algorithm"], d, config)
+	transformed["signer_key"] =
+		flattenIdentityPlatformConfigSignInHashConfigSignerKey(original["signerKey"], d, config)
+	transformed["salt_separator"] =
+		flattenIdentityPlatformConfigSignInHashConfigSaltSeparator(original["saltSeparator"], d, config)
+	transformed["rounds"] =
+		flattenIdentityPlatformConfigSignInHashConfigRounds(original["rounds"], d, config)
+	transformed["memory_cost"] =
+		flattenIdentityPlatformConfigSignInHashConfigMemoryCost(original["memoryCost"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSignInHashConfigAlgorithm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInHashConfigSignerKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInHashConfigSaltSeparator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSignInHashConfigRounds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenIdentityPlatformConfigSignInHashConfigMemoryCost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenIdentityPlatformConfigBlockingFunctions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -547,6 +822,222 @@ func flattenIdentityPlatformConfigAuthorizedDomains(v interface{}, d *schema.Res
 }
 
 func expandIdentityPlatformConfigAutodeleteAnonymousUsers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignIn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmail, err := expandIdentityPlatformConfigSignInEmail(original["email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["email"] = transformedEmail
+	}
+
+	transformedPhoneNumber, err := expandIdentityPlatformConfigSignInPhoneNumber(original["phone_number"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPhoneNumber); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["phoneNumber"] = transformedPhoneNumber
+	}
+
+	transformedAnonymous, err := expandIdentityPlatformConfigSignInAnonymous(original["anonymous"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAnonymous); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["anonymous"] = transformedAnonymous
+	}
+
+	transformedAllowDuplicateEmails, err := expandIdentityPlatformConfigSignInAllowDuplicateEmails(original["allow_duplicate_emails"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowDuplicateEmails); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowDuplicateEmails"] = transformedAllowDuplicateEmails
+	}
+
+	transformedHashConfig, err := expandIdentityPlatformConfigSignInHashConfig(original["hash_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHashConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hashConfig"] = transformedHashConfig
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSignInEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandIdentityPlatformConfigSignInEmailEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedPasswordRequired, err := expandIdentityPlatformConfigSignInEmailPasswordRequired(original["password_required"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPasswordRequired); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["passwordRequired"] = transformedPasswordRequired
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSignInEmailEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInEmailPasswordRequired(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInPhoneNumber(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandIdentityPlatformConfigSignInPhoneNumberEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedTestPhoneNumbers, err := expandIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(original["test_phone_numbers"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTestPhoneNumbers); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["testPhoneNumbers"] = transformedTestPhoneNumbers
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSignInPhoneNumberEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInPhoneNumberTestPhoneNumbers(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandIdentityPlatformConfigSignInAnonymous(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandIdentityPlatformConfigSignInAnonymousEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSignInAnonymousEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInAllowDuplicateEmails(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAlgorithm, err := expandIdentityPlatformConfigSignInHashConfigAlgorithm(original["algorithm"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAlgorithm); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["algorithm"] = transformedAlgorithm
+	}
+
+	transformedSignerKey, err := expandIdentityPlatformConfigSignInHashConfigSignerKey(original["signer_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSignerKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["signerKey"] = transformedSignerKey
+	}
+
+	transformedSaltSeparator, err := expandIdentityPlatformConfigSignInHashConfigSaltSeparator(original["salt_separator"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSaltSeparator); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["saltSeparator"] = transformedSaltSeparator
+	}
+
+	transformedRounds, err := expandIdentityPlatformConfigSignInHashConfigRounds(original["rounds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRounds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rounds"] = transformedRounds
+	}
+
+	transformedMemoryCost, err := expandIdentityPlatformConfigSignInHashConfigMemoryCost(original["memory_cost"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMemoryCost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["memoryCost"] = transformedMemoryCost
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfigAlgorithm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfigSignerKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfigSaltSeparator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfigRounds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSignInHashConfigMemoryCost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
