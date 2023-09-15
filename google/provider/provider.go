@@ -933,6 +933,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dataproc_metastore_service_iam_policy":           tpgiamresource.DataSourceIamPolicy(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer),
 			"google_dns_managed_zone_iam_policy":                     tpgiamresource.DataSourceIamPolicy(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer),
 			"google_gke_backup_backup_plan_iam_policy":               tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer),
+			"google_gke_backup_restore_plan_iam_policy":              tpgiamresource.DataSourceIamPolicy(gkebackup.GKEBackupRestorePlanIamSchema, gkebackup.GKEBackupRestorePlanIamUpdaterProducer),
 			"google_gke_hub_membership_iam_policy":                   tpgiamresource.DataSourceIamPolicy(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer),
 			"google_gke_hub_feature_iam_policy":                      tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2FeatureIamSchema, gkehub2.GKEHub2FeatureIamUpdaterProducer),
 			"google_gke_hub_scope_iam_policy":                        tpgiamresource.DataSourceIamPolicy(gkehub2.GKEHub2ScopeIamSchema, gkehub2.GKEHub2ScopeIamUpdaterProducer),
@@ -986,9 +987,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 321
-// Generated IAM resources: 207
-// Total generated resources: 528
+// Generated resources: 322
+// Generated IAM resources: 210
+// Total generated resources: 532
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1326,6 +1327,10 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_gke_backup_backup_plan_iam_binding":                      tpgiamresource.ResourceIamBinding(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
 			"google_gke_backup_backup_plan_iam_member":                       tpgiamresource.ResourceIamMember(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
 			"google_gke_backup_backup_plan_iam_policy":                       tpgiamresource.ResourceIamPolicy(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
+			"google_gke_backup_restore_plan":                                 gkebackup.ResourceGKEBackupRestorePlan(),
+			"google_gke_backup_restore_plan_iam_binding":                     tpgiamresource.ResourceIamBinding(gkebackup.GKEBackupRestorePlanIamSchema, gkebackup.GKEBackupRestorePlanIamUpdaterProducer, gkebackup.GKEBackupRestorePlanIdParseFunc),
+			"google_gke_backup_restore_plan_iam_member":                      tpgiamresource.ResourceIamMember(gkebackup.GKEBackupRestorePlanIamSchema, gkebackup.GKEBackupRestorePlanIamUpdaterProducer, gkebackup.GKEBackupRestorePlanIdParseFunc),
+			"google_gke_backup_restore_plan_iam_policy":                      tpgiamresource.ResourceIamPolicy(gkebackup.GKEBackupRestorePlanIamSchema, gkebackup.GKEBackupRestorePlanIamUpdaterProducer, gkebackup.GKEBackupRestorePlanIdParseFunc),
 			"google_gke_hub_membership":                                      gkehub.ResourceGKEHubMembership(),
 			"google_gke_hub_membership_iam_binding":                          tpgiamresource.ResourceIamBinding(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer, gkehub.GKEHubMembershipIdParseFunc),
 			"google_gke_hub_membership_iam_member":                           tpgiamresource.ResourceIamMember(gkehub.GKEHubMembershipIamSchema, gkehub.GKEHubMembershipIamUpdaterProducer, gkehub.GKEHubMembershipIdParseFunc),
