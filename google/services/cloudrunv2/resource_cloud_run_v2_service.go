@@ -631,9 +631,43 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 									},
 									"egress": {
 										Type:         schema.TypeString,
+										Computed:     true,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"ALL_TRAFFIC", "PRIVATE_RANGES_ONLY", ""}),
 										Description:  `Traffic VPC egress settings. Possible values: ["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"]`,
+									},
+									"network_interfaces": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Direct VPC egress settings. Currently only single network interface is supported.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"network": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													Description: `The VPC network that the Cloud Run resource will be able to send traffic to. At least one of network or subnetwork must be specified. If both
+network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If network is not specified, it will be
+looked up from the subnetwork.`,
+												},
+												"subnetwork": {
+													Type:     schema.TypeString,
+													Computed: true,
+													Optional: true,
+													Description: `The VPC subnetwork that the Cloud Run resource will get IPs from. At least one of network or subnetwork must be specified. If both
+network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If subnetwork is not specified, the
+subnetwork with the same name with the network will be used.`,
+												},
+												"tags": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Network tags applied to this Cloud Run service.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1614,6 +1648,8 @@ func flattenCloudRunV2ServiceTemplateVpcAccess(v interface{}, d *schema.Resource
 		flattenCloudRunV2ServiceTemplateVpcAccessConnector(original["connector"], d, config)
 	transformed["egress"] =
 		flattenCloudRunV2ServiceTemplateVpcAccessEgress(original["egress"], d, config)
+	transformed["network_interfaces"] =
+		flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfaces(original["networkInterfaces"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateVpcAccessConnector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1621,6 +1657,38 @@ func flattenCloudRunV2ServiceTemplateVpcAccessConnector(v interface{}, d *schema
 }
 
 func flattenCloudRunV2ServiceTemplateVpcAccessEgress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"network":    flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesNetwork(original["network"], d, config),
+			"subnetwork": flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesSubnetwork(original["subnetwork"], d, config),
+			"tags":       flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesTags(original["tags"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2930,6 +2998,13 @@ func expandCloudRunV2ServiceTemplateVpcAccess(v interface{}, d tpgresource.Terra
 		transformed["egress"] = transformedEgress
 	}
 
+	transformedNetworkInterfaces, err := expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfaces(original["network_interfaces"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkInterfaces); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkInterfaces"] = transformedNetworkInterfaces
+	}
+
 	return transformed, nil
 }
 
@@ -2938,6 +3013,54 @@ func expandCloudRunV2ServiceTemplateVpcAccessConnector(v interface{}, d tpgresou
 }
 
 func expandCloudRunV2ServiceTemplateVpcAccessEgress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfaces(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNetwork, err := expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesNetwork(original["network"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["network"] = transformedNetwork
+		}
+
+		transformedSubnetwork, err := expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesSubnetwork(original["subnetwork"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSubnetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["subnetwork"] = transformedSubnetwork
+		}
+
+		transformedTags, err := expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesTags(original["tags"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["tags"] = transformedTags
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceTemplateVpcAccessNetworkInterfacesTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
