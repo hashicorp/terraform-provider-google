@@ -49,7 +49,7 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionFullExample(t
 				ResourceName:            "google_datastream_private_connection.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_connection_id", "location"},
+				ImportStateVerifyIgnore: []string{"private_connection_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})

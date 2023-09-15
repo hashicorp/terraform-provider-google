@@ -48,6 +48,7 @@ func ResourceCertificateManagerTrustConfig() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -127,6 +128,20 @@ Each certificate provided in PEM format may occupy up to 5kB.`,
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -154,12 +169,6 @@ func resourceCertificateManagerTrustConfigCreate(d *schema.ResourceData, meta in
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandCertificateManagerTrustConfigLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandCertificateManagerTrustConfigDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -171,6 +180,12 @@ func resourceCertificateManagerTrustConfigCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("trust_stores"); !tpgresource.IsEmptyValue(reflect.ValueOf(trustStoresProp)) && (ok || !reflect.DeepEqual(v, trustStoresProp)) {
 		obj["trustStores"] = trustStoresProp
+	}
+	labelsProp, err := expandCertificateManagerTrustConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/trustConfigs?trustConfigId={{name}}")
@@ -280,6 +295,12 @@ func resourceCertificateManagerTrustConfigRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading TrustConfig: %s", err)
 	}
 	if err := d.Set("trust_stores", flattenCertificateManagerTrustConfigTrustStores(res["trustStores"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err := d.Set("terraform_labels", flattenCertificateManagerTrustConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TrustConfig: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCertificateManagerTrustConfigEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TrustConfig: %s", err)
 	}
 
@@ -440,7 +461,18 @@ func flattenCertificateManagerTrustConfigUpdateTime(v interface{}, d *schema.Res
 }
 
 func flattenCertificateManagerTrustConfigLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCertificateManagerTrustConfigDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -510,15 +542,23 @@ func flattenCertificateManagerTrustConfigTrustStoresIntermediateCasPemCertificat
 	return v
 }
 
-func expandCertificateManagerTrustConfigLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenCertificateManagerTrustConfigTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenCertificateManagerTrustConfigEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandCertificateManagerTrustConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -604,4 +644,15 @@ func expandCertificateManagerTrustConfigTrustStoresIntermediateCas(v interface{}
 
 func expandCertificateManagerTrustConfigTrustStoresIntermediateCasPemCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCertificateManagerTrustConfigEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -34,7 +34,7 @@ func TestAccBigQueryJob_withLocation(t *testing.T) {
 				ImportStateId:           importID,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})

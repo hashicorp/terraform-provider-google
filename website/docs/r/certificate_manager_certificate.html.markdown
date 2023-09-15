@@ -40,6 +40,9 @@ resource "google_certificate_manager_certificate" "default" {
   name        = "dns-cert"
   description = "The default cert"
   scope       = "EDGE_CACHE"
+  labels = {
+    env = "test"
+  }
   managed {
     domains = [
       google_certificate_manager_dns_authorization.instance.domain,
@@ -339,6 +342,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/certificates/{{name}}`
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

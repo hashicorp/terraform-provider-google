@@ -24,17 +24,19 @@ func TestAccArtifactRegistryRepository_update(t *testing.T) {
 				Config: testAccArtifactRegistryRepository_update(repositoryID),
 			},
 			{
-				ResourceName:      "google_artifact_registry_repository.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_artifact_registry_repository.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccArtifactRegistryRepository_update2(repositoryID),
 			},
 			{
-				ResourceName:      "google_artifact_registry_repository.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_artifact_registry_repository.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

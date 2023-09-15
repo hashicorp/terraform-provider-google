@@ -1033,7 +1033,7 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryTable_jsonEqModeRemoved(datasetID, tableID),
@@ -1042,7 +1042,7 @@ func TestAccBigQueryDataTable_jsonEquivalency(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -1092,7 +1092,7 @@ func TestAccBigQueryDataTable_expandArray(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryTable_arrayExpanded(datasetID, tableID),
@@ -1101,7 +1101,7 @@ func TestAccBigQueryDataTable_expandArray(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels"},
+				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -1125,7 +1125,7 @@ func TestAccBigQueryTable_allowDestroy(t *testing.T) {
 				ResourceName:            "google_bigquery_table.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "labels"},
+				ImportStateVerifyIgnore: []string{"deletion_protection", "labels", "terraform_labels"},
 			},
 			{
 				Config:      testAccBigQueryTable_noAllowDestroy(datasetID, tableID),

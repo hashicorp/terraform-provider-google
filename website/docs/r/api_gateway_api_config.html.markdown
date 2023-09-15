@@ -256,6 +256,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `service_config_id` -
   The ID of the associated Service Config (https://cloud.google.com/service-infrastructure/docs/glossary#config).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 ## Timeouts
 

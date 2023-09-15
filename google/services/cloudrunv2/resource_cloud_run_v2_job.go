@@ -49,6 +49,7 @@ func ResourceCloudRunV2Job() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
 		),
@@ -531,6 +532,12 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -651,6 +658,13 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -680,12 +694,6 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandCloudRunV2JobLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -715,6 +723,12 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(templateProp)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
+	}
+	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -893,6 +907,12 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("etag", flattenCloudRunV2JobEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCloudRunV2JobTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCloudRunV2JobEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
 	if err := d.Set("effective_annotations", flattenCloudRunV2JobEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
@@ -916,12 +936,6 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandCloudRunV2JobLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -951,6 +965,12 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
+	}
+	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -1080,7 +1100,18 @@ func flattenCloudRunV2JobGeneration(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenCloudRunV2JobLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunV2JobAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1795,19 +1826,27 @@ func flattenCloudRunV2JobEtag(v interface{}, d *schema.ResourceData, config *tra
 	return v
 }
 
-func flattenCloudRunV2JobEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenCloudRunV2JobTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCloudRunV2JobEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandCloudRunV2JobLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenCloudRunV2JobEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandCloudRunV2JobClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2504,6 +2543,17 @@ func expandCloudRunV2JobTemplateTemplateVpcAccessEgress(v interface{}, d tpgreso
 
 func expandCloudRunV2JobTemplateTemplateMaxRetries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudRunV2JobEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandCloudRunV2JobEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

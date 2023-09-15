@@ -50,6 +50,7 @@ func ResourceCloudfunctions2function() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -455,6 +456,12 @@ timeout period. Defaults to 60 seconds.`,
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"environment": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -464,6 +471,13 @@ timeout period. Defaults to 60 seconds.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Describes the current state of the function.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -553,17 +567,17 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("event_trigger"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventTriggerProp)) && (ok || !reflect.DeepEqual(v, eventTriggerProp)) {
 		obj["eventTrigger"] = eventTriggerProp
 	}
-	labelsProp, err := expandCloudfunctions2functionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	kmsKeyNameProp, err := expandCloudfunctions2functionKmsKeyName(d.Get("kms_key_name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
+	}
+	labelsProp, err := expandCloudfunctions2functionEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions?functionId={{name}}")
@@ -704,6 +718,12 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("kms_key_name", flattenCloudfunctions2functionKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading function: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCloudfunctions2functionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCloudfunctions2functionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading function: %s", err)
+	}
 
 	return nil
 }
@@ -748,17 +768,17 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("event_trigger"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventTriggerProp)) {
 		obj["eventTrigger"] = eventTriggerProp
 	}
-	labelsProp, err := expandCloudfunctions2functionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	kmsKeyNameProp, err := expandCloudfunctions2functionKmsKeyName(d.Get("kms_key_name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
+	}
+	labelsProp, err := expandCloudfunctions2functionEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{Cloudfunctions2BasePath}}projects/{{project}}/locations/{{location}}/functions/{{name}}")
@@ -785,12 +805,12 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 		updateMask = append(updateMask, "eventTrigger")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("kms_key_name") {
 		updateMask = append(updateMask, "kmsKeyName")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1453,10 +1473,40 @@ func flattenCloudfunctions2functionUpdateTime(v interface{}, d *schema.ResourceD
 }
 
 func flattenCloudfunctions2functionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudfunctions2functionKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCloudfunctions2functionEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2203,7 +2253,11 @@ func expandCloudfunctions2functionEventTriggerRetryPolicy(v interface{}, d tpgre
 	return v, nil
 }
 
-func expandCloudfunctions2functionLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandCloudfunctions2functionKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -2212,8 +2266,4 @@ func expandCloudfunctions2functionLabels(v interface{}, d tpgresource.TerraformR
 		m[k] = val.(string)
 	}
 	return m, nil
-}
-
-func expandCloudfunctions2functionKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }

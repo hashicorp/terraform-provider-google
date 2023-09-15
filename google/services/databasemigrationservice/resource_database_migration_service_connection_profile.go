@@ -50,6 +50,7 @@ func ResourceDatabaseMigrationServiceConnectionProfile() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -558,6 +559,12 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 				Computed:    true,
 				Description: `The database provider.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"error": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -595,6 +602,13 @@ If this field is used then the 'clientCertificate' field is mandatory.`,
 				Computed:    true,
 				Description: `The current connection profile state.`,
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -620,12 +634,6 @@ func resourceDatabaseMigrationServiceConnectionProfileCreate(d *schema.ResourceD
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDatabaseMigrationServiceConnectionProfileLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	mysqlProp, err := expandDatabaseMigrationServiceConnectionProfileMysql(d.Get("mysql"), d, config)
 	if err != nil {
 		return err
@@ -649,6 +657,12 @@ func resourceDatabaseMigrationServiceConnectionProfileCreate(d *schema.ResourceD
 		return err
 	} else if v, ok := d.GetOkExists("alloydb"); !tpgresource.IsEmptyValue(reflect.ValueOf(alloydbProp)) && (ok || !reflect.DeepEqual(v, alloydbProp)) {
 		obj["alloydb"] = alloydbProp
+	}
+	labelsProp, err := expandDatabaseMigrationServiceConnectionProfileEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
@@ -778,6 +792,12 @@ func resourceDatabaseMigrationServiceConnectionProfileRead(d *schema.ResourceDat
 	if err := d.Set("alloydb", flattenDatabaseMigrationServiceConnectionProfileAlloydb(res["alloydb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDatabaseMigrationServiceConnectionProfileTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDatabaseMigrationServiceConnectionProfileEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
 
 	return nil
 }
@@ -804,12 +824,6 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDatabaseMigrationServiceConnectionProfileLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	mysqlProp, err := expandDatabaseMigrationServiceConnectionProfileMysql(d.Get("mysql"), d, config)
 	if err != nil {
 		return err
@@ -834,6 +848,12 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 	} else if v, ok := d.GetOkExists("alloydb"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, alloydbProp)) {
 		obj["alloydb"] = alloydbProp
 	}
+	labelsProp, err := expandDatabaseMigrationServiceConnectionProfileEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatabaseMigrationServiceBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
@@ -845,10 +865,6 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
-	}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
 	}
 
 	if d.HasChange("mysql") {
@@ -865,6 +881,10 @@ func resourceDatabaseMigrationServiceConnectionProfileUpdate(d *schema.ResourceD
 
 	if d.HasChange("alloydb") {
 		updateMask = append(updateMask, "alloydb")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -991,7 +1011,18 @@ func flattenDatabaseMigrationServiceConnectionProfileCreateTime(v interface{}, d
 }
 
 func flattenDatabaseMigrationServiceConnectionProfileLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDatabaseMigrationServiceConnectionProfileState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1594,19 +1625,27 @@ func flattenDatabaseMigrationServiceConnectionProfileAlloydbSettingsPrimaryInsta
 	return v
 }
 
-func expandDatabaseMigrationServiceConnectionProfileDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenDatabaseMigrationServiceConnectionProfileTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandDatabaseMigrationServiceConnectionProfileLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenDatabaseMigrationServiceConnectionProfileEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandDatabaseMigrationServiceConnectionProfileDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDatabaseMigrationServiceConnectionProfileMysql(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2502,4 +2541,15 @@ func expandDatabaseMigrationServiceConnectionProfileAlloydbSettingsPrimaryInstan
 
 func expandDatabaseMigrationServiceConnectionProfileAlloydbSettingsPrimaryInstanceSettingsPrivateIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatabaseMigrationServiceConnectionProfileEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

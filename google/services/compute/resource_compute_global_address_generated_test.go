@@ -49,7 +49,7 @@ func TestAccComputeGlobalAddress_globalAddressBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_global_address.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network"},
+				ImportStateVerifyIgnore: []string{"network", "labels", "terraform_labels"},
 			},
 		},
 	})

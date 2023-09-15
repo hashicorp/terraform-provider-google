@@ -49,7 +49,7 @@ func TestAccCertificateManagerCertificateMapEntry_certificateManagerCertificateM
 				ResourceName:            "google_certificate_manager_certificate_map_entry.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"map"},
+				ImportStateVerifyIgnore: []string{"map", "labels", "terraform_labels"},
 			},
 		},
 	})

@@ -50,6 +50,12 @@ func CheckDataSourceStateMatchesResourceStateWithIgnores(dataSourceName, resourc
 			if _, ok := ignoreFields[k]; ok {
 				continue
 			}
+			if _, ok := ignoreFields["labels.%"]; ok && strings.HasPrefix(k, "labels.") {
+				continue
+			}
+			if _, ok := ignoreFields["terraform_labels.%"]; ok && strings.HasPrefix(k, "terraform_labels.") {
+				continue
+			}
 			if k == "%" {
 				continue
 			}

@@ -173,7 +173,7 @@ func TestAccContainerAttachedCluster_containerAttachedClusterIgnoreErrorsExample
 				ResourceName:            "google_container_attached_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "annotations", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"location", "deletion_policy", "annotations"},
 			},
 		},
 	})

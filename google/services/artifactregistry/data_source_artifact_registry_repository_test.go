@@ -25,8 +25,8 @@ func TestAccDataSourceGoogleArtifactRegistryRepositoryConfig(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleArtifactRegistryRepositoryConfig(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceState(funcDataName,
-						"google_artifact_registry_repository.my-repo"),
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataName,
+						"google_artifact_registry_repository.my-repo", map[string]struct{}{"labels.%": {}, "terraform_labels.%": {}}),
 				),
 			},
 		},
@@ -40,6 +40,10 @@ resource "google_artifact_registry_repository" "my-repo" {
   repository_id = "tf-test-my-repository%{random_suffix}"
   description   = "example docker repository%{random_suffix}"
   format        = "DOCKER"
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
 }
 
 data "google_artifact_registry_repository" "my-repo" {

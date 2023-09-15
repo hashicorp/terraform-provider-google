@@ -120,6 +120,7 @@ func ResourceDatastreamStream() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceDatastreamStreamCustomDiff,
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -1272,6 +1273,12 @@ will be encrypted using an internal Stream-specific encryption key provisioned t
 				Description: `Labels.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1281,6 +1288,13 @@ will be encrypted using an internal Stream-specific encryption key provisioned t
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The state of the stream.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"desired_state": {
 				Type:        schema.TypeString,
@@ -1307,12 +1321,6 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDatastreamStreamLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	displayNameProp, err := expandDatastreamStreamDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -1348,6 +1356,12 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("customer_managed_encryption_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(customerManagedEncryptionKeyProp)) && (ok || !reflect.DeepEqual(v, customerManagedEncryptionKeyProp)) {
 		obj["customerManagedEncryptionKey"] = customerManagedEncryptionKeyProp
+	}
+	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
@@ -1507,6 +1521,12 @@ func resourceDatastreamStreamRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("customer_managed_encryption_key", flattenDatastreamStreamCustomerManagedEncryptionKey(res["customerManagedEncryptionKey"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Stream: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDatastreamStreamTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDatastreamStreamEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Stream: %s", err)
+	}
 
 	return nil
 }
@@ -1527,12 +1547,6 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDatastreamStreamLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	displayNameProp, err := expandDatastreamStreamDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -1563,6 +1577,12 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("backfill_none"); ok || !reflect.DeepEqual(v, backfillNoneProp) {
 		obj["backfillNone"] = backfillNoneProp
 	}
+	labelsProp, err := expandDatastreamStreamEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	obj, err = resourceDatastreamStreamEncoder(d, meta, obj)
 	if err != nil {
@@ -1576,10 +1596,6 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] Updating Stream %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
@@ -1599,6 +1615,10 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("backfill_none") {
 		updateMask = append(updateMask, "backfillNone")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1744,7 +1764,18 @@ func flattenDatastreamStreamName(v interface{}, d *schema.ResourceData, config *
 }
 
 func flattenDatastreamStreamLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDatastreamStreamDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3579,15 +3610,23 @@ func flattenDatastreamStreamCustomerManagedEncryptionKey(v interface{}, d *schem
 	return v
 }
 
-func expandDatastreamStreamLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenDatastreamStreamTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenDatastreamStreamEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandDatastreamStreamDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -5877,6 +5916,17 @@ func expandDatastreamStreamBackfillNone(v interface{}, d tpgresource.TerraformRe
 
 func expandDatastreamStreamCustomerManagedEncryptionKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamStreamEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceDatastreamStreamEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
