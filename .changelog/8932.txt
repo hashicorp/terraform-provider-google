@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrunv2: added fields `network_interfaces` to resource `google_cloud_run_v2_job` to support Direct VPC egress.
+```
+```release-note:enhancement
+cloudrunv2: added fields `network_interfaces` to resource `google_cloud_run_v2_service` to support Direct VPC egress.
+```
