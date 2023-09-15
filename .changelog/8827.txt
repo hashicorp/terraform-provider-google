@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: update documentation for google_bigquery_table.time_partitioning.expiration_ms
+```
