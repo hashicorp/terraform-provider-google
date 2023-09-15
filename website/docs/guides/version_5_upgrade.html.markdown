@@ -277,6 +277,17 @@ These two unsupported fields were introduced incorrectly. They are now removed.
 
 This unsupported field was introduced incorrectly. It is now removed.
 
+## Resource: `google_container_cluster`
+
+### `enable_binary_authorization` is now removed
+
+`enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
+
+### Default value of `network_policy.provider` is now removed
+
+Previously `network_policy.provider` defaulted to "PROVIDER_UNSPECIFIED". It no longer
+has a default value.
+
 ## Resource: `google_dataplex_datascan`
 
 ### `dataQualityResult` and `dataProfileResult` output fields are now removed 
