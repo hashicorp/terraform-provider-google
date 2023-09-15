@@ -469,3 +469,33 @@ If you were relying on accessing an individual flag by index (for example, `goog
 ### `Create` endpoint is used to create the resource
 
 `google_service_networking_connection` now uses the Create endpoint instead of the Patch endpoint during the creation step. Previously, Patch was used as a workaround for an issue that has since been resolved.
+
+## Resource: `google_secret_manager_secret`
+
+### `replication.automatic` is now removed
+
+Deprecated in favor of field `replication.auto`. It is now removed.
+
+#### Old Config
+
+```hcl
+resource "google_secret_manager_secret" "my-secret" {
+  secret_id = "tf-secret"
+  
+  replication {
+    automatic = true
+  }
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_secret_manager_secret" "my-secret" {
+  secret_id = "tf-secret"
+  
+  replication {
+    auto {}
+  }
+}
+```
