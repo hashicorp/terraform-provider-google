@@ -1,0 +1,12 @@
+```release-note:enhancement
+containeraws: added support for `auto_repair` in `container_aws_node_pool`
+```
+```release-note:enhancement
+containerazure: added support for `auto_repair` in `container_azure_node_pool`
+```
+```release-note:enhancement
+networkconnectivity: added support for `linked_vpc_network` in `network_connectivity_spoke`
+```
+```release-note:bug
+eventarc: field `event_data_content_type` in `eventarc_trigger` now marked as computed
+```

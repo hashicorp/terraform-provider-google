@@ -175,6 +175,10 @@ resource "google_container_aws_node_pool" "primary" {
     label-one = "value-one"
   }
 
+  management {
+    auto_repair = true
+  }
+
   project = "my-project-name"
 }
 
@@ -626,6 +630,10 @@ The `max_pods_constraint` block supports:
   (Optional)
   Optional. Annotations on the node pool. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Key can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.
   
+* `management` -
+  (Optional)
+  The Management configuration for this node pool.
+  
 * `project` -
   (Optional)
   The project for the resource
@@ -705,6 +713,12 @@ The `taints` block supports:
 * `value` -
   (Required)
   Value for the taint.
+    
+The `management` block supports:
+    
+* `auto_repair` -
+  (Optional)
+  Optional. Whether or not the nodes will be automatically repaired.
     
 ## Attributes Reference
 

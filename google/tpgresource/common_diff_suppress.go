@@ -56,6 +56,11 @@ func EmptyOrDefaultStringSuppress(defaultVal string) schema.SchemaDiffSuppressFu
 	}
 }
 
+func EmptyOrFalseSuppressBoolean(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(k)
+	return (o == nil && !n.(bool))
+}
+
 func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// The range may be a:
 	// A) single IP address (e.g. 10.2.3.4)
