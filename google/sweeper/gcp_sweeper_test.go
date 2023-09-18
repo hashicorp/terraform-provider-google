@@ -58,6 +58,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/documentai"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/documentaiwarehouse"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/edgenetwork"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/firestore"

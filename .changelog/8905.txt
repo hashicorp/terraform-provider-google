@@ -1,0 +1,6 @@
+```release-note:new-resource
+edgenetwork : `google_edgenetwork_network`
+```
+```release-note:new-resource
+edgenetwork : `google_edgenetwork_subnet`
+```
