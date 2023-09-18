@@ -360,6 +360,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `ipv6_cidr_range` -
   The range of internal IPv6 addresses that are owned by this subnetwork.
 
+* `internal_ipv6_prefix` -
+  The internal IPv6 address range that is assigned to this subnetwork.
+
 * `external_ipv6_prefix` -
   The range of external IPv6 addresses that are owned by this subnetwork.
 * `self_link` - The URI of the created resource.
