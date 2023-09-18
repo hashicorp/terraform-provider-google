@@ -1,0 +1,3 @@
+```release-note:note
+filestore: added support for the `"ZONAL"` value to `tier` in `google_filestore_instance`
+```
