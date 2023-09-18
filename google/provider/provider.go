@@ -987,9 +987,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 322
+// Generated resources: 323
 // Generated IAM resources: 210
-// Total generated resources: 532
+// Total generated resources: 533
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1297,6 +1297,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_dialogflow_cx_flow":                                      dialogflowcx.ResourceDialogflowCXFlow(),
 			"google_dialogflow_cx_intent":                                    dialogflowcx.ResourceDialogflowCXIntent(),
 			"google_dialogflow_cx_page":                                      dialogflowcx.ResourceDialogflowCXPage(),
+			"google_dialogflow_cx_security_settings":                         dialogflowcx.ResourceDialogflowCXSecuritySettings(),
 			"google_dialogflow_cx_test_case":                                 dialogflowcx.ResourceDialogflowCXTestCase(),
 			"google_dialogflow_cx_webhook":                                   dialogflowcx.ResourceDialogflowCXWebhook(),
 			"google_dns_managed_zone":                                        dns.ResourceDNSManagedZone(),
