@@ -2693,6 +2693,9 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 	})
 }
 
+// This resource originally cleaned up the dangling cluster directly, but now
+// taints it, having Terraform clean it up during the next apply. This test
+// name is now inexact, but is being preserved to maintain the test history.
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 	t.Parallel()
 
@@ -2721,7 +2724,7 @@ func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 				Config:      overlapConfig,
 				ExpectError: regexp.MustCompile("Error waiting for creating GKE cluster"),
 			},
-			// If dangling cluster wasn't deleted, this plan will return an error
+			// If tainted cluster won't be deleted, this step will return an error
 			{
 				Config:             overlapConfig,
 				PlanOnly:           true,

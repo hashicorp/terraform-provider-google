@@ -2078,29 +2078,26 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			if err := d.Set("operation", op.Name); err != nil {
 				return fmt.Errorf("Error setting operation: %s", err)
 			}
+
 			return nil
 		default:
 			// leaving default case to ensure this is non blocking
 		}
+
 		// Try a GET on the cluster so we can see the state in debug logs. This will help classify error states.
 		clusterGetCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Get(containerClusterFullName(project, location, clusterName))
 		if config.UserProjectOverride {
 			clusterGetCall.Header().Add("X-Goog-User-Project", project)
 		}
+
 		_, getErr := clusterGetCall.Do()
 		if getErr != nil {
 			log.Printf("[WARN] Cluster %s was created in an error state and not found", clusterName)
 			d.SetId("")
 		}
 
-		if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
-			log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
-			// Leave ID set as the cluster likely still exists and should not be removed from state yet.
-		} else {
-			log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
-			d.SetId("")
-		}
-		// The resource didn't actually create
+		// Don't clear cluster id, this will taint the resource
+		log.Printf("[WARN] GKE cluster %s was created in an error state, and has been marked as tainted", clusterName)
 		return waitErr
 	}
 
@@ -2245,14 +2242,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 				d.SetId("")
 			}
 
-			if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
-				log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
-				// Leave ID set as the cluster likely still exists and should not be removed from state yet.
-			} else {
-				log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
-				d.SetId("")
-			}
-			// The resource didn't actually create
+			// Don't clear cluster id, this will taint the resource
+			log.Printf("[WARN] GKE cluster %s was created in an error state, and has been marked as tainted", clusterName)
 			return waitErr
 		}
 	}
@@ -3655,52 +3646,6 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId("")
 
-	return nil
-}
-
-// cleanFailedContainerCluster deletes clusters that failed but were
-// created in an error state. Similar to resourceContainerClusterDelete
-// but implemented in separate function as it doesn't try to lock already
-// locked cluster state, does different error handling, and doesn't do retries.
-func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	location, err := tpgresource.GetLocation(d, config)
-	if err != nil {
-		return err
-	}
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
-
-	clusterName := d.Get("name").(string)
-	fullName := containerClusterFullName(project, location, clusterName)
-
-	log.Printf("[DEBUG] Cleaning up failed GKE cluster %s", d.Get("name").(string))
-	clusterDeleteCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Delete(fullName)
-	if config.UserProjectOverride {
-		clusterDeleteCall.Header().Add("X-Goog-User-Project", project)
-	}
-	op, err := clusterDeleteCall.Do()
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
-	}
-
-	// Wait until it's deleted
-	waitErr := ContainerOperationWait(config, op, project, location, "deleting GKE cluster", userAgent, d.Timeout(schema.TimeoutDelete))
-	if waitErr != nil {
-		return waitErr
-	}
-
-	log.Printf("[INFO] GKE cluster %s has been deleted", d.Id())
-	d.SetId("")
 	return nil
 }
 
