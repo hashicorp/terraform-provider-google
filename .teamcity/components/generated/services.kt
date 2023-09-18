@@ -311,6 +311,11 @@ var services = mapOf(
         "displayName" to "Documentaiwarehouse",
         "path" to "./google/services/documentaiwarehouse"
     ),
+    "edgenetwork" to mapOf(
+        "name" to "edgenetwork",
+        "displayName" to "Edgenetwork",
+        "path" to "./google/services/edgenetwork"
+    ),
     "essentialcontacts" to mapOf(
         "name" to "essentialcontacts",
         "displayName" to "Essentialcontacts",
