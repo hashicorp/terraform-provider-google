@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added output field `internal_ipv6_prefix` to `google_compute_subnetwork` resource
+```

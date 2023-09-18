@@ -366,6 +366,29 @@ func TestAccComputeSubnetwork_ipv6(t *testing.T) {
 	})
 }
 
+func TestAccComputeSubnetwork_internal_ipv6(t *testing.T) {
+	t.Parallel()
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSubnetwork_internal_ipv6(cnName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_compute_subnetwork.subnetwork",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeSubnetworkExists(t *testing.T, n string, subnetwork *compute.Subnetwork) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -794,6 +817,25 @@ resource "google_compute_subnetwork" "subnetwork" {
   network          = google_compute_network.custom-test.self_link
   stack_type       = "IPV4_IPV6"
   ipv6_access_type = "EXTERNAL"
+}
+`, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_internal_ipv6(cnName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                     = "%s"
+  auto_create_subnetworks  = false
+  enable_ula_internal_ipv6 = true
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name             = "%s"
+  ip_cidr_range    = "10.0.0.0/16"
+  region           = "us-central1"
+  network          = google_compute_network.custom-test.self_link
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
 }
 `, cnName, subnetworkName)
 }
