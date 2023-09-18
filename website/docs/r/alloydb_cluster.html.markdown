@@ -193,11 +193,6 @@ resource "google_service_networking_connection" "vpc_connection" {
 The following arguments are supported:
 
 
-* `network` -
-  (Required)
-  The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
-  "projects/{projectNumber}/global/networks/{network_id}".
-
 * `cluster_id` -
   (Required)
   The ID of the alloydb cluster.
@@ -218,6 +213,18 @@ The following arguments are supported:
   (Optional)
   EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
   Structure is [documented below](#nested_encryption_config).
+
+* `network` -
+  (Optional, Deprecated)
+  The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
+  "projects/{projectNumber}/global/networks/{network_id}".
+
+  ~> **Warning:** `network` is deprecated and will be removed in a future major release. Instead, use `network_config` to define the network configuration.
+
+* `network_config` -
+  (Optional)
+  Metadata related to network configuration.
+  Structure is [documented below](#nested_network_config).
 
 * `display_name` -
   (Optional)
@@ -258,6 +265,18 @@ The following arguments are supported:
 * `kms_key_name` -
   (Optional)
   The fully-qualified resource name of the KMS key. Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
+
+<a name="nested_network_config"></a>The `network_config` block supports:
+
+* `network` -
+  (Optional)
+  The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster.
+  It is specified in the form: "projects/{projectNumber}/global/networks/{network_id}".
+
+* `allocated_ip_range` -
+  (Optional)
+  The name of the allocated IP range for the private IP AlloyDB cluster. For example: "google-managed-services-default".
+  If set, the instance IPs for this cluster will be created in the allocated range.
 
 <a name="nested_initial_user"></a>The `initial_user` block supports:
 
