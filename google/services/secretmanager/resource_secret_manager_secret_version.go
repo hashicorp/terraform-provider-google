@@ -357,7 +357,7 @@ func resourceSecretManagerSecretVersionImport(d *schema.ResourceData, meta inter
 
 	parts := secretRegex.FindStringSubmatch(name)
 	if len(parts) != 2 {
-		panic(fmt.Sprintf("Version name does not fit the format `projects/{{project}}/secrets/{{secret}}/versions/{{version}}`"))
+		return nil, fmt.Errorf("Version name does not fit the format `projects/{{project}}/secrets/{{secret}}/versions/{{version}}`")
 	}
 	if err := d.Set("secret", parts[1]); err != nil {
 		return nil, fmt.Errorf("Error setting secret: %s", err)
