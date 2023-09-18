@@ -49,6 +49,7 @@ func ResourceGKEHub2MembershipBinding() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -94,6 +95,12 @@ func ResourceGKEHub2MembershipBinding() *schema.Resource {
 				Computed:    true,
 				Description: `Time the MembershipBinding was deleted in UTC.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -112,6 +119,13 @@ func ResourceGKEHub2MembershipBinding() *schema.Resource {
 						},
 					},
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -148,10 +162,10 @@ func resourceGKEHub2MembershipBindingCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(scopeProp)) && (ok || !reflect.DeepEqual(v, scopeProp)) {
 		obj["scope"] = scopeProp
 	}
-	labelsProp, err := expandGKEHub2MembershipBindingLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2MembershipBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -287,6 +301,12 @@ func resourceGKEHub2MembershipBindingRead(d *schema.ResourceData, meta interface
 	if err := d.Set("labels", flattenGKEHub2MembershipBindingLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading MembershipBinding: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenGKEHub2MembershipBindingTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MembershipBinding: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenGKEHub2MembershipBindingEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading MembershipBinding: %s", err)
+	}
 
 	return nil
 }
@@ -313,10 +333,10 @@ func resourceGKEHub2MembershipBindingUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scopeProp)) {
 		obj["scope"] = scopeProp
 	}
-	labelsProp, err := expandGKEHub2MembershipBindingLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2MembershipBindingEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -332,7 +352,7 @@ func resourceGKEHub2MembershipBindingUpdate(d *schema.ResourceData, meta interfa
 		updateMask = append(updateMask, "scope")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -492,6 +512,36 @@ func flattenGKEHub2MembershipBindingStateCode(v interface{}, d *schema.ResourceD
 }
 
 func flattenGKEHub2MembershipBindingLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2MembershipBindingTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2MembershipBindingEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -499,7 +549,7 @@ func expandGKEHub2MembershipBindingScope(v interface{}, d tpgresource.TerraformR
 	return v, nil
 }
 
-func expandGKEHub2MembershipBindingLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGKEHub2MembershipBindingEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

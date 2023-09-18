@@ -429,6 +429,13 @@ In addition to the arguments listed above, the following computed attributes are
   be used to determine whether the image was taken from the current
   or a previous instance of a given disk name.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * `source_image_id` -
   The ID value of the image used to create this disk. This value
   identifies the exact image that was used to create this persistent

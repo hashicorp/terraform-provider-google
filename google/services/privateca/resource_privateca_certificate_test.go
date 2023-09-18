@@ -38,7 +38,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateUpdate(t *testing.T) {
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority"},
+				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccPrivatecaCertificate_privatecaCertificateStart(context),

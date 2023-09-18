@@ -139,6 +139,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `kms_key_name` -
   KMS key name used for data encryption.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 ## Timeouts
 

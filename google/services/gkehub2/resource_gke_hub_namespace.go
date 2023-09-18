@@ -49,6 +49,7 @@ func ResourceGKEHub2Namespace() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -98,6 +99,12 @@ a key. Keys and values must be Kubernetes-conformant.`,
 				Computed:    true,
 				Description: `Time the Namespace was deleted in UTC.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -116,6 +123,13 @@ a key. Keys and values must be Kubernetes-conformant.`,
 						},
 					},
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -158,10 +172,10 @@ func resourceGKEHub2NamespaceCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("namespace_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(namespaceLabelsProp)) && (ok || !reflect.DeepEqual(v, namespaceLabelsProp)) {
 		obj["namespaceLabels"] = namespaceLabelsProp
 	}
-	labelsProp, err := expandGKEHub2NamespaceLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2NamespaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -300,6 +314,12 @@ func resourceGKEHub2NamespaceRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("labels", flattenGKEHub2NamespaceLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Namespace: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenGKEHub2NamespaceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenGKEHub2NamespaceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Namespace: %s", err)
+	}
 
 	return nil
 }
@@ -326,10 +346,10 @@ func resourceGKEHub2NamespaceUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("namespace_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, namespaceLabelsProp)) {
 		obj["namespaceLabels"] = namespaceLabelsProp
 	}
-	labelsProp, err := expandGKEHub2NamespaceLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2NamespaceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -345,7 +365,7 @@ func resourceGKEHub2NamespaceUpdate(d *schema.ResourceData, meta interface{}) er
 		updateMask = append(updateMask, "namespaceLabels")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -509,6 +529,36 @@ func flattenGKEHub2NamespaceNamespaceLabels(v interface{}, d *schema.ResourceDat
 }
 
 func flattenGKEHub2NamespaceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2NamespaceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2NamespaceEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -527,7 +577,7 @@ func expandGKEHub2NamespaceNamespaceLabels(v interface{}, d tpgresource.Terrafor
 	return m, nil
 }
 
-func expandGKEHub2NamespaceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGKEHub2NamespaceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

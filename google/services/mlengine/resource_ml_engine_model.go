@@ -46,6 +46,7 @@ func ResourceMLEngineModel() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -110,6 +111,20 @@ Currently only one region per model is supported`,
 					Type: schema.TypeString,
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -165,10 +180,10 @@ func resourceMLEngineModelCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("online_prediction_console_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(onlinePredictionConsoleLoggingProp)) && (ok || !reflect.DeepEqual(v, onlinePredictionConsoleLoggingProp)) {
 		obj["onlinePredictionConsoleLogging"] = onlinePredictionConsoleLoggingProp
 	}
-	labelsProp, err := expandMLEngineModelLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandMLEngineModelEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -275,6 +290,12 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 	if err := d.Set("labels", flattenMLEngineModelLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err := d.Set("terraform_labels", flattenMLEngineModelTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Model: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenMLEngineModelEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Model: %s", err)
 	}
 
@@ -395,6 +416,36 @@ func flattenMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d *schema
 }
 
 func flattenMLEngineModelLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenMLEngineModelTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenMLEngineModelEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -441,7 +492,7 @@ func expandMLEngineModelOnlinePredictionConsoleLogging(v interface{}, d tpgresou
 	return v, nil
 }
 
-func expandMLEngineModelLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandMLEngineModelEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

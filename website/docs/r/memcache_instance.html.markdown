@@ -67,6 +67,10 @@ resource "google_memcache_instance" "instance" {
   name = "test-instance"
   authorized_network = google_service_networking_connection.private_service_connection.network
 
+  labels = {
+    env = "test"
+  }
+
   node_config {
     cpu_count      = 1
     memory_size_mb = 1024
@@ -272,6 +276,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `maintenance_schedule` -
   Output only. Published maintenance schedule.
   Structure is [documented below](#nested_maintenance_schedule).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_memcache_nodes"></a>The `memcache_nodes` block contains:

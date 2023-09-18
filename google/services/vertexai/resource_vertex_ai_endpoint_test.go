@@ -36,7 +36,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 				ResourceName:            "google_vertex_ai_endpoint.endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "location", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAIEndpoint_vertexAiEndpointNetworkUpdate(context),
@@ -45,7 +45,7 @@ func TestAccVertexAIEndpoint_vertexAiEndpointNetwork(t *testing.T) {
 				ResourceName:            "google_vertex_ai_endpoint.endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "location", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "location", "region", "labels", "terraform_labels"},
 			},
 		},
 	})

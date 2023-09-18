@@ -337,17 +337,19 @@ func TestAccComputeDisk_update(t *testing.T) {
 				Config: testAccComputeDisk_basic(diskName),
 			},
 			{
-				ResourceName:      "google_compute_disk.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeDisk_updated(diskName),
 			},
 			{
-				ResourceName:      "google_compute_disk.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -729,9 +731,10 @@ func TestAccComputeDisk_cloneDisk(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_disk.disk-clone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.disk-clone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -750,17 +753,19 @@ func TestAccComputeDisk_featuresUpdated(t *testing.T) {
 				Config: testAccComputeDisk_features(diskName),
 			},
 			{
-				ResourceName:      "google_compute_disk.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeDisk_featuresUpdated(diskName),
 			},
 			{
-				ResourceName:      "google_compute_disk.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_disk.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

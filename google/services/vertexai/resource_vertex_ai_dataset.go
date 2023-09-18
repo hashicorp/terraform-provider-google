@@ -45,6 +45,7 @@ func ResourceVertexAIDataset() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -80,7 +81,6 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 			},
 			"labels": {
 				Type:        schema.TypeMap,
-				Computed:    true,
 				Optional:    true,
 				Description: `A set of key/value label pairs to assign to this Workflow.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -97,10 +97,23 @@ Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/
 				Computed:    true,
 				Description: `The timestamp of when the dataset was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource name of the Dataset. This value is set by Google.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -132,12 +145,6 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandVertexAIDatasetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	encryptionSpecProp, err := expandVertexAIDatasetEncryptionSpec(d.Get("encryption_spec"), d, config)
 	if err != nil {
 		return err
@@ -149,6 +156,12 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("metadata_schema_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(metadataSchemaUriProp)) && (ok || !reflect.DeepEqual(v, metadataSchemaUriProp)) {
 		obj["metadataSchemaUri"] = metadataSchemaUriProp
+	}
+	labelsProp, err := expandVertexAIDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/datasets")
@@ -280,6 +293,12 @@ func resourceVertexAIDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("metadata_schema_uri", flattenVertexAIDatasetMetadataSchemaUri(res["metadataSchemaUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenVertexAIDatasetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenVertexAIDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 
 	return nil
 }
@@ -306,10 +325,10 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandVertexAIDatasetLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandVertexAIDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -325,7 +344,7 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		updateMask = append(updateMask, "displayName")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -429,7 +448,18 @@ func flattenVertexAIDatasetUpdateTime(v interface{}, d *schema.ResourceData, con
 }
 
 func flattenVertexAIDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenVertexAIDatasetEncryptionSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -453,19 +483,27 @@ func flattenVertexAIDatasetMetadataSchemaUri(v interface{}, d *schema.ResourceDa
 	return v
 }
 
-func expandVertexAIDatasetDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenVertexAIDatasetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandVertexAIDatasetLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenVertexAIDatasetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandVertexAIDatasetDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandVertexAIDatasetEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -493,4 +531,15 @@ func expandVertexAIDatasetEncryptionSpecKmsKeyName(v interface{}, d tpgresource.
 
 func expandVertexAIDatasetMetadataSchemaUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIDatasetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

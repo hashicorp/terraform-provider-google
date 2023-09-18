@@ -52,6 +52,9 @@ resource "google_network_management_connectivity_test" "instance-test" {
   }
 
   protocol = "TCP"
+  labels = {
+    env = "test"
+  }
 }
 
 resource "google_compute_instance" "source" {
@@ -303,6 +306,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/global/connectivityTests/{{name}}`
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

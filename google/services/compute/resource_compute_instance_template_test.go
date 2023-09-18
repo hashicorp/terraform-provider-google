@@ -1550,7 +1550,6 @@ resource "google_compute_image" "foobar" {
   }
   labels = {
     my-label    = "my-label-value"
-    empty-label = ""
   }
   timeouts {
     create = "5m"

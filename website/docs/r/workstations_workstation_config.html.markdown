@@ -82,6 +82,10 @@ resource "google_workstations_workstation_config" "default" {
     label-one = "value-one"
   }
 
+  labels = {
+    "label" = "key"
+  }
+
   host {
     gce_instance {
       machine_type                = "e2-standard-4"
@@ -742,6 +746,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `conditions` -
   Status conditions describing the current resource state.
   Structure is [documented below](#nested_conditions).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.

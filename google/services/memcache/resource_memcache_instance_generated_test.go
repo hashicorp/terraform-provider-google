@@ -49,7 +49,7 @@ func TestAccMemcacheInstance_memcacheInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_memcache_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "region"},
+				ImportStateVerifyIgnore: []string{"name", "region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -86,6 +86,10 @@ resource "google_service_networking_connection" "private_service_connection" {
 resource "google_memcache_instance" "instance" {
   name = "tf-test-test-instance%{random_suffix}"
   authorized_network = google_service_networking_connection.private_service_connection.network
+
+  labels = {
+    env = "test"
+  }
 
   node_config {
     cpu_count      = 1

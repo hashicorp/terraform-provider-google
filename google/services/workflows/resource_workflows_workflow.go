@@ -56,6 +56,7 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 			},
 		},
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -115,6 +116,12 @@ Modifying this field for an existing workflow results in a new workflow revision
 				Computed:    true,
 				Description: `The timestamp of when the workflow was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"revision_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -124,6 +131,13 @@ Modifying this field for an existing workflow results in a new workflow revision
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `State of the workflow deployment.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -168,12 +182,6 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandWorkflowsWorkflowLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	serviceAccountProp, err := expandWorkflowsWorkflowServiceAccount(d.Get("service_account"), d, config)
 	if err != nil {
 		return err
@@ -191,6 +199,12 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(cryptoKeyNameProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
+	}
+	labelsProp, err := expandWorkflowsWorkflowEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	obj, err = resourceWorkflowsWorkflowEncoder(d, meta, obj)
@@ -336,6 +350,12 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("crypto_key_name", flattenWorkflowsWorkflowCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenWorkflowsWorkflowTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenWorkflowsWorkflowEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
 
 	return nil
 }
@@ -362,12 +382,6 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandWorkflowsWorkflowLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	serviceAccountProp, err := expandWorkflowsWorkflowServiceAccount(d.Get("service_account"), d, config)
 	if err != nil {
 		return err
@@ -385,6 +399,12 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
+	}
+	labelsProp, err := expandWorkflowsWorkflowEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	obj, err = resourceWorkflowsWorkflowEncoder(d, meta, obj)
@@ -404,10 +424,6 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("service_account") {
 		updateMask = append(updateMask, "serviceAccount")
 	}
@@ -418,6 +434,10 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("crypto_key_name") {
 		updateMask = append(updateMask, "cryptoKeyName")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -535,7 +555,18 @@ func flattenWorkflowsWorkflowState(v interface{}, d *schema.ResourceData, config
 }
 
 func flattenWorkflowsWorkflowLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenWorkflowsWorkflowServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -554,23 +585,31 @@ func flattenWorkflowsWorkflowCryptoKeyName(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenWorkflowsWorkflowTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenWorkflowsWorkflowEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandWorkflowsWorkflowName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandWorkflowsWorkflowDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandWorkflowsWorkflowLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandWorkflowsWorkflowServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -583,6 +622,17 @@ func expandWorkflowsWorkflowSourceContents(v interface{}, d tpgresource.Terrafor
 
 func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandWorkflowsWorkflowEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceWorkflowsWorkflowEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

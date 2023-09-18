@@ -117,6 +117,13 @@ In addition to the arguments listed above, the following computed attributes are
   State of the namespace resource.
   Structure is [documented below](#nested_state).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 <a name="nested_state"></a>The `state` block contains:
 

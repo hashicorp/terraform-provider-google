@@ -50,7 +50,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -113,7 +113,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPublicEndpointExample
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region", "labels", "terraform_labels"},
 			},
 		},
 	})

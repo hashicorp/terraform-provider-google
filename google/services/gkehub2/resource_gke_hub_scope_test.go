@@ -30,7 +30,7 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_gke_hub_scope.scope",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"scope_id"},
+				ImportStateVerifyIgnore: []string{"scope_id", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccGKEHub2Scope_gkehubScopeBasicExample_update(context),
@@ -39,7 +39,7 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_gke_hub_scope.scope",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"scope_id"},
+				ImportStateVerifyIgnore: []string{"scope_id", "labels", "terraform_labels"},
 			},
 		},
 	})

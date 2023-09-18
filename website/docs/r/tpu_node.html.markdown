@@ -194,6 +194,13 @@ In addition to the arguments listed above, the following computed attributes are
   to the first (index 0) entry.
   Structure is [documented below](#nested_network_endpoints).
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 <a name="nested_network_endpoints"></a>The `network_endpoints` block contains:
 

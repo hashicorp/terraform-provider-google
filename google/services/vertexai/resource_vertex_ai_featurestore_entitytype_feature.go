@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,10 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"entitytype": {
@@ -83,10 +88,23 @@ func ResourceVertexAIFeaturestoreEntitytypeFeature() *schema.Resource {
 				Computed:    true,
 				Description: `The timestamp of when the entity type was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Used to perform consistent read-modify-write updates.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -112,12 +130,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandVertexAIFeaturestoreEntitytypeFeatureDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -129,6 +141,12 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureCreate(d *schema.ResourceData,
 		return err
 	} else if v, ok := d.GetOkExists("value_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(valueTypeProp)) && (ok || !reflect.DeepEqual(v, valueTypeProp)) {
 		obj["valueType"] = valueTypeProp
+	}
+	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)
@@ -248,6 +266,12 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureRead(d *schema.ResourceData, m
 	if err := d.Set("value_type", flattenVertexAIFeaturestoreEntitytypeFeatureValueType(res["valueType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeaturestoreEntitytypeFeature: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenVertexAIFeaturestoreEntitytypeFeatureTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytypeFeature: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeaturestoreEntitytypeFeature: %s", err)
+	}
 
 	return nil
 }
@@ -262,17 +286,17 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandVertexAIFeaturestoreEntitytypeFeatureDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	labelsProp, err := expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	obj, err = resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d, meta, obj)
@@ -288,12 +312,12 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureUpdate(d *schema.ResourceData,
 	log.Printf("[DEBUG] Updating FeaturestoreEntitytypeFeature %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -417,7 +441,18 @@ func flattenVertexAIFeaturestoreEntitytypeFeatureUpdateTime(v interface{}, d *sc
 }
 
 func flattenVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -428,15 +463,23 @@ func flattenVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d *sch
 	return v
 }
 
-func expandVertexAIFeaturestoreEntitytypeFeatureLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenVertexAIFeaturestoreEntitytypeFeatureTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -445,6 +488,17 @@ func expandVertexAIFeaturestoreEntitytypeFeatureDescription(v interface{}, d tpg
 
 func expandVertexAIFeaturestoreEntitytypeFeatureValueType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIFeaturestoreEntitytypeFeatureEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceVertexAIFeaturestoreEntitytypeFeatureEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

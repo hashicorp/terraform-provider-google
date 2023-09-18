@@ -49,7 +49,7 @@ func TestAccComputeRegionDisk_regionDiskBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -102,7 +102,7 @@ func TestAccComputeRegionDisk_regionDiskAsyncExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -153,7 +153,7 @@ func TestAccComputeRegionDisk_regionDiskFeaturesExample(t *testing.T) {
 				ResourceName:            "google_compute_region_disk.regiondisk",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"type", "region", "snapshot"},
+				ImportStateVerifyIgnore: []string{"type", "region", "snapshot", "labels", "terraform_labels"},
 			},
 		},
 	})
