@@ -1,0 +1,4 @@
+```release-note:bug
+compute: updated the `autoscaling_policy.mode` to accept `ONLY_SCALE_OUT` on `google_compute_autoscaler` 
+
+```
