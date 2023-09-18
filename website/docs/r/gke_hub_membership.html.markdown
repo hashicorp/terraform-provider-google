@@ -50,6 +50,10 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
+
+  labels = {
+    env = "test"
+  }
 }
 ```
 ## Example Usage - Gkehub Membership Issuer
@@ -150,6 +154,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The unique identifier of the membership.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

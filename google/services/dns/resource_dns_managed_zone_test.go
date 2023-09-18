@@ -30,17 +30,19 @@ func TestAccDNSManagedZone_update(t *testing.T) {
 				Config: testAccDnsManagedZone_basic(zoneSuffix, "description1", map[string]string{"foo": "bar", "ping": "pong"}),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDnsManagedZone_basic(zoneSuffix, "description2", map[string]string{"foo": "bar"}),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -172,25 +174,28 @@ func TestAccDNSManagedZone_cloudLoggingConfigUpdate(t *testing.T) {
 				Config: testAccDnsManagedZone_cloudLoggingConfig_basic(zoneSuffix),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, true),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDnsManagedZone_cloudLoggingConfig_update(zoneSuffix, false),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

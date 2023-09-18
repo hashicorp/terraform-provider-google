@@ -47,9 +47,10 @@ func TestAccPubsubTopic_pubsubTopicBasicExample(t *testing.T) {
 				Config: testAccPubsubTopic_pubsubTopicBasicExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_topic.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -85,9 +86,10 @@ func TestAccPubsubTopic_pubsubTopicGeoRestrictedExample(t *testing.T) {
 				Config: testAccPubsubTopic_pubsubTopicGeoRestrictedExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_topic.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -124,9 +126,10 @@ func TestAccPubsubTopic_pubsubTopicSchemaSettingsExample(t *testing.T) {
 				Config: testAccPubsubTopic_pubsubTopicSchemaSettingsExample(context),
 			},
 			{
-				ResourceName:      "google_pubsub_topic.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

@@ -46,9 +46,10 @@ func TestAccMLEngineModel_mlModelBasicExample(t *testing.T) {
 				Config: testAccMLEngineModel_mlModelBasicExample(context),
 			},
 			{
-				ResourceName:      "google_ml_engine_model.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_ml_engine_model.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -80,9 +81,10 @@ func TestAccMLEngineModel_mlModelFullExample(t *testing.T) {
 				Config: testAccMLEngineModel_mlModelFullExample(context),
 			},
 			{
-				ResourceName:      "google_ml_engine_model.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_ml_engine_model.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

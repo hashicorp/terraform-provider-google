@@ -50,7 +50,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"membership_id"},
+				ImportStateVerifyIgnore: []string{"membership_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -70,6 +70,10 @@ resource "google_gke_hub_membership" "membership" {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
+  }
+
+  labels = {
+    env = "test"
   }
 }
 `, context)
@@ -95,7 +99,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"membership_id"},
+				ImportStateVerifyIgnore: []string{"membership_id", "labels", "terraform_labels"},
 			},
 		},
 	})

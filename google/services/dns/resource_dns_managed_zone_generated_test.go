@@ -50,7 +50,7 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 				ResourceName:            "google_dns_managed_zone.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -131,9 +131,10 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsRecordSetBasicExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.parent-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.parent-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -178,9 +179,10 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZoneBasicExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.example-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.example-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -219,9 +221,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -279,9 +282,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -426,9 +430,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone-gke",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone-gke",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -522,9 +527,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.peering-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.peering-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -580,9 +586,10 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.cloud-logging-enabled-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.cloud-logging-enabled-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

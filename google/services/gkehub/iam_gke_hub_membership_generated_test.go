@@ -138,6 +138,10 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 resource "google_gke_hub_membership_iam_member" "foo" {
@@ -163,6 +167,10 @@ resource "google_gke_hub_membership" "membership" {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
+  }
+
+  labels = {
+    env = "test"
   }
 }
 
@@ -204,6 +212,10 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 data "google_iam_policy" "foo" {
@@ -232,6 +244,10 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 resource "google_gke_hub_membership_iam_binding" "foo" {
@@ -257,6 +273,10 @@ resource "google_gke_hub_membership" "membership" {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
+  }
+
+  labels = {
+    env = "test"
   }
 }
 

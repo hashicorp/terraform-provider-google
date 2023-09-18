@@ -49,7 +49,7 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 				ResourceName:            "google_tpu_node.tpu",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 				ResourceName:            "google_tpu_node.tpu",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "labels", "terraform_labels"},
 			},
 		},
 	})

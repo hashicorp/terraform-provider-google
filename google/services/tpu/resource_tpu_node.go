@@ -102,6 +102,7 @@ func ResourceTPUNode() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpuNodeCustomizeDiff,
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -200,6 +201,13 @@ TPU Node to is a Shared VPC network, the node must be created with this this fie
 				ForceNew:    true,
 				Description: `The GCP location for the TPU. If it is not provided, the provider zone is used.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"network_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -228,6 +236,13 @@ to the first (index 0) entry.`,
 node. To share resources, including Google Cloud Storage data, with
 the Tensorflow job running in the Node, this account must have
 permissions to that data.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -296,10 +311,10 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("scheduling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(schedulingConfigProp)) && (ok || !reflect.DeepEqual(v, schedulingConfigProp)) {
 		obj["schedulingConfig"] = schedulingConfigProp
 	}
-	labelsProp, err := expandTPUNodeLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandTPUNodeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -442,6 +457,12 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Node: %s", err)
+	}
+	if err := d.Set("terraform_labels", flattenTPUNodeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Node: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenTPUNodeEffectiveLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
 
@@ -680,6 +701,36 @@ func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenTPUNodeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenTPUNodeEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -734,7 +785,7 @@ func expandTPUNodeSchedulingConfigPreemptible(v interface{}, d tpgresource.Terra
 	return v, nil
 }
 
-func expandTPUNodeLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandTPUNodeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

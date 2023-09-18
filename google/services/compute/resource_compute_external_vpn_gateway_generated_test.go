@@ -47,9 +47,10 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 				Config: testAccComputeExternalVpnGateway_externalVpnGatewayExample(context),
 			},
 			{
-				ResourceName:      "google_compute_external_vpn_gateway.external_gateway",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_external_vpn_gateway.external_gateway",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -177,9 +178,10 @@ func TestAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(t *testi
 				Config: testAccComputeExternalVpnGateway_onlyExternalVpnGatewayFullExample(context),
 			},
 			{
-				ResourceName:      "google_compute_external_vpn_gateway.external_gateway",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_external_vpn_gateway.external_gateway",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -197,7 +199,6 @@ resource "google_compute_external_vpn_gateway" "external_gateway" {
   }
   labels = {
     key = "value"
-    otherkey = ""
   }
 }
 `, context)

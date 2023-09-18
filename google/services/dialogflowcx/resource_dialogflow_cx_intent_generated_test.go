@@ -49,7 +49,7 @@ func TestAccDialogflowCXIntent_dialogflowcxIntentFullExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_intent.basic_intent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent"},
+				ImportStateVerifyIgnore: []string{"parent", "labels", "terraform_labels"},
 			},
 		},
 	})
