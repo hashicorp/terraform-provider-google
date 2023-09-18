@@ -279,6 +279,15 @@ This unsupported field was introduced incorrectly. It is now removed.
 
 ## Resource: `google_container_cluster`
 
+### Clusters created in error states are now tainted rather than deleted
+
+GKE clusters that are created but do not become healthy will now be recorded in
+state and marked as tainted for cleanup on next apply rather than immediately
+deleted.
+
+This behavior was changed to allow users to collect internal logs from the
+cluster and/or manually resolve the issues and untaint their failed clusters.
+
 ### `enable_binary_authorization` is now removed
 
 `enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
