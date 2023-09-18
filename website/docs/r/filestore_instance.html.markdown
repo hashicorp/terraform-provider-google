@@ -140,7 +140,7 @@ The following arguments are supported:
 * `tier` -
   (Required)
   The service tier of the instance.
-  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD and ENTERPRISE
+  Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD, ZONAL and ENTERPRISE
 
 * `file_shares` -
   (Required)
