@@ -2156,6 +2156,33 @@ func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.
 	})
 }
 
+func TestAccContainerCluster_nodeAutoprovisioningNetworkTags(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioning(clusterName, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"node_pool_auto_config.0.network_tags.0.tags.0", "test-network-tag"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
 	t.Parallel()
 
@@ -2261,6 +2288,31 @@ func TestAccContainerCluster_errorAutopilotLocation(t *testing.T) {
 			{
 				Config:      testAccContainerCluster_withAutopilot(pid, containerNetName, clusterName, "us-central1-a", true, false, ""),
 				ExpectError: regexp.MustCompile(`Autopilot clusters must be regional clusters.`),
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withAutopilotNetworkTags(t *testing.T) {
+	t.Parallel()
+
+	pid := envvar.GetTestProjectFromEnv()
+	containerNetName := fmt.Sprintf("tf-test-container-net-%s", acctest.RandString(t, 10))
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilot(pid, containerNetName, clusterName, "us-central1", true, true, ""),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version"},
 			},
 		},
 	})
