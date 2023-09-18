@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: replaced the panic block with an error in import function of `google_secret_manager_secret_version` resource
+```
