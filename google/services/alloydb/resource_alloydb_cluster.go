@@ -61,14 +61,6 @@ func ResourceAlloydbCluster() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location where the alloydb cluster should reside.`,
 			},
-			"network": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description: `The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
-
-"projects/{projectNumber}/global/networks/{network_id}".`,
-			},
 			"automated_backup_policy": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -296,6 +288,42 @@ If not set, defaults to 14 days.`,
 				Description: `User-defined labels for the alloydb cluster.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"network": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				Deprecated:       "`network` is deprecated and will be removed in a future major release. Instead, use `network_config` to define the network configuration.",
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+				Description: `The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
+
+"projects/{projectNumber}/global/networks/{network_id}".`,
+				ExactlyOneOf: []string{"network", "network_config.0.network"},
+			},
+			"network_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Metadata related to network configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allocated_ip_range": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The name of the allocated IP range for the private IP AlloyDB cluster. For example: "google-managed-services-default".
+If set, the instance IPs for this cluster will be created in the allocated range.`,
+						},
+						"network": {
+							Type:             schema.TypeString,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+							Description: `The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster.
+It is specified in the form: "projects/{projectNumber}/global/networks/{network_id}".`,
+							ExactlyOneOf: []string{"network", "network_config.0.network"},
+						},
+					},
+				},
+			},
 			"restore_backup_source": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -499,6 +527,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	networkConfigProp, err := expandAlloydbClusterNetworkConfig(d.Get("network_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkConfigProp)) && (ok || !reflect.DeepEqual(v, networkConfigProp)) {
+		obj["networkConfig"] = networkConfigProp
+	}
 	displayNameProp, err := expandAlloydbClusterDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -684,6 +718,9 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("network", flattenAlloydbClusterNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("network_config", flattenAlloydbClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("display_name", flattenAlloydbClusterDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -740,6 +777,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	networkConfigProp, err := expandAlloydbClusterNetworkConfig(d.Get("network_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("network_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkConfigProp)) {
+		obj["networkConfig"] = networkConfigProp
+	}
 	displayNameProp, err := expandAlloydbClusterDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -783,6 +826,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("network") {
 		updateMask = append(updateMask, "network")
+	}
+
+	if d.HasChange("network_config") {
+		updateMask = append(updateMask, "networkConfig")
 	}
 
 	if d.HasChange("display_name") {
@@ -1020,6 +1067,29 @@ func flattenAlloydbClusterContinuousBackupInfoEncryptionInfoKmsKeyVersions(v int
 }
 
 func flattenAlloydbClusterNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterNetworkConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network"] =
+		flattenAlloydbClusterNetworkConfigNetwork(original["network"], d, config)
+	transformed["allocated_ip_range"] =
+		flattenAlloydbClusterNetworkConfigAllocatedIpRange(original["allocatedIpRange"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterNetworkConfigNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterNetworkConfigAllocatedIpRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1383,6 +1453,40 @@ func expandAlloydbClusterEncryptionConfigKmsKeyName(v interface{}, d tpgresource
 }
 
 func expandAlloydbClusterNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterNetworkConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetwork, err := expandAlloydbClusterNetworkConfigNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedAllocatedIpRange, err := expandAlloydbClusterNetworkConfigAllocatedIpRange(original["allocated_ip_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllocatedIpRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allocatedIpRange"] = transformedAllocatedIpRange
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterNetworkConfigNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterNetworkConfigAllocatedIpRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

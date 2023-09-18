@@ -1,0 +1,6 @@
+```release-note:deprecation
+alloydb: deprecated `network` field in favor of `network_config`.
+```
+```release-note:enhancement
+alloydb: added `network_config` field to support named IP ranges.
+```
