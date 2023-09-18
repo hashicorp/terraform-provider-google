@@ -1,0 +1,15 @@
+---
+
+schema: 1.1
+
+partition: hcp
+category: terraform
+
+summary:
+  owner: team-tf-hybrid-cloud
+  description: |
+    
+
+  visibility: external
+  auth_methods: |
+    
