@@ -186,11 +186,10 @@ Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "D
 							},
 						},
 						"mode": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"OFF", "ONLY_UP", "ON", ""}),
-							Description:  `Defines operating mode for this policy. Default value: "ON" Possible values: ["OFF", "ONLY_UP", "ON"]`,
-							Default:      "ON",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Defines operating mode for this policy.`,
+							Default:     "ON",
 						},
 						"scale_in_control": {
 							Type:     schema.TypeList,
