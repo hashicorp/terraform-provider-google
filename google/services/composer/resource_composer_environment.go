@@ -151,6 +151,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -815,6 +816,13 @@ func ResourceComposerEnvironment() *schema.Resource {
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 			},
 
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -845,7 +853,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 	env := &composer.Environment{
 		Name:   envName.ResourceName(),
-		Labels: tpgresource.ExpandLabels(d),
+		Labels: tpgresource.ExpandEffectiveLabels(d),
 		Config: transformedConfig,
 	}
 
@@ -923,11 +931,14 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
 		return fmt.Errorf("Error setting Environment: %s", err)
 	}
-	if err := d.Set("labels", tpgresource.FlattenLabels(res.Labels, d)); err != nil {
-		return fmt.Errorf("Error setting Environment: %s", err)
+	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error setting Environment labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("effective_labels", res.Labels); err != nil {
-		return fmt.Errorf("Error setting Environment: %s", err)
+		return fmt.Errorf("Error setting Environment effective_labels: %s", err)
 	}
 	return nil
 }
@@ -1136,8 +1147,8 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if d.HasChange("labels") {
-		patchEnv := &composer.Environment{Labels: tpgresource.ExpandLabels(d)}
+	if d.HasChange("effective_labels") {
+		patchEnv := &composer.Environment{Labels: tpgresource.ExpandEffectiveLabels(d)}
 		err := resourceComposerEnvironmentPatchField("labels", userAgent, patchEnv, d, tfConfig)
 		if err != nil {
 			return err

@@ -1578,7 +1578,7 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	if instanceTemplate.Properties.Labels != nil {
-		if err := d.Set("labels", tpgresource.FlattenLabels(instanceTemplate.Properties.Labels, d)); err != nil {
+		if err := tpgresource.SetLabels(instanceTemplate.Properties.Labels, d, "labels"); err != nil {
 			return fmt.Errorf("Error setting labels: %s", err)
 		}
 	}

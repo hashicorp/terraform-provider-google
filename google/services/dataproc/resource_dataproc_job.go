@@ -34,6 +34,7 @@ func ResourceDataprocJob() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -159,9 +160,17 @@ func ResourceDataprocJob() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
+				ForceNew:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -246,8 +255,8 @@ func resourceDataprocJobCreate(d *schema.ResourceData, meta interface{}) error {
 		submitReq.Job.Scheduling = expandJobScheduling(config)
 	}
 
-	if _, ok := d.GetOk("labels"); ok {
-		submitReq.Job.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		submitReq.Job.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	if v, ok := d.GetOk("pyspark_config"); ok {
@@ -327,8 +336,11 @@ func resourceDataprocJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("force_delete", d.Get("force_delete")); err != nil {
 		return fmt.Errorf("Error setting force_delete: %s", err)
 	}
-	if err := d.Set("labels", tpgresource.FlattenLabels(job.Labels, d)); err != nil {
+	if err := tpgresource.SetLabels(job.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(job.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("effective_labels", job.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)

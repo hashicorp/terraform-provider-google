@@ -262,6 +262,12 @@ The following arguments are supported:
   No more than 64 labels can be associated with a given environment.
   Both keys and values must be <= 128 bytes in size.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * `region` -
   (Optional)
   The location or Compute Engine region for the environment.

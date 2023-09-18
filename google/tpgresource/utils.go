@@ -206,6 +206,11 @@ func ExpandLabels(d TerraformResourceData) map[string]string {
 	return ExpandStringMap(d, "labels")
 }
 
+// ExpandEffectiveLabels pulls the value of "effective_labels" out of a TerraformResourceData as a map[string]string.
+func ExpandEffectiveLabels(d TerraformResourceData) map[string]string {
+	return ExpandStringMap(d, "effective_labels")
+}
+
 // ExpandEnvironmentVariables pulls the value of "environment_variables" out of a schema.ResourceData as a map[string]string.
 func ExpandEnvironmentVariables(d *schema.ResourceData) map[string]string {
 	return ExpandStringMap(d, "environment_variables")

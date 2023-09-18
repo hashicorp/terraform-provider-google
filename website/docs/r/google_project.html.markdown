@@ -83,6 +83,12 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * `auto_create_network` - (Optional) Controls whether the 'default' network exists on the project. Defaults
     to `true`, where it is created. If set to `false`, the default network will still be created by GCP but
     will be deleted immediately by Terraform. Therefore, for quota purposes, you will still need to have 1 

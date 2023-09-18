@@ -423,6 +423,7 @@ func ResourceBigQueryTable() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			resourceBigQueryTableSchemaCustomizeDiff,
+			tpgresource.SetLabelsDiff,
 		),
 		Schema: map[string]*schema.Schema{
 			// TableId: [Required] The ID of the table. The ID must contain only
@@ -797,6 +798,12 @@ func ResourceBigQueryTable() *schema.Resource {
 
 				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -1285,7 +1292,7 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		}
 	}
 
-	if v, ok := d.GetOk("labels"); ok {
+	if v, ok := d.GetOk("effective_labels"); ok {
 		labels := map[string]string{}
 
 		for k, v := range v.(map[string]interface{}) {
@@ -1407,8 +1414,11 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("max_staleness", res.MaxStaleness); err != nil {
 		return fmt.Errorf("Error setting max_staleness: %s", err)
 	}
-	if err := d.Set("labels", tpgresource.FlattenLabels(res.Labels, d)); err != nil {
+	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("effective_labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
