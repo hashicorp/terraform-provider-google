@@ -49,6 +49,7 @@ func ResourceVertexAIEndpoint() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -279,6 +280,12 @@ func ResourceVertexAIEndpoint() *schema.Resource {
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -288,6 +295,13 @@ func ResourceVertexAIEndpoint() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Output only. Resource name of the Model Monitoring job associated with this Endpoint if monitoring is enabled by CreateModelDeploymentMonitoringJob. Format: 'projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}'`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -325,12 +339,6 @@ func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandVertexAIEndpointLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	encryptionSpecProp, err := expandVertexAIEndpointEncryptionSpec(d.Get("encryption_spec"), d, config)
 	if err != nil {
 		return err
@@ -342,6 +350,12 @@ func resourceVertexAIEndpointCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	labelsProp, err := expandVertexAIEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{location}}/endpoints?endpointId={{name}}")
@@ -475,6 +489,12 @@ func resourceVertexAIEndpointRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("model_deployment_monitoring_job", flattenVertexAIEndpointModelDeploymentMonitoringJob(res["modelDeploymentMonitoringJob"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Endpoint: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenVertexAIEndpointTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenVertexAIEndpointEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Endpoint: %s", err)
+	}
 
 	return nil
 }
@@ -507,10 +527,10 @@ func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandVertexAIEndpointLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandVertexAIEndpointEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -530,7 +550,7 @@ func resourceVertexAIEndpointUpdate(d *schema.ResourceData, meta interface{}) er
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -930,7 +950,18 @@ func flattenVertexAIEndpointDeployedModelsEnableContainerLogging(v interface{}, 
 }
 
 func flattenVertexAIEndpointLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenVertexAIEndpointCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -966,23 +997,31 @@ func flattenVertexAIEndpointModelDeploymentMonitoringJob(v interface{}, d *schem
 	return v
 }
 
+func flattenVertexAIEndpointTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenVertexAIEndpointEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandVertexAIEndpointDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandVertexAIEndpointDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandVertexAIEndpointLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandVertexAIEndpointEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1010,4 +1049,15 @@ func expandVertexAIEndpointEncryptionSpecKmsKeyName(v interface{}, d tpgresource
 
 func expandVertexAIEndpointNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIEndpointEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

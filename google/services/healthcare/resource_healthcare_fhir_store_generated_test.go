@@ -49,7 +49,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreBasicExample(t *testing.T) {
 				ResourceName:            "google_healthcare_fhir_store.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
+				ImportStateVerifyIgnore: []string{"self_link", "dataset", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -109,7 +109,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreStreamingConfigExample(t *tes
 				ResourceName:            "google_healthcare_fhir_store.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
+				ImportStateVerifyIgnore: []string{"self_link", "dataset", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -184,7 +184,7 @@ func TestAccHealthcareFhirStore_healthcareFhirStoreNotificationConfigExample(t *
 				ResourceName:            "google_healthcare_fhir_store.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_link", "dataset"},
+				ImportStateVerifyIgnore: []string{"self_link", "dataset", "labels", "terraform_labels"},
 			},
 		},
 	})

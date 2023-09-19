@@ -28,17 +28,19 @@ func TestAccGKEBackupBackupPlan_update(t *testing.T) {
 				Config: testAccGKEBackupBackupPlan_basic(context),
 			},
 			{
-				ResourceName:      "google_gke_backup_backup_plan.backupplan",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_backup_backup_plan.backupplan",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccGKEBackupBackupPlan_full(context),
 			},
 			{
-				ResourceName:      "google_gke_backup_backup_plan.backupplan",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_backup_backup_plan.backupplan",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -68,6 +70,9 @@ resource "google_gke_backup_backup_plan" "backupplan" {
 	include_volume_data = false
 	include_secrets = false
 	all_namespaces = true
+  }
+  labels = {
+    "some-key-1": "some-value-1"
   }
 }
 `, context)
@@ -113,6 +118,9 @@ resource "google_gke_backup_backup_plan" "backupplan" {
 	    namespace = "ns2"
 	  }
     }
+  }
+  labels = {
+    "some-key-2": "some-value-2"
   }
 }
 `, context)

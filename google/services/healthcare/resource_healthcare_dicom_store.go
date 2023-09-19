@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceHealthcareDicomStore() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"dataset": {
@@ -101,10 +106,23 @@ Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that s
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The fully qualified name of this dataset`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 		},
 		UseJSONNumber: true,
@@ -125,17 +143,17 @@ func resourceHealthcareDicomStoreCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	labelsProp, err := expandHealthcareDicomStoreLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	notificationConfigProp, err := expandHealthcareDicomStoreNotificationConfig(d.Get("notification_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("notification_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(notificationConfigProp)) && (ok || !reflect.DeepEqual(v, notificationConfigProp)) {
 		obj["notificationConfig"] = notificationConfigProp
+	}
+	labelsProp, err := expandHealthcareDicomStoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dicomStores?dicomStoreId={{name}}")
@@ -227,6 +245,12 @@ func resourceHealthcareDicomStoreRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("notification_config", flattenHealthcareDicomStoreNotificationConfig(res["notificationConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DicomStore: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenHealthcareDicomStoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenHealthcareDicomStoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DicomStore: %s", err)
+	}
 
 	return nil
 }
@@ -241,17 +265,17 @@ func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandHealthcareDicomStoreLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	notificationConfigProp, err := expandHealthcareDicomStoreNotificationConfig(d.Get("notification_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("notification_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationConfigProp)) {
 		obj["notificationConfig"] = notificationConfigProp
+	}
+	labelsProp, err := expandHealthcareDicomStoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{HealthcareBasePath}}{{dataset}}/dicomStores/{{name}}")
@@ -262,12 +286,12 @@ func resourceHealthcareDicomStoreUpdate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Updating DicomStore %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("notification_config") {
 		updateMask = append(updateMask, "notificationConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -363,7 +387,18 @@ func flattenHealthcareDicomStoreName(v interface{}, d *schema.ResourceData, conf
 }
 
 func flattenHealthcareDicomStoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenHealthcareDicomStoreNotificationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -383,19 +418,27 @@ func flattenHealthcareDicomStoreNotificationConfigPubsubTopic(v interface{}, d *
 	return v
 }
 
-func expandHealthcareDicomStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenHealthcareDicomStoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandHealthcareDicomStoreLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenHealthcareDicomStoreEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandHealthcareDicomStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandHealthcareDicomStoreNotificationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -419,6 +462,17 @@ func expandHealthcareDicomStoreNotificationConfig(v interface{}, d tpgresource.T
 
 func expandHealthcareDicomStoreNotificationConfigPubsubTopic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandHealthcareDicomStoreEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func resourceHealthcareDicomStoreDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

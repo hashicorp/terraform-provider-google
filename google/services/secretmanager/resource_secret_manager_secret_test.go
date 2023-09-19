@@ -30,7 +30,7 @@ func TestAccSecretManagerSecret_import(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -59,7 +59,7 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -127,7 +127,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_versionAliasesBasic(context),
@@ -136,7 +136,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_versionAliasesUpdate(context),
@@ -145,7 +145,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_basicWithSecretVersions(context),
@@ -154,7 +154,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -185,7 +185,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekUpdate(context),
@@ -194,7 +194,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekUpdate2(context),
@@ -203,7 +203,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekBasic(context),
@@ -212,7 +212,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -242,7 +242,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekUpdate(context),
@@ -251,7 +251,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekUpdate2(context),
@@ -260,7 +260,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekBasic(context),
@@ -269,7 +269,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})

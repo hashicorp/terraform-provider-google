@@ -52,7 +52,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "skip_grace_period", "location", "certificate_authority_id", "pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "skip_grace_period", "location", "certificate_authority_id", "pool", "deletion_protection", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -134,7 +134,7 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 				ResourceName:            "google_privateca_certificate_authority.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "skip_grace_period", "location", "certificate_authority_id", "pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "skip_grace_period", "location", "certificate_authority_id", "pool", "deletion_protection", "labels", "terraform_labels"},
 			},
 		},
 	})

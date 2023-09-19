@@ -24,7 +24,11 @@ func TestAccDataSourceSecretManagerSecret_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceSecretManagerSecret_basic(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceState("data.google_secret_manager_secret.foo", "google_secret_manager_secret.bar"),
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
+						"data.google_secret_manager_secret.foo",
+						"google_secret_manager_secret.bar",
+						map[string]struct{}{"zone": {}, "labels.%": {}, "terraform_labels.%": {}},
+					),
 				),
 			},
 		},
