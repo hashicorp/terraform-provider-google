@@ -1,0 +1,3 @@
+```release-note:new-datasource
+google_certificate_manager_certificate_map
+```

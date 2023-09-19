@@ -779,6 +779,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_beyondcorp_app_gateway":                       beyondcorp.DataSourceGoogleBeyondcorpAppGateway(),
 		"google_billing_account":                              billing.DataSourceGoogleBillingAccount(),
 		"google_bigquery_default_service_account":             bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
+		"google_certificate_manager_certificate_map":          certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
 		"google_cloudbuild_trigger":                           cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 		"google_cloudfunctions_function":                      cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 		"google_cloudfunctions2_function":                     cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
