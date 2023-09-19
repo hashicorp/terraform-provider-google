@@ -224,6 +224,77 @@ func TestAccProviderCredentialsEmptyString(t *testing.T) {
 	})
 }
 
+func TestAccProviderCredentialsUnknownValue(t *testing.T) {
+	// Test is not parallel because ENVs are set.
+	// Need to skip VCR as this test downloads providers from the Terraform Registry
+	acctest.SkipIfVcr(t)
+
+	creds := envvar.GetTestCredsFromEnv()
+	t.Setenv("GOOGLE_CREDENTIALS", creds) // Needs to be set for test to run, but config overrides this ENV
+
+	project := envvar.GetTestProjectFromEnv()
+	t.Setenv("GOOGLE_PROJECT", project)
+
+	org := envvar.GetTestOrgFromEnv(t)
+	t.Setenv("GOOGLE_ORG", org)
+
+	billing := envvar.GetTestBillingAccountFromEnv(t)
+	t.Setenv("GOOGLE_BILLING_ACCOUNT", billing)
+
+	pid := "tf-test-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck: func() { acctest.AccTestPreCheck(t) },
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			{
+				// Unknown creds handled ok with v4.59.0
+				Config: testAccProviderCredentials_useUnknownCredentials(creds, org, billing, pid),
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "4.59.0",
+						Source:            "hashicorp/google",
+					},
+					"google-beta": {
+						VersionConstraint: "4.59.0",
+						Source:            "hashicorp/google-beta",
+					},
+				},
+			},
+			{
+				// Same config results in an error with v4.60.3
+				Config: testAccProviderCredentials_useUnknownCredentials(creds, org, billing, pid),
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "4.60.2",
+						Source:            "hashicorp/google",
+					},
+					"google-beta": {
+						VersionConstraint: "4.60.2",
+						Source:            "hashicorp/google-beta",
+					},
+				},
+				ExpectError: regexp.MustCompile(`unexpected end of JSON input`),
+			},
+			// TODO(SarahFrench) Uncomment this once this PR is merged: https://github.com/GoogleCloudPlatform/magic-modules/pull/8943
+			// {
+			// 	// Unknown creds should be handled ok again following a fix released in v4.84.0
+			// 	Config: testAccProviderCredentials_useUnknownCredentials(creds, org, billing, pid),
+			// 	ExternalProviders: map[string]resource.ExternalProvider{
+			// 		"google": {
+			// 			VersionConstraint: "~>4.84",
+			// 			Source:            "hashicorp/google",
+			// 		},
+			// 		"google-beta": {
+			// 			VersionConstraint: "~>4.84",
+			// 			Source:            "hashicorp/google-beta",
+			// 		},
+			// 	},
+			// },
+		},
+	})
+}
+
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
@@ -390,4 +461,84 @@ resource "google_compute_address" "default" {
   provider = google.testing_credentials
   name     = "%s"
 }`, name)
+}
+
+func testAccProviderCredentials_useUnknownCredentials(credentials, org, billing, pid string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	alias = "unknown_credentials_ga"
+	credentials = "%s"
+}
+
+provider "google-beta" {
+	alias = "unknown_credentials_beta"
+	credentials = base64decode(google_service_account_key.terraform_service_account.private_key)
+}
+
+resource "google_service_account" "terraform_service_account" {
+	provider = google.unknown_credentials_ga
+
+	account_id   = "%s"
+	display_name = "Terraform FireBase Service Account"
+	project      = google_project.this.project_id
+}
+
+resource "google_service_account_key" "terraform_service_account" {
+	provider = google.unknown_credentials_ga
+
+	service_account_id = google_service_account.terraform_service_account.name
+}
+
+resource "google_project_iam_member" "terraform_service_account" {
+	provider = google.unknown_credentials_ga
+
+	role    = "roles/editor"
+	member  = "serviceAccount:${google_service_account.terraform_service_account.email}"
+	project = google_project.this.project_id
+}
+
+resource "google_project_service" "activate-firebase" {
+	provider = google.unknown_credentials_ga
+
+	project = google_project.this.project_id
+	service = "firebase.googleapis.com"
+
+	timeouts {
+		create = "30m"
+		update = "40m"
+	}
+	disable_dependent_services = true
+}
+
+resource "google_project" "this" {
+	provider = google.unknown_credentials_ga
+
+	name            = "%s"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+
+	auto_create_network = false
+
+	labels = {
+		"firebase" = "enabled"
+	}
+
+	lifecycle {
+		ignore_changes = [
+			labels
+		]
+	}
+}
+
+resource "google_firebase_project" "this" {
+  provider = "google-beta.unknown_credentials_beta"
+
+  project  = google_project.this.project_id
+
+  depends_on = [
+    google_project_iam_member.terraform_service_account,
+    google_project_service.activate-firebase
+  ]
+}`, credentials, pid, pid, pid, org, billing)
 }
