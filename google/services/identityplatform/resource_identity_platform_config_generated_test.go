@@ -119,7 +119,6 @@ resource "google_identity_platform_config" "default" {
 }
 
 func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -164,6 +163,10 @@ resource "google_project_service" "identitytoolkit" {
 
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
+  
+  depends_on = [
+    google_project_service.identitytoolkit
+  ]
 }
 `, context)
 }

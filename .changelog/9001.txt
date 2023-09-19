@@ -1,0 +1,3 @@
+```release-note:bug
+identityplayform: fixed a potential perma-diff for `sign_in` in `google_identity_platform_config` resource
+```
