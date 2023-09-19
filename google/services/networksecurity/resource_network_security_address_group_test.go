@@ -26,17 +26,19 @@ func TestAccNetworkSecurityAddressGroups_update(t *testing.T) {
 				Config: testAccNetworkSecurityAddressGroups_basic(addressGroupsName, projectName),
 			},
 			{
-				ResourceName:      "google_network_security_address_group.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_security_address_group.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkSecurityAddressGroups_update(addressGroupsName, projectName),
 			},
 			{
-				ResourceName:      "google_network_security_address_group.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_security_address_group.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

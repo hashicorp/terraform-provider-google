@@ -50,6 +50,7 @@ func ResourceNetworkConnectivityServiceConnectionPolicy() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -117,6 +118,12 @@ It is provided by the Service Producer. Google services have a prefix of gcp. Fo
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The timestamp when the resource was created.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"etag": {
 				Type:        schema.TypeString,
@@ -229,6 +236,13 @@ facing or system internal. Possible values: ["CONNECTION_ERROR_TYPE_UNSPECIFIED"
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -283,10 +297,10 @@ func resourceNetworkConnectivityServiceConnectionPolicyCreate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
-	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -414,6 +428,12 @@ func resourceNetworkConnectivityServiceConnectionPolicyRead(d *schema.ResourceDa
 	if err := d.Set("labels", flattenNetworkConnectivityServiceConnectionPolicyLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenNetworkConnectivityServiceConnectionPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenNetworkConnectivityServiceConnectionPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServiceConnectionPolicy: %s", err)
+	}
 
 	return nil
 }
@@ -452,10 +472,10 @@ func resourceNetworkConnectivityServiceConnectionPolicyUpdate(d *schema.Resource
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
-	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -484,7 +504,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyUpdate(d *schema.Resource
 		updateMask = append(updateMask, "etag")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -776,6 +796,36 @@ func flattenNetworkConnectivityServiceConnectionPolicyInfrastructure(v interface
 }
 
 func flattenNetworkConnectivityServiceConnectionPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenNetworkConnectivityServiceConnectionPolicyEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -829,7 +879,7 @@ func expandNetworkConnectivityServiceConnectionPolicyEtag(v interface{}, d tpgre
 	return v, nil
 }
 
-func expandNetworkConnectivityServiceConnectionPolicyLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetworkConnectivityServiceConnectionPolicyEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

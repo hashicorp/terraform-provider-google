@@ -51,7 +51,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsBasicExample
 				ResourceName:            "google_network_security_address_group.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name", "location"},
+				ImportStateVerifyIgnore: []string{"parent", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -90,7 +90,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsOrganization
 				ResourceName:            "google_network_security_address_group.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name", "location"},
+				ImportStateVerifyIgnore: []string{"parent", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -129,7 +129,7 @@ func TestAccNetworkSecurityAddressGroup_networkSecurityAddressGroupsAdvancedExam
 				ResourceName:            "google_network_security_address_group.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "name", "location"},
+				ImportStateVerifyIgnore: []string{"parent", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})

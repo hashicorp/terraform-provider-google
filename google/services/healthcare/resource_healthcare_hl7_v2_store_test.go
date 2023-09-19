@@ -93,9 +93,10 @@ func TestAccHealthcareHl7V2Store_basic(t *testing.T) {
 				Config: testGoogleHealthcareHl7V2Store_basic(hl7_v2StoreName, datasetName),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testGoogleHealthcareHl7V2Store_update(hl7_v2StoreName, datasetName, pubsubTopic),
@@ -104,17 +105,19 @@ func TestAccHealthcareHl7V2Store_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testGoogleHealthcareHl7V2Store_basic(hl7_v2StoreName, datasetName),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
