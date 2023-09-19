@@ -138,7 +138,7 @@ func TestAccProject_labels(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "labels"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "labels", "terraform_labels"},
 			},
 			// update project with labels
 			{

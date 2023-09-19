@@ -147,6 +147,7 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
 			tpgresource.DefaultProviderRegion,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -269,6 +270,13 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 
 				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"effective_labels": {
@@ -576,8 +584,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.IngressSettings = v.(string)
 	}
 
-	if _, ok := d.GetOk("labels"); ok {
-		function.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		function.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	if _, ok := d.GetOk("environment_variables"); ok {
@@ -688,8 +696,11 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
 		return fmt.Errorf("Error setting ingress_settings: %s", err)
 	}
-	if err := d.Set("labels", tpgresource.FlattenLabels(function.Labels, d)); err != nil {
+	if err := tpgresource.SetLabels(function.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(function.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("effective_labels", function.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
@@ -860,8 +871,8 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "ingressSettings")
 	}
 
-	if d.HasChange("labels") {
-		function.Labels = tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		function.Labels = tpgresource.ExpandEffectiveLabels(d)
 		updateMaskArr = append(updateMaskArr, "labels")
 	}
 

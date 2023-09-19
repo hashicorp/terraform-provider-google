@@ -39,6 +39,7 @@ func ResourceBigtableInstance() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 			resourceBigtableInstanceClusterReorderTypeList,
 			resourceBigtableInstanceUniqueClusterID,
+			tpgresource.SetLabelsDiff,
 		),
 
 		SchemaVersion: 1,
@@ -165,6 +166,13 @@ func ResourceBigtableInstance() *schema.Resource {
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 			},
 
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -208,8 +216,8 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	conf.DisplayName = displayName.(string)
 
-	if _, ok := d.GetOk("labels"); ok {
-		conf.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		conf.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {
@@ -314,8 +322,11 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("display_name", instance.DisplayName); err != nil {
 		return fmt.Errorf("Error setting display_name: %s", err)
 	}
-	if err := d.Set("labels", tpgresource.FlattenLabels(instance.Labels, d)); err != nil {
+	if err := tpgresource.SetLabels(instance.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(instance.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
 	}
 	if err := d.Set("effective_labels", instance.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
@@ -355,8 +366,8 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	conf.DisplayName = displayName.(string)
 
-	if d.HasChange("labels") {
-		conf.Labels = tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		conf.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {

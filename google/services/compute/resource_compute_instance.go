@@ -612,6 +612,13 @@ func ResourceComputeInstance() *schema.Resource {
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 			},
 
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -1027,6 +1034,7 @@ be from 0 to 999,999,999 inclusive.`,
 			),
 			desiredStatusDiff,
 			forceNewIfNetworkIPNotUpdatable,
+			tpgresource.SetLabelsDiff,
 		),
 		UseJSONNumber: true,
 	}
@@ -1160,7 +1168,7 @@ func expandComputeInstance(project string, d *schema.ResourceData, config *trans
 		NetworkPerformanceConfig:   networkPerformanceConfig,
 		Tags:                       resourceInstanceTags(d),
 		Params:                     params,
-		Labels:                     tpgresource.ExpandLabels(d),
+		Labels:                     tpgresource.ExpandEffectiveLabels(d),
 		ServiceAccounts:            expandServiceAccounts(d.Get("service_account").([]interface{})),
 		GuestAccelerators:          accels,
 		MinCpuPlatform:             d.Get("min_cpu_platform").(string),
@@ -1360,7 +1368,11 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if err := d.Set("labels", tpgresource.FlattenLabels(instance.Labels, d)); err != nil {
+	if err := tpgresource.SetLabels(instance.Labels, d, "labels"); err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetLabels(instance.Labels, d, "terraform_labels"); err != nil {
 		return err
 	}
 
@@ -1633,8 +1645,8 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	if d.HasChange("labels") {
-		labels := tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		labels := tpgresource.ExpandEffectiveLabels(d)
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := compute.InstancesSetLabelsRequest{Labels: labels, LabelFingerprint: labelFingerprint}
 
