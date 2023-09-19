@@ -1,0 +1,3 @@
+```release-note:bug
+osconfig: fixed no more than one setting is allowed under `patch_config.windows_update` on `google_os_config_patch_deployment`
+```
