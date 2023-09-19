@@ -260,13 +260,9 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutRead))
 	defer cancel()
-	instance, err := c.InstanceInfo(ctxWithTimeout, instanceName)
-	if err != nil {
-		if tpgresource.IsNotFoundGrpcError(err) {
-			log.Printf("[WARN] Removing %s because it's gone", instanceName)
-			d.SetId("")
-			return nil
-		}
+	instancesResponse, err := c.Instances(ctxWithTimeout)
+	instance, stop, err := getInstanceFromResponse(instancesResponse, instanceName, err, d)
+	if stop {
 		return err
 	}
 
@@ -274,11 +270,16 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error setting project: %s", err)
 	}
 
-	clusters, err := c.Clusters(ctxWithTimeout, instance.Name)
+	clusters, err := c.Clusters(ctxWithTimeout, instanceName)
 	if err != nil {
 		partiallyUnavailableErr, ok := err.(bigtable.ErrPartiallyUnavailable)
-
 		if !ok {
+			// Clusters() fails with 404 if instance does not exist.
+			if tpgresource.IsNotFoundGrpcError(err) {
+				log.Printf("[WARN] Removing %s because it's gone", instanceName)
+				d.SetId("")
+				return nil
+			}
 			return fmt.Errorf("Error retrieving instance clusters. %s", err)
 		}
 
@@ -430,6 +431,42 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		autoscaling_config[0]["storage_target"] = c.AutoscalingConfig.StorageUtilizationPerNode
 	}
 	return cluster
+}
+
+func getInstanceFromResponse(instances []*bigtable.InstanceInfo, instanceName string, err error, d *schema.ResourceData) (*bigtable.InstanceInfo, bool, error) {
+	// Fail on any error other than ParrtiallyUnavailable.
+	isPartiallyUnavailableError := false
+	if err != nil {
+		_, isPartiallyUnavailableError = err.(bigtable.ErrPartiallyUnavailable)
+
+		if !isPartiallyUnavailableError {
+			return nil, true, fmt.Errorf("Error retrieving instance. %s", err)
+		}
+	}
+
+	// Get instance from response.
+	var instanceInfo *bigtable.InstanceInfo
+	for _, instance := range instances {
+		if instance.Name == instanceName {
+			instanceInfo = instance
+		}
+	}
+
+	// If instance found, it either wasn't affected by the outage, or there is no outage.
+	if instanceInfo != nil {
+		return instanceInfo, false, nil
+	}
+
+	// If instance wasn't found and error is PartiallyUnavailable,
+	// continue to clusters call that will reveal overlap between instance regions and unavailable regions.
+	if isPartiallyUnavailableError {
+		return nil, false, nil
+	}
+
+	// If instance wasn't found and error is not PartiallyUnavailable, instance doesn't exist.
+	log.Printf("[WARN] Removing %s because it's gone", instanceName)
+	d.SetId("")
+	return nil, true, nil
 }
 
 func getUnavailableClusterZones(clusters []interface{}, unavailableZones []string) []string {

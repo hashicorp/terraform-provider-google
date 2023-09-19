@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: improved regional reliability when instance overlaps a downed region in the resource `google_bigtable_instance`
+```
