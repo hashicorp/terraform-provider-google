@@ -1,0 +1,3 @@
+```release-note:bug
+secretmanager: fixed an issue in `google_secretmanager_secret` where replacing `replication.automatic` with `replication.auto` would destroy and recreate the resource
+```
