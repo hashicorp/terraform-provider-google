@@ -336,61 +336,63 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 	}
 }
 
-func TestFrameworkProvider_LoadAndValidateFramework_credentials_unknown(t *testing.T) {
-	// This test case is kept separate from other credentials tests, as it requires comparing
-	// error messages returned by two different error states:
-	// - When credentials = Null
-	// - When credentials = Unknown
+// NOTE: these tests can't run in Cloud Build due to ADC locating credentials despite `GOOGLE_APPLICATION_CREDENTIALS` being unset
+// See https://cloud.google.com/docs/authentication/application-default-credentials#search_order
+// Also, when running these tests locally you need to run `gcloud auth application-default revoke` to ensure your machine isn't supplying ADCs
+// func TestFrameworkProvider_LoadAndValidateFramework_credentials_unknown(t *testing.T) {
+// 	// This test case is kept separate from other credentials tests, as it requires comparing
+// 	// error messages returned by two different error states:
+// 	// - When credentials = Null
+// 	// - When credentials = Unknown
 
-	t.Run("the same error is returned whether credentials is set as a null or unknown value (and access_token isn't set)", func(t *testing.T) {
+// 	t.Run("the same error is returned whether credentials is set as a null or unknown value (and access_token isn't set)", func(t *testing.T) {
+// 		// Arrange
+// 		acctest.UnsetTestProviderConfigEnvs(t)
 
-		// Arrange
-		acctest.UnsetTestProviderConfigEnvs(t)
+// 		ctx := context.Background()
+// 		tfVersion := "foobar"
+// 		providerversion := "999"
 
-		ctx := context.Background()
-		tfVersion := "foobar"
-		providerversion := "999"
+// 		impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
 
-		impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+// 		// Null data and error collection
+// 		diagsNull := diag.Diagnostics{}
+// 		dataNull := fwmodels.ProviderModel{
+// 			Credentials: types.StringNull(),
+// 		}
+// 		dataNull.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
 
-		// Null data and error collection
-		diagsNull := diag.Diagnostics{}
-		dataNull := fwmodels.ProviderModel{
-			Credentials: types.StringNull(),
-		}
-		dataNull.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+// 		// Unknown data and error collection
+// 		diagsUnknown := diag.Diagnostics{}
+// 		dataUnknown := fwmodels.ProviderModel{
+// 			Credentials: types.StringUnknown(),
+// 		}
+// 		dataUnknown.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
 
-		// Unknown data and error collection
-		diagsUnknown := diag.Diagnostics{}
-		dataUnknown := fwmodels.ProviderModel{
-			Credentials: types.StringUnknown(),
-		}
-		dataUnknown.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+// 		pNull := fwtransport.FrameworkProviderConfig{}
+// 		pUnknown := fwtransport.FrameworkProviderConfig{}
 
-		pNull := fwtransport.FrameworkProviderConfig{}
-		pUnknown := fwtransport.FrameworkProviderConfig{}
+// 		// Act
+// 		pNull.LoadAndValidateFramework(ctx, &dataNull, tfVersion, &diagsNull, providerversion)
+// 		pUnknown.LoadAndValidateFramework(ctx, &dataUnknown, tfVersion, &diagsUnknown, providerversion)
 
-		// Act
-		pNull.LoadAndValidateFramework(ctx, &dataNull, tfVersion, &diagsNull, providerversion)
-		pUnknown.LoadAndValidateFramework(ctx, &dataUnknown, tfVersion, &diagsUnknown, providerversion)
+// 		// Assert
+// 		if !diagsNull.HasError() {
+// 			t.Fatalf("expect errors when credentials is null, but [%d] errors occurred", diagsNull.ErrorsCount())
+// 		}
+// 		if !diagsUnknown.HasError() {
+// 			t.Fatalf("expect errors when credentials is unknown, but [%d] errors occurred", diagsUnknown.ErrorsCount())
+// 		}
 
-		// Assert
-		if !diagsNull.HasError() {
-			t.Fatalf("expect errors when credentials is null, but [%d] errors occurred", diagsNull.ErrorsCount())
-		}
-		if !diagsUnknown.HasError() {
-			t.Fatalf("expect errors when credentials is unknown, but [%d] errors occurred", diagsUnknown.ErrorsCount())
-		}
-
-		errNull := diagsNull.Errors()
-		errUnknown := diagsUnknown.Errors()
-		for i := 0; i < len(errNull); i++ {
-			if errNull[i] != errUnknown[i] {
-				t.Fatalf("expect errors to be the same for null and unknown credentials values, instead got \nnull=`%s` \nunknown=%s", errNull[i], errUnknown[i])
-			}
-		}
-	})
-}
+// 		errNull := diagsNull.Errors()
+// 		errUnknown := diagsUnknown.Errors()
+// 		for i := 0; i < len(errNull); i++ {
+// 			if errNull[i] != errUnknown[i] {
+// 				t.Fatalf("expect errors to be the same for null and unknown credentials values, instead got \nnull=`%s` \nunknown=%s", errNull[i], errUnknown[i])
+// 			}
+// 		}
+// 	})
+// }
 
 func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T) {
 
