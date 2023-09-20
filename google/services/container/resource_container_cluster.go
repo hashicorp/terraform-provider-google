@@ -1211,11 +1211,10 @@ func ResourceContainerCluster() *schema.Resource {
 						},
 						"provider": {
 							Type:             schema.TypeString,
-							Default:          "PROVIDER_UNSPECIFIED",
 							Optional:         true,
 							ValidateFunc:     validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "CALICO"}, false),
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("PROVIDER_UNSPECIFIED"),
-							Description:      `The selected network policy provider. Defaults to PROVIDER_UNSPECIFIED.`,
+							Description:      `The selected network policy provider.`,
 						},
 					},
 				},
