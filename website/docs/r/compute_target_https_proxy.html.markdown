@@ -150,6 +150,107 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_https_proxy_mtls&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Https Proxy Mtls
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_compute_target_https_proxy" "default" {
+  provider          = google-beta
+  name              = "test-mtls-proxy"
+  url_map           = google_compute_url_map.default.id
+  ssl_certificates  = [google_compute_ssl_certificate.default.id]
+  server_tls_policy = google_network_security_server_tls_policy.default.id
+}
+
+resource "google_certificate_manager_trust_config" "default" {
+  provider    = google-beta
+  name        = "my-trust-config"
+  description = "sample description for the trust config"
+  location    = "global"
+
+  trust_stores {
+    trust_anchors {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+    intermediate_cas {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_network_security_server_tls_policy" "default" {
+  provider               = google-beta
+  name                   = "my-tls-policy"
+  description            = "my description"
+  location               = "global"
+  allow_open             = "false"
+  mtls_policy {
+    client_validation_mode = "ALLOW_INVALID_OR_MISSING_CLIENT_CERT"
+    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+  }
+}
+
+resource "google_compute_ssl_certificate" "default" {
+  provider    = google-beta
+  name        = "my-certificate"
+  private_key = file("path/to/private.key")
+  certificate = file("path/to/certificate.crt")
+}
+
+resource "google_compute_url_map" "default" {
+  provider    = google-beta
+  name        = "url-map"
+  description = "a description"
+
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  provider    = google-beta
+  name        = "backend-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  health_checks = [google_compute_http_health_check.default.id]
+}
+
+resource "google_compute_http_health_check" "default" {
+  provider           = google-beta
+  name               = "http-health-check"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+```
 
 ## Argument Reference
 
@@ -218,6 +319,18 @@ The following arguments are supported:
   external HTTP(S) load balancer, the minimum allowed value is 5 seconds and
   the maximum allowed value is 1200 seconds. For Global external HTTP(S)
   load balancer (classic), this option is not available publicly.
+
+* `server_tls_policy` -
+  (Optional)
+  A URL referring to a networksecurity.ServerTlsPolicy
+  resource that describes how the proxy should authenticate inbound
+  traffic. serverTlsPolicy only applies to a global TargetHttpsProxy
+  attached to globalForwardingRules with the loadBalancingScheme
+  set to INTERNAL_SELF_MANAGED or EXTERNAL or EXTERNAL_MANAGED.
+  For details which ServerTlsPolicy resources are accepted with
+  INTERNAL_SELF_MANAGED and which with EXTERNAL, EXTERNAL_MANAGED
+  loadBalancingScheme consult ServerTlsPolicy documentation.
+  If left blank, communications are not encrypted.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

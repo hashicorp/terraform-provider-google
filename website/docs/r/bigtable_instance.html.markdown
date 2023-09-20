@@ -155,6 +155,7 @@ This resource provides the following
 
 - `create` - Default is 60 minutes.
 - `update` - Default is 60 minutes.
+- `read` - Default is 60 minutes.
 
 Adding clusters to existing instances can take a long time. Consider setting a higher value to timeouts if you plan on doing that.
 

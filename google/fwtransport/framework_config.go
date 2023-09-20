@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -98,6 +99,7 @@ type FrameworkProviderConfig struct {
 	DNSBasePath                      string
 	DocumentAIBasePath               string
 	DocumentAIWarehouseBasePath      string
+	EdgenetworkBasePath              string
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
 	FirestoreBasePath                string
@@ -149,6 +151,15 @@ type FrameworkProviderConfig struct {
 // LoadAndValidateFramework handles the bulk of configuring the provider
 // it is pulled out so that we can manually call this from our testing provider as well
 func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, data *fwmodels.ProviderModel, tfVersion string, diags *diag.Diagnostics, providerversion string) {
+
+	// Make the plugin framwork code behave like the SDK by ignoring zero values. This means re-setting zero values to null.
+	// This is added to fix https://github.com/hashicorp/terraform-provider-google/issues/14255 in a v4.x.x release
+	// TODO(SarahFrench) remove as part of https://github.com/hashicorp/terraform-provider-google/issues/14447 in 5.0.0
+	p.HandleZeroValues(ctx, data, diags)
+	if diags.HasError() {
+		return
+	}
+
 	// Set defaults if needed
 	p.HandleDefaults(ctx, data, diags)
 	if diags.HasError() {
@@ -232,6 +243,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DNSBasePath = data.DNSCustomEndpoint.ValueString()
 	p.DocumentAIBasePath = data.DocumentAICustomEndpoint.ValueString()
 	p.DocumentAIWarehouseBasePath = data.DocumentAIWarehouseCustomEndpoint.ValueString()
+	p.EdgenetworkBasePath = data.EdgenetworkCustomEndpoint.ValueString()
 	p.EssentialContactsBasePath = data.EssentialContactsCustomEndpoint.ValueString()
 	p.FilestoreBasePath = data.FilestoreCustomEndpoint.ValueString()
 	p.FirestoreBasePath = data.FirestoreCustomEndpoint.ValueString()
@@ -291,9 +303,80 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
 }
 
+// HandleZeroValues will make the plugin framework act like the SDK; zero value, particularly empty strings, are converted to null.
+// This causes the plugin framework to treat the field as unset, just like how the SDK ignores empty strings.
+func (p *FrameworkProviderConfig) HandleZeroValues(ctx context.Context, data *fwmodels.ProviderModel, diags *diag.Diagnostics) {
+
+	// Change empty strings to null values
+	if data.AccessToken.Equal(types.StringValue("")) {
+		data.AccessToken = types.StringNull()
+	}
+	if data.BillingProject.Equal(types.StringValue("")) {
+		data.BillingProject = types.StringNull()
+	}
+	if data.Credentials.Equal(types.StringValue("")) {
+		data.Credentials = types.StringNull()
+	}
+	if data.ImpersonateServiceAccount.Equal(types.StringValue("")) {
+		data.ImpersonateServiceAccount = types.StringNull()
+	}
+	if data.Project.Equal(types.StringValue("")) {
+		data.Project = types.StringNull()
+	}
+	if data.Region.Equal(types.StringValue("")) {
+		data.Region = types.StringNull()
+	}
+	if data.RequestReason.Equal(types.StringValue("")) {
+		data.RequestReason = types.StringNull()
+	}
+	if data.RequestTimeout.Equal(types.StringValue("")) {
+		data.RequestTimeout = types.StringNull()
+	}
+	if data.Zone.Equal(types.StringValue("")) {
+		data.Zone = types.StringNull()
+	}
+
+	// Change lists that aren't null or unknown with length of zero to null lists
+	if !data.Scopes.IsNull() && !data.Scopes.IsUnknown() && (len(data.Scopes.Elements()) == 0) {
+		data.Scopes = types.ListNull(types.StringType)
+	}
+	if !data.ImpersonateServiceAccountDelegates.IsNull() && !data.ImpersonateServiceAccountDelegates.IsUnknown() && (len(data.ImpersonateServiceAccountDelegates.Elements()) == 0) {
+		data.ImpersonateServiceAccountDelegates = types.ListNull(types.StringType)
+	}
+
+	// Batching implementation will change in future, but this code will be removed in 5.0.0 so may be unaffected
+	if !data.Batching.IsNull() && !data.Batching.IsUnknown() && (len(data.Batching.Elements()) > 0) {
+		var pbConfigs []fwmodels.ProviderBatching
+		d := data.Batching.ElementsAs(ctx, &pbConfigs, true)
+		diags.Append(d...)
+		if diags.HasError() {
+			return
+		}
+		if pbConfigs[0].SendAfter.Equal(types.StringValue("")) {
+			pbConfigs[0].SendAfter = types.StringNull() // Convert empty string to null
+		}
+		b, _ := types.ObjectValue(
+			map[string]attr.Type{
+				"enable_batching": types.BoolType,
+				"send_after":      types.StringType,
+			},
+			map[string]attr.Value{
+				"enable_batching": pbConfigs[0].EnableBatching,
+				"send_after":      pbConfigs[0].SendAfter,
+			},
+		)
+		newBatching, d := types.ListValue(types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes), []attr.Value{b})
+		diags.Append(d...)
+		if diags.HasError() {
+			return
+		}
+		data.Batching = newBatching
+	}
+}
+
 // HandleDefaults will handle all the defaults necessary in the provider
 func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmodels.ProviderModel, diags *diag.Diagnostics) {
-	if data.AccessToken.IsNull() && data.Credentials.IsNull() {
+	if (data.AccessToken.IsNull() || data.AccessToken.IsUnknown()) && (data.Credentials.IsNull() || data.Credentials.IsUnknown()) {
 		credentials := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CREDENTIALS",
 			"GOOGLE_CLOUD_KEYFILE_JSON",
@@ -313,11 +396,11 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}
 	}
 
-	if data.ImpersonateServiceAccount.IsNull() && os.Getenv("GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") != "" {
+	if (data.ImpersonateServiceAccount.IsNull() || data.ImpersonateServiceAccount.IsUnknown()) && os.Getenv("GOOGLE_IMPERSONATE_SERVICE_ACCOUNT") != "" {
 		data.ImpersonateServiceAccount = types.StringValue(os.Getenv("GOOGLE_IMPERSONATE_SERVICE_ACCOUNT"))
 	}
 
-	if data.Project.IsNull() {
+	if data.Project.IsNull() || data.Project.IsUnknown() {
 		project := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PROJECT",
 			"GOOGLE_CLOUD_PROJECT",
@@ -333,7 +416,7 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		data.BillingProject = types.StringValue(os.Getenv("GOOGLE_BILLING_PROJECT"))
 	}
 
-	if data.Region.IsNull() {
+	if data.Region.IsNull() || data.Region.IsUnknown() {
 		region := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_REGION",
 			"GCLOUD_REGION",
@@ -345,7 +428,7 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}
 	}
 
-	if data.Zone.IsNull() {
+	if data.Zone.IsNull() || data.Zone.IsUnknown() {
 		zone := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_ZONE",
 			"GCLOUD_ZONE",
@@ -366,7 +449,7 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}
 	}
 
-	if !data.Batching.IsNull() {
+	if !data.Batching.IsNull() && !data.Batching.IsUnknown() {
 		var pbConfigs []fwmodels.ProviderBatching
 		d := data.Batching.ElementsAs(ctx, &pbConfigs, true)
 		diags.Append(d...)
@@ -374,18 +457,18 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			return
 		}
 
-		if pbConfigs[0].SendAfter.IsNull() {
+		if pbConfigs[0].SendAfter.IsNull() || pbConfigs[0].SendAfter.IsUnknown() {
 			pbConfigs[0].SendAfter = types.StringValue("10s")
 		}
 
-		if pbConfigs[0].EnableBatching.IsNull() {
+		if pbConfigs[0].EnableBatching.IsNull() || pbConfigs[0].EnableBatching.IsUnknown() {
 			pbConfigs[0].EnableBatching = types.BoolValue(true)
 		}
 
 		data.Batching, d = types.ListValueFrom(ctx, types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes), pbConfigs)
 	}
 
-	if data.UserProjectOverride.IsNull() && os.Getenv("USER_PROJECT_OVERRIDE") != "" {
+	if (data.UserProjectOverride.IsNull() || data.UserProjectOverride.IsUnknown()) && os.Getenv("USER_PROJECT_OVERRIDE") != "" {
 		override, err := strconv.ParseBool(os.Getenv("USER_PROJECT_OVERRIDE"))
 		if err != nil {
 			diags.AddError(
@@ -394,11 +477,11 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		data.UserProjectOverride = types.BoolValue(override)
 	}
 
-	if data.RequestReason.IsNull() && os.Getenv("CLOUDSDK_CORE_REQUEST_REASON") != "" {
+	if (data.RequestReason.IsNull() || data.RequestReason.IsUnknown()) && os.Getenv("CLOUDSDK_CORE_REQUEST_REASON") != "" {
 		data.RequestReason = types.StringValue(os.Getenv("CLOUDSDK_CORE_REQUEST_REASON"))
 	}
 
-	if data.RequestTimeout.IsNull() {
+	if data.RequestTimeout.IsNull() || data.RequestTimeout.IsUnknown() {
 		data.RequestTimeout = types.StringValue("120s")
 	}
 
@@ -801,6 +884,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.DocumentAIWarehouseBasePathKey])
 		if customEndpoint != nil {
 			data.DocumentAIWarehouseCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.EdgenetworkCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_EDGENETWORK_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.EdgenetworkBasePathKey])
+		if customEndpoint != nil {
+			data.EdgenetworkCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.EssentialContactsCustomEndpoint.IsNull() {
@@ -1447,7 +1538,7 @@ func (p *FrameworkProviderConfig) logGoogleIdentities(ctx context.Context, data 
 	// a separate diagnostics here
 	var d diag.Diagnostics
 
-	if data.ImpersonateServiceAccount.IsNull() {
+	if data.ImpersonateServiceAccount.IsNull() || data.ImpersonateServiceAccount.IsUnknown() {
 
 		tokenSource := GetTokenSource(ctx, data, true, diags)
 		if diags.HasError() {
@@ -1507,19 +1598,23 @@ func GetCredentials(ctx context.Context, data fwmodels.ProviderModel, initialCre
 	var clientScopes []string
 	var delegates []string
 
-	d := data.Scopes.ElementsAs(ctx, &clientScopes, false)
-	diags.Append(d...)
-	if diags.HasError() {
-		return googleoauth.Credentials{}
+	if !data.Scopes.IsNull() && !data.Scopes.IsUnknown() {
+		d := data.Scopes.ElementsAs(ctx, &clientScopes, false)
+		diags.Append(d...)
+		if diags.HasError() {
+			return googleoauth.Credentials{}
+		}
 	}
 
-	d = data.ImpersonateServiceAccountDelegates.ElementsAs(ctx, &delegates, false)
-	diags.Append(d...)
-	if diags.HasError() {
-		return googleoauth.Credentials{}
+	if !data.ImpersonateServiceAccountDelegates.IsNull() && !data.ImpersonateServiceAccountDelegates.IsUnknown() {
+		d := data.ImpersonateServiceAccountDelegates.ElementsAs(ctx, &delegates, false)
+		diags.Append(d...)
+		if diags.HasError() {
+			return googleoauth.Credentials{}
+		}
 	}
 
-	if !data.AccessToken.IsNull() {
+	if !data.AccessToken.IsNull() && !data.AccessToken.IsUnknown() {
 		contents, _, err := verify.PathOrContents(data.AccessToken.ValueString())
 		if err != nil {
 			diags.AddError("error loading access token", err.Error())
@@ -1544,7 +1639,7 @@ func GetCredentials(ctx context.Context, data fwmodels.ProviderModel, initialCre
 		}
 	}
 
-	if !data.Credentials.IsNull() {
+	if !data.Credentials.IsNull() && !data.Credentials.IsUnknown() {
 		contents, _, err := verify.PathOrContents(data.Credentials.ValueString())
 		if err != nil {
 			diags.AddError(fmt.Sprintf("error loading credentials: %s", err), err.Error())
@@ -1603,7 +1698,8 @@ func GetBatchingConfig(ctx context.Context, data types.List, diags *diag.Diagnos
 		EnableBatching: true,
 	}
 
-	if data.IsNull() {
+	// Handle if entire batching block is null/unknown
+	if data.IsNull() || data.IsUnknown() {
 		return bc
 	}
 

@@ -328,7 +328,7 @@ func testAccCheckEventarcTriggerDestroyProducer(t *testing.T) func(s *terraform.
 				Location:             dcl.String(rs.Primary.Attributes["location"]),
 				Name:                 dcl.String(rs.Primary.Attributes["name"]),
 				Channel:              dcl.String(rs.Primary.Attributes["channel"]),
-				EventDataContentType: dcl.String(rs.Primary.Attributes["event_data_content_type"]),
+				EventDataContentType: dcl.StringOrNil(rs.Primary.Attributes["event_data_content_type"]),
 				Project:              dcl.StringOrNil(rs.Primary.Attributes["project"]),
 				ServiceAccount:       dcl.String(rs.Primary.Attributes["service_account"]),
 				CreateTime:           dcl.StringOrNil(rs.Primary.Attributes["create_time"]),

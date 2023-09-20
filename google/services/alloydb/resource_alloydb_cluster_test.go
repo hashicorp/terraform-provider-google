@@ -1094,3 +1094,94 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   }
 `, context)
 }
+
+// Ensures cluster creation works with networkConfig.
+func TestAccAlloydbCluster_withNetworkConfig(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withNetworkConfig(context),
+			},
+			{
+				ResourceName:      "google_alloydb_cluster.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withNetworkConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+	network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  }
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
+
+// Ensures cluster creation works with networkConfig and a specified allocated IP range.
+func TestAccAlloydbCluster_withNetworkConfigAndAllocatedIPRange(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withNetworkConfigAndAllocatedIPRange(context),
+			},
+			{
+				ResourceName:      "google_alloydb_cluster.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withNetworkConfigAndAllocatedIPRange(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+	network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+	allocated_ip_range = google_compute_global_address.private_ip_alloc.name
+  }
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+resource "google_compute_global_address" "private_ip_alloc" {
+	name          =  "tf-test-alloydb-cluster%{random_suffix}"
+	address_type  = "INTERNAL"
+	purpose       = "VPC_PEERING"
+	prefix_length = 16
+	network       = google_compute_network.default.id
+  }
+  
+`, context)
+}

@@ -22,6 +22,39 @@ description: |-
 
 The NetworkConnectivity Spoke resource
 
+## Example Usage - linked_vpc_network
+```hcl
+
+resource "google_compute_network" "network" {
+  name                    = "network"
+  auto_create_subnetworks = false
+}
+
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "hub"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name = "name"
+  location = "global"
+  description = "A sample spoke with a linked routher appliance instance"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    uri = google_compute_network.network.self_link
+  }
+}
+```
 ## Example Usage - router_appliance
 ```hcl
 
@@ -132,6 +165,10 @@ The `instances` block supports:
   (Optional)
   The URIs of linked Router appliance resources
   
+* `linked_vpc_network` -
+  (Optional)
+  VPC network that is associated with the spoke.
+  
 * `linked_vpn_tunnels` -
   (Optional)
   The URIs of linked VPN tunnel resources
@@ -161,6 +198,16 @@ The `linked_router_appliance_instances` block supports:
 * `site_to_site_data_transfer` -
   (Required)
   A value that controls whether site-to-site data transfer is enabled for these resources. Note that data transfer is available only in supported locations.
+    
+The `linked_vpc_network` block supports:
+    
+* `exclude_export_ranges` -
+  (Optional)
+  IP ranges encompassing the subnets to be excluded from peering.
+    
+* `uri` -
+  (Required)
+  The URI of the VPC network resource.
     
 The `linked_vpn_tunnels` block supports:
     

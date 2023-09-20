@@ -277,6 +277,26 @@ These two unsupported fields were introduced incorrectly. They are now removed.
 
 This unsupported field was introduced incorrectly. It is now removed.
 
+## Resource: `google_container_cluster`
+
+### Clusters created in error states are now tainted rather than deleted
+
+GKE clusters that are created but do not become healthy will now be recorded in
+state and marked as tainted for cleanup on next apply rather than immediately
+deleted.
+
+This behavior was changed to allow users to collect internal logs from the
+cluster and/or manually resolve the issues and untaint their failed clusters.
+
+### `enable_binary_authorization` is now removed
+
+`enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
+
+### Default value of `network_policy.provider` is now removed
+
+Previously `network_policy.provider` defaulted to "PROVIDER_UNSPECIFIED". It no longer
+has a default value.
+
 ## Resource: `google_dataplex_datascan`
 
 ### `dataQualityResult` and `dataProfileResult` output fields are now removed 
@@ -443,6 +463,17 @@ resource "google_project_iam_binding" "gcs-bucket-writer" {
   ]
 }
 ```
+
+## Resource: `google_cloudfunctions2_function`
+### `location` now a required field
+Deployment would fail if this field was unspecified. Marked this field as requied to align with implementation. This value cannot be inferred from any provider level config. No change is necessary for upgrade as this field is already needed for any deployments.
+
+## Resource: `google_cloud_run_v2_service`
+### transitioned `volumes.cloud_sql_instance.instances` to SET from ARRAY for `google_cloud_run_v2_service`
+Previously, `database_flags` was a list, making it order-dependent. It is now a set.
+
+If you were relying on accessing an individual flag by index (for example, `google_sql_database_instance.instance.settings.0.database_flags.0.name`), then that will now need to by hash (for example, `google_sql_database_instance.instance.settings.0.database_flags.<some-hash>.name`).
+
 ## Product: `cloudiot`
 
 ### resource `google_cloudiot_device` is now removed
@@ -458,3 +489,39 @@ resource "google_project_iam_binding" "gcs-bucket-writer" {
 ### `Create` endpoint is used to create the resource
 
 `google_service_networking_connection` now uses the Create endpoint instead of the Patch endpoint during the creation step. Previously, Patch was used as a workaround for an issue that has since been resolved.
+
+## Resource: `google_secret_manager_secret`
+
+### `replication.automatic` is now removed
+
+Deprecated in favor of field `replication.auto`. It is now removed.
+
+#### Old Config
+
+```hcl
+resource "google_secret_manager_secret" "my-secret" {
+  secret_id = "tf-secret"
+  
+  replication {
+    automatic = true
+  }
+}
+```
+
+#### New Config
+
+```hcl
+resource "google_secret_manager_secret" "my-secret" {
+  secret_id = "tf-secret"
+  
+  replication {
+    auto {}
+  }
+}
+```
+
+## Resource: `google_identity_platform_project_default_config`
+
+### `google_identity_platform_project_default_config` has been removed from the provider
+
+Use the `google_identity_platform_config` resource instead. It contains a more comprehensive list of fields, and was created before `google_identity_platform_project_default_config` was added.

@@ -123,6 +123,15 @@ func ResourceContainerAwsNodePool() *schema.Resource {
 				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
+			"management": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: "The Management configuration for this node pool.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolManagementSchema(),
+			},
+
 			"project": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -225,7 +234,6 @@ func ContainerAwsNodePoolConfigSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The AWS instance type. When unspecified, it defaults to `m5.large`.",
 			},
 
@@ -429,6 +437,19 @@ func ContainerAwsNodePoolMaxPodsConstraintSchema() *schema.Resource {
 	}
 }
 
+func ContainerAwsNodePoolManagementSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"auto_repair": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. Whether or not the nodes will be automatically repaired.",
+			},
+		},
+	}
+}
+
 func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
@@ -446,6 +467,7 @@ func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 	}
 
@@ -503,6 +525,7 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 	}
 
@@ -555,6 +578,9 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("effective_annotations", res.Annotations); err != nil {
 		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
+	if err = d.Set("management", tpgresource.FlattenContainerAwsNodePoolManagement(res.Management, d, config)); err != nil {
+		return fmt.Errorf("error setting management in state: %s", err)
+	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
 	}
@@ -599,6 +625,7 @@ func resourceContainerAwsNodePoolUpdate(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -651,6 +678,7 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 	}
 
@@ -995,6 +1023,32 @@ func flattenContainerAwsNodePoolMaxPodsConstraint(obj *containeraws.NodePoolMaxP
 	}
 	transformed := map[string]interface{}{
 		"max_pods_per_node": obj.MaxPodsPerNode,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolManagement(o interface{}) *containeraws.NodePoolManagement {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolManagement{
+		AutoRepair: dcl.Bool(obj["auto_repair"].(bool)),
+	}
+}
+
+func flattenContainerAwsNodePoolManagement(obj *containeraws.NodePoolManagement) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"auto_repair": obj.AutoRepair,
 	}
 
 	return []interface{}{transformed}

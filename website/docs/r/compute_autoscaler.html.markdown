@@ -251,8 +251,6 @@ The following arguments are supported:
 * `mode` -
   (Optional)
   Defines operating mode for this policy.
-  Default value is `ON`.
-  Possible values are: `OFF`, `ONLY_UP`, `ON`.
 
 * `scale_down_control` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))

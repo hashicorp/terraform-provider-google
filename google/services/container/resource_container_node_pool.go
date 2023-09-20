@@ -195,6 +195,11 @@ var schemaNodePool = map[string]*schema.Schema{
 					ForceNew:    true,
 					Description: `If set, refers to the name of a custom resource policy supplied by the user. The resource policy must be in the same project and region as the node pool. If not found, InvalidArgument error is returned.`,
 				},
+				"tpu_topology": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: `TPU placement topology for pod slice node pool. https://cloud.google.com/tpu/docs/types-topologies#tpu_topologies`,
+				},
 			},
 		},
 	},
@@ -883,8 +888,9 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		if v.([]interface{}) != nil && v.([]interface{})[0] != nil {
 			placement_policy := v.([]interface{})[0].(map[string]interface{})
 			np.PlacementPolicy = &container.PlacementPolicy{
-				Type:       placement_policy["type"].(string),
-				PolicyName: placement_policy["policy_name"].(string),
+				Type:        placement_policy["type"].(string),
+				PolicyName:  placement_policy["policy_name"].(string),
+				TpuTopology: placement_policy["tpu_topology"].(string),
 			}
 		}
 	}
@@ -1075,8 +1081,9 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 	if np.PlacementPolicy != nil {
 		nodePool["placement_policy"] = []map[string]interface{}{
 			{
-				"type":        np.PlacementPolicy.Type,
-				"policy_name": np.PlacementPolicy.PolicyName,
+				"type":         np.PlacementPolicy.Type,
+				"policy_name":  np.PlacementPolicy.PolicyName,
+				"tpu_topology": np.PlacementPolicy.TpuTopology,
 			},
 		}
 	}
@@ -1512,7 +1519,41 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 			log.Printf("[INFO] Updated linux_node_config for node pool %s", name)
 		}
+		if d.HasChange(prefix + "node_config.0.fast_socket") {
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				FastSocket: &container.FastSocket{},
+			}
+			if v, ok := d.GetOk(prefix + "node_config.0.fast_socket"); ok {
+				fastSocket := v.([]interface{})[0].(map[string]interface{})
+				req.FastSocket = &container.FastSocket{
+					Enabled: fastSocket["enabled"].(bool),
+				}
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
 
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool fast_socket", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated fast_socket for node pool %s", name)
+		}
 	}
 
 	if d.HasChange(prefix + "node_count") {

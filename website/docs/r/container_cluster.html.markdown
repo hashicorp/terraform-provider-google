@@ -264,7 +264,7 @@ region are guaranteed to support the same version.
     to say "these are the _only_ node pools associated with this cluster", use the
     [google_container_node_pool](container_node_pool.html) resource instead of this property.
 
-* `node_pool_auto_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Node pool configs that apply to auto-provisioned node pools in
+* `node_pool_auto_config` - (Optional) Node pool configs that apply to auto-provisioned node pools in
     [autopilot](https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#comparison) clusters and
     [node auto-provisioning](https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning)-enabled clusters. Structure is [documented below](#nested_node_pool_auto_config).
 
@@ -791,6 +791,10 @@ ephemeral_storage_local_ssd_config {
   local_ssd_count = 2
 }
 ```
+* `fast_socket` - (Optional) Parameters for the NCCL Fast Socket feature. If unspecified, NCCL Fast Socket will not be enabled on the node pool.
+     Node Pool must enable gvnic.
+     GKE version 1.25.2-gke.1700 or later.
+     Structure is [documented below](#nested_fast_socket).
 
 * `local_nvme_ssd_block_config` - (Optional) Parameters for the local NVMe SSDs. Structure is [documented below](#nested_local_nvme_ssd_block_config).
 
@@ -961,6 +965,10 @@ sole_tenant_config {
 
 * `local_ssd_count` (Required) - Number of local SSDs to use to back ephemeral storage. Uses NVMe interfaces. Each local SSD is 375 GB in size. If zero, it means to disable using local SSDs as ephemeral storage.
 
+<a name="nasted_fast_socket"></a>The `fast_socket` block supports:
+
+* `enabled` (Required) - Whether or not the NCCL Fast Socket is enabled
+
 <a name="nested_local_nvme_ssd_block_config"></a>The `local_nvme_ssd_block_config` block supports:
 
 * `local_ssd_count` (Required) - Number of raw-block local NVMe SSD disks to be attached to the node. Each local SSD is 375 GB in size. If zero, it means no raw-block local NVMe SSD disks to be attached to the node.
@@ -1015,11 +1023,11 @@ workload_identity_config {
 
 <a name="nested_node_pool_auto_config"></a>The `node_pool_auto_config` block supports:
 
-* `network_tags` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - The network tag config for the cluster's automatically provisioned node pools.
+* `network_tags` (Optional) - The network tag config for the cluster's automatically provisioned node pools.
 
 The `network_tags` block supports:
 
-* `tags` (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) - List of network tags applied to auto-provisioned node pools.
+* `tags` (Optional) - List of network tags applied to auto-provisioned node pools.
 
 ```hcl
 node_pool_auto_config {

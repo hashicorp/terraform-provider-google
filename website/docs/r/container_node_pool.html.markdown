@@ -273,7 +273,7 @@ cluster.
   The resource policy must be in the same project and region as the node pool.
   If not found, InvalidArgument error is returned.
 
-* `tpu_topology` - (Optional, Beta) The [TPU placement topology](https://cloud.google.com/tpu/docs/types-topologies#tpu_topologies) for pod slice node pool.
+* `tpu_topology` - (Optional) The [TPU placement topology](https://cloud.google.com/tpu/docs/types-topologies#tpu_topologies) for pod slice node pool.
 
 ## Attributes Reference
 

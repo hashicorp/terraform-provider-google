@@ -3,6 +3,7 @@
 package cloudrunv2_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -204,5 +205,98 @@ resource "google_compute_network" "custom_test" {
   name                    = "tf-test-run-network%{random_suffix}"
   auto_create_subnetworks = false
 }
+`, context)
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithDirectVPC(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPC(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    launch_stage = "BETA"
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+        }
+        vpc_access {
+          network_interfaces {
+            network = "default"
+          }
+        }
+      }
+    }
+
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    launch_stage = "BETA"
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+        }
+        vpc_access {
+          network_interfaces {
+            network = "my-network"
+            subnetwork = "my-network"
+            tags = ["tag1", "tag2", "tag3"]
+          }
+        }
+      }
+    }
+
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
 `, context)
 }

@@ -83,6 +83,42 @@ func TestAccFirestoreDatabase_updatePitrEnablement(t *testing.T) {
 	})
 }
 
+func TestAccFirestoreDatabase_updateDeleteProtectionState(t *testing.T) {
+	t.Parallel()
+
+	orgId := envvar.GetTestOrgFromEnv(t)
+	billingAccount := envvar.GetTestBillingAccountFromEnv(t)
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccFirestoreDatabase_deleteProtectionState(orgId, billingAccount, randomSuffix, "DELETE_PROTECTION_ENABLED"),
+			},
+			{
+				ResourceName:            "google_firestore_database.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "project"},
+			},
+			{
+				Config: testAccFirestoreDatabase_deleteProtectionState(orgId, billingAccount, randomSuffix, "DELETE_PROTECTION_DISABLED"),
+			},
+			{
+				ResourceName:            "google_firestore_database.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "project"},
+			},
+		},
+	})
+}
+
 func testAccFirestoreDatabase_basicDependencies(orgId, billingAccount string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_project" "default" {
@@ -138,4 +174,20 @@ resource "google_firestore_database" "default" {
   depends_on = [google_project_service.firestore]
 }
 `, pointInTimeRecoveryEnablement)
+}
+
+func testAccFirestoreDatabase_deleteProtectionState(orgId, billingAccount string, randomSuffix string, deleteProtectionState string) string {
+	return testAccFirestoreDatabase_basicDependencies(orgId, billingAccount, randomSuffix) + fmt.Sprintf(`
+
+resource "google_firestore_database" "default" {
+  name                    = "(default)"
+  type                    = "DATASTORE_MODE"
+  location_id             = "nam5"
+  delete_protection_state = "%s"
+
+  project = google_project.default.project_id
+
+  depends_on = [google_project_service.firestore]
+}
+`, deleteProtectionState)
 }
