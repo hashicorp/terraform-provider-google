@@ -18,17 +18,45 @@
 package secretmanager
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
+
+// Prevent ForceNew when upgrading replication.automatic -> replication.auto
+func secretManagerSecretAutoCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	oAutomatic, nAutomatic := diff.GetChange("replication.0.automatic")
+	_, nAuto := diff.GetChange("replication.0.auto")
+	autoLen := len(nAuto.([]interface{}))
+
+	// Do not ForceNew if we are removing "automatic" while adding "auto"
+	if oAutomatic == true && nAutomatic == false && autoLen > 0 {
+		return nil
+	}
+
+	if diff.HasChange("replication.0.automatic") {
+		if err := diff.ForceNew("replication.0.automatic"); err != nil {
+			return err
+		}
+	}
+
+	if diff.HasChange("replication.0.auto") {
+		if err := diff.ForceNew("replication.0.auto"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func ResourceSecretManagerSecret() *schema.Resource {
 	return &schema.Resource{
@@ -47,6 +75,10 @@ func ResourceSecretManagerSecret() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			secretManagerSecretAutoCustomizeDiff,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"replication": {
 				Type:     schema.TypeList,
@@ -60,7 +92,6 @@ after the Secret has been created.`,
 						"auto": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The Secret will automatically be replicated without any restrictions.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -90,7 +121,6 @@ encryption is used.`,
 							Type:         schema.TypeBool,
 							Optional:     true,
 							Deprecated:   "`automatic` is deprecated and will be removed in a future major release. Use `auto` instead.",
-							ForceNew:     true,
 							Description:  `The Secret will automatically be replicated without any restrictions.`,
 							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
 						},
