@@ -71,10 +71,26 @@ resource "google_project_service" "identitytoolkit" {
   service = "identitytoolkit.googleapis.com"
 }
 
-
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
   autodelete_anonymous_users = true
+  sign_in {
+    allow_duplicate_emails = true
+   
+    anonymous {
+        enabled = true
+    }
+    email {
+        enabled = true
+        password_required = false
+    }
+    phone_number {
+        enabled = true
+        test_phone_numbers = {
+            "+11231231234" = "000000"
+        }
+    }
+  }
   blocking_functions {
     triggers {
       event_type = "beforeSignIn"

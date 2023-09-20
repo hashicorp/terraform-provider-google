@@ -720,7 +720,7 @@ integer fraction of a day and at least 60s.`,
 				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^[a-z0-9\-]+$`),
+				ValidateFunc: verify.ValidateRegexp(`^[a-zA-Z0-9\-_:.]+$`),
 				Description:  `The id to use for this ServiceLevelObjective. If omitted, an id will be generated instead.`,
 			},
 			"user_labels": {

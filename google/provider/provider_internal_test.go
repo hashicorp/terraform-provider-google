@@ -405,7 +405,7 @@ func TestProvider_ProviderConfigure_impersonateServiceAccount(t *testing.T) {
 			ExpectedValue:    "",
 		},
 		// Handling empty strings in config
-		"when impersonate_service_account is set as an empty array the field is treated as if it's unset, without error": {
+		"when impersonate_service_account is set as an empty string the field is treated as if it's unset, without error": {
 			ConfigValues: map[string]interface{}{
 				"impersonate_service_account": "",
 				"credentials":                 transport_tpg.TestFakeCredentialsPath,
@@ -413,6 +413,16 @@ func TestProvider_ProviderConfigure_impersonateServiceAccount(t *testing.T) {
 			ExpectError:      false,
 			ExpectFieldUnset: true,
 			ExpectedValue:    "",
+		},
+		"when impersonate_service_account is set as an empty string in the config, an environment variable is used": {
+			ConfigValues: map[string]interface{}{
+				"impersonate_service_account": "",
+				"credentials":                 transport_tpg.TestFakeCredentialsPath,
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT": "value-from-env@example.com",
+			},
+			ExpectedValue: "value-from-env@example.com",
 		},
 	}
 
@@ -1573,12 +1583,12 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 				"batching": []interface{}{
 					map[string]interface{}{
 						"enable_batching": true,
-						"send_after":      "123s",
+						"send_after":      "45s",
 					},
 				},
 			},
 			ExpectedEnableBatchingValue: true,
-			ExpectedSendAfterValue:      "123s",
+			ExpectedSendAfterValue:      "45s",
 		},
 		"if batching is an empty block, it will set the default values for enable_batching and send_after": {
 			ConfigValues: map[string]interface{}{
@@ -1609,12 +1619,12 @@ func TestProvider_ProviderConfigure_batching(t *testing.T) {
 				"credentials": transport_tpg.TestFakeCredentialsPath,
 				"batching": []interface{}{
 					map[string]interface{}{
-						"send_after": "123s",
+						"send_after": "45s",
 					},
 				},
 			},
 			ExpectedEnableBatchingValue: false,
-			ExpectedSendAfterValue:      "123s",
+			ExpectedSendAfterValue:      "45s",
 		},
 		// Error states
 		"if batching is configured with send_after as an invalid value, there's an error": {

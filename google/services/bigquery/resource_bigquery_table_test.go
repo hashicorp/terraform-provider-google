@@ -1533,6 +1533,7 @@ resource "google_bigquery_table" "test" {
     type                     = "%s"
     field                    = "ts"
     require_partition_filter = true
+    expiration_ms            = 1000
   }
   clustering = ["some_int", "some_string"]
   schema     = <<EOH

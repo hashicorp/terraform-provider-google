@@ -196,6 +196,42 @@ resource "google_compute_network" "custom_test" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_job_directvpc&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Directvpc
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  name     = "cloudrun-job"
+  location = "us-central1"
+  launch_stage = "BETA"
+  template {
+    template{
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+      vpc_access {
+        network_interfaces {
+          network = "default"
+          subnetwork = "default"
+          tags = ["tag1", "tag2", "tag3"]
+        }
+        egress = "ALL_TRAFFIC"
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=cloudrunv2_job_secret&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -577,6 +613,30 @@ The following arguments are supported:
   (Optional)
   Traffic VPC egress settings.
   Possible values are: `ALL_TRAFFIC`, `PRIVATE_RANGES_ONLY`.
+
+* `network_interfaces` -
+  (Optional)
+  Direct VPC egress settings. Currently only single network interface is supported.
+  Structure is [documented below](#nested_network_interfaces).
+
+
+<a name="nested_network_interfaces"></a>The `network_interfaces` block supports:
+
+* `network` -
+  (Optional)
+  The VPC network that the Cloud Run resource will be able to send traffic to. At least one of network or subnetwork must be specified. If both
+  network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If network is not specified, it will be
+  looked up from the subnetwork.
+
+* `subnetwork` -
+  (Optional)
+  The VPC subnetwork that the Cloud Run resource will get IPs from. At least one of network or subnetwork must be specified. If both
+  network and subnetwork are specified, the given VPC subnetwork must belong to the given VPC network. If subnetwork is not specified, the
+  subnetwork with the same name with the network will be used.
+
+* `tags` -
+  (Optional)
+  Network tags applied to this Cloud Run job.
 
 - - -
 

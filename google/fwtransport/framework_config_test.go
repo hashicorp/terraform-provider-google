@@ -103,33 +103,34 @@ func TestFrameworkProvider_LoadAndValidateFramework_project(t *testing.T) {
 			ExpectedConfigStructValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when project is set as an empty string the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Project: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
-		// "when project is set as an empty string an environment variable will be used": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Project: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_PROJECT": "project-from-GOOGLE_PROJECT",
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringValue("project-from-GOOGLE_PROJECT"),
-		// },
+		"when project is set as an empty string the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				Project: types.StringValue(""),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		"when project is set as an empty string an environment variable will be used": {
+			ConfigValues: fwmodels.ProviderModel{
+				Project: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_PROJECT": "project-from-GOOGLE_PROJECT",
+			},
+			ExpectedDataModelValue:    types.StringValue("project-from-GOOGLE_PROJECT"),
+			ExpectedConfigStructValue: types.StringValue("project-from-GOOGLE_PROJECT"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when project is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Project: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
+		"when project is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				Project: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_PROJECT": "project-from-GOOGLE_PROJECT",
+			},
+			ExpectedDataModelValue:    types.StringValue("project-from-GOOGLE_PROJECT"),
+			ExpectedConfigStructValue: types.StringValue("project-from-GOOGLE_PROJECT"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -265,16 +266,15 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 			ExpectedDataModelValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when credentials is set to an empty string in the config (and access_token unset), GOOGLE_APPLICATION_CREDENTIALS is used": {
-		// ConfigValues: fwmodels.ProviderModel{
-		// 	Credentials: types.StringValue(""),
-		// },
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath, // needs to be a path to a file when used by code
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
+		"when credentials is set to an empty string in the config (and access_token unset), GOOGLE_APPLICATION_CREDENTIALS is used": {
+			ConfigValues: fwmodels.ProviderModel{
+				Credentials: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_APPLICATION_CREDENTIALS": transport_tpg.TestFakeCredentialsPath, // needs to be a path to a file when used by code
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
 		// NOTE: these tests can't run in Cloud Build due to ADC locating credentials despite `GOOGLE_APPLICATION_CREDENTIALS` being unset
 		// See https://cloud.google.com/docs/authentication/application-default-credentials#search_order
 		// Also, when running these tests locally you need to run `gcloud auth application-default revoke` to ensure your machine isn't supplying ADCs
@@ -336,62 +336,61 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 	}
 }
 
-// TODO(SarahFrench) make this test pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-// func TestFrameworkProvider_LoadAndValidateFramework_credentials_unknown(t *testing.T) {
-// 	// This test case is kept separate from other credentials tests, as it requires comparing
-// 	// error messages returned by two different error states:
-// 	// - When credentials = Null
-// 	// - When credentials = Unknown
+func TestFrameworkProvider_LoadAndValidateFramework_credentials_unknown(t *testing.T) {
+	// This test case is kept separate from other credentials tests, as it requires comparing
+	// error messages returned by two different error states:
+	// - When credentials = Null
+	// - When credentials = Unknown
 
-// 	t.Run("when project is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)", func(t *testing.T) {
+	t.Run("the same error is returned whether credentials is set as a null or unknown value (and access_token isn't set)", func(t *testing.T) {
 
-// 		// Arrange
-// 		acctest.UnsetTestProviderConfigEnvs(t)
+		// Arrange
+		acctest.UnsetTestProviderConfigEnvs(t)
 
-// 		ctx := context.Background()
-// 		tfVersion := "foobar"
-// 		providerversion := "999"
+		ctx := context.Background()
+		tfVersion := "foobar"
+		providerversion := "999"
 
-// 		impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
+		impersonateServiceAccountDelegates, _ := types.ListValue(types.StringType, []attr.Value{}) // empty list
 
-// 		// Null data and error collection
-// 		diagsNull := diag.Diagnostics{}
-// 		dataNull := fwmodels.ProviderModel{
-// 			Credentials: types.StringNull(),
-// 		}
-// 		dataNull.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+		// Null data and error collection
+		diagsNull := diag.Diagnostics{}
+		dataNull := fwmodels.ProviderModel{
+			Credentials: types.StringNull(),
+		}
+		dataNull.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
 
-// 		// Unknown data and error collection
-// 		diagsUnknown := diag.Diagnostics{}
-// 		dataUnknown := fwmodels.ProviderModel{
-// 			Credentials: types.StringUnknown(),
-// 		}
-// 		dataUnknown.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
+		// Unknown data and error collection
+		diagsUnknown := diag.Diagnostics{}
+		dataUnknown := fwmodels.ProviderModel{
+			Credentials: types.StringUnknown(),
+		}
+		dataUnknown.ImpersonateServiceAccountDelegates = impersonateServiceAccountDelegates
 
-// 		pNull := fwtransport.FrameworkProviderConfig{}
-// 		pUnknown := fwtransport.FrameworkProviderConfig{}
+		pNull := fwtransport.FrameworkProviderConfig{}
+		pUnknown := fwtransport.FrameworkProviderConfig{}
 
-// 		// Act
-// 		pNull.LoadAndValidateFramework(ctx, &dataNull, tfVersion, &diagsNull, providerversion)
-// 		pUnknown.LoadAndValidateFramework(ctx, &dataUnknown, tfVersion, &diagsUnknown, providerversion)
+		// Act
+		pNull.LoadAndValidateFramework(ctx, &dataNull, tfVersion, &diagsNull, providerversion)
+		pUnknown.LoadAndValidateFramework(ctx, &dataUnknown, tfVersion, &diagsUnknown, providerversion)
 
-// 		// Assert
-// 		if !diagsNull.HasError() {
-// 			t.Fatalf("expect errors when credentials is null, but [%d] errors occurred", diagsNull.ErrorsCount())
-// 		}
-// 		if !diagsUnknown.HasError() {
-// 			t.Fatalf("expect errors when credentials is unknown, but [%d] errors occurred", diagsUnknown.ErrorsCount())
-// 		}
+		// Assert
+		if !diagsNull.HasError() {
+			t.Fatalf("expect errors when credentials is null, but [%d] errors occurred", diagsNull.ErrorsCount())
+		}
+		if !diagsUnknown.HasError() {
+			t.Fatalf("expect errors when credentials is unknown, but [%d] errors occurred", diagsUnknown.ErrorsCount())
+		}
 
-// 		errNull := diagsNull.Errors()
-// 		errUnknown := diagsUnknown.Errors()
-// 		for i := 0; i < len(errNull); i++ {
-// 			if errNull[i] != errUnknown[i] {
-// 				t.Fatalf("expect errors to be the same for null and unknown credentials values, instead got \nnull=`%s` \nunknown=%s", errNull[i], errUnknown[i])
-// 			}
-// 		}
-// 	})
-// }
+		errNull := diagsNull.Errors()
+		errUnknown := diagsUnknown.Errors()
+		for i := 0; i < len(errNull); i++ {
+			if errNull[i] != errUnknown[i] {
+				t.Fatalf("expect errors to be the same for null and unknown credentials values, instead got \nnull=`%s` \nunknown=%s", errNull[i], errUnknown[i])
+			}
+		}
+	})
+}
 
 func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T) {
 
@@ -435,23 +434,23 @@ func TestFrameworkProvider_LoadAndValidateFramework_billingProject(t *testing.T)
 			ExpectedConfigStructValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// "when billing_project is set as an empty string the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		BillingProject: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
-		// "when billing_project is set as an empty string an environment variable will be used": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		BillingProject: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringValue("billing-project-from-env"),
-		// 	ExpectedConfigStructValue: types.StringValue("billing-project-from-env"),
-		// },
+		"when billing_project is set as an empty string the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				BillingProject: types.StringValue(""),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		"when billing_project is set as an empty string an environment variable will be used": {
+			ConfigValues: fwmodels.ProviderModel{
+				BillingProject: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_BILLING_PROJECT": "billing-project-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("billing-project-from-env"),
+			ExpectedConfigStructValue: types.StringValue("billing-project-from-env"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -549,33 +548,34 @@ func TestFrameworkProvider_LoadAndValidateFramework_region(t *testing.T) {
 			ExpectedConfigStructValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when region is set as an empty string the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Region: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
-		// "when region is set as an empty string an environment variable will be used": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Region: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_REGION": "region-from-env",
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringValue("region-from-env"),
-		// 	ExpectedConfigStructValue: types.StringValue("region-from-env"),
-		// },
+		"when region is set as an empty string the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringValue(""),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		"when region is set as an empty string an environment variable will be used": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION": "region-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("region-from-env"),
+			ExpectedConfigStructValue: types.StringValue("region-from-env"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when region is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Region: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
+		"when region is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_REGION": "region-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("region-from-env"),
+			ExpectedConfigStructValue: types.StringValue("region-from-env"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -698,33 +698,34 @@ func TestFrameworkProvider_LoadAndValidateFramework_zone(t *testing.T) {
 			ExpectedConfigStructValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when zone is set as an empty string the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Zone: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
-		// "when zone is set as an empty string an environment variable will be used": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Zone: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_ZONE": "zone-from-env",
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringValue("zone-from-env"),
-		// 	ExpectedConfigStructValue: types.StringValue("zone-from-env"),
-		// },
+		"when zone is set as an empty string the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringValue(""),
+			},
+			ExpectedDataModelValue:    types.StringNull(),
+			ExpectedConfigStructValue: types.StringNull(),
+		},
+		"when zone is set as an empty string an environment variable will be used": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE": "zone-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-env"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-env"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when zone is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Zone: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// 	ExpectedConfigStructValue: types.StringNull(),
-		// },
+		"when zone is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				Zone: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_ZONE": "zone-from-env",
+			},
+			ExpectedDataModelValue:    types.StringValue("zone-from-env"),
+			ExpectedConfigStructValue: types.StringValue("zone-from-env"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -814,31 +815,32 @@ func TestFrameworkProvider_LoadAndValidateFramework_accessToken(t *testing.T) {
 			ExpectedDataModelValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when access_token is set as an empty string the field is treated as if it's unset, without error (as long as credentials supplied in its absence)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		AccessToken: types.StringValue(""),
-		// 		Credentials: types.StringValue(transport_tpg.TestFakeCredentialsPath),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
-		// "when access_token is set as an empty string in the config, an environment variable is used": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		AccessToken: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
-		// 	},
-		// 	ExpectedDataModelValue: types.StringValue("value-from-GOOGLE_OAUTH_ACCESS_TOKEN"),
-		// },
+		"when access_token is set as an empty string the field is treated as if it's unset, without error (as long as credentials supplied in its absence)": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringValue(""),
+				Credentials: types.StringValue(transport_tpg.TestFakeCredentialsPath),
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
+		"when access_token is set as an empty string in the config, an environment variable is used": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-GOOGLE_OAUTH_ACCESS_TOKEN"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when access_token is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		AccessToken: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// },
+		"when access_token is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				AccessToken: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_OAUTH_ACCESS_TOKEN": "value-from-GOOGLE_OAUTH_ACCESS_TOKEN",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-GOOGLE_OAUTH_ACCESS_TOKEN"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -960,14 +962,16 @@ func TestFrameworkProvider_LoadAndValidateFramework_userProjectOverride(t *testi
 			ExpectedConfigStructValue: types.BoolNull(),
 		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when user_project_override is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		UserProjectOverride: types.BoolUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.BoolNull(),
-		// 	ExpectedConfigStructValue: types.BoolNull(),
-		// },
+		"when user_project_override is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				UserProjectOverride: types.BoolUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"USER_PROJECT_OVERRIDE": "true",
+			},
+			ExpectedDataModelValue:    types.BoolValue(true),
+			ExpectedConfigStructValue: types.BoolValue(true),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -1054,21 +1058,31 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccount(t 
 			ExpectedDataModelValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when impersonate_service_account is set as an empty array the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		ImpersonateServiceAccount: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
+		"when impersonate_service_account is set as an empty string the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringValue(""),
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
+		"when impersonate_service_account is set as an empty string in the config, an environment variable is used": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT": "value-from-env@example.com",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-env@example.com"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when impersonate_service_account is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		ImpersonateServiceAccount: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringNull(),
-		// },
+		"when impersonate_service_account is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				ImpersonateServiceAccount: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"GOOGLE_IMPERSONATE_SERVICE_ACCOUNT": "value-from-env@example.com",
+			},
+			ExpectedDataModelValue: types.StringValue("value-from-env@example.com"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -1126,9 +1140,11 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDel
 		SetAsUnknown                            bool
 		ImpersonateServiceAccountDelegatesValue []string
 		EnvVariables                            map[string]string
-		ExpectedDataModelValue                  []string
-		// ExpectedConfigStructValue not used here, as impersonate_service_account_delegates info isn't stored in the config struct
-		ExpectError bool
+
+		ExpectedNull           bool
+		ExpectedUnknown        bool
+		ExpectedDataModelValue []string
+		ExpectError            bool
 	}{
 		"impersonate_service_account_delegates value can be set in the provider schema": {
 			ImpersonateServiceAccountDelegatesValue: []string{
@@ -1142,20 +1158,19 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDel
 		},
 		// Note: no environment variables can be used for impersonate_service_account_delegates
 		"when no impersonate_service_account_delegates value is provided via config, the field remains unset without error": {
-			SetAsNull:              true, // not setting impersonate_service_account_delegates
-			ExpectedDataModelValue: nil,
+			SetAsNull:    true, // not setting impersonate_service_account_delegates
+			ExpectedNull: true,
 		},
 		// Handling empty values in config
 		"when impersonate_service_account_delegates is set as an empty array the field is treated as if it's unset, without error": {
 			ImpersonateServiceAccountDelegatesValue: []string{},
-			ExpectedDataModelValue:                  []string{},
+			ExpectedDataModelValue:                  nil,
 		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when impersonate_service_account_delegates is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	SetAsUnknown: true,
-		// 	// Currently this causes an error at google/fwtransport/framework_config.go:1518
-		// },
+		"when impersonate_service_account_delegates is an unknown value, the provider treats it as if it's unset, without error": {
+			SetAsUnknown:    true,
+			ExpectedUnknown: true,
+		},
 	}
 
 	for tn, tc := range cases {
@@ -1201,7 +1216,16 @@ func TestFrameworkProvider_LoadAndValidateFramework_impersonateServiceAccountDel
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
 			// Checking mutation of the data model
-			expected, _ := types.ListValueFrom(ctx, types.StringType, tc.ExpectedDataModelValue)
+			var expected attr.Value
+			if !tc.ExpectedNull && !tc.ExpectedUnknown {
+				expected, _ = types.ListValueFrom(ctx, types.StringType, tc.ExpectedDataModelValue)
+			}
+			if tc.ExpectedNull {
+				expected = types.ListNull(types.StringType)
+			}
+			if tc.ExpectedUnknown {
+				expected = types.ListUnknown(types.StringType)
+			}
 			if !data.ImpersonateServiceAccountDelegates.Equal(expected) {
 				t.Fatalf("want impersonate_service_account in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", expected, data.ImpersonateServiceAccountDelegates.String())
 			}
@@ -1243,7 +1267,7 @@ func TestFrameworkProvider_LoadAndValidateFramework_scopes(t *testing.T) {
 			ExpectedConfigStructValue: transport_tpg.DefaultClientScopes,
 		},
 		// Handling unknown values
-		"when scopes is an unknown value, the provider treats it as if it's unset and a default value is used without errors (align to SDK behaviour)": {
+		"when scopes is an unknown value, the provider treats it as if it's unset and a default value is used without errors": {
 			SetAsUnknown:              true,
 			ExpectedDataModelValue:    transport_tpg.DefaultClientScopes,
 			ExpectedConfigStructValue: transport_tpg.DefaultClientScopes,
@@ -1347,30 +1371,31 @@ func TestFrameworkProvider_LoadAndValidateFramework_requestReason(t *testing.T) 
 			ExpectedDataModelValue: types.StringNull(),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when request_reason is set as an empty string in the config it is overridden by environment variables": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		RequestReason: types.StringValue(""),
-		// 	},
-		// 	EnvVariables: map[string]string{
-		// 		"CLOUDSDK_CORE_REQUEST_REASON": "foo",
-		// 	},
-		// 	ExpectedDataModelValue: types.StringValue("foo"),
-		// },
-		// "when request_reason is set as an empty string in the config the field is treated as if it's unset, without error": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		RequestReason: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
+		"when request_reason is set as an empty string in the config it is overridden by environment variables": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringValue(""),
+			},
+			EnvVariables: map[string]string{
+				"CLOUDSDK_CORE_REQUEST_REASON": "foo",
+			},
+			ExpectedDataModelValue: types.StringValue("foo"),
+		},
+		"when request_reason is set as an empty string in the config the field is treated as if it's unset, without error": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringValue(""),
+			},
+			ExpectedDataModelValue: types.StringNull(),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when request_timeout is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		RequestReason: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
+		"when request_reason is an unknown value, the provider treats it as if it's unset and uses an environment variable instead": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestReason: types.StringUnknown(),
+			},
+			EnvVariables: map[string]string{
+				"CLOUDSDK_CORE_REQUEST_REASON": "foo",
+			},
+			ExpectedDataModelValue: types.StringValue("foo"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -1451,21 +1476,19 @@ func TestFrameworkProvider_LoadAndValidateFramework_requestTimeout(t *testing.T)
 			ExpectedDataModelValue: types.StringValue("120s"),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when request_timeout is set as an empty string, the default value is 120s.": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		RequestTimeout: types.StringValue(""),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringValue("120s"),
-		// },
+		"when request_timeout is set as an empty string, the default value is 120s.": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestTimeout: types.StringValue(""),
+			},
+			ExpectedDataModelValue: types.StringValue("120s"),
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when request_timeout is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		RequestTimeout: types.StringUnknown(),
-		// 	},
-		// 	ExpectedDataModelValue: types.StringNull(),
-		// },
+		"when request_timeout is an unknown value, the provider treats it as if it's unset and uses the default value 120s": {
+			ConfigValues: fwmodels.ProviderModel{
+				RequestTimeout: types.StringUnknown(),
+			},
+			ExpectedDataModelValue: types.StringValue("120s"),
+		},
 	}
 
 	for tn, tc := range cases {
@@ -1534,9 +1557,9 @@ func TestFrameworkProvider_LoadAndValidateFramework_batching(t *testing.T) {
 	}{
 		"batching can be configured with values for enable_batching and send_after": {
 			EnableBatchingValue:       types.BoolValue(true),
-			SendAfterValue:            types.StringValue("123s"),
+			SendAfterValue:            types.StringValue("45s"),
 			ExpectEnableBatchingValue: types.BoolValue(true),
-			ExpectSendAfterValue:      types.StringValue("123s"),
+			ExpectSendAfterValue:      types.StringValue("45s"),
 		},
 		"if batching is an empty block, it will set the default values for enable_batching and send_after": {
 			// In this test, we try to create a list containing only null values
@@ -1553,37 +1576,40 @@ func TestFrameworkProvider_LoadAndValidateFramework_batching(t *testing.T) {
 		},
 		"when batching is configured with only send_after, enable_batching will be set to a default value": {
 			EnableBatchingValue:       types.BoolNull(),
-			SendAfterValue:            types.StringValue("123s"),
+			SendAfterValue:            types.StringValue("45s"),
 			ExpectEnableBatchingValue: types.BoolValue(true),
-			ExpectSendAfterValue:      types.StringValue("123s"),
+			ExpectSendAfterValue:      types.StringValue("45s"),
+		},
+		"when the whole batching block is a null value, the provider provides default values for send_after and enable_batching": {
+			SetBatchingAsNull:         true,
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("3s"),
 		},
 		// Handling empty strings in config
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14255
-		// "when batching is configured with send_after as an empty string, send_after will be set to a default value": {
-		// 	EnableBatchingValue:       types.BoolValue(true),
-		// 	SendAfterValue:            types.StringValue(""),
-		// 	ExpectEnableBatchingValue: types.BoolValue(true),
-		// 	ExpectSendAfterValue:      types.StringValue("10s"),
-		// },
+		"when batching is configured with send_after as an empty string, send_after will be set to a default value": {
+			EnableBatchingValue:       types.BoolValue(true),
+			SendAfterValue:            types.StringValue(""),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("10s"), // When batching block is present but has missing arguments inside, default is 10s
+		},
 		// Handling unknown values
-		// TODO(SarahFrench) make these tests pass to address: https://github.com/hashicorp/terraform-provider-google/issues/14444
-		// "when batching is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	SetBatchingAsUnknown:      true,
-		// 	ExpectEnableBatchingValue: types.BoolValue(true),
-		// 	ExpectSendAfterValue:      types.StringValue("10s"),
-		// },
-		// "when batching is configured with send_after as an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	EnableBatchingValue:       types.BoolValue(true),
-		// 	SendAfterValue:            types.StringUnknown(),
-		// 	ExpectEnableBatchingValue: types.BoolValue(true),
-		// 	ExpectSendAfterValue:      types.StringValue("10s"),
-		// },
-		// "when batching is configured with enable_batching as an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
-		// 	EnableBatchingValue:       types.BoolNull(),
-		// 	SendAfterValue:            types.StringValue("123s"),
-		// 	ExpectEnableBatchingValue: types.BoolValue(true),
-		// 	ExpectSendAfterValue:      types.StringValue("123s"),
-		// },
+		"when batching is an unknown value, the provider treats it as if it's unset (align to SDK behaviour)": {
+			SetBatchingAsUnknown:      true,
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("3s"),
+		},
+		"when batching is configured with send_after as an unknown value, send_after will be set to a default value": {
+			EnableBatchingValue:       types.BoolValue(true),
+			SendAfterValue:            types.StringUnknown(),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("10s"),
+		},
+		"when batching is configured with enable_batching as an unknown value, enable_batching will be set to a default value": {
+			EnableBatchingValue:       types.BoolUnknown(),
+			SendAfterValue:            types.StringValue("45s"),
+			ExpectEnableBatchingValue: types.BoolValue(true),
+			ExpectSendAfterValue:      types.StringValue("45s"),
+		},
 		// Error states
 		"if batching is configured with send_after as an invalid value, there's an error": {
 			SendAfterValue: types.StringValue("invalid value"),
@@ -1658,13 +1684,34 @@ func TestFrameworkProvider_LoadAndValidateFramework_batching(t *testing.T) {
 			if !data.Batching.IsUnknown() && tc.ExpectBatchingUnknown {
 				t.Fatalf("want batching in the `fwmodels.ProviderModel` struct to be unknown, but got the value `%s`", data.Batching.String())
 			}
-			var pbConfigs []fwmodels.ProviderBatching
-			_ = data.Batching.ElementsAs(ctx, &pbConfigs, true)
-			if !pbConfigs[0].EnableBatching.Equal(tc.ExpectEnableBatchingValue) {
-				t.Fatalf("want batching.enable_batching in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectEnableBatchingValue.String(), data.Batching.String())
+
+			// The code doesn't mutate values in the fwmodels.ProviderModel struct if the whole batching block is null/unknown,
+			// so run these checks below only if we're not setting the whole batching block is null/unknown
+			if !tc.SetBatchingAsNull && !tc.SetBatchingAsUnknown {
+				var pbConfigs []fwmodels.ProviderBatching
+				_ = data.Batching.ElementsAs(ctx, &pbConfigs, true)
+				if !pbConfigs[0].EnableBatching.Equal(tc.ExpectEnableBatchingValue) {
+					t.Fatalf("want batching.enable_batching in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectEnableBatchingValue.String(), pbConfigs[0].EnableBatching.String())
+				}
+				if !pbConfigs[0].SendAfter.Equal(tc.ExpectSendAfterValue) {
+					t.Fatalf("want batching.send_after in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), pbConfigs[0].SendAfter.String())
+				}
 			}
-			if !pbConfigs[0].SendAfter.Equal(tc.ExpectSendAfterValue) {
-				t.Fatalf("want batching.send_after in the `fwmodels.ProviderModel` struct to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), data.Batching.String())
+
+			// Check how the batching block's values are used to configure other parts of the `FrameworkProviderConfig` struct
+			// - RequestBatcherServiceUsage
+			// - RequestBatcherIam
+			if p.RequestBatcherServiceUsage.BatchingConfig.EnableBatching != tc.ExpectEnableBatchingValue.ValueBool() {
+				t.Fatalf("want batching.enable_batching to be `%s`, but got the value `%v`", tc.ExpectEnableBatchingValue.String(), p.RequestBatcherServiceUsage.BatchingConfig.EnableBatching)
+			}
+			if !types.StringValue(p.RequestBatcherServiceUsage.BatchingConfig.SendAfter.String()).Equal(tc.ExpectSendAfterValue) {
+				t.Fatalf("want batching.send_after to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), p.RequestBatcherServiceUsage.BatchingConfig.SendAfter.String())
+			}
+			if p.RequestBatcherIam.BatchingConfig.EnableBatching != tc.ExpectEnableBatchingValue.ValueBool() {
+				t.Fatalf("want batching.enable_batching to be `%s`, but got the value `%v`", tc.ExpectEnableBatchingValue.String(), p.RequestBatcherIam.BatchingConfig.EnableBatching)
+			}
+			if !types.StringValue(p.RequestBatcherIam.BatchingConfig.SendAfter.String()).Equal(tc.ExpectSendAfterValue) {
+				t.Fatalf("want batching.send_after to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), p.RequestBatcherIam.BatchingConfig.SendAfter.String())
 			}
 		})
 	}
