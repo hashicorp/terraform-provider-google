@@ -454,8 +454,7 @@ addons_config {
 * `enabled` - (DEPRECATED) Enable Binary Authorization for this cluster. Deprecated in favor of `evaluation_mode`.
 
 * `evaluation_mode` - (Optional) Mode of operation for Binary Authorization policy evaluation. Valid values are `DISABLED`
-  and `PROJECT_SINGLETON_POLICY_ENFORCE`. `PROJECT_SINGLETON_POLICY_ENFORCE` is functionally equivalent to the
-  deprecated `enable_binary_authorization` parameter being set to `true`.
+  and `PROJECT_SINGLETON_POLICY_ENFORCE`.
 
 <a name="nested_service_external_ips_config"></a>The `service_external_ips_config` block supports:
 
