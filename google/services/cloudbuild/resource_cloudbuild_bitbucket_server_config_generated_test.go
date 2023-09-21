@@ -76,7 +76,6 @@ func TestAccCloudBuildBitbucketServerConfig_cloudbuildBitbucketServerConfigPeere
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "peered-network"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -106,9 +105,9 @@ resource "google_project_service" "servicenetworking" {
   service = "servicenetworking.googleapis.com"
   disable_on_destroy = false
 }
- 
-data "google_compute_network" "vpc_network" {
-    name       = "%{network_name}"
+
+resource "google_compute_network" "vpc_network" {
+    name       = "tf-test-vpc-network%{random_suffix}"
     depends_on = [google_project_service.servicenetworking]
 }
 
@@ -117,11 +116,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.vpc_network.id
+  network       = google_compute_network.vpc_network.id
 }
 
 resource "google_service_networking_connection" "default" {
-  network                 = data.google_compute_network.vpc_network.id
+  network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
   depends_on              = [google_project_service.servicenetworking]
@@ -138,7 +137,7 @@ resource "google_cloudbuild_bitbucket_server_config" "bbs-config-with-peered-net
     }
     username = "test"
     api_key = "<api-key>"
-    peered_network = replace(data.google_compute_network.vpc_network.id, data.google_project.project.name, data.google_project.project.number)
+    peered_network = replace(google_compute_network.vpc_network.id, data.google_project.project.name, data.google_project.project.number)
     ssl_ca = "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"
     depends_on = [google_service_networking_connection.default]
 }

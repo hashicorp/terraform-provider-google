@@ -20,7 +20,7 @@ func TestAccCloudIdsEndpoint_basic(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
-		"network_name":  "tf-test-key-" + acctest.RandString(t, 10),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "cloud-ids-endpoint-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,58 +50,32 @@ func TestAccCloudIdsEndpoint_basic(t *testing.T) {
 
 func testCloudIds_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "default" {
+data "google_compute_network" "default" {
   name = "%{network_name}"
-}
-resource "google_compute_global_address" "service_range" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
   
 resource "google_cloud_ids_endpoint" "endpoint" {
   name              = "cloud-ids-test-%{random_suffix}"
   location          = "us-central1-f"
-  network           = google_compute_network.default.id
+  network           = data.google_compute_network.default.id
   severity          = "INFORMATIONAL"
   threat_exceptions = ["12", "67"]
-  depends_on        = [google_service_networking_connection.private_service_connection]
 }
 `, context)
 }
 
 func testCloudIds_basicUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "default" {
+data "google_compute_network" "default" {
   name = "%{network_name}"
-}
-resource "google_compute_global_address" "service_range" {
-  name          = "tf-test-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
   
 resource "google_cloud_ids_endpoint" "endpoint" {
   name              = "cloud-ids-test-%{random_suffix}"
   location          = "us-central1-f"
-  network           = google_compute_network.default.id
+  network           = data.google_compute_network.default.id
   severity          = "INFORMATIONAL"
   threat_exceptions = ["33"]
-  depends_on        = [google_service_networking_connection.private_service_connection]
 }
 `, context)
 }

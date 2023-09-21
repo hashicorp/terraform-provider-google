@@ -14,7 +14,7 @@ func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "vertex-ai-index-endpoint-update"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vertex-ai-index-endpoint-update-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -30,7 +30,7 @@ func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAIIndexEndpoint_updated(context),
@@ -39,7 +39,7 @@ func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region"},
+				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -55,15 +55,8 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
     label-one = "value-one"
   }
   network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
-  depends_on   = [
-    google_service_networking_connection.vertex_vpc_connection
-  ]
 }
-resource "google_service_networking_connection" "vertex_vpc_connection" {
-  network                 = data.google_compute_network.vertex_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.vertex_range.name]
-}
+
 resource "google_compute_global_address" "vertex_range" {
   name          = "tf-test-address-name%{random_suffix}"
   purpose       = "VPC_PEERING"
@@ -89,22 +82,8 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
     label-two = "value-two"
   }
   network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
-  depends_on   = [
-    google_service_networking_connection.vertex_vpc_connection
-  ]
 }
-resource "google_service_networking_connection" "vertex_vpc_connection" {
-  network                 = data.google_compute_network.vertex_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.vertex_range.name]
-}
-resource "google_compute_global_address" "vertex_range" {
-  name          = "tf-test-address-name%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 24
-  network       = data.google_compute_network.vertex_network.id
-}
+
 data "google_compute_network" "vertex_network" {
   name       = "%{network_name}"
 }
