@@ -118,6 +118,27 @@ The new annotations model is similar to the new labels model and will be applied
 
 There are now two annotation-related fields with the new model, the `annotations` and the output-only `effective_annotations` fields.
 
+### Changes to how default `location`, `region` and `zone` values are obtained for resources
+
+Currently, when configuring resources that require a `location`, `region` or `zone` field you have the choice of specifying it in the resource block or allowing default values to be used. Default [region](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#region) or [zone](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#zone) values can be configured in the provider block or by providing values through environment variables.
+
+Changes in 5.0.0 make the way the provider handles `location`/`region`/`zone` values more consistent:
+
+* Resources that have a `location` field will now use the default `region` value preferentially over the default `zone` value set on the provider. This is only relevant to resources where `location` is not provided in the resource block directly.
+* Previously, default `region` and `zone` values set as URIs were incompatible with resources that have `location` or `region` arguments. In 5.0.0+ those values will now be valid and won't result in errors during plan/apply stages.
+
+
+#### When you may need to take action
+
+There is only one change that we anticipate can lead to unexpected diffs in Terraform plans after upgrading to 5.0.0, which is:
+
+> Resources that have a `location` field will now use the default `region` value preferentially over the default `zone` value set on the provider. This is only relevant to resources where `location` is not provided in the resource block directly.
+
+Users will need to check for unexpected `location` changes for resources. If an unexpected change is seen, the solution is to explicitly set the `location` value in that resource's configuration block to match the desired value.
+
+This will only affect users whose configuration contains resource blocks that have missing `location` values and whose [default zone](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#zone) value belongs to a region that's different than the [default region](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#region) value. For example, if you set `us-central1-a` as the default zone and `us-central2` as the default region on the provider you may see plans that contain unexpected diffs to move resources from `us-central1` to `us-central2`.
+
+
 ### Provider default values shown at plan-time
 
 `project`, `region`, and `zone` fields will now display their values during plan-time instead of the placeholder `(known after apply)` value normally displayed for fields without fixed Terraform default values. These values will be taken from either the Terraform resource config file, provider config, or local environment variables, depending on which variables are supplied by the user, matching the existing per-resource functionality for what default values are used in execution of a Terraform plan.
