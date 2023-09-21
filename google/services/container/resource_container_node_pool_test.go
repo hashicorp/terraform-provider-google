@@ -2348,6 +2348,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+    logging_variant = "DEFAULT"
   }
 }
 `, cluster, np, policy, quota, period, podPidsLimit)
