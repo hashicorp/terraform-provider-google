@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed bug where importing `google_monitoring_notification_channel` failed when no default project was supplied in provider configuration or through environment variables
+```
