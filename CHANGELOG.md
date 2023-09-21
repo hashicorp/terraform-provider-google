@@ -47,6 +47,7 @@ BUG FIXES:
 * provider: addressed a bug where configuring the provider with unknown values did not behave as expected ([#15898](https://github.com/hashicorp/terraform-provider-google/pull/15898))
 * provider: fixed the provider so it resumes ignoring empty strings set in the `provider` block ([#15844](https://github.com/hashicorp/terraform-provider-google/pull/15844))
 * secretmanager: replaced the panic block with an error in import function of `google_secret_manager_secret_version` resource ([#15880](https://github.com/hashicorp/terraform-provider-google/pull/15880))
+* secretmanager: fixed an issue in `google_secretmanager_secret` where replacing `replication.automatic` with `replication.auto` would destroy and recreate the resource ([#15922](https://github.com/hashicorp/terraform-provider-google/pull/15922))
 
 ## 4.83.0 (September 18, 2023)
 
