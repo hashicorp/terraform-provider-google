@@ -290,15 +290,15 @@ var schemaNodePool = map[string]*schema.Schema{
 				"auto_repair": {
 					Type:        schema.TypeBool,
 					Optional:    true,
-					Default:     false,
-					Description: `Whether the nodes will be automatically repaired.`,
+					Default:     true,
+					Description: `Whether the nodes will be automatically repaired. Enabled by default.`,
 				},
 
 				"auto_upgrade": {
 					Type:        schema.TypeBool,
 					Optional:    true,
-					Default:     false,
-					Description: `Whether the nodes will be automatically upgraded.`,
+					Default:     true,
+					Description: `Whether the nodes will be automatically upgraded. Enabled by default.`,
 				},
 			},
 		},

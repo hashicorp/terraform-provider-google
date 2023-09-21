@@ -1,0 +1,6 @@
+```release-note:breaking-change
+container: removed default for `logging_variant` in `google_container_node_pool`
+```
+```release-note:breaking-change
+container: changed `management.auto_repair` and `management.auto_upgrade` defaults to true in `google_container_node_pool`
+```
