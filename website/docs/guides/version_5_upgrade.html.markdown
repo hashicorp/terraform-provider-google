@@ -585,3 +585,9 @@ Use the `google_identity_platform_config` resource instead. It contains a more c
 ### `reconcile_connections` now defaults from API
 
 `reconcile_connections` previously defaults to true. Now it will default from the API.
+
+## Resource: `google_looker_instance`
+
+### `LOOKER_MODELER` has been removed as a platform edition.
+
+Looker Modeler edition is deprecated as a platform edition.
