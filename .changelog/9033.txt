@@ -1,0 +1,3 @@
+```release-note:breaking-change
+looker: removed `LOOKER_MODELER` as a possible value in `google_looker_instance. platform_edition`
+```
