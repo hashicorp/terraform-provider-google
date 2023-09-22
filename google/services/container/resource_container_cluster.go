@@ -2421,7 +2421,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error setting default_max_pods_per_node: %s", err)
 		}
 	}
-	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
+	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig, d.Get("node_config"))); err != nil {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
