@@ -1883,6 +1883,8 @@ func ValidateCredentials(v interface{}, k string) (warnings []string, errors []e
 	if v == nil || v.(string) == "" {
 		return
 	}
+	// NOTE: Above we have to allow empty string as valid because we don't know if it's a zero value or not
+
 	creds := v.(string)
 	// if this is a path and we can stat it, assume it's ok
 	if _, err := os.Stat(creds); err == nil {

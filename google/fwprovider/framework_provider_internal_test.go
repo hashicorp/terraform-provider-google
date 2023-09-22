@@ -46,10 +46,11 @@ func TestFrameworkProvider_CredentialsValidator(t *testing.T) {
 				return types.StringValue(stringContents)
 			},
 		},
-		"configuring credentials as an empty string is valid": {
+		"configuring credentials as an empty string is not valid": {
 			ConfigValue: func(t *testing.T) types.String {
 				return types.StringValue("")
 			},
+			ExpectedErrorCount: 1,
 		},
 		"leaving credentials unconfigured is valid": {
 			ConfigValue: func(t *testing.T) types.String {
