@@ -525,9 +525,3 @@ resource "google_secret_manager_secret" "my-secret" {
 ### `google_identity_platform_project_default_config` has been removed from the provider
 
 Use the `google_identity_platform_config` resource instead. It contains a more comprehensive list of fields, and was created before `google_identity_platform_project_default_config` was added.
-
-## Resource: `google_compute_service_attachment`
-
-### `reconcile_connections` now defaults from API
-
-`reconcile_connections` previously defaults to true. Now it will default from the API.

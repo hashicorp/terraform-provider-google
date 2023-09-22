@@ -552,8 +552,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 											Type:         schema.TypeString,
 											ValidateFunc: verify.ValidateEnum([]string{"CRITICAL", "SECURITY", "DEFINITION", "DRIVER", "FEATURE_PACK", "SERVICE_PACK", "TOOL", "UPDATE_ROLLUP", "UPDATE"}),
 										},
-										ConflictsWith: []string{"patch_config.0.windows_update.0.exclusive_patches"},
-										AtLeastOneOf:  []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
+										ExactlyOneOf: []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
 									},
 									"excludes": {
 										Type:        schema.TypeList,
@@ -563,8 +562,7 @@ be executed directly, which will likely only succeed for scripts with shebang li
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										ConflictsWith: []string{"patch_config.0.windows_update.0.exclusive_patches"},
-										AtLeastOneOf:  []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
+										ExactlyOneOf: []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
 									},
 									"exclusive_patches": {
 										Type:     schema.TypeList,
@@ -575,8 +573,7 @@ This field must not be used with other patch configurations.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
-										ConflictsWith: []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes"},
-										AtLeastOneOf:  []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
+										ExactlyOneOf: []string{"patch_config.0.windows_update.0.classifications", "patch_config.0.windows_update.0.excludes", "patch_config.0.windows_update.0.exclusive_patches"},
 									},
 								},
 							},
