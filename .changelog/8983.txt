@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: allowed update for `rotation.rotation_period` field in `google_secret_manager_secret` resource
+```
