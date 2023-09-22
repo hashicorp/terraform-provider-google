@@ -128,11 +128,23 @@ func TestLocationDescription_GetRegion(t *testing.T) {
 			},
 			ExpectedRegion: types.StringValue("provider-zone"), // is truncated
 		},
-		"does not shorten region values when derived from a zone self link set in the resource config": {
+		"shortens region values when derived from a zone self link set in the resource config": {
 			ld: LocationDescription{
 				ResourceZone: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a"),
 			},
-			ExpectedRegion: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1"), // Value isn't shortened from URI to name
+			ExpectedRegion: types.StringValue("us-central1"),
+		},
+		"shortens region values set as self links in the provider config": {
+			ld: LocationDescription{
+				ProviderRegion: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+			},
+			ExpectedRegion: types.StringValue("us-central1"),
+		},
+		"shortens region values when derived from a zone self link set in the provider config": {
+			ld: LocationDescription{
+				ProviderZone: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a"),
+			},
+			ExpectedRegion: types.StringValue("us-central1"),
 		},
 		"returns the value of the region field in provider config when region/zone is unset in resource config": {
 			ld: LocationDescription{
@@ -230,11 +242,11 @@ func TestLocationDescription_GetLocation(t *testing.T) {
 			},
 			ExpectedLocation: types.StringValue("resource-location"),
 		},
-		"does not shorten the location value when it is set as a self link in the resource config": {
+		"shortens the location value when it is set as a self link in the resource config": {
 			ld: LocationDescription{
 				ResourceLocation: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location"),
 			},
-			ExpectedLocation: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location"),
+			ExpectedLocation: types.StringValue("resource-location"),
 		},
 		"returns the region value set in the resource config when location is not in the schema": {
 			ld: LocationDescription{
@@ -243,11 +255,11 @@ func TestLocationDescription_GetLocation(t *testing.T) {
 			},
 			ExpectedLocation: types.StringValue("resource-region"),
 		},
-		"does not shorten the region value when it is set as a self link in the resource config": {
+		"shortens the region value when it is set as a self link in the resource config": {
 			ld: LocationDescription{
 				ResourceRegion: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/resource-region"),
 			},
-			ExpectedLocation: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/resource-region"),
+			ExpectedLocation: types.StringValue("resource-region"),
 		},
 		"returns the zone value set in the resource config when neither location nor region in the schema": {
 			ld: LocationDescription{
@@ -261,18 +273,24 @@ func TestLocationDescription_GetLocation(t *testing.T) {
 			},
 			ExpectedLocation: types.StringValue("resource-zone-a"),
 		},
-		"returns the zone value from the provider config when none of location/region/zone are set in the resource config": {
+		"returns the region value from the provider config when none of location/region/zone are set in the resource config": {
 			ld: LocationDescription{
-				ProviderRegion: types.StringValue("provider-region"), // unused
+				ProviderRegion: types.StringValue("provider-region"), // Preferred to use region value over zone value if both are set
 				ProviderZone:   types.StringValue("provider-zone-a"),
+			},
+			ExpectedLocation: types.StringValue("provider-region"),
+		},
+		"returns the zone value from the provider config when none of location/region/zone are set in the resource config and region is not set in the provider config": {
+			ld: LocationDescription{
+				ProviderZone: types.StringValue("provider-zone-a"),
 			},
 			ExpectedLocation: types.StringValue("provider-zone-a"),
 		},
-		"does not shorten the zone value when it is set as a self link in the provider config": {
+		"shortens the zone value when it is set as a self link in the provider config": {
 			ld: LocationDescription{
 				ProviderZone: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a"),
 			},
-			ExpectedLocation: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a"),
+			ExpectedLocation: types.StringValue("provider-zone-a"),
 		},
 		// Handling of empty strings
 		"returns the region value set in the resource config when location is an empty string": {
@@ -298,13 +316,6 @@ func TestLocationDescription_GetLocation(t *testing.T) {
 				ProviderZone:     types.StringValue("provider-zone-a"),
 			},
 			ExpectedLocation: types.StringValue("provider-zone-a"),
-		},
-		// Error states
-		"does not use the region value set in the provider config": {
-			ld: LocationDescription{
-				ProviderRegion: types.StringValue("provider-region"),
-			},
-			ExpectedError: true,
 		},
 		"returns an error when none of location/region/zone are set on the resource, and neither region or zone is set on the provider": {
 			ExpectedError: true,
