@@ -773,6 +773,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_beyondcorp_app_gateway":                       beyondcorp.DataSourceGoogleBeyondcorpAppGateway(),
 		"google_billing_account":                              billing.DataSourceGoogleBillingAccount(),
 		"google_bigquery_default_service_account":             bigquery.DataSourceGoogleBigqueryDefaultServiceAccount(),
+		"google_certificate_manager_certificate_map":          certificatemanager.DataSourceGoogleCertificateManagerCertificateMap(),
 		"google_cloudbuild_trigger":                           cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 		"google_cloudfunctions_function":                      cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 		"google_cloudfunctions2_function":                     cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
@@ -985,9 +986,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 318
+// Generated resources: 319
 // Generated IAM resources: 207
-// Total generated resources: 525
+// Total generated resources: 526
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1459,6 +1460,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_secret_manager_secret_version":                           secretmanager.ResourceSecretManagerSecretVersion(),
 			"google_scc_mute_config":                                         securitycenter.ResourceSecurityCenterMuteConfig(),
 			"google_scc_notification_config":                                 securitycenter.ResourceSecurityCenterNotificationConfig(),
+			"google_scc_project_custom_module":                               securitycenter.ResourceSecurityCenterProjectCustomModule(),
 			"google_scc_source":                                              securitycenter.ResourceSecurityCenterSource(),
 			"google_scc_source_iam_binding":                                  tpgiamresource.ResourceIamBinding(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 			"google_scc_source_iam_member":                                   tpgiamresource.ResourceIamMember(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
