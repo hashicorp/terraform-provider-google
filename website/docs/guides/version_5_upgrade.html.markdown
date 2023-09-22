@@ -326,6 +326,50 @@ deleted.
 This behavior was changed to allow users to collect internal logs from the
 cluster and/or manually resolve the issues and untaint their failed clusters.
 
+### `node_config.0.taint` and `node_pool.0.node_config.0.taint` field change
+
+The `taint` field has been changed to manage a subset of the taint keys on a node pool
+and the `effective_taints` output field has been added to record the complete set of
+taints applied to the node pool by GKE.
+
+Previously, the field was authoritative and would require every taint on the node pool
+to be recorded, causing friction when users used GPUs or configured sandbox settings,
+actions which added taints. After this change, only "Terraform-managed" taints will be
+managed by the `taint` field. Other taints, including new taints injected by the
+server, will not have drift detected.
+
+Currently, the set of managed taints and their values are immutable in Terraform, and
+any changes will cause a recreate to be planned. However, taints can be unmanaged by
+simultaneously removing the taint entry from GKE and your Terraform configuration at
+the same time.
+
+The set of taints Terraform manages (and their values) will be determined based on
+how the cluster or node pool resource was added to your Terraform state file:
+
+* If you created the cluster or node pool with Terraform with Google provider 5.0.0
+or later, the set of taints specified during resource creation will be managed.
+* If you imported the cluster or node pool with Google provider 5.0.0 or later, no
+taints will be managed by Terraform
+* If you upgraded from an earlier version, the complete set of taint values applied to the
+node pool at the time of your last refresh will be managed by Terraform
+
+Most existing configurations will not be affected with this change as they already specify
+the whole set of managed taints, or are already ignoring changes with `lifecycle.ignore_changes`,
+preventing a diff.
+
+A limited number of users may see a diff if they are using the `google-beta` provider
+and have specified a `sandbox_config` value. If that's the case, you can safely add the
+proposed value to configuration (below) or apply `lifecycle.ignore_changes` to the field to resolve.
+
+
+```diff
++    taint {
++      key    = "sandbox.gke.io/runtime"
++      value  = "gvisor"
++      effect = "NO_SCHEDULE"
++    }
+```
+
 ### `enable_binary_authorization` is now removed
 
 `enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
@@ -334,7 +378,6 @@ cluster and/or manually resolve the issues and untaint their failed clusters.
 
 Previously `network_policy.provider` defaulted to "PROVIDER_UNSPECIFIED". It no longer
 has a default value.
-
 
 ## Resource: `google_container_node_pool`
 
@@ -346,6 +389,49 @@ Previously `logging_variant` defaulted to "DEFAULT". It no longer has a default 
 
 Previously both fields defaulted to false. They now default to true.
 
+### `node_config.0.taint` field change
+
+The `taint` field has been changed to manage a subset of the taint keys on a node pool
+and the `effective_taints` output field has been added to record the complete set of
+taints applied to the node pool by GKE.
+
+Previously, the field was authoritative and would require every taint on the node pool
+to be recorded, causing friction when users used GPUs or configured sandbox settings,
+actions which added taints. After this change, only "Terraform-managed" taints will be
+managed by the `taint` field. Other taints, including new taints injected by the
+server, will not have drift detected.
+
+Currently, the set of managed taints and their values are immutable in Terraform, and
+any changes will cause a recreate to be planned. However, taints can be unmanaged by
+simultaneously removing the taint entry from GKE and your Terraform configuration at
+the same time.
+
+The set of taints Terraform manages (and their values) will be determined based on
+how the cluster or node pool resource was added to your Terraform state file:
+
+* If you created the cluster or node pool with Terraform with Google provider 5.0.0
+or later, the set of taints specified during resource creation will be managed.
+* If you imported the cluster or node pool with Google provider 5.0.0 or later, no
+taints will be managed by Terraform
+* If you upgraded from an earlier version, the complete set of taint values applied to the
+node pool at the time of your last refresh will be managed by Terraform
+
+Most existing configurations will not be affected with this change as they already specify
+the whole set of managed taints, or are already ignoring changes with `lifecycle.ignore_changes`,
+preventing a diff.
+
+A limited number of users may see a diff if they are using the `google-beta` provider
+and have specified a `sandbox_config` value. If that's the case, you can safely add the
+proposed value to configuration (below) or apply `lifecycle.ignore_changes` to the field to resolve.
+
+
+```diff
++    taint {
++      key    = "sandbox.gke.io/runtime"
++      value  = "gvisor"
++      effect = "NO_SCHEDULE"
++    }
+```
 
 ## Resource: `google_dataplex_datascan`
 
