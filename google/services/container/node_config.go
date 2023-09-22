@@ -924,6 +924,9 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 	if len(ls) == 0 {
 		return nil
 	}
+	if ls[0] == nil {
+		return &container.LinuxNodeConfig{}
+	}
 	cfg := ls[0].(map[string]interface{})
 	sysCfgRaw, ok := cfg["sysctls"]
 	if !ok {
