@@ -10,6 +10,11 @@ import (
 )
 
 func SetAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	raw := d.Get("annotations")
+	if raw == nil {
+		return nil
+	}
+
 	o, n := d.GetChange("annotations")
 	effectiveAnnotations := d.Get("effective_annotations").(map[string]interface{})
 
@@ -33,6 +38,11 @@ func SetAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interfac
 func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	l := d.Get("metadata").([]interface{})
 	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	raw := d.Get("metadata.0.annotations")
+	if raw == nil {
 		return nil
 	}
 

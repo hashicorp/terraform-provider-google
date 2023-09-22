@@ -1,0 +1,3 @@
+```release-note:bug
+provider: fixed the bug that labels/annotations field not exists in GA for some resources
+```
