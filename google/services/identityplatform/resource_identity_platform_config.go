@@ -162,6 +162,7 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 			},
 			"sign_in": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Configuration related to local sign in methods.`,
 				MaxItems:    1,

@@ -6,6 +6,8 @@ description: |-
 
 # google\_compute\_instance\_template
 
+-> **Note**: Global instance templates can be used in any region. To lower the impact of outages outside your region and gain data residency within your region, use [google_compute_region_instance_template](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_instance_template).
+
 Manages a VM instance template resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instance-templates)
 and
