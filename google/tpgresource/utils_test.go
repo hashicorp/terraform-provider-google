@@ -241,11 +241,11 @@ func TestGetLocation(t *testing.T) {
 			},
 			ExpectedLocation: "resource-location",
 		},
-		"does not shorten the location value when it is set as a self link in the resource config": {
+		"shortens the location value when it is set as a self link in the resource config": {
 			ResourceConfig: map[string]interface{}{
 				"location": "https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location",
 			},
-			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/locations/resource-location", // No shortening takes place
+			ExpectedLocation: "resource-location",
 		},
 		"returns the region value set in the resource config when location is not in the schema": {
 			ResourceConfig: map[string]interface{}{
@@ -254,11 +254,11 @@ func TestGetLocation(t *testing.T) {
 			},
 			ExpectedLocation: "resource-region",
 		},
-		"does not shorten the region value when it is set as a self link in the resource config": {
+		"shortens the region value when it is set as a self link in the resource config": {
 			ResourceConfig: map[string]interface{}{
 				"region": "https://www.googleapis.com/compute/v1/projects/my-project/region/resource-region",
 			},
-			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/region/resource-region", // No shortening takes place
+			ExpectedLocation: "resource-region",
 		},
 		"returns the zone value set in the resource config when neither location nor region in the schema": {
 			ResourceConfig: map[string]interface{}{
@@ -280,13 +280,23 @@ func TestGetLocation(t *testing.T) {
 			},
 			ExpectedLocation: "provider-zone-a",
 		},
-		"does not shorten the zone value when it is set as a self link in the provider config": {
-			// This behaviour makes sense because provider config values don't originate from APIs
-			// Users should always configure the provider with the short names of regions/zones
+		"returns the region value from the provider config when none of location/region/zone are set in the resource config": {
+			ProviderConfig: map[string]string{
+				"region": "provider-region",
+			},
+			ExpectedLocation: "provider-region",
+		},
+		"shortens the region value when it is set as a self link in the provider config": {
+			ProviderConfig: map[string]string{
+				"region": "https://www.googleapis.com/compute/v1/projects/my-project/region/provider-region",
+			},
+			ExpectedLocation: "provider-region",
+		},
+		"shortens the zone value when it is set as a self link in the provider config": {
 			ProviderConfig: map[string]string{
 				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a",
 			},
-			ExpectedLocation: "https://www.googleapis.com/compute/v1/projects/my-project/zones/provider-zone-a",
+			ExpectedLocation: "provider-zone-a",
 		},
 		// Handling of empty strings
 		"returns the region value set in the resource config when location is an empty string": {
@@ -315,13 +325,18 @@ func TestGetLocation(t *testing.T) {
 			},
 			ExpectedLocation: "provider-zone-a",
 		},
-		// Error states
-		"returns an error when only a region value is set in the the provider config and none of location/region/zone are set in the resource config": {
+		"returns the region value when only a region value is set in the the provider config and none of location/region/zone are set in the resource config": {
+			ResourceConfig: map[string]interface{}{
+				"location": "",
+				"region":   "",
+				"zone":     "",
+			},
 			ProviderConfig: map[string]string{
 				"region": "provider-region",
 			},
-			ExpectError: true,
+			ExpectedLocation: "provider-region",
 		},
+		// Error states
 		"returns an error when none of location/region/zone are set on the resource, and neither region or zone is set on the provider": {
 			ExpectError: true,
 		},
@@ -500,11 +515,11 @@ func TestGetRegion(t *testing.T) {
 			},
 			ExpectedRegion: "resource-zone", // is truncated
 		},
-		"does not shorten region values when derived from a zone self link set in the resource config": {
+		"shortens region values when derived from a zone self link set in the resource config": {
 			ResourceConfig: map[string]interface{}{
 				"zone": "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1-a",
 			},
-			ExpectedRegion: "https://www.googleapis.com/compute/v1/projects/my-project/zones/us-central1", // Value is not shortenedfrom URI to name
+			ExpectedRegion: "us-central1",
 		},
 		"returns the value of the region field in provider config when region/zone is unset in resource config": {
 			ProviderConfig: map[string]string{
