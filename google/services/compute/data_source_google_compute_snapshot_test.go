@@ -23,7 +23,7 @@ func TestAccSnapshotDatasource_name(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.default",
-						map[string]struct{}{"zone": {}, "labels.%": {}, "terraform_labels.%": {}},
+						map[string]struct{}{"zone": {}},
 					),
 				),
 			},
@@ -44,7 +44,7 @@ func TestAccSnapshotDatasource_filter(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.c",
-						map[string]struct{}{"zone": {}, "labels.%": {}, "terraform_labels.%": {}},
+						map[string]struct{}{"zone": {}},
 					),
 				),
 			},
@@ -65,7 +65,7 @@ func TestAccSnapshotDatasource_filterMostRecent(t *testing.T) {
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_compute_snapshot.default",
 						"google_compute_snapshot.c",
-						map[string]struct{}{"zone": {}, "labels.%": {}, "terraform_labels.%": {}},
+						map[string]struct{}{"zone": {}},
 					),
 				),
 			},

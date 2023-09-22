@@ -99,6 +99,10 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	if err := d.Set("terraform_labels", instance.Labels); err != nil {
+		return err
+	}
+
 	if instance.LabelFingerprint != "" {
 		if err := d.Set("label_fingerprint", instance.LabelFingerprint); err != nil {
 			return fmt.Errorf("Error setting label_fingerprint: %s", err)

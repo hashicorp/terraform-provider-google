@@ -82,7 +82,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `description` -
   The optional description of this resource.
 
-* `labels` - A map of labels applied to this disk.
+* `labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `size` -
   Size of the persistent disk, specified in GB.

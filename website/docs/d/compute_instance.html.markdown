@@ -57,7 +57,7 @@ The following arguments are supported:
 
 * `guest_accelerator` - List of the type and count of accelerator cards attached to the instance. Structure is [documented below](#nested_guest_accelerator).
 
-* `labels` - A set of key/value label pairs assigned to the instance.
+* `labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `metadata` - Metadata key/value pairs made available within the instance.
 

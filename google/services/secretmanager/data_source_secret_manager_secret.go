@@ -33,6 +33,14 @@ func dataSourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceAnnotations(d); err != nil {
+		return err
+	}
+
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
 	}

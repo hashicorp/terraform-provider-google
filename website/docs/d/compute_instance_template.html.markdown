@@ -78,8 +78,7 @@ The following arguments are supported:
 * `instance_description` - A brief description to use for instances
     created from this template.
 
-* `labels` - A set of key/value label pairs to assign to instances
-    created from this template,
+* `labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `metadata` - Metadata key/value pairs to make available from
     within instances created from this template.

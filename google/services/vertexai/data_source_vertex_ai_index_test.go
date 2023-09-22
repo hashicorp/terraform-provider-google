@@ -33,8 +33,6 @@ func TestAccDataSourceVertexAIIndex_basic(t *testing.T) {
 						map[string]struct{}{
 							"metadata.0.contents_delta_uri":    {},
 							"metadata.0.is_complete_overwrite": {},
-							"labels.%":                         {},
-							"terraform_labels.%":               {},
 						},
 					),
 				),

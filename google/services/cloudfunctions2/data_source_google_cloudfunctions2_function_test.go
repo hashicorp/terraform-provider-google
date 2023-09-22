@@ -26,8 +26,8 @@ func TestAccDataSourceGoogleCloudFunctions2Function_basic(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleCloudFunctions2FunctionConfig(functionName,
 					bucketName, zipFilePath),
-				// As the value of "labels" and "terraform_labels" in the state is dependent on the configuration,
-				// and these fields are not set in the configuration of the data source, so these fields are empty in the state of the data source.
+				// As the value of "labels" and "terraform_labels" in the state of the data source are all labels,
+				// but the "labels" field in resource are user defined labels, which is the reason for the mismatch.
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataNameHttp,
 						"google_cloudfunctions2_function.function_http_v2", map[string]struct{}{"build_config.0.source.0.storage_source.0.bucket": {}, "build_config.0.source.0.storage_source.0.object": {}, "labels.%": {}, "terraform_labels.%": {}}),

@@ -32,6 +32,10 @@ func testAccRedisInstanceDatasourceConfig(suffix string) string {
 resource "google_redis_instance" "redis" {
   name               = "redis-test-%s"
   memory_size_gb     = 1
+
+  labels   = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_redis_instance" "redis" {

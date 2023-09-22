@@ -43,6 +43,9 @@ resource "google_project" "project" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_project" "project" {
