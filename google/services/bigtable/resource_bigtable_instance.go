@@ -129,6 +129,11 @@ func ResourceBigtableInstance() *schema.Resource {
 								},
 							},
 						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The state of the cluster`,
+						},
 					},
 				},
 			},
@@ -420,6 +425,7 @@ func flattenBigtableCluster(c *bigtable.ClusterInfo) map[string]interface{} {
 		"cluster_id":   c.Name,
 		"storage_type": storageType,
 		"kms_key_name": c.KMSKeyName,
+		"state":        c.State,
 	}
 	if c.AutoscalingConfig != nil {
 		cluster["autoscaling_config"] = make([]map[string]interface{}, 1)
@@ -565,7 +571,14 @@ func resourceBigtableInstanceUniqueClusterID(_ context.Context, diff *schema.Res
 // This doesn't use the standard unordered list utility (https://github.com/GoogleCloudPlatform/magic-modules/blob/main/templates/terraform/unordered_list_customize_diff.erb)
 // because some fields can't be modified using the API and we recreate the instance
 // when they're changed.
-func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+	// separate func to allow unit testing
+	return resourceBigtableInstanceClusterReorderTypeListFunc(diff, func(orderedClusters []interface{}) error {
+		return diff.SetNew("cluster", orderedClusters)
+	})
+
+}
+func resourceBigtableInstanceClusterReorderTypeListFunc(diff tpgresource.TerraformResourceDiff, setNew func([]interface{}) error) error {
 	oldCount, newCount := diff.GetChange("cluster.#")
 
 	// Simulate Required:true, MinItems:1 for "cluster". This doesn't work
@@ -594,7 +607,9 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 	for i := 0; i < newCount.(int); i++ {
 		_, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
 		_, c := diff.GetChange(fmt.Sprintf("cluster.%d", i))
-		clusters[newId.(string)] = c
+		typedCluster := c.(map[string]interface{})
+		typedCluster["state"] = "READY"
+		clusters[newId.(string)] = typedCluster
 	}
 
 	// create a list of clusters using the old order when possible to minimise
@@ -630,9 +645,8 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 		}
 	}
 
-	err := diff.SetNew("cluster", orderedClusters)
-	if err != nil {
-		return fmt.Errorf("Error setting cluster diff: %s", err)
+	if err := setNew(orderedClusters); err != nil {
+		return err
 	}
 
 	// Clusters can't have their zone, storage_type or kms_key_name updated,
@@ -658,8 +672,9 @@ func resourceBigtableInstanceClusterReorderTypeList(_ context.Context, diff *sch
 			}
 		}
 
+		currentState, _ := diff.GetChange(fmt.Sprintf("cluster.%d.state", i))
 		oST, nST := diff.GetChange(fmt.Sprintf("cluster.%d.storage_type", i))
-		if oST != nST {
+		if oST != nST && currentState.(string) != "CREATING" {
 			err := diff.ForceNew(fmt.Sprintf("cluster.%d.storage_type", i))
 			if err != nil {
 				return fmt.Errorf("Error setting cluster diff: %s", err)

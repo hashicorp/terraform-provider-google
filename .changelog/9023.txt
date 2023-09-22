@@ -1,0 +1,6 @@
+```release-note:bug
+bigtable: avoided re-creation of instance when cluster is still updating and storage type changed
+```
+```release-note:enhancement
+bigtable: added `state` output attribute to `google_bigtable_instance` clusters
+```
