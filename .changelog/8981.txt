@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue in `google_container_node_pool` where empty `linux_node_config.sysctls` would crash the provider
+```
