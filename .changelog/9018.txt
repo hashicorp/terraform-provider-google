@@ -1,0 +1,3 @@
+```release-note:bug
+bigtable: fixed a bug where dynamically created clusters would incorrectly run into duplication error in `google_bigtable_instance`
+```

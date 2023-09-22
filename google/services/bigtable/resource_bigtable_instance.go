@@ -545,6 +545,10 @@ func resourceBigtableInstanceUniqueClusterID(_ context.Context, diff *schema.Res
 	for i := 0; i < newCount.(int); i++ {
 		_, newId := diff.GetChange(fmt.Sprintf("cluster.%d.cluster_id", i))
 		clusterID := newId.(string)
+		// In case clusterID is empty, it is probably computed and this validation will be wrong.
+		if clusterID == "" {
+			continue
+		}
 		if clusters[clusterID] {
 			return fmt.Errorf("duplicated cluster_id: %q", clusterID)
 		}
