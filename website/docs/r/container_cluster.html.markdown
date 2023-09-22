@@ -888,14 +888,13 @@ gvnic {
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
-* `taint` - (Optional) A list of [Kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
-to apply to nodes. GKE's API can only set this field on cluster creation.
-However, GKE will add taints to your nodes if you enable certain features such
-as GPUs. If this field is set, any diffs on this field will cause Terraform to
-recreate the underlying resource. Taint values can be updated safely in
-Kubernetes (eg. through `kubectl`), and it's recommended that you do not use
-this field to manage taints. If you do, `lifecycle.ignore_changes` is
-recommended. Structure is [documented below](#nested_taint).
+* `taint` - (Optional) A list of
+[Kubernetes taints](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+to apply to nodes. This field will only report drift on taint keys that are
+already managed with Terraform, use `effective_taints` to view the list of
+GKE-managed taints on the node pool from all sources. Importing this resource
+will not record any taints as being Terraform-managed, and will cause drift with
+any configured taints. Structure is [documented below](#nested_taint).
 
 * `workload_metadata_config` - (Optional) Metadata configuration to expose to workloads on the node pool.
     Structure is [documented below](#nested_workload_metadata_config).
@@ -1309,6 +1308,8 @@ exported:
   `/16` from the container CIDR.
 
 * `cluster_autoscaling.0.auto_provisioning_defaults.0.management.0.upgrade_options` - Specifies the [Auto Upgrade knobs](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/NodeManagement#AutoUpgradeOptions) for the node pool.
+
+* `node_config.0.effective_taints` - List of kubernetes taints applied to each node. Structure is [documented above](#nested_taint).
 
 ## Timeouts
 

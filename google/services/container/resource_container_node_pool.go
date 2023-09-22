@@ -1055,7 +1055,7 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 		"initial_node_count":          np.InitialNodeCount,
 		"node_locations":              schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(np.Locations)),
 		"node_count":                  nodeCount,
-		"node_config":                 flattenNodeConfig(np.Config),
+		"node_config":                 flattenNodeConfig(np.Config, d.Get(prefix+"node_config")),
 		"instance_group_urls":         igmUrls,
 		"managed_instance_group_urls": managedIgmUrls,
 		"version":                     np.Version,

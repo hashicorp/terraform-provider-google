@@ -983,17 +983,19 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 				Config: testAccContainerCluster_withNodeConfig(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
 			},
 			{
 				Config: testAccContainerCluster_withNodeConfigUpdate(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
 			},
 		},
 	})

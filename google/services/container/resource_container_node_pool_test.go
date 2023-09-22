@@ -216,7 +216,7 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 				ImportStateVerify: true,
 				// autoscaling.# = 0 is equivalent to no autoscaling at all,
 				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+				ImportStateVerifyIgnore: []string{"autoscaling.#", "node_config.0.taint"},
 			},
 			{
 				Config: testAccContainerNodePool_withNodeConfigUpdate(cluster, nodePool),
@@ -227,7 +227,7 @@ func TestAccContainerNodePool_withNodeConfig(t *testing.T) {
 				ImportStateVerify: true,
 				// autoscaling.# = 0 is equivalent to no autoscaling at all,
 				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"autoscaling.#"},
+				ImportStateVerifyIgnore: []string{"autoscaling.#", "node_config.0.taint"},
 			},
 		},
 	})

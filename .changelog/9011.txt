@@ -1,0 +1,6 @@
+```release-note:breaking-change
+container: reworked the `taint` field in `google_container_cluster` and `google_container_node_pool` to only manage a subset of taint keys based on those already in state. Most existing resources are unaffected, unless they use `sandbox_config`- see upgrade guide for details.
+```
+```release-note:enhancement
+container: added the `effective_taints` attribute to `google_container_cluster` and `google_container_node_pool`, outputting all known taint values
+```
