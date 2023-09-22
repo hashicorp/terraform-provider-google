@@ -25,8 +25,8 @@ func TestAccDataSourceGoogleArtifactRegistryRepositoryConfig(t *testing.T) {
 			{
 				Config: testAccDataSourceGoogleArtifactRegistryRepositoryConfig(context),
 				Check: resource.ComposeTestCheckFunc(
-					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(funcDataName,
-						"google_artifact_registry_repository.my-repo", map[string]struct{}{"labels.%": {}, "terraform_labels.%": {}}),
+					acctest.CheckDataSourceStateMatchesResourceState(funcDataName,
+						"google_artifact_registry_repository.my-repo"),
 				),
 			},
 		},

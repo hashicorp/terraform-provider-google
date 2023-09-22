@@ -42,6 +42,9 @@ resource "google_compute_forwarding_rule" "foobar-fr" {
   name        = "%s"
   port_range  = "80-81"
   target      = google_compute_target_pool.foobar-tp.self_link
+  labels      = {
+    my-label  = "my-label-value"
+  }
 }
 
 data "google_compute_forwarding_rule" "my_forwarding_rule" {

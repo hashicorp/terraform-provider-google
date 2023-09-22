@@ -104,7 +104,10 @@ func dataSourceGoogleComputeSnapshotRead(d *schema.ResourceData, meta interface{
 func retrieveSnapshot(d *schema.ResourceData, meta interface{}, project, name string) error {
 	d.SetId("projects/" + project + "/global/snapshots/" + name)
 	d.Set("name", name)
-	return resourceComputeSnapshotRead(d, meta)
+	if err := resourceComputeSnapshotRead(d, meta); err != nil {
+		return err
+	}
+	return tpgresource.SetDataSourceLabels(d)
 }
 
 // ByCreationTimestamp implements sort.Interface for []*Snapshot based on

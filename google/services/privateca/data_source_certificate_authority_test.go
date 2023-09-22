@@ -83,6 +83,9 @@ resource "google_privateca_certificate_authority" "default" {
   key_spec {
     algorithm = "RSA_PKCS1_4096_SHA256"
   }
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_privateca_certificate_authority" "default" {

@@ -57,6 +57,9 @@ func testAccDataSourceGooglePubsubTopic_basic(context map[string]interface{}) st
 	return acctest.Nprintf(`
 resource "google_pubsub_topic" "foo" {
   name     = "tf-test-pubsub-%{random_suffix}"
+  labels   = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_pubsub_topic" "foo" {

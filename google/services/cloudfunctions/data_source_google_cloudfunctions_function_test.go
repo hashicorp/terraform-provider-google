@@ -63,6 +63,9 @@ resource "google_cloudfunctions_function" "function_http" {
   trigger_http          = true
   timeout               = 61
   entry_point           = "helloGET"
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_cloudfunctions_function" "function_http" {
