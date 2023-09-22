@@ -284,6 +284,59 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_rotationPeriodUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"timestamp":     "2122-11-26T19:58:16Z",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_withoutRotationPeriod(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretManagerSecret_rotationPeriodBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretManagerSecret_rotationPeriodUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+			{
+				Config: testAccSecretManagerSecret_withoutRotationPeriod(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -830,6 +883,120 @@ resource "google_secret_manager_secret" "secret-basic" {
   depends_on = [
     google_kms_crypto_key_iam_member.kms-secret-binding-1,
     google_kms_crypto_key_iam_member.kms-secret-binding-2,
+  ]
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_withoutRotationPeriod(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_pubsub_topic_iam_member" "secrets_manager_access" {
+  topic  = google_pubsub_topic.topic.name
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+  role   = "roles/pubsub.publisher"
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "tf-test-topic-%{random_suffix}"
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+
+  depends_on = [
+    google_pubsub_topic_iam_member.secrets_manager_access,
+  ]
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_rotationPeriodBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_pubsub_topic_iam_member" "secrets_manager_access" {
+  topic  = google_pubsub_topic.topic.name
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+  role   = "roles/pubsub.publisher"
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "tf-test-topic-%{random_suffix}"
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  topics {
+    name = google_pubsub_topic.topic.id
+  }
+
+  rotation {
+    rotation_period = "3600s"
+    next_rotation_time = "%{timestamp}"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+
+  depends_on = [
+    google_pubsub_topic_iam_member.secrets_manager_access,
+  ]
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_rotationPeriodUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_pubsub_topic_iam_member" "secrets_manager_access" {
+  topic  = google_pubsub_topic.topic.name
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
+  role   = "roles/pubsub.publisher"
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "tf-test-topic-%{random_suffix}"
+}
+
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  topics {
+    name = google_pubsub_topic.topic.id
+  }
+
+  rotation {
+    rotation_period = "3700s"
+    next_rotation_time = "%{timestamp}"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+    }
+  }
+
+  depends_on = [
+    google_pubsub_topic_iam_member.secrets_manager_access,
   ]
 }
 `, context)
