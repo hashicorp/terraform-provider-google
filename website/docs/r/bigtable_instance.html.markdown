@@ -142,6 +142,7 @@ If no value is set, Cloud Bigtable automatically allocates nodes based on your d
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/instances/{{name}}`
+* `cluster.0.state` - describes the current state of the cluster.
 
 ## Timeouts
 
