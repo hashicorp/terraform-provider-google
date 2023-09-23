@@ -69,6 +69,7 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 						path.MatchRoot("access_token"),
 					}...),
 					CredentialsValidator(),
+					NonEmptyStringValidator(),
 				},
 			},
 			"access_token": schema.StringAttribute{
@@ -77,10 +78,14 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					stringvalidator.ConflictsWith(path.Expressions{
 						path.MatchRoot("credentials"),
 					}...),
+					NonEmptyStringValidator(),
 				},
 			},
 			"impersonate_service_account": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+				},
 			},
 			"impersonate_service_account_delegates": schema.ListAttribute{
 				Optional:    true,
@@ -88,15 +93,27 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			},
 			"project": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+				},
 			},
 			"billing_project": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+				},
 			},
 			"region": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+				},
 			},
 			"zone": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					NonEmptyStringValidator(),
+				},
 			},
 			"scopes": schema.ListAttribute{
 				Optional:    true,

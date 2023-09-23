@@ -118,8 +118,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-
-	googleoauth "golang.org/x/oauth2/google"
 )
 
 // Provider returns a *schema.Provider.
@@ -148,12 +146,14 @@ func Provider() *schema.Provider {
 			"access_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				ValidateFunc:  ValidateEmptyStrings,
 				ConflictsWith: []string{"credentials"},
 			},
 
 			"impersonate_service_account": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"impersonate_service_account_delegates": {
@@ -163,23 +163,27 @@ func Provider() *schema.Provider {
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"billing_project": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"scopes": {
@@ -1879,25 +1883,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 
 	return transport_tpg.ProviderDCLConfigure(d, &config), nil
-}
-
-func ValidateCredentials(v interface{}, k string) (warnings []string, errors []error) {
-	if v == nil || v.(string) == "" {
-		return
-	}
-	// NOTE: Above we have to allow empty string as valid because we don't know if it's a zero value or not
-
-	creds := v.(string)
-	// if this is a path and we can stat it, assume it's ok
-	if _, err := os.Stat(creds); err == nil {
-		return
-	}
-	if _, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(creds)); err != nil {
-		errors = append(errors,
-			fmt.Errorf("JSON credentials are not valid: %s", err))
-	}
-
-	return
 }
 
 func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {

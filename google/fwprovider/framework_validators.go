@@ -86,3 +86,34 @@ func (v nonnegativedurationValidator) ValidateString(ctx context.Context, reques
 func NonNegativeDurationValidator() validator.String {
 	return nonnegativedurationValidator{}
 }
+
+// Non Empty String Validator
+type nonEmptyStringValidator struct {
+}
+
+// Description describes the validation in plain text formatting.
+func (v nonEmptyStringValidator) Description(_ context.Context) string {
+	return "value expected to be a string that isn't an empty string"
+}
+
+// MarkdownDescription describes the validation in Markdown formatting.
+func (v nonEmptyStringValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+// ValidateString performs the validation.
+func (v nonEmptyStringValidator) ValidateString(ctx context.Context, request validator.StringRequest, response *validator.StringResponse) {
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+		return
+	}
+
+	value := request.ConfigValue.ValueString()
+
+	if value == "" {
+		response.Diagnostics.AddError("expected a non-empty string", fmt.Sprintf("%s was set to `%s`", request.Path, value))
+	}
+}
+
+func NonEmptyStringValidator() validator.String {
+	return nonEmptyStringValidator{}
+}
