@@ -1,0 +1,3 @@
+```release-note:breaking-change
+provider: added provider-level validation so these fields are not set as empty strings in a user's config: `credentials`, `access_token`, `impersonate_service_account`, `project`, `billing_project`, `region`, `zone`
+```

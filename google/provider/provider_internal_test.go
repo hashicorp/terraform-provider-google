@@ -44,11 +44,12 @@ func TestProvider_ValidateCredentials(t *testing.T) {
 				return string(contents)
 			},
 		},
-		// There's a risk of changing the validator to saying "" is invalid, as it may mean that
-		// everyone not using the credentials field would get validation errors.
-		"configuring credentials as an empty string is not identified as invalid by the function, as it can't distinguish from zero values ": {
+		"configuring credentials as an empty string is not valid": {
 			ConfigValue: func(t *testing.T) interface{} {
 				return ""
+			},
+			ExpectedErrors: []error{
+				errors.New("expected a non-empty string"),
 			},
 		},
 		"leaving credentials unconfigured is valid": {
@@ -71,15 +72,65 @@ func TestProvider_ValidateCredentials(t *testing.T) {
 
 			// Assert
 			if len(ws) != len(tc.ExpectedWarnings) {
-				t.Errorf("Expected %d warnings, got %d: %v", len(tc.ExpectedWarnings), len(ws), ws)
+				t.Fatalf("Expected %d warnings, got %d: %v", len(tc.ExpectedWarnings), len(ws), ws)
 			}
 			if len(es) != len(tc.ExpectedErrors) {
-				t.Errorf("Expected %d errors, got %d: %v", len(tc.ExpectedErrors), len(es), es)
+				t.Fatalf("Expected %d errors, got %d: %v", len(tc.ExpectedErrors), len(es), es)
 			}
 
-			if len(tc.ExpectedErrors) > 0 {
+			if len(tc.ExpectedErrors) > 0 && len(es) > 0 {
 				if es[0].Error() != tc.ExpectedErrors[0].Error() {
-					t.Errorf("Expected first error to be \"%s\", got \"%s\"", tc.ExpectedErrors[0], es[0])
+					t.Fatalf("Expected first error to be \"%s\", got \"%s\"", tc.ExpectedErrors[0], es[0])
+				}
+			}
+		})
+	}
+}
+
+func TestProvider_ValidateEmptyStrings(t *testing.T) {
+	cases := map[string]struct {
+		ConfigValue      interface{}
+		ValueNotProvided bool
+		ExpectedWarnings []string
+		ExpectedErrors   []error
+	}{
+		"non-empty strings are valid": {
+			ConfigValue: "foobar",
+		},
+		"unconfigured values are valid": {
+			ValueNotProvided: true,
+		},
+		"empty strings are not valid": {
+			ConfigValue: "",
+			ExpectedErrors: []error{
+				errors.New("expected a non-empty string"),
+			},
+		},
+	}
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			// Arrange
+			var configValue interface{}
+			if !tc.ValueNotProvided {
+				configValue = tc.ConfigValue
+			}
+
+			// Act
+			// Note: second argument is currently unused by the function but is necessary to fulfill the SchemaValidateFunc type's function signature
+			ws, es := provider.ValidateEmptyStrings(configValue, "")
+
+			// Assert
+			if len(ws) != len(tc.ExpectedWarnings) {
+				t.Fatalf("Expected %d warnings, got %d: %v", len(tc.ExpectedWarnings), len(ws), ws)
+			}
+			if len(es) != len(tc.ExpectedErrors) {
+				t.Fatalf("Expected %d errors, got %d: %v", len(tc.ExpectedErrors), len(es), es)
+			}
+
+			if len(tc.ExpectedErrors) > 0 && len(es) > 0 {
+				if es[0].Error() != tc.ExpectedErrors[0].Error() {
+					t.Fatalf("Expected first error to be \"%s\", got \"%s\"", tc.ExpectedErrors[0], es[0])
 				}
 			}
 		})

@@ -295,6 +295,75 @@ func TestAccProviderCredentialsUnknownValue(t *testing.T) {
 	})
 }
 
+func TestAccProviderEmptyStrings(t *testing.T) {
+	t.Parallel()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		// No TestDestroy since that's not really the point of this test
+		Steps: []resource.TestStep{
+			// When no values are set in the provider block there are no errors
+			// This test case is a control to show validation doesn't accidentally flag unset fields
+			// The "" argument is a lack of key = value being passed into the provider block
+			{
+				Config:             testAccProvider_checkPlanTimeErrors("", acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+			// credentials as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`credentials = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// access_token as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`access_token = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// impersonate_service_account as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`impersonate_service_account = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// project as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`project = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// billing_project as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`billing_project = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// region as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`region = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+			// zone as an empty string causes a validation error
+			{
+				Config:             testAccProvider_checkPlanTimeErrors(`zone = ""`, acctest.RandString(t, 10)),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`expected a non-empty string`),
+			},
+		},
+	})
+}
+
 func testAccProviderBasePath_setBasePath(endpoint, name string) string {
 	return fmt.Sprintf(`
 provider "google" {
@@ -541,4 +610,17 @@ resource "google_firebase_project" "this" {
     google_project_service.activate-firebase
   ]
 }`, credentials, pid, pid, pid, org, billing)
+}
+
+func testAccProvider_checkPlanTimeErrors(providerArgument, randString string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	%s
+}
+
+# A random resource so that the test can generate a plan (can't check validation errors when plan is empty)
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-planned-resource-%s"
+}
+`, providerArgument, randString)
 }
