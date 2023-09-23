@@ -979,7 +979,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
 			// Down to only one label (test single label deletion)
 			{
@@ -989,7 +989,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
 			// And make sure deleting all labels work
 			{
@@ -999,7 +999,7 @@ func TestAccStorageBucket_labels(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})

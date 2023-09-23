@@ -968,6 +968,19 @@ this field is set to false, the revision name will still autogenerate.)
   - `run.googleapis.com/launch-stage` sets the [launch stage](https://cloud.google.com/run/docs/troubleshooting#launch-stage-validation)
     when a preview feature is used. For example, `"run.googleapis.com/launch-stage": "BETA"`
 
+* `terraform_labels` -
+  (Output)
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  (Output)
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  (Output)
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
