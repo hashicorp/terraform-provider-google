@@ -98,9 +98,13 @@ such as `serviceAccount`, `workerMachineType`, etc can be specified here.
 * `labels` - (Optional) User labels to be specified for the job. Keys and values
 should follow the restrictions specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions)
 page. 
-**NOTE**: Google-provided Dataflow templates often provide default labels
-that begin with `goog-dataflow-provided`. Unless explicitly set in config, these
-labels will be ignored to prevent diffs on re-apply.
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `on_delete` - (Optional) One of "drain" or "cancel". Specifies behavior of
 deletion during `terraform destroy`.  See above note.

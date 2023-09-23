@@ -51,7 +51,7 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -99,7 +99,7 @@ func TestAccCloudRunService_cloudRunServiceSqlExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -162,7 +162,7 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -223,7 +223,7 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -292,7 +292,7 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -386,7 +386,7 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name"},
+				ImportStateVerifyIgnore: []string{"name", "location", "autogenerate_revision_name", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -487,7 +487,7 @@ func TestAccCloudRunService_cloudRunServiceProbesExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "metadata.0.labels", "metadata.0.annotations", "metadata.0.terraform_labels"},
 			},
 		},
 	})

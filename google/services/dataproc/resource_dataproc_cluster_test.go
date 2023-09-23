@@ -686,13 +686,45 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccDataprocCluster_withoutLabels(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
+
+					resource.TestCheckNoResourceAttr("google_dataproc_cluster.with_labels", "labels.%"),
+					// We don't provide any, but GCP adds three and goog-dataproc-autozone is added internally, so expect 4.
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "effective_labels.%", "4"),
+				),
+			},
+			{
 				Config: testAccDataprocCluster_withLabels(rnd),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
-					// We only provide one, but GCP adds three and we added goog-dataproc-autozone internally, so expect 5.
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "5"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key1", "value1"),
+					// We only provide one, but GCP adds three and goog-dataproc-autozone is added internally, so expect 5.
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "effective_labels.%", "5"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "effective_labels.key1", "value1"),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withLabelsUpdate(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
+
+					// We only provide two, so expect 2.
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "labels.key2", "value2"),
+				),
+			},
+			{
+				Config: testAccDataprocCluster_withoutLabels(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
+
+					resource.TestCheckNoResourceAttr("google_dataproc_cluster.with_labels", "labels.%"),
+					// We don't provide any, but GCP adds three and goog-dataproc-autozone is added internally, so expect 4.
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "effective_labels.%", "4"),
 				),
 			},
 		},
@@ -1714,6 +1746,28 @@ resource "google_dataproc_cluster" "with_labels" {
   labels = {
     key1 = "value1"
   }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withLabelsUpdate(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_labels" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  labels = {
+    key2 = "value2"
+  }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withoutLabels(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_labels" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
 }
 `, rnd)
 }

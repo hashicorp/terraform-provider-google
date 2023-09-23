@@ -248,7 +248,127 @@ func TestAccDataflowJob_withLabels(t *testing.T) {
 				ResourceName:            "google_dataflow_job.with_labels",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state"},
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
+	// The test failed if VCR testing is enabled, because the cached provider config is used.
+	// With the cached provider config, any changes in the provider default labels will not be applied.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randStr := acctest.RandString(t, 10)
+	bucket := "tf-test-dataflow-gcs-" + randStr
+	job := "tf-test-dataflow-job-" + randStr
+	zone := "us-central1-f"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataflowJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataflowJob_withProviderDefaultLabels(bucket, job),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.with_labels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccDataflowJob_resourceLabelsOverridesProviderDefaultLabels(bucket, job),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:      "google_dataflow_job.with_labels",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// The labels field in the state is decided by the configuration.
+				// During importing, the configuration is unavailable, so the labels field in the state after importing is empty.
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccDataflowJob_moveResourceLabelToProviderDefaultLabels(bucket, job),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.with_labels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccDataflowJob_resourceLabelsOverridesProviderDefaultLabels(bucket, job),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_dataflow_job.with_labels",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"on_delete", "parameters", "skip_wait_on_job_termination", "state", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccDataflowJob_zone(bucket, job, zone),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_dataflow_job.with_labels", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_dataflow_job.with_labels", "effective_labels.%"),
+				),
+			},
+			{
+				ResourceName:      "google_dataflow_job.with_labels",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -969,7 +1089,107 @@ resource "google_dataflow_job" "with_labels" {
   on_delete = "cancel"
 }
 `, bucket, job, labelKey, labelVal, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
 
+func testAccDataflowJob_withProviderDefaultLabels(bucket, job string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_storage_bucket" "temp" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "with_labels" {
+  name = "%s"
+
+  labels = {
+    env                   = "foo"
+    default_expiration_ms = 3600000
+  }
+
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete = "cancel"
+}
+`, bucket, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
+
+func testAccDataflowJob_resourceLabelsOverridesProviderDefaultLabels(bucket, job string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_storage_bucket" "temp" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "with_labels" {
+  name = "%s"
+
+  labels = {
+    env                   = "foo"
+    default_expiration_ms = 3600000
+    default_key1          = "value1"
+  }
+
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete = "cancel"
+}
+`, bucket, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
+}
+
+func testAccDataflowJob_moveResourceLabelToProviderDefaultLabels(bucket, job string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+	default_key1 = "default_value1"
+	env          = "foo"
+  }
+}
+
+resource "google_storage_bucket" "temp" {
+  name          = "%s"
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_dataflow_job" "with_labels" {
+  name = "%s"
+
+  labels = {
+    default_expiration_ms = 3600000
+    default_key1          = "value1"
+  }
+
+  template_gcs_path = "%s"
+  temp_gcs_location = google_storage_bucket.temp.url
+  parameters = {
+    inputFile = "%s"
+    output    = "${google_storage_bucket.temp.url}/output"
+  }
+  on_delete = "cancel"
+}
+`, bucket, job, testDataflowJobTemplateWordCountUrl, testDataflowJobSampleFileUrl)
 }
 
 func testAccDataflowJob_kms(key_ring, crypto_key, bucket, job, zone string) string {

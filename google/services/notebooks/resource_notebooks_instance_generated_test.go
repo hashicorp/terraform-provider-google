@@ -50,7 +50,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -89,7 +89,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -132,7 +132,7 @@ func TestAccNotebooksInstance_notebookInstanceBasicGpuExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -178,7 +178,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
