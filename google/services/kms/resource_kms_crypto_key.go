@@ -95,10 +95,14 @@ If not specified at creation time, the default duration is 24 hours.`,
 				Description: `Whether this key may contain imported versions only.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels with user-defined metadata to apply to this resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels with user-defined metadata to apply to this resource.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"purpose": {
 				Type:     schema.TypeString,

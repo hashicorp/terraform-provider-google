@@ -67,10 +67,14 @@ globally and match the pattern 'projects/*/locations/*/certificateMaps/*'.`,
 				Description: `A human-readable description of the resource.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Set of labels associated with a Certificate Map resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Set of labels associated with a Certificate Map resource.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"create_time": {
 				Type:     schema.TypeString,

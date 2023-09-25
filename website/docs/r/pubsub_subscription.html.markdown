@@ -324,6 +324,9 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs to assign to this Subscription.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `bigquery_config` -
   (Optional)
   If delivery to BigQuery is used with this subscription, this field is used to configure it.

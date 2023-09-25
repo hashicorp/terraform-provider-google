@@ -15,6 +15,10 @@ func SetAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta interfac
 		return nil
 	}
 
+	if d.Get("effective_annotations") == nil {
+		return fmt.Errorf("`effective_annotations` field is not present in the resource schema.")
+	}
+
 	o, n := d.GetChange("annotations")
 	effectiveAnnotations := d.Get("effective_annotations").(map[string]interface{})
 
@@ -44,6 +48,10 @@ func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta 
 	raw := d.Get("metadata.0.annotations")
 	if raw == nil {
 		return nil
+	}
+
+	if d.Get("metadata.0.effective_annotations") == nil {
+		return fmt.Errorf("`metadata.0.effective_annotations` field is not present in the resource schema.")
 	}
 
 	o, n := d.GetChange("metadata.0.annotations")

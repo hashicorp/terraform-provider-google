@@ -82,11 +82,14 @@ prediction requests that do not specify a version.`,
 				Description: `The description specified for the model when it was created.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `One or more labels that you can add, to organize your models.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `One or more labels that you can add, to organize your models.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"online_prediction_console_logging": {
 				Type:        schema.TypeBool,

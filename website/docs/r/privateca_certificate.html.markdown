@@ -467,6 +467,9 @@ The following arguments are supported:
   (Optional)
   Labels with user-defined metadata to apply to this resource.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `pem_csr` -
   (Optional)
   Immutable. A pem-encoded X.509 certificate signing request (CSR).

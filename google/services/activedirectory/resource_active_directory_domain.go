@@ -98,10 +98,13 @@ If CIDR subnets overlap between networks, domain creation will fail.`,
 				Set: schema.HashString,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Resource labels that can contain user-provided metadata`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Resource labels that can contain user-provided metadata
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,

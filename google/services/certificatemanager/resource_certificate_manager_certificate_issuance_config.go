@@ -124,7 +124,11 @@ the certificate has been issued and at least 7 days before it expires.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `'Set of label tags associated with the CertificateIssuanceConfig resource.
- An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.`,
+ An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {

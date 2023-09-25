@@ -22,7 +22,7 @@ func SetLabels(labels map[string]string, d *schema.ResourceData, lineage string)
 
 	if v, ok := d.GetOk(lineage); ok {
 		if labels != nil {
-			for k, _ := range v.(map[string]interface{}) {
+			for k := range v.(map[string]interface{}) {
 				transformed[k] = labels[k]
 			}
 		}
@@ -58,17 +58,25 @@ func SetDataSourceLabels(d *schema.ResourceData) error {
 }
 
 func SetLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	raw := d.Get("labels")
+	if raw == nil {
+		return nil
+	}
+
+	if d.Get("terraform_labels") == nil {
+		return fmt.Errorf("`terraform_labels` field is not present in the resource schema.")
+	}
+
+	if d.Get("effective_labels") == nil {
+		return fmt.Errorf("`effective_labels` field is not present in the resource schema.")
+	}
+
 	config := meta.(*transport_tpg.Config)
 
 	// Merge provider default labels with the user defined labels in the resource to get terraform managed labels
 	terraformLabels := make(map[string]string)
 	for k, v := range config.DefaultLabels {
 		terraformLabels[k] = v
-	}
-
-	raw := d.Get("labels")
-	if raw == nil {
-		return nil
 	}
 
 	labels := raw.(map[string]interface{})
@@ -109,6 +117,14 @@ func SetMetadataLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta inter
 	raw := d.Get("metadata.0.labels")
 	if raw == nil {
 		return nil
+	}
+
+	if d.Get("metadata.0.terraform_labels") == nil {
+		return fmt.Errorf("`metadata.0.terraform_labels` field is not present in the resource schema.")
+	}
+
+	if d.Get("metadata.0.effective_labels") == nil {
+		return fmt.Errorf("`metadata.0.effective_labels` field is not present in the resource schema.")
 	}
 
 	config := meta.(*transport_tpg.Config)
