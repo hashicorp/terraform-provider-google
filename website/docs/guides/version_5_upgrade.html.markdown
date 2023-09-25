@@ -685,6 +685,11 @@ resource "google_secret_manager_secret" "my-secret" {
 
 `reconcile_connections` previously defaults to true. Now it will default from the API.
 
+### Retyped `consumer_accept_lists` to SET from ARRAY
+
+Previously, `consumer_accept_lists` was a list, making it order-dependent. It is now a set.
+
+If you were relying on accessing an individual flag by index (for example, `google_compute_service_attachment.consumer_accept_lists.0.project_id_or_num`), then that will now need to by hash (for example, `google_compute_service_attachment.consumer_accept_lists.<some-hash>.project_id_or_num`).
 
 ## Resource: `google_dataflow_flex_template_job`
 
