@@ -1,7 +1,7 @@
 ## 4.84.0 (Unreleased)
 
 DEPRECATIONS:
-* alloydb: deprecated `network` field in favor of `network_config`. ([#15881](https://github.com/hashicorp/terraform-provider-google/pull/15881))
+* alloydb: deprecated `network` field in favor of `network_config` on `google_alloydb_cluster`. ([#15881](https://github.com/hashicorp/terraform-provider-google/pull/15881))
 * identityplayform: deprecated `google_identity_platform_project_default_config` resource. Use `google_identity_platform_config` resource instead ([#15876](https://github.com/hashicorp/terraform-provider-google/pull/15876))
 
 FEATURES:
