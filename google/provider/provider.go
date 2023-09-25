@@ -994,9 +994,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 326
+// Generated resources: 327
 // Generated IAM resources: 210
-// Total generated resources: 536
+// Total generated resources: 537
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1476,6 +1476,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_secret_manager_secret_iam_member":                        tpgiamresource.ResourceIamMember(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_iam_policy":                        tpgiamresource.ResourceIamPolicy(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
 			"google_secret_manager_secret_version":                           secretmanager.ResourceSecretManagerSecretVersion(),
+			"google_scc_folder_custom_module":                                securitycenter.ResourceSecurityCenterFolderCustomModule(),
 			"google_scc_mute_config":                                         securitycenter.ResourceSecurityCenterMuteConfig(),
 			"google_scc_notification_config":                                 securitycenter.ResourceSecurityCenterNotificationConfig(),
 			"google_scc_project_custom_module":                               securitycenter.ResourceSecurityCenterProjectCustomModule(),
