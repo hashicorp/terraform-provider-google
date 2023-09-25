@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: allow setting `addons_config.gcs_fuse_csi_driver_config` on `google_container_cluster` with `enable_autopilot: true`.
+```
