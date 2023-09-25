@@ -383,6 +383,7 @@ resource "google_os_config_patch_deployment" "patch" {
       week_day_of_month {
         week_ordinal = -1
         day_of_week  = "TUESDAY"
+        day_offset   = 3
       }
     }
   }
