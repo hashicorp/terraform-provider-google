@@ -191,10 +191,21 @@ func bigQueryTableConnectionIdSuppress(name, old, new string, _ *schema.Resource
 		return false
 	}
 
-	re := regexp.MustCompile("projects/(.+)/(?:locations|regions)/(.+)/connections/(.+)")
-	if matches := re.FindStringSubmatch(new); matches != nil {
-		return old == matches[1]+"."+matches[2]+"."+matches[3]
+	// Old is in the dot format, and new is in the slash format.
+	// They represent the same connection if the project, locaition, and IDs are
+	// the same.
+	// Location should use a case-insenstive comparison.
+	dotRe := regexp.MustCompile(`(.+)\.(.+)\.(.+)`)
+	slashRe := regexp.MustCompile("projects/(.+)/(?:locations|regions)/(.+)/connections/(.+)")
+	dotMatches := dotRe.FindStringSubmatch(old)
+	slashMatches := slashRe.FindStringSubmatch(new)
+	if dotMatches != nil && slashMatches != nil {
+		sameProject := dotMatches[1] == slashMatches[1]
+		sameLocation := strings.EqualFold(dotMatches[2], slashMatches[2])
+		sameId := dotMatches[3] == slashMatches[3]
+		return sameProject && sameLocation && sameId
 	}
+
 	return false
 }
 

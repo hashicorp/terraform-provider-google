@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fix diff suppression in `external_data_configuration.connection_id`
+```
