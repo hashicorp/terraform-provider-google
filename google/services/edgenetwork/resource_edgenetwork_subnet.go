@@ -379,11 +379,11 @@ func resourceEdgenetworkSubnetDelete(d *schema.ResourceData, meta interface{}) e
 func resourceEdgenetworkSubnetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/zones/(?P<zone>[^/]+)/subnets/(?P<subnet_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<zone>[^/]+)/(?P<subnet_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<zone>[^/]+)/(?P<subnet_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<subnet_id>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/zones/(?P<zone>[^/]+)/subnets/(?P<subnet_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<zone>[^/]+)/(?P<subnet_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<zone>[^/]+)/(?P<subnet_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<subnet_id>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

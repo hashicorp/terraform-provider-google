@@ -720,10 +720,10 @@ func resourceArtifactRegistryRepositoryDelete(d *schema.ResourceData, meta inter
 func resourceArtifactRegistryRepositoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<repository_id>[^/]+)",
-		"(?P<repository_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/repositories/(?P<repository_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<repository_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<repository_id>[^/]+)$",
+		"^(?P<repository_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

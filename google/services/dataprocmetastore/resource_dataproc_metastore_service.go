@@ -786,9 +786,9 @@ func resourceDataprocMetastoreServiceDelete(d *schema.ResourceData, meta interfa
 func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<service_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<service_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

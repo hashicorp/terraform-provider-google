@@ -1206,12 +1206,12 @@ func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)",
-		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)",
-		"(?P<job_id>[^/]+)/(?P<location>[^/]+)",
-		"(?P<project>[^/]+)/(?P<job_id>[^/]+)",
-		"(?P<job_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)$",
+		"^(?P<job_id>[^/]+)/(?P<location>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<job_id>[^/]+)$",
+		"^(?P<job_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

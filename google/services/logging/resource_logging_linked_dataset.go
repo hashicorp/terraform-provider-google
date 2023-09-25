@@ -303,7 +303,7 @@ func resourceLoggingLinkedDatasetDelete(d *schema.ResourceData, meta interface{}
 func resourceLoggingLinkedDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"(?P<parent>.+)/locations/(?P<location>[^/]+)/buckets/(?P<bucket>[^/]+)/links/(?P<link_id>[^/]+)",
+		"^(?P<parent>.+)/locations/(?P<location>[^/]+)/buckets/(?P<bucket>[^/]+)/links/(?P<link_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

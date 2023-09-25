@@ -432,9 +432,9 @@ func resourceBigtableAppProfileDelete(d *schema.ResourceData, meta interface{}) 
 func resourceBigtableAppProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/appProfiles/(?P<app_profile_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)",
-		"(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/appProfiles/(?P<app_profile_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)$",
+		"^(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

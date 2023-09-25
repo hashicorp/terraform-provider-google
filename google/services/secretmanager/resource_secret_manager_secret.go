@@ -684,9 +684,9 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 func resourceSecretManagerSecretImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<secret_id>[^/]+)",
-		"(?P<secret_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<secret_id>[^/]+)$",
+		"^(?P<secret_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

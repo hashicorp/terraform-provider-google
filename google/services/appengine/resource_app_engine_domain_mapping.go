@@ -458,9 +458,9 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<domain_name>[^/]+)",
-		"(?P<domain_name>[^/]+)",
+		"^apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<domain_name>[^/]+)$",
+		"^(?P<domain_name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

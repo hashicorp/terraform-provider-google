@@ -949,9 +949,9 @@ func resourceDataplexTaskDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceDataplexTaskImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/tasks/(?P<task_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/tasks/(?P<task_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

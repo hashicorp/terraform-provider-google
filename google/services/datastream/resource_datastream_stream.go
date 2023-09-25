@@ -1734,9 +1734,9 @@ func resourceDatastreamStreamDelete(d *schema.ResourceData, meta interface{}) er
 func resourceDatastreamStreamImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/streams/(?P<stream_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<stream_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<stream_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/streams/(?P<stream_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<stream_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<stream_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

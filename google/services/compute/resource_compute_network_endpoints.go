@@ -609,10 +609,10 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 func resourceComputeNetworkEndpointsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)",
-		"(?P<network_endpoint_group>[^/]+)",
+		"^projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<network_endpoint_group>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

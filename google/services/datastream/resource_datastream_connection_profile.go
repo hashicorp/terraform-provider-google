@@ -783,9 +783,9 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

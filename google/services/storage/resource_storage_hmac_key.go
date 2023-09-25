@@ -485,9 +485,9 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 func resourceStorageHmacKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/hmacKeys/(?P<access_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<access_id>[^/]+)",
-		"(?P<access_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/hmacKeys/(?P<access_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<access_id>[^/]+)$",
+		"^(?P<access_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -379,9 +379,9 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 func resourceIdentityPlatformTenantDefaultSupportedIdpConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/defaultSupportedIdpConfigs/(?P<idp_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
-		"(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/tenants/(?P<tenant>[^/]+)/defaultSupportedIdpConfigs/(?P<idp_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)$",
+		"^(?P<tenant>[^/]+)/(?P<idp_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

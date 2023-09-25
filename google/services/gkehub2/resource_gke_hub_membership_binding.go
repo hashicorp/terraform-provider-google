@@ -450,9 +450,9 @@ func resourceGKEHub2MembershipBindingDelete(d *schema.ResourceData, meta interfa
 func resourceGKEHub2MembershipBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)/bindings/(?P<membership_binding_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)/(?P<membership_binding_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<membership_id>[^/]+)/(?P<membership_binding_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/memberships/(?P<membership_id>[^/]+)/bindings/(?P<membership_binding_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<membership_id>[^/]+)/(?P<membership_binding_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<membership_id>[^/]+)/(?P<membership_binding_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
