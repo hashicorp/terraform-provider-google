@@ -1,0 +1,5 @@
+```release-note:enhancement
+compute: added `type` field to `google_compute_router_nat` resource (beta)
+compute: added `rules.action.source_nat_active_ranges` field to `google_compute_router_nat` resource (beta)
+compute: added `rules.action.source_nat_drain_ranges` field to `google_compute_router_nat` resource (beta)
+```
