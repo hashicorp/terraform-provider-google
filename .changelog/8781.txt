@@ -1,0 +1,4 @@
+```release-note:enhancement
+alloydb: added additional fields to `google_alloydb_instance` and `google_alloydb_backup`
+
+```

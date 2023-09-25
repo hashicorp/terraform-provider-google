@@ -127,6 +127,37 @@ can have regional availability (nodes are present in 2 or more zones in a region
 					},
 				},
 			},
+			"query_insights_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Configuration for query insights.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"query_plans_per_minute": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Number of query execution plans captured by Insights per minute for all queries combined. The default value is 5. Any integer between 0 and 20 is considered valid.`,
+						},
+						"query_string_length": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Query string length. The default value is 1024. Any integer between 256 and 4500 is considered valid.`,
+						},
+						"record_application_tags": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Record application tags for an instance. This flag is turned "on" by default.`,
+						},
+						"record_client_address": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Record client address for an instance. Client address is PII information. This flag is turned "on" by default.`,
+						},
+					},
+				},
+			},
 			"read_pool_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -232,6 +263,12 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceTypeProp)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
 		obj["instanceType"] = instanceTypeProp
+	}
+	queryInsightsConfigProp, err := expandAlloydbInstanceQueryInsightsConfig(d.Get("query_insights_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("query_insights_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(queryInsightsConfigProp)) && (ok || !reflect.DeepEqual(v, queryInsightsConfigProp)) {
+		obj["queryInsightsConfig"] = queryInsightsConfigProp
 	}
 	readPoolConfigProp, err := expandAlloydbInstanceReadPoolConfig(d.Get("read_pool_config"), d, config)
 	if err != nil {
@@ -363,6 +400,9 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("ip_address", flattenAlloydbInstanceIpAddress(res["ipAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("query_insights_config", flattenAlloydbInstanceQueryInsightsConfig(res["queryInsightsConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("read_pool_config", flattenAlloydbInstanceReadPoolConfig(res["readPoolConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -420,6 +460,12 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("availability_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, availabilityTypeProp)) {
 		obj["availabilityType"] = availabilityTypeProp
 	}
+	queryInsightsConfigProp, err := expandAlloydbInstanceQueryInsightsConfig(d.Get("query_insights_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("query_insights_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, queryInsightsConfigProp)) {
+		obj["queryInsightsConfig"] = queryInsightsConfigProp
+	}
 	readPoolConfigProp, err := expandAlloydbInstanceReadPoolConfig(d.Get("read_pool_config"), d, config)
 	if err != nil {
 		return err
@@ -463,6 +509,10 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("availability_type") {
 		updateMask = append(updateMask, "availabilityType")
+	}
+
+	if d.HasChange("query_insights_config") {
+		updateMask = append(updateMask, "queryInsightsConfig")
 	}
 
 	if d.HasChange("read_pool_config") {
@@ -631,6 +681,67 @@ func flattenAlloydbInstanceIpAddress(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenAlloydbInstanceQueryInsightsConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query_string_length"] =
+		flattenAlloydbInstanceQueryInsightsConfigQueryStringLength(original["queryStringLength"], d, config)
+	transformed["record_application_tags"] =
+		flattenAlloydbInstanceQueryInsightsConfigRecordApplicationTags(original["recordApplicationTags"], d, config)
+	transformed["record_client_address"] =
+		flattenAlloydbInstanceQueryInsightsConfigRecordClientAddress(original["recordClientAddress"], d, config)
+	transformed["query_plans_per_minute"] =
+		flattenAlloydbInstanceQueryInsightsConfigQueryPlansPerMinute(original["queryPlansPerMinute"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbInstanceQueryInsightsConfigQueryStringLength(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAlloydbInstanceQueryInsightsConfigRecordApplicationTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceQueryInsightsConfigRecordClientAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceQueryInsightsConfigQueryPlansPerMinute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenAlloydbInstanceReadPoolConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -737,6 +848,62 @@ func expandAlloydbInstanceAvailabilityType(v interface{}, d tpgresource.Terrafor
 }
 
 func expandAlloydbInstanceInstanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceQueryInsightsConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQueryStringLength, err := expandAlloydbInstanceQueryInsightsConfigQueryStringLength(original["query_string_length"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryStringLength); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryStringLength"] = transformedQueryStringLength
+	}
+
+	transformedRecordApplicationTags, err := expandAlloydbInstanceQueryInsightsConfigRecordApplicationTags(original["record_application_tags"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRecordApplicationTags); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["recordApplicationTags"] = transformedRecordApplicationTags
+	}
+
+	transformedRecordClientAddress, err := expandAlloydbInstanceQueryInsightsConfigRecordClientAddress(original["record_client_address"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRecordClientAddress); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["recordClientAddress"] = transformedRecordClientAddress
+	}
+
+	transformedQueryPlansPerMinute, err := expandAlloydbInstanceQueryInsightsConfigQueryPlansPerMinute(original["query_plans_per_minute"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryPlansPerMinute); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryPlansPerMinute"] = transformedQueryPlansPerMinute
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbInstanceQueryInsightsConfigQueryStringLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceQueryInsightsConfigRecordApplicationTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceQueryInsightsConfigRecordClientAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceQueryInsightsConfigQueryPlansPerMinute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

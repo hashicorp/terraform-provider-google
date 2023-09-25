@@ -61,6 +61,13 @@ func ResourceAlloydbCluster() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location where the alloydb cluster should reside.`,
 			},
+			"annotations": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"automated_backup_policy": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -260,6 +267,11 @@ If not set, defaults to 14 days.`,
 						},
 					},
 				},
+			},
+			"etag": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `For Resource freshness validation (https://google.aip.dev/154)`,
 			},
 			"initial_user": {
 				Type:        schema.TypeList,
@@ -485,6 +497,18 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 				Computed:    true,
 				Description: `The name of the cluster resource.`,
 			},
+			"reconciling": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: `Output only. Reconciling (https://google.aip.dev/128#reconciliation).
+Set to true if the current state of Cluster does not match the user's intended state, and the service is actively updating the resource to reconcile them.
+This can happen due to user-triggered updates or system actions like failover or maintenance.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output only. The current serving state of the cluster.`,
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -538,6 +562,18 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	etagProp, err := expandAlloydbClusterEtag(d.Get("etag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+		obj["etag"] = etagProp
+	}
+	annotationsProp, err := expandAlloydbClusterAnnotations(d.Get("annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 	initialUserProp, err := expandAlloydbClusterInitialUser(d.Get("initial_user"), d, config)
 	if err != nil {
@@ -724,6 +760,18 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("display_name", flattenAlloydbClusterDisplayName(res["displayName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("etag", flattenAlloydbClusterEtag(res["etag"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("reconciling", flattenAlloydbClusterReconciling(res["reconciling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("state", flattenAlloydbClusterState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("annotations", flattenAlloydbClusterAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("database_version", flattenAlloydbClusterDatabaseVersion(res["databaseVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -789,6 +837,18 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	etagProp, err := expandAlloydbClusterEtag(d.Get("etag"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
+		obj["etag"] = etagProp
+	}
+	annotationsProp, err := expandAlloydbClusterAnnotations(d.Get("annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
+	}
 	initialUserProp, err := expandAlloydbClusterInitialUser(d.Get("initial_user"), d, config)
 	if err != nil {
 		return err
@@ -834,6 +894,14 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("etag") {
+		updateMask = append(updateMask, "etag")
+	}
+
+	if d.HasChange("annotations") {
+		updateMask = append(updateMask, "annotations")
 	}
 
 	if d.HasChange("initial_user") {
@@ -1094,6 +1162,22 @@ func flattenAlloydbClusterNetworkConfigAllocatedIpRange(v interface{}, d *schema
 }
 
 func flattenAlloydbClusterDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1492,6 +1576,21 @@ func expandAlloydbClusterNetworkConfigAllocatedIpRange(v interface{}, d tpgresou
 
 func expandAlloydbClusterDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandAlloydbClusterEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandAlloydbClusterInitialUser(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
