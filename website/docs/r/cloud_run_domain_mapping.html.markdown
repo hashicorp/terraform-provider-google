@@ -123,6 +123,8 @@ The following arguments are supported:
   (scope and select) objects. May match selectors of replication controllers
   and routes.
   More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `generation` -
   (Output)

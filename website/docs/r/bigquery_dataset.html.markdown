@@ -271,7 +271,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The labels associated with this dataset. You can use these to
-  organize and group your datasets
+  organize and group your datasets.
+
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 

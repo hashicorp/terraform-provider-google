@@ -121,5 +121,8 @@ func datasourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta in
 func retrieveInstances(d *schema.ResourceData, meta interface{}, project, region, name string) error {
 	d.SetId("projects/" + project + "/regions/" + region + "/instanceTemplates/" + name)
 
-	return resourceComputeRegionInstanceTemplateRead(d, meta)
+	if err := resourceComputeRegionInstanceTemplateRead(d, meta); err != nil {
+		return err
+	}
+	return tpgresource.SetDataSourceLabels(d)
 }

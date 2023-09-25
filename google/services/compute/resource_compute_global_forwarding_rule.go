@@ -171,10 +171,14 @@ you create the resource.`,
 				Description:  `The IP Version that will be used by this global forwarding rule. Possible values: ["IPV4", "IPV6"]`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels to apply to this forwarding rule.  A list of key->value pairs.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels to apply to this forwarding rule.  A list of key->value pairs.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"load_balancing_scheme": {
 				Type:         schema.TypeString,

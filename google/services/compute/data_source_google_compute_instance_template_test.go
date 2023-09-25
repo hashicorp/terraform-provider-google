@@ -117,6 +117,9 @@ resource "google_compute_instance_template" "default" {
   network_interface {
     network = "default"
   }
+  labels = {
+    my-label = "my-label-value"
+  }
 }
 
 data "google_compute_instance_template" "default" {

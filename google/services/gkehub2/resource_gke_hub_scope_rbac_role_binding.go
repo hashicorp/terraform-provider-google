@@ -92,10 +92,14 @@ group is the group, as seen by the kubernetes cluster.`,
 				ExactlyOneOf: []string{"user", "group"},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels for this ScopeRBACRoleBinding.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels for this ScopeRBACRoleBinding.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"user": {
 				Type:     schema.TypeString,

@@ -120,6 +120,9 @@ The following arguments are supported:
   An object containing a list of "key": value pairs.
   Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `hostname` -
   (Optional)
   A Hostname (FQDN, e.g. example.com) or a wildcard hostname expression (*.example.com)

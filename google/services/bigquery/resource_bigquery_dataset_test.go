@@ -139,6 +139,49 @@ func TestAccBigQueryDataset_withProvider5(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_withOutOfBandLabels(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset(datasetID),
+				Check:  addOutOfBandLabels(t, datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDatasetUpdated(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDatasetUpdated_withOutOfBandLabels(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 	t.Parallel()
 
@@ -304,6 +347,25 @@ func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.Te
 	}
 }
 
+func addOutOfBandLabels(t *testing.T, datasetID string) resource.TestCheckFunc {
+	// Not actually a check, but adds labels independently of terraform
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		dataset, err := config.NewBigQueryClient(config.UserAgent).Datasets.Get(config.Project, datasetID).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get dataset with ID %s", datasetID)
+		}
+
+		dataset.Labels["outband_key"] = "test"
+		_, err = config.NewBigQueryClient(config.UserAgent).Datasets.Patch(config.Project, datasetID, dataset).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update labele for the dataset")
+		}
+		return nil
+	}
+}
+
 func testAccBigQueryDataset_withoutLabels(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "test" {
@@ -348,6 +410,25 @@ resource "google_bigquery_dataset" "test" {
   labels = {
     env                         = "bar"
     default_table_expiration_ms = 7200000
+  }
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetUpdated_withOutOfBandLabels(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "bar"
+  description                     = "This is a bar description"
+  location                        = "EU"
+  default_partition_expiration_ms = 7200000
+  default_table_expiration_ms     = 7200000
+
+  labels = {
+    env                         = "bar"
+    default_table_expiration_ms = 7200000
+	outband_key                 = "test-update"
   }
 }
 `, datasetID)

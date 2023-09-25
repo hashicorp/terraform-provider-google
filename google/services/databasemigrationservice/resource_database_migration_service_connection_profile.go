@@ -365,10 +365,14 @@ For more information, see https://cloud.google.com/sql/docs/mysql/instance-setti
 				Description: `The connection profile display name.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `The resource labels for connection profile to use to annotate any related underlying resources such as Compute Engine VMs.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `The resource labels for connection profile to use to annotate any related underlying resources such as Compute Engine VMs.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
 				Type:        schema.TypeString,

@@ -69,6 +69,9 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs to assign to this Workflow.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `encryption_spec` -
   (Optional)
   Customer-managed encryption key spec for a Dataset. If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
