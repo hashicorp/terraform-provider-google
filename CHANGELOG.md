@@ -9,7 +9,6 @@ FEATURES:
 * **New Resource:** `google_artifact_registry_vpcsc_config` ([#15840](https://github.com/hashicorp/terraform-provider-google/pull/15840))
 * **New Resource:** `google_dialogflow_cx_security_settings` ([#15886](https://github.com/hashicorp/terraform-provider-google/pull/15886))
 * **New Resource:** `google_gke_backup_restore_plan` ([#15858](https://github.com/hashicorp/terraform-provider-google/pull/15858))
-* **New Resource:** `google_tpu_v2_vm` (beta) ([#15836](https://github.com/hashicorp/terraform-provider-google/pull/15836))
 * **New Resource:** `google_edgenetwork_network` ([#15891](https://github.com/hashicorp/terraform-provider-google/pull/15891))
 * **New Resource:** `google_edgenetwork_subnet` ([#15891](https://github.com/hashicorp/terraform-provider-google/pull/15891))
 
@@ -33,7 +32,6 @@ IMPROVEMENTS:
 * networkservices: increased default timeout for `google_network_services_edge_cache_origin` to 120m from 60m ([#15855](https://github.com/hashicorp/terraform-provider-google/pull/15855))
 * networkservices: increased default timeout for `google_network_services_edge_cache_service` to 60m from 30m ([#15861](https://github.com/hashicorp/terraform-provider-google/pull/15861))
 * secretmanager: added `is_secret_data_base64` field to `google_secret_manager_secret_version` resource ([#15853](https://github.com/hashicorp/terraform-provider-google/pull/15853))
-* workstations: added `env` field to `google_workstations_workstation` resource (beta) ([#15824](https://github.com/hashicorp/terraform-provider-google/pull/15824))
 
 BUG FIXES:
 * bigquery: updated documentation for `google_bigquery_table.time_partitioning.expiration_ms` ([#15873](https://github.com/hashicorp/terraform-provider-google/pull/15873))
@@ -72,8 +70,6 @@ IMPROVEMENTS:
 * firestore: added `update_time` and `uid` fields to `google_firestore_database` resource ([#15823](https://github.com/hashicorp/terraform-provider-google/pull/15823))
 * gkehub2: added `labels`, `namespace_labels` fields to `google_gke_hub_namespace` resource ([#15732](https://github.com/hashicorp/terraform-provider-google/pull/15732))
 * gkehub: added `labels` fields to `google_gke_hub_scope` resource ([#15801](https://github.com/hashicorp/terraform-provider-google/pull/15801))
-* gkeonprem: added `upgrade_policy` and `binary_authorization` fields in `google_gkeonprem_bare_metal_cluster` resource (beta) ([#15765](https://github.com/hashicorp/terraform-provider-google/pull/15765))
-* gkeonprem: added `upgrade_policy` field in `google_gkeonprem_vmware_cluster` resource (beta) ([#15765](https://github.com/hashicorp/terraform-provider-google/pull/15765))
 * secretmanager: added `auto` field to `google_secret_manager_secret` resource ([#15793](https://github.com/hashicorp/terraform-provider-google/pull/15793))
 * secretmanager: added `deletion_policy` field to `google_secret_manager_secret_version` resource ([#15818](https://github.com/hashicorp/terraform-provider-google/pull/15818))
 * storage: supported in-place update for `autoclass` field in `google_storage_bucket` resource ([#15782](https://github.com/hashicorp/terraform-provider-google/pull/15782))
