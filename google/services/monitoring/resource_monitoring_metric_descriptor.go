@@ -88,6 +88,7 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.`,
 				Elem:        monitoringMetricDescriptorLabelsSchema(),
 				// Default schema.HashSchema is used.
@@ -102,7 +103,6 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			"metadata": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Metadata which can be used to guide usage of the metric.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
