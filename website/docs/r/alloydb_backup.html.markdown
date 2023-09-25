@@ -92,6 +92,7 @@ resource "google_alloydb_backup" "default" {
   cluster_name = google_alloydb_cluster.default.name
 
   description = "example description"
+  type = "ON_DEMAND"
   labels = {
     "label" = "key"
   }
@@ -152,9 +153,18 @@ The following arguments are supported:
 - - -
 
 
+* `display_name` -
+  (Optional)
+  User-settable and human-readable display name for the Backup.
+
 * `labels` -
   (Optional)
-  User-defined labels for the alloydb backup.
+  User-defined labels for the alloydb backup. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+* `type` -
+  (Optional)
+  The backup type, which suggests the trigger for the backup.
+  Possible values are: `TYPE_UNSPECIFIED`, `ON_DEMAND`, `AUTOMATED`, `CONTINUOUS`.
 
 * `description` -
   (Optional)
@@ -164,6 +174,11 @@ The following arguments are supported:
   (Optional)
   EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
   Structure is [documented below](#nested_encryption_config).
+
+* `annotations` -
+  (Optional)
+  Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -188,23 +203,45 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The system-generated UID of the resource. The UID is assigned when the resource is created, and it is retained until it is deleted.
 
 * `create_time` -
-  Time the Backup was created in UTC.
+  Output only. Create time stamp. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 * `update_time` -
-  Time the Backup was updated in UTC.
+  Output only. Update time stamp. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `delete_time` -
+  Output only. Delete time stamp. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 * `state` -
-  The current state of the backup.
+  Output only. The current state of the backup.
+
+* `cluster_uid` -
+  Output only. The system-generated UID of the cluster which was used to create this resource.
 
 * `reconciling` -
-  If true, indicates that the service is actively updating the resource. This can happen due to user-triggered updates or system actions like failover or maintenance.
-
-* `etag` -
-  A hash of the resource.
+  Output only. Reconciling (https://google.aip.dev/128#reconciliation), if true, indicates that the service is actively updating the resource.
+  This can happen due to user-triggered updates or system actions like failover or maintenance.
 
 * `encryption_info` -
   EncryptionInfo describes the encryption information of a cluster or a backup.
   Structure is [documented below](#nested_encryption_info).
+
+* `etag` -
+  For Resource freshness validation (https://google.aip.dev/154)
+
+* `size_bytes` -
+  Output only. The size of the backup in bytes.
+
+* `expiry_time` -
+  Output only. The time at which after the backup is eligible to be garbage collected.
+  It is the duration specified by the backup's retention policy, added to the backup's createTime.
+
+* `expiry_quantity` -
+  Output only. The QuantityBasedExpiry of the backup, specified by the backup's retention policy.
+  Once the expiry quantity is over retention, the backup is eligible to be garbage collected.
+  Structure is [documented below](#nested_expiry_quantity).
 
 
 <a name="nested_encryption_info"></a>The `encryption_info` block contains:
@@ -216,6 +253,16 @@ In addition to the arguments listed above, the following computed attributes are
 * `kms_key_versions` -
   (Output)
   Output only. Cloud KMS key versions that are being used to protect the database or the backup.
+
+<a name="nested_expiry_quantity"></a>The `expiry_quantity` block contains:
+
+* `retention_count` -
+  (Output)
+  Output only. The backup's position among its backups with the same source cluster and type, by descending chronological order create time (i.e. newest first).
+
+* `total_retention_count` -
+  (Output)
+  Output only. The length of the quantity-based queue, specified by the backup's retention policy.
 
 ## Timeouts
 

@@ -230,6 +230,15 @@ The following arguments are supported:
   (Optional)
   User-settable and human-readable display name for the Cluster.
 
+* `etag` -
+  (Optional)
+  For Resource freshness validation (https://google.aip.dev/154)
+
+* `annotations` -
+  (Optional)
+  Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
 * `initial_user` -
   (Optional)
   Initial user to setup during cluster creation.
@@ -438,6 +447,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `continuous_backup_info` -
   ContinuousBackupInfo describes the continuous backup properties of a cluster.
   Structure is [documented below](#nested_continuous_backup_info).
+
+* `reconciling` -
+  Output only. Reconciling (https://google.aip.dev/128#reconciliation).
+  Set to true if the current state of Cluster does not match the user's intended state, and the service is actively updating the resource to reconcile them.
+  This can happen due to user-triggered updates or system actions like failover or maintenance.
+
+* `state` -
+  Output only. The current serving state of the cluster.
 
 * `database_version` -
   The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.

@@ -134,6 +134,7 @@ resource "google_alloydb_backup" "default" {
   cluster_name = google_alloydb_cluster.default.name
 
   description = "example description"
+  type = "ON_DEMAND"
   labels = {
     "label" = "key"
   }
