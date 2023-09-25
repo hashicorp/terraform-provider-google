@@ -1536,9 +1536,9 @@ func resourceAppEngineFlexibleAppVersionDelete(d *schema.ResourceData, meta inte
 func resourceAppEngineFlexibleAppVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<version_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<service>[^/]+)/(?P<version_id>[^/]+)",
-		"(?P<service>[^/]+)/(?P<version_id>[^/]+)",
+		"^apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)/versions/(?P<version_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<service>[^/]+)/(?P<version_id>[^/]+)$",
+		"^(?P<service>[^/]+)/(?P<version_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

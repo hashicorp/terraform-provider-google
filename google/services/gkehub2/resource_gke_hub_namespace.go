@@ -463,9 +463,9 @@ func resourceGKEHub2NamespaceDelete(d *schema.ResourceData, meta interface{}) er
 func resourceGKEHub2NamespaceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)/namespaces/(?P<scope_namespace_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<scope_id>[^/]+)/(?P<scope_namespace_id>[^/]+)",
-		"(?P<scope_id>[^/]+)/(?P<scope_namespace_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)/namespaces/(?P<scope_namespace_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<scope_id>[^/]+)/(?P<scope_namespace_id>[^/]+)$",
+		"^(?P<scope_id>[^/]+)/(?P<scope_namespace_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

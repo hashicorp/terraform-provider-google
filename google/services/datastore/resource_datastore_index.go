@@ -315,9 +315,9 @@ func resourceDatastoreIndexDelete(d *schema.ResourceData, meta interface{}) erro
 func resourceDatastoreIndexImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/indexes/(?P<index_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<index_id>[^/]+)",
-		"(?P<index_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/indexes/(?P<index_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<index_id>[^/]+)$",
+		"^(?P<index_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -340,9 +340,9 @@ func resourceComputeNetworkPeeringRoutesConfigDelete(d *schema.ResourceData, met
 func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)",
-		"(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)",
-		"(?P<network>[^/]+)/(?P<peering>[^/]+)",
+		"^projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)$",
+		"^(?P<network>[^/]+)/(?P<peering>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -403,9 +403,9 @@ func resourceDNSResponsePolicyDelete(d *schema.ResourceData, meta interface{}) e
 func resourceDNSResponsePolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/responsePolicies/(?P<response_policy_name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<response_policy_name>[^/]+)",
-		"(?P<response_policy_name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/responsePolicies/(?P<response_policy_name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<response_policy_name>[^/]+)$",
+		"^(?P<response_policy_name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

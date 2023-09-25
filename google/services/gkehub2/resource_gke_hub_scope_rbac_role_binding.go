@@ -509,9 +509,9 @@ func resourceGKEHub2ScopeRBACRoleBindingDelete(d *schema.ResourceData, meta inte
 func resourceGKEHub2ScopeRBACRoleBindingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)/rbacrolebindings/(?P<scope_rbac_role_binding_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<scope_id>[^/]+)/(?P<scope_rbac_role_binding_id>[^/]+)",
-		"(?P<scope_id>[^/]+)/(?P<scope_rbac_role_binding_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)/rbacrolebindings/(?P<scope_rbac_role_binding_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<scope_id>[^/]+)/(?P<scope_rbac_role_binding_id>[^/]+)$",
+		"^(?P<scope_id>[^/]+)/(?P<scope_rbac_role_binding_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -434,9 +434,9 @@ func resourceAppEngineFirewallRuleDelete(d *schema.ResourceData, meta interface{
 func resourceAppEngineFirewallRuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"apps/(?P<project>[^/]+)/firewall/ingressRules/(?P<priority>[^/]+)",
-		"(?P<project>[^/]+)/(?P<priority>[^/]+)",
-		"(?P<priority>[^/]+)",
+		"^apps/(?P<project>[^/]+)/firewall/ingressRules/(?P<priority>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<priority>[^/]+)$",
+		"^(?P<priority>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

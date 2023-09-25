@@ -454,8 +454,8 @@ func resourceAccessApprovalFolderSettingsDelete(d *schema.ResourceData, meta int
 func resourceAccessApprovalFolderSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"folders/(?P<folder_id>[^/]+)/accessApprovalSettings",
-		"(?P<folder_id>[^/]+)",
+		"^folders/(?P<folder_id>[^/]+)/accessApprovalSettings$",
+		"^(?P<folder_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

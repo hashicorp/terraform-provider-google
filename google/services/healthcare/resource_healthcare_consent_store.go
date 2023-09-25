@@ -350,7 +350,7 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 func resourceHealthcareConsentStoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"(?P<dataset>.+)/consentStores/(?P<name>[^/]+)",
+		"^(?P<dataset>.+)/consentStores/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

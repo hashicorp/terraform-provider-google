@@ -413,9 +413,9 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 func resourceDatastreamPrivateConnectionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/privateConnections/(?P<private_connection_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<private_connection_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<private_connection_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/privateConnections/(?P<private_connection_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<private_connection_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<private_connection_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

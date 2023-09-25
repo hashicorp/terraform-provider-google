@@ -952,10 +952,10 @@ func resourceDataplexDatascanDelete(d *schema.ResourceData, meta interface{}) er
 func resourceDataplexDatascanImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataScans/(?P<data_scan_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_scan_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<data_scan_id>[^/]+)",
-		"(?P<data_scan_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataScans/(?P<data_scan_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_scan_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<data_scan_id>[^/]+)$",
+		"^(?P<data_scan_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
