@@ -80,6 +80,16 @@ func ResourceVertexAIIndex() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"contents_delta_uri": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+The string must be a valid Cloud Storage directory path. If this
+field is set when calling IndexService.UpdateIndex, then no other
+Index field can be also updated as part of the same call.
+The expected structure and format of the files this URI points to is
+described at https://cloud.google.com/vertex-ai/docs/matching-engine/using-matching-engine#input-data-format`,
+						},
 						"config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -178,16 +188,6 @@ The shard size must be specified when creating an index. The value must be one o
 									},
 								},
 							},
-						},
-						"contents_delta_uri": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Allows inserting, updating  or deleting the contents of the Matching Engine Index.
-The string must be a valid Cloud Storage directory path. If this
-field is set when calling IndexService.UpdateIndex, then no other
-Index field can be also updated as part of the same call.
-The expected structure and format of the files this URI points to is
-described at https://cloud.google.com/vertex-ai/docs/matching-engine/using-matching-engine#input-data-format`,
 						},
 						"is_complete_overwrite": {
 							Type:     schema.TypeBool,
