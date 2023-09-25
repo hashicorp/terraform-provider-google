@@ -39,7 +39,6 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceFirebaserulesReleaseCreate,
 		Read:   resourceFirebaserulesReleaseRead,
-		Update: resourceFirebaserulesReleaseUpdate,
 		Delete: resourceFirebaserulesReleaseDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -48,7 +47,6 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 		CustomizeDiff: customdiff.All(
@@ -66,6 +64,7 @@ func ResourceFirebaserulesRelease() *schema.Resource {
 			"ruleset_name": {
 				Type:             schema.TypeString,
 				Required:         true,
+				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "Name of the `Ruleset` referred to by this `Release`. The `Ruleset` must exist for the `Release` to be created.",
 			},
@@ -205,50 +204,6 @@ func resourceFirebaserulesReleaseRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	return nil
-}
-func resourceFirebaserulesReleaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	obj := &firebaserules.Release{
-		Name:        dcl.String(d.Get("name").(string)),
-		RulesetName: dcl.String(d.Get("ruleset_name").(string)),
-		Project:     dcl.String(project),
-	}
-	directive := tpgdclresource.UpdateDirective
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
-
-	billingProject := ""
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-	client := transport_tpg.NewDCLFirebaserulesClient(config, userAgent, billingProject, d.Timeout(schema.TimeoutUpdate))
-	if bp, err := tpgresource.ReplaceVars(d, config, client.Config.BasePath); err != nil {
-		d.SetId("")
-		return fmt.Errorf("Could not format %q: %w", client.Config.BasePath, err)
-	} else {
-		client.Config.BasePath = bp
-	}
-	res, err := client.ApplyRelease(context.Background(), obj, directive...)
-
-	if _, ok := err.(dcl.DiffAfterApplyError); ok {
-		log.Printf("[DEBUG] Diff after apply returned from the DCL: %s", err)
-	} else if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-		return fmt.Errorf("Error updating Release: %s", err)
-	}
-
-	log.Printf("[DEBUG] Finished creating Release %q: %#v", d.Id(), res)
-
-	return resourceFirebaserulesReleaseRead(d, meta)
 }
 
 func resourceFirebaserulesReleaseDelete(d *schema.ResourceData, meta interface{}) error {

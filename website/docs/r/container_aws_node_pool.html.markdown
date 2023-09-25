@@ -640,6 +640,10 @@ The `max_pods_constraint` block supports:
   (Optional)
   The project for the resource
   
+* `update_settings` -
+  (Optional)
+  (Beta only) Optional. Update settings control the speed and disruption of the node pool update.
+  
 
 
 The `autoscaling_metrics_collection` block supports:
@@ -721,6 +725,22 @@ The `management` block supports:
 * `auto_repair` -
   (Optional)
   Optional. Whether or not the nodes will be automatically repaired.
+    
+The `update_settings` block supports:
+    
+* `surge_settings` -
+  (Optional)
+  Optional. Settings for surge update.
+    
+The `surge_settings` block supports:
+    
+* `max_surge` -
+  (Optional)
+  Optional. The maximum number of nodes that can be created beyond the current size of the node pool during the update process.
+    
+* `max_unavailable` -
+  (Optional)
+  Optional. The maximum number of nodes that can be simultaneously unavailable during the update process. A node is considered unavailable if its status is not Ready.
     
 ## Attributes Reference
 

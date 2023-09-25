@@ -465,6 +465,10 @@ The `networking` block supports:
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
+* `binary_authorization` -
+  (Optional)
+  Configuration options for the Binary Authorization feature.
+  
 * `description` -
   (Optional)
   Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.
@@ -479,6 +483,12 @@ The `networking` block supports:
   
 
 
+The `binary_authorization` block supports:
+    
+* `evaluation_mode` -
+  (Optional)
+  Mode of operation for Binary Authorization policy evaluation. Possible values: DISABLED, PROJECT_SINGLETON_POLICY_ENFORCE
+    
 The `instance_placement` block supports:
     
 * `tenancy` -

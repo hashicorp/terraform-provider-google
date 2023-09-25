@@ -1,0 +1,9 @@
+```release-note:breaking-change
+firebase: made `google_firebase_rules.release` immutable
+```
+```release-note:enhancement
+containeraws: added `binary_authorization` to `google_container_aws_cluster`
+```
+```release-note:enhancement
+containeraws: added `update_settings` to `google_container_aws_node_pool`
+```
