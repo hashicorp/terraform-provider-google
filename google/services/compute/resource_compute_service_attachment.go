@@ -95,25 +95,12 @@ except the last character, which cannot be a dash.`,
 this service attachment.`,
 			},
 			"consumer_accept_lists": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `An array of projects that are allowed to connect to this service
 attachment.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"connection_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
-							Description: `The number of consumer forwarding rules the consumer project can
-create.`,
-						},
-						"project_id_or_num": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `A project that is allowed to connect to this service attachment.`,
-						},
-					},
-				},
+				Elem: computeServiceAttachmentConsumerAcceptListsSchema(),
+				// Default schema.HashSchema is used.
 			},
 			"consumer_reject_lists": {
 				Type:     schema.TypeList,
@@ -197,6 +184,24 @@ updates of this resource.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func computeServiceAttachmentConsumerAcceptListsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"connection_limit": {
+				Type:     schema.TypeInt,
+				Required: true,
+				Description: `The number of consumer forwarding rules the consumer project can
+create.`,
+			},
+			"project_id_or_num": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `A project that is allowed to connect to this service attachment.`,
+			},
+		},
 	}
 }
 
@@ -683,14 +688,14 @@ func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeServiceAttachmentConsumerAcceptListsSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"project_id_or_num": flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(original["projectIdOrNum"], d, config),
 			"connection_limit":  flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(original["connectionLimit"], d, config),
 		})
@@ -775,6 +780,7 @@ func expandComputeServiceAttachmentConsumerRejectLists(v interface{}, d tpgresou
 }
 
 func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

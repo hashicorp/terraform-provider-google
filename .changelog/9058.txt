@@ -1,0 +1,3 @@
+```release-note:breaking-change
+compute: retyped `consumer_accept_lists` to a SET from an ARRAY type for `google_compute_service_attachment
+```
