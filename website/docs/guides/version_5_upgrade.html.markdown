@@ -158,6 +158,10 @@ This will only affect users whose configuration contains resource blocks that ha
 
 `project`, `region`, and `zone` fields will now display their values during plan-time instead of the placeholder `(known after apply)` value normally displayed for fields without fixed Terraform default values. These values will be taken from either the Terraform resource config file, provider config, or local environment variables, depending on which variables are supplied by the user, matching the existing per-resource functionality for what default values are used in execution of a Terraform plan.
 
+### Resource import formats have improved validation
+
+Throughout the provider there were many resources which erroneously gave false positives to poorly formatted import input if a subset of the provided input was valid to their configured import formats. All GCP resource IDs supplied to "terraform import" must match the documentation specified import formats exactly.
+
 ## Datasources
 
 ### Datasources now error universally on 404
@@ -448,7 +452,6 @@ it will use the default value from the API which is `FALSE`. If you want to
 enable endpoint independent mapping, then explicity set the value of
 `enable_endpoint_independent_mapping` field to `TRUE`.
 
-
 ## Resource: `google_firebase_project_location`
 
 ### `google_firebase_project_location` is now removed
@@ -665,6 +668,31 @@ resource "google_secret_manager_secret" "my-secret" {
 ### `reconcile_connections` now defaults from API
 
 `reconcile_connections` previously defaults to true. Now it will default from the API.
+
+
+## Resource: `google_dataflow_flex_template_job`
+
+### Fields that are a part of the [environment block](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.locations.flexTemplates/launch#FlexTemplateRuntimeEnvironment) will be overriden to be sent via their fields even when supplied via parameters.
+
+Several fields within the `google_dataflow_flex_template_job` resource can be supplied through either the `parameters{}` block or a field on the resource object. Support for these fields on the resource object was added in the `4.66.0` release of the Google provider. That version introduced an issue where the values were being double-sent to the API due to being recorded in Terraform state in two places. To resolve this issue, these fields will be deduplicated and sent to the API through the resource object.
+
+Additionally, due to the API returning these fields to the user they will now be considered computed and users will see values twice within their state when configuring these fields' values via the `parameters{}` block.
+
+## Resource: `google_compute_node_group`
+
+### Node groups are now mutable
+
+Due to limitations in previous field configurations, the only field that could be updated previously was `node_template`. It is now possible to adjust the `autoscaling_policy` without recreating the group, nor will any adjustment to the `size` of the nodepool prompt resource recration.
+
+### `size` is now an output only field.
+
+`size` previously served as an alias for `initial_size` on resource creation, and users would be required to recreate the resource if the `size` value ever adjusted due to either direct user update or auto-scaling adjustment outside of Terraform.
+
+It will now mirror its API functionality and serve as an output only field to show how many nodes currently exist within the resource. All existing configurations which used `size` as an input field must be updated for its removal.
+
+### One of `initial_size` or `autoscaling_policy{}` must be configured on resource creation.
+
+These fields will supply the base node-count for a node group and one of them will be required for successful resource creation. Both will be freely updateable or removable on future state changes that do not require recreation.
 
 ## Resource: `google_looker_instance`
 
