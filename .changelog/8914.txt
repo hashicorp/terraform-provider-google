@@ -1,0 +1,6 @@
+```release-note:breaking-change
+monitoring: made `labels` immutable in `google_monitoring_metric_descriptor`
+```
+```release-note:bug
+monitoring: fixed an issue where `metadata` was not able to be updated in `google_monitoring_metric_descriptor`
+```
