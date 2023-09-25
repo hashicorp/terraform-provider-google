@@ -818,6 +818,13 @@ will not run in February, April, June, etc.`,
 													ValidateFunc: validation.IntBetween(-1, 4),
 													Description:  `Week number in a month. 1-4 indicates the 1st to 4th week of the month. -1 indicates the last week of the month.`,
 												},
+												"day_offset": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ForceNew:     true,
+													ValidateFunc: validation.IntBetween(-30, 30),
+													Description:  `Represents the number of days before or after the given week day of month that the patch deployment is scheduled for.`,
+												},
 											},
 										},
 										ExactlyOneOf: []string{"recurring_schedule.0.monthly.0.week_day_of_month", "recurring_schedule.0.monthly.0.month_day"},
@@ -1977,6 +1984,8 @@ func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonth(v inte
 		flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthWeekOrdinal(original["weekOrdinal"], d, config)
 	transformed["day_of_week"] =
 		flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOfWeek(original["dayOfWeek"], d, config)
+	transformed["day_offset"] =
+		flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOffset(original["dayOffset"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthWeekOrdinal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1998,6 +2007,23 @@ func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthWeekOrd
 
 func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOfWeek(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOffset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenOSConfigPatchDeploymentRecurringScheduleMonthlyMonthDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3228,6 +3254,13 @@ func expandOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonth(v inter
 		transformed["dayOfWeek"] = transformedDayOfWeek
 	}
 
+	transformedDayOffset, err := expandOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOffset(original["day_offset"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDayOffset); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dayOffset"] = transformedDayOffset
+	}
+
 	return transformed, nil
 }
 
@@ -3236,6 +3269,10 @@ func expandOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthWeekOrdi
 }
 
 func expandOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOfWeek(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOSConfigPatchDeploymentRecurringScheduleMonthlyWeekDayOfMonthDayOffset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
