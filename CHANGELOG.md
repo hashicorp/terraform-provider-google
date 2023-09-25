@@ -14,7 +14,7 @@ FEATURES:
 * **New Resource:** `google_edgenetwork_subnet` ([#15891](https://github.com/hashicorp/terraform-provider-google/pull/15891))
 
 IMPROVEMENTS:
-* alloydb: added `network_config` field to support named IP ranges. ([#15881](https://github.com/hashicorp/terraform-provider-google/pull/15881))
+* alloydb: added `network_config` field to support named IP ranges on `google_alloydb_cluster`. ([#15881](https://github.com/hashicorp/terraform-provider-google/pull/15881))
 * cloudrunv2: added fields `network_interfaces` to resource `google_cloud_run_v2_job` to support Direct VPC egress. ([#15870](https://github.com/hashicorp/terraform-provider-google/pull/15870))
 * cloudrunv2: added fields `network_interfaces` to resource `google_cloud_run_v2_service` to support Direct VPC egress. ([#15870](https://github.com/hashicorp/terraform-provider-google/pull/15870))
 * compute: updated the `autoscaling_policy.mode` to accept `ONLY_SCALE_OUT` on `google_compute_autoscaler` ([#15890](https://github.com/hashicorp/terraform-provider-google/pull/15890))
