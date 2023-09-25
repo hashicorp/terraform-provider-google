@@ -148,6 +148,58 @@ resource "google_artifact_registry_repository" "my-repo" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_apt&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Apt
+
+
+```hcl
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "debian-buster"
+  description   = "example remote apt repository"
+  format        = "APT"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "Debian buster remote repository"
+    apt_repository {
+      public_repository {
+        repository_base = "DEBIAN"
+        repository_path = "debian/dists/buster"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_yum&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Yum
+
+
+```hcl
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "centos-8"
+  description   = "example remote yum repository"
+  format        = "YUM"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "Centos 8 remote repository"
+    yum_repository {
+      public_repository {
+        repository_base = "CENTOS"
+        repository_path = "8-stream/BaseOs/x86_64/os"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_cleanup&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -389,6 +441,11 @@ The following arguments are supported:
   (Optional)
   The description of the remote source.
 
+* `apt_repository` -
+  (Optional)
+  Specific settings for an Apt remote repository.
+  Structure is [documented below](#nested_apt_repository).
+
 * `docker_repository` -
   (Optional)
   Specific settings for a Docker remote repository.
@@ -409,6 +466,30 @@ The following arguments are supported:
   Specific settings for a Python remote repository.
   Structure is [documented below](#nested_python_repository).
 
+* `yum_repository` -
+  (Optional)
+  Specific settings for an Yum remote repository.
+  Structure is [documented below](#nested_yum_repository).
+
+
+<a name="nested_apt_repository"></a>The `apt_repository` block supports:
+
+* `public_repository` -
+  (Optional)
+  One of the publicly available Apt repositories supported by Artifact Registry.
+  Structure is [documented below](#nested_public_repository).
+
+
+<a name="nested_public_repository"></a>The `public_repository` block supports:
+
+* `repository_base` -
+  (Required)
+  A common public repository base for Apt, e.g. `"debian/dists/buster"`
+  Possible values are: `DEBIAN`, `UBUNTU`.
+
+* `repository_path` -
+  (Required)
+  Specific repository from the base.
 
 <a name="nested_docker_repository"></a>The `docker_repository` block supports:
 
@@ -441,6 +522,25 @@ The following arguments are supported:
   Address of the remote repository.
   Default value is `PYPI`.
   Possible values are: `PYPI`.
+
+<a name="nested_yum_repository"></a>The `yum_repository` block supports:
+
+* `public_repository` -
+  (Optional)
+  One of the publicly available Yum repositories supported by Artifact Registry.
+  Structure is [documented below](#nested_public_repository).
+
+
+<a name="nested_public_repository"></a>The `public_repository` block supports:
+
+* `repository_base` -
+  (Required)
+  A common public repository base for Yum.
+  Possible values are: `CENTOS`, `CENTOS_DEBUG`, `CENTOS_VAULT`, `CENTOS_STREAM`, `ROCKY`, `EPEL`.
+
+* `repository_path` -
+  (Required)
+  Specific repository from the base, e.g. `"8-stream/BaseOs/x86_64/os"`
 
 ## Attributes Reference
 
