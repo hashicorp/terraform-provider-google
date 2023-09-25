@@ -3,6 +3,7 @@
 package tpgdclresource
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -25,4 +26,25 @@ func HandleNotFoundDCLError(err error, d *schema.ResourceData, resourceName stri
 
 	return errwrap.Wrapf(
 		fmt.Sprintf("Error when reading or editing %s: {{err}}", resourceName), err)
+}
+
+func ResourceContainerAwsNodePoolCustomizeDiffFunc(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	count := diff.Get("update_settings.#").(int)
+	if count < 1 {
+		return nil
+	}
+
+	oMaxSurge, nMaxSurge := diff.GetChange("update_settings.0.surge_settings.0.max_surge")
+	oMaxUnavailable, nMaxUnavailable := diff.GetChange("update_settings.0.surge_settings.0.max_unavailable")
+
+	// Server default of maxSurge = 1 and maxUnavailable = 0 is not returned
+	// Clear the diff if trying to resolve these specific values
+	if oMaxSurge == 0 && nMaxSurge == 1 && oMaxUnavailable == 0 && nMaxUnavailable == 0 {
+		err := diff.Clear("update_settings")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
