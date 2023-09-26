@@ -471,7 +471,7 @@ to work, cannot be updated, and supports:
 
 * `password` - (Optional) Password for the replication connection.
 
-* `sslCipher` - (Optional) Permissible ciphers for use in SSL encryption.
+* `ssl_cipher` - (Optional) Permissible ciphers for use in SSL encryption.
 
 * `username` - (Optional) Username for replication connection.
 
