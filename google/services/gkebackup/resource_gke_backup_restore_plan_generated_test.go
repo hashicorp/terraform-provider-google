@@ -52,7 +52,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 				ResourceName:            "google_gke_backup_restore_plan.all_ns",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -125,7 +125,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 				ResourceName:            "google_gke_backup_restore_plan.rollback_ns",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -207,7 +207,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 				ResourceName:            "google_gke_backup_restore_plan.rollback_app",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -284,7 +284,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 				ResourceName:            "google_gke_backup_restore_plan.all_cluster_resources",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -356,7 +356,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 				ResourceName:            "google_gke_backup_restore_plan.rename_ns",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -455,7 +455,7 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 				ResourceName:            "google_gke_backup_restore_plan.transform_rule",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
