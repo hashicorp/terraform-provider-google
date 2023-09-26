@@ -43,23 +43,22 @@ resource "google_folder" "folder" {
 }
 
 resource "google_scc_folder_custom_module" "example" {
-	folder = google_folder.folder.folder_id
-	display_name = "basic_custom_module"
-	enablement_state = "ENABLED"
-	custom_config {
-		predicate {
-			expression = "resource.rotationPeriod > duration(\"2592000s\")"
-		}
-		resource_selector {
-			resource_types = [
-				"cloudkms.googleapis.com/CryptoKey",
-			]
-		}
-		description = "The rotation period of the identified cryptokey resource exceeds 30 days."
-		recommendation = "Set the rotation period to at most 30 days."
-		severity = "MEDIUM"
-	}
-
+  folder = google_folder.folder.folder_id
+  display_name = "basic_custom_module"
+  enablement_state = "ENABLED"
+  custom_config {
+    predicate {
+      expression = "resource.rotationPeriod > duration(\"2592000s\")"
+    }
+    resource_selector {
+      resource_types = [
+        "cloudkms.googleapis.com/CryptoKey",
+      ]
+    }
+    description = "The rotation period of the identified cryptokey resource exceeds 30 days."
+    recommendation = "Set the rotation period to at most 30 days."
+    severity = "MEDIUM"
+  }
 }
 ```
 ## Example Usage - Scc Folder Custom Module Full
@@ -72,37 +71,36 @@ resource "google_folder" "folder" {
 }
 
 resource "google_scc_folder_custom_module" "example" {
-	folder = google_folder.folder.folder_id
-	display_name = "full_custom_module"
-	enablement_state = "ENABLED"
-	custom_config {
-		predicate {
-			expression = "resource.rotationPeriod > duration(\"2592000s\")"
-			title = "Purpose of the expression"
-			description = "description of the expression"
-			location = "location of the expression"
-		}
-		custom_output {
-			properties {
-				name = "duration"
-				value_expression {
-					expression = "resource.rotationPeriod"
-					title = "Purpose of the expression"
-					description = "description of the expression"
-					location = "location of the expression"
-				}
-			}
-		}
-		resource_selector {
-			resource_types = [
-				"cloudkms.googleapis.com/CryptoKey",
-			]
-		}
-		severity = "LOW"
-		description = "Description of the custom module"
-		recommendation = "Steps to resolve violation"
-	}
-
+  folder = google_folder.folder.folder_id
+  display_name = "full_custom_module"
+  enablement_state = "ENABLED"
+  custom_config {
+    predicate {
+      expression = "resource.rotationPeriod > duration(\"2592000s\")"
+      title = "Purpose of the expression"
+      description = "description of the expression"
+      location = "location of the expression"
+    }
+    custom_output {
+      properties {
+        name = "duration"
+        value_expression {
+          expression = "resource.rotationPeriod"
+          title = "Purpose of the expression"
+          description = "description of the expression"
+          location = "location of the expression"
+        }
+      }
+    }
+    resource_selector {
+      resource_types = [
+        "cloudkms.googleapis.com/CryptoKey",
+      ]
+    }
+    severity = "LOW"
+    description = "Description of the custom module"
+    recommendation = "Steps to resolve violation"
+  }
 }
 ```
 

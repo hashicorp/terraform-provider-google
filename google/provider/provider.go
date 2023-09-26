@@ -994,9 +994,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 327
+// Generated resources: 328
 // Generated IAM resources: 210
-// Total generated resources: 537
+// Total generated resources: 538
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1479,6 +1479,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_scc_folder_custom_module":                                securitycenter.ResourceSecurityCenterFolderCustomModule(),
 			"google_scc_mute_config":                                         securitycenter.ResourceSecurityCenterMuteConfig(),
 			"google_scc_notification_config":                                 securitycenter.ResourceSecurityCenterNotificationConfig(),
+			"google_scc_organization_custom_module":                          securitycenter.ResourceSecurityCenterOrganizationCustomModule(),
 			"google_scc_project_custom_module":                               securitycenter.ResourceSecurityCenterProjectCustomModule(),
 			"google_scc_source":                                              securitycenter.ResourceSecurityCenterSource(),
 			"google_scc_source_iam_binding":                                  tpgiamresource.ResourceIamBinding(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
