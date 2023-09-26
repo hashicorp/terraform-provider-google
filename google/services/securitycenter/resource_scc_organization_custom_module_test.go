@@ -11,55 +11,61 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Custom Module tests cannot be run in parallel without running into 409 Conflict reponses.
 // Run them as individual steps of an update test instead.
-func TestAccSecurityCenterProjectCustomModule(t *testing.T) {
+func TestAccSecurityCenterOrganizationCustomModule(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t),
+		CheckDestroy:             testAccCheckSecurityCenterOrganizationCustomModuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleBasicExample(context),
+				Config: testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleBasicExample(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_organization_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization"},
 			},
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleFullExample(context),
+				Config: testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleFullExample(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_organization_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization"},
 			},
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleUpdate(context),
+				Config: testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleUpdate(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_organization_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization"},
 			},
 		},
 	})
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleBasicExample(context map[string]interface{}) string {
+func testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
+resource "google_scc_organization_custom_module" "example" {
+	organization = "%{org_id}"
 	display_name = "tf_test_basic_custom_module%{random_suffix}"
 	enablement_state = "ENABLED"
 	custom_config {
@@ -79,9 +85,10 @@ resource "google_scc_project_custom_module" "example" {
 `, context)
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleFullExample(context map[string]interface{}) string {
+func testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
+resource "google_scc_organization_custom_module" "example" {
+	organization = "%{org_id}"
 	display_name = "tf_test_full_custom_module%{random_suffix}"
 	enablement_state = "ENABLED"
 	custom_config {
@@ -115,10 +122,11 @@ resource "google_scc_project_custom_module" "example" {
 `, context)
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleUpdate(context map[string]interface{}) string {
+func testAccSecurityCenterOrganizationCustomModule_sccOrganizationCustomModuleUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
-	display_name = "full_custom_module"
+resource "google_scc_organization_custom_module" "example" {
+	organization = "%{org_id}"
+	display_name = "tf_test_full_custom_module%{random_suffix}"
 	enablement_state = "DISABLED"
 	custom_config {
 		predicate {
@@ -151,10 +159,10 @@ resource "google_scc_project_custom_module" "example" {
 `, context)
 }
 
-func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckSecurityCenterOrganizationCustomModuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_scc_project_custom_module" {
+			if rs.Type != "google_scc_organization_custom_module" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -163,7 +171,7 @@ func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) 
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}organizations/{{organization}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -182,7 +190,7 @@ func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) 
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("SecurityCenterProjectCustomModule still exists at %s", url)
+				return fmt.Errorf("SecurityCenterOrganizationCustomModule still exists at %s", url)
 			}
 		}
 
