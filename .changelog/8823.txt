@@ -1,0 +1,3 @@
+```release-note:enhancement
+baremetal: make delete a noop for the resource `google_bare_metal_admin_cluster` to better align with actual behavior
+```
