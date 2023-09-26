@@ -39,6 +39,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "membershiprbacrolebinding" {

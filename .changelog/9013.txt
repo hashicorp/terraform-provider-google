@@ -1,0 +1,3 @@
+```release-note:breaking-change
+container: `google_container_cluster` now has `deletion_protection` enabled to `true` by default. When enabled, this field prevents Terraform from deleting the resource.
+```

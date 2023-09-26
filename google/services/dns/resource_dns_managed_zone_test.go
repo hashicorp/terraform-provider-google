@@ -420,6 +420,7 @@ resource "google_container_cluster" "cluster-1" {
   name               = "tf-test-cluster-1-%s"
   location           = "us-central1-c"
   initial_node_count = 1
+  deletion_protection = false
 
   networking_mode = "VPC_NATIVE"
   default_snat_status {

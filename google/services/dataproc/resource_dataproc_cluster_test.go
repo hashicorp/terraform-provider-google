@@ -1161,6 +1161,7 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
   }
+  deletion_protection = false
 }
 
 resource "google_project_iam_binding" "workloadidentity" {

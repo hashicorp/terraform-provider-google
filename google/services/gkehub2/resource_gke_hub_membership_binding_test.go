@@ -52,6 +52,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "example" {
@@ -93,6 +94,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "example" {

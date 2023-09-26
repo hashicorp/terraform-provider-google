@@ -44,6 +44,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -89,6 +90,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -143,6 +145,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -192,6 +195,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -236,6 +240,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -307,6 +312,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = ""
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
