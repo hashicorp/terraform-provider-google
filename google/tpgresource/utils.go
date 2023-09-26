@@ -579,7 +579,7 @@ func ReplaceVarsForId(d TerraformResourceData, config *transport_tpg.Config, lin
 // substitution as 10+ calls to allow for future use cases.
 func ReplaceVarsRecursive(d TerraformResourceData, config *transport_tpg.Config, linkTmpl string, shorten bool, depth int) (string, error) {
 	if depth > 10 {
-		return "", errors.New("Recursive substitution detcted")
+		return "", errors.New("Recursive substitution detected")
 	}
 
 	// https://github.com/google/re2/wiki/Syntax
