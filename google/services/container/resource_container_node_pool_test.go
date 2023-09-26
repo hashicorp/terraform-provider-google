@@ -2898,7 +2898,7 @@ resource "google_compute_node_template" "soletenant-tmpl" {
 resource "google_compute_node_group" "nodes" {
   name        = "tf-test-soletenant-group"
   zone        = "us-central1-a"
-  size          = 1
+  initial_size	= 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 }
 

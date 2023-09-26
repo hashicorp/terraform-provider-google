@@ -1,0 +1,9 @@
+```release-note:breaking-change
+compute: `size` in `google_compute_node_group` is now an output only field. 
+```
+```release-note:enhancement
+compute: `google_compute_node_group` made mutable
+```
+```release-note:note
+compute: `google_compute_node_group` made to require one of `initial_size` or `autoscaling_policy` fields configured upon resource creation
+```

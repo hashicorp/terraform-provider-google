@@ -18,10 +18,12 @@
 package compute
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -64,9 +66,10 @@ func ResourceComputeNodeGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 				Description: `If you use sole-tenant nodes for your workloads, you can use the node
-group autoscaler to automatically manage the sizes of your node groups.`,
+group autoscaler to automatically manage the sizes of your node groups.
+
+One of 'initial_size' or 'autoscaling_policy' must be configured on resource creation.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -74,7 +77,6 @@ group autoscaler to automatically manage the sizes of your node groups.`,
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `Maximum size of the node group. Set to a value less than or equal
 to 100 and greater than or equal to min-nodes.`,
 						},
@@ -82,7 +84,6 @@ to 100 and greater than or equal to min-nodes.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"OFF", "ON", "ONLY_SCALE_OUT"}),
 							Description: `The autoscaling mode. Set to one of the following:
   - OFF: Disables the autoscaler.
@@ -95,7 +96,6 @@ to 100 and greater than or equal to min-nodes.`,
 							Type:     schema.TypeInt,
 							Computed: true,
 							Optional: true,
-							ForceNew: true,
 							Description: `Minimum size of the node group. Must be less
 than or equal to max-nodes. The default value is 0.`,
 						},
@@ -105,27 +105,22 @@ than or equal to max-nodes. The default value is 0.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional textual description of the resource.`,
 			},
 			"initial_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `The initial number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
-				ExactlyOneOf: []string{"size", "initial_size"},
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The initial number of nodes in the node group. One of 'initial_size' or 'autoscaling_policy' must be configured on resource creation.`,
 			},
 			"maintenance_policy": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies how to handle instances when a node in the group undergoes maintenance. Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default value is DEFAULT.`,
 				Default:     "DEFAULT",
 			},
 			"maintenance_window": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `contains properties for the timeframe of maintenance`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -133,7 +128,6 @@ than or equal to max-nodes. The default value is 0.`,
 						"start_time": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `instances.start time of the window. This must be in UTC format that resolves to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5 and 08:00 are valid.`,
 						},
 					},
@@ -142,14 +136,12 @@ than or equal to max-nodes. The default value is 0.`,
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Name of the resource.`,
 			},
 			"share_settings": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Share settings for the node group.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -157,26 +149,22 @@ than or equal to max-nodes. The default value is 0.`,
 						"share_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"}),
 							Description:  `Node group sharing type. Possible values: ["ORGANIZATION", "SPECIFIC_PROJECTS", "LOCAL"]`,
 						},
 						"project_map": {
 							Type:        schema.TypeSet,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `A map of project id and project config. This is only valid when shareType's value is SPECIFIC_PROJECTS.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 									},
 									"project_id": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `The project id/number should be the same as the key of this project config in the project map.`,
 									},
 								},
@@ -185,19 +173,10 @@ than or equal to max-nodes. The default value is 0.`,
 					},
 				},
 			},
-			"size": {
-				Type:         schema.TypeInt,
-				Computed:     true,
-				Optional:     true,
-				ForceNew:     true,
-				Description:  `The total number of nodes in the node group. One of 'initial_size' or 'size' must be specified.`,
-				ExactlyOneOf: []string{"size", "initial_size"},
-			},
 			"zone": {
 				Type:             schema.TypeString,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Zone where this node group is located`,
 			},
@@ -205,6 +184,11 @@ than or equal to max-nodes. The default value is 0.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"size": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The total number of nodes in the node group.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -246,12 +230,6 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("node_template"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeTemplateProp)) && (ok || !reflect.DeepEqual(v, nodeTemplateProp)) {
 		obj["nodeTemplate"] = nodeTemplateProp
-	}
-	sizeProp, err := expandComputeNodeGroupSize(d.Get("size"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("size"); ok || !reflect.DeepEqual(v, sizeProp) {
-		obj["size"] = sizeProp
 	}
 	maintenancePolicyProp, err := expandComputeNodeGroupMaintenancePolicy(d.Get("maintenance_policy"), d, config)
 	if err != nil {
@@ -304,10 +282,14 @@ func resourceComputeNodeGroupCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	var sizeParam string
-	if v, ok := d.GetOkExists("size"); ok {
+	if v, ok := d.GetOkExists("initial_size"); ok {
 		sizeParam = fmt.Sprintf("%v", v)
-	} else if v, ok := d.GetOkExists("initial_size"); ok {
-		sizeParam = fmt.Sprintf("%v", v)
+	} else {
+		if _, ok := d.GetOkExists("autoscaling_policy"); ok {
+			sizeParam = fmt.Sprintf("%v", d.Get("autoscaling_policy.min_nodes"))
+		} else {
+			return errors.New("An initial_size or autoscaling_policy must be configured on node group creation.")
+		}
 	}
 
 	url = regexp.MustCompile("PRE_CREATE_REPLACE_ME").ReplaceAllLiteralString(url, sizeParam)
@@ -438,6 +420,123 @@ func resourceComputeNodeGroupUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	billingProject = project
 
+	obj := make(map[string]interface{})
+	descriptionProp, err := expandComputeNodeGroupDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	nameProp, err := expandComputeNodeGroupName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	maintenancePolicyProp, err := expandComputeNodeGroupMaintenancePolicy(d.Get("maintenance_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
+		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
+	maintenanceWindowProp, err := expandComputeNodeGroupMaintenanceWindow(d.Get("maintenance_window"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_window"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceWindowProp)) {
+		obj["maintenanceWindow"] = maintenanceWindowProp
+	}
+	autoscalingPolicyProp, err := expandComputeNodeGroupAutoscalingPolicy(d.Get("autoscaling_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("autoscaling_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingPolicyProp)) {
+		obj["autoscalingPolicy"] = autoscalingPolicyProp
+	}
+	shareSettingsProp, err := expandComputeNodeGroupShareSettings(d.Get("share_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("share_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
+		obj["shareSettings"] = shareSettingsProp
+	}
+	zoneProp, err := expandComputeNodeGroupZone(d.Get("zone"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+		obj["zone"] = zoneProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/nodeGroups/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating NodeGroup %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("name") {
+		updateMask = append(updateMask, "name")
+	}
+
+	if d.HasChange("maintenance_policy") {
+		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("maintenance_window") {
+		updateMask = append(updateMask, "maintenanceWindow")
+	}
+
+	if d.HasChange("autoscaling_policy") {
+		updateMask = append(updateMask, "autoscalingPolicy")
+	}
+
+	if d.HasChange("share_settings") {
+		updateMask = append(updateMask, "shareSettings")
+	}
+
+	if d.HasChange("zone") {
+		updateMask = append(updateMask, "zone")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating NodeGroup %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating NodeGroup %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating NodeGroup", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
 	d.Partial(true)
 
 	if d.HasChange("node_template") {
@@ -733,10 +832,6 @@ func expandComputeNodeGroupNodeTemplate(v interface{}, d tpgresource.TerraformRe
 		return nil, fmt.Errorf("Invalid value for node_template: %s", err)
 	}
 	return f.RelativeLink(), nil
-}
-
-func expandComputeNodeGroupSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandComputeNodeGroupMaintenancePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

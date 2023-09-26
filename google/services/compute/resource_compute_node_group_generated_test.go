@@ -69,7 +69,7 @@ resource "google_compute_node_group" "nodes" {
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 }
 `, context)
@@ -172,7 +172,7 @@ resource "google_compute_node_group" "nodes" {
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 
   share_settings {

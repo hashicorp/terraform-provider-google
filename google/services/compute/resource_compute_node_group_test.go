@@ -9,12 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
+func TestAccComputeNodeGroup_update(t *testing.T) {
 	t.Parallel()
 
 	groupName := fmt.Sprintf("group--%d", acctest.RandInt(t))
@@ -27,26 +29,47 @@ func TestAccComputeNodeGroup_updateNodeTemplate(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeNodeGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, "tmpl1"),
+				Config: testAccComputeNodeGroup_update(groupName, tmplPrefix, "tmpl1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNodeGroupCreationTimeBefore(&timeCreated),
 				),
 			},
 			{
-				ResourceName:      "google_compute_node_group.nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_node_group.nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_size"},
 			},
 			{
-				Config: testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, "tmpl2"),
+				Config: testAccComputeNodeGroup_update2(groupName, tmplPrefix, "tmpl2"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeNodeGroupCreationTimeBefore(&timeCreated),
 				),
 			},
 			{
-				ResourceName:      "google_compute_node_group.nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_node_group.nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"initial_size"},
+			},
+		},
+	})
+}
+
+func TestAccComputeNodeGroup_fail(t *testing.T) {
+	t.Parallel()
+
+	groupName := fmt.Sprintf("group--%d", acctest.RandInt(t))
+	tmplPrefix := fmt.Sprintf("tmpl--%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNodeGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeNodeGroup_fail(groupName, tmplPrefix, "tmpl1"),
+				ExpectError: regexp.MustCompile("An initial_size or autoscaling_policy must be configured on node group creation."),
 			},
 		},
 	})
@@ -87,7 +110,7 @@ func testAccCheckComputeNodeGroupCreationTimeBefore(prevTimeCreated *time.Time) 
 	}
 }
 
-func testAccComputeNodeGroup_updateNodeTemplate(groupName, tmplPrefix, tmplToUse string) string {
+func testAccComputeNodeGroup_update(groupName, tmplPrefix, tmplToUse string) string {
 	return fmt.Sprintf(`
 resource "google_compute_node_template" "tmpl1" {
   name      = "%s-first"
@@ -106,8 +129,58 @@ resource "google_compute_node_group" "nodes" {
   zone        = "us-central1-a"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size          = 0
+  initial_size = 1
   node_template = google_compute_node_template.%s.self_link
 }
+
 `, tmplPrefix, tmplPrefix, groupName, tmplToUse)
+}
+
+func testAccComputeNodeGroup_update2(groupName, tmplPrefix, tmplToUse string) string {
+	return fmt.Sprintf(`
+resource "google_compute_node_template" "tmpl1" {
+  name      = "%s-first"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_template" "tmpl2" {
+  name      = "%s-second"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "%s"
+  zone        = "us-central1-a"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  autoscaling_policy {
+    mode      = "ONLY_SCALE_OUT"
+    min_nodes = 1
+    max_nodes = 10
+  }
+  node_template = google_compute_node_template.%s.self_link
+}
+
+`, tmplPrefix, tmplPrefix, groupName, tmplToUse)
+}
+
+func testAccComputeNodeGroup_fail(groupName, tmplPrefix, tmplToUse string) string {
+	return fmt.Sprintf(`
+resource "google_compute_node_template" "tmpl1" {
+  name      = "%s-first"
+  region    = "us-central1"
+  node_type = "n1-node-96-624"
+}
+
+resource "google_compute_node_group" "nodes" {
+  name        = "%s"
+  zone        = "us-central1-a"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  node_template = google_compute_node_template.%s.self_link
+}
+
+`, tmplPrefix, groupName, tmplToUse)
 }
