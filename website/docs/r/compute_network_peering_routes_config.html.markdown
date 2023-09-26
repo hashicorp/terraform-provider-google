@@ -134,6 +134,7 @@ resource "google_container_cluster" "private_cluster" {
     cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
+  deletion_protection  = "true"
 }
 ```
 

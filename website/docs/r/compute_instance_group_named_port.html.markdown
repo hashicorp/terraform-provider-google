@@ -81,6 +81,7 @@ resource "google_container_cluster" "my_cluster" {
     cluster_ipv4_cidr_block  = "/19"
     services_ipv4_cidr_block = "/22"
   }
+  deletion_protection  = "true"
 }
 ```
 

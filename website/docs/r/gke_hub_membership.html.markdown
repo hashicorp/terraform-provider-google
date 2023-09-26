@@ -41,6 +41,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -67,6 +68,7 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "membership" {

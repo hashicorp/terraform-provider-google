@@ -44,6 +44,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -80,6 +81,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "autopilot" {
@@ -109,6 +111,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "cmek" {
@@ -153,6 +156,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "full" {

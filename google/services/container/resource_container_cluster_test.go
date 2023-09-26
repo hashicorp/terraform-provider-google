@@ -31,21 +31,24 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportStateId:     fmt.Sprintf("us-central1-a/%s", clusterName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateId:           fmt.Sprintf("us-central1-a/%s", clusterName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportStateId:     fmt.Sprintf("%s/us-central1-a/%s", envvar.GetTestProjectFromEnv(), clusterName),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateId:           fmt.Sprintf("%s/us-central1-a/%s", envvar.GetTestProjectFromEnv(), clusterName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -64,9 +67,10 @@ func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 				Config: testAccContainerCluster_networkingModeRoutes(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -92,7 +96,7 @@ func TestAccContainerCluster_misc(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_misc_update(clusterName),
@@ -101,7 +105,7 @@ func TestAccContainerCluster_misc(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 		},
 	})
@@ -126,7 +130,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				// TODO: clean up this list in `4.0.0`, remove both `workload_identity_config` fields (same for below)
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateAddons(pid, clusterName),
@@ -135,7 +139,7 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Issue with cloudrun_config addon: https://github.com/hashicorp/terraform-provider-google/issues/11943
 			// {
@@ -145,8 +149,40 @@ func TestAccContainerCluster_withAddons(t *testing.T) {
 			// 	ResourceName:            "google_container_cluster.primary",
 			// 	ImportState:             true,
 			// 	ImportStateVerify:       true,
-			// 	ImportStateVerifyIgnore: []string{"min_master_version"},
+			// 	ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			// },
+		},
+	})
+}
+
+func TestAccContainerCluster_withDeletionProtection(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withDeletionProtection(clusterName, "false"),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withDeletionProtection(clusterName, "true"),
+			},
+			{
+				Config:      testAccContainerCluster_withDeletionProtection(clusterName, "true"),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("Cannot destroy cluster because deletion_protection is set to true. Set it to false to proceed with instance deletion."),
+			},
+			{
+				Config: testAccContainerCluster_withDeletionProtection(clusterName, "false"),
+			},
 		},
 	})
 }
@@ -167,33 +203,37 @@ func TestAccContainerCluster_withNotificationConfig(t *testing.T) {
 				Config: testAccContainerCluster_withNotificationConfig(clusterName, topic),
 			},
 			{
-				ResourceName:      "google_container_cluster.notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNotificationConfig(clusterName, newTopic),
 			},
 			{
-				ResourceName:      "google_container_cluster.notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_disableNotificationConfig(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNotificationConfig(clusterName, newTopic),
 			},
 			{
-				ResourceName:      "google_container_cluster.notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -215,25 +255,28 @@ func TestAccContainerCluster_withFilteredNotificationConfig(t *testing.T) {
 				Config: testAccContainerCluster_withFilteredNotificationConfig(clusterName, topic),
 			},
 			{
-				ResourceName:      "google_container_cluster.filtered_notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.filtered_notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withFilteredNotificationConfigUpdate(clusterName, newTopic),
 			},
 			{
-				ResourceName:      "google_container_cluster.filtered_notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.filtered_notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_disableFilteredNotificationConfig(clusterName, newTopic),
 			},
 			{
-				ResourceName:      "google_container_cluster.filtered_notification_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.filtered_notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -254,25 +297,28 @@ func TestAccContainerCluster_withConfidentialNodes(t *testing.T) {
 				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_disableConfidentialNodes(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withConfidentialNodes(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -293,25 +339,28 @@ func TestAccContainerCluster_withILBSubsetting(t *testing.T) {
 				Config: testAccContainerCluster_disableILBSubSetting(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withILBSubSetting(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_disableILBSubSetting(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.confidential_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.confidential_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -334,9 +383,10 @@ func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_auth_no_cert",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_auth_no_cert",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -359,9 +409,10 @@ func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withAuthenticatorGroupsConfigUpdate(clusterName, orgDomain),
@@ -371,9 +422,10 @@ func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withAuthenticatorGroupsConfigUpdate2(clusterName),
@@ -383,9 +435,10 @@ func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -412,7 +465,7 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_network_policy_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_removeNetworkPolicy(clusterName),
@@ -425,7 +478,7 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_network_policy_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyDisabled(clusterName),
@@ -438,7 +491,7 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_network_policy_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -451,7 +504,7 @@ func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_network_policy_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config:             testAccContainerCluster_withNetworkPolicyConfigDisabled(clusterName),
@@ -478,7 +531,7 @@ func TestAccContainerCluster_withReleaseChannelEnabled(t *testing.T) {
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
@@ -488,7 +541,7 @@ func TestAccContainerCluster_withReleaseChannelEnabled(t *testing.T) {
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -510,7 +563,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "REGULAR"),
@@ -520,7 +573,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED"),
@@ -530,7 +583,7 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateIdPrefix:     "us-central1-a/",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -581,17 +634,19 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_authorized_networks",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_authorized_networks",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{"10.0.0.0/8", "8.8.8.8/32"}, ""),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_authorized_networks",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_authorized_networks",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMasterAuthorizedNetworksConfig(clusterName, []string{}, ""),
@@ -601,17 +656,19 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksConfig(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_authorized_networks",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_authorized_networks",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_removeMasterAuthorizedNetworksConfig(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_master_authorized_networks",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_master_authorized_networks",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -638,7 +695,7 @@ func TestAccContainerCluster_withGcpPublicCidrsAccessEnabledToggle(t *testing.T)
 				ResourceName:            "google_container_cluster.with_gcp_public_cidrs_access_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withGcpPublicCidrsAccessEnabled(clusterName, "false"),
@@ -651,7 +708,7 @@ func TestAccContainerCluster_withGcpPublicCidrsAccessEnabledToggle(t *testing.T)
 				ResourceName:            "google_container_cluster.with_gcp_public_cidrs_access_enabled",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withGcpPublicCidrsAccessEnabled(clusterName, "true"),
@@ -680,6 +737,7 @@ resource "google_container_cluster" "with_gcp_public_cidrs_access_enabled" {
   master_authorized_networks_config {
     gcp_public_cidrs_access_enabled = %s
   }
+  deletion_protection = false
 }
 `, clusterName, flag)
 }
@@ -696,6 +754,7 @@ resource "google_container_cluster" "with_gcp_public_cidrs_access_enabled" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -714,9 +773,10 @@ func TestAccContainerCluster_regional(t *testing.T) {
 				Config: testAccContainerCluster_regional(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.regional",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.regional",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -737,9 +797,10 @@ func TestAccContainerCluster_regionalWithNodePool(t *testing.T) {
 				Config: testAccContainerCluster_regionalWithNodePool(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.regional",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.regional",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -759,17 +820,19 @@ func TestAccContainerCluster_regionalWithNodeLocations(t *testing.T) {
 				Config: testAccContainerCluster_regionalNodeLocations(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_locations",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_locations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_regionalUpdateNodeLocations(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_locations",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_locations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -790,17 +853,19 @@ func TestAccContainerCluster_withPrivateClusterConfigBasic(t *testing.T) {
 				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName, false),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withPrivateClusterConfig(containerNetName, clusterName, true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -840,9 +905,10 @@ func TestAccContainerCluster_withPrivateClusterConfigMissingCidrBlock_withAutopi
 				Config: testAccContainerCluster_withPrivateClusterConfigMissingCidrBlock(containerNetName, clusterName, "us-central1", true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -862,17 +928,19 @@ func TestAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(t *
 				Config: testAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(clusterName, true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withPrivateClusterConfigGlobalAccessEnabledOnly(clusterName, false),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -895,9 +963,10 @@ func TestAccContainerCluster_withIntraNodeVisibility(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_intranode_visibility",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_intranode_visibility",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateIntraNodeVisibility(clusterName),
@@ -906,9 +975,10 @@ func TestAccContainerCluster_withIntraNodeVisibility(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_intranode_visibility",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_intranode_visibility",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -931,7 +1001,7 @@ func TestAccContainerCluster_withVersion(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_version",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -954,7 +1024,7 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_version",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateVersion(clusterName),
@@ -963,7 +1033,7 @@ func TestAccContainerCluster_updateVersion(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_version",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -986,7 +1056,7 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
+				ImportStateVerifyIgnore: []string{"node_config.0.taint", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNodeConfigUpdate(clusterName),
@@ -995,7 +1065,7 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
+				ImportStateVerifyIgnore: []string{"node_config.0.taint", "deletion_protection"},
 			},
 		},
 	})
@@ -1013,9 +1083,10 @@ func TestAccContainerCluster_withLoggingVariantInNodeConfig(t *testing.T) {
 				Config: testAccContainerCluster_withLoggingVariantInNodeConfig(clusterName, "MAX_THROUGHPUT"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_logging_variant_in_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_logging_variant_in_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1034,9 +1105,10 @@ func TestAccContainerCluster_withLoggingVariantInNodePool(t *testing.T) {
 				Config: testAccContainerCluster_withLoggingVariantInNodePool(clusterName, nodePoolName, "MAX_THROUGHPUT"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_logging_variant_in_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_logging_variant_in_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1054,25 +1126,28 @@ func TestAccContainerCluster_withLoggingVariantUpdates(t *testing.T) {
 				Config: testAccContainerCluster_withLoggingVariantNodePoolDefault(clusterName, "DEFAULT"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_logging_variant_node_pool_default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_logging_variant_node_pool_default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withLoggingVariantNodePoolDefault(clusterName, "MAX_THROUGHPUT"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_logging_variant_node_pool_default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_logging_variant_node_pool_default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withLoggingVariantNodePoolDefault(clusterName, "DEFAULT"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_logging_variant_node_pool_default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_logging_variant_node_pool_default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1092,9 +1167,10 @@ func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 				Config: testAccContainerCluster_withNodeConfigScopeAlias(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config_scope_alias",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config_scope_alias",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1114,9 +1190,10 @@ func TestAccContainerCluster_withNodeConfigShieldedInstanceConfig(t *testing.T) 
 				Config: testAccContainerCluster_withNodeConfigShieldedInstanceConfig(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1142,9 +1219,10 @@ func TestAccContainerCluster_withNodeConfigReservationAffinity(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1177,9 +1255,10 @@ func TestAccContainerCluster_withNodeConfigReservationAffinitySpecific(t *testin
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1206,7 +1285,7 @@ func TestAccContainerCluster_withWorkloadMetadataConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_workload_metadata_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -1234,7 +1313,7 @@ func TestAccContainerCluster_withBootDiskKmsKey(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_boot_disk_kms_key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -1255,14 +1334,16 @@ func TestAccContainerCluster_network(t *testing.T) {
 				Config: testAccContainerCluster_networkRef(clusterName, network),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_net_ref_by_url",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_net_ref_by_url",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				ResourceName:      "google_container_cluster.with_net_ref_by_name",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_net_ref_by_name",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1282,9 +1363,10 @@ func TestAccContainerCluster_backend(t *testing.T) {
 				Config: testAccContainerCluster_backendRef(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1305,9 +1387,10 @@ func TestAccContainerCluster_withNodePoolBasic(t *testing.T) {
 				Config: testAccContainerCluster_withNodePoolBasic(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1331,7 +1414,7 @@ func TestAccContainerCluster_withNodePoolUpdateVersion(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNodePoolUpdateVersion(clusterName, npName),
@@ -1340,7 +1423,7 @@ func TestAccContainerCluster_withNodePoolUpdateVersion(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -1363,9 +1446,10 @@ func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNodePoolResize(clusterName, npName),
@@ -1374,9 +1458,10 @@ func TestAccContainerCluster_withNodePoolResize(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1401,9 +1486,10 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNodePoolUpdateAutoscaling(clusterName, npName),
@@ -1413,9 +1499,10 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withNodePoolBasic(clusterName, npName),
@@ -1425,9 +1512,10 @@ func TestAccContainerCluster_withNodePoolAutoscaling(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1458,7 +1546,7 @@ func TestAccContainerCluster_withNodePoolCIA(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerRegionalClusterUpdate_withNodePoolCIA(clusterName, npName),
@@ -1474,7 +1562,7 @@ func TestAccContainerCluster_withNodePoolCIA(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerRegionalCluster_withNodePoolBasic(clusterName, npName),
@@ -1489,7 +1577,7 @@ func TestAccContainerCluster_withNodePoolCIA(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -1515,7 +1603,7 @@ func TestAccContainerCluster_withNodePoolNamePrefix(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_node_pool_name_prefix",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_pool.0.name_prefix"},
+				ImportStateVerifyIgnore: []string{"node_pool.0.name_prefix", "deletion_protection"},
 			},
 		},
 	})
@@ -1536,9 +1624,10 @@ func TestAccContainerCluster_withNodePoolMultiple(t *testing.T) {
 				Config: testAccContainerCluster_withNodePoolMultiple(clusterName, npNamePrefix),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool_multiple",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool_multiple",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1578,9 +1667,10 @@ func TestAccContainerCluster_withNodePoolNodeConfig(t *testing.T) {
 				Config: testAccContainerCluster_withNodePoolNodeConfig(cluster, np),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_node_pool_node_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_node_pool_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1601,9 +1691,10 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, "03:00"),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMaintenanceWindow(clusterName, ""),
@@ -1618,7 +1709,7 @@ func TestAccContainerCluster_withMaintenanceWindow(t *testing.T) {
 				ImportStateVerify: true,
 				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
 				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"maintenance_policy.#"},
+				ImportStateVerifyIgnore: []string{"maintenance_policy.#", "deletion_protection"},
 			},
 		},
 	})
@@ -1642,10 +1733,11 @@ func TestAccContainerCluster_withRecurringMaintenanceWindow(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withRecurringMaintenanceWindow(cluster, "", ""),
@@ -1663,7 +1755,7 @@ func TestAccContainerCluster_withRecurringMaintenanceWindow(t *testing.T) {
 				ImportStateVerify:   true,
 				// maintenance_policy.# = 0 is equivalent to no maintenance policy at all,
 				// but will still cause an import diff
-				ImportStateVerifyIgnore: []string{"maintenance_policy.#"},
+				ImportStateVerifyIgnore: []string{"maintenance_policy.#", "deletion_protection"},
 			},
 		},
 	})
@@ -1683,19 +1775,21 @@ func TestAccContainerCluster_withMaintenanceExclusionWindow(t *testing.T) {
 				Config: testAccContainerCluster_withExclusion_RecurringMaintenanceWindow(cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z"),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withExclusion_DailyMaintenanceWindow(cluster, "2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z"),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1722,10 +1816,11 @@ func TestAccContainerCluster_withMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1752,10 +1847,11 @@ func TestAccContainerCluster_deleteMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_NoExclusionOptions_RecurringMaintenanceWindow(
@@ -1768,10 +1864,11 @@ func TestAccContainerCluster_deleteMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1801,10 +1898,11 @@ func TestAccContainerCluster_updateMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withExclusionOptions_RecurringMaintenanceWindow(
@@ -1817,10 +1915,11 @@ func TestAccContainerCluster_updateMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateExclusionOptions_RecurringMaintenanceWindow(
@@ -1833,10 +1932,11 @@ func TestAccContainerCluster_updateMaintenanceExclusionOptions(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1856,28 +1956,31 @@ func TestAccContainerCluster_deleteExclusionWindow(t *testing.T) {
 				Config: testAccContainerCluster_withExclusion_DailyMaintenanceWindow(cluster, "2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z"),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withExclusion_RecurringMaintenanceWindow(cluster, "2019-01-01T00:00:00Z", "2019-01-02T00:00:00Z", "2019-05-01T00:00:00Z", "2019-05-02T00:00:00Z"),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withExclusion_NoMaintenanceWindow(cluster, "2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z"),
 			},
 			{
-				ResourceName:        resourceName,
-				ImportStateIdPrefix: "us-central1-a/",
-				ImportState:         true,
-				ImportStateVerify:   true,
+				ResourceName:            resourceName,
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1897,9 +2000,10 @@ func TestAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(t *t
 				Config: testAccContainerCluster_withIPAllocationPolicy_existingSecondaryRanges(containerNetName, clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_ip_allocation_policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_ip_allocation_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1919,9 +2023,10 @@ func TestAccContainerCluster_withIPAllocationPolicy_specificIPRanges(t *testing.
 				Config: testAccContainerCluster_withIPAllocationPolicy_specificIPRanges(containerNetName, clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_ip_allocation_policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_ip_allocation_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1941,9 +2046,10 @@ func TestAccContainerCluster_withIPAllocationPolicy_specificSizes(t *testing.T) 
 				Config: testAccContainerCluster_withIPAllocationPolicy_specificSizes(containerNetName, clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_ip_allocation_policy",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_ip_allocation_policy",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -1971,7 +2077,7 @@ func TestAccContainerCluster_stackType_withDualStack(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -1999,7 +2105,7 @@ func TestAccContainerCluster_stackType_withSingleStack(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2027,7 +2133,7 @@ func TestAccContainerCluster_with_PodCIDROverprovisionDisabled(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2054,7 +2160,7 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioning(clusterName, false, false),
@@ -2067,7 +2173,7 @@ func TestAccContainerCluster_nodeAutoprovisioning(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2095,7 +2201,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config:             testAccContainerCluster_autoprovisioningDefaults(clusterName, true),
@@ -2109,7 +2215,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsMinCpuPlatform(clusterName, !includeMinCpuPlatform),
@@ -2118,7 +2224,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaults(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2138,9 +2244,10 @@ func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.
 				Config: testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName, 2, 1, "SURGE"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_autoprovisioning_upgrade_settings",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_autoprovisioning_upgrade_settings",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config:      testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName, 2, 1, "BLUE_GREEN"),
@@ -2150,9 +2257,10 @@ func TestAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(t *testing.
 				Config: testAccContainerCluster_autoprovisioningDefaultsUpgradeSettingsWithBlueGreenStrategy(clusterName, "3.500s", "BLUE_GREEN"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_autoprovisioning_upgrade_settings",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_autoprovisioning_upgrade_settings",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2179,7 +2287,7 @@ func TestAccContainerCluster_nodeAutoprovisioningNetworkTags(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2199,17 +2307,19 @@ func TestAccContainerCluster_withShieldedNodes(t *testing.T) {
 				Config: testAccContainerCluster_withShieldedNodes(clusterName, true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_shielded_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_shielded_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withShieldedNodes(clusterName, false),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_shielded_nodes",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_shielded_nodes",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2234,7 +2344,7 @@ func TestAccContainerCluster_withAutopilot(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autopilot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2269,7 +2379,7 @@ func TestAccContainerClusterCustomServiceAccount_withAutopilot(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autopilot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2314,7 +2424,7 @@ func TestAccContainerCluster_withAutopilotNetworkTags(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autopilot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2338,7 +2448,7 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_workload_identity_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateWorkloadIdentityConfig(pid, clusterName, false),
@@ -2347,7 +2457,7 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_workload_identity_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateWorkloadIdentityConfig(pid, clusterName, true),
@@ -2356,7 +2466,7 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_workload_identity_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 		},
 	})
@@ -2375,41 +2485,46 @@ func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 				Config: testAccContainerCluster_basic(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withLoggingConfigEnabled(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withLoggingConfigDisabled(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withLoggingConfigUpdated(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_basic(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2431,7 +2546,7 @@ func TestAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityCo
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabled(clusterName),
@@ -2440,7 +2555,7 @@ func TestAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityCo
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2462,7 +2577,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigEnabled(clusterName),
@@ -2471,7 +2586,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigDisabled(clusterName),
@@ -2480,7 +2595,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigUpdated(clusterName),
@@ -2489,7 +2604,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigPrometheusUpdated(clusterName),
@@ -2498,7 +2613,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			// Back to basic settings to test setting Prometheus on its own
 			{
@@ -2508,7 +2623,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigPrometheusOnly(clusterName),
@@ -2517,7 +2632,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigPrometheusOnly2(clusterName),
@@ -2526,7 +2641,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_basic(clusterName),
@@ -2535,7 +2650,7 @@ func TestAccContainerCluster_withMonitoringConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2554,9 +2669,10 @@ func TestAccContainerCluster_withSoleTenantGroup(t *testing.T) {
 				Config: testAccContainerCluster_withSoleTenantGroup(resourceName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2580,7 +2696,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsDiskSizeGb(t *testing.T
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsDiskSizeGb(clusterName, !includeDiskSizeGb),
@@ -2589,7 +2705,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsDiskSizeGb(t *testing.T
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2613,7 +2729,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsDiskType(t *testing.T) 
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsDiskType(clusterName, !includeDiskType),
@@ -2622,7 +2738,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsDiskType(t *testing.T) 
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2646,7 +2762,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsImageType(t *testing.T)
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsImageType(clusterName, !includeImageType),
@@ -2655,7 +2771,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsImageType(t *testing.T)
 				ResourceName:            "google_container_cluster.with_autoprovisioning",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2685,6 +2801,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsBootDiskKmsKey(t *testi
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"min_master_version",
+					"deletion_protection",
 					"node_pool", // cluster_autoscaling (node auto-provisioning) creates new node pools automatically
 				},
 			},
@@ -2709,7 +2826,7 @@ func TestAccContainerCluster_nodeAutoprovisioningDefaultsShieldedInstance(t *tes
 				ResourceName:            "google_container_cluster.nap_shielded_instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2732,7 +2849,7 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning_management",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autoprovisioningDefaultsManagement(clusterName, true, true),
@@ -2741,7 +2858,7 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_autoprovisioning_management",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -2770,9 +2887,10 @@ func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 				Config: initConfig,
 			},
 			{
-				ResourceName:      "google_container_cluster.cidr_error_preempt",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.cidr_error_preempt",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config:      overlapConfig,
@@ -2819,17 +2937,19 @@ func TestAccContainerCluster_withExternalIpsConfig(t *testing.T) {
 				Config: testAccContainerCluster_withExternalIpsConfig(pid, clusterName, true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_external_ips_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_external_ips_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withExternalIpsConfig(pid, clusterName, false),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_external_ips_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_external_ips_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2853,7 +2973,7 @@ func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateMeshCertificatesConfig(pid, clusterName, true),
@@ -2862,7 +2982,7 @@ func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateMeshCertificatesConfig(pid, clusterName, false),
@@ -2871,7 +2991,7 @@ func TestAccContainerCluster_withMeshCertificatesConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_mesh_certificates_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
 			},
 		},
 	})
@@ -2892,17 +3012,19 @@ func TestAccContainerCluster_withCostManagementConfig(t *testing.T) {
 				Config: testAccContainerCluster_updateCostManagementConfig(pid, clusterName, true),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_cost_management_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_cost_management_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_updateCostManagementConfig(pid, clusterName, false),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_cost_management_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_cost_management_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2930,17 +3052,19 @@ func TestAccContainerCluster_withDatabaseEncryption(t *testing.T) {
 				Check:  resource.TestCheckResourceAttrSet("data.google_kms_key_ring_iam_policy.test_key_ring_iam_policy", "policy_data"),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_basic(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2960,9 +3084,10 @@ func TestAccContainerCluster_withAdvancedDatapath(t *testing.T) {
 				Config: testAccContainerCluster_withDatapathProvider(clusterName, "ADVANCED_DATAPATH"),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -2984,25 +3109,28 @@ func TestAccContainerCluster_withResourceUsageExportConfig(t *testing.T) {
 				Config: testAccContainerCluster_withResourceUsageExportConfig(clusterName, datesetId, "true"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_resource_usage_export_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withResourceUsageExportConfig(clusterName, datesetId, "false"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_resource_usage_export_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withResourceUsageExportConfigNoConfig(clusterName, datesetId),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_resource_usage_export_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_resource_usage_export_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3026,9 +3154,10 @@ func TestAccContainerCluster_withMasterAuthorizedNetworksDisabled(t *testing.T) 
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_private_cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_private_cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3049,9 +3178,10 @@ func TestAccContainerCluster_withEnableKubernetesAlpha(t *testing.T) {
 				Config: testAccContainerCluster_withEnableKubernetesAlpha(clusterName, npName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3074,7 +3204,7 @@ func TestAccContainerCluster_withEnableKubernetesBetaAPIs(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -3097,7 +3227,7 @@ func TestAccContainerCluster_withEnableKubernetesBetaAPIsOnExistingCluster(t *te
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withEnableKubernetesBetaAPIs(clusterName),
@@ -3106,7 +3236,7 @@ func TestAccContainerCluster_withEnableKubernetesBetaAPIsOnExistingCluster(t *te
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -3143,9 +3273,10 @@ func TestAccContainerCluster_withDNSConfig(t *testing.T) {
 				Config: testAccContainerCluster_withDNSConfig(clusterName, "CLOUD_DNS", domainName, "VPC_SCOPE"),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_dns_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_dns_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3170,7 +3301,7 @@ func TestAccContainerCluster_withGatewayApiConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withGatewayApiConfig(clusterName, "CHANNEL_STANDARD"),
@@ -3179,7 +3310,7 @@ func TestAccContainerCluster_withGatewayApiConfig(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -3199,25 +3330,28 @@ func TestAccContainerCluster_withSecurityPostureConfig(t *testing.T) {
 				Config: testAccContainerCluster_SetSecurityPostureToStandard(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_security_posture_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_security_posture_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_SetWorkloadVulnerabilityToStandard(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_security_posture_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_security_posture_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_DisableALL(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.with_security_posture_config",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.with_security_posture_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3232,6 +3366,7 @@ resource "google_container_cluster" "with_security_posture_config" {
   security_posture_config {
 	mode = "BASIC"
   }
+  deletion_protection = false
 }
 `, resource_name)
 }
@@ -3245,6 +3380,7 @@ resource "google_container_cluster" "with_security_posture_config" {
   security_posture_config {
 	vulnerability_mode = "VULNERABILITY_BASIC"
   }
+  deletion_protection = false
 }
 `, resource_name)
 }
@@ -3259,6 +3395,7 @@ resource "google_container_cluster" "with_security_posture_config" {
 	mode = "DISABLED"
 	vulnerability_mode = "VULNERABILITY_DISABLED"
   }
+  deletion_protection = false
 }
 `, resource_name)
 }
@@ -3276,9 +3413,10 @@ func TestAccContainerCluster_autopilot_minimal(t *testing.T) {
 				Config: testAccContainerCluster_autopilot_minimal(clusterName),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3300,7 +3438,7 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autopilot_net_admin(clusterName, false),
@@ -3309,7 +3447,7 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_autopilot_net_admin(clusterName, true),
@@ -3318,7 +3456,7 @@ func TestAccContainerCluster_autopilot_net_admin(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -3337,9 +3475,10 @@ func TestAccContainerCluster_additional_pod_ranges_config_on_create(t *testing.T
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 1),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3358,41 +3497,46 @@ func TestAccContainerCluster_additional_pod_ranges_config_on_update(t *testing.T
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 2),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 1),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_additional_pod_ranges_config(clusterName, 0),
 			},
 			{
-				ResourceName:      "google_container_cluster.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -3449,6 +3593,7 @@ resource "google_container_cluster" "primary" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 }
 `, name)
 }
@@ -3460,6 +3605,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   networking_mode    = "ROUTES"
+  deletion_protection = false
 }
 `, name)
 }
@@ -3491,6 +3637,7 @@ resource "google_container_cluster" "primary" {
   binary_authorization {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
+deletion_protection = false
 }
 `, name)
 }
@@ -3523,6 +3670,7 @@ resource "google_container_cluster" "primary" {
   binary_authorization {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -3576,6 +3724,7 @@ resource "google_container_cluster" "primary" {
       enabled = false
     }
   }
+  deletion_protection = false
 }
 `, projectID, clusterName)
 }
@@ -3630,6 +3779,7 @@ resource "google_container_cluster" "primary" {
     gcs_fuse_csi_driver_config {
       enabled = true
     }
+  deletion_protection = false
   }
 }
 `, projectID, clusterName)
@@ -3668,6 +3818,7 @@ resource "google_container_cluster" "primary" {
 // 	  load_balancer_type = "LOAD_BALANCER_TYPE_INTERNAL"
 //     }
 //   }
+//   deletion_protection = false
 // }
 // `, projectID, clusterName)
 // }
@@ -3689,6 +3840,7 @@ resource "google_container_cluster" "notification_config" {
 	  topic   = google_pubsub_topic.%s.id
 	}
   }
+  deletion_protection = false
 }
 `, topic, topic, clusterName, topic)
 }
@@ -3704,6 +3856,7 @@ resource "google_container_cluster" "notification_config" {
 	  enabled = false
 	}
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -3729,6 +3882,7 @@ resource "google_container_cluster" "filtered_notification_config" {
 	  }
 	}
   }
+  deletion_protection = false
 }
 `, topic, topic, clusterName, topic)
 }
@@ -3754,6 +3908,7 @@ resource "google_container_cluster" "filtered_notification_config" {
 	  }
 	}
   }
+  deletion_protection = false
 }
 `, topic, topic, clusterName, topic)
 }
@@ -3776,6 +3931,7 @@ resource "google_container_cluster" "filtered_notification_config" {
 	  topic   = google_pubsub_topic.%s.id
 	}
   }
+  deletion_protection = false
 }
 `, topic, topic, clusterName, topic)
 }
@@ -3800,6 +3956,7 @@ resource "google_container_cluster" "confidential_nodes" {
   confidential_nodes {
     enabled = true
   }
+  deletion_protection = false
 }
 `, clusterName, npName)
 }
@@ -3824,6 +3981,7 @@ resource "google_container_cluster" "confidential_nodes" {
   confidential_nodes {
     enabled = false
   }
+  deletion_protection = false
 }
 `, clusterName, npName)
 }
@@ -3846,6 +4004,7 @@ resource "google_container_cluster" "confidential_nodes" {
   }
 
   enable_l4_ilb_subsetting = true
+  deletion_protection = false
 }
 `, clusterName, npName)
 }
@@ -3868,6 +4027,7 @@ resource "google_container_cluster" "confidential_nodes" {
   }
 
   enable_l4_ilb_subsetting = false
+  deletion_protection = false
 }
 `, clusterName, npName)
 }
@@ -3890,8 +4050,21 @@ resource "google_container_cluster" "with_network_policy_enabled" {
       disabled = false
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
+}
+
+func testAccContainerCluster_withDeletionProtection(clusterName string, deletionProtection string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  deletion_protection = %s
+}
+`, clusterName, deletionProtection)
 }
 
 func testAccContainerCluster_withReleaseChannelEnabled(clusterName string, channel string) string {
@@ -3904,6 +4077,7 @@ resource "google_container_cluster" "with_release_channel" {
   release_channel {
     channel = "%s"
   }
+  deletion_protection = false
 }
 `, clusterName, channel)
 }
@@ -3920,6 +4094,7 @@ resource "google_container_cluster" "with_release_channel" {
   location           = "us-central1-a"
   initial_node_count = 1
   min_master_version = data.google_container_engine_versions.central1a.release_channel_default_version["%s"]
+  deletion_protection = false
 }
 `, clusterName, channel)
 }
@@ -3931,6 +4106,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
   location                 = "us-central1-a"
   initial_node_count       = 1
   remove_default_node_pool = true
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -3946,6 +4122,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
   network_policy {
     enabled = false
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -3967,6 +4144,7 @@ resource "google_container_cluster" "with_network_policy_enabled" {
       disabled = true
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -3981,6 +4159,7 @@ resource "google_container_cluster" "primary" {
 	authenticator_groups_config {
 		security_group = "gke-security-groups@%s"
 	}
+	deletion_protection = false
 }
 `, name, orgDomain)
 }
@@ -3995,6 +4174,7 @@ resource "google_container_cluster" "primary" {
 	authenticator_groups_config {
 		security_group = ""
 	}
+	deletion_protection = false
 }
 `, name)
 }
@@ -4023,6 +4203,7 @@ resource "google_container_cluster" "with_master_authorized_networks" {
   master_authorized_networks_config {
     %s
   }
+  deletion_protection = false
 }
 `, clusterName, cidrBlocks)
 }
@@ -4033,6 +4214,7 @@ resource "google_container_cluster" "with_master_authorized_networks" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4043,6 +4225,7 @@ resource "google_container_cluster" "regional" {
   name               = "%s"
   location           = "us-central1"
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4073,7 +4256,7 @@ func TestAccContainerCluster_withPrivateEndpointSubnetwork(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_private_endpoint_subnetwork",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -4118,6 +4301,7 @@ resource "google_container_cluster" "with_private_endpoint_subnetwork" {
   private_cluster_config {
     private_endpoint_subnetwork = google_compute_subnetwork.container_subnetwork2.name
   }
+  deletion_protection = false
 }
 `, containerNetName, s1Name, s1Cidr, s2Name, s2Cidr, clusterName)
 }
@@ -4142,7 +4326,7 @@ func TestAccContainerCluster_withPrivateClusterConfigPrivateEndpointSubnetwork(t
 				ResourceName:            "google_container_cluster.with_private_endpoint_subnetwork",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -4194,6 +4378,7 @@ resource "google_container_cluster" "with_private_endpoint_subnetwork" {
     cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -4215,7 +4400,7 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
 				Config: testAccContainerCluster_withEnablePrivateEndpoint(clusterName, "false"),
@@ -4224,7 +4409,7 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 				ResourceName:            "google_container_cluster.with_enable_private_endpoint",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version"},
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 		},
 	})
@@ -4278,6 +4463,7 @@ resource "google_container_cluster" "with_enable_private_endpoint" {
   private_cluster_config {
     enable_private_endpoint = %s
   }
+  deletion_protection = false
 }
 `, clusterName, flag)
 }
@@ -4291,6 +4477,7 @@ resource "google_container_cluster" "regional" {
   node_pool {
     name = "%s"
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -4306,6 +4493,7 @@ resource "google_container_cluster" "with_node_locations" {
     "us-central1-f",
     "us-central1-c",
   ]
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4321,6 +4509,7 @@ resource "google_container_cluster" "with_node_locations" {
     "us-central1-f",
     "us-central1-b",
   ]
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4332,6 +4521,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   location                    = "us-central1-a"
   initial_node_count          = 1
   enable_intranode_visibility = true
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4344,6 +4534,7 @@ resource "google_container_cluster" "with_intranode_visibility" {
   initial_node_count          = 1
   enable_intranode_visibility = false
   private_ipv6_google_access  = "PRIVATE_IPV6_GOOGLE_ACCESS_BIDIRECTIONAL"
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4359,6 +4550,7 @@ resource "google_container_cluster" "with_version" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4374,6 +4566,7 @@ resource "google_container_cluster" "with_version" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.valid_master_versions[3]
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4389,6 +4582,7 @@ resource "google_container_cluster" "with_master_auth_no_cert" {
       issue_client_certificate = false
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4405,6 +4599,7 @@ resource "google_container_cluster" "with_version" {
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
   node_version       = data.google_container_engine_versions.central1a.valid_node_versions[1]
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4454,6 +4649,7 @@ resource "google_container_cluster" "with_node_config" {
     // Updatable fields
     image_type = "COS_CONTAINERD"
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4468,6 +4664,7 @@ resource "google_container_cluster" "with_logging_variant_in_node_config" {
   node_config {
     logging_variant = "%s"
   }
+  deletion_protection = false
 }
 `, clusterName, loggingVariant)
 }
@@ -4485,6 +4682,7 @@ resource "google_container_cluster" "with_logging_variant_in_node_pool" {
       logging_variant = "%s"
     }
   }
+  deletion_protection = false
 }
 `, clusterName, nodePoolName, loggingVariant)
 }
@@ -4501,6 +4699,7 @@ resource "google_container_cluster" "with_logging_variant_node_pool_default" {
       logging_variant = "%s"
     }
   }
+  deletion_protection = false
 }
 `, clusterName, loggingVariant)
 }
@@ -4550,6 +4749,7 @@ resource "google_container_cluster" "with_node_config" {
     // Updatable fields
     image_type = "UBUNTU_CONTAINERD"
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4566,6 +4766,7 @@ resource "google_container_cluster" "with_node_config_scope_alias" {
     disk_size_gb = 15
     oauth_scopes = ["compute-rw", "storage-ro", "logging-write", "monitoring"]
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4606,6 +4807,7 @@ resource "google_container_cluster" "with_node_config" {
       enable_integrity_monitoring = true
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4645,6 +4847,7 @@ resource "google_container_cluster" "with_node_config" {
       consume_reservation_type = "ANY_RESERVATION"
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4715,6 +4918,7 @@ resource "google_container_cluster" "with_node_config" {
       ]
     }
   }
+  deletion_protection = false
   depends_on = [google_project_service.container]
 }
 `, reservation, clusterName)
@@ -4742,6 +4946,7 @@ resource "google_container_cluster" "with_workload_metadata_config" {
       mode = "GCE_METADATA"
     }
   }
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -4764,6 +4969,7 @@ resource "google_container_cluster" "with_boot_disk_kms_key" {
 
     boot_disk_kms_key = "%s"
   }
+  deletion_protection = false
 }
 `, clusterName, kmsKeyName)
 }
@@ -4781,6 +4987,7 @@ resource "google_container_cluster" "with_net_ref_by_url" {
   initial_node_count = 1
 
   network = google_compute_network.container_network.self_link
+  deletion_protection = false
 }
 
 resource "google_container_cluster" "with_net_ref_by_name" {
@@ -4789,6 +4996,7 @@ resource "google_container_cluster" "with_net_ref_by_name" {
   initial_node_count = 1
 
   network = google_compute_network.container_network.name
+  deletion_protection = false
 }
 `, network, cluster, cluster)
 }
@@ -4820,6 +5028,7 @@ resource "google_container_cluster" "with_autoprovisioning_management" {
       }
     }
   }
+  deletion_protection = false
 }
 `, clusterName, autoUpgrade, autoRepair)
 }
@@ -4863,6 +5072,7 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
+  deletion_protection = false
 }
 `, cluster, cluster, cluster)
 }
@@ -4872,6 +5082,7 @@ func testAccContainerCluster_withNodePoolBasic(cluster, nodePool string) string 
 resource "google_container_cluster" "with_node_pool" {
   name     = "%s"
   location = "us-central1-a"
+  deletion_protection = false
 
   node_pool {
     name               = "%s"
@@ -4898,6 +5109,7 @@ resource "google_container_cluster" "with_node_pool" {
     initial_node_count = 2
     version            = data.google_container_engine_versions.central1a.valid_node_versions[2]
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -4919,6 +5131,7 @@ resource "google_container_cluster" "with_node_pool" {
     initial_node_count = 2
     version            = data.google_container_engine_versions.central1a.valid_node_versions[1]
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -4938,6 +5151,7 @@ resource "google_container_cluster" "with_node_pool" {
     name       = "%s"
     node_count = 2
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -4957,6 +5171,7 @@ resource "google_container_cluster" "with_node_pool" {
     name       = "%s"
     node_count = 3
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -4972,6 +5187,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
   initial_node_count = 1
+  deletion_protection = false
 `, cluster)
 	if autoprovisioning {
 		config += `
@@ -5016,6 +5232,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
   initial_node_count = 1
+  deletion_protection = false
 
   logging_service    = "none"
   monitoring_service = "none"
@@ -5084,6 +5301,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
       %s
     }
   }
+  deletion_protection = false
 }`, cluster, minCpuPlatformCfg)
 }
 
@@ -5129,6 +5347,7 @@ func testAccContainerCluster_autoprovisioningDefaultsUpgradeSettings(clusterName
           }
         }
       }
+	  deletion_protection = false
     }
   `, clusterName, maxSurge, maxUnavailable, strategy, blueGreenSettings)
 }
@@ -5166,6 +5385,7 @@ func testAccContainerCluster_autoprovisioningDefaultsUpgradeSettingsWithBlueGree
             }
           }
         }
+		deletion_protection = false
       }
     `, clusterName, strategy, duration, duration)
 }
@@ -5199,6 +5419,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
       %s
     }
   }
+  deletion_protection = false
 }`, cluster, DiskSizeGbCfg)
 }
 
@@ -5231,6 +5452,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
       %s
     }
   }
+  deletion_protection = false
 }`, cluster, DiskTypeCfg)
 }
 
@@ -5263,6 +5485,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
       %s
     }
   }
+  deletion_protection = false
 }`, cluster, imageTypeCfg)
 }
 
@@ -5289,6 +5512,7 @@ resource "google_container_cluster" "nap_boot_disk_kms_key" {
 	  boot_disk_kms_key = "%s"
     }
   }
+  deletion_protection = false
 }
 `, clusterName, kmsKeyName)
 }
@@ -5320,6 +5544,7 @@ resource "google_container_cluster" "nap_shielded_instance" {
 	  }
     }
   }
+  deletion_protection = false
 }`, cluster)
 }
 
@@ -5337,6 +5562,7 @@ resource "google_container_cluster" "with_node_pool" {
       max_node_count = 3
     }
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -5355,6 +5581,7 @@ resource "google_container_cluster" "with_node_pool" {
       max_node_count = 5
     }
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -5379,6 +5606,7 @@ resource "google_container_cluster" "with_node_pool" {
       location_policy = "BALANCED"
     }
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -5403,6 +5631,7 @@ resource "google_container_cluster" "with_node_pool" {
       location_policy = "ANY"
     }
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -5422,6 +5651,7 @@ resource "google_container_cluster" "with_node_pool" {
     name               = "%s"
     initial_node_count = 2
   }
+  deletion_protection = false
 }
 `, cluster, nodePool)
 }
@@ -5436,6 +5666,7 @@ resource "google_container_cluster" "with_node_pool_name_prefix" {
     name_prefix = "%s"
     node_count  = 2
   }
+  deletion_protection = false
 }
 `, cluster, npPrefix)
 }
@@ -5455,6 +5686,7 @@ resource "google_container_cluster" "with_node_pool_multiple" {
     name       = "%s-two"
     node_count = 3
   }
+  deletion_protection = false
 }
 `, cluster, npPrefix, npPrefix)
 }
@@ -5471,6 +5703,7 @@ resource "google_container_cluster" "with_node_pool_multiple" {
     name_prefix = "%s"
     node_count  = 1
   }
+  deletion_protection = false
 }
 `, cluster, npPrefix, npPrefix)
 }
@@ -5505,6 +5738,7 @@ resource "google_container_cluster" "with_node_pool_node_config" {
       tags = ["foo", "bar"]
     }
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -5526,6 +5760,7 @@ resource "google_container_cluster" "with_maintenance_window" {
   location           = "us-central1-a"
   initial_node_count = 1
   %s
+  deletion_protection = false
 }
 `, clusterName, maintenancePolicy)
 }
@@ -5549,6 +5784,7 @@ resource "google_container_cluster" "with_recurring_maintenance_window" {
   location           = "us-central1-a"
   initial_node_count = 1
   %s
+  deletion_protection = false
 }
 `, clusterName, maintenancePolicy)
 
@@ -5579,6 +5815,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		end_time = "%s"
 	}
  }
+ deletion_protection = false
 }
 `, clusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
 }
@@ -5614,6 +5851,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_options" {
     	}
 	}
  }
+ deletion_protection = false
 }
 `, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, scope1, w2startTime, w2endTime, scope2)
 }
@@ -5643,6 +5881,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_options" {
 		end_time = "%s"
 	}
  }
+ deletion_protection = false
 }
 `, cclusterName, w1startTime, w1endTime, w1startTime, w1endTime, w2startTime, w2endTime)
 }
@@ -5654,6 +5893,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_options" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 
   maintenance_policy {
 	recurring_window {
@@ -5697,6 +5937,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		recurrence = "FREQ=DAILY"
 	}
  }
+ deletion_protection = false
 }
 `, clusterName, w1startTime, w1endTime)
 }
@@ -5719,6 +5960,7 @@ resource "google_container_cluster" "with_maintenance_exclusion_window" {
 		end_time = "%s"
 	}
  }
+ deletion_protection = false
 }
 `, clusterName, w1startTime, w1endTime)
 }
@@ -5760,6 +6002,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
     cluster_secondary_range_name  = "pods"
     services_secondary_range_name = "services"
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5792,6 +6035,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5824,6 +6068,7 @@ resource "google_container_cluster" "with_ip_allocation_policy" {
     cluster_ipv4_cidr_block  = "/16"
     services_ipv4_cidr_block = "/22"
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5861,6 +6106,7 @@ resource "google_container_cluster" "with_stack_type" {
         services_ipv4_cidr_block = "10.1.0.0/16"
         stack_type = "IPV4_IPV6"
     }
+	deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5895,6 +6141,7 @@ resource "google_container_cluster" "with_stack_type" {
         services_ipv4_cidr_block = "10.1.0.0/16"
         stack_type = "IPV4"
     }
+	deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5927,10 +6174,11 @@ resource "google_container_cluster" "with_pco_disabled" {
     ip_allocation_policy {
         cluster_ipv4_cidr_block  = "10.1.0.0/16"
         services_ipv4_cidr_block = "10.2.0.0/16"
-	pod_cidr_overprovision_config {
-		disabled = true
-	}
+		pod_cidr_overprovision_config {
+			disabled = true
+		}
     }
+	deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -5959,6 +6207,7 @@ resource "google_container_cluster" "with_resource_usage_export_config" {
       dataset_id = google_bigquery_dataset.default.dataset_id
     }
   }
+  deletion_protection = false
 }
 `, datasetId, clusterName, enableMetering)
 }
@@ -5975,6 +6224,7 @@ resource "google_container_cluster" "with_resource_usage_export_config" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
 }
 `, datasetId, clusterName)
 }
@@ -6026,6 +6276,7 @@ resource "google_container_cluster" "with_private_cluster" {
     cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName, location, autopilotEnabled)
 }
@@ -6081,6 +6332,7 @@ resource "google_container_cluster" "with_private_cluster" {
     cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName, masterGlobalAccessEnabled)
 }
@@ -6097,6 +6349,7 @@ resource "google_container_cluster" "with_private_cluster" {
       enabled = %t
 	}
   }
+  deletion_protection = false
 }
 `, clusterName, masterGlobalAccessEnabled)
 }
@@ -6109,6 +6362,7 @@ resource "google_container_cluster" "with_shielded_nodes" {
   initial_node_count = 1
 
   enable_shielded_nodes = %v
+  deletion_protection = false
 }
 `, clusterName, enabled)
 }
@@ -6128,6 +6382,7 @@ resource "google_container_cluster" "with_workload_identity_config" {
     workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
   }
   remove_default_node_pool = true
+  deletion_protection = false
 
 }
 `, projectID, clusterName)
@@ -6157,6 +6412,7 @@ resource "google_container_cluster" "with_workload_identity_config" {
   initial_node_count = 1
   remove_default_node_pool = true
   %s
+  deletion_protection = false
 }
 `, projectID, clusterName, workloadIdentityConfig)
 }
@@ -6188,6 +6444,7 @@ resource "google_container_cluster" "cidr_error_preempt" {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -6210,6 +6467,7 @@ resource "google_container_cluster" "cidr_error_overlap" {
     cluster_ipv4_cidr_block  = "10.0.0.0/16"
     services_ipv4_cidr_block = "10.1.0.0/16"
   }
+  deletion_protection = false
 }
 `, initConfig, secondCluster)
 }
@@ -6220,6 +6478,7 @@ resource "google_container_cluster" "with_resource_labels" {
   name               = "invalid-gke-cluster"
   location           = "%s"
   initial_node_count = 1
+  deletion_protection = false
 }
 `, location)
 }
@@ -6237,6 +6496,7 @@ func testAccContainerCluster_withExternalIpsConfig(projectID string, clusterName
 		service_external_ips_config {
 			enabled = %v
 		}
+		deletion_protection = false
 	}`, projectID, clusterName, enabled)
 }
 
@@ -6257,6 +6517,7 @@ func testAccContainerCluster_withMeshCertificatesConfigEnabled(projectID string,
 	mesh_certificates {
 		enable_certificates = true
 	}
+	deletion_protection = false
 	}
 `, projectID, clusterName)
 }
@@ -6275,9 +6536,10 @@ func testAccContainerCluster_updateMeshCertificatesConfig(projectID string, clus
 		workload_identity_config {
 			workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
 			}
-			mesh_certificates {
+		mesh_certificates {
 			enable_certificates = %v
-			}
+		}
+		deletion_protection = false
 	}`, projectID, clusterName, enabled)
 }
 
@@ -6294,6 +6556,7 @@ func testAccContainerCluster_updateCostManagementConfig(projectID string, cluste
 		cost_management_config {
 			enabled = %v
 		}
+		deletion_protection = false
 	}`, projectID, clusterName, enabled)
 }
 
@@ -6330,6 +6593,7 @@ resource "google_container_cluster" "primary" {
     state    = "ENCRYPTED"
     key_name = "%[2]s"
   }
+  deletion_protection = false
 }
 `, kmsData.KeyRing.Name, kmsData.CryptoKey.Name, clusterName)
 }
@@ -6348,6 +6612,7 @@ resource "google_container_cluster" "primary" {
   release_channel {
     channel = "RAPID"
   }
+  deletion_protection = false
 }
 `, clusterName, datapathProvider)
 }
@@ -6396,6 +6661,7 @@ resource "google_container_cluster" "with_private_cluster" {
     cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
   }
+  deletion_protection = false
 }
 `, containerNetName, clusterName)
 }
@@ -6415,6 +6681,7 @@ resource "google_container_cluster" "primary" {
 		auto_upgrade = false
 	}
   }
+  deletion_protection = false
 }
 `, cluster, np)
 }
@@ -6430,6 +6697,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
+  deletion_protection = false
 }
 `, clusterName)
 }
@@ -6445,6 +6713,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
+  deletion_protection = false
 
   # This feature has been available since GKE 1.27, and currently the only
   # supported Beta API is authentication.k8s.io/v1beta1/selfsubjectreviews.
@@ -6484,6 +6753,7 @@ resource "google_container_cluster" "primary" {
     enable_private_nodes    = false
     master_ipv4_cidr_block  = "10.42.0.0/28"
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6549,6 +6819,7 @@ resource "google_container_cluster" "with_autopilot" {
 	name               = "%s"
 	location           = "%s"
 	enable_autopilot   = %v
+	deletion_protection = false
 	min_master_version = "latest"
 	release_channel {
 		channel = "RAPID"
@@ -6592,6 +6863,7 @@ resource "google_container_cluster" "with_dns_config" {
 		cluster_dns_domain = "%s"
 		cluster_dns_scope  = "%s"
 	}
+	deletion_protection = false
 }
 `, clusterName, clusterDns, clusterDnsDomain, clusterDnsScope)
 }
@@ -6610,6 +6882,7 @@ resource "google_container_cluster" "primary" {
 	gateway_api_config {
 		channel = "%s"
 	}
+	deletion_protection = false
 }
 `, clusterName, gatewayApiChannel)
 }
@@ -6626,6 +6899,7 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
       enable_components = [ "SYSTEM_COMPONENTS" ]
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6639,6 +6913,7 @@ resource "google_container_cluster" "primary" {
   logging_config {
 	  enable_components = []
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6655,6 +6930,7 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
 	  enable_components = [ "SYSTEM_COMPONENTS" ]
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6672,6 +6948,7 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
       enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER", "SCHEDULER" ]
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6685,6 +6962,7 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
       enable_components = []
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6698,6 +6976,7 @@ resource "google_container_cluster" "primary" {
   monitoring_config {
          enable_components = [ "SYSTEM_COMPONENTS", "APISERVER", "CONTROLLER_MANAGER" ]
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6714,6 +6993,7 @@ resource "google_container_cluster" "primary" {
                  enabled = true
          }
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6730,6 +7010,7 @@ resource "google_container_cluster" "primary" {
                 enabled = true
          }
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6745,6 +7026,7 @@ resource "google_container_cluster" "primary" {
                 enabled = true
          }
   }
+  deletion_protection = false
 }
 `, name)
 }
@@ -6794,6 +7076,7 @@ resource "google_container_cluster" "primary" {
       relay_mode     = "INTERNAL_VPC_LB"
     }
   }
+  deletion_protection = false
 }
 `, name, name)
 }
@@ -6843,6 +7126,7 @@ resource "google_container_cluster" "primary" {
       relay_mode     = "DISABLED"
     }
   }
+  deletion_protection = false
 }
 `, name, name)
 }
@@ -6874,6 +7158,7 @@ resource "google_container_cluster" "primary" {
     disk_type       = "pd-ssd"
     node_group = google_compute_node_group.group.name
   }
+  deletion_protection = false
 }
 `, name, name, name)
 }
@@ -6893,6 +7178,7 @@ resource "google_container_cluster" "primary" {
   timeouts {
     create = "40s"
   }
+  deletion_protection = false
 }`, cluster, project, project)
 }
 
@@ -6907,6 +7193,7 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     workload_pool = "%s.svc.id.goog"
   }
+  deletion_protection = false
 }`, cluster, project, project)
 }
 
@@ -6916,6 +7203,7 @@ resource "google_container_cluster" "primary" {
   name             = "%s"
   location         = "us-central1"
   enable_autopilot = true
+  deletion_protection = false
 }`, name)
 }
 
@@ -6927,6 +7215,7 @@ resource "google_container_cluster" "primary" {
   enable_autopilot = true
   allow_net_admin  = %t
   min_master_version = 1.27
+  deletion_protection = false
 }`, name, enabled)
 }
 
@@ -6951,9 +7240,10 @@ func TestAccContainerCluster_customPlacementPolicy(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_container_cluster.cluster",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_container_cluster.cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -6987,6 +7277,7 @@ resource "google_container_cluster" "cluster" {
       policy_name = google_compute_resource_policy.policy.name
     }
   }
+  deletion_protection = false
 }`, policyName, cluster, np)
 }
 
@@ -7066,6 +7357,7 @@ func testAccContainerCluster_additional_pod_ranges_config(name string, nameCount
 			services_secondary_range_name = "gke-autopilot-services"
 			%s
 		}
+		deletion_protection = false
 	}
 	`, name, name, name, aprc)
 }

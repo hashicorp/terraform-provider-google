@@ -388,6 +388,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -450,6 +451,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -513,6 +515,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub, google_project_service.acm]
 }
 
@@ -809,6 +812,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -858,6 +862,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -906,6 +911,7 @@ resource "google_container_cluster" "primary" {
   name               = "tf-test-cl%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -954,6 +960,7 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   project = google_project.project.project_id
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -962,6 +969,7 @@ resource "google_container_cluster" "secondary" {
   location           = "us-central1-a"
   initial_node_count = 1
   project = google_project.project.project_id
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -970,6 +978,7 @@ resource "google_container_cluster" "tertiary" {
   location           = "us-central1-a"
   initial_node_count = 1
   project = google_project.project.project_id
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -979,6 +988,7 @@ resource "google_container_cluster" "quarternary" {
   location           = "us-central1-a"
   initial_node_count = 1
   project = google_project.project.project_id
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -1040,6 +1050,7 @@ resource "google_container_cluster" "container_acmoci" {
   initial_node_count = 1
   network = google_compute_network.testnetwork.self_link
   project = google_project.project.project_id
+  deletion_protection = false
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 

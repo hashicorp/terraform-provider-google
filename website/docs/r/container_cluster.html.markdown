@@ -16,6 +16,10 @@ Manages a Google Kubernetes Engine (GKE) cluster. For more information see
 [the official documentation](https://cloud.google.com/container-engine/docs/clusters)
 and [the API reference](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters).
 
+-> **Note**: On version 5.0.0+ of the provider, you must explicitly set `deletion_protection=false`
+(and run `terraform apply` to write the field to state) in order to destroy a cluster.
+It is recommended to not set this field (or set it to true) until you're ready to destroy.
+
 ~> **Warning:** All arguments and attributes, including basic auth username and
 passwords as well as certificate outputs will be stored in the raw state as
 plaintext. [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
@@ -117,6 +121,10 @@ single zone while nodes are present in each of the primary zone and the node
 locations. In contrast, in a regional cluster, cluster master nodes are present
 in multiple zones in the region. For that reason, regional clusters should be
 preferred.
+
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy 
+the cluster. Unless this field is set to false in Terraform state, a 
+`terraform destroy` or `terraform apply` that would delete the cluster will fail.
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is [documented below](#nested_addons_config).

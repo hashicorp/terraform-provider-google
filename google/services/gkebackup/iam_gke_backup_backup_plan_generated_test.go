@@ -34,6 +34,8 @@ func TestAccGKEBackupBackupPlanIamBindingGenerated(t *testing.T) {
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"deletion_protection": false,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -70,6 +72,8 @@ func TestAccGKEBackupBackupPlanIamMemberGenerated(t *testing.T) {
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"deletion_protection": false,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -97,6 +101,8 @@ func TestAccGKEBackupBackupPlanIamPolicyGenerated(t *testing.T) {
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
+
+		"deletion_protection": false,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -140,6 +146,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -177,6 +184,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -229,6 +237,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -268,6 +277,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -305,6 +315,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
