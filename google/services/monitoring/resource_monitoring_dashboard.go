@@ -16,24 +16,45 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	computedFields := []string{"etag", "name"}
+// This recursive function takes an old map and a new map and is intended to remove the computed keys
+// from the old json string (stored in state) so that it doesn't show a diff if it's not defined in the
+// new map's json string (defined in config)
+func removeComputedKeys(old map[string]interface{}, new map[string]interface{}) map[string]interface{} {
+	for k, v := range old {
+		if _, ok := old[k]; ok && new[k] == nil {
+			delete(old, k)
+			continue
+		}
 
+		if reflect.ValueOf(v).Kind() == reflect.Map {
+			old[k] = removeComputedKeys(v.(map[string]interface{}), new[k].(map[string]interface{}))
+			continue
+		}
+
+		if reflect.ValueOf(v).Kind() == reflect.Slice {
+			for i, j := range v.([]interface{}) {
+				if reflect.ValueOf(j).Kind() == reflect.Map {
+					old[k].([]interface{})[i] = removeComputedKeys(j.(map[string]interface{}), new[k].([]interface{})[i].(map[string]interface{}))
+				}
+			}
+			continue
+		}
+	}
+
+	return old
+}
+
+func monitoringDashboardDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	oldMap, err := structure.ExpandJsonFromString(old)
 	if err != nil {
 		return false
 	}
-
 	newMap, err := structure.ExpandJsonFromString(new)
 	if err != nil {
 		return false
 	}
 
-	for _, f := range computedFields {
-		delete(oldMap, f)
-		delete(newMap, f)
-	}
-
+	oldMap = removeComputedKeys(oldMap, newMap)
 	return reflect.DeepEqual(oldMap, newMap)
 }
 
