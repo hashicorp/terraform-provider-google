@@ -1,0 +1,3 @@
+```release-note:bug
+tags: fixed import failure on `google_tags_tag_binding`
+```
