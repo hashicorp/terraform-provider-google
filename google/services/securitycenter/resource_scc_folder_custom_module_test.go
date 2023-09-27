@@ -11,55 +11,77 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Custom Module tests cannot be run in parallel without running into 409 Conflict reponses.
 // Run them as individual steps of an update test instead.
-func TestAccSecurityCenterProjectCustomModule(t *testing.T) {
+func TestAccSecurityCenterFolderCustomModule(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"sleep":         true,
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckSecurityCenterFolderCustomModuleDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleBasicExample(context),
+				Config: testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleBasicExample(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_folder_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"folder"},
 			},
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleFullExample(context),
+				Config: testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleFullExample(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_folder_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"folder"},
 			},
 			{
-				Config: testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleUpdate(context),
+				Config: testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleUpdate(context),
 			},
 			{
-				ResourceName:      "google_scc_project_custom_module.example",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_scc_folder_custom_module.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"folder"},
 			},
 		},
 	})
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleBasicExample(context map[string]interface{}) string {
+func testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
+resource "google_folder" "folder" {
+  parent       = "organizations/%{org_id}"
+  display_name = "tf-test-folder-name%{random_suffix}"
+}
+
+resource "time_sleep" "wait_1_minute" {
+	depends_on = [google_folder.folder]
+
+	create_duration = "1m"
+}
+
+resource "google_scc_folder_custom_module" "example" {
+	folder = google_folder.folder.folder_id
 	display_name = "tf_test_basic_custom_module%{random_suffix}"
 	enablement_state = "ENABLED"
 	custom_config {
@@ -75,13 +97,22 @@ resource "google_scc_project_custom_module" "example" {
 		recommendation = "Set the rotation period to at most 30 days."
 		severity = "MEDIUM"
 	}
+
+
+	depends_on = [time_sleep.wait_1_minute]
 }
 `, context)
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleFullExample(context map[string]interface{}) string {
+func testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
+resource "google_folder" "folder" {
+  parent       = "organizations/%{org_id}"
+  display_name = "tf-test-folder-name%{random_suffix}"
+}
+
+resource "google_scc_folder_custom_module" "example" {
+	folder = google_folder.folder.folder_id
 	display_name = "tf_test_full_custom_module%{random_suffix}"
 	enablement_state = "ENABLED"
 	custom_config {
@@ -115,10 +146,16 @@ resource "google_scc_project_custom_module" "example" {
 `, context)
 }
 
-func testAccSecurityCenterProjectCustomModule_sccProjectCustomModuleUpdate(context map[string]interface{}) string {
+func testAccSecurityCenterFolderCustomModule_sccFolderCustomModuleUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_scc_project_custom_module" "example" {
-	display_name = "full_custom_module"
+resource "google_folder" "folder" {
+  parent       = "organizations/%{org_id}"
+  display_name = "tf-test-folder-name%{random_suffix}"
+}
+
+resource "google_scc_folder_custom_module" "example" {
+	folder = google_folder.folder.folder_id
+	display_name = "tf_test_full_custom_module%{random_suffix}"
 	enablement_state = "DISABLED"
 	custom_config {
 		predicate {
@@ -151,10 +188,10 @@ resource "google_scc_project_custom_module" "example" {
 `, context)
 }
 
-func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckSecurityCenterFolderCustomModuleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "google_scc_project_custom_module" {
+			if rs.Type != "google_scc_folder_custom_module" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -163,7 +200,7 @@ func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) 
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{SecurityCenterBasePath}}folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -182,7 +219,7 @@ func testAccCheckSecurityCenterProjectCustomModuleDestroyProducer(t *testing.T) 
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("SecurityCenterProjectCustomModule still exists at %s", url)
+				return fmt.Errorf("SecurityCenterFolderCustomModule still exists at %s", url)
 			}
 		}
 

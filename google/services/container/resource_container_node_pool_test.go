@@ -411,8 +411,17 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
+			// Create a node pool with empty `linux_node_config.sysctls`.
 			{
-				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, 10000, 12800, "1000 20000 100000", 1),
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, ""),
+			},
+			{
+				ResourceName:      "google_container_node_pool.with_linux_node_config",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "1000 20000 100000"),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_linux_node_config",
@@ -421,7 +430,7 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 			},
 			// Perform an update.
 			{
-				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, 10000, 12800, "1000 20000 200000", 1),
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "1000 20000 200000"),
 			},
 			{
 				ResourceName:      "google_container_node_pool.with_linux_node_config",
@@ -2389,7 +2398,30 @@ resource "google_container_node_pool" "with_kubelet_config" {
 `, cluster, np, policy, quota, period, podPidsLimit)
 }
 
-func testAccContainerNodePool_withLinuxNodeConfig(cluster, np string, maxBacklog, soMaxConn int, tcpMem string, twReuse int) string {
+func testAccContainerNodePool_withLinuxNodeConfig(cluster, np string, tcpMem string) string {
+	linuxNodeConfig := `
+    linux_node_config {
+      sysctls = {}
+    }
+`
+	if len(tcpMem) != 0 {
+		linuxNodeConfig = fmt.Sprintf(`
+    linux_node_config {
+      sysctls = {
+        "net.core.netdev_max_backlog" = "10000"
+        "net.core.rmem_max"           = 10000
+        "net.core.wmem_default"       = 10000
+        "net.core.wmem_max"           = 20000
+        "net.core.optmem_max"         = 10000
+        "net.core.somaxconn"          = 12800
+        "net.ipv4.tcp_rmem"           = "%s"
+        "net.ipv4.tcp_wmem"           = "%s"
+        "net.ipv4.tcp_tw_reuse"       = 1
+      }
+    }
+`, tcpMem, tcpMem)
+	}
+
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -2410,26 +2442,14 @@ resource "google_container_node_pool" "with_linux_node_config" {
   initial_node_count = 1
   node_config {
     image_type = "COS_CONTAINERD"
-    linux_node_config {
-      sysctls = {
-        "net.core.netdev_max_backlog" = "%d"
-        "net.core.rmem_max"           = 10000
-        "net.core.wmem_default"       = 10000
-        "net.core.wmem_max"           = 20000
-        "net.core.optmem_max"         = 10000
-        "net.core.somaxconn"          = %d
-        "net.ipv4.tcp_rmem"           = "%s"
-        "net.ipv4.tcp_wmem"           = "%s"
-        "net.ipv4.tcp_tw_reuse"       = %d
-      }
-    }
+    %s
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
   }
 }
-`, cluster, np, maxBacklog, soMaxConn, tcpMem, tcpMem, twReuse)
+`, cluster, np, linuxNodeConfig)
 }
 
 func testAccContainerNodePool_withNetworkConfig(cluster, np, network string) string {

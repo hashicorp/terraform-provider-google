@@ -89,7 +89,11 @@ The following arguments are supported:
   (Optional)
   The definition of the schema.
   This should contain a string representing the full definition of the schema
-  that is a valid schema definition of the type specified in type.
+  that is a valid schema definition of the type specified in type. Changes
+  to the definition commit new [schema revisions](https://cloud.google.com/pubsub/docs/commit-schema-revision).
+  A schema can only have up to 20 revisions, so updates that fail with an
+  error indicating that the limit has been reached require manually
+  [deleting old revisions](https://cloud.google.com/pubsub/docs/delete-schema-revision).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

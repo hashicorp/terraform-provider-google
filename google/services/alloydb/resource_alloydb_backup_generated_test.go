@@ -49,7 +49,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
 				ResourceName:            "google_alloydb_backup.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"backup_id", "location", "reconciling", "update_time", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"backup_id", "location", "reconciling", "update_time"},
 			},
 		},
 	})
@@ -118,7 +118,7 @@ func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
 				ResourceName:            "google_alloydb_backup.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"backup_id", "location", "reconciling", "update_time", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"backup_id", "location", "reconciling", "update_time"},
 			},
 		},
 	})
@@ -132,6 +132,7 @@ resource "google_alloydb_backup" "default" {
   cluster_name = google_alloydb_cluster.default.name
 
   description = "example description"
+  type = "ON_DEMAND"
   labels = {
     "label" = "key"
   }

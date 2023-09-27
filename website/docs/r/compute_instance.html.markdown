@@ -244,7 +244,7 @@ is desired, you will need to modify your state file manually using
     For instance, the image `centos-6-v20180104` includes its family name `centos-6`.
     These images can be referred by family name here.
 
-* `labels` - (Optional) A set of key/value label pairs assigned to the disk. This  
+* `labels` - (Optional) A set of key/value label pairs assigned to the disk. This
     field is only applicable for persistent disks.
 
 * `resource_manager_tags` - (Optional) A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag. This value is not returned by the API. In Terraform, this value cannot be updated and changing it will recreate the resource.
@@ -293,6 +293,7 @@ is desired, you will need to modify your state file manually using
     network is in auto subnet mode, specifying the subnetwork is optional. If the network is
     in custom subnet mode, specifying the subnetwork is required.
 
+
 *  `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
    If the `subnetwork` is a self_link, this field is ignored in favor of the project
    defined in the subnetwork self_link. If the `subnetwork` is a name and this
@@ -314,6 +315,8 @@ is desired, you will need to modify your state file manually using
 
 * `nic_type` - (Optional) The type of vNIC to be used on this interface. Possible values: GVNIC, VIRTIO_NET.
 
+* `network_attachment` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) The URL of the network attachment that this interface should connect to in the following format: `projects/{projectNumber}/regions/{region_name}/networkAttachments/{network_attachment_name}`.
+
 * `stack_type` - (Optional) The stack type for this network interface to identify whether the IPv6 feature is enabled or not. Values are IPV4_IPV6 or IPV4_ONLY. If not specified, IPV4_ONLY will be used.
 
 * `ipv6_access_config` - (Optional) An array of IPv6 access configurations for this interface.
@@ -322,6 +325,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `queue_count` - (Optional) The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.
 
+* `security_policy` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) A full or partial URL to a security policy to add to this instance. If this field is set to an empty string it will remove the associated security policy.
 
 <a name="nested_access_config"></a>The `access_config` block supports:
 
@@ -339,14 +343,14 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_ipv6_access_config"></a>The `ipv6_access_config` block supports:
 
-* `external_ipv6` - (Optional) The first IPv6 address of the external IPv6 range associated 
-    with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. 
-    To use a static external IP address, it must be unused and in the same region as the instance's zone. 
+* `external_ipv6` - (Optional) The first IPv6 address of the external IPv6 range associated
+    with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig.
+    To use a static external IP address, it must be unused and in the same region as the instance's zone.
     If not specified, Google Cloud will automatically assign an external IPv6 address from the instance's subnetwork.
 
 * `external_ipv6_prefix_length` - (Optional) The prefix length of the external IPv6 range.
 
-* `name` - (Optional) The name of this access configuration. In ipv6AccessConfigs, the recommended name 
+* `name` - (Optional) The name of this access configuration. In ipv6AccessConfigs, the recommended name
     is "External IPv6".
 
 * `network_tier` - (Optional) The service-level to be provided for IPv6 traffic when the
@@ -398,12 +402,12 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `min_node_cpus` - (Optional) The minimum number of virtual CPUs this instance will consume when running on a sole-tenant node.
 
-* `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`, 
+* `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`,
     `preemptible` should be `true` and `automatic_restart` should be
     `false`. For more info about
     `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
-    
-* `instance_termination_action` - (Optional) Describe the type of termination action for VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
+
+* `instance_termination_action` - (Optional) Describe the type of termination action for VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot)
 
 * `max_run_duration` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) The duration of the instance. Instance will run and be terminated after then, the termination action could be defined in `instance_termination_action`. Only support `DELETE` `instance_termination_action` at this point. Structure is [documented below](#nested_max_run_duration).
 <a name="nested_max_run_duration"></a>The `max_run_duration` block supports:

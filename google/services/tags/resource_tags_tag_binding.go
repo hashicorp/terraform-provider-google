@@ -288,6 +288,14 @@ func resourceTagsTagBindingImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, err
 	}
 
+	stringParts := strings.Split(d.Get("name").(string), "/")
+	if len(stringParts) < 3 {
+		return nil, fmt.Errorf("Error parsing parent name. Should be in form {{parent}}/tagValues/{{tag_value}}")
+	}
+	if err := d.Set("parent", stringParts[0]); err != nil {
+		return nil, fmt.Errorf("Error setting parent, %s", err)
+	}
+
 	name := d.Get("name").(string)
 	d.SetId(name)
 

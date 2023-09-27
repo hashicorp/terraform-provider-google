@@ -78,6 +78,7 @@ resource "google_workstations_workstation_config" "default" {
   idle_timeout = "600s"
   running_timeout = "21600s"
 
+  replica_zones = ["us-central1-a", "us-central1-b"]
   annotations = {
     label-one = "value-one"
   }
@@ -538,6 +539,15 @@ The following arguments are supported:
   How long to wait before automatically stopping a workstation after it was started. A value of 0 indicates that workstations using this configuration should never time out from running duration. Must be greater than 0 and less than 24 hours if `encryption_key` is set. Defaults to 12 hours.
   A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
+* `replica_zones` -
+  (Optional)
+  Specifies the zones used to replicate the VM and disk resources within the region. If set, exactly two zones within the workstation cluster's region must be specified—for example, `['us-central1-a', 'us-central1-f']`.
+  If this field is empty, two default zones within the region are used. Immutable after the workstation configuration is created.
+
+* `enable_audit_agent` -
+  (Optional)
+  Whether to enable Linux `auditd` logging on the workstation. When enabled, a service account must also be specified that has `logging.buckets.write` permission on the project. Operating system audit logging is distinct from Cloud Audit Logs.
+
 * `host` -
   (Optional)
   Runtime host for a workstation.
@@ -582,6 +592,10 @@ The following arguments are supported:
 * `service_account` -
   (Optional)
   Email address of the service account that will be used on VM instances used to support this config. This service account must have permission to pull the specified container image. If not set, VMs will run without a service account, in which case the image must be publicly accessible.
+
+* `service_account_scopes` -
+  (Optional)
+  Scopes to grant to the service_account. Various scopes are automatically added based on feature usage. When specified, users of workstations under this configuration must have `iam.serviceAccounts.actAs` on the service account.
 
 * `pool_size` -
   (Optional)

@@ -284,6 +284,7 @@ resource "google_os_config_patch_deployment" "patch" {
       week_day_of_month {
         week_ordinal = -1
         day_of_week  = "TUESDAY"
+        day_offset   = 3
       }
     }
   }
@@ -800,6 +801,10 @@ The following arguments are supported:
   (Required)
   A day of the week.
   Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+* `day_offset` -
+  (Optional)
+  Represents the number of days before or after the given week day of month that the patch deployment is scheduled for.
 
 <a name="nested_rollout"></a>The `rollout` block supports:
 

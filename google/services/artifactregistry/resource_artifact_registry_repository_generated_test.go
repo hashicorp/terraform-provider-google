@@ -250,6 +250,98 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteAptExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-debian-buster%{random_suffix}"
+  description   = "example remote apt repository%{random_suffix}"
+  format        = "APT"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "Debian buster remote repository"
+    apt_repository {
+      public_repository {
+        repository_base = "DEBIAN"
+        repository_path = "debian/dists/buster"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-centos-8%{random_suffix}"
+  description   = "example remote yum repository%{random_suffix}"
+  format        = "YUM"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "Centos 8 remote repository"
+    yum_repository {
+      public_repository {
+        repository_base = "CENTOS"
+        repository_path = "8-stream/BaseOs/x86_64/os"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckArtifactRegistryRepositoryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -413,7 +413,9 @@ Enable/Disable Security Posture API features for the cluster. Structure is [docu
 
 * `gcs_fuse_csi_driver_config` - (Optional) The status of the GCSFuse CSI driver addon,
     which allows the usage of a gcs bucket as volumes.
-    It is disabled by default; set `enabled = true` to enable.
+    It is disabled by default for Standard clusters; set `enabled = true` to enable.
+    It is enabled by default for Autopilot clusters with version 1.24 or later; set `enabled = true` to enable it explicitly.
+    See [Enable the Cloud Storage FUSE CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver#enable) for more information.
 
 * `cloudrun_config` - (Optional). Structure is [documented below](#nested_cloudrun_config).
 

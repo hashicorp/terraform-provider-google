@@ -785,6 +785,131 @@ func TestAccBigQueryExternalDataTable_objectTable(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryExternalDataTable_connectionIdDiff_UseNameReference(t *testing.T) {
+	t.Parallel()
+	// Setup
+	bucketName := acctest.TestBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	// Feature Under Test.
+	location := "US"
+	connection_id_reference := "google_bigquery_connection.test.name"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connection_id_reference),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_connectionIdDiff_UseIdReference(t *testing.T) {
+	t.Parallel()
+	// Setup
+	bucketName := acctest.TestBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	// Feature Under Test.
+	location := "US"
+	connection_id_reference := "google_bigquery_connection.test.id"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connection_id_reference),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_connectionIdDiff_UseIdReference_UsCentral1LowerCase(t *testing.T) {
+	t.Parallel()
+	// Setup
+	bucketName := acctest.TestBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	// Feature Under Test.
+	location := "us-central1"
+	connection_id_reference := "google_bigquery_connection.test.id"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connection_id_reference),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_connectionIdDiff_UseIdReference_UsEast1(t *testing.T) {
+	t.Parallel()
+	// Setup
+	bucketName := acctest.TestBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	// Feature Under Test.
+	location := "US-EAST1"
+	connection_id_reference := "google_bigquery_connection.test.id"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connection_id_reference),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryExternalDataTable_connectionIdDiff_UseIdReference_EuropeWest8(t *testing.T) {
+	t.Parallel()
+	// Setup
+	bucketName := acctest.TestBucketName(t)
+	objectName := fmt.Sprintf("tf_test_%s.csv", acctest.RandString(t, 10))
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	connectionID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	// Feature Under Test.
+	location := "EUROPE-WEST8"
+	connection_id_reference := "google_bigquery_connection.test.id"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connection_id_reference),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryExternalDataTable_CSV(t *testing.T) {
 	t.Parallel()
 
@@ -2558,6 +2683,60 @@ resource "google_bigquery_table" "test" {
   }
 }
 `, datasetID, bucketName, manifestName, parquetFileName, tableID)
+}
+
+func testAccBigQueryTableExternalDataConfigurationConnectionID(location, connectionID, datasetID, tableID, bucketName, objectName, connectionIdReference string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_connection" "test" {
+   connection_id = "%s"
+   location = "%s"
+   cloud_resource {}
+}
+
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "test" {
+   role = "roles/storage.objectViewer"
+   project = data.google_project.project.id
+   member = "serviceAccount:${google_bigquery_connection.test.cloud_resource[0].service_account_id}"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+  location = "%s"
+}
+
+resource "google_storage_bucket" "test" {
+  name          = "%s"
+  location      = "%s"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "test" {
+  name    = "%s"
+  source = "./test-fixtures/test.parquet.gzip"
+  bucket = google_storage_bucket.test.name
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  external_data_configuration {
+
+	# Feature Under Test
+	connection_id   = %s
+
+    autodetect      = false
+	object_metadata = "SIMPLE"
+	metadata_cache_mode = "MANUAL"
+
+    source_uris = [
+      "gs://${google_storage_bucket.test.name}/*",
+    ]
+  }
+}
+`, connectionID, location, datasetID, location, bucketName, location, objectName, tableID, connectionIdReference)
 }
 
 func testAccBigQueryTableFromGCSObjectTable(connectionID, datasetID, tableID, bucketName, objectName, maxStaleness string) string {

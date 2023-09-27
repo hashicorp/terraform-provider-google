@@ -87,6 +87,33 @@ func ResourceStorageTransferJob() *schema.Resource {
 				ForceNew:    true,
 				Description: `The project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
+			"event_stream": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      1,
+				ConflictsWith: []string{"schedule"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Specifies a unique name of the resource such as AWS SQS ARN in the form 'arn:aws:sqs:region:account_id:queue_name', or Pub/Sub subscription resource name in the form 'projects/{project}/subscriptions/{sub}'",
+						},
+						"event_stream_start_time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "Specifies the date and time that Storage Transfer Service starts listening for events from this stream. If no start time is specified or start time is in the past, Storage Transfer Service starts listening immediately",
+							ValidateFunc: validation.IsRFC3339Time,
+						},
+						"event_stream_expiration_time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "Specifies the data and time at which Storage Transfer Service stops listening for events from this stream. After this time, any transfers in progress will complete, but no new transfers are initiated",
+							ValidateFunc: validation.IsRFC3339Time,
+						},
+					},
+				},
+			},
 			"transfer_spec": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -200,9 +227,10 @@ func ResourceStorageTransferJob() *schema.Resource {
 				Description: `Notification configuration.`,
 			},
 			"schedule": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      1,
+				ConflictsWith: []string{"event_stream"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"schedule_start_date": {
@@ -572,6 +600,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 		ProjectId:          project,
 		Status:             d.Get("status").(string),
 		Schedule:           expandTransferSchedules(d.Get("schedule").([]interface{})),
+		EventStream:        expandEventStream(d.Get("event_stream").([]interface{})),
 		TransferSpec:       expandTransferSpecs(d.Get("transfer_spec").([]interface{})),
 		NotificationConfig: expandTransferJobNotificationConfig(d.Get("notification_config").([]interface{})),
 	}
@@ -647,6 +676,11 @@ func resourceStorageTransferJobRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	err = d.Set("event_stream", flattenTransferEventStream(res.EventStream))
+	if err != nil {
+		return err
+	}
+
 	err = d.Set("transfer_spec", flattenTransferSpec(res.TransferSpec, d))
 	if err != nil {
 		return err
@@ -674,6 +708,13 @@ func resourceStorageTransferJobUpdate(d *schema.ResourceData, meta interface{}) 
 
 	transferJob := &storagetransfer.TransferJob{}
 	fieldMask := []string{}
+
+	if d.HasChange("event_stream") {
+		fieldMask = append(fieldMask, "event_stream")
+		if v, ok := d.GetOk("event_stream"); ok {
+			transferJob.EventStream = expandEventStream(v.([]interface{}))
+		}
+	}
 
 	if d.HasChange("description") {
 		fieldMask = append(fieldMask, "description")
@@ -899,6 +940,39 @@ func flattenTransferSchedule(transferSchedule *storagetransfer.Schedule) []map[s
 
 	if transferSchedule.RepeatInterval != "" {
 		data["repeat_interval"] = transferSchedule.RepeatInterval
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func expandEventStream(e []interface{}) *storagetransfer.EventStream {
+	if len(e) == 0 || e[0] == nil {
+		return nil
+	}
+
+	eventStream := e[0].(map[string]interface{})
+	return &storagetransfer.EventStream{
+		Name:                      eventStream["name"].(string),
+		EventStreamStartTime:      eventStream["event_stream_start_time"].(string),
+		EventStreamExpirationTime: eventStream["event_stream_expiration_time"].(string),
+	}
+}
+
+func flattenTransferEventStream(eventStream *storagetransfer.EventStream) []map[string]interface{} {
+	if eventStream == nil || reflect.DeepEqual(eventStream, &storagetransfer.EventStream{}) {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"name": eventStream.Name,
+	}
+
+	if eventStream.EventStreamStartTime != "" {
+		data["event_stream_start_time"] = eventStream.EventStreamStartTime
+	}
+
+	if eventStream.EventStreamExpirationTime != "" {
+		data["event_stream_expiration_time"] = eventStream.EventStreamExpirationTime
 	}
 
 	return []map[string]interface{}{data}
