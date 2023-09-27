@@ -161,7 +161,7 @@ The following arguments are supported:
 <a name="nested_metadata"></a>The `metadata` block supports:
 
 * `contents_delta_uri` -
-  (Optional)
+  (Required)
   Allows inserting, updating  or deleting the contents of the Matching Engine Index.
   The string must be a valid Cloud Storage directory path. If this
   field is set when calling IndexService.UpdateIndex, then no other

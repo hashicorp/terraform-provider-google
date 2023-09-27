@@ -134,6 +134,8 @@ func computeRouterNatRulesHash(v interface{}) int {
 
 	sourceNatActiveIpHash := 0
 	sourceNatDrainIpHash := 0
+	routerNatRulesHash := 0
+
 	if obj["action"] != nil {
 		actions := obj["action"].([]interface{})
 		if len(actions) != 0 && actions[0] != nil {
@@ -156,10 +158,12 @@ func computeRouterNatRulesHash(v interface{}) int {
 					sourceNatDrainIpHash += schema.HashString(sourceNatDrainIpStr)
 				}
 			}
+
 		}
 	}
 
-	return ruleNumber + descriptionHash + schema.HashString(match) + sourceNatActiveIpHash + sourceNatDrainIpHash
+	routerNatRulesHash = ruleNumber + descriptionHash + schema.HashString(match) + sourceNatActiveIpHash + sourceNatDrainIpHash
+	return routerNatRulesHash
 }
 
 func ResourceComputeRouterNat() *schema.Resource {
@@ -192,14 +196,6 @@ func ResourceComputeRouterNat() *schema.Resource {
 				ValidateFunc: verify.ValidateRFC1035Name(2, 63),
 				Description: `Name of the NAT service. The name must be 1-63 characters long and
 comply with RFC1035.`,
-			},
-			"nat_ip_allocate_option": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"MANUAL_ONLY", "AUTO_ONLY"}),
-				Description: `How external IPs should be allocated for this NAT. Valid values are
-'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
-Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible values: ["MANUAL_ONLY", "AUTO_ONLY"]`,
 			},
 			"router": {
 				Type:             schema.TypeString,
@@ -290,6 +286,14 @@ This field can only be set when enableDynamicPortAllocation is enabled.`,
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: `Minimum number of ports allocated to a VM from this NAT.`,
+			},
+			"nat_ip_allocate_option": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"MANUAL_ONLY", "AUTO_ONLY", ""}),
+				Description: `How external IPs should be allocated for this NAT. Valid values are
+'AUTO_ONLY' for only allowing NAT IPs allocated by Google Cloud
+Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible values: ["MANUAL_ONLY", "AUTO_ONLY"]`,
 			},
 			"nat_ips": {
 				Type:     schema.TypeSet,

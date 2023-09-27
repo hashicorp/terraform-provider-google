@@ -3686,6 +3686,7 @@ resource "google_sql_database_instance" "instance" {
   clone {
     source_instance_name = data.google_sql_backup_run.backup.instance
     point_in_time = data.google_sql_backup_run.backup.start_time
+	preferred_zone = "us-central1-b"
   }
 
   deletion_protection = false

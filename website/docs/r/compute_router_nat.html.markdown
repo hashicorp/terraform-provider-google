@@ -171,6 +171,84 @@ resource "google_compute_router_nat" "nat_rules" {
   enable_endpoint_independent_mapping = false
 }
 ```
+## Example Usage - Router Nat Private
+
+
+```hcl
+resource "google_compute_network" "net" {
+  provider = google-beta
+
+  name     = "my-network"
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  provider      = google-beta
+
+  name          = "my-subnetwork"
+  network       = google_compute_network.net.id
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  purpose       = "PRIVATE_NAT"
+}
+
+resource "google_compute_router" "router" {
+  provider = google-beta
+
+  name     = "my-router"
+  region   = google_compute_subnetwork.subnet.region
+  network  = google_compute_network.net.id
+}
+
+resource "google_network_connectivity_hub" "hub" {
+  provider    = google-beta
+
+  name        = "my-hub"
+  description = "vpc hub for inter vpc nat"
+}
+
+resource "google_network_connectivity_spoke" "spoke" {
+  provider    = google-beta
+
+  name        = "my-spoke"
+  location    = "global"
+  description = "vpc spoke for inter vpc nat"
+  hub         =  google_network_connectivity_hub.hub.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "198.51.100.0/24",
+      "10.10.0.0/16"
+    ]
+    uri = google_compute_network.net.self_link
+  }
+}
+
+resource "google_compute_router_nat" "nat_type" {
+  provider                            = google-beta
+
+  name                                = "my-router-nat"
+  router                              = google_compute_router.router.name
+  region                              = google_compute_router.router.region
+  source_subnetwork_ip_ranges_to_nat  = "LIST_OF_SUBNETWORKS"
+  enable_dynamic_port_allocation      = false
+  enable_endpoint_independent_mapping = false
+  min_ports_per_vm                    = 32
+  type                                = "PRIVATE"
+  subnetwork {
+    name                    = google_compute_subnetwork.subnet.id
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
+  rules {
+    rule_number = 100
+    description = "rule for private nat"
+    match       = "nexthop.hub == \"//networkconnectivity.googleapis.com/projects/acm-test-proj-123/locations/global/hubs/my-hub\""
+    action {
+      source_nat_active_ranges = [
+        google_compute_subnetwork.subnet.self_link
+      ]
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -181,13 +259,6 @@ The following arguments are supported:
   (Required)
   Name of the NAT service. The name must be 1-63 characters long and
   comply with RFC1035.
-
-* `nat_ip_allocate_option` -
-  (Required)
-  How external IPs should be allocated for this NAT. Valid values are
-  `AUTO_ONLY` for only allowing NAT IPs allocated by Google Cloud
-  Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
-  Possible values are: `MANUAL_ONLY`, `AUTO_ONLY`.
 
 * `source_subnetwork_ip_ranges_to_nat` -
   (Required)
@@ -210,6 +281,13 @@ The following arguments are supported:
 
 - - -
 
+
+* `nat_ip_allocate_option` -
+  (Optional)
+  How external IPs should be allocated for this NAT. Valid values are
+  `AUTO_ONLY` for only allowing NAT IPs allocated by Google Cloud
+  Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
+  Possible values are: `MANUAL_ONLY`, `AUTO_ONLY`.
 
 * `nat_ips` -
   (Optional)
@@ -282,6 +360,15 @@ The following arguments are supported:
   (Optional)
   Enable endpoint independent mapping.
   For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).
+
+* `type` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Indicates whether this NAT is used for public or private IP translation.
+  If unspecified, it defaults to PUBLIC.
+  If `PUBLIC` NAT used for public IP translation.
+  If `PRIVATE` NAT used for private IP translation.
+  Default value is `PUBLIC`.
+  Possible values are: `PUBLIC`, `PRIVATE`.
 
 * `region` -
   (Optional)
@@ -363,6 +450,18 @@ The following arguments are supported:
   These IPs must be valid static external IPs that have been assigned to the NAT.
   These IPs should be used for updating/patching a NAT rule only.
   This field is used for public NAT.
+
+* `source_nat_active_ranges` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of URLs of the subnetworks used as source ranges for this NAT Rule.
+  These subnetworks must have purpose set to PRIVATE_NAT.
+  This field is used for private NAT.
+
+* `source_nat_drain_ranges` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A list of URLs of subnetworks representing source ranges to be drained.
+  This is only supported on patch/update, and these subnetworks must have previously been used as active ranges in this NAT Rule.
+  This field is used for private NAT.
 
 ## Attributes Reference
 

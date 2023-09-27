@@ -116,9 +116,11 @@ The following arguments are supported:
 
 * `transfer_spec` - (Required) Transfer specification. Structure [documented below](#nested_transfer_spec).
 
-* `schedule` - (Required) Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run. Structure [documented below](#nested_schedule).
-
 - - -
+
+* `schedule` - (Optional) Schedule specification defining when the Transfer Job should be scheduled to start, end and what time to run. Structure [documented below](#nested_schedule). Either `schedule` or `event_stream` must be set.
+
+* `event_stream` - (Optional) Specifies the Event-driven transfer options. Event-driven transfers listen to an event stream to transfer updated files. Structure [documented below](#nested_event_stream) Either `event_stream` or `schedule` must be set.
 
 * `project` - (Optional) The project in which the resource belongs. If it
 	is not provided, the provider project is used.
@@ -160,6 +162,14 @@ The following arguments are supported:
 * `start_time_of_day` - (Optional) The time in UTC at which the transfer will be scheduled to start in a day. Transfers may start later than this time. If not specified, recurring and one-time transfers that are scheduled to run today will run immediately; recurring transfers that are scheduled to run on a future date will start at approximately midnight UTC on that date. Note that when configuring a transfer with the Cloud Platform Console, the transfer's start time in a day is specified in your local timezone. Structure [documented below](#nested_start_time_of_day).
 
 * `repeat_interval` - (Optional) Interval between the start of each scheduled transfer. If unspecified, the default value is 24 hours. This value may not be less than 1 hour. A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+
+<a name="nested_event_stream"></a>The `event_stream` block supports:
+
+* `name` - (Required) Specifies a unique name of the resource such as AWS SQS ARN in the form 'arn:aws:sqs:region:account_id:queue_name', or Pub/Sub subscription resource name in the form 'projects/{project}/subscriptions/{sub}'.
+
+* `event_stream_start_time` - (Optional) Specifies the date and time that Storage Transfer Service starts listening for events from this stream. If no start time is specified or start time is in the past, Storage Transfer Service starts listening immediately. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+* `event_stream_expiration_time` - (Optional) Specifies the data and time at which Storage Transfer Service stops listening for events from this stream. After this time, any transfers in progress will complete, but no new transfers are initiated.A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 <a name="nested_object_conditions"></a>The `object_conditions` block supports:
 

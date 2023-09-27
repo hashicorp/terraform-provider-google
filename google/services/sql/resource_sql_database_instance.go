@@ -949,6 +949,11 @@ is set to true. Defaults to ZONAL.`,
 							DiffSuppressFunc: tpgresource.TimestampDiffSuppress(time.RFC3339Nano),
 							Description:      `The timestamp of the point in time that should be restored.`,
 						},
+						"preferred_zone": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `(Point-in-time recovery for PostgreSQL only) Clone to an instance in the specified zone. If no zone is specified, clone to the same zone as the source instance.`,
+						},
 						"database_names": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -1320,6 +1325,7 @@ func expandCloneContext(configured []interface{}) (*sqladmin.CloneContext, strin
 
 	return &sqladmin.CloneContext{
 		PointInTime:      _cloneConfiguration["point_in_time"].(string),
+		PreferredZone:    _cloneConfiguration["preferred_zone"].(string),
 		DatabaseNames:    databaseNames,
 		AllocatedIpRange: _cloneConfiguration["allocated_ip_range"].(string),
 	}, _cloneConfiguration["source_instance_name"].(string)

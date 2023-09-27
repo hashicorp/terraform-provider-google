@@ -183,6 +183,32 @@ resource "google_compute_network" "custom-test" {
   enable_ula_internal_ipv6 = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_purpose_private_nat&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Purpose Private Nat
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-purpose-private-nat" {
+  provider         = google-beta
+
+  name             = "subnet-purpose-test-subnetwork"
+  region           = "us-west2"
+  ip_cidr_range    = "192.168.1.0/24"
+  purpose          = "PRIVATE_NAT"
+  network          = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+  provider                = google-beta
+
+  name                    = "subnet-purpose-test-network"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -223,10 +249,11 @@ The following arguments are supported:
 
 * `purpose` -
   (Optional)
-  The purpose of the resource. This field can be either `PRIVATE_RFC_1918`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, or `PRIVATE_SERVICE_CONNECT`.
+  The purpose of the resource. This field can be either `PRIVATE_RFC_1918`, `REGIONAL_MANAGED_PROXY`, `GLOBAL_MANAGED_PROXY`, `PRIVATE_SERVICE_CONNECT` or `PRIVATE_NAT`([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
   A subnet with purpose set to `REGIONAL_MANAGED_PROXY` is a user-created subnetwork that is reserved for regional Envoy-based load balancers.
   A subnetwork in a given region with purpose set to `GLOBAL_MANAGED_PROXY` is a proxy-only subnet and is shared between all the cross-regional Envoy-based load balancers.
   A subnetwork with purpose set to `PRIVATE_SERVICE_CONNECT` reserves the subnet for hosting a Private Service Connect published service.
+  A subnetwork with purpose set to `PRIVATE_NAT` is used as source range for Private NAT gateways.
   Note that `REGIONAL_MANAGED_PROXY` is the preferred setting for all regional Envoy load balancers.
   If unspecified, the purpose defaults to `PRIVATE_RFC_1918`.
 

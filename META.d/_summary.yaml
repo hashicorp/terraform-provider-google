@@ -1,0 +1,12 @@
+---
+
+schema: 1.1
+
+partition: tf-ecosystem
+
+summary:
+  owner: team-tf-hybrid-cloud
+  description: |
+    The Terraform Google provider is a plugin that allows Terraform to manage resources on Google Cloud Platform.  
+  
+  visibility: external

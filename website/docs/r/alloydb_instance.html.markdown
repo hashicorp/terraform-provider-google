@@ -135,6 +135,11 @@ The following arguments are supported:
   can have regional availability (nodes are present in 2 or more zones in a region).'
   Possible values are: `AVAILABILITY_TYPE_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
+* `query_insights_config` -
+  (Optional)
+  Configuration for query insights.
+  Structure is [documented below](#nested_query_insights_config).
+
 * `read_pool_config` -
   (Optional)
   Read pool specific config. If the instance type is READ_POOL, this configuration must be provided.
@@ -145,6 +150,24 @@ The following arguments are supported:
   Configurations for the machines that host the underlying database engine.
   Structure is [documented below](#nested_machine_config).
 
+
+<a name="nested_query_insights_config"></a>The `query_insights_config` block supports:
+
+* `query_string_length` -
+  (Optional)
+  Query string length. The default value is 1024. Any integer between 256 and 4500 is considered valid.
+
+* `record_application_tags` -
+  (Optional)
+  Record application tags for an instance. This flag is turned "on" by default.
+
+* `record_client_address` -
+  (Optional)
+  Record client address for an instance. Client address is PII information. This flag is turned "on" by default.
+
+* `query_plans_per_minute` -
+  (Optional)
+  Number of query execution plans captured by Insights per minute for all queries combined. The default value is 5. Any integer between 0 and 20 is considered valid.
 
 <a name="nested_read_pool_config"></a>The `read_pool_config` block supports:
 

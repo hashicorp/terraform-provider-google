@@ -18,7 +18,7 @@ description: |-
   its full module name, display name, enablement state, and last updated time.
 ---
 
-# google\_scc\_project\_custom\_module
+# google\_scc\_folder\_custom\_module
 
 Represents an instance of a Security Health Analytics custom module, including
 its full module name, display name, enablement state, and last updated time.
@@ -27,17 +27,23 @@ Custom modules that you create at the organization or folder level are inherited
 by the child folders and projects.
 
 
-To get more information about ProjectCustomModule, see:
+To get more information about FolderCustomModule, see:
 
-* [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v1/projects.securityHealthAnalyticsSettings.customModules)
+* [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v1/folders.securityHealthAnalyticsSettings.customModules)
 * How-to Guides
     * [Overview of custom modules for Security Health Analytics](https://cloud.google.com/security-command-center/docs/custom-modules-sha-overview)
 
-## Example Usage - Scc Project Custom Module Basic
+## Example Usage - Scc Folder Custom Module Basic
 
 
 ```hcl
-resource "google_scc_project_custom_module" "example" {
+resource "google_folder" "folder" {
+  parent       = "organizations/123456789"
+  display_name = "folder-name"
+}
+
+resource "google_scc_folder_custom_module" "example" {
+  folder = google_folder.folder.folder_id
   display_name = "basic_custom_module"
   enablement_state = "ENABLED"
   custom_config {
@@ -55,11 +61,17 @@ resource "google_scc_project_custom_module" "example" {
   }
 }
 ```
-## Example Usage - Scc Project Custom Module Full
+## Example Usage - Scc Folder Custom Module Full
 
 
 ```hcl
-resource "google_scc_project_custom_module" "example" {
+resource "google_folder" "folder" {
+  parent       = "organizations/123456789"
+  display_name = "folder-name"
+}
+
+resource "google_scc_folder_custom_module" "example" {
+  folder = google_folder.folder.folder_id
   display_name = "full_custom_module"
   enablement_state = "ENABLED"
   custom_config {
@@ -114,6 +126,10 @@ The following arguments are supported:
   (Required)
   The user specified custom configuration for the module.
   Structure is [documented below](#nested_custom_config).
+
+* `folder` -
+  (Required)
+  Numerical ID of the parent folder.
 
 
 <a name="nested_custom_config"></a>The `custom_config` block supports:
@@ -225,18 +241,15 @@ The following arguments are supported:
 - - -
 
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}`
+* `id` - an identifier for the resource with format `folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}`
 
 * `name` -
-  The resource name of the custom module. Its format is "projects/{project}/securityHealthAnalyticsSettings/customModules/{customModule}".
+  The resource name of the custom module. Its format is "folders/{folder_id}/securityHealthAnalyticsSettings/customModules/{customModule}".
   The id {customModule} is server-generated and is not user settable. It will be a numeric id containing 1-20 digits.
 
 * `update_time` -
@@ -248,7 +261,7 @@ In addition to the arguments listed above, the following computed attributes are
   The editor that last updated the custom module.
 
 * `ancestor_module` -
-  If empty, indicates that the custom module was created in the organization,folder,
+  If empty, indicates that the custom module was created in the organization, folder,
   or project in which you are viewing the custom module. Otherwise, ancestor_module
   specifies the organization or folder from which the custom module is inherited.
 
@@ -265,14 +278,9 @@ This resource provides the following
 ## Import
 
 
-ProjectCustomModule can be imported using any of these accepted formats:
+FolderCustomModule can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_scc_project_custom_module.default projects/{{project}}/securityHealthAnalyticsSettings/customModules/{{name}}
-$ terraform import google_scc_project_custom_module.default {{project}}/{{name}}
-$ terraform import google_scc_project_custom_module.default {{name}}
+$ terraform import google_scc_folder_custom_module.default folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}
+$ terraform import google_scc_folder_custom_module.default {{folder}}/{{name}}
 ```
-
-## User Project Overrides
-
-This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).
