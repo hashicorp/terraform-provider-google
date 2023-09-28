@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed record set configuration parsing in `google_dns_record_set`
+```
