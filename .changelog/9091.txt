@@ -1,0 +1,3 @@
+```release-note:none
+docs: added more details to labels model in 5.0 guide
+```
