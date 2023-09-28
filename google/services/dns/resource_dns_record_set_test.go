@@ -16,6 +16,7 @@ import (
 	tpgdns "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"google.golang.org/api/dns/v1"
 )
 
 func TestIpv6AddressDiffSuppress(t *testing.T) {
@@ -345,6 +346,15 @@ func TestAccDNSRecordSet_changeRouting(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -370,6 +380,182 @@ func TestAccDNSRecordSet_interpolated(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDNSRecordSet_readOutOfBandRoutingPolicyChange(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	rrsetName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
+	ttl := 300
+	rrdata := []string{"127.0.0.1", "127.0.0.10"}
+	routingPolicy := &dns.RRSetRoutingPolicy{
+		Wrr: &dns.RRSetRoutingPolicyWrrPolicy{
+			Items: []*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem{
+				{
+					Weight:  0,
+					Rrdatas: []string{"1.2.3.4", "4.3.2.1"},
+				},
+				{
+					Weight:  0,
+					Rrdatas: []string{"2.3.4.5", "5.4.3.2"},
+				},
+			},
+		},
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				PreConfig: testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t, zoneName, rrsetName, ttl, rrdata, routingPolicy),
+				Config:    testAccDnsRecordSet_basic(zoneName, "127.0.0.10", 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccDNSRecordSet_readOutOfBandRrDataChange(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-%s", acctest.RandString(t, 10))
+	rrsetName := fmt.Sprintf("test-record.%s.hashicorptest.com.", zoneName)
+	ttl := 300
+	rrdata := []string{"127.0.0.1", "127.0.0.10"}
+	routingPolicy := &dns.RRSetRoutingPolicy{
+		Wrr: &dns.RRSetRoutingPolicyWrrPolicy{
+			Items: []*dns.RRSetRoutingPolicyWrrPolicyWrrPolicyItem{
+				{
+					Weight:  0,
+					Rrdatas: []string{"1.2.3.4", "4.3.2.1"},
+				},
+				{
+					Weight:  0,
+					Rrdatas: []string{"2.3.4.5", "5.4.3.2"},
+				},
+			},
+		},
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_routingPolicy(zoneName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				PreConfig: testAccCheckDnsRecordSetSetRrdataOutOfBand(t, zoneName, rrsetName, ttl, rrdata, routingPolicy),
+				Config:    testAccDnsRecordSet_routingPolicy(zoneName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("%s/%s/test-record.%s.hashicorptest.com./A", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckDnsRecordSetSetRoutingPolicyOutOfBand(t *testing.T, zoneName, rrsetName string, ttl int, rrdata []string, routingPolicy *dns.RRSetRoutingPolicy) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		service := config.NewDnsClient(config.UserAgent).Changes
+		chg := &dns.Change{
+			Deletions: []*dns.ResourceRecordSet{
+				{
+					Name:    rrsetName,
+					Type:    "A",
+					Ttl:     int64(ttl),
+					Rrdatas: rrdata,
+				},
+			},
+			Additions: []*dns.ResourceRecordSet{
+				{
+					Name:          rrsetName,
+					Type:          "A",
+					Ttl:           int64(ttl),
+					RoutingPolicy: routingPolicy,
+				},
+			},
+		}
+		chg, err := service.Create(config.Project, zoneName, chg).Do()
+		if err != nil {
+			t.Errorf("Error while changing rrset %s/%s/%s out of band: %s", config.Project, zoneName, rrsetName, err)
+			return
+		}
+		w := &tpgdns.DnsChangeWaiter{
+			Service:     config.NewDnsClient(config.UserAgent),
+			Change:      chg,
+			Project:     config.Project,
+			ManagedZone: zoneName,
+		}
+		if _, err = w.Conf().WaitForState(); err != nil {
+			t.Errorf("Error waiting for out of band Google DNS change: %s", err)
+		}
+	}
+}
+
+func testAccCheckDnsRecordSetSetRrdataOutOfBand(t *testing.T, zoneName, rrsetName string, ttl int, rrdata []string, routingPolicy *dns.RRSetRoutingPolicy) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		service := config.NewDnsClient(config.UserAgent).Changes
+		chg := &dns.Change{
+			Deletions: []*dns.ResourceRecordSet{
+				{
+					Name:          rrsetName,
+					Type:          "A",
+					Ttl:           int64(ttl),
+					RoutingPolicy: routingPolicy,
+				},
+			},
+			Additions: []*dns.ResourceRecordSet{
+				{
+					Name:    rrsetName,
+					Type:    "A",
+					Ttl:     int64(ttl),
+					Rrdatas: rrdata,
+				},
+			},
+		}
+		chg, err := service.Create(config.Project, zoneName, chg).Do()
+		if err != nil {
+			t.Errorf("Error while changing rrset %s/%s/%s out of band: %s", config.Project, zoneName, rrsetName, err)
+			return
+		}
+		w := &tpgdns.DnsChangeWaiter{
+			Service:     config.NewDnsClient(config.UserAgent),
+			Change:      chg,
+			Project:     config.Project,
+			ManagedZone: zoneName,
+		}
+		if _, err = w.Conf().WaitForState(); err != nil {
+			t.Errorf("Error waiting for out of band Google DNS change: %s", err)
+		}
+	}
 }
 
 func testAccCheckDnsRecordSetDestroyProducer(t *testing.T) func(s *terraform.State) error {
