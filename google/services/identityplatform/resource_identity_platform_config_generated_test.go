@@ -91,6 +91,14 @@ resource "google_identity_platform_config" "default" {
         }
     }
   }
+  sms_region_config {
+    allowlist_only {
+      allowed_regions = [
+        "US",
+        "CA",
+      ]
+    }
+  }
   blocking_functions {
     triggers {
       event_type = "beforeSignIn"
