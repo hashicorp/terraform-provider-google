@@ -136,7 +136,7 @@ set to `true`).
 * `cluster_ipv4_cidr` - (Optional) The IP address range of the Kubernetes pods
 in this cluster in CIDR notation (e.g. `10.96.0.0/14`). Leave blank to have one
 automatically chosen or specify a `/14` block in `10.0.0.0/8`. This field will
-only work for routes-based clusters, where `ip_allocation_policy` is not defined.
+default a new cluster to routes-based, where `ip_allocation_policy` is not defined.
 
 * `cluster_autoscaling` - (Optional)
 Per-cluster configuration of Node Auto-Provisioning with Cluster Autoscaler to
@@ -194,13 +194,11 @@ set this to a value of at least `1`, alongside setting
 `remove_default_node_pool` to `true`.
 
 * `ip_allocation_policy` - (Optional) Configuration of cluster IP allocation for
-VPC-native clusters. Adding this block enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
-making the cluster VPC-native instead of routes-based. Structure is [documented
-below](#nested_ip_allocation_policy).
+VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend. 
+Structure is [documented below](#nested_ip_allocation_policy).
 
 * `networking_mode` - (Optional) Determines whether alias IPs or routes will be used for pod IPs in the cluster.
-Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases),
-and requires the `ip_allocation_policy` block to be defined. By default, when this field is unspecified and no `ip_allocation_policy` blocks are set, GKE will create a `ROUTES`-based cluster.
+Options are `VPC_NATIVE` or `ROUTES`. `VPC_NATIVE` enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases). Newly created clusters will default to `VPC_NATIVE`.
 
 * `logging_config` - (Optional) Logging configuration for the cluster.
     Structure is [documented below](#nested_logging_config).

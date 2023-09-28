@@ -28,6 +28,7 @@ func TestAccContainerCluster_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "services_ipv4_cidr"),
 					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "self_link"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "networking_mode", "VPC_NATIVE"),
 				),
 			},
 			{
@@ -57,17 +58,27 @@ func TestAccContainerCluster_basic(t *testing.T) {
 func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 	t.Parallel()
 
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	firstClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	secondClusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_networkingModeRoutes(clusterName),
+				Config: testAccContainerCluster_networkingModeRoutes(firstClusterName, secondClusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "networking_mode", "ROUTES"),
+					resource.TestCheckResourceAttr("google_container_cluster.secondary", "networking_mode", "ROUTES")),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				ResourceName:            "google_container_cluster.secondary",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
@@ -2339,6 +2350,9 @@ func TestAccContainerCluster_withAutopilot(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerCluster_withAutopilot(pid, containerNetName, clusterName, "us-central1", true, false, ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autopilot", "networking_mode", "VPC_NATIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_container_cluster.with_autopilot",
@@ -3598,7 +3612,7 @@ resource "google_container_cluster" "primary" {
 `, name)
 }
 
-func testAccContainerCluster_networkingModeRoutes(name string) string {
+func testAccContainerCluster_networkingModeRoutes(firstName, secondName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "primary" {
   name               = "%s"
@@ -3607,7 +3621,15 @@ resource "google_container_cluster" "primary" {
   networking_mode    = "ROUTES"
   deletion_protection = false
 }
-`, name)
+
+resource "google_container_cluster" "secondary" {
+	name               = "%s"
+	location           = "us-central1-a"
+	initial_node_count = 1
+	cluster_ipv4_cidr  = "10.96.0.0/14"
+	deletion_protection = false
+  }
+`, firstName, secondName)
 }
 
 func testAccContainerCluster_misc(name string) string {
