@@ -452,6 +452,34 @@ Terraform from destroying or recreating the cluster.
 **`deletion_protection` does NOT prevent deletion outside of Terraform.**
 To destroy a `google_container_cluster`, this field must be explicitly set to `false`.
 
+### `networking_mode` defaults to `VPC_NATIVE` for newly created clusters
+
+New clusters will default to `VPC_NATIVE` which enables [IP aliasing](https://cloud.google.com/kubernetes-engine/docs/how-to/ip-aliases). Previously, `google_container_cluster` would default to using routes as
+the networking mode unless `ip_allocation_policy` policy was set. Now, `networking_mode` will
+default to `VPC_NATIVE` and `ip_allocation_policy` will be set by the server if unset in
+configuration. Existing clusters should not be affected.
+
+#### New Minimal Config for VPC-native cluster
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "my_cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+```
+
+#### New Minimal Config for Routes-based cluster
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "my_cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  networking_mode    = "ROUTES"
+}
+```
+
 ### `enable_binary_authorization` is now removed
 
 `enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.

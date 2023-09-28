@@ -1420,13 +1420,14 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			// Defaults to "VPC_NATIVE" during create only
 			"networking_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"VPC_NATIVE", "ROUTES"}, false),
-				Description:  `Determines whether alias IPs or routes will be used for pod IPs in the cluster.`,
+				Description:  `Determines whether alias IPs or routes will be used for pod IPs in the cluster. Defaults to VPC_NATIVE for new clusters.`,
 			},
 
 			"remove_default_node_pool": {
@@ -1890,6 +1891,21 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	clusterName := d.Get("name").(string)
+
+	// Default to VPC_NATIVE mode during initial creation
+	// This solution (a conditional default) should not be considered to set a precedent on its own.
+	// If you're considering a similar approach on a different resource, strongly weigh making the field required.
+	// GKE tends to require exceptional handling in general- and this default was a breaking change in their API
+	// that was compounded on by numerous product developments afterwards. We have not seen a similar case
+	// since, after several years.
+	networkingMode := d.Get("networking_mode").(string)
+	clusterIpv4Cidr := d.Get("cluster_ipv4_cidr").(string)
+	if networkingMode == "" && clusterIpv4Cidr == "" {
+		err := d.Set("networking_mode", "VPC_NATIVE")
+		if err != nil {
+			return fmt.Errorf("Error setting networking mode during creation: %s", err)
+		}
+	}
 
 	ipAllocationBlock, err := expandIPAllocationPolicy(d.Get("ip_allocation_policy"), d.Get("networking_mode").(string), d.Get("enable_autopilot").(bool))
 	if err != nil {
@@ -3866,10 +3882,7 @@ func expandIPAllocationPolicy(configured interface{}, networkingMode string, aut
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		if networkingMode == "VPC_NATIVE" {
-			if autopilot {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("`ip_allocation_policy` block is required for VPC_NATIVE clusters.")
+			return nil, nil
 		}
 		return &container.IPAllocationPolicy{
 			UseIpAliases:    false,
