@@ -835,7 +835,22 @@ func TestAccComputeInstance_with375GbScratchDisk(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "SCSI"}),
+					testAccCheckComputeInstanceScratchDisk(&instance, []map[string]string{
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "SCSI",
+						},
+						{
+							"interface":  "NVME",
+							"deviceName": "nvme-local-ssd",
+						},
+						{
+							"interface":  "SCSI",
+							"deviceName": "scsi-local-ssd",
+						},
+					}),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -862,7 +877,26 @@ func TestAccComputeInstance_with18TbScratchDisk(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceScratchDisk(&instance, []string{"NVME", "NVME", "NVME", "NVME", "NVME", "NVME"}),
+					testAccCheckComputeInstanceScratchDisk(&instance, []map[string]string{
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "NVME",
+						},
+						{
+							"interface": "NVME",
+						},
+					}),
 				),
 			},
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
@@ -2820,7 +2854,7 @@ func testAccCheckComputeInstanceBootDiskType(t *testing.T, instanceName string, 
 	}
 }
 
-func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfaces []string) resource.TestCheckFunc {
+func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfaces []map[string]string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Disks == nil {
 			return fmt.Errorf("no disks")
@@ -2832,10 +2866,17 @@ func testAccCheckComputeInstanceScratchDisk(instance *compute.Instance, interfac
 				if i >= len(interfaces) {
 					return fmt.Errorf("Expected %d scratch disks, found more", len(interfaces))
 				}
-				if disk.Interface != interfaces[i] {
+				if disk.Interface != interfaces[i]["interface"] {
 					return fmt.Errorf("Mismatched interface on scratch disk #%d, expected: %q, found: %q",
 						i, interfaces[i], disk.Interface)
 				}
+				if deviceName, ok := interfaces[i]["deviceName"]; ok {
+					if disk.DeviceName != deviceName {
+						return fmt.Errorf("Mismatched device name on scratch disk #%d, expected: %q, found: %q",
+							i, deviceName, disk.DeviceName)
+					}
+				}
+
 				i++
 			}
 		}
@@ -4727,6 +4768,16 @@ resource "google_compute_instance" "foobar" {
 
   scratch_disk {
     interface = "SCSI"
+  }
+
+  scratch_disk {
+    interface   = "NVME"
+	device_name = "nvme-local-ssd"
+  }
+
+  scratch_disk {
+    interface   = "SCSI"
+	device_name = "scsi-local-ssd"
   }
 
   network_interface {

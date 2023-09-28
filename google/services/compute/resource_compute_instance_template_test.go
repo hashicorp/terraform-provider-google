@@ -1897,7 +1897,7 @@ data "google_compute_image" "my_image" {
 }
 resource "google_compute_instance_template" "foobar" {
   name           = "tf-test-instance-template-%s"
-  machine_type   = "e2-medium"
+  machine_type   = "n1-standard-1"   // can't be e2 because of local-ssd
   can_ip_forward = false
   disk {
     source_image = data.google_compute_image.my_image.name
@@ -1906,6 +1906,13 @@ resource "google_compute_instance_template" "foobar" {
   }
   disk {
     auto_delete  = true
+    disk_size_gb = 375
+    type         = "SCRATCH"
+    disk_type    = "local-ssd"
+  }
+  disk {
+    auto_delete  = true
+	device_name  = "test-local-ssd"
     disk_size_gb = 375
     type         = "SCRATCH"
     disk_type    = "local-ssd"

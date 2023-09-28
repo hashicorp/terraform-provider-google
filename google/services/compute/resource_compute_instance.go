@@ -764,6 +764,12 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `The scratch disks attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"device_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: `Name with which the attached disk is accessible under /dev/disk/by-id/`,
+						},
 						"interface": {
 							Type:         schema.TypeString,
 							Required:     true,
@@ -2684,6 +2690,7 @@ func expandScratchDisks(d *schema.ResourceData, config *transport_tpg.Config, pr
 		scratchDisks = append(scratchDisks, &compute.AttachedDisk{
 			AutoDelete: true,
 			Type:       "SCRATCH",
+			DeviceName: d.Get(fmt.Sprintf("scratch_disk.%d.device_name", i)).(string),
 			Interface:  d.Get(fmt.Sprintf("scratch_disk.%d.interface", i)).(string),
 			DiskSizeGb: int64(d.Get(fmt.Sprintf("scratch_disk.%d.size", i)).(int)),
 			InitializeParams: &compute.AttachedDiskInitializeParams{
@@ -2697,8 +2704,9 @@ func expandScratchDisks(d *schema.ResourceData, config *transport_tpg.Config, pr
 
 func flattenScratchDisk(disk *compute.AttachedDisk) map[string]interface{} {
 	result := map[string]interface{}{
-		"interface": disk.Interface,
-		"size":      disk.DiskSizeGb,
+		"device_name": disk.DeviceName,
+		"interface":   disk.Interface,
+		"size":        disk.DiskSizeGb,
 	}
 	return result
 }
