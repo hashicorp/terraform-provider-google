@@ -374,6 +374,13 @@ proposed value to configuration (below) or apply `lifecycle.ignore_changes` to t
 +    }
 ```
 
+### Cluster deletion now prevented by default with `deletion_protection`
+
+The field `deletion_protection` has been added with a default of `true`. This field prevents
+Terraform from destroying or recreating the cluster.
+**`deletion_protection` does NOT prevent deletion outside of Terraform.**
+To destroy a `google_container_cluster`, this field must be explicitly set to `false`.
+
 ### `enable_binary_authorization` is now removed
 
 `enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
