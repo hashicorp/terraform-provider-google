@@ -96,27 +96,98 @@ Not all of Google cloud resources support labels and annotations. Please check t
 
 #### Provider default labels
 
-Default labels configured on the provider through the new `default_labels` field are now supported. The default labels configured on the provider will be applied to all of the resources with the top level `labels` field or the nested `labels` field inside the top level `metadata` field.
+Default labels configured on the provider through the new `default_labels` field are now supported. The default labels configured on the provider will be applied to all of the resources with the top level `labels` field or the nested `labels` field inside the top level `metadata` field. This change introduced a regression we were unable to resolve, and labels with an empty value (`""`) should be avoided, as they will be ignored and not included in `terraform_labels`, `effective_labels` and then API requests. Instead, labels with the value `_` or `true` are recommended.
 
 Provider-level default annotations are not supported.
 
 #### Resource labels
 
+Labels and annotations fields on Terraform Google provider were authoritative and Terraform thought it was the only owner of the fields. This model worked well initially, but with the introduction of system labels and other client managed labels, Terraform would conflict with their labels and show a diff. We've reworked the `labels` field to resolve this class of problem.
+
 The new labels model will be applied to all of the resources with the top level `labels` field or the nested `labels` field inside the top level `metadata` field. Some labels fields are for child resources, so the new model will not be applied to labels fields for child resources.
 
 There are now three label-related fields with the new model:
 
-* The `labels` field will be non-authoritative and only manage the labels defined by the users on the resource through Terraform.
-* The output-only `effective_labels` will list all of labels present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+* The `labels` field will be non-authoritative and only manage the labels defined by the users on the resource through Terraform. If a label was added outside of Terraform, it will not be managed by Terraform, unless it is added to the `labels` field in the configuration. The out of band labels will be listed in the `effective_labels` field. The new model introduced a regression we were unable to resolve, and the labels with an empty value (`""`) should be avoided, as they will be ignored and not included in `terraform_labels`, `effective_labels` and then API requests. Instead, labels with the value `_` or `true` are recommended.
 * The output-only `terraform_labels` will merge the labels defined by the users on the resource through Terraform and the default labels configured on the provider. If the same label exists on both the resource labels and provider default labels, the label on the resource will override the provider label.
+* The output-only `effective_labels` will list all of labels present on the resource in GCP, including the labels configured through Terraform, the system, and other clients.
 
-After upgrading to `5.0.0`, and then running `terraform refresh` or `terraform apply`, these three fields should show in the state file of the resources with a self-applying `labels` field.
+**Note:** `ignore_changes` can be applied to `labels` field to ignore the changes of the user defined labels. It is not recommended to apply `ignore_changes` to `terraform_labels` or `effective_labels`, as it may unintuitively affect the final API call.
+
+The following changes will be observed after upgrading to `5.0.0`.
+* Running `terraform import` on Google provider `5.0.0` or later, these three fields will show in the state file with an empty `labels` and `terraform_labels` value. `effective_labels` will have all of labels present on the resource in GCP. You can update the resource to bring labels defined in your configuration under management by Terraform.
+* Running `terraform refresh` on Google provider `5.0.0` or later  with an existing pre-`5.0.0` resource before an `apply`, these three fields will show in the state file. `labels` field will have your current labels, `terraform_labels` will be empty, and `effective_labels` will have all of labels present on the resource in GCP.
+* Running `terraform plan` or `terraform apply` on Google provider `5.0.0` or later with an existing pre-`5.0.0` resource before an `apply`, the plan will show an updated adding your current labels to `terraform_labels`. After running `terraform apply`, these three fields will show in the state file. `labels` will have your current labels, `terraform_labels` will have the combination of `labels` and your provider-default labels, and `effective_labels` will have all of labels present on the resource in GCP.
+* In the resource `google_cloud_run_domain_mapping`, the system labels `cloud.googleapis.com/location` and `run.googleapis.com/overrideAt` will be removed from `labels` inside `metadata` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+* In the resource `google_cloud_run_service`, the system label `cloud.googleapis.com/location` will be removed from `labels` inside `metadata` field in the state file as part of a one-time resource schema upgrade. If this system label key is in the configuration, after upgrading to `5.0.0`, the plan will show that this key will be added. You can safely accept this change, and Terraform will begin to manage it again.
+* In the resource `google_dataflow_flex_template_job`, the system labels with the prefix `goog-dataflow-provided` are removed from `labels` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+* In the resource `google_dataflow_job`, the system labels with the prefix `goog-dataflow-provided` will be removed from `labels` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+* In the resource `google_dataproc_cluster`, the system labels with the prefix `goog-dataproc` will be removed from `labels` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change.
+* In the resource `google_notebooks_instance`, the system labels with the prefix `goog-caip-notebook` will be removed from `labels` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+* In the resource `google_storage_bucket`, the system labels with the prefix `goog-dataplex` will be removed from `labels` field in the state file as part of a one-time resource schema upgrade. If any of these label keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+
+#### Data source labels
+
+For most resource-based datasources, all three of `labels`, `effective_labels` and `terraform_labels` will now be present. All of these three fields will have all of labels present on the resource in GCP including the labels configured through Terraform, the system, and other clients, equivalent to `effective_labels` on the resource.
 
 #### Resource annotations
 
 The new annotations model is similar to the new labels model and will be applied to all of the resources with the top level `annotations` field or the nested `annotations` field inside the top level `metadata` field.
 
-There are now two annotation-related fields with the new model, the `annotations` and the output-only `effective_annotations` fields.
+There are now two annotation-related fields with the new model, `annotations` and the output-only `effective_annotations`.
+
+**Note:** `ignore_changes` can be applied to `annotations` field to ignore the changes of the user defined annotations. It is not recommended to apply `ignore_changes` to `effective_annotations`, as it may unintuitively affect the final API call.
+
+The following changes will be observed after upgrading to `5.0.0`.
+* Running `terraform import` on Google provider `5.0.0` or later, these two fields will show in the state file with an empty `annotations` value. `effective_annotations` will have all of annotations present on the resource in GCP. You can update the resource to bring annotations defined in your configuration under management by Terraform.
+* Running `terraform refresh` on Google provider `5.0.0` or later with an existing pre-`5.0.0` resource before an `apply`, these two fields will show in the state file. `annotations` field will have your current annotations and `effective_annotations` will have all of annotations present on the resource in GCP.
+* Running `terraform apply` on Google provider `5.0.0` or later with an existing pre-`5.0.0` resource before an `apply`, these two fields will show in the state file. `annotations` field will have your current annotations and `effective_annotations` will have all of annotations present on the resource in GCP.
+* In the resource `google_cloud_run_domain_mapping`, the system annotations `serving.knative.dev/creator`, `serving.knative.dev/lastModifier`, `run.googleapis.com/operation-id`, `run.googleapis.com/ingress-status`, `run.googleapis.com/ingress` with the value `all` will be removed from `annotations` inside `metadata` field in the state file as part of a one-time resource schema upgrade. If any of these annotation keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+* In the resource `google_cloud_run_service`, the system annotations `serving.knative.dev/creator`, `serving.knative.dev/lastModifier`, `run.googleapis.com/operation-id`, `run.googleapis.com/ingress-status`, `run.googleapis.com/ingress` with the value `all` will be removed from `annotations` inside `metadata` field in the state file as part of a one-time resource schema upgrade. If any of these annotation keys are in the configuration, after upgrading to `5.0.0`, the plan will show that these keys will be added. You can safely accept this change, and Terraform will begin to manage them again.
+
+#### Data source annotations
+
+For most resource-based datasources, both `annotations` and `effective_annotations` will now be present. Both fields will have all of annotations present on the resource in GCP including the annotations configured through Terraform, the system, and other clients, equivalent to `effective_annotations` on the resource.
+
+#### Example
+##### Config
+```hcl
+provider "google" {
+  default_labels = {
+    default_key = "default_value"
+  }
+}
+
+resource "google_dataproc_cluster" "with_labels" {
+  name   = "tf-test-dproc-test-1"
+  region = "us-central1"
+
+  labels = {
+    key1 = "value1"
+    key2 = "value2"
+  }
+}
+```
+After the configuration is applied, Terraform is managing `key1` and `key2` in the `labels` field. `terraform_labels` field has label `default_key`, `key1` and `key2`. `effective_labels` has label `default_key`, `key1`, `key2` and system labels.
+
+##### Config
+```hcl
+provider "google" {
+  default_labels = {
+    default_key = "default_value"
+  }
+}
+
+resource "google_dataproc_cluster" "with_labels" {
+  name   = "tf-test-dproc-test-1"
+  region = "us-central1"
+
+  labels = {
+    key1 = "value1"
+  }
+}
+```
+After the configuration is applied, Terraform stops managing `key2` and is managing `key1` in the `labels` field. `terraform_labels` field has label `default_key` and `key1`. `effective_labels` has label `default_key`, `key1` and system labels.
 
 ### Updates to how empty strings are handled in the `provider` block
 
