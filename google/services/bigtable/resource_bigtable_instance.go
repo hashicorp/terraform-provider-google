@@ -37,8 +37,10 @@ func ResourceBigtableInstance() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
 			resourceBigtableInstanceClusterReorderTypeList,
 			resourceBigtableInstanceUniqueClusterID,
+			tpgresource.SetLabelsDiff,
 		),
 
 		SchemaVersion: 1,
@@ -161,10 +163,27 @@ func ResourceBigtableInstance() *schema.Resource {
 			},
 
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `A mapping of labels to assign to the resource.
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A mapping of labels to assign to the resource.`,
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"project": {
@@ -203,8 +222,8 @@ func resourceBigtableInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	conf.DisplayName = displayName.(string)
 
-	if _, ok := d.GetOk("labels"); ok {
-		conf.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		conf.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {
@@ -312,8 +331,14 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("display_name", instance.DisplayName); err != nil {
 		return fmt.Errorf("Error setting display_name: %s", err)
 	}
-	if err := d.Set("labels", instance.Labels); err != nil {
+	if err := tpgresource.SetLabels(instance.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(instance.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", instance.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	// Don't set instance_type: we don't want to detect drift on it because it can
 	// change under-the-hood.
@@ -350,8 +375,8 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	conf.DisplayName = displayName.(string)
 
-	if d.HasChange("labels") {
-		conf.Labels = tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		conf.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	switch d.Get("instance_type").(string) {

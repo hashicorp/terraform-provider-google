@@ -50,7 +50,7 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 				ResourceName:            "google_dns_managed_zone.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -131,9 +131,10 @@ func TestAccDNSManagedZone_dnsRecordSetBasicExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsRecordSetBasicExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.parent-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.parent-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -178,9 +179,10 @@ func TestAccDNSManagedZone_dnsManagedZoneBasicExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZoneBasicExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.example-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.example-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -219,9 +221,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -279,9 +282,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(t *testing.T
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateMultiprojectExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -414,7 +418,8 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -426,9 +431,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivateGkeExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivateGkeExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.private-zone-gke",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.private-zone-gke",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -502,6 +508,7 @@ resource "google_container_cluster" "cluster-1" {
     cluster_secondary_range_name  = google_compute_subnetwork.subnetwork-1.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.subnetwork-1.secondary_ip_range[1].range_name
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 `, context)
 }
@@ -522,9 +529,10 @@ func TestAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZonePrivatePeeringExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.peering-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.peering-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -580,9 +588,10 @@ func TestAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(t *testing.T) {
 				Config: testAccDNSManagedZone_dnsManagedZoneCloudLoggingExample(context),
 			},
 			{
-				ResourceName:      "google_dns_managed_zone.cloud-logging-enabled-zone",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dns_managed_zone.cloud-logging-enabled-zone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -163,6 +164,11 @@ func ResourceNetworkServicesGateway() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -222,10 +228,13 @@ For example: 'projects/*/locations/*/gatewaySecurityPolicies/swg-policy'.
 This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Set of label tags associated with the Gateway resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Set of label tags associated with the Gateway resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -270,10 +279,23 @@ Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.`,
 				Computed:    true,
 				Description: `Time the AccessPolicy was created in UTC.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Server-defined URL of this resource.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -306,12 +328,6 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandNetworkServicesGatewayLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandNetworkServicesGatewayDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -371,6 +387,12 @@ func resourceNetworkServicesGatewayCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateUrlsProp)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
 		obj["certificateUrls"] = certificateUrlsProp
+	}
+	labelsProp, err := expandNetworkServicesGatewayEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/gateways?gatewayId={{name}}")
@@ -515,6 +537,12 @@ func resourceNetworkServicesGatewayRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("certificate_urls", flattenNetworkServicesGatewayCertificateUrls(res["certificateUrls"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Gateway: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenNetworkServicesGatewayTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenNetworkServicesGatewayEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Gateway: %s", err)
+	}
 
 	return nil
 }
@@ -535,12 +563,6 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandNetworkServicesGatewayLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandNetworkServicesGatewayDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -553,6 +575,12 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
 		obj["serverTlsPolicy"] = serverTlsPolicyProp
 	}
+	labelsProp, err := expandNetworkServicesGatewayEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/gateways/{{name}}")
 	if err != nil {
@@ -562,16 +590,16 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Updating Gateway %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
 	}
 
 	if d.HasChange("server_tls_policy") {
 		updateMask = append(updateMask, "serverTlsPolicy")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -683,9 +711,9 @@ func resourceNetworkServicesGatewayDelete(d *schema.ResourceData, meta interface
 func resourceNetworkServicesGatewayImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/gateways/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/gateways/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -718,7 +746,18 @@ func flattenNetworkServicesGatewayUpdateTime(v interface{}, d *schema.ResourceDa
 }
 
 func flattenNetworkServicesGatewayLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenNetworkServicesGatewayDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -761,15 +800,23 @@ func flattenNetworkServicesGatewayCertificateUrls(v interface{}, d *schema.Resou
 	return v
 }
 
-func expandNetworkServicesGatewayLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenNetworkServicesGatewayTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenNetworkServicesGatewayEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandNetworkServicesGatewayDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -810,4 +857,15 @@ func expandNetworkServicesGatewayGatewaySecurityPolicy(v interface{}, d tpgresou
 
 func expandNetworkServicesGatewayCertificateUrls(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetworkServicesGatewayEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

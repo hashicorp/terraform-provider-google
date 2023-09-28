@@ -51,7 +51,7 @@ func TestAccVertexAIIndex_vertexAiIndexExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index.index",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region", "metadata.0.contents_delta_uri", "metadata.0.is_complete_overwrite"},
+				ImportStateVerifyIgnore: []string{"etag", "region", "metadata.0.contents_delta_uri", "metadata.0.is_complete_overwrite", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -123,7 +123,7 @@ func TestAccVertexAIIndex_vertexAiIndexStreamingExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_index.index",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region", "metadata.0.contents_delta_uri", "metadata.0.is_complete_overwrite"},
+				ImportStateVerifyIgnore: []string{"etag", "region", "metadata.0.contents_delta_uri", "metadata.0.is_complete_overwrite", "labels", "terraform_labels"},
 			},
 		},
 	})

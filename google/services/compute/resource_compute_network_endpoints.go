@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -145,6 +146,11 @@ func ResourceComputeNetworkEndpoints() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderZone,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"network_endpoint_group": {
@@ -346,6 +352,14 @@ func resourceComputeNetworkEndpointsRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("project", project); err != nil {
+		return fmt.Errorf("Error reading NetworkEndpoints: %s", err)
+	}
+
+	zone, err := tpgresource.GetZone(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("zone", zone); err != nil {
 		return fmt.Errorf("Error reading NetworkEndpoints: %s", err)
 	}
 
@@ -595,10 +609,10 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 func resourceComputeNetworkEndpointsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)",
-		"(?P<network_endpoint_group>[^/]+)",
+		"^projects/(?P<project>[^/]+)/zones/(?P<zone>[^/]+)/networkEndpointGroups/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<zone>[^/]+)/(?P<network_endpoint_group>[^/]+)$",
+		"^(?P<network_endpoint_group>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

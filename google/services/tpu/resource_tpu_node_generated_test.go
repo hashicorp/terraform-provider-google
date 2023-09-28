@@ -49,7 +49,7 @@ func TestAccTPUNode_tpuNodeBasicExample(t *testing.T) {
 				ResourceName:            "google_tpu_node.tpu",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 				ResourceName:            "google_tpu_node.tpu",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -124,8 +124,8 @@ resource "google_tpu_node" "tpu" {
   }
 }
 
-data "google_compute_network" "network" {
-  name = "default"
+resource "google_compute_network" "network" {
+  name = "tf-test-tpu-node-network%{random_suffix}"
 }
 
 resource "google_compute_global_address" "service_range" {
@@ -133,11 +133,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.network.id
+  network       = google_compute_network.network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.network.id
+  network                 = google_compute_network.network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }

@@ -36,6 +36,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "example" {
@@ -100,6 +101,9 @@ The following arguments are supported:
   (Optional)
   Labels for this Membership binding.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -128,6 +132,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   State of the membership binding resource.
   Structure is [documented below](#nested_state).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_state"></a>The `state` block contains:

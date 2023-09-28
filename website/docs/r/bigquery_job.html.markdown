@@ -1040,6 +1040,9 @@ The following arguments are supported:
   (Optional)
   The labels associated with this job. You can use these to organize and group your jobs.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `query` -
   (Optional)
   Configures a query job.
@@ -1080,6 +1083,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `job_type` -
   (Output)
   The type of the job.
+
+* `terraform_labels` -
+  (Output)
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  (Output)
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `status` -
   The status of this job. Examine this value when polling an asynchronous job to see if the job is complete.

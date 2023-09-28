@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceHealthcareConsentStore() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"dataset": {
@@ -89,7 +94,24 @@ bytes, and must conform to the following PCRE regular expression: '[\p{Ll}\p{Lo}
 No more than 64 labels can be associated with a given store.
 
 An object containing a list of "key": value pairs.
-Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -117,10 +139,10 @@ func resourceHealthcareConsentStoreCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_consent_create_on_update"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableConsentCreateOnUpdateProp)) && (ok || !reflect.DeepEqual(v, enableConsentCreateOnUpdateProp)) {
 		obj["enableConsentCreateOnUpdate"] = enableConsentCreateOnUpdateProp
 	}
-	labelsProp, err := expandHealthcareConsentStoreLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandHealthcareConsentStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -201,6 +223,12 @@ func resourceHealthcareConsentStoreRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("labels", flattenHealthcareConsentStoreLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConsentStore: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenHealthcareConsentStoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenHealthcareConsentStoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConsentStore: %s", err)
+	}
 
 	return nil
 }
@@ -227,10 +255,10 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_consent_create_on_update"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableConsentCreateOnUpdateProp)) {
 		obj["enableConsentCreateOnUpdate"] = enableConsentCreateOnUpdateProp
 	}
-	labelsProp, err := expandHealthcareConsentStoreLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandHealthcareConsentStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -250,7 +278,7 @@ func resourceHealthcareConsentStoreUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "enableConsentCreateOnUpdate")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -326,7 +354,7 @@ func resourceHealthcareConsentStoreDelete(d *schema.ResourceData, meta interface
 func resourceHealthcareConsentStoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"(?P<dataset>.+)/consentStores/(?P<name>[^/]+)",
+		"^(?P<dataset>.+)/consentStores/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -350,6 +378,36 @@ func flattenHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d *
 }
 
 func flattenHealthcareConsentStoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenHealthcareConsentStoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenHealthcareConsentStoreEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -361,7 +419,7 @@ func expandHealthcareConsentStoreEnableConsentCreateOnUpdate(v interface{}, d tp
 	return v, nil
 }
 
-func expandHealthcareConsentStoreLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandHealthcareConsentStoreEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

@@ -49,7 +49,7 @@ exported:
 * `event_trigger` - A source that fires events in response to a condition in another service. Structure is [documented below](#nested_event_trigger).
 * `https_trigger_url` - If function is triggered by HTTP, trigger URL is set here.
 * `ingress_settings` - Controls what traffic can reach the function.
-* `labels` - A map of labels applied to this function.
+* `labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `service_account_email` - The service account email to be assumed by the cloud function.
 * `vpc_connector` - The VPC Network Connector that this cloud function can connect to. 
 * `vpc_connector_egress_settings` - The egress settings for the connector, controlling what traffic is diverted through it.

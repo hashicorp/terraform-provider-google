@@ -28,11 +28,6 @@ To get more information about NodeGroup, see:
 * How-to Guides
     * [Sole-Tenant Nodes](https://cloud.google.com/compute/docs/nodes/)
 
-~> **Warning:** Due to limitations of the API, Terraform cannot update the
-number of nodes in a node group and changes to node group size either
-through Terraform config or through external changes will cause
-Terraform to delete and recreate the node group.
-
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_group_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -53,7 +48,7 @@ resource "google_compute_node_group" "nodes" {
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 }
 ```
@@ -110,7 +105,7 @@ resource "google_compute_node_group" "nodes" {
   zone        = "us-central1-f"
   description = "example google_compute_node_group for Terraform Google Provider"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.soletenant-tmpl.id
 
   share_settings {
@@ -144,13 +139,9 @@ The following arguments are supported:
   (Optional)
   Name of the resource.
 
-* `size` -
-  (Optional)
-  The total number of nodes in the node group. One of `initial_size` or `size` must be specified.
-
 * `initial_size` -
   (Optional)
-  The initial number of nodes in the node group. One of `initial_size` or `size` must be specified.
+  The initial number of nodes in the node group. One of `initial_size` or `autoscaling_policy` must be configured on resource creation.
 
 * `maintenance_policy` -
   (Optional)
@@ -165,6 +156,7 @@ The following arguments are supported:
   (Optional)
   If you use sole-tenant nodes for your workloads, you can use the node
   group autoscaler to automatically manage the sizes of your node groups.
+  One of `initial_size` or `autoscaling_policy` must be configured on resource creation.
   Structure is [documented below](#nested_autoscaling_policy).
 
 * `share_settings` -
@@ -237,6 +229,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `size` -
+  The total number of nodes in the node group.
 * `self_link` - The URI of the created resource.
 
 

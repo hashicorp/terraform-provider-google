@@ -416,8 +416,8 @@ func resourceTagsTagKeyDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceTagsTagKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"tagKeys/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^tagKeys/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -54,7 +54,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 				ResourceName:            "google_privateca_certificate_template.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage"},
+				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccPrivatecaCertificateTemplate_BasicCertificateTemplateUpdate0(context),
@@ -63,7 +63,7 @@ func TestAccPrivatecaCertificateTemplate_BasicCertificateTemplate(t *testing.T) 
 				ResourceName:            "google_privateca_certificate_template.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage"},
+				ImportStateVerifyIgnore: []string{"predefined_values.0.key_usage.0.extended_key_usage", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -86,10 +86,6 @@ resource "google_privateca_certificate_template" "primary" {
       location    = "any.file.anywhere"
       title       = "Sample expression"
     }
-  }
-
-  labels = {
-    label-two = "value-two"
   }
 
   passthrough_extensions {
@@ -150,6 +146,10 @@ resource "google_privateca_certificate_template" "primary" {
   }
 
   project = "%{project_name}"
+
+  labels = {
+    label-two = "value-two"
+  }
 }
 
 
@@ -173,10 +173,6 @@ resource "google_privateca_certificate_template" "primary" {
       location    = "update.certificate_template.json"
       title       = "New sample expression"
     }
-  }
-
-  labels = {
-    label-one = "value-one"
   }
 
   passthrough_extensions {
@@ -237,6 +233,10 @@ resource "google_privateca_certificate_template" "primary" {
   }
 
   project = "%{project_name}"
+
+  labels = {
+    label-one = "value-one"
+  }
 }
 
 

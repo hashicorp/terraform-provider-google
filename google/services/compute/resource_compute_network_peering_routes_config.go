@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -45,6 +46,10 @@ func ResourceComputeNetworkPeeringRoutesConfig() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"export_custom_routes": {
@@ -335,9 +340,9 @@ func resourceComputeNetworkPeeringRoutesConfigDelete(d *schema.ResourceData, met
 func resourceComputeNetworkPeeringRoutesConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)",
-		"(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)",
-		"(?P<network>[^/]+)/(?P<peering>[^/]+)",
+		"^projects/(?P<project>[^/]+)/global/networks/(?P<network>[^/]+)/networkPeerings/(?P<peering>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<network>[^/]+)/(?P<peering>[^/]+)$",
+		"^(?P<network>[^/]+)/(?P<peering>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

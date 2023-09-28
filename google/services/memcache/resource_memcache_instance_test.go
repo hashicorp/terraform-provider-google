@@ -15,7 +15,7 @@ func TestAccMemcacheInstance_update(t *testing.T) {
 
 	prefix := fmt.Sprintf("%d", acctest.RandInt(t))
 	name := fmt.Sprintf("tf-test-%s", prefix)
-	network := acctest.BootstrapSharedTestNetwork(t, "memcache-instance-update")
+	network := acctest.BootstrapSharedServiceNetworkingConnection(t, "memcache-instance-update-1")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -44,24 +44,10 @@ func TestAccMemcacheInstance_update(t *testing.T) {
 
 func testAccMemcacheInstance_update(prefix, name, network string) string {
 	return fmt.Sprintf(`
-resource "google_compute_global_address" "service_range" {
-  name          = "tf-test%s"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = data.google_compute_network.memcache_network.id
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.memcache_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
-}
-
 resource "google_memcache_instance" "test" {
   name = "%s"
   region = "us-central1"
-  authorized_network = google_service_networking_connection.private_service_connection.network
+  authorized_network = data.google_compute_network.memcache_network.id
 
   node_config {
     cpu_count      = 1
@@ -80,29 +66,15 @@ resource "google_memcache_instance" "test" {
 data "google_compute_network" "memcache_network" {
   name = "%s"
 }
-`, prefix, name, network)
+`, name, network)
 }
 
 func testAccMemcacheInstance_update2(prefix, name, network string) string {
 	return fmt.Sprintf(`
-resource "google_compute_global_address" "service_range" {
-  name          = "tf-test%s"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = data.google_compute_network.memcache_network.id
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.memcache_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
-}
-
 resource "google_memcache_instance" "test" {
   name = "%s"
   region = "us-central1"
-  authorized_network = google_service_networking_connection.private_service_connection.network
+  authorized_network = data.google_compute_network.memcache_network.id
 
   node_config {
     cpu_count      = 1
@@ -121,5 +93,5 @@ resource "google_memcache_instance" "test" {
 data "google_compute_network" "memcache_network" {
   name = "%s"
 }
-`, prefix, name, network)
+`, name, network)
 }

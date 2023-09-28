@@ -29,25 +29,28 @@ func TestAccNetworkConnectivityServiceConnectionPolicy_update(t *testing.T) {
 				Config: testAccNetworkConnectivityServiceConnectionPolicy_basic(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_service_connection_policy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_service_connection_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityServiceConnectionPolicy_update(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_service_connection_policy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_service_connection_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityServiceConnectionPolicy_basic(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_service_connection_policy.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_service_connection_policy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

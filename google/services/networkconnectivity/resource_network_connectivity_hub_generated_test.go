@@ -50,17 +50,19 @@ func TestAccNetworkConnectivityHub_BasicHub(t *testing.T) {
 				Config: testAccNetworkConnectivityHub_BasicHub(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_hub.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivityHub_BasicHubUpdate0(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_hub.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -71,12 +73,11 @@ func testAccNetworkConnectivityHub_BasicHub(context map[string]interface{}) stri
 resource "google_network_connectivity_hub" "primary" {
   name        = "tf-test-hub%{random_suffix}"
   description = "A sample hub"
+  project     = "%{project_name}"
 
   labels = {
     label-one = "value-one"
   }
-
-  project = "%{project_name}"
 }
 
 
@@ -88,12 +89,11 @@ func testAccNetworkConnectivityHub_BasicHubUpdate0(context map[string]interface{
 resource "google_network_connectivity_hub" "primary" {
   name        = "tf-test-hub%{random_suffix}"
   description = "An updated sample hub"
+  project     = "%{project_name}"
 
   labels = {
     label-two = "value-one"
   }
-
-  project = "%{project_name}"
 }
 
 

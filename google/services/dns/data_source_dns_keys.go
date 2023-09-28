@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwresource"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // Ensure the implementation satisfies the expected interfaces
@@ -181,9 +180,7 @@ func (d *GoogleDnsKeysDataSource) Read(ctx context.Context, req datasource.ReadR
 
 	clientResp, err := d.client.DnsKeys.List(data.Project.ValueString(), data.ManagedZone.ValueString()).Do()
 	if err != nil {
-		if !transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
-			resp.Diagnostics.AddError(fmt.Sprintf("Error when reading or editing dataSourceDnsKeys"), err.Error())
-		}
+		resp.Diagnostics.AddError(fmt.Sprintf("Error when reading or editing dataSourceDnsKeys"), err.Error())
 		// Save data into Terraform state
 		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 		return

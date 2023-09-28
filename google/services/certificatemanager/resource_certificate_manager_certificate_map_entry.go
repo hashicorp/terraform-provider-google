@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,11 @@ func ResourceCertificateManagerCertificateMapEntry() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"certificates": {
@@ -90,11 +96,14 @@ selecting a proper certificate.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
-				Computed: true,
 				Optional: true,
 				Description: `Set of labels associated with a Certificate Map Entry.
 An object containing a list of "key": value pairs.
-Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"matcher": {
@@ -111,10 +120,23 @@ Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `A serving state of this Certificate Map Entry.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:     schema.TypeString,
@@ -148,12 +170,6 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapEntryLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	certificatesProp, err := expandCertificateManagerCertificateMapEntryCertificates(d.Get("certificates"), d, config)
 	if err != nil {
 		return err
@@ -171,6 +187,12 @@ func resourceCertificateManagerCertificateMapEntryCreate(d *schema.ResourceData,
 		return err
 	} else if v, ok := d.GetOkExists("matcher"); !tpgresource.IsEmptyValue(reflect.ValueOf(matcherProp)) && (ok || !reflect.DeepEqual(v, matcherProp)) {
 		obj["matcher"] = matcherProp
+	}
+	labelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 	nameProp, err := expandCertificateManagerCertificateMapEntryName(d.Get("name"), d, config)
 	if err != nil {
@@ -297,6 +319,12 @@ func resourceCertificateManagerCertificateMapEntryRead(d *schema.ResourceData, m
 	if err := d.Set("matcher", flattenCertificateManagerCertificateMapEntryMatcher(res["matcher"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCertificateManagerCertificateMapEntryTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCertificateManagerCertificateMapEntryEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
+	}
 	if err := d.Set("name", flattenCertificateManagerCertificateMapEntryName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateMapEntry: %s", err)
 	}
@@ -326,17 +354,17 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateMapEntryLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	certificatesProp, err := expandCertificateManagerCertificateMapEntryCertificates(d.Get("certificates"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("certificates"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificatesProp)) {
 		obj["certificates"] = certificatesProp
+	}
+	labelsProp, err := expandCertificateManagerCertificateMapEntryEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}")
@@ -351,12 +379,12 @@ func resourceCertificateManagerCertificateMapEntryUpdate(d *schema.ResourceData,
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("certificates") {
 		updateMask = append(updateMask, "certificates")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -453,9 +481,9 @@ func resourceCertificateManagerCertificateMapEntryDelete(d *schema.ResourceData,
 func resourceCertificateManagerCertificateMapEntryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/certificateMaps/(?P<map>[^/]+)/certificateMapEntries/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<map>[^/]+)/(?P<name>[^/]+)",
-		"(?P<map>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/certificateMaps/(?P<map>[^/]+)/certificateMapEntries/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<map>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<map>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -483,7 +511,18 @@ func flattenCertificateManagerCertificateMapEntryUpdateTime(v interface{}, d *sc
 }
 
 func flattenCertificateManagerCertificateMapEntryLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCertificateManagerCertificateMapEntryCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -502,6 +541,25 @@ func flattenCertificateManagerCertificateMapEntryMatcher(v interface{}, d *schem
 	return v
 }
 
+func flattenCertificateManagerCertificateMapEntryTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCertificateManagerCertificateMapEntryEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCertificateManagerCertificateMapEntryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -511,17 +569,6 @@ func flattenCertificateManagerCertificateMapEntryName(v interface{}, d *schema.R
 
 func expandCertificateManagerCertificateMapEntryDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandCertificateManagerCertificateMapEntryLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandCertificateManagerCertificateMapEntryCertificates(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -534,6 +581,17 @@ func expandCertificateManagerCertificateMapEntryHostname(v interface{}, d tpgres
 
 func expandCertificateManagerCertificateMapEntryMatcher(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCertificateManagerCertificateMapEntryEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandCertificateManagerCertificateMapEntryName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -164,6 +164,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Labels for the external VPN gateway resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `redundancy_type` -
   (Optional)
@@ -205,6 +207,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `label_fingerprint` -
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
 

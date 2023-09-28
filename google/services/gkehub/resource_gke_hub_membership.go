@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -56,6 +57,11 @@ func ResourceGKEHubMembership() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"membership_id": {
@@ -117,15 +123,32 @@ this can be '"//container.googleapis.com/${google_container_cluster.my-cluster.i
 				},
 			},
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels to apply to this membership.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels to apply to this membership.`,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The unique identifier of the membership.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -146,12 +169,6 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandGKEHubMembershipLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	endpointProp, err := expandGKEHubMembershipEndpoint(d.Get("endpoint"), d, config)
 	if err != nil {
 		return err
@@ -163,6 +180,12 @@ func resourceGKEHubMembershipCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(authorityProp)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
 		obj["authority"] = authorityProp
+	}
+	labelsProp, err := expandGKEHubMembershipEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships?membershipId={{membership_id}}")
@@ -285,6 +308,12 @@ func resourceGKEHubMembershipRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("authority", flattenGKEHubMembershipAuthority(res["authority"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Membership: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenGKEHubMembershipTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenGKEHubMembershipEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Membership: %s", err)
+	}
 
 	return nil
 }
@@ -305,17 +334,17 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandGKEHubMembershipLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	authorityProp, err := expandGKEHubMembershipAuthority(d.Get("authority"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("authority"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorityProp)) {
 		obj["authority"] = authorityProp
+	}
+	labelsProp, err := expandGKEHubMembershipEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHubBasePath}}projects/{{project}}/locations/global/memberships/{{membership_id}}")
@@ -326,12 +355,12 @@ func resourceGKEHubMembershipUpdate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Updating Membership %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("authority") {
 		updateMask = append(updateMask, "authority")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -428,9 +457,9 @@ func resourceGKEHubMembershipDelete(d *schema.ResourceData, meta interface{}) er
 func resourceGKEHubMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/memberships/(?P<membership_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<membership_id>[^/]+)",
-		"(?P<membership_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/memberships/(?P<membership_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<membership_id>[^/]+)$",
+		"^(?P<membership_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -450,7 +479,18 @@ func flattenGKEHubMembershipName(v interface{}, d *schema.ResourceData, config *
 }
 
 func flattenGKEHubMembershipLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenGKEHubMembershipEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -500,15 +540,23 @@ func flattenGKEHubMembershipAuthorityIssuer(v interface{}, d *schema.ResourceDat
 	return v
 }
 
-func expandGKEHubMembershipLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenGKEHubMembershipTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenGKEHubMembershipEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandGKEHubMembershipEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -579,4 +627,15 @@ func expandGKEHubMembershipAuthority(v interface{}, d tpgresource.TerraformResou
 
 func expandGKEHubMembershipAuthorityIssuer(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandGKEHubMembershipEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

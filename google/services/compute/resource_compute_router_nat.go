@@ -185,6 +185,7 @@ func ResourceComputeRouterNat() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceComputeRouterNatDrainNatIpsCustomDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -243,10 +244,10 @@ Mutually exclusive with enableEndpointIndependentMapping.`,
 			},
 			"enable_endpoint_independent_mapping": {
 				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
-				Description: `Specifies if endpoint independent mapping is enabled. This is enabled by default. For more information
-see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
-				Default: true,
+				Description: `Enable endpoint independent mapping.
+For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
 			},
 			"icmp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
@@ -991,10 +992,10 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 func resourceComputeRouterNatImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)",
-		"(?P<router>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/routers/(?P<router>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<region>[^/]+)/(?P<router>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<router>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

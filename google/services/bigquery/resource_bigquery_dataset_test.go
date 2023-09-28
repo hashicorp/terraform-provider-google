@@ -24,28 +24,159 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigQueryDataset(datasetID),
+				Config: testAccBigQueryDataset_withoutLabels(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "effective_labels.%"),
+				),
 			},
 			{
 				ResourceName:      "google_bigquery_dataset.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryDataset(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.default_table_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.default_table_expiration_ms", "3600000"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// The labels field in the state is decided by the configuration.
+				// During importing, the configuration is unavailable, so the labels field in the state after importing is empty.
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.default_table_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.default_table_expiration_ms", "7200000"),
+				),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetUpdated2(datasetID),
 			},
 			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDataset_withoutLabels(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "effective_labels.%"),
+				),
+			},
+			{
 				ResourceName:      "google_bigquery_dataset.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_withProvider5(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "4.75.0", // a version that doesn't separate user defined labels and system labels
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccBigQueryDataset_withoutLabels(datasetID),
+				ExternalProviders: oldVersion,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_bigquery_dataset.test", "effective_labels.%"),
+				),
+			},
+			{
+				Config:                   testAccBigQueryDataset(datasetID),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.default_table_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.default_table_expiration_ms", "3600000"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_withOutOfBandLabels(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset(datasetID),
+				Check:  addOutOfBandLabels(t, datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDatasetUpdated(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDatasetUpdated_withOutOfBandLabels(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -70,7 +201,7 @@ func TestAccBigQueryDataset_datasetWithContents(t *testing.T) {
 				ResourceName:            "google_bigquery_dataset.contents_test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy"},
+				ImportStateVerifyIgnore: []string{"delete_contents_on_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -92,33 +223,37 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithOneAccess(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccBigQueryDatasetWithViewAccess(datasetID, otherDatasetID, otherTableID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.access_test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.access_test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -138,9 +273,10 @@ func TestAccBigQueryDataset_regionalLocation(t *testing.T) {
 				Config: testAccBigQueryRegionalDataset(datasetID1, "asia-south1"),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -183,9 +319,10 @@ func TestAccBigQueryDataset_storageBillModel(t *testing.T) {
 				Config: testAccBigQueryDatasetStorageBillingModel(datasetID),
 			},
 			{
-				ResourceName:      "google_bigquery_dataset.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -208,6 +345,38 @@ func testAccAddTable(t *testing.T, datasetID string, tableID string) resource.Te
 		}
 		return nil
 	}
+}
+
+func addOutOfBandLabels(t *testing.T, datasetID string) resource.TestCheckFunc {
+	// Not actually a check, but adds labels independently of terraform
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+
+		dataset, err := config.NewBigQueryClient(config.UserAgent).Datasets.Get(config.Project, datasetID).Do()
+		if err != nil {
+			return fmt.Errorf("Could not get dataset with ID %s", datasetID)
+		}
+
+		dataset.Labels["outband_key"] = "test"
+		_, err = config.NewBigQueryClient(config.UserAgent).Datasets.Patch(config.Project, datasetID, dataset).Do()
+		if err != nil {
+			return fmt.Errorf("Could not update labele for the dataset")
+		}
+		return nil
+	}
+}
+
+func testAccBigQueryDataset_withoutLabels(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "foo"
+  description                     = "This is a foo description"
+  location                        = "EU"
+  default_partition_expiration_ms = 3600000
+  default_table_expiration_ms     = 3600000
+}
+`, datasetID)
 }
 
 func testAccBigQueryDataset(datasetID string) string {
@@ -241,6 +410,25 @@ resource "google_bigquery_dataset" "test" {
   labels = {
     env                         = "bar"
     default_table_expiration_ms = 7200000
+  }
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetUpdated_withOutOfBandLabels(datasetID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  friendly_name                   = "bar"
+  description                     = "This is a bar description"
+  location                        = "EU"
+  default_partition_expiration_ms = 7200000
+  default_table_expiration_ms     = 7200000
+
+  labels = {
+    env                         = "bar"
+    default_table_expiration_ms = 7200000
+	outband_key                 = "test-update"
   }
 }
 `, datasetID)

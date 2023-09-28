@@ -136,7 +136,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceHasConfiguredDeletionProtection(&instance, false),
 				),
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status"}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status", "labels", "terraform_labels"}),
 		},
 	})
 }
@@ -1423,7 +1423,7 @@ func TestAccComputeInstance_forceChangeMachineTypeManually(t *testing.T) {
 				),
 				ExpectNonEmptyPlan: true,
 			},
-			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status"}),
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"metadata.baz", "metadata.foo", "desired_status", "current_status", "labels", "terraform_labels"}),
 		},
 	})
 }
@@ -5905,7 +5905,7 @@ resource "google_compute_node_group" "nodes" {
   name = "%s"
   zone = "us-central1-a"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.nodetmpl.self_link
 }
 `, instance, nodeTemplate, nodeGroup)
@@ -5974,7 +5974,7 @@ resource "google_compute_node_group" "nodes" {
   name = "%s"
   zone = "us-central1-a"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.nodetmpl.self_link
 }
 `, instance, nodeTemplate, nodeGroup)
@@ -6043,7 +6043,7 @@ resource "google_compute_node_group" "nodes" {
   name = "%s"
   zone = "us-central1-a"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.nodetmpl.self_link
 }
 `, instance, nodeTemplate, nodeGroup)
@@ -6106,7 +6106,7 @@ resource "google_compute_node_group" "nodes" {
   name = "%s"
   zone = "us-central1-a"
 
-  size          = 1
+  initial_size          = 1
   node_template = google_compute_node_template.nodetmpl.self_link
 }
 `, instance, nodeTemplate, nodeGroup)

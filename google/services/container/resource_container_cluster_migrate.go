@@ -23,6 +23,9 @@ func resourceContainerClusterMigrateState(
 	case 0:
 		log.Println("[INFO] Found Container Cluster State v0; migrating to v1")
 		return migrateClusterStateV0toV1(is)
+	case 1:
+		log.Println("[INFO] Found Container Cluster State v1 in legacy migration function; returning as non-op")
+		return is, nil
 	default:
 		return is, fmt.Errorf("Unexpected schema version: %d", v)
 	}

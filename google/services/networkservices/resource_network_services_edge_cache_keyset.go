@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceNetworkServicesEdgeCacheKeyset() *schema.Resource {
 			Delete: schema.DefaultTimeout(90 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -62,10 +68,13 @@ and all following characters must be a dash, underscore, letter or digit.`,
 				Description: `A human-readable description of the resource.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Set of label tags associated with the EdgeCache resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Set of label tags associated with the EdgeCache resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"public_key": {
 				Type:     schema.TypeList,
@@ -130,6 +139,19 @@ See RFC 2104, Section 3 for more details on these recommendations.`,
 				},
 				AtLeastOneOf: []string{"public_key", "validation_shared_keys"},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -155,12 +177,6 @@ func resourceNetworkServicesEdgeCacheKeysetCreate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheKeysetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	publicKeysProp, err := expandNetworkServicesEdgeCacheKeysetPublicKey(d.Get("public_key"), d, config)
 	if err != nil {
 		return err
@@ -172,6 +188,12 @@ func resourceNetworkServicesEdgeCacheKeysetCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("validation_shared_keys"); !tpgresource.IsEmptyValue(reflect.ValueOf(validationSharedKeysProp)) && (ok || !reflect.DeepEqual(v, validationSharedKeysProp)) {
 		obj["validationSharedKeys"] = validationSharedKeysProp
+	}
+	labelsProp, err := expandNetworkServicesEdgeCacheKeysetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets?edgeCacheKeysetId={{name}}")
@@ -282,6 +304,12 @@ func resourceNetworkServicesEdgeCacheKeysetRead(d *schema.ResourceData, meta int
 	if err := d.Set("validation_shared_keys", flattenNetworkServicesEdgeCacheKeysetValidationSharedKeys(res["validationSharedKeys"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheKeyset: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenNetworkServicesEdgeCacheKeysetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheKeyset: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenNetworkServicesEdgeCacheKeysetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheKeyset: %s", err)
+	}
 
 	return nil
 }
@@ -308,12 +336,6 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetworkServicesEdgeCacheKeysetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	publicKeysProp, err := expandNetworkServicesEdgeCacheKeysetPublicKey(d.Get("public_key"), d, config)
 	if err != nil {
 		return err
@@ -325,6 +347,12 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("validation_shared_keys"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, validationSharedKeysProp)) {
 		obj["validationSharedKeys"] = validationSharedKeysProp
+	}
+	labelsProp, err := expandNetworkServicesEdgeCacheKeysetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheKeysets/{{name}}")
@@ -339,16 +367,16 @@ func resourceNetworkServicesEdgeCacheKeysetUpdate(d *schema.ResourceData, meta i
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("public_key") {
 		updateMask = append(updateMask, "publicKeys")
 	}
 
 	if d.HasChange("validation_shared_keys") {
 		updateMask = append(updateMask, "validationSharedKeys")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -447,9 +475,9 @@ func resourceNetworkServicesEdgeCacheKeysetDelete(d *schema.ResourceData, meta i
 func resourceNetworkServicesEdgeCacheKeysetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/edgeCacheKeysets/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/edgeCacheKeysets/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -469,7 +497,18 @@ func flattenNetworkServicesEdgeCacheKeysetDescription(v interface{}, d *schema.R
 }
 
 func flattenNetworkServicesEdgeCacheKeysetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenNetworkServicesEdgeCacheKeysetPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -526,19 +565,27 @@ func flattenNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(v in
 	return v
 }
 
-func expandNetworkServicesEdgeCacheKeysetDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenNetworkServicesEdgeCacheKeysetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandNetworkServicesEdgeCacheKeysetLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenNetworkServicesEdgeCacheKeysetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandNetworkServicesEdgeCacheKeysetDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetworkServicesEdgeCacheKeysetPublicKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -613,4 +660,15 @@ func expandNetworkServicesEdgeCacheKeysetValidationSharedKeys(v interface{}, d t
 
 func expandNetworkServicesEdgeCacheKeysetValidationSharedKeysSecretVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheKeysetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

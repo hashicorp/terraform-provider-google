@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -45,6 +46,11 @@ func ResourceComputeServiceAttachment() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"connection_preference": {
@@ -89,25 +95,12 @@ except the last character, which cannot be a dash.`,
 this service attachment.`,
 			},
 			"consumer_accept_lists": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `An array of projects that are allowed to connect to this service
 attachment.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"connection_limit": {
-							Type:     schema.TypeInt,
-							Required: true,
-							Description: `The number of consumer forwarding rules the consumer project can
-create.`,
-						},
-						"project_id_or_num": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `A project that is allowed to connect to this service attachment.`,
-						},
-					},
-				},
+				Elem: computeServiceAttachmentConsumerAcceptListsSchema(),
+				// Default schema.HashSchema is used.
 			},
 			"consumer_reject_lists": {
 				Type:     schema.TypeList,
@@ -137,14 +130,12 @@ supported is 1.`,
 			},
 			"reconcile_connections": {
 				Type:     schema.TypeBool,
+				Computed: true,
 				Optional: true,
 				Description: `This flag determines whether a consumer accept/reject list change can reconcile the statuses of existing ACCEPTED or REJECTED PSC endpoints.
 
 If false, connection policy update will only affect existing PENDING PSC endpoints. Existing ACCEPTED/REJECTED endpoints will remain untouched regardless how the connection policy is modified .
-If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. For example, an ACCEPTED PSC endpoint will be moved to REJECTED if its project is added to the reject list.
-
-For newly created service attachment, this boolean defaults to true.`,
-				Default: true,
+If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. For example, an ACCEPTED PSC endpoint will be moved to REJECTED if its project is added to the reject list.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -193,6 +184,24 @@ updates of this resource.`,
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func computeServiceAttachmentConsumerAcceptListsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"connection_limit": {
+				Type:     schema.TypeInt,
+				Required: true,
+				Description: `The number of consumer forwarding rules the consumer project can
+create.`,
+			},
+			"project_id_or_num": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `A project that is allowed to connect to this service attachment.`,
+			},
+		},
 	}
 }
 
@@ -371,6 +380,14 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 
+	region, err := tpgresource.GetRegion(d, config)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("region", region); err != nil {
+		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
+	}
+
 	if err := d.Set("name", flattenComputeServiceAttachmentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
@@ -405,9 +422,6 @@ func resourceComputeServiceAttachmentRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("reconcile_connections", flattenComputeServiceAttachmentReconcileConnections(res["reconcileConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
-	}
-	if err := d.Set("region", flattenComputeServiceAttachmentRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ServiceAttachment: %s", err)
 	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
@@ -582,10 +596,10 @@ func resourceComputeServiceAttachmentDelete(d *schema.ResourceData, meta interfa
 func resourceComputeServiceAttachmentImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/serviceAttachments/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/regions/(?P<region>[^/]+)/serviceAttachments/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<region>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -674,14 +688,14 @@ func flattenComputeServiceAttachmentConsumerAcceptLists(v interface{}, d *schema
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(computeServiceAttachmentConsumerAcceptListsSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"project_id_or_num": flattenComputeServiceAttachmentConsumerAcceptListsProjectIdOrNum(original["projectIdOrNum"], d, config),
 			"connection_limit":  flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(original["connectionLimit"], d, config),
 		})
@@ -711,13 +725,6 @@ func flattenComputeServiceAttachmentConsumerAcceptListsConnectionLimit(v interfa
 
 func flattenComputeServiceAttachmentReconcileConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenComputeServiceAttachmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
 func expandComputeServiceAttachmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -773,6 +780,7 @@ func expandComputeServiceAttachmentConsumerRejectLists(v interface{}, d tpgresou
 }
 
 func expandComputeServiceAttachmentConsumerAcceptLists(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

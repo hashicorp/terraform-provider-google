@@ -30,9 +30,12 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 		},
 		SchemaVersion: 1,
 		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
 			resourceComputeInstanceTemplateSourceImageCustomizeDiff,
 			resourceComputeInstanceTemplateScratchDiskCustomizeDiff,
 			resourceComputeInstanceTemplateBootDiskCustomizeDiff,
+			tpgresource.SetLabelsDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -823,12 +826,32 @@ be from 0 to 999,999,999 inclusive.`,
 			},
 
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Description: `A set of key/value label pairs to assign to instances created from this template,
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 				Set:         schema.HashString,
-				Description: `A set of key/value label pairs to assign to instances created from this template,`,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Set:         schema.HashString,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"resource_policies": {
@@ -958,8 +981,8 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 		ReservationAffinity:        reservationAffinity,
 	}
 
-	if _, ok := d.GetOk("labels"); ok {
-		instanceProperties.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		instanceProperties.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	var itName string
@@ -1085,9 +1108,15 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 		}
 	}
 	if instanceProperties.Labels != nil {
-		if err := d.Set("labels", instanceProperties.Labels); err != nil {
+		if err := tpgresource.SetLabels(instanceProperties.Labels, d, "labels"); err != nil {
 			return fmt.Errorf("Error setting labels: %s", err)
 		}
+	}
+	if err := tpgresource.SetLabels(instanceProperties.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", instanceProperties.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err = d.Set("self_link", instanceTemplate["selfLink"]); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)

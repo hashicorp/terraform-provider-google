@@ -30,5 +30,17 @@ func dataSourceGooglePubsubTopicRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	return resourcePubsubTopicRead(d, meta)
+	err = resourcePubsubTopicRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

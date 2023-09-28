@@ -34,5 +34,17 @@ func dataSourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) err
 	}
 	d.SetId(id)
 
-	return resourceSpannerInstanceRead(d, meta)
+	err = resourceSpannerInstanceRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

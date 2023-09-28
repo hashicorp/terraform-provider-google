@@ -34,11 +34,20 @@ func dataSourceGoogleCloudFunctions2FunctionRead(d *schema.ResourceData, meta in
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/functions/%s", project, d.Get("location").(string), d.Get("name").(string)))
+	id := fmt.Sprintf("projects/%s/locations/%s/functions/%s", project, d.Get("location").(string), d.Get("name").(string))
+	d.SetId(id)
 
 	err = resourceCloudfunctions2functionRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
 	}
 
 	return nil

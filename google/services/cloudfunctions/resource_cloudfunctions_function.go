@@ -5,6 +5,7 @@ package cloudfunctions
 import (
 	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -143,6 +144,12 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
+			tpgresource.SetLabelsDiff,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -259,7 +266,24 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 				Type:         schema.TypeMap,
 				ValidateFunc: labelKeyValidator,
 				Optional:     true,
-				Description:  `A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.`,
+				Description: `A set of key/value label pairs to assign to the function. Label keys must follow the requirements at https://cloud.google.com/resource-manager/docs/creating-managing-labels#requirements.
+
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"runtime": {
@@ -560,8 +584,8 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.IngressSettings = v.(string)
 	}
 
-	if _, ok := d.GetOk("labels"); ok {
-		function.Labels = tpgresource.ExpandLabels(d)
+	if _, ok := d.GetOk("effective_labels"); ok {
+		function.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
 	if _, ok := d.GetOk("environment_variables"); ok {
@@ -672,8 +696,14 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("ingress_settings", function.IngressSettings); err != nil {
 		return fmt.Errorf("Error setting ingress_settings: %s", err)
 	}
-	if err := d.Set("labels", function.Labels); err != nil {
+	if err := tpgresource.SetLabels(function.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(function.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", function.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err := d.Set("runtime", function.Runtime); err != nil {
 		return fmt.Errorf("Error setting runtime: %s", err)
@@ -841,8 +871,8 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMaskArr = append(updateMaskArr, "ingressSettings")
 	}
 
-	if d.HasChange("labels") {
-		function.Labels = tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		function.Labels = tpgresource.ExpandEffectiveLabels(d)
 		updateMaskArr = append(updateMaskArr, "labels")
 	}
 

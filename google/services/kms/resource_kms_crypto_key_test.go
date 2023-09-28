@@ -154,16 +154,18 @@ func TestAccKmsCryptoKey_basic(t *testing.T) {
 				Config: testGoogleKmsCryptoKey_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			// Test importing with a short id
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s/%s/%s/%s", projectId, location, keyRingName, cryptoKeyName),
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateId:           fmt.Sprintf("%s/%s/%s/%s", projectId, location, keyRingName, cryptoKeyName),
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -296,9 +298,10 @@ func TestAccKmsCryptoKey_destroyDuration(t *testing.T) {
 				Config: testGoogleKmsCryptoKey_destroyDuration(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key.crypto_key",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -334,7 +337,7 @@ func TestAccKmsCryptoKey_importOnly(t *testing.T) {
 				ResourceName:            "google_kms_crypto_key.crypto_key",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_initial_version_creation"},
+				ImportStateVerifyIgnore: []string{"skip_initial_version_creation", "labels", "terraform_labels"},
 			},
 			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
 			{
@@ -428,9 +431,10 @@ func TestAccKmsCryptoKeyVersion_basic(t *testing.T) {
 				Config: testGoogleKmsCryptoKeyVersion_basic(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key_version.crypto_key_version",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testGoogleKmsCryptoKeyVersion_removed(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
@@ -456,9 +460,10 @@ func TestAccKmsCryptoKeyVersion_skipInitialVersion(t *testing.T) {
 				Config: testGoogleKmsCryptoKeyVersion_skipInitialVersion(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key_version.crypto_key_version",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -482,17 +487,19 @@ func TestAccKmsCryptoKeyVersion_patch(t *testing.T) {
 				Config: testGoogleKmsCryptoKeyVersion_patchInitialize(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key_version.crypto_key_version",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testGoogleKmsCryptoKeyVersion_patch("true", projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, state),
 			},
 			{
-				ResourceName:      "google_kms_crypto_key_version.crypto_key_version",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testGoogleKmsCryptoKeyVersion_patch("false", projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, state),

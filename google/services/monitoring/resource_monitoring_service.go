@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceMonitoringGenericService() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"service_id": {
@@ -391,9 +396,9 @@ func resourceMonitoringGenericServiceDelete(d *schema.ResourceData, meta interfa
 func resourceMonitoringGenericServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/services/(?P<service_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<service_id>[^/]+)",
-		"(?P<service_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/services/(?P<service_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<service_id>[^/]+)$",
+		"^(?P<service_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

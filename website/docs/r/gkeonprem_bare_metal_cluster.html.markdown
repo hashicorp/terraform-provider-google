@@ -1101,6 +1101,9 @@ In addition to the arguments listed above, the following computed attributes are
   Specifies the security related settings for the Bare Metal User Cluster.
   Structure is [documented below](#nested_validation_check).
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_fleet"></a>The `fleet` block contains:
 

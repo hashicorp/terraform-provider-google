@@ -47,6 +47,10 @@ func dataSourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta in
 		return err
 	}
 
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
 	// pem_csr is only applicable for SUBORDINATE CertificateAuthorities when their state is AWAITING_USER_ACTIVATION
 	if d.Get("type") == "SUBORDINATE" && d.Get("state") == "AWAITING_USER_ACTIVATION" {
 		url, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:fetch")
@@ -75,7 +79,7 @@ func dataSourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta in
 			UserAgent: userAgent,
 		})
 		if err != nil {
-			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()))
+			return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificateAuthority %q", d.Id()), url)
 		}
 		if err := d.Set("pem_csr", res["pemCsr"]); err != nil {
 			return fmt.Errorf("Error fetching CertificateAuthority: %s", err)

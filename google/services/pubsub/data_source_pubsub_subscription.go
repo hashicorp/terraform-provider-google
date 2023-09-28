@@ -30,5 +30,17 @@ func dataSourceGooglePubsubSubscriptionRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
-	return resourcePubsubSubscriptionRead(d, meta)
+	err = resourcePubsubSubscriptionRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

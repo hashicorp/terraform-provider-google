@@ -63,13 +63,14 @@ func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetId(canonicalFolderName(d.Get("folder").(string)))
+	id := canonicalFolderName(d.Get("folder").(string))
+	d.SetId(id)
 	if err := resourceGoogleFolderRead(d, meta); err != nil {
 		return err
 	}
 	// If resource doesn't exist, read will not set ID and we should return error.
 	if d.Id() == "" {
-		return nil
+		return fmt.Errorf("%s not found", id)
 	}
 
 	if v, ok := d.GetOk("lookup_organization"); ok && v.(bool) {

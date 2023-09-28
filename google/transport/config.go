@@ -171,6 +171,7 @@ type Config struct {
 	UserProjectOverride                bool
 	RequestReason                      string
 	RequestTimeout                     time.Duration
+	DefaultLabels                      map[string]string
 	// PollInterval is passed to resource.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
@@ -208,7 +209,6 @@ type Config struct {
 	Cloudfunctions2BasePath          string
 	CloudIdentityBasePath            string
 	CloudIdsBasePath                 string
-	CloudIotBasePath                 string
 	CloudRunBasePath                 string
 	CloudRunV2BasePath               string
 	CloudSchedulerBasePath           string
@@ -237,7 +237,6 @@ type Config struct {
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
 	FirestoreBasePath                string
-	GameServicesBasePath             string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
 	GKEHub2BasePath                  string
@@ -328,7 +327,6 @@ const CloudFunctionsBasePathKey = "CloudFunctions"
 const Cloudfunctions2BasePathKey = "Cloudfunctions2"
 const CloudIdentityBasePathKey = "CloudIdentity"
 const CloudIdsBasePathKey = "CloudIds"
-const CloudIotBasePathKey = "CloudIot"
 const CloudRunBasePathKey = "CloudRun"
 const CloudRunV2BasePathKey = "CloudRunV2"
 const CloudSchedulerBasePathKey = "CloudScheduler"
@@ -357,7 +355,6 @@ const EdgenetworkBasePathKey = "Edgenetwork"
 const EssentialContactsBasePathKey = "EssentialContacts"
 const FilestoreBasePathKey = "Filestore"
 const FirestoreBasePathKey = "Firestore"
-const GameServicesBasePathKey = "GameServices"
 const GKEBackupBasePathKey = "GKEBackup"
 const GKEHubBasePathKey = "GKEHub"
 const GKEHub2BasePathKey = "GKEHub2"
@@ -442,7 +439,6 @@ var DefaultBasePaths = map[string]string{
 	Cloudfunctions2BasePathKey:          "https://cloudfunctions.googleapis.com/v2/",
 	CloudIdentityBasePathKey:            "https://cloudidentity.googleapis.com/v1/",
 	CloudIdsBasePathKey:                 "https://ids.googleapis.com/v1/",
-	CloudIotBasePathKey:                 "https://cloudiot.googleapis.com/v1/",
 	CloudRunBasePathKey:                 "https://{{location}}-run.googleapis.com/",
 	CloudRunV2BasePathKey:               "https://run.googleapis.com/v2/",
 	CloudSchedulerBasePathKey:           "https://cloudscheduler.googleapis.com/v1/",
@@ -471,7 +467,6 @@ var DefaultBasePaths = map[string]string{
 	EssentialContactsBasePathKey:        "https://essentialcontacts.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
-	GameServicesBasePathKey:             "https://gameservices.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
 	GKEHubBasePathKey:                   "https://gkehub.googleapis.com/v1/",
 	GKEHub2BasePathKey:                  "https://gkehub.googleapis.com/v1/",
@@ -723,11 +718,6 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 			"GOOGLE_CLOUD_IDS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[CloudIdsBasePathKey]))
 	}
-	if d.Get("cloud_iot_custom_endpoint") == "" {
-		d.Set("cloud_iot_custom_endpoint", MultiEnvDefault([]string{
-			"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[CloudIotBasePathKey]))
-	}
 	if d.Get("cloud_run_custom_endpoint") == "" {
 		d.Set("cloud_run_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RUN_CUSTOM_ENDPOINT",
@@ -867,11 +857,6 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("firestore_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FIRESTORE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FirestoreBasePathKey]))
-	}
-	if d.Get("game_services_custom_endpoint") == "" {
-		d.Set("game_services_custom_endpoint", MultiEnvDefault([]string{
-			"GOOGLE_GAME_SERVICES_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[GameServicesBasePathKey]))
 	}
 	if d.Get("gke_backup_custom_endpoint") == "" {
 		d.Set("gke_backup_custom_endpoint", MultiEnvDefault([]string{
@@ -1954,7 +1939,6 @@ func ConfigureBasePaths(c *Config) {
 	c.Cloudfunctions2BasePath = DefaultBasePaths[Cloudfunctions2BasePathKey]
 	c.CloudIdentityBasePath = DefaultBasePaths[CloudIdentityBasePathKey]
 	c.CloudIdsBasePath = DefaultBasePaths[CloudIdsBasePathKey]
-	c.CloudIotBasePath = DefaultBasePaths[CloudIotBasePathKey]
 	c.CloudRunBasePath = DefaultBasePaths[CloudRunBasePathKey]
 	c.CloudRunV2BasePath = DefaultBasePaths[CloudRunV2BasePathKey]
 	c.CloudSchedulerBasePath = DefaultBasePaths[CloudSchedulerBasePathKey]
@@ -1983,7 +1967,6 @@ func ConfigureBasePaths(c *Config) {
 	c.EssentialContactsBasePath = DefaultBasePaths[EssentialContactsBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
-	c.GameServicesBasePath = DefaultBasePaths[GameServicesBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
 	c.GKEHubBasePath = DefaultBasePaths[GKEHubBasePathKey]
 	c.GKEHub2BasePath = DefaultBasePaths[GKEHub2BasePathKey]

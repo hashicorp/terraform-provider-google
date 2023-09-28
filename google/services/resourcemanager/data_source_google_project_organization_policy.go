@@ -24,7 +24,16 @@ func DataSourceGoogleProjectOrganizationPolicy() *schema.Resource {
 
 func datasourceGoogleProjectOrganizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
-	d.SetId(fmt.Sprintf("%s:%s", d.Get("project"), d.Get("constraint")))
+	id := fmt.Sprintf("%s:%s", d.Get("project"), d.Get("constraint"))
+	d.SetId(id)
 
-	return resourceGoogleProjectOrganizationPolicyRead(d, meta)
+	err := resourceGoogleProjectOrganizationPolicyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

@@ -356,6 +356,9 @@ In addition to the arguments listed above, the following computed attributes are
   Allows clients to perform consistent read-modify-writes
   through optimistic concurrency control.
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_status"></a>The `status` block contains:
 

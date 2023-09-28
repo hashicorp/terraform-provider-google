@@ -49,7 +49,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ResourceName:            "google_database_migration_service_connection_profile.cloudsqlprofile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "mysql.0.password", "mysql.0.ssl.0.ca_certificate", "mysql.0.ssl.0.client_certificate", "mysql.0.ssl.0.client_key"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "mysql.0.password", "mysql.0.ssl.0.ca_certificate", "mysql.0.ssl.0.client_certificate", "mysql.0.ssl.0.client_key", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -164,7 +164,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ResourceName:            "google_database_migration_service_connection_profile.postgresprofile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -217,93 +217,6 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
     cloud_sql_id = "tf-test-my-database%{random_suffix}"
   }
   depends_on = [google_sql_user.sqldb_user]
-}
-`, context)
-}
-
-func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileAlloydbExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "profile-alloydb"),
-		"random_suffix": acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDatabaseMigrationServiceConnectionProfileDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileAlloydbExample(context),
-			},
-			{
-				ResourceName:            "google_database_migration_service_connection_profile.alloydbprofile",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "alloydb.0.settings.0.initial_user.0.password"},
-			},
-		},
-	})
-}
-
-func testAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceConnectionProfileAlloydbExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-data "google_project" "project" {
-}
-
-data "google_compute_network" "default" {
-  name = "%{network_name}"
-}
-
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "tf-test-private-ip-alloc%{random_suffix}"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = data.google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-}
-
-
-resource "google_database_migration_service_connection_profile" "alloydbprofile" {
-  location = "us-central1"
-  connection_profile_id = "tf-test-my-profileid%{random_suffix}"
-  display_name = "tf-test-my-profileid%{random_suffix}_display"
-  labels = { 
-    foo = "bar" 
-  }
-  alloydb {
-    cluster_id = "tf-test-dbmsalloycluster%{random_suffix}"
-    settings {
-      initial_user {
-        user = "alloyuser%{random_suffix}"
-        password = "alloypass%{random_suffix}"
-      }
-      vpc_network = data.google_compute_network.default.id
-      labels  = { 
-        alloyfoo = "alloybar" 
-      }
-      primary_instance_settings {
-        id = "priminstid"
-        machine_config {
-          cpu_count = 2
-        }
-        database_flags = { 
-        }
-        labels = { 
-          alloysinstfoo = "allowinstbar" 
-        }
-      }
-    }
-  }
-
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 `, context)
 }

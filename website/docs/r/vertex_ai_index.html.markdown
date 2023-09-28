@@ -141,6 +141,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The labels with user-defined metadata to organize your Indexes.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `index_update_method` -
   (Optional)
@@ -272,6 +274,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `index_stats` -
   Stats of the index resource.
   Structure is [documented below](#nested_index_stats).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_deployed_indexes"></a>The `deployed_indexes` block contains:

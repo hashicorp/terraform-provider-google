@@ -37,7 +37,17 @@ func dataSourceComputeNetworkPeeringRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	d.SetId(fmt.Sprintf("%s/%s", networkFieldValue.Name, d.Get("name").(string)))
+	id := fmt.Sprintf("%s/%s", networkFieldValue.Name, d.Get("name").(string))
+	d.SetId(id)
 
-	return resourceComputeNetworkPeeringRead(d, meta)
+	err = resourceComputeNetworkPeeringRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

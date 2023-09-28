@@ -28,7 +28,7 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdate(name, project, "50", "300"),
@@ -37,7 +37,7 @@ func TestAccCloudRunService_cloudRunServiceUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 		},
 	})
@@ -62,7 +62,7 @@ func TestAccCloudRunService_cloudRunServiceCreateHasStatus(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels"},
 			},
 		},
 	})
@@ -86,7 +86,7 @@ func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
 				Config: " ", // very explicitly add a space, as the test runner fails if this is just ""
@@ -98,7 +98,7 @@ func TestAccCloudRunService_foregroundDeletion(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 		},
 	})
@@ -111,9 +111,13 @@ resource "google_cloud_run_service" "default" {
   location = "us-central1"
 
   metadata {
-  namespace = "%s"
-  annotations = {
+    namespace = "%s"
+    annotations = {
       generated-by = "magic-modules"
+    }
+    labels = {
+      env                   = "foo"
+      default_expiration_ms = 3600000
     }
   }
 
@@ -162,7 +166,7 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretVolume(name, project, "secret-"+acctest.RandString(t, 10), "secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
@@ -171,7 +175,7 @@ func TestAccCloudRunService_secretVolume(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 		},
 	})
@@ -286,7 +290,7 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 			{
 				Config: testAccCloudRunService_cloudRunServiceUpdateWithSecretEnvVar(name, project, "secret-"+acctest.RandString(t, 10), "secret-"+acctest.RandString(t, 11), "google_secret_manager_secret.secret2.secret_id"),
@@ -295,7 +299,7 @@ func TestAccCloudRunService_secretEnvironmentVariable(t *testing.T) {
 				ResourceName:            "google_cloud_run_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "status.0.conditions"},
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
 			},
 		},
 	})
@@ -386,4 +390,312 @@ resource "google_cloud_run_service" "default" {
   depends_on = [google_secret_manager_secret_version.secret1-version-data, google_secret_manager_secret_version.secret2-version-data]
 }
 `, secretName1, secretName2, name, secretRef, project)
+}
+
+func TestAccCloudRunService_withProviderDefaultLabels(t *testing.T) {
+	// The test failed if VCR testing is enabled, because the cached provider config is used.
+	// With the cached provider config, any changes in the provider default labels will not be applied.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_withProviderDefaultLabels(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "4"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.generated-by", "magic-modules"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunService_resourceLabelsOverridesProviderDefaultLabels(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "4"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.generated-by", "magic-modules-update"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunService_moveResourceLabelToProviderDefaultLabels(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "4"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunService_resourceLabelsOverridesProviderDefaultLabels(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_expiration_ms", "3600000"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "4"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunService_cloudRunServiceBasic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "1"),
+
+					resource.TestCheckNoResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "5"),
+				),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+		},
+	})
+}
+
+func TestAccCloudRunServiceMigration_withLabels(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	project := envvar.GetTestProjectFromEnv()
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "4.83.0", // a version that doesn't separate user defined labels and system labels
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck: func() { acctest.AccTestPreCheck(t) },
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccCloudRunService_cloudRunServiceUpdate(name, project, "10", "600"),
+				ExternalProviders: oldVersion,
+			},
+			{
+				Config:                   testAccCloudRunService_cloudRunServiceUpdate(name, project, "10", "600"),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.annotations.%", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_service.default", "metadata.0.effective_annotations.%", "6"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_withProviderDefaultLabels(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  metadata {
+    namespace = "%{project}"
+    annotations = {
+      generated-by = "magic-modules"
+    }
+    labels = {
+      env                   = "foo"
+      default_expiration_ms = 3600000
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
+}
+
+func testAccCloudRunService_resourceLabelsOverridesProviderDefaultLabels(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  metadata {
+    namespace = "%{project}"
+    annotations = {
+      generated-by = "magic-modules-update"
+    }
+    labels = {
+      env                   = "foo"
+      default_expiration_ms = 3600000
+      default_key1          = "value1"
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
+}
+
+func testAccCloudRunService_moveResourceLabelToProviderDefaultLabels(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+    env          = "foo"
+  }
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  metadata {
+    namespace = "%{project}"
+    annotations = {
+      generated-by = "magic-modules"
+    }
+    labels = {
+      default_expiration_ms = 3600000
+      default_key1          = "value1"
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
+}
+
+func testAccCloudRunService_cloudRunServiceBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "tf-test-cloudrun-srv%{random_suffix}"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  metadata {
+    namespace = "%{project}"
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+`, context)
 }

@@ -44,6 +44,10 @@ func datasourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found or not in ACTIVE state", id)
 	}

@@ -37,7 +37,20 @@ func dataSourceGoogleComposerEnvironmentRead(d *schema.ResourceData, meta interf
 	}
 	envName := d.Get("name").(string)
 
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/environments/%s", project, region, envName))
+	id := fmt.Sprintf("projects/%s/locations/%s/environments/%s", project, region, envName)
+	d.SetId(id)
+	err = resourceComposerEnvironmentRead(d, meta)
+	if err != nil {
+		return err
+	}
 
-	return resourceComposerEnvironmentRead(d, meta)
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

@@ -3,6 +3,8 @@
 package redis
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -31,5 +33,17 @@ func dataSourceGoogleRedisInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 	d.SetId(id)
 
-	return resourceRedisInstanceRead(d, meta)
+	err = resourceRedisInstanceRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

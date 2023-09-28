@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceVertexAIFeaturestore() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"encryption_spec": {
 				Type:        schema.TypeList,
@@ -64,10 +70,14 @@ func ResourceVertexAIFeaturestore() *schema.Resource {
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `A set of key/value label pairs to assign to this Featurestore.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `A set of key/value label pairs to assign to this Featurestore.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -124,10 +134,23 @@ func ResourceVertexAIFeaturestore() *schema.Resource {
 				Computed:    true,
 				Description: `The timestamp of when the featurestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Used to perform consistent read-modify-write updates.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -159,12 +182,6 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandVertexAIFeaturestoreLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	onlineServingConfigProp, err := expandVertexAIFeaturestoreOnlineServingConfig(d.Get("online_serving_config"), d, config)
 	if err != nil {
 		return err
@@ -176,6 +193,12 @@ func resourceVertexAIFeaturestoreCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionSpecProp)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
 		obj["encryptionSpec"] = encryptionSpecProp
+	}
+	labelsProp, err := expandVertexAIFeaturestoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores?featurestoreId={{name}}")
@@ -303,6 +326,12 @@ func resourceVertexAIFeaturestoreRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("encryption_spec", flattenVertexAIFeaturestoreEncryptionSpec(res["encryptionSpec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Featurestore: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenVertexAIFeaturestoreTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenVertexAIFeaturestoreEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Featurestore: %s", err)
+	}
 
 	return nil
 }
@@ -323,12 +352,6 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandVertexAIFeaturestoreLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	onlineServingConfigProp, err := expandVertexAIFeaturestoreOnlineServingConfig(d.Get("online_serving_config"), d, config)
 	if err != nil {
 		return err
@@ -341,6 +364,12 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("encryption_spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionSpecProp)) {
 		obj["encryptionSpec"] = encryptionSpecProp
 	}
+	labelsProp, err := expandVertexAIFeaturestoreEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VertexAIBasePath}}projects/{{project}}/locations/{{region}}/featurestores/{{name}}")
 	if err != nil {
@@ -350,16 +379,16 @@ func resourceVertexAIFeaturestoreUpdate(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Updating Featurestore %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("online_serving_config") {
 		updateMask = append(updateMask, "onlineServingConfig")
 	}
 
 	if d.HasChange("encryption_spec") {
 		updateMask = append(updateMask, "encryptionSpec")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -463,10 +492,10 @@ func resourceVertexAIFeaturestoreDelete(d *schema.ResourceData, meta interface{}
 func resourceVertexAIFeaturestoreImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/featurestores/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<region>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<region>[^/]+)/featurestores/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<region>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<region>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -495,7 +524,18 @@ func flattenVertexAIFeaturestoreUpdateTime(v interface{}, d *schema.ResourceData
 }
 
 func flattenVertexAIFeaturestoreLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenVertexAIFeaturestoreOnlineServingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -596,15 +636,23 @@ func flattenVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d *schem
 	return v
 }
 
-func expandVertexAIFeaturestoreLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenVertexAIFeaturestoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenVertexAIFeaturestoreEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandVertexAIFeaturestoreOnlineServingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -692,4 +740,15 @@ func expandVertexAIFeaturestoreEncryptionSpec(v interface{}, d tpgresource.Terra
 
 func expandVertexAIFeaturestoreEncryptionSpecKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIFeaturestoreEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -105,6 +105,9 @@ The following arguments are supported:
   (Optional)
   The labels with user-defined metadata to organize your Tensorboards.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `region` -
   (Optional)
   The region of the tensorboard. eg us-central1
@@ -140,6 +143,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   The timestamp of when the Tensorboard was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

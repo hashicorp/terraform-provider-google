@@ -89,7 +89,10 @@ func datasourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interfac
 func retrieveInstance(d *schema.ResourceData, meta interface{}, project, name string) error {
 	d.SetId("projects/" + project + "/global/instanceTemplates/" + name)
 
-	return resourceComputeInstanceTemplateRead(d, meta)
+	if err := resourceComputeInstanceTemplateRead(d, meta); err != nil {
+		return err
+	}
+	return tpgresource.SetDataSourceLabels(d)
 }
 
 func retrieveInstanceFromUniqueId(d *schema.ResourceData, meta interface{}, project, self_link_unique string) error {
@@ -97,7 +100,10 @@ func retrieveInstanceFromUniqueId(d *schema.ResourceData, meta interface{}, proj
 	d.SetId(normalId)
 	d.Set("self_link_unique", self_link_unique)
 
-	return resourceComputeInstanceTemplateRead(d, meta)
+	if err := resourceComputeInstanceTemplateRead(d, meta); err != nil {
+		return err
+	}
+	return tpgresource.SetDataSourceLabels(d)
 }
 
 // ByCreationTimestamp implements sort.Interface for []*InstanceTemplate based on

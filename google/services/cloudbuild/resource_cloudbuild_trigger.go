@@ -103,6 +103,7 @@ func ResourceCloudBuildTrigger() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			stepTimeoutCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -1869,10 +1870,10 @@ func resourceCloudBuildTriggerDelete(d *schema.ResourceData, meta interface{}) e
 func resourceCloudBuildTriggerImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
-		"projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<trigger_id>[^/]+)",
-		"(?P<trigger_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/triggers/(?P<trigger_id>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/triggers/(?P<trigger_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<trigger_id>[^/]+)$",
+		"^(?P<trigger_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

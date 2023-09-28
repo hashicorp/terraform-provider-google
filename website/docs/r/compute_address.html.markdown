@@ -228,6 +228,9 @@ The following arguments are supported:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Labels to apply to this address.  A list of key->value pairs.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `network` -
   (Optional)
   The URL of the network in which to reserve the address. This field
@@ -275,6 +278,15 @@ In addition to the arguments listed above, the following computed attributes are
   ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
+
+* `terraform_labels` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
 

@@ -30,7 +30,7 @@ func TestAccSecretManagerSecret_import(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -59,7 +59,7 @@ func TestAccSecretManagerSecret_cmek(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -84,7 +84,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccSecretManagerSecret_annotationsUpdate(context),
@@ -93,7 +93,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccSecretManagerSecret_annotationsBasic(context),
@@ -102,7 +102,7 @@ func TestAccSecretManagerSecret_annotationsUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-with-annotations",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels", "annotations"},
 			},
 		},
 	})
@@ -127,7 +127,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_versionAliasesBasic(context),
@@ -136,7 +136,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_versionAliasesUpdate(context),
@@ -145,7 +145,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretManagerSecret_basicWithSecretVersions(context),
@@ -154,7 +154,7 @@ func TestAccSecretManagerSecret_versionAliasesUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -185,7 +185,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekUpdate(context),
@@ -194,7 +194,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekUpdate2(context),
@@ -203,7 +203,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_userManagedCmekBasic(context),
@@ -212,7 +212,7 @@ func TestAccSecretManagerSecret_userManagedCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -236,22 +236,13 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSecretMangerSecret_automaticBasic(context),
-			},
-			{
-				ResourceName:            "google_secret_manager_secret.secret-basic",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl", "replication.0.automatic", "replication.0.auto"},
-			},
-			{
 				Config: testAccSecretMangerSecret_automaticCmekBasic(context),
 			},
 			{
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekUpdate(context),
@@ -260,7 +251,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekUpdate2(context),
@@ -269,7 +260,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSecretMangerSecret_automaticCmekBasic(context),
@@ -278,7 +269,7 @@ func TestAccSecretManagerSecret_automaticCmekUpdate(t *testing.T) {
 				ResourceName:            "google_secret_manager_secret.secret-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl"},
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -747,38 +738,6 @@ resource "google_secret_manager_secret" "secret-basic" {
     google_kms_crypto_key_iam_member.kms-central-binding-1,
     google_kms_crypto_key_iam_member.kms-central-binding-2,
     google_kms_crypto_key_iam_member.kms-east-binding,
-  ]
-}
-`, context)
-}
-
-func testAccSecretMangerSecret_automaticBasic(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-data "google_project" "project" {
-  project_id = "%{pid}"
-}
-resource "google_kms_crypto_key_iam_member" "kms-secret-binding-1" {
-  crypto_key_id = "%{kms_key_name_1}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
-}
-resource "google_kms_crypto_key_iam_member" "kms-secret-binding-2" {
-  crypto_key_id = "%{kms_key_name_2}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-secretmanager.iam.gserviceaccount.com"
-}
-resource "google_secret_manager_secret" "secret-basic" {
-  secret_id = "tf-test-secret-%{random_suffix}"
-  
-  labels = {
-    label = "my-label"
-  }
-  replication {
-    automatic = true
-  }
-  depends_on = [
-    google_kms_crypto_key_iam_member.kms-secret-binding-1,
-    google_kms_crypto_key_iam_member.kms-secret-binding-2,
   ]
 }
 `, context)

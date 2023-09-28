@@ -97,17 +97,19 @@ func TestAccSpannerInstance_update(t *testing.T) {
 				Config: testAccSpannerInstance_update(dName1, 1, false),
 			},
 			{
-				ResourceName:      "google_spanner_instance.updater",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_spanner_instance.updater",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccSpannerInstance_update(dName2, 2, true),
 			},
 			{
-				ResourceName:      "google_spanner_instance.updater",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_spanner_instance.updater",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

@@ -1,0 +1,171 @@
+```release-note:breaking-change
+bigquery: added more input validations for BigQuery table schema
+```
+```release-note:breaking-change
+firebase: changed `deletion_policy` default to `DELETE` for `google_firebase_web_app`.
+```
+```release-note:breaking-change
+cloudrunv2: Removed deprecated fields `startup_probe` and `liveness_probe` from `google_cloud_run_v2_job` resource.
+```
+```release-note:breaking-change
+cloudrunv2: Removed deprecated field `liveness_probe.tcp_socket` from `google_cloud_run_v2_service` resource. 
+```
+```release-note:bug
+bigquery: fixed view and materialized view creation when schema is specified
+```
+```release-note:bug
+compute: used APIs default value for field `enable_endpoint_independent_mapping` in resource `google_compute_router_nat`
+```
+```release-note:breaking-change
+dataplex: removed `data_profile_result` and `data_quality_result` from `google_dataplex_scan`
+```
+```release-note:breaking-change
+bigquery: made `routine_type` required for `google_bigquery_routine`
+```
+```release-note:bug
+compute: added default value to `metric.filter` in the resource `google_compute_autoscaler` (beta)
+```
+```release-note:deprecation
+privateca: removed deprecated fields `configValues`, `pemCertificates`
+```
+```release-note:breaking-change
+gameservices: Remove Terraform support for `gameservices`
+```
+```release-note:bug
+sql: fixed diffs when re-ordering existing `database_flags`
+```
+```release-note:breaking-change
+logging: made `growth_factor`, `num_finite_buckets`, and `scale` required for `google_logging_metric`
+```
+```release-note:breaking-change
+compute: removed default value for `rule.rate_limit_options.encorce_on_key` on resource `google_compute_security_policy`
+```
+```release-note:note
+provider: some provider default values are now shown at plan-time
+```
+```release-note:deprecation
+cloudiot: deprecated resource  `google_cloudiot_registry`
+```
+```release-note:deprecation
+cloudiot:  deprecated resource `google_cloudiot_device`
+```
+```release-note:deprecation
+cloudiot: deprecated resource `google_cloudiot_registry_iam_*`
+```
+```release-note:deprecation
+cloudiot:  deprecated datasource `google_cloudiot_registry_iam_policy`
+```
+```release-note:enhancement
+provider: added provider default labels
+```
+```release-note:breaking-change
+logging: changed the default value of `unique_writer_identity` from `false` to `true` in `google_logging_project_sink`.
+```
+```release-note:breaking-change
+accesscontextmanager: changed multiple array fields to sets where appropriate to prevent duplicates and fix diffs caused by server side reordering.
+```
+```release-note:breaking-change
+servicenetworking: used Create instead of Patch to create `google_service_networking_connection`
+```
+```release-note:breaking-change
+firebase: removed `google_firebase_project_location`
+```
+```release-note:breaking-change
+provider: data sources now return errors on 404s when applicable instead of silently failing
+```
+```release-note:breaking-change
+cloudfunction2: made `location` required on `google_cloudfunctions2_function`
+```
+```release-note:breaking-change
+cloudrunv2: transitioned `volumes.cloud_sql_instance.instances` to SET from ARRAY for `google_cloud_run_v2_service`
+```
+```release-note:breaking-change
+secretmanager: removed `automatic` field in `google_secret_manager_secret` resource
+```
+```release-note:breaking-change
+container: removed `enable_binary_authorization` in `google_container_cluster`
+```
+```release-note:breaking-change
+container: removed the behaviour that `google_container_cluster` will delete the cluster if it's created in an error state. Instead, it will mark the cluster as tainted, allowing manual inspection and intervention. To proceed with deletion, run another `terraform apply`.
+```
+```release-note:bug
+compute: removed the default value for field `reconcile_connections ` in resource `google_compute_service_attachment`, the field will now default to a value returned by the API when not set in configuration
+```
+```release-note:breaking-change
+container: removed default value in `network_policy.provider` in `google_container_cluster`
+```
+```release-note:breaking-change
+container: removed default for `logging_variant` in `google_container_node_pool`
+```
+```release-note:breaking-change
+container: changed `management.auto_repair` and `management.auto_upgrade` defaults to true in `google_container_node_pool`
+```
+```release-note:breaking-change
+servicenetworking: used the `deleteConnection` method to delete the resource `google_service_networking_connection`
+```
+```release-note:bug
+provider: fixed a bug where labels/annotations field not exists in GA for some resources
+```
+```release-note:breaking-change
+provider: Empty strings in the provider configuration block will no longer be ignored when configuring the provider
+```
+```release-note:breaking-change
+looker: removed `LOOKER_MODELER` as a possible value in `google_looker_instance. platform_edition`
+```
+```release-note:breaking-change
+container: reworked the `taint` field in `google_container_cluster` and `google_container_node_pool` to only manage a subset of taint keys based on those already in state. Most existing resources are unaffected, unless they use `sandbox_config`- see upgrade guide for details.
+```
+```release-note:enhancement
+container: added the `effective_taints` attribute to `google_container_cluster` and `google_container_node_pool`, outputting all known taint values
+```
+```release-note:bug
+`dataflow`: fixed permadiff when SdkPipeline values are supplied via parameters. 
+```
+```release-note:bug
+`dataflow`: fixed max_workers read value permanently displaying as 0.
+```
+```release-note:bug
+`dataflow`: fixed issue causing error message when max_workers and num_workers were supplied via parameters.
+```
+```release-note:breaking-change
+provider: added provider-level validation so these fields are not set as empty strings in a user's config: `credentials`, `access_token`, `impersonate_service_account`, `project`, `billing_project`, `region`, `zone`
+```
+```release-note:breaking-change
+provider: fixed many import functions throughout the provider that matched a subset of the provided input when possible. Now, the GCP resource id supplied to "terraform import" must match exactly.
+```
+```release-note:breaking-change
+compute: retyped `consumer_accept_lists` to a SET from an ARRAY type for `google_compute_service_attachment
+```
+```release-note:breaking-change
+monitoring: made `labels` immutable in `google_monitoring_metric_descriptor`
+```
+```release-note:bug
+monitoring: fixed an issue where `metadata` was not able to be updated in `google_monitoring_metric_descriptor`
+```
+```release-note:breaking-change
+firebase: made `google_firebase_rules.release` immutable
+```
+```release-note:enhancement
+containeraws: added `binary_authorization` to `google_container_aws_cluster`
+```
+```release-note:enhancement
+containeraws: added `update_settings` to `google_container_aws_node_pool`
+```
+```release-note:breaking-change
+compute: `size` in `google_compute_node_group` is now an output only field. 
+```
+```release-note:enhancement
+compute: `google_compute_node_group` made mutable
+```
+```release-note:note
+compute: `google_compute_node_group` made to require one of `initial_size` or `autoscaling_policy` fields configured upon resource creation
+```
+```release-note:enhancement
+baremetal: make delete a noop for the resource `google_bare_metal_admin_cluster` to better align with actual behavior
+```
+```release-note:breaking-change
+container: `google_container_cluster` now has `deletion_protection` enabled to `true` by default. When enabled, this field prevents Terraform from deleting the resource.
+```
+```release-note:breaking-change
+monitoring: fixed perma-diffs in `google_monitoring_dashboard.dashboard_json` by suppressing values returned by the API that are not in configuration
+```

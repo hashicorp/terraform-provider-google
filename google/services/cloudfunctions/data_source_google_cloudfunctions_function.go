@@ -3,6 +3,8 @@
 package cloudfunctions
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -48,6 +50,14 @@ func dataSourceGoogleCloudFunctionsFunctionRead(d *schema.ResourceData, meta int
 	err = resourceCloudFunctionsRead(d, meta)
 	if err != nil {
 		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", cloudFuncId.CloudFunctionId())
 	}
 
 	return nil

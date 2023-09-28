@@ -20,11 +20,10 @@ func TestAccComputeAddress_networkTier(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeAddress_networkTier(acctest.RandString(t, 10)),
-			},
-			{
-				ResourceName:      "google_compute_address.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "labels.%"),
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "effective_labels.%"),
+				),
 			},
 		},
 	})
@@ -138,7 +137,6 @@ resource "google_compute_network" "default" {
   enable_ula_internal_ipv6 = true
   auto_create_subnetworks  = false
 }
-
 resource "google_compute_subnetwork" "foo" {
   name             = "subnetwork-test-%s"
   ip_cidr_range    = "10.0.0.0/16"
@@ -147,7 +145,6 @@ resource "google_compute_subnetwork" "foo" {
   stack_type       = "IPV4_IPV6"
   ipv6_access_type = "INTERNAL"
 }
-
 resource "google_compute_address" "ipv6" {
   name         = "tf-test-address-internal-ipv6-%s"
   subnetwork   = google_compute_subnetwork.foo.self_link

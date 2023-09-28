@@ -50,17 +50,19 @@ func TestAccRecaptchaEnterpriseKey_AndroidKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_AndroidKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_AndroidKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -82,17 +84,19 @@ func TestAccRecaptchaEnterpriseKey_IosKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_IosKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_IosKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -114,9 +118,10 @@ func TestAccRecaptchaEnterpriseKey_MinimalKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_MinimalKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -138,17 +143,19 @@ func TestAccRecaptchaEnterpriseKey_WebKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_WebKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -170,17 +177,19 @@ func TestAccRecaptchaEnterpriseKey_WebScoreKey(t *testing.T) {
 				Config: testAccRecaptchaEnterpriseKey_WebScoreKey(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRecaptchaEnterpriseKey_WebScoreKeyUpdate0(context),
 			},
 			{
-				ResourceName:      "google_recaptcha_enterprise_key.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -196,14 +205,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_package_names   = []
   }
 
-  labels = {
-    label-one = "value-one"
-  }
-
   project = "%{project_name}"
 
   testing_options {
     testing_score = 0.8
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -221,14 +230,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_package_names   = ["com.android.application"]
   }
 
-  labels = {
-    label-two = "value-two"
-  }
-
   project = "%{project_name}"
 
   testing_options {
     testing_score = 0.8
+  }
+
+  labels = {
+    label-two = "value-two"
   }
 }
 
@@ -246,14 +255,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_bundle_ids   = []
   }
 
-  labels = {
-    label-one = "value-one"
-  }
-
   project = "%{project_name}"
 
   testing_options {
     testing_score = 1
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -271,14 +280,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_bundle_ids   = ["com.companyname.appname"]
   }
 
-  labels = {
-    label-two = "value-two"
-  }
-
   project = "%{project_name}"
 
   testing_options {
     testing_score = 1
+  }
+
+  labels = {
+    label-two = "value-two"
   }
 }
 
@@ -290,13 +299,14 @@ func testAccRecaptchaEnterpriseKey_MinimalKey(context map[string]interface{}) st
 	return acctest.Nprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-  labels       = {}
   project      = "%{project_name}"
 
   web_settings {
     integration_type  = "SCORE"
     allow_all_domains = true
   }
+
+  labels = {}
 }
 
 
@@ -307,12 +317,7 @@ func testAccRecaptchaEnterpriseKey_WebKey(context map[string]interface{}) string
 	return acctest.Nprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-
-  labels = {
-    label-one = "value-one"
-  }
-
-  project = "%{project_name}"
+  project      = "%{project_name}"
 
   testing_options {
     testing_challenge = "NOCAPTCHA"
@@ -325,6 +330,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_domains               = []
     challenge_security_preference = "USABILITY"
   }
+
+  labels = {
+    label-one = "value-one"
+  }
 }
 
 
@@ -335,12 +344,7 @@ func testAccRecaptchaEnterpriseKey_WebKeyUpdate0(context map[string]interface{})
 	return acctest.Nprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-two"
-
-  labels = {
-    label-two = "value-two"
-  }
-
-  project = "%{project_name}"
+  project      = "%{project_name}"
 
   testing_options {
     testing_challenge = "NOCAPTCHA"
@@ -353,6 +357,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_domains               = ["subdomain.example.com"]
     challenge_security_preference = "SECURITY"
   }
+
+  labels = {
+    label-two = "value-two"
+  }
 }
 
 
@@ -363,12 +371,7 @@ func testAccRecaptchaEnterpriseKey_WebScoreKey(context map[string]interface{}) s
 	return acctest.Nprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-
-  labels = {
-    label-one = "value-one"
-  }
-
-  project = "%{project_name}"
+  project      = "%{project_name}"
 
   testing_options {
     testing_score = 0.5
@@ -380,6 +383,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allow_amp_traffic = false
     allowed_domains   = []
   }
+
+  labels = {
+    label-one = "value-one"
+  }
 }
 
 
@@ -390,12 +397,7 @@ func testAccRecaptchaEnterpriseKey_WebScoreKeyUpdate0(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-two"
-
-  labels = {
-    label-two = "value-two"
-  }
-
-  project = "%{project_name}"
+  project      = "%{project_name}"
 
   testing_options {
     testing_score = 0.5
@@ -406,6 +408,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allow_all_domains = false
     allow_amp_traffic = true
     allowed_domains   = ["subdomain.example.com"]
+  }
+
+  labels = {
+    label-two = "value-two"
   }
 }
 

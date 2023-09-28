@@ -26,15 +26,8 @@ The Cloud Deploy `Target` resource
 tests creating and updating a multi-target
 ```hcl
 resource "google_clouddeploy_target" "primary" {
-  location = "us-west1"
-  name     = "target"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
-
+  location          = "us-west1"
+  name              = "target"
   deploy_parameters = {}
   description       = "multi-target description"
 
@@ -43,28 +36,12 @@ resource "google_clouddeploy_target" "primary" {
     execution_timeout = "3600s"
   }
 
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
   multi_target {
     target_ids = ["1", "2"]
   }
 
   project          = "my-project-name"
   require_approval = false
-  provider = google-beta
-}
-
-```
-## Example Usage - run_target
-tests creating and updating a cloud run target
-```hcl
-resource "google_clouddeploy_target" "primary" {
-  location = "us-west1"
-  name     = "target"
 
   annotations = {
     my_first_annotation = "example-annotation-1"
@@ -72,6 +49,21 @@ resource "google_clouddeploy_target" "primary" {
     my_second_annotation = "example-annotation-2"
   }
 
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider          = google-beta
+}
+
+```
+## Example Usage - run_target
+tests creating and updating a cloud run target
+```hcl
+resource "google_clouddeploy_target" "primary" {
+  location          = "us-west1"
+  name              = "target"
   deploy_parameters = {}
   description       = "basic description"
 
@@ -80,19 +72,25 @@ resource "google_clouddeploy_target" "primary" {
     execution_timeout = "3600s"
   }
 
-  labels = {
-    my_first_label = "example-label-1"
-
-    my_second_label = "example-label-2"
-  }
-
   project          = "my-project-name"
   require_approval = false
 
   run {
     location = "projects/my-project-name/locations/us-west1"
   }
-  provider = google-beta
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
+  labels = {
+    my_first_label = "example-label-1"
+
+    my_second_label = "example-label-2"
+  }
+  provider          = google-beta
 }
 
 ```
@@ -102,12 +100,6 @@ Creates a basic Cloud Deploy target
 resource "google_clouddeploy_target" "primary" {
   location = "us-west1"
   name     = "target"
-
-  annotations = {
-    my_first_annotation = "example-annotation-1"
-
-    my_second_annotation = "example-annotation-2"
-  }
 
   deploy_parameters = {
     deployParameterKey = "deployParameterValue"
@@ -119,14 +111,20 @@ resource "google_clouddeploy_target" "primary" {
     cluster = "projects/my-project-name/locations/us-west1/clusters/example-cluster-name"
   }
 
+  project          = "my-project-name"
+  require_approval = false
+
+  annotations = {
+    my_first_annotation = "example-annotation-1"
+
+    my_second_annotation = "example-annotation-2"
+  }
+
   labels = {
     my_first_label = "example-label-1"
 
     my_second_label = "example-label-2"
   }
-
-  project          = "my-project-name"
-  require_approval = false
 }
 
 
@@ -151,6 +149,8 @@ The following arguments are supported:
 * `annotations` -
   (Optional)
   Optional. User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `anthos_cluster` -
   (Optional)
@@ -175,6 +175,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `multi_target` -
   (Optional)
@@ -253,11 +255,20 @@ In addition to the arguments listed above, the following computed attributes are
 * `create_time` -
   Output only. Time at which the `Target` was created.
   
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+  
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+  
 * `etag` -
   Optional. This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
   
 * `target_id` -
   Output only. Resource id of the `Target`.
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `uid` -
   Output only. Unique identifier of the `Target`.

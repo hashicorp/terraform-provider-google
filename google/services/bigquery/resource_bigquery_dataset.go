@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -74,6 +75,11 @@ func ResourceBigQueryDataset() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"dataset_id": {
@@ -185,10 +191,13 @@ case-sensitive. This field does not affect routine references.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
-				Computed: true,
 				Optional: true,
 				Description: `The labels associated with this dataset. You can use these to
-organize and group your datasets`,
+organize and group your datasets.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
@@ -232,6 +241,12 @@ LOGICAL is the default if this flag isn't specified.`,
 				Description: `The time when this dataset was created, in milliseconds since the
 epoch.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -242,6 +257,13 @@ epoch.`,
 				Computed: true,
 				Description: `The date when this dataset or any of its tables was last modified, in
 milliseconds since the epoch.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"delete_contents_on_destroy": {
 				Type:     schema.TypeBool,
@@ -467,12 +489,6 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("friendly_name"); ok || !reflect.DeepEqual(v, friendlyNameProp) {
 		obj["friendlyName"] = friendlyNameProp
 	}
-	labelsProp, err := expandBigQueryDatasetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	locationProp, err := expandBigQueryDatasetLocation(d.Get("location"), d, config)
 	if err != nil {
 		return err
@@ -502,6 +518,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("storage_billing_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(storageBillingModelProp)) && (ok || !reflect.DeepEqual(v, storageBillingModelProp)) {
 		obj["storageBillingModel"] = storageBillingModelProp
+	}
+	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets")
@@ -654,6 +676,12 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("storage_billing_model", flattenBigQueryDatasetStorageBillingModel(res["storageBillingModel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenBigQueryDatasetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenBigQueryDatasetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -719,12 +747,6 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("friendly_name"); ok || !reflect.DeepEqual(v, friendlyNameProp) {
 		obj["friendlyName"] = friendlyNameProp
 	}
-	labelsProp, err := expandBigQueryDatasetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	locationProp, err := expandBigQueryDatasetLocation(d.Get("location"), d, config)
 	if err != nil {
 		return err
@@ -754,6 +776,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("storage_billing_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, storageBillingModelProp)) {
 		obj["storageBillingModel"] = storageBillingModelProp
+	}
+	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}")
@@ -835,9 +863,9 @@ func resourceBigQueryDatasetDelete(d *schema.ResourceData, meta interface{}) err
 func resourceBigQueryDatasetImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<dataset_id>[^/]+)",
-		"(?P<dataset_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/datasets/(?P<dataset_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<dataset_id>[^/]+)$",
+		"^(?P<dataset_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1087,7 +1115,18 @@ func flattenBigQueryDatasetFriendlyName(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenBigQueryDatasetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenBigQueryDatasetLastModifiedTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1143,6 +1182,25 @@ func flattenBigQueryDatasetDefaultCollation(v interface{}, d *schema.ResourceDat
 }
 
 func flattenBigQueryDatasetStorageBillingModel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenBigQueryDatasetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1428,17 +1486,6 @@ func expandBigQueryDatasetFriendlyName(v interface{}, d tpgresource.TerraformRes
 	return v, nil
 }
 
-func expandBigQueryDatasetLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
 func expandBigQueryDatasetLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1476,4 +1523,15 @@ func expandBigQueryDatasetDefaultCollation(v interface{}, d tpgresource.Terrafor
 
 func expandBigQueryDatasetStorageBillingModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandBigQueryDatasetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

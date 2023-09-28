@@ -71,7 +71,7 @@ exported:
 * `source_disk_id` - The ID value of the disk used to create this image.
 * `creation_timestamp` - The creation timestamp in RFC3339 text format.
 * `description` - An optional description of this image.
-* `labels` - A map of labels applied to this image.
+* `labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `label_fingerprint` - A fingerprint for the labels being applied to this image.
 * `licenses` - A list of applicable license URI.
 * `status` - The status of the image. Possible values are **FAILED**, **PENDING**, or **READY**.

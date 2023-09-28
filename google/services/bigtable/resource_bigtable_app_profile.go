@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/bigtableadmin/v2"
 
@@ -47,6 +48,10 @@ func ResourceBigtableAppProfile() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"app_profile_id": {
@@ -427,9 +432,9 @@ func resourceBigtableAppProfileDelete(d *schema.ResourceData, meta interface{}) 
 func resourceBigtableAppProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/appProfiles/(?P<app_profile_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)",
-		"(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/instances/(?P<instance>[^/]+)/appProfiles/(?P<app_profile_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)$",
+		"^(?P<instance>[^/]+)/(?P<app_profile_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

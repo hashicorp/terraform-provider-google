@@ -40,9 +40,10 @@ func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 				Config: testAccCloudbuildWorkerPool_updated(context),
 			},
 			{
-				ImportState:       true,
-				ImportStateVerify: true,
-				ResourceName:      "google_cloudbuild_worker_pool.pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
+				ResourceName:            "google_cloudbuild_worker_pool.pool",
 			},
 			{
 				Config: testAccCloudbuildWorkerPool_noWorkerConfig(context),
@@ -80,6 +81,11 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		machine_type = "e2-standard-4"
 		no_external_ip = false
 	}
+
+	annotations = {
+		env                   = "foo"
+		default_expiration_ms = 3600000
+	}
 }
 `, context)
 }
@@ -99,7 +105,7 @@ func TestAccCloudbuildWorkerPool_withNetwork(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"project":       envvar.GetTestProjectFromEnv(),
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "cloudbuild-workerpool"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "cloudbuild-workerpool-1"),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,20 +132,6 @@ data "google_compute_network" "network" {
   name = "%{network_name}"
 }
 
-resource "google_compute_global_address" "worker_range" {
-  name          = "tf-test-worker-pool-range%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = data.google_compute_network.network.id
-}
-
-resource "google_service_networking_connection" "worker_pool_conn" {
-  network                 = data.google_compute_network.network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.worker_range.name]
-}
-
 resource "google_cloudbuild_worker_pool" "pool" {
 	name = "pool%{random_suffix}"
 	location = "europe-west1"
@@ -152,7 +144,6 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		peered_network = data.google_compute_network.network.id
 		peered_network_ip_range = "/29"
 	}
-	depends_on = [google_service_networking_connection.worker_pool_conn]
 }
 `, context)
 }

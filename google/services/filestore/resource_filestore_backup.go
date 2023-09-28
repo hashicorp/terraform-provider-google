@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,11 @@ func ResourceFilestoreBackup() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -84,10 +90,14 @@ character, which cannot be a dash.`,
 				Description: `A description of the backup with 2048 characters or less. Requests with longer descriptions will be rejected.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Resource labels to represent user-provided metadata.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Resource labels to represent user-provided metadata.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"capacity_gb": {
 				Type:        schema.TypeString,
@@ -103,6 +113,12 @@ character, which cannot be a dash.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Amount of bytes that will be downloaded if the backup is restored.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"kms_key_name": {
 				Type:        schema.TypeString,
@@ -123,6 +139,13 @@ character, which cannot be a dash.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The size of the storage used by the backup. As backups share storage, this number is expected to change with backup creation/deletion.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -149,12 +172,6 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandFilestoreBackupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	sourceInstanceProp, err := expandFilestoreBackupSourceInstance(d.Get("source_instance"), d, config)
 	if err != nil {
 		return err
@@ -166,6 +183,12 @@ func resourceFilestoreBackupCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("source_file_share"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceFileShareProp)) && (ok || !reflect.DeepEqual(v, sourceFileShareProp)) {
 		obj["sourceFileShare"] = sourceFileShareProp
+	}
+	labelsProp, err := expandFilestoreBackupEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "filestore/{{project}}")
@@ -314,6 +337,12 @@ func resourceFilestoreBackupRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("kms_key_name", flattenFilestoreBackupKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenFilestoreBackupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenFilestoreBackupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
 
 	return nil
 }
@@ -340,17 +369,17 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandFilestoreBackupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	sourceInstanceProp, err := expandFilestoreBackupSourceInstance(d.Get("source_instance"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("source_instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceInstanceProp)) {
 		obj["sourceInstance"] = sourceInstanceProp
+	}
+	labelsProp, err := expandFilestoreBackupEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "filestore/{{project}}")
@@ -372,12 +401,12 @@ func resourceFilestoreBackupUpdate(d *schema.ResourceData, meta interface{}) err
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("source_instance") {
 		updateMask = append(updateMask, "sourceInstance")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -483,9 +512,9 @@ func resourceFilestoreBackupDelete(d *schema.ResourceData, meta interface{}) err
 func resourceFilestoreBackupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backups/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -513,7 +542,18 @@ func flattenFilestoreBackupCreateTime(v interface{}, d *schema.ResourceData, con
 }
 
 func flattenFilestoreBackupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenFilestoreBackupCapacityGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -544,19 +584,27 @@ func flattenFilestoreBackupKmsKeyName(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandFilestoreBackupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenFilestoreBackupTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandFilestoreBackupLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenFilestoreBackupEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandFilestoreBackupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandFilestoreBackupSourceInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -565,4 +613,15 @@ func expandFilestoreBackupSourceInstance(v interface{}, d tpgresource.TerraformR
 
 func expandFilestoreBackupSourceFileShare(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandFilestoreBackupEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

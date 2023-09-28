@@ -35,7 +35,17 @@ func dataSourceComputeSslCertificateRead(d *schema.ResourceData, meta interface{
 	}
 	certificateName := d.Get("name").(string)
 
-	d.SetId(fmt.Sprintf("projects/%s/global/sslCertificates/%s", project, certificateName))
+	id := fmt.Sprintf("projects/%s/global/sslCertificates/%s", project, certificateName)
+	d.SetId(id)
 
-	return resourceComputeSslCertificateRead(d, meta)
+	err = resourceComputeSslCertificateRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

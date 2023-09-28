@@ -134,7 +134,7 @@ resource "google_redis_instance" "cache-persis" {
 // If this network hasn't been created and you are using this example in your
 // config, add an additional network resource or change
 // this from "data"to "resource"
-data "google_compute_network" "redis-network" {
+resource "google_compute_network" "redis-network" {
   name = "redis-test-network"
 }
 
@@ -143,11 +143,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.redis-network.id
+  network       = google_compute_network.redis-network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.redis-network.id
+  network                 = google_compute_network.redis-network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
@@ -160,7 +160,7 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = data.google_compute_network.redis-network.id
+  authorized_network = google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
   redis_version     = "REDIS_4_0"
@@ -310,6 +310,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `redis_configs` -
   (Optional)
@@ -561,6 +563,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `read_endpoint_port` -
   Output only. The port number of the exposed readonly redis endpoint. Standard tier only.
   Write requests should target 'port'.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:

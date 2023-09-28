@@ -52,7 +52,7 @@ resource "google_alloydb_instance" "default" {
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
-  network    = data.google_compute_network.default.id
+  network    = google_compute_network.default.id
 
   initial_user {
     password = "alloydb-cluster"
@@ -61,7 +61,7 @@ resource "google_alloydb_cluster" "default" {
 
 data "google_project" "project" {}
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "alloydb-network"
 }
 
@@ -70,11 +70,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -106,6 +106,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   User-defined labels for the alloydb instance.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `annotations` -
   (Optional)
@@ -205,6 +207,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `ip_address` -
   The IP address for the Instance. This is the connection endpoint for an end-user application.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 ## Timeouts

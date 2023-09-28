@@ -499,8 +499,8 @@ func resourceSecurityCenterFolderCustomModuleDelete(d *schema.ResourceData, meta
 func resourceSecurityCenterFolderCustomModuleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"folders/(?P<folder>[^/]+)/securityHealthAnalyticsSettings/customModules/(?P<name>[^/]+)",
-		"(?P<folder>[^/]+)/(?P<name>[^/]+)",
+		"^folders/(?P<folder>[^/]+)/securityHealthAnalyticsSettings/customModules/(?P<name>[^/]+)$",
+		"^(?P<folder>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

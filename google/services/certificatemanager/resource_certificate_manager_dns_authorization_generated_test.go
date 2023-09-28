@@ -49,7 +49,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 				ResourceName:            "google_certificate_manager_dns_authorization.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name"},
+				ImportStateVerifyIgnore: []string{"name", "labels", "terraform_labels"},
 			},
 		},
 	})

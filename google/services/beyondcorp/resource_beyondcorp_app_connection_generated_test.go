@@ -49,7 +49,7 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionBasicExample(t *testi
 				ResourceName:            "google_beyondcorp_app_connection.app_connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "region"},
+				ImportStateVerifyIgnore: []string{"name", "region", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -102,7 +102,7 @@ func TestAccBeyondcorpAppConnection_beyondcorpAppConnectionFullExample(t *testin
 				ResourceName:            "google_beyondcorp_app_connection.app_connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "region"},
+				ImportStateVerifyIgnore: []string{"name", "region", "labels", "terraform_labels"},
 			},
 		},
 	})

@@ -21,7 +21,8 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-const resourceDataflowJobGoogleProvidedLabelPrefix = "labels.goog-dataflow-provided"
+const resourceDataflowJobGoogleLabelPrefix = "goog-dataflow-provided"
+const resourceDataflowJobGoogleProvidedLabelPrefix = "labels." + resourceDataflowJobGoogleLabelPrefix
 
 var DataflowTerminatingStatesMap = map[string]struct{}{
 	"JOB_STATE_CANCELLING": {},
@@ -62,10 +63,19 @@ func ResourceDataflowJob() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			resourceDataflowJobTypeCustomizeDiff,
 		),
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceDataflowJobResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceDataflowJobStateUpgradeV0,
+				Version: 0,
+			},
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -119,11 +129,24 @@ func ResourceDataflowJob() *schema.Resource {
 			},
 
 			"labels": {
-				Type:             schema.TypeMap,
-				Optional:         true,
-				Computed:         true,
-				DiffSuppressFunc: resourceDataflowJobLabelDiffSuppress,
-				Description:      `User labels to be specified for the job. Keys and values should follow the restrictions specified in the labeling restrictions page. NOTE: Google-provided Dataflow templates often provide default labels that begin with goog-dataflow-provided. Unless explicitly set in config, these labels will be ignored to prevent diffs on re-apply.`,
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User labels to be specified for the job. Keys and values should follow the restrictions specified in the labeling restrictions page. NOTE: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"transform_name_mapping": {
@@ -239,12 +262,8 @@ func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceD
 			if field == "on_delete" {
 				continue
 			}
-			// Labels map will likely have suppressed changes, so we check each key instead of the parent field
-			if field == "labels" {
-				if err := resourceDataflowJobIterateMapForceNew(field, d); err != nil {
-					return err
-				}
-			} else if d.HasChange(field) {
+
+			if field != "labels" && field != "terraform_labels" && d.HasChange(field) {
 				if err := d.ForceNew(field); err != nil {
 					return err
 				}
@@ -344,8 +363,14 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
 	}
-	if err := d.Set("labels", job.Labels); err != nil {
+	if err := tpgresource.SetLabels(job.Labels, d, "labels"); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(job.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", job.Labels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err := d.Set("kms_key_name", job.Environment.ServiceKmsKeyName); err != nil {
 		return fmt.Errorf("Error setting kms_key_name: %s", err)
@@ -569,7 +594,7 @@ func resourceDataflowJobLaunchTemplate(config *transport_tpg.Config, project, re
 func resourceDataflowJobSetupEnv(d *schema.ResourceData, config *transport_tpg.Config) (dataflow.RuntimeEnvironment, error) {
 	zone, _ := tpgresource.GetZone(d, config)
 
-	labels := tpgresource.ExpandStringMap(d, "labels")
+	labels := tpgresource.ExpandStringMap(d, "effective_labels")
 
 	additionalExperiments := tpgresource.ConvertStringSet(d.Get("additional_experiments").(*schema.Set))
 
@@ -623,9 +648,8 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema m
 			if field == "on_delete" {
 				continue
 			}
-			// Labels map will likely have suppressed changes, so we check each key instead of the parent field
-			if (field == "labels" && resourceDataflowJobIterateMapHasChange(field, d)) ||
-				(field != "labels" && d.HasChange(field)) {
+
+			if field != "labels" && field != "terraform_labels" && d.HasChange(field) {
 				return false
 			}
 		}

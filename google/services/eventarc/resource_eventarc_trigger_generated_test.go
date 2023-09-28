@@ -51,25 +51,28 @@ func TestAccEventarcTrigger_BasicHandWritten(t *testing.T) {
 				Config: testAccEventarcTrigger_BasicHandWritten(context),
 			},
 			{
-				ResourceName:      "google_eventarc_trigger.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_eventarc_trigger.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccEventarcTrigger_BasicHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_eventarc_trigger.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_eventarc_trigger.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccEventarcTrigger_BasicHandWrittenUpdate1(context),
 			},
 			{
-				ResourceName:      "google_eventarc_trigger.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_eventarc_trigger.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

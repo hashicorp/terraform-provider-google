@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceGKEHub2Scope() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
+
 		Schema: map[string]*schema.Schema{
 			"scope_id": {
 				Type:        schema.TypeString,
@@ -55,10 +61,14 @@ func ResourceGKEHub2Scope() *schema.Resource {
 				Description: `The client-provided identifier of the scope.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels for this Scope.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels for this Scope.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -69,6 +79,12 @@ func ResourceGKEHub2Scope() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Time the Scope was deleted in UTC.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -88,6 +104,13 @@ func ResourceGKEHub2Scope() *schema.Resource {
 						},
 					},
 				},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -118,10 +141,10 @@ func resourceGKEHub2ScopeCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandGKEHub2ScopeLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2ScopeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -254,6 +277,12 @@ func resourceGKEHub2ScopeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("labels", flattenGKEHub2ScopeLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Scope: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenGKEHub2ScopeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Scope: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenGKEHub2ScopeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Scope: %s", err)
+	}
 
 	return nil
 }
@@ -274,10 +303,10 @@ func resourceGKEHub2ScopeUpdate(d *schema.ResourceData, meta interface{}) error 
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandGKEHub2ScopeLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandGKEHub2ScopeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -289,7 +318,7 @@ func resourceGKEHub2ScopeUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Updating Scope %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -387,9 +416,9 @@ func resourceGKEHub2ScopeDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceGKEHub2ScopeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<scope_id>[^/]+)",
-		"(?P<scope_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/scopes/(?P<scope_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<scope_id>[^/]+)$",
+		"^(?P<scope_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -442,10 +471,40 @@ func flattenGKEHub2ScopeStateCode(v interface{}, d *schema.ResourceData, config 
 }
 
 func flattenGKEHub2ScopeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2ScopeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEHub2ScopeEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandGKEHub2ScopeLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandGKEHub2ScopeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

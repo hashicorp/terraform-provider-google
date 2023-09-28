@@ -114,6 +114,15 @@ The following arguments are supported:
 
 * `labels` - (Optional) A mapping of labels to assign to the resource.
 
+    **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+    Please refer to the field 'effective_labels' for all of the labels present on the resource.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * <a name="schema"></a>`schema` - (Optional) A JSON schema for the table.
 
     ~>**NOTE:** Because this field expects a JSON string, any changes to the

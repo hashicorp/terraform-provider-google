@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,10 @@ func ResourceBigqueryDatapolicyDataPolicy() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"data_policy_id": {
@@ -377,9 +382,9 @@ func resourceBigqueryDatapolicyDataPolicyDelete(d *schema.ResourceData, meta int
 func resourceBigqueryDatapolicyDataPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataPolicies/(?P<data_policy_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<data_policy_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

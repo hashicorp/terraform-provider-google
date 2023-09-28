@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceActiveDirectoryDomain() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {
@@ -92,9 +98,18 @@ If CIDR subnets overlap between networks, domain creation will fail.`,
 				Set: schema.HashString,
 			},
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Resource labels that can contain user-provided metadata
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Resource labels that can contain user-provided metadata`,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"fqdn": {
@@ -107,6 +122,13 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The unique name of the domain using the format: 'projects/{project}/locations/global/domains/{domainName}'.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -127,12 +149,6 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandActiveDirectoryDomainLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	authorizedNetworksProp, err := expandActiveDirectoryDomainAuthorizedNetworks(d.Get("authorized_networks"), d, config)
 	if err != nil {
 		return err
@@ -156,6 +172,12 @@ func resourceActiveDirectoryDomainCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("admin"); !tpgresource.IsEmptyValue(reflect.ValueOf(adminProp)) && (ok || !reflect.DeepEqual(v, adminProp)) {
 		obj["admin"] = adminProp
+	}
+	labelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}projects/{{project}}/locations/global/domains?domainName={{domain_name}}")
@@ -289,6 +311,12 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("fqdn", flattenActiveDirectoryDomainFqdn(res["fqdn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Domain: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenActiveDirectoryDomainTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenActiveDirectoryDomainEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Domain: %s", err)
+	}
 
 	return nil
 }
@@ -309,12 +337,6 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandActiveDirectoryDomainLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	authorizedNetworksProp, err := expandActiveDirectoryDomainAuthorizedNetworks(d.Get("authorized_networks"), d, config)
 	if err != nil {
 		return err
@@ -327,6 +349,12 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("locations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, locationsProp)) {
 		obj["locations"] = locationsProp
 	}
+	labelsProp, err := expandActiveDirectoryDomainEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ActiveDirectoryBasePath}}{{name}}")
 	if err != nil {
@@ -336,16 +364,16 @@ func resourceActiveDirectoryDomainUpdate(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Updating Domain %q: %#v", d.Id(), obj)
 	updateMask := []string{}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("authorized_networks") {
 		updateMask = append(updateMask, "authorizedNetworks")
 	}
 
 	if d.HasChange("locations") {
 		updateMask = append(updateMask, "locations")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -458,7 +486,18 @@ func flattenActiveDirectoryDomainName(v interface{}, d *schema.ResourceData, con
 }
 
 func flattenActiveDirectoryDomainLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenActiveDirectoryDomainAuthorizedNetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -484,15 +523,23 @@ func flattenActiveDirectoryDomainFqdn(v interface{}, d *schema.ResourceData, con
 	return v
 }
 
-func expandActiveDirectoryDomainLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenActiveDirectoryDomainTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenActiveDirectoryDomainEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandActiveDirectoryDomainAuthorizedNetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -510,4 +557,15 @@ func expandActiveDirectoryDomainLocations(v interface{}, d tpgresource.Terraform
 
 func expandActiveDirectoryDomainAdmin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandActiveDirectoryDomainEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

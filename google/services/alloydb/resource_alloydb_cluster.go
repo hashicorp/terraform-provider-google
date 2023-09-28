@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceAlloydbCluster() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
@@ -295,10 +301,13 @@ If not set, defaults to 14 days.`,
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `User-defined labels for the alloydb cluster.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the alloydb cluster.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -446,6 +455,12 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 				Computed:    true,
 				Description: `The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"encryption_info": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -509,6 +524,13 @@ This can happen due to user-triggered updates or system actions like failover or
 				Computed:    true,
 				Description: `Output only. The current serving state of the cluster.`,
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -533,12 +555,6 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandAlloydbClusterLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	encryptionConfigProp, err := expandAlloydbClusterEncryptionConfig(d.Get("encryption_config"), d, config)
 	if err != nil {
 		return err
@@ -604,6 +620,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("automated_backup_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(automatedBackupPolicyProp)) && (ok || !reflect.DeepEqual(v, automatedBackupPolicyProp)) {
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
+	}
+	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters?clusterId={{cluster_id}}")
@@ -787,6 +809,12 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("migration_source", flattenAlloydbClusterMigrationSource(res["migrationSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenAlloydbClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
 	return nil
 }
@@ -807,12 +835,6 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandAlloydbClusterLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	encryptionConfigProp, err := expandAlloydbClusterEncryptionConfig(d.Get("encryption_config"), d, config)
 	if err != nil {
 		return err
@@ -867,6 +889,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("automated_backup_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupPolicyProp)) {
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
+	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}")
 	if err != nil {
@@ -875,10 +903,6 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Updating Cluster %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
 
 	if d.HasChange("encryption_config") {
 		updateMask = append(updateMask, "encryptionConfig")
@@ -914,6 +938,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("automated_backup_policy") {
 		updateMask = append(updateMask, "automatedBackupPolicy")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1010,10 +1038,10 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<cluster_id>[^/]+)",
-		"(?P<cluster_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/clusters/(?P<cluster_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<cluster_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<cluster_id>[^/]+)$",
+		"^(?P<cluster_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1037,7 +1065,18 @@ func flattenAlloydbClusterUid(v interface{}, d *schema.ResourceData, config *tra
 }
 
 func flattenAlloydbClusterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenAlloydbClusterEncryptionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1502,15 +1541,23 @@ func flattenAlloydbClusterMigrationSourceSourceType(v interface{}, d *schema.Res
 	return v
 }
 
-func expandAlloydbClusterLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenAlloydbClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenAlloydbClusterEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandAlloydbClusterEncryptionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1995,4 +2042,15 @@ func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v inte
 
 func expandAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandAlloydbClusterEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

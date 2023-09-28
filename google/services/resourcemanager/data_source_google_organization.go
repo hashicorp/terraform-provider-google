@@ -105,7 +105,7 @@ func dataSourceOrganizationRead(d *schema.ResourceData, meta interface{}) error 
 			Timeout: d.Timeout(schema.TimeoutRead),
 		})
 		if err != nil {
-			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Organization Not Found : %s", v))
+			return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Organization Not Found : %s", v), canonicalOrganizationName(v.(string)))
 		}
 
 		organization = resp

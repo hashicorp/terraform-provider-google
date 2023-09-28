@@ -25,17 +25,19 @@ func TestAccCertificateManagerTrustConfig_update(t *testing.T) {
 				Config: testAccCertificateManagerTrustConfig_update0(context),
 			},
 			{
-				ResourceName:      "google_certificate_manager_trust_config.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_certificate_manager_trust_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccCertificateManagerTrustConfig_update1(context),
 			},
 			{
-				ResourceName:      "google_certificate_manager_trust_config.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_certificate_manager_trust_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

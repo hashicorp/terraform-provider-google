@@ -18,7 +18,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -75,7 +74,6 @@ type FrameworkProviderConfig struct {
 	Cloudfunctions2BasePath          string
 	CloudIdentityBasePath            string
 	CloudIdsBasePath                 string
-	CloudIotBasePath                 string
 	CloudRunBasePath                 string
 	CloudRunV2BasePath               string
 	CloudSchedulerBasePath           string
@@ -104,7 +102,6 @@ type FrameworkProviderConfig struct {
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
 	FirestoreBasePath                string
-	GameServicesBasePath             string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
 	GKEHub2BasePath                  string
@@ -153,14 +150,6 @@ type FrameworkProviderConfig struct {
 // LoadAndValidateFramework handles the bulk of configuring the provider
 // it is pulled out so that we can manually call this from our testing provider as well
 func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, data *fwmodels.ProviderModel, tfVersion string, diags *diag.Diagnostics, providerversion string) {
-
-	// Make the plugin framwork code behave like the SDK by ignoring zero values. This means re-setting zero values to null.
-	// This is added to fix https://github.com/hashicorp/terraform-provider-google/issues/14255 in a v4.x.x release
-	// TODO(SarahFrench) remove as part of https://github.com/hashicorp/terraform-provider-google/issues/14447 in 5.0.0
-	p.HandleZeroValues(ctx, data, diags)
-	if diags.HasError() {
-		return
-	}
 
 	// Set defaults if needed
 	p.HandleDefaults(ctx, data, diags)
@@ -221,7 +210,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Cloudfunctions2BasePath = data.Cloudfunctions2CustomEndpoint.ValueString()
 	p.CloudIdentityBasePath = data.CloudIdentityCustomEndpoint.ValueString()
 	p.CloudIdsBasePath = data.CloudIdsCustomEndpoint.ValueString()
-	p.CloudIotBasePath = data.CloudIotCustomEndpoint.ValueString()
 	p.CloudRunBasePath = data.CloudRunCustomEndpoint.ValueString()
 	p.CloudRunV2BasePath = data.CloudRunV2CustomEndpoint.ValueString()
 	p.CloudSchedulerBasePath = data.CloudSchedulerCustomEndpoint.ValueString()
@@ -250,7 +238,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.EssentialContactsBasePath = data.EssentialContactsCustomEndpoint.ValueString()
 	p.FilestoreBasePath = data.FilestoreCustomEndpoint.ValueString()
 	p.FirestoreBasePath = data.FirestoreCustomEndpoint.ValueString()
-	p.GameServicesBasePath = data.GameServicesCustomEndpoint.ValueString()
 	p.GKEBackupBasePath = data.GKEBackupCustomEndpoint.ValueString()
 	p.GKEHubBasePath = data.GKEHubCustomEndpoint.ValueString()
 	p.GKEHub2BasePath = data.GKEHub2CustomEndpoint.ValueString()
@@ -305,77 +292,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.PollInterval = 10 * time.Second
 	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
-}
-
-// HandleZeroValues will make the plugin framework act like the SDK; zero value, particularly empty strings, are converted to null.
-// This causes the plugin framework to treat the field as unset, just like how the SDK ignores empty strings.
-func (p *FrameworkProviderConfig) HandleZeroValues(ctx context.Context, data *fwmodels.ProviderModel, diags *diag.Diagnostics) {
-
-	// Change empty strings to null values
-	if data.AccessToken.Equal(types.StringValue("")) {
-		data.AccessToken = types.StringNull()
-	}
-	if data.BillingProject.Equal(types.StringValue("")) {
-		data.BillingProject = types.StringNull()
-	}
-	if data.Credentials.Equal(types.StringValue("")) {
-		data.Credentials = types.StringNull()
-	}
-	if data.ImpersonateServiceAccount.Equal(types.StringValue("")) {
-		data.ImpersonateServiceAccount = types.StringNull()
-	}
-	if data.Project.Equal(types.StringValue("")) {
-		data.Project = types.StringNull()
-	}
-	if data.Region.Equal(types.StringValue("")) {
-		data.Region = types.StringNull()
-	}
-	if data.RequestReason.Equal(types.StringValue("")) {
-		data.RequestReason = types.StringNull()
-	}
-	if data.RequestTimeout.Equal(types.StringValue("")) {
-		data.RequestTimeout = types.StringNull()
-	}
-	if data.Zone.Equal(types.StringValue("")) {
-		data.Zone = types.StringNull()
-	}
-
-	// Change lists that aren't null or unknown with length of zero to null lists
-	if !data.Scopes.IsNull() && !data.Scopes.IsUnknown() && (len(data.Scopes.Elements()) == 0) {
-		data.Scopes = types.ListNull(types.StringType)
-	}
-	if !data.ImpersonateServiceAccountDelegates.IsNull() && !data.ImpersonateServiceAccountDelegates.IsUnknown() && (len(data.ImpersonateServiceAccountDelegates.Elements()) == 0) {
-		data.ImpersonateServiceAccountDelegates = types.ListNull(types.StringType)
-	}
-
-	// Batching implementation will change in future, but this code will be removed in 5.0.0 so may be unaffected
-	if !data.Batching.IsNull() && !data.Batching.IsUnknown() && (len(data.Batching.Elements()) > 0) {
-		var pbConfigs []fwmodels.ProviderBatching
-		d := data.Batching.ElementsAs(ctx, &pbConfigs, true)
-		diags.Append(d...)
-		if diags.HasError() {
-			return
-		}
-		if pbConfigs[0].SendAfter.Equal(types.StringValue("")) {
-			pbConfigs[0].SendAfter = types.StringNull() // Convert empty string to null
-		}
-		b, _ := types.ObjectValue(
-			map[string]attr.Type{
-				"enable_batching": types.BoolType,
-				"send_after":      types.StringType,
-			},
-			map[string]attr.Value{
-				"enable_batching": pbConfigs[0].EnableBatching,
-				"send_after":      pbConfigs[0].SendAfter,
-			},
-		)
-		newBatching, d := types.ListValue(types.ObjectType{}.WithAttributeTypes(fwmodels.ProviderBatchingAttributes), []attr.Value{b})
-		diags.Append(d...)
-		if diags.HasError() {
-			return
-		}
-		data.Batching = newBatching
-	}
 }
 
 // HandleDefaults will handle all the defaults necessary in the provider
@@ -698,14 +614,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			data.CloudIdsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
-	if data.CloudIotCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_CLOUD_IOT_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudIotBasePathKey])
-		if customEndpoint != nil {
-			data.CloudIotCustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
 	if data.CloudRunCustomEndpoint.IsNull() {
 		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_RUN_CUSTOM_ENDPOINT",
@@ -928,14 +836,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.FirestoreBasePathKey])
 		if customEndpoint != nil {
 			data.FirestoreCustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
-	if data.GameServicesCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_GAME_SERVICES_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.GameServicesBasePathKey])
-		if customEndpoint != nil {
-			data.GameServicesCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.GKEBackupCustomEndpoint.IsNull() {

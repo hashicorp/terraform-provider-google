@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceLoggingMetric() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"filter": {
@@ -105,22 +110,19 @@ the lower bound. Each bucket represents a constant relative uncertainty on a spe
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"growth_factor": {
-										Type:         schema.TypeFloat,
-										Optional:     true,
-										Description:  `Must be greater than 1.`,
-										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
+										Type:        schema.TypeFloat,
+										Required:    true,
+										Description: `Must be greater than 1.`,
 									},
 									"num_finite_buckets": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Description:  `Must be greater than 0.`,
-										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `Must be greater than 0.`,
 									},
 									"scale": {
-										Type:         schema.TypeFloat,
-										Optional:     true,
-										Description:  `Must be greater than 0.`,
-										AtLeastOneOf: []string{"bucket_options.0.exponential_buckets.0.num_finite_buckets", "bucket_options.0.exponential_buckets.0.growth_factor", "bucket_options.0.exponential_buckets.0.scale"},
+										Type:        schema.TypeFloat,
+										Required:    true,
+										Description: `Must be greater than 0.`,
 									},
 								},
 							},
@@ -135,22 +137,19 @@ Each bucket represents a constant absolute uncertainty on the specific value in 
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"num_finite_buckets": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Description:  `Must be greater than 0.`,
-										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: `Must be greater than 0.`,
 									},
 									"offset": {
-										Type:         schema.TypeFloat,
-										Optional:     true,
-										Description:  `Lower bound of the first bucket.`,
-										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
+										Type:        schema.TypeFloat,
+										Required:    true,
+										Description: `Lower bound of the first bucket.`,
 									},
 									"width": {
-										Type:         schema.TypeFloat,
-										Optional:     true,
-										Description:  `Must be greater than 0.`,
-										AtLeastOneOf: []string{"bucket_options.0.linear_buckets.0.num_finite_buckets", "bucket_options.0.linear_buckets.0.width", "bucket_options.0.linear_buckets.0.offset"},
+										Type:        schema.TypeFloat,
+										Required:    true,
+										Description: `Must be greater than 0.`,
 									},
 								},
 							},

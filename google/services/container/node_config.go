@@ -25,8 +25,8 @@ func schemaLoggingVariant() *schema.Schema {
 	return &schema.Schema{
 		Type:         schema.TypeString,
 		Optional:     true,
+		Computed:     true,
 		Description:  `Type of logging agent that is used as the default value for node pools in the cluster. Valid values include DEFAULT and MAX_THROUGHPUT.`,
-		Default:      "DEFAULT",
 		ValidateFunc: validation.StringInSlice([]string{"DEFAULT", "MAX_THROUGHPUT"}, false),
 	}
 }
@@ -380,14 +380,9 @@ func schemaNodeConfig() *schema.Schema {
 				},
 
 				"taint": {
-					Type:     schema.TypeList,
-					Optional: true,
-					// Computed=true because GKE Sandbox will automatically add taints to nodes that can/cannot run sandboxed pods.
-					Computed: true,
-					ForceNew: true,
-					// Legacy config mode allows explicitly defining an empty taint.
-					// See https://www.terraform.io/docs/configuration/attr-as-blocks.html
-					ConfigMode:  schema.SchemaConfigModeAttr,
+					Type:        schema.TypeList,
+					Optional:    true,
+					ForceNew:    true,
 					Description: `List of Kubernetes taints to be applied to each node.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -409,6 +404,31 @@ func schemaNodeConfig() *schema.Schema {
 								ForceNew:     true,
 								ValidateFunc: validation.StringInSlice([]string{"NO_SCHEDULE", "PREFER_NO_SCHEDULE", "NO_EXECUTE"}, false),
 								Description:  `Effect for taint.`,
+							},
+						},
+					},
+				},
+
+				"effective_taints": {
+					Type:        schema.TypeList,
+					Computed:    true,
+					Description: `List of kubernetes taints applied to each node.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"key": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `Key for taint.`,
+							},
+							"value": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `Value for taint.`,
+							},
+							"effect": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: `Effect for taint.`,
 							},
 						},
 					},
@@ -828,8 +848,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 				Value:  data["value"].(string),
 				Effect: data["effect"].(string),
 			}
+
 			nodeTaints = append(nodeTaints, taint)
 		}
+
 		nc.Taints = nodeTaints
 	}
 
@@ -994,11 +1016,22 @@ func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]int
 	return result
 }
 
-func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
+// v == old state of `node_config`
+func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]interface{} {
 	config := make([]map[string]interface{}, 0, 1)
 
 	if c == nil {
 		return config
+	}
+
+	// default to no prior taint state if there are any issues
+	oldTaints := []interface{}{}
+	oldNodeConfigSchemaContainer := v.([]interface{})
+	if len(oldNodeConfigSchemaContainer) != 0 {
+		oldNodeConfigSchema := oldNodeConfigSchemaContainer[0].(map[string]interface{})
+		if vt, ok := oldNodeConfigSchema["taint"]; ok && len(vt.([]interface{})) > 0 {
+			oldTaints = vt.([]interface{})
+		}
 	}
 
 	config = append(config, map[string]interface{}{
@@ -1023,7 +1056,8 @@ func flattenNodeConfig(c *container.NodeConfig) []map[string]interface{} {
 		"spot":                               c.Spot,
 		"min_cpu_platform":                   c.MinCpuPlatform,
 		"shielded_instance_config":           flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
-		"taint":                              flattenTaints(c.Taints),
+		"taint":                              flattenTaints(c.Taints, oldTaints),
+		"effective_taints":                   flattenEffectiveTaints(c.Taints),
 		"workload_metadata_config":           flattenWorkloadMetadataConfig(c.WorkloadMetadataConfig),
 		"confidential_nodes":                 flattenConfidentialNodes(c.ConfidentialNodes),
 		"boot_disk_kms_key":                  c.BootDiskKmsKey,
@@ -1151,7 +1185,31 @@ func flattenGKEReservationAffinity(c *container.ReservationAffinity) []map[strin
 	return result
 }
 
-func flattenTaints(c []*container.NodeTaint) []map[string]interface{} {
+// flattenTaints records the set of taints already present in state.
+func flattenTaints(c []*container.NodeTaint, oldTaints []interface{}) []map[string]interface{} {
+	taintKeys := map[string]struct{}{}
+	for _, raw := range oldTaints {
+		data := raw.(map[string]interface{})
+		taintKey := data["key"].(string)
+		taintKeys[taintKey] = struct{}{}
+	}
+
+	result := []map[string]interface{}{}
+	for _, taint := range c {
+		if _, ok := taintKeys[taint.Key]; ok {
+			result = append(result, map[string]interface{}{
+				"key":    taint.Key,
+				"value":  taint.Value,
+				"effect": taint.Effect,
+			})
+		}
+	}
+
+	return result
+}
+
+// flattenEffectiveTaints records the complete set of taints returned from GKE.
+func flattenEffectiveTaints(c []*container.NodeTaint) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	for _, taint := range c {
 		result = append(result, map[string]interface{}{
@@ -1160,6 +1218,7 @@ func flattenTaints(c []*container.NodeTaint) []map[string]interface{} {
 			"effect": taint.Effect,
 		})
 	}
+
 	return result
 }
 

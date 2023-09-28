@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,12 @@ func ResourceCloudRunV2Job() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -146,93 +153,6 @@ func ResourceCloudRunV2Job() *schema.Resource {
 														},
 													},
 												},
-												"liveness_probe": {
-													Type:       schema.TypeList,
-													Optional:   true,
-													Deprecated: "`liveness_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
-													Description: `Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-This field is not supported in Cloud Run Job currently.`,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"failure_threshold": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.`,
-																Default:     3,
-															},
-															"http_get": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"http_headers": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `Custom headers to set in the request. HTTP allows repeated headers.`,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Required:    true,
-																						Description: `The header field name`,
-																					},
-																					"value": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `The header field value`,
-																						Default:     "",
-																					},
-																				},
-																			},
-																		},
-																		"path": {
-																			Type:        schema.TypeString,
-																			Optional:    true,
-																			Description: `Path to access on the HTTP server. Defaults to '/'.`,
-																			Default:     "/",
-																		},
-																	},
-																},
-															},
-															"initial_delay_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
-																Default:     0,
-															},
-															"period_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeoutSeconds`,
-																Default:     10,
-															},
-															"tcp_socket": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"port": {
-																			Type:        schema.TypeInt,
-																			Optional:    true,
-																			Description: `Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.`,
-																		},
-																	},
-																},
-															},
-															"timeout_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than periodSeconds. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
-																Default:     1,
-															},
-														},
-													},
-												},
 												"name": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -273,95 +193,6 @@ If omitted, a port number will be chosen and passed to the container through the
 																Optional:    true,
 																Description: `Only memory and CPU are supported. Note: The only supported values for CPU are '1', '2', '4', and '8'. Setting 4 CPU requires at least 2Gi of memory. The values of the map is string form of the 'quantity' k8s type: https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
 																Elem:        &schema.Schema{Type: schema.TypeString},
-															},
-														},
-													},
-												},
-												"startup_probe": {
-													Type:       schema.TypeList,
-													Computed:   true,
-													Optional:   true,
-													Deprecated: "`startup_probe` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
-													Description: `Startup probe of application within the container. All other probes are disabled if a startup probe is provided, until it succeeds. Container will not be added to service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-This field is not supported in Cloud Run Job currently.`,
-													MaxItems: 1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"failure_threshold": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.`,
-																Default:     3,
-															},
-															"http_get": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `HTTPGet specifies the http request to perform. Exactly one of HTTPGet or TCPSocket must be specified.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"http_headers": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `Custom headers to set in the request. HTTP allows repeated headers.`,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"name": {
-																						Type:        schema.TypeString,
-																						Required:    true,
-																						Description: `The header field name`,
-																					},
-																					"value": {
-																						Type:        schema.TypeString,
-																						Optional:    true,
-																						Description: `The header field value`,
-																						Default:     "",
-																					},
-																				},
-																			},
-																		},
-																		"path": {
-																			Type:        schema.TypeString,
-																			Optional:    true,
-																			Description: `Path to access on the HTTP server. Defaults to '/'.`,
-																			Default:     "/",
-																		},
-																	},
-																},
-															},
-															"initial_delay_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Number of seconds after the container has started before the probe is initiated. Defaults to 0 seconds. Minimum value is 0. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
-																Default:     0,
-															},
-															"period_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeoutSeconds`,
-																Default:     10,
-															},
-															"tcp_socket": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `TCPSocket specifies an action involving a TCP port. Exactly one of HTTPGet or TCPSocket must be specified.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"port": {
-																			Type:        schema.TypeInt,
-																			Computed:    true,
-																			Optional:    true,
-																			Description: `Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.`,
-																		},
-																	},
-																},
-															},
-															"timeout_seconds": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 3600. Must be smaller than periodSeconds. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
-																Default:     1,
 															},
 														},
 													},
@@ -644,7 +475,10 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
 
 Cloud Run API v2 does not support labels with 'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected.
-All system labels in v1 now have a corresponding field in v2 Job.`,
+All system labels in v1 now have a corresponding field in v2 Job.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"launch_stage": {
@@ -728,6 +562,18 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The deletion time.`,
+			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"etag": {
 				Type:        schema.TypeString,
@@ -849,6 +695,13 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -878,18 +731,6 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandCloudRunV2JobLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandCloudRunV2JobAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -919,6 +760,18 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(templateProp)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
+	}
+	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs?jobId={{name}}")
@@ -1091,6 +944,15 @@ func resourceCloudRunV2JobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("etag", flattenCloudRunV2JobEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Job: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCloudRunV2JobTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCloudRunV2JobEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
+	if err := d.Set("effective_annotations", flattenCloudRunV2JobEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Job: %s", err)
+	}
 
 	return nil
 }
@@ -1111,18 +973,6 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandCloudRunV2JobLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandCloudRunV2JobAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	clientProp, err := expandCloudRunV2JobClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -1152,6 +1002,18 @@ func resourceCloudRunV2JobUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("template"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, templateProp)) {
 		obj["template"] = templateProp
+	}
+	labelsProp, err := expandCloudRunV2JobEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandCloudRunV2JobEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/jobs/{{name}}")
@@ -1249,9 +1111,9 @@ func resourceCloudRunV2JobDelete(d *schema.ResourceData, meta interface{}) error
 func resourceCloudRunV2JobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/jobs/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/jobs/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1275,11 +1137,33 @@ func flattenCloudRunV2JobGeneration(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenCloudRunV2JobLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunV2JobAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunV2JobCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1444,17 +1328,15 @@ func flattenCloudRunV2JobTemplateTemplateContainers(v interface{}, d *schema.Res
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":           flattenCloudRunV2JobTemplateTemplateContainersName(original["name"], d, config),
-			"image":          flattenCloudRunV2JobTemplateTemplateContainersImage(original["image"], d, config),
-			"command":        flattenCloudRunV2JobTemplateTemplateContainersCommand(original["command"], d, config),
-			"args":           flattenCloudRunV2JobTemplateTemplateContainersArgs(original["args"], d, config),
-			"env":            flattenCloudRunV2JobTemplateTemplateContainersEnv(original["env"], d, config),
-			"resources":      flattenCloudRunV2JobTemplateTemplateContainersResources(original["resources"], d, config),
-			"ports":          flattenCloudRunV2JobTemplateTemplateContainersPorts(original["ports"], d, config),
-			"volume_mounts":  flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
-			"working_dir":    flattenCloudRunV2JobTemplateTemplateContainersWorkingDir(original["workingDir"], d, config),
-			"liveness_probe": flattenCloudRunV2JobTemplateTemplateContainersLivenessProbe(original["livenessProbe"], d, config),
-			"startup_probe":  flattenCloudRunV2JobTemplateTemplateContainersStartupProbe(original["startupProbe"], d, config),
+			"name":          flattenCloudRunV2JobTemplateTemplateContainersName(original["name"], d, config),
+			"image":         flattenCloudRunV2JobTemplateTemplateContainersImage(original["image"], d, config),
+			"command":       flattenCloudRunV2JobTemplateTemplateContainersCommand(original["command"], d, config),
+			"args":          flattenCloudRunV2JobTemplateTemplateContainersArgs(original["args"], d, config),
+			"env":           flattenCloudRunV2JobTemplateTemplateContainersEnv(original["env"], d, config),
+			"resources":     flattenCloudRunV2JobTemplateTemplateContainersResources(original["resources"], d, config),
+			"ports":         flattenCloudRunV2JobTemplateTemplateContainersPorts(original["ports"], d, config),
+			"volume_mounts": flattenCloudRunV2JobTemplateTemplateContainersVolumeMounts(original["volumeMounts"], d, config),
+			"working_dir":   flattenCloudRunV2JobTemplateTemplateContainersWorkingDir(original["workingDir"], d, config),
 		})
 	}
 	return transformed
@@ -1625,328 +1507,6 @@ func flattenCloudRunV2JobTemplateTemplateContainersVolumeMountsMountPath(v inter
 
 func flattenCloudRunV2JobTemplateTemplateContainersWorkingDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["initial_delay_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeconds(original["initialDelaySeconds"], d, config)
-	transformed["timeout_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
-	transformed["period_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(original["periodSeconds"], d, config)
-	transformed["failure_threshold"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeFailureThreshold(original["failureThreshold"], d, config)
-	transformed["http_get"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGet(original["httpGet"], d, config)
-	transformed["tcp_socket"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocket(original["tcpSocket"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["path"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetPath(original["path"], d, config)
-	transformed["http_headers"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersName(original["name"], d, config),
-			"value": flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersValue(original["value"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocketPort(original["port"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbe(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["initial_delay_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySeconds(original["initialDelaySeconds"], d, config)
-	transformed["timeout_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(original["timeoutSeconds"], d, config)
-	transformed["period_seconds"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(original["periodSeconds"], d, config)
-	transformed["failure_threshold"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeFailureThreshold(original["failureThreshold"], d, config)
-	transformed["http_get"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGet(original["httpGet"], d, config)
-	transformed["tcp_socket"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocket(original["tcpSocket"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeFailureThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["path"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetPath(original["path"], d, config)
-	transformed["http_headers"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeaders(original["httpHeaders"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		original := raw.(map[string]interface{})
-		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
-			continue
-		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersName(original["name"], d, config),
-			"value": flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersValue(original["value"], d, config),
-		})
-	}
-	return transformed
-}
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocketPort(original["port"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunV2JobTemplateTemplateVolumes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2337,26 +1897,27 @@ func flattenCloudRunV2JobEtag(v interface{}, d *schema.ResourceData, config *tra
 	return v
 }
 
-func expandCloudRunV2JobLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenCloudRunV2JobTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
 }
 
-func expandCloudRunV2JobAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenCloudRunV2JobEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandCloudRunV2JobClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2623,20 +2184,6 @@ func expandCloudRunV2JobTemplateTemplateContainers(v interface{}, d tpgresource.
 			transformed["workingDir"] = transformedWorkingDir
 		}
 
-		transformedLivenessProbe, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbe(original["liveness_probe"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedLivenessProbe); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["livenessProbe"] = transformedLivenessProbe
-		}
-
-		transformedStartupProbe, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbe(original["startup_probe"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedStartupProbe); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["startupProbe"] = transformedStartupProbe
-		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2860,346 +2407,6 @@ func expandCloudRunV2JobTemplateTemplateContainersVolumeMountsMountPath(v interf
 }
 
 func expandCloudRunV2JobTemplateTemplateContainersWorkingDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedInitialDelaySeconds, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeconds(original["initial_delay_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedInitialDelaySeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["initialDelaySeconds"] = transformedInitialDelaySeconds
-	}
-
-	transformedTimeoutSeconds, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(original["timeout_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeoutSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["timeoutSeconds"] = transformedTimeoutSeconds
-	}
-
-	transformedPeriodSeconds, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(original["period_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPeriodSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["periodSeconds"] = transformedPeriodSeconds
-	}
-
-	transformedFailureThreshold, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeFailureThreshold(original["failure_threshold"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFailureThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["failureThreshold"] = transformedFailureThreshold
-	}
-
-	transformedHttpGet, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGet(original["http_get"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["httpGet"] = transformedHttpGet
-	}
-
-	transformedTcpSocket, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocket(original["tcp_socket"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["tcpSocket"] = transformedTcpSocket
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeInitialDelaySeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTimeoutSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbePeriodSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeFailureThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedPath, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetPath(original["path"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["path"] = transformedPath
-	}
-
-	transformedHttpHeaders, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeaders(original["http_headers"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHttpHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["httpHeaders"] = transformedHttpHeaders
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedName, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
-
-		transformedValue, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersValue(original["value"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["value"] = transformedValue
-		}
-
-		req = append(req, transformed)
-	}
-	return req, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeHttpGetHttpHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedPort, err := expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocketPort(original["port"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["port"] = transformedPort
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersLivenessProbeTcpSocketPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbe(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedInitialDelaySeconds, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySeconds(original["initial_delay_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedInitialDelaySeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["initialDelaySeconds"] = transformedInitialDelaySeconds
-	}
-
-	transformedTimeoutSeconds, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(original["timeout_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeoutSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["timeoutSeconds"] = transformedTimeoutSeconds
-	}
-
-	transformedPeriodSeconds, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(original["period_seconds"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPeriodSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["periodSeconds"] = transformedPeriodSeconds
-	}
-
-	transformedFailureThreshold, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeFailureThreshold(original["failure_threshold"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFailureThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["failureThreshold"] = transformedFailureThreshold
-	}
-
-	transformedHttpGet, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGet(original["http_get"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["httpGet"] = transformedHttpGet
-	}
-
-	transformedTcpSocket, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocket(original["tcp_socket"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["tcpSocket"] = transformedTcpSocket
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeInitialDelaySeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeTimeoutSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbePeriodSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeFailureThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedPath, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetPath(original["path"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["path"] = transformedPath
-	}
-
-	transformedHttpHeaders, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeaders(original["http_headers"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedHttpHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["httpHeaders"] = transformedHttpHeaders
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	req := make([]interface{}, 0, len(l))
-	for _, raw := range l {
-		if raw == nil {
-			continue
-		}
-		original := raw.(map[string]interface{})
-		transformed := make(map[string]interface{})
-
-		transformedName, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersName(original["name"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["name"] = transformedName
-		}
-
-		transformedValue, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersValue(original["value"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["value"] = transformedValue
-		}
-
-		req = append(req, transformed)
-	}
-	return req, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeHttpGetHttpHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedPort, err := expandCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocketPort(original["port"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["port"] = transformedPort
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2JobTemplateTemplateContainersStartupProbeTcpSocketPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3462,4 +2669,26 @@ func expandCloudRunV2JobTemplateTemplateVpcAccessNetworkInterfacesTags(v interfa
 
 func expandCloudRunV2JobTemplateTemplateMaxRetries(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudRunV2JobEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCloudRunV2JobEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

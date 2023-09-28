@@ -139,6 +139,10 @@ resource "google_dataproc_metastore_service" "default" {
   hive_metastore_config {
     version = "2.3.6"
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 resource "google_dataproc_metastore_service_iam_member" "foo" {
@@ -166,6 +170,10 @@ resource "google_dataproc_metastore_service" "default" {
 
   hive_metastore_config {
     version = "2.3.6"
+  }
+
+  labels = {
+    env = "test"
   }
 }
 
@@ -210,6 +218,10 @@ resource "google_dataproc_metastore_service" "default" {
   hive_metastore_config {
     version = "2.3.6"
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 data "google_iam_policy" "foo" {
@@ -240,6 +252,10 @@ resource "google_dataproc_metastore_service" "default" {
   hive_metastore_config {
     version = "2.3.6"
   }
+
+  labels = {
+    env = "test"
+  }
 }
 
 resource "google_dataproc_metastore_service_iam_binding" "foo" {
@@ -267,6 +283,10 @@ resource "google_dataproc_metastore_service" "default" {
 
   hive_metastore_config {
     version = "2.3.6"
+  }
+
+  labels = {
+    env = "test"
   }
 }
 

@@ -35,7 +35,21 @@ func dataSourceGoogleComputeGlobalForwardingRuleRead(d *schema.ResourceData, met
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/global/forwardingRules/%s", project, name))
+	id := fmt.Sprintf("projects/%s/global/forwardingRules/%s", project, name)
+	d.SetId(id)
 
-	return resourceComputeGlobalForwardingRuleRead(d, meta)
+	err = resourceComputeGlobalForwardingRuleRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

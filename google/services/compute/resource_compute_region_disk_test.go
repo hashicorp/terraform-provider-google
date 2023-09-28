@@ -37,9 +37,10 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_disk.regiondisk",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeRegionDisk_basic(diskName, "name"),
@@ -49,9 +50,10 @@ func TestAccComputeRegionDisk_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_disk.regiondisk",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -77,9 +79,10 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_disk.regiondisk",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeRegionDisk_basicUpdated(diskName, "self_link"),
@@ -93,9 +96,10 @@ func TestAccComputeRegionDisk_basicUpdate(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_disk.regiondisk",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_disk.regiondisk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

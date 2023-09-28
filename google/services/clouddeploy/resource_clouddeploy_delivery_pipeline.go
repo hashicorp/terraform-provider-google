@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,11 @@ func ResourceClouddeployDeliveryPipeline() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -66,24 +72,22 @@ func ResourceClouddeployDeliveryPipeline() *schema.Resource {
 				Description: "Name of the `DeliveryPipeline`. Format is [a-z][a-z0-9\\-]{0,62}.",
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Description of the `DeliveryPipeline`. Max length is 255 characters.",
 			},
 
-			"labels": {
+			"effective_annotations": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"project": {
@@ -109,6 +113,13 @@ func ResourceClouddeployDeliveryPipeline() *schema.Resource {
 				Description: "When suspended, no new releases or rollouts can be created, but in-progress ones will complete.",
 			},
 
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"condition": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -126,6 +137,19 @@ func ResourceClouddeployDeliveryPipeline() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.",
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"uid": {
@@ -545,9 +569,9 @@ func resourceClouddeployDeliveryPipelineCreate(d *schema.ResourceData, meta inte
 	obj := &clouddeploy.DeliveryPipeline{
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		Annotations:    tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:    dcl.String(d.Get("description").(string)),
-		Labels:         tpgresource.CheckStringMap(d.Get("labels")),
+		Annotations:    tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:        dcl.String(project),
 		SerialPipeline: expandClouddeployDeliveryPipelineSerialPipeline(d.Get("serial_pipeline")),
 		Suspended:      dcl.Bool(d.Get("suspended").(bool)),
@@ -600,9 +624,9 @@ func resourceClouddeployDeliveryPipelineRead(d *schema.ResourceData, meta interf
 	obj := &clouddeploy.DeliveryPipeline{
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		Annotations:    tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:    dcl.String(d.Get("description").(string)),
-		Labels:         tpgresource.CheckStringMap(d.Get("labels")),
+		Annotations:    tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:        dcl.String(project),
 		SerialPipeline: expandClouddeployDeliveryPipelineSerialPipeline(d.Get("serial_pipeline")),
 		Suspended:      dcl.Bool(d.Get("suspended").(bool)),
@@ -636,14 +660,14 @@ func resourceClouddeployDeliveryPipelineRead(d *schema.ResourceData, meta interf
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
@@ -654,6 +678,9 @@ func resourceClouddeployDeliveryPipelineRead(d *schema.ResourceData, meta interf
 	if err = d.Set("suspended", res.Suspended); err != nil {
 		return fmt.Errorf("error setting suspended in state: %s", err)
 	}
+	if err = d.Set("annotations", flattenClouddeployDeliveryPipelineAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
+	}
 	if err = d.Set("condition", flattenClouddeployDeliveryPipelineCondition(res.Condition)); err != nil {
 		return fmt.Errorf("error setting condition in state: %s", err)
 	}
@@ -662,6 +689,12 @@ func resourceClouddeployDeliveryPipelineRead(d *schema.ResourceData, meta interf
 	}
 	if err = d.Set("etag", res.Etag); err != nil {
 		return fmt.Errorf("error setting etag in state: %s", err)
+	}
+	if err = d.Set("labels", flattenClouddeployDeliveryPipelineLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenClouddeployDeliveryPipelineTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("uid", res.Uid); err != nil {
 		return fmt.Errorf("error setting uid in state: %s", err)
@@ -682,9 +715,9 @@ func resourceClouddeployDeliveryPipelineUpdate(d *schema.ResourceData, meta inte
 	obj := &clouddeploy.DeliveryPipeline{
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		Annotations:    tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:    dcl.String(d.Get("description").(string)),
-		Labels:         tpgresource.CheckStringMap(d.Get("labels")),
+		Annotations:    tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:        dcl.String(project),
 		SerialPipeline: expandClouddeployDeliveryPipelineSerialPipeline(d.Get("serial_pipeline")),
 		Suspended:      dcl.Bool(d.Get("suspended").(bool)),
@@ -732,9 +765,9 @@ func resourceClouddeployDeliveryPipelineDelete(d *schema.ResourceData, meta inte
 	obj := &clouddeploy.DeliveryPipeline{
 		Location:       dcl.String(d.Get("location").(string)),
 		Name:           dcl.String(d.Get("name").(string)),
-		Annotations:    tpgresource.CheckStringMap(d.Get("annotations")),
 		Description:    dcl.String(d.Get("description").(string)),
-		Labels:         tpgresource.CheckStringMap(d.Get("labels")),
+		Annotations:    tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:         tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:        dcl.String(project),
 		SerialPipeline: expandClouddeployDeliveryPipelineSerialPipeline(d.Get("serial_pipeline")),
 		Suspended:      dcl.Bool(d.Get("suspended").(bool)),
@@ -1325,4 +1358,49 @@ func flattenClouddeployDeliveryPipelineConditionTargetsTypeCondition(obj *cloudd
 
 	return []interface{}{transformed}
 
+}
+
+func flattenClouddeployDeliveryPipelineLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenClouddeployDeliveryPipelineTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenClouddeployDeliveryPipelineAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

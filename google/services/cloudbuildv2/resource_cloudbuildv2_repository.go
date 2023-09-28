@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -48,6 +49,10 @@ func ResourceCloudbuildv2Repository() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -72,12 +77,11 @@ func ResourceCloudbuildv2Repository() *schema.Resource {
 				Description: "Required. Git Clone HTTPS URI.",
 			},
 
-			"annotations": {
+			"effective_annotations": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
-				Description: "Allows clients to store small amounts of arbitrary data.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"location": {
@@ -95,6 +99,14 @@ func ResourceCloudbuildv2Repository() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The project for the resource",
+			},
+
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Allows clients to store small amounts of arbitrary data.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"create_time": {
@@ -129,7 +141,7 @@ func resourceCloudbuildv2RepositoryCreate(d *schema.ResourceData, meta interface
 		Name:        dcl.String(d.Get("name").(string)),
 		Connection:  dcl.String(d.Get("parent_connection").(string)),
 		RemoteUri:   dcl.String(d.Get("remote_uri").(string)),
-		Annotations: tpgresource.CheckStringMap(d.Get("annotations")),
+		Annotations: tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Location:    dcl.StringOrNil(d.Get("location").(string)),
 		Project:     dcl.String(project),
 	}
@@ -182,7 +194,7 @@ func resourceCloudbuildv2RepositoryRead(d *schema.ResourceData, meta interface{}
 		Name:        dcl.String(d.Get("name").(string)),
 		Connection:  dcl.String(d.Get("parent_connection").(string)),
 		RemoteUri:   dcl.String(d.Get("remote_uri").(string)),
-		Annotations: tpgresource.CheckStringMap(d.Get("annotations")),
+		Annotations: tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Location:    dcl.StringOrNil(d.Get("location").(string)),
 		Project:     dcl.String(project),
 	}
@@ -218,14 +230,17 @@ func resourceCloudbuildv2RepositoryRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("remote_uri", res.RemoteUri); err != nil {
 		return fmt.Errorf("error setting remote_uri in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("location", res.Location); err != nil {
 		return fmt.Errorf("error setting location in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudbuildv2RepositoryAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
@@ -251,7 +266,7 @@ func resourceCloudbuildv2RepositoryDelete(d *schema.ResourceData, meta interface
 		Name:        dcl.String(d.Get("name").(string)),
 		Connection:  dcl.String(d.Get("parent_connection").(string)),
 		RemoteUri:   dcl.String(d.Get("remote_uri").(string)),
-		Annotations: tpgresource.CheckStringMap(d.Get("annotations")),
+		Annotations: tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Location:    dcl.StringOrNil(d.Get("location").(string)),
 		Project:     dcl.String(project),
 	}
@@ -300,4 +315,19 @@ func resourceCloudbuildv2RepositoryImport(d *schema.ResourceData, meta interface
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenCloudbuildv2RepositoryAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

@@ -51,9 +51,10 @@ func TestAccCloudbuildv2Repository_GheRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GheRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -76,9 +77,10 @@ func TestAccCloudbuildv2Repository_GithubRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GithubRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -100,9 +102,10 @@ func TestAccCloudbuildv2Repository_GitlabRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GitlabRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -124,9 +127,10 @@ func TestAccCloudbuildv2Repository_GleRepository(t *testing.T) {
 				Config: testAccCloudbuildv2Repository_GleRepository(context),
 			},
 			{
-				ResourceName:      "google_cloudbuildv2_repository.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_cloudbuildv2_repository.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
 			},
 		},
 	})
@@ -138,19 +142,17 @@ resource "google_cloudbuildv2_repository" "primary" {
   name              = "tf-test-repository%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.ghe_complete.name
   remote_uri        = "https://ghe.proctor-staging-test.com/proctorteam/regional_test.git"
+  location          = "%{region}"
+  project           = "%{project_name}"
 
   annotations = {
     some-key = "some-value"
   }
-
-  location = "%{region}"
-  project  = "%{project_name}"
 }
 
 resource "google_cloudbuildv2_connection" "ghe_complete" {
-  location    = "%{region}"
-  name        = "tf-test-connection%{random_suffix}"
-  annotations = {}
+  location = "%{region}"
+  name     = "tf-test-connection%{random_suffix}"
 
   github_enterprise_config {
     host_uri                      = "https://ghe.proctor-staging-test.com"
@@ -161,7 +163,8 @@ resource "google_cloudbuildv2_connection" "ghe_complete" {
     webhook_secret_secret_version = "projects/gcb-terraform-creds/secrets/ghe-webhook-secret/versions/latest"
   }
 
-  project = "%{project_name}"
+  project     = "%{project_name}"
+  annotations = {}
 }
 
 
@@ -174,21 +177,14 @@ resource "google_cloudbuildv2_repository" "primary" {
   name              = "tf-test-repository%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.github_update.name
   remote_uri        = "https://github.com/gcb-repos-robot/tf-demo.git"
-  annotations       = {}
   location          = "%{region}"
   project           = "%{project_name}"
+  annotations       = {}
 }
 
 resource "google_cloudbuildv2_connection" "github_update" {
   location = "%{region}"
   name     = "tf-test-connection%{random_suffix}"
-
-  annotations = {
-    otherkey = "othervalue"
-
-    somekey = "somevalue"
-  }
-
   disabled = false
 
   github_config {
@@ -200,6 +196,12 @@ resource "google_cloudbuildv2_connection" "github_update" {
   }
 
   project = "%{project_name}"
+
+  annotations = {
+    otherkey = "othervalue"
+
+    somekey = "somevalue"
+  }
 }
 
 
@@ -212,19 +214,17 @@ resource "google_cloudbuildv2_repository" "primary" {
   name              = "tf-test-repository%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.gitlab.name
   remote_uri        = "https://gitlab.com/proctor-eng-team/terraform-testing.git"
+  location          = "us-west1"
+  project           = "%{project_name}"
 
   annotations = {
     some-key = "some-value"
   }
-
-  location = "us-west1"
-  project  = "%{project_name}"
 }
 
 resource "google_cloudbuildv2_connection" "gitlab" {
-  location    = "us-west1"
-  name        = "tf-test-connection%{random_suffix}"
-  annotations = {}
+  location = "us-west1"
+  name     = "tf-test-connection%{random_suffix}"
 
   gitlab_config {
     authorizer_credential {
@@ -238,7 +238,8 @@ resource "google_cloudbuildv2_connection" "gitlab" {
     webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
   }
 
-  project = "%{project_name}"
+  project     = "%{project_name}"
+  annotations = {}
 }
 
 
@@ -251,19 +252,17 @@ resource "google_cloudbuildv2_repository" "primary" {
   name              = "tf-test-repository%{random_suffix}"
   parent_connection = google_cloudbuildv2_connection.gle.name
   remote_uri        = "https://gle-us-central1.gcb-test.com/proctor-test/smoketest.git"
+  location          = "us-west1"
+  project           = "%{project_name}"
 
   annotations = {
     some-key = "some-value"
   }
-
-  location = "us-west1"
-  project  = "%{project_name}"
 }
 
 resource "google_cloudbuildv2_connection" "gle" {
-  location    = "us-west1"
-  name        = "tf-test-connection%{random_suffix}"
-  annotations = {}
+  location = "us-west1"
+  name     = "tf-test-connection%{random_suffix}"
 
   gitlab_config {
     authorizer_credential {
@@ -278,7 +277,8 @@ resource "google_cloudbuildv2_connection" "gle" {
     host_uri                      = "https://gle-us-central1.gcb-test.com"
   }
 
-  project = "%{project_name}"
+  project     = "%{project_name}"
+  annotations = {}
 }
 
 

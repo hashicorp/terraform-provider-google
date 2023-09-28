@@ -629,6 +629,8 @@ The `max_pods_constraint` block supports:
 * `annotations` -
   (Optional)
   Optional. Annotations on the node pool. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Key can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `management` -
   (Optional)
@@ -637,6 +639,10 @@ The `max_pods_constraint` block supports:
 * `project` -
   (Optional)
   The project for the resource
+  
+* `update_settings` -
+  (Optional)
+  (Beta only) Optional. Update settings control the speed and disruption of the node pool update.
   
 
 
@@ -720,6 +726,22 @@ The `management` block supports:
   (Optional)
   Optional. Whether or not the nodes will be automatically repaired.
     
+The `update_settings` block supports:
+    
+* `surge_settings` -
+  (Optional)
+  Optional. Settings for surge update.
+    
+The `surge_settings` block supports:
+    
+* `max_surge` -
+  (Optional)
+  Optional. The maximum number of nodes that can be created beyond the current size of the node pool during the update process.
+    
+* `max_unavailable` -
+  (Optional)
+  Optional. The maximum number of nodes that can be simultaneously unavailable during the update process. A node is considered unavailable if its status is not Ready.
+    
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -728,6 +750,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. The time at which this node pool was created.
+  
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
   
 * `etag` -
   Allows clients to perform consistent read-modify-writes through optimistic concurrency control. May be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.

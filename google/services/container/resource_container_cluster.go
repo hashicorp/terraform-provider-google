@@ -192,8 +192,15 @@ func ResourceContainerCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(40 * time.Minute),
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		MigrateState:  resourceContainerClusterMigrateState,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceContainerClusterResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceContainerClusterUpgradeV1,
+				Version: 1,
+			},
+		},
 
 		Importer: &schema.ResourceImporter{
 			State: resourceContainerClusterStateImporter,
@@ -247,6 +254,13 @@ func ResourceContainerCluster() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The list of zones in which the cluster's nodes are located. Nodes must be in the region of their regional cluster or in the same region as their cluster's zone for zonal clusters. If this is specified for a zonal cluster, omit the cluster's zone.`,
+			},
+
+			"deletion_protection": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether or not to allow Terraform to destroy the instance. Defaults to true. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the cluster will fail.`,
 			},
 
 			"addons_config": {
@@ -713,21 +727,12 @@ func ResourceContainerCluster() *schema.Resource {
 				Description: ` Description of the cluster.`,
 			},
 
-			"enable_binary_authorization": {
-				Type:          schema.TypeBool,
-				Optional:      true,
-				Default:       false,
-				Deprecated:    "Deprecated in favor of binary_authorization.",
-				Description:   `Enable Binary Authorization for this cluster. If enabled, all container images will be validated by Google Binary Authorization.`,
-				ConflictsWith: []string{"enable_autopilot", "binary_authorization"},
-			},
 			"binary_authorization": {
 				Type:             schema.TypeList,
 				Optional:         true,
 				DiffSuppressFunc: BinaryAuthorizationDiffSuppress,
 				MaxItems:         1,
 				Description:      "Configuration options for the Binary Authorization feature.",
-				ConflictsWith:    []string{"enable_binary_authorization"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -1219,11 +1224,10 @@ func ResourceContainerCluster() *schema.Resource {
 						},
 						"provider": {
 							Type:             schema.TypeString,
-							Default:          "PROVIDER_UNSPECIFIED",
 							Optional:         true,
 							ValidateFunc:     validation.StringInSlice([]string{"PROVIDER_UNSPECIFIED", "CALICO"}, false),
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("PROVIDER_UNSPECIFIED"),
-							Description:      `The selected network policy provider. Defaults to PROVIDER_UNSPECIFIED.`,
+							Description:      `The selected network policy provider.`,
 						},
 					},
 				},
@@ -1918,7 +1922,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		EnableKubernetesAlpha: d.Get("enable_kubernetes_alpha").(bool),
 		IpAllocationPolicy:    ipAllocationBlock,
 		Autoscaling:           expandClusterAutoscaling(d.Get("cluster_autoscaling"), d),
-		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization"), d.Get("enable_binary_authorization").(bool)),
+		BinaryAuthorization:   expandBinaryAuthorization(d.Get("binary_authorization")),
 		Autopilot: &container.Autopilot{
 			Enabled:              d.Get("enable_autopilot").(bool),
 			WorkloadPolicyConfig: workloadPolicyConfig,
@@ -2119,29 +2123,26 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			if err := d.Set("operation", op.Name); err != nil {
 				return fmt.Errorf("Error setting operation: %s", err)
 			}
+
 			return nil
 		default:
 			// leaving default case to ensure this is non blocking
 		}
+
 		// Try a GET on the cluster so we can see the state in debug logs. This will help classify error states.
 		clusterGetCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Get(containerClusterFullName(project, location, clusterName))
 		if config.UserProjectOverride {
 			clusterGetCall.Header().Add("X-Goog-User-Project", project)
 		}
+
 		_, getErr := clusterGetCall.Do()
 		if getErr != nil {
 			log.Printf("[WARN] Cluster %s was created in an error state and not found", clusterName)
 			d.SetId("")
 		}
 
-		if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
-			log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
-			// Leave ID set as the cluster likely still exists and should not be removed from state yet.
-		} else {
-			log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
-			d.SetId("")
-		}
-		// The resource didn't actually create
+		// Don't clear cluster id, this will taint the resource
+		log.Printf("[WARN] GKE cluster %s was created in an error state, and has been marked as tainted", clusterName)
 		return waitErr
 	}
 
@@ -2286,14 +2287,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 				d.SetId("")
 			}
 
-			if deleteErr := cleanFailedContainerCluster(d, meta); deleteErr != nil {
-				log.Printf("[WARN] Unable to clean up cluster from failed creation: %s", deleteErr)
-				// Leave ID set as the cluster likely still exists and should not be removed from state yet.
-			} else {
-				log.Printf("[WARN] Verified failed creation of cluster %s was cleaned up", d.Id())
-				d.SetId("")
-			}
-			// The resource didn't actually create
+			// Don't clear cluster id, this will taint the resource
+			log.Printf("[WARN] GKE cluster %s was created in an error state, and has been marked as tainted", clusterName)
 			return waitErr
 		}
 	}
@@ -2380,17 +2375,8 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("cluster_autoscaling", flattenClusterAutoscaling(cluster.Autoscaling)); err != nil {
 		return err
 	}
-	binauthz_enabled := d.Get("binary_authorization.0.enabled").(bool)
-	legacy_binauthz_enabled := d.Get("enable_binary_authorization").(bool)
-	if !binauthz_enabled {
-		if err := d.Set("enable_binary_authorization", cluster.BinaryAuthorization != nil && cluster.BinaryAuthorization.Enabled); err != nil {
-			return fmt.Errorf("Error setting enable_binary_authorization: %s", err)
-		}
-	}
-	if !legacy_binauthz_enabled {
-		if err := d.Set("binary_authorization", flattenBinaryAuthorization(cluster.BinaryAuthorization)); err != nil {
-			return err
-		}
+	if err := d.Set("binary_authorization", flattenBinaryAuthorization(cluster.BinaryAuthorization)); err != nil {
+		return err
 	}
 	if autopilot := cluster.Autopilot; autopilot != nil {
 		if err := d.Set("enable_autopilot", autopilot.Enabled); err != nil {
@@ -2448,7 +2434,7 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error setting default_max_pods_per_node: %s", err)
 		}
 	}
-	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig)); err != nil {
+	if err := d.Set("node_config", flattenNodeConfig(cluster.NodeConfig, d.Get("node_config"))); err != nil {
 		return err
 	}
 	if err := d.Set("project", project); err != nil {
@@ -2713,7 +2699,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("binary_authorization") {
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredBinaryAuthorization: expandBinaryAuthorization(d.Get("binary_authorization"), d.Get("enable_binary_authorization").(bool)),
+				DesiredBinaryAuthorization: expandBinaryAuthorization(d.Get("binary_authorization")),
 			},
 		}
 
@@ -3663,6 +3649,9 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("Cannot destroy cluster because deletion_protection is set to true. Set it to false to proceed with instance deletion.")
+	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -3730,52 +3719,6 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	d.SetId("")
 
-	return nil
-}
-
-// cleanFailedContainerCluster deletes clusters that failed but were
-// created in an error state. Similar to resourceContainerClusterDelete
-// but implemented in separate function as it doesn't try to lock already
-// locked cluster state, does different error handling, and doesn't do retries.
-func cleanFailedContainerCluster(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	location, err := tpgresource.GetLocation(d, config)
-	if err != nil {
-		return err
-	}
-
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
-
-	clusterName := d.Get("name").(string)
-	fullName := containerClusterFullName(project, location, clusterName)
-
-	log.Printf("[DEBUG] Cleaning up failed GKE cluster %s", d.Get("name").(string))
-	clusterDeleteCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Delete(fullName)
-	if config.UserProjectOverride {
-		clusterDeleteCall.Header().Add("X-Goog-User-Project", project)
-	}
-	op, err := clusterDeleteCall.Do()
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Container Cluster %q", d.Get("name").(string)))
-	}
-
-	// Wait until it's deleted
-	waitErr := ContainerOperationWait(config, op, project, location, "deleting GKE cluster", userAgent, d.Timeout(schema.TimeoutDelete))
-	if waitErr != nil {
-		return waitErr
-	}
-
-	log.Printf("[INFO] GKE cluster %s has been deleted", d.Id())
-	d.SetId("")
 	return nil
 }
 
@@ -4318,11 +4261,11 @@ func expandNotificationConfig(configured interface{}) *container.NotificationCon
 	}
 }
 
-func expandBinaryAuthorization(configured interface{}, legacy_enabled bool) *container.BinaryAuthorization {
+func expandBinaryAuthorization(configured interface{}) *container.BinaryAuthorization {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return &container.BinaryAuthorization{
-			Enabled:         legacy_enabled,
+			Enabled:         false,
 			ForceSendFields: []string{"Enabled"},
 		}
 	}
@@ -5467,6 +5410,11 @@ func resourceContainerClusterStateImporter(d *schema.ResourceData, meta interfac
 	if err := d.Set("location", location); err != nil {
 		return nil, fmt.Errorf("Error setting location: %s", err)
 	}
+
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
+
 	if _, err := containerClusterAwaitRestingState(config, project, location, clusterName, userAgent, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return nil, err
 	}

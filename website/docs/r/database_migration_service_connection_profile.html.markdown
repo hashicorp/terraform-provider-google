@@ -183,11 +183,6 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
   depends_on = [google_sql_user.sqldb_user]
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=database_migration_service_connection_profile_alloydb&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
 ## Example Usage - Database Migration Service Connection Profile Alloydb
 
 
@@ -195,7 +190,7 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
 data "google_project" "project" {
 }
 
-data "google_compute_network" "default" {
+resource "google_compute_network" "default" {
   name = "vpc-network"
 }
 
@@ -204,11 +199,11 @@ resource "google_compute_global_address" "private_ip_alloc" {
   address_type  = "INTERNAL"
   purpose       = "VPC_PEERING"
   prefix_length = 16
-  network       = data.google_compute_network.default.id
+  network       = google_compute_network.default.id
 }
 
 resource "google_service_networking_connection" "vpc_connection" {
-  network                 = data.google_compute_network.default.id
+  network                 = google_compute_network.default.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
@@ -228,7 +223,7 @@ resource "google_database_migration_service_connection_profile" "alloydbprofile"
         user = "alloyuser%{random_suffix}"
         password = "alloypass%{random_suffix}"
       }
-      vpc_network = data.google_compute_network.default.id
+      vpc_network = google_compute_network.default.id
       labels  = { 
         alloyfoo = "alloybar" 
       }
@@ -270,6 +265,9 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The resource labels for connection profile to use to annotate any related underlying resources such as Compute Engine VMs.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `mysql` -
   (Optional)
@@ -657,6 +655,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `dbprovider` -
   The database provider.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_error"></a>The `error` block contains:

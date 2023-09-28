@@ -33,14 +33,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_package_names   = []
   }
 
-  labels = {
-    label-one = "value-one"
-  }
-
   project = "my-project-name"
 
   testing_options {
     testing_score = 0.8
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -57,14 +57,14 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_bundle_ids   = []
   }
 
-  labels = {
-    label-one = "value-one"
-  }
-
   project = "my-project-name"
 
   testing_options {
     testing_score = 1
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -75,13 +75,14 @@ A minimal test of recaptcha enterprise key
 ```hcl
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-  labels       = {}
   project      = "my-project-name"
 
   web_settings {
     integration_type  = "SCORE"
     allow_all_domains = true
   }
+
+  labels = {}
 }
 
 
@@ -91,12 +92,7 @@ A basic test of recaptcha enterprise key that can be used by websites
 ```hcl
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-
-  labels = {
-    label-one = "value-one"
-  }
-
-  project = "my-project-name"
+  project      = "my-project-name"
 
   testing_options {
     testing_challenge = "NOCAPTCHA"
@@ -109,6 +105,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allowed_domains               = []
     challenge_security_preference = "USABILITY"
   }
+
+  labels = {
+    label-one = "value-one"
+  }
 }
 
 
@@ -118,12 +118,7 @@ A basic test of recaptcha enterprise key with score integration type that can be
 ```hcl
 resource "google_recaptcha_enterprise_key" "primary" {
   display_name = "display-name-one"
-
-  labels = {
-    label-one = "value-one"
-  }
-
-  project = "my-project-name"
+  project      = "my-project-name"
 
   testing_options {
     testing_score = 0.5
@@ -134,6 +129,10 @@ resource "google_recaptcha_enterprise_key" "primary" {
     allow_all_domains = true
     allow_amp_traffic = false
     allowed_domains   = []
+  }
+
+  labels = {
+    label-one = "value-one"
   }
 }
 
@@ -163,6 +162,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   See [Creating and managing labels](https://cloud.google.com/recaptcha-enterprise/docs/labels).
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `project` -
   (Optional)
@@ -239,8 +240,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `create_time` -
   The timestamp corresponding to the creation of this Key.
   
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+  
 * `name` -
   The resource name for the Key in the format "projects/{project}/keys/{key}".
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 ## Timeouts
 

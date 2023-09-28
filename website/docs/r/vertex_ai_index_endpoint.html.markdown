@@ -42,14 +42,14 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
   labels       = {
     label-one = "value-one"
   }
-  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
+  network      = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.vertex_network.name}"
   depends_on   = [
     google_service_networking_connection.vertex_vpc_connection
   ]
 }
 
 resource "google_service_networking_connection" "vertex_vpc_connection" {
-  network                 = data.google_compute_network.vertex_network.id
+  network                 = google_compute_network.vertex_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.vertex_range.name]
 }
@@ -59,10 +59,10 @@ resource "google_compute_global_address" "vertex_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 24
-  network       = data.google_compute_network.vertex_network.id
+  network       = google_compute_network.vertex_network.id
 }
 
-data "google_compute_network" "vertex_network" {
+resource "google_compute_network" "vertex_network" {
   name       = "network-name"
 }
 
@@ -109,6 +109,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   The labels with user-defined metadata to organize your Indexes.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `network` -
   (Optional)
@@ -149,6 +151,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `public_endpoint_domain_name` -
   If publicEndpointEnabled is true, this field will be populated with the domain name to use for this index endpoint.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

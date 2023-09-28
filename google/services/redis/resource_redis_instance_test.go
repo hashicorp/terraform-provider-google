@@ -25,17 +25,19 @@ func TestAccRedisInstance_update(t *testing.T) {
 				Config: testAccRedisInstance_update(name, true),
 			},
 			{
-				ResourceName:      "google_redis_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_redis_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRedisInstance_update2(name, true),
 			},
 			{
-				ResourceName:      "google_redis_instance.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_redis_instance.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccRedisInstance_update2(name, false),

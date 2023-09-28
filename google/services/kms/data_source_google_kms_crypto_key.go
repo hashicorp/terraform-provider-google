@@ -3,6 +3,8 @@
 package kms
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -33,7 +35,20 @@ func dataSourceGoogleKmsCryptoKeyRead(d *schema.ResourceData, meta interface{}) 
 		Name:      d.Get("name").(string),
 	}
 
-	d.SetId(cryptoKeyId.CryptoKeyId())
+	id := cryptoKeyId.CryptoKeyId()
+	d.SetId(id)
 
-	return resourceKMSCryptoKeyRead(d, meta)
+	err = resourceKMSCryptoKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

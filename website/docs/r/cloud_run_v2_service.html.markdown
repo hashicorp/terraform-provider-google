@@ -629,13 +629,6 @@ The following arguments are supported:
   HTTPGet specifies the http request to perform.
   Structure is [documented below](#nested_http_get).
 
-* `tcp_socket` -
-  (Optional, Deprecated)
-  TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.
-  Structure is [documented below](#nested_tcp_socket).
-
-  ~> **Warning:** `tcp_socket` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.
-
 * `grpc` -
   (Optional)
   GRPC specifies an action involving a GRPC port.
@@ -668,12 +661,6 @@ The following arguments are supported:
 * `value` -
   (Optional)
   The header field value
-
-<a name="nested_tcp_socket"></a>The `tcp_socket` block supports:
-
-* `port` -
-  (Optional)
-  Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.
 
 <a name="nested_grpc"></a>The `grpc` block supports:
 
@@ -852,6 +839,8 @@ The following arguments are supported:
   environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
   Cloud Run API v2 does not support labels with  `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected.
   All system labels in v1 now have a corresponding field in v2 Service.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `annotations` -
   (Optional)
@@ -994,6 +983,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `etag` -
   A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during updates.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 <a name="nested_terminal_condition"></a>The `terminal_condition` block contains:

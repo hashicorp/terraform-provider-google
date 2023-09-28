@@ -103,6 +103,9 @@ resource "google_beyondcorp_app_gateway" "foo" {
 	name      = "tf-test-appgateway-%{random_suffix}"
 	type      = "TCP_PROXY"
 	host_type = "GCP_REGIONAL_MIG"
+	labels = {
+		my-label = "my-label-value"
+	}
 }
 
 data "google_beyondcorp_app_gateway" "foo" {

@@ -48,11 +48,6 @@ func TestAccCoreBillingProjectInfo_billingProjectInfoBasicExample(t *testing.T) 
 			{
 				Config: testAccCoreBillingProjectInfo_billingProjectInfoBasicExample(context),
 			},
-			{
-				ResourceName:      "google_billing_project_info.default",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }

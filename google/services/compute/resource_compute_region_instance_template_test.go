@@ -43,9 +43,10 @@ func TestAccComputeRegionInstanceTemplate_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -69,9 +70,10 @@ func TestAccComputeRegionInstanceTemplate_imageShorthand(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -827,9 +829,10 @@ func TestAccComputeRegionInstanceTemplate_diskResourcePolicies(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -904,9 +907,10 @@ func TestAccComputeRegionInstanceTemplate_managedEnvoy(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      "google_compute_region_instance_template.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_region_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -1532,7 +1536,6 @@ resource "google_compute_image" "foobar" {
   }
   labels = {
     my-label    = "my-label-value"
-    empty-label = ""
   }
   timeouts {
     create = "5m"

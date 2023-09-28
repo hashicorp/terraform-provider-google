@@ -23,17 +23,19 @@ func TestAccDataFusionInstance_update(t *testing.T) {
 				Config: testAccDataFusionInstance_basic(instanceName),
 			},
 			{
-				ResourceName:      "google_data_fusion_instance.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_data_fusion_instance.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDataFusionInstance_updated(instanceName),
 			},
 			{
-				ResourceName:      "google_data_fusion_instance.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_data_fusion_instance.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -99,17 +101,19 @@ func TestAccDataFusionInstanceEnterprise_update(t *testing.T) {
 				Config: testAccDataFusionInstanceEnterprise_basic(instanceName),
 			},
 			{
-				ResourceName:      "google_data_fusion_instance.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_data_fusion_instance.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDataFusionInstanceEnterprise_updated(instanceName),
 			},
 			{
-				ResourceName:      "google_data_fusion_instance.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_data_fusion_instance.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

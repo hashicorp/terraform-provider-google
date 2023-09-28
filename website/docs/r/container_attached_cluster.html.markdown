@@ -338,6 +338,9 @@ In addition to the arguments listed above, the following computed attributes are
   A set of errors found in the cluster.
   Structure is [documented below](#nested_errors).
 
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
+
 
 <a name="nested_workload_identity_config"></a>The `workload_identity_config` block contains:
 
