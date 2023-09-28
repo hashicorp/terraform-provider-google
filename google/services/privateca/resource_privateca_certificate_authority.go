@@ -72,6 +72,8 @@ func ResourcePrivatecaCertificateAuthority() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourcePrivateCaCACustomDiff,
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -657,7 +659,11 @@ Use with care. Defaults to 'false'.`,
 				Description: `Labels with user-defined metadata.
 
 An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass":
-"1.3kg", "count": "3" }.`,
+"1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"lifetime": {
@@ -767,6 +773,12 @@ CAs that have been activated.`,
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
 fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -788,6 +800,13 @@ CertificateAuthority's certificate.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The State for this CertificateAuthority.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:     schema.TypeString,
@@ -864,10 +883,10 @@ func resourcePrivatecaCertificateAuthorityCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("gcs_bucket"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcsBucketProp)) && (ok || !reflect.DeepEqual(v, gcsBucketProp)) {
 		obj["gcsBucket"] = gcsBucketProp
 	}
-	labelsProp, err := expandPrivatecaCertificateAuthorityLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandPrivatecaCertificateAuthorityEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -1071,6 +1090,12 @@ func resourcePrivatecaCertificateAuthorityRead(d *schema.ResourceData, meta inte
 	if err := d.Set("labels", flattenPrivatecaCertificateAuthorityLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenPrivatecaCertificateAuthorityTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenPrivatecaCertificateAuthorityEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateAuthority: %s", err)
+	}
 
 	return nil
 }
@@ -1097,10 +1122,10 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("subordinate_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, subordinateConfigProp)) {
 		obj["subordinateConfig"] = subordinateConfigProp
 	}
-	labelsProp, err := expandPrivatecaCertificateAuthorityLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandPrivatecaCertificateAuthorityEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -1116,7 +1141,7 @@ func resourcePrivatecaCertificateAuthorityUpdate(d *schema.ResourceData, meta in
 		updateMask = append(updateMask, "subordinateConfig")
 	}
 
-	if d.HasChange("labels") {
+	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -1288,9 +1313,9 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 func resourcePrivatecaCertificateAuthorityImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificateAuthorities/(?P<certificate_authority_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/caPools/(?P<pool>[^/]+)/certificateAuthorities/(?P<certificate_authority_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<pool>[^/]+)/(?P<certificate_authority_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1573,6 +1598,36 @@ func flattenPrivatecaCertificateAuthorityUpdateTime(v interface{}, d *schema.Res
 }
 
 func flattenPrivatecaCertificateAuthorityLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenPrivatecaCertificateAuthorityTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenPrivatecaCertificateAuthorityEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1936,7 +1991,7 @@ func expandPrivatecaCertificateAuthorityGcsBucket(v interface{}, d tpgresource.T
 	return v, nil
 }
 
-func expandPrivatecaCertificateAuthorityLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandPrivatecaCertificateAuthorityEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

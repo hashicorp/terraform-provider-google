@@ -35,8 +35,9 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -51,7 +52,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -71,6 +72,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -90,7 +92,8 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -105,7 +108,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 				ResourceName:            "google_gke_backup_backup_plan.autopilot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -127,6 +130,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "autopilot" {
@@ -146,8 +150,9 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -162,7 +167,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -182,6 +187,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "cmek" {
@@ -216,8 +222,9 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -232,7 +239,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location"},
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -252,6 +259,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_backup_backup_plan" "full" {

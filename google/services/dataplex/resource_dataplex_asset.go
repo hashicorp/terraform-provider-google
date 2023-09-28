@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceDataplexAsset() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"dataplex_zone": {
@@ -107,11 +112,10 @@ func ResourceDataplexAsset() *schema.Resource {
 				Description: "Optional. User friendly display name.",
 			},
 
-			"labels": {
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. User defined labels for the asset.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"project": {
@@ -136,6 +140,13 @@ func ResourceDataplexAsset() *schema.Resource {
 				Elem:        DataplexAssetDiscoveryStatusSchema(),
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. User defined labels for the asset.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"resource_status": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -154,6 +165,12 @@ func ResourceDataplexAsset() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Current state of the asset. Possible values: STATE_UNSPECIFIED, ACTIVE, CREATING, DELETING, ACTION_REQUIRED",
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"uid": {
@@ -433,7 +450,7 @@ func resourceDataplexAssetCreate(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -490,7 +507,7 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -540,8 +557,8 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("display_name", res.DisplayName); err != nil {
 		return fmt.Errorf("error setting display_name in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
@@ -552,6 +569,9 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("discovery_status", flattenDataplexAssetDiscoveryStatus(res.DiscoveryStatus)); err != nil {
 		return fmt.Errorf("error setting discovery_status in state: %s", err)
 	}
+	if err = d.Set("labels", flattenDataplexAssetLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
 	if err = d.Set("resource_status", flattenDataplexAssetResourceStatus(res.ResourceStatus)); err != nil {
 		return fmt.Errorf("error setting resource_status in state: %s", err)
 	}
@@ -560,6 +580,9 @@ func resourceDataplexAssetRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	if err = d.Set("state", res.State); err != nil {
 		return fmt.Errorf("error setting state in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexAssetTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("uid", res.Uid); err != nil {
 		return fmt.Errorf("error setting uid in state: %s", err)
@@ -586,7 +609,7 @@ func resourceDataplexAssetUpdate(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -638,7 +661,7 @@ func resourceDataplexAssetDelete(d *schema.ResourceData, meta interface{}) error
 		ResourceSpec:  expandDataplexAssetResourceSpec(d.Get("resource_spec")),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -872,4 +895,34 @@ func flattenDataplexAssetSecurityStatus(obj *dataplex.AssetSecurityStatus) inter
 
 	return []interface{}{transformed}
 
+}
+
+func flattenDataplexAssetLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenDataplexAssetTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

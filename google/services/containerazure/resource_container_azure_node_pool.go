@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"autoscaling": {
@@ -112,19 +117,18 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 				Description: "The Kubernetes version (e.g. `1.19.10-gke.1000`) running on this node pool.",
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. Annotations on the node pool. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"azure_availability_zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Optional. The Azure availability zone of the nodes in this nodepool. When unspecified, it defaults to `1`.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"management": {
@@ -143,6 +147,13 @@ func ResourceContainerAzureNodePool() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The project for the resource",
+			},
+
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Annotations on the node pool. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"create_time": {
@@ -339,8 +350,8 @@ func resourceContainerAzureNodePoolCreate(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:            expandContainerAzureNodePoolManagement(d.Get("management")),
 		Project:               dcl.String(project),
 	}
@@ -398,8 +409,8 @@ func resourceContainerAzureNodePoolRead(d *schema.ResourceData, meta interface{}
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:            expandContainerAzureNodePoolManagement(d.Get("management")),
 		Project:               dcl.String(project),
 	}
@@ -450,17 +461,20 @@ func resourceContainerAzureNodePoolRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("version", res.Version); err != nil {
 		return fmt.Errorf("error setting version in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("azure_availability_zone", res.AzureAvailabilityZone); err != nil {
 		return fmt.Errorf("error setting azure_availability_zone in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("management", tpgresource.FlattenContainerAzureNodePoolManagement(res.Management, d, config)); err != nil {
 		return fmt.Errorf("error setting management in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
+	}
+	if err = d.Set("annotations", flattenContainerAzureNodePoolAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
@@ -499,8 +513,8 @@ func resourceContainerAzureNodePoolUpdate(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:            expandContainerAzureNodePoolManagement(d.Get("management")),
 		Project:               dcl.String(project),
 	}
@@ -553,8 +567,8 @@ func resourceContainerAzureNodePoolDelete(d *schema.ResourceData, meta interface
 		Name:                  dcl.String(d.Get("name").(string)),
 		SubnetId:              dcl.String(d.Get("subnet_id").(string)),
 		Version:               dcl.String(d.Get("version").(string)),
-		Annotations:           tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureAvailabilityZone: dcl.StringOrNil(d.Get("azure_availability_zone").(string)),
+		Annotations:           tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:            expandContainerAzureNodePoolManagement(d.Get("management")),
 		Project:               dcl.String(project),
 	}
@@ -797,4 +811,19 @@ func flattenContainerAzureNodePoolManagement(obj *containerazure.NodePoolManagem
 
 	return []interface{}{transformed}
 
+}
+
+func flattenContainerAzureNodePoolAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

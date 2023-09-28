@@ -58,7 +58,7 @@ func TestAccFilestoreInstance_update(t *testing.T) {
 				ResourceName:            "google_filestore_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone", "location"},
+				ImportStateVerifyIgnore: []string{"zone", "location", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccFilestoreInstance_update2(name),

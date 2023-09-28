@@ -78,6 +78,12 @@ resource "google_dataplex_asset" "primary" {
     name = "projects/my-project-name/buckets/bucket"
     type = "STORAGE_BUCKET"
   }
+
+  labels = {
+    env     = "foo"
+    my-asset = "exists"
+  }
+
  
   project = "my-project-name"
   depends_on = [
@@ -169,6 +175,8 @@ The `resource_spec` block supports:
 * `labels` -
   (Optional)
   Optional. User defined labels for the asset.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `project` -
   (Optional)
@@ -216,6 +224,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `discovery_status` -
   Output only. Status of the discovery feature applied to data referenced by this asset.
   
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+  
 * `resource_status` -
   Output only. Status of the resource referenced by this asset.
   
@@ -224,6 +235,9 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `state` -
   Output only. Current state of the asset. Possible values: STATE_UNSPECIFIED, ACTIVE, CREATING, DELETING, ACTION_REQUIRED
+  
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
   
 * `uid` -
   Output only. System generated globally unique ID for the asset. This ID will be different if the asset is deleted and re-created with the same name.

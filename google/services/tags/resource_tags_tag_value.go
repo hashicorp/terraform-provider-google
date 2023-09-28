@@ -380,8 +380,8 @@ func resourceTagsTagValueDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceTagsTagValueImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"tagValues/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^tagValues/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

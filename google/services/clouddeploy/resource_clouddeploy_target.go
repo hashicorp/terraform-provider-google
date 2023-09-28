@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,11 @@ func ResourceClouddeployTarget() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -64,13 +70,6 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: "Name of the `Target`. Format is [a-z][a-z0-9\\-]{0,62}.",
-			},
-
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"anthos_cluster": {
@@ -95,6 +94,18 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Description: "Optional. Description of the `Target`. Max length is 255 characters.",
 			},
 
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
+			},
+
 			"execution_configs": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -110,13 +121,6 @@ func ResourceClouddeployTarget() *schema.Resource {
 				MaxItems:      1,
 				Elem:          ClouddeployTargetGkeSchema(),
 				ConflictsWith: []string{"anthos_cluster", "run", "multi_target"},
-			},
-
-			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"multi_target": {
@@ -152,6 +156,13 @@ func ResourceClouddeployTarget() *schema.Resource {
 				ConflictsWith: []string{"gke", "anthos_cluster", "multi_target"},
 			},
 
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. User annotations. These attributes can only be set and used by the user, and not by Google Cloud Deploy. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -164,10 +175,23 @@ func ResourceClouddeployTarget() *schema.Resource {
 				Description: "Optional. This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.",
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. Labels are attributes that can be set and used by both the user and by Google Cloud Deploy. Labels must meet the following constraints: * Keys and values can contain only lowercase letters, numeric characters, underscores, and dashes. * All characters must use UTF-8 encoding, and international characters are allowed. * Keys must start with a lowercase letter or international character. * Each resource is limited to a maximum of 64 labels. Both keys and values are additionally constrained to be <= 128 bytes.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"target_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Resource id of the `Target`.",
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"uid": {
@@ -293,13 +317,13 @@ func resourceClouddeployTargetCreate(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		DeployParameters: tpgresource.CheckStringMap(d.Get("deploy_parameters")),
 		Description:      dcl.String(d.Get("description").(string)),
+		Annotations:      tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:           tpgresource.CheckStringMap(d.Get("effective_labels")),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		MultiTarget:      expandClouddeployTargetMultiTarget(d.Get("multi_target")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
@@ -353,13 +377,13 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		DeployParameters: tpgresource.CheckStringMap(d.Get("deploy_parameters")),
 		Description:      dcl.String(d.Get("description").(string)),
+		Annotations:      tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:           tpgresource.CheckStringMap(d.Get("effective_labels")),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		MultiTarget:      expandClouddeployTargetMultiTarget(d.Get("multi_target")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
@@ -394,9 +418,6 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("anthos_cluster", flattenClouddeployTargetAnthosCluster(res.AnthosCluster)); err != nil {
 		return fmt.Errorf("error setting anthos_cluster in state: %s", err)
 	}
@@ -406,14 +427,17 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
 	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
+	}
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
+	}
 	if err = d.Set("execution_configs", flattenClouddeployTargetExecutionConfigsArray(res.ExecutionConfigs)); err != nil {
 		return fmt.Errorf("error setting execution_configs in state: %s", err)
 	}
 	if err = d.Set("gke", flattenClouddeployTargetGke(res.Gke)); err != nil {
 		return fmt.Errorf("error setting gke in state: %s", err)
-	}
-	if err = d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
 	}
 	if err = d.Set("multi_target", flattenClouddeployTargetMultiTarget(res.MultiTarget)); err != nil {
 		return fmt.Errorf("error setting multi_target in state: %s", err)
@@ -427,14 +451,23 @@ func resourceClouddeployTargetRead(d *schema.ResourceData, meta interface{}) err
 	if err = d.Set("run", flattenClouddeployTargetRun(res.Run)); err != nil {
 		return fmt.Errorf("error setting run in state: %s", err)
 	}
+	if err = d.Set("annotations", flattenClouddeployTargetAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
+	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
 	if err = d.Set("etag", res.Etag); err != nil {
 		return fmt.Errorf("error setting etag in state: %s", err)
 	}
+	if err = d.Set("labels", flattenClouddeployTargetLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
 	if err = d.Set("target_id", res.TargetId); err != nil {
 		return fmt.Errorf("error setting target_id in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenClouddeployTargetTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("uid", res.Uid); err != nil {
 		return fmt.Errorf("error setting uid in state: %s", err)
@@ -455,13 +488,13 @@ func resourceClouddeployTargetUpdate(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		DeployParameters: tpgresource.CheckStringMap(d.Get("deploy_parameters")),
 		Description:      dcl.String(d.Get("description").(string)),
+		Annotations:      tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:           tpgresource.CheckStringMap(d.Get("effective_labels")),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		MultiTarget:      expandClouddeployTargetMultiTarget(d.Get("multi_target")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
@@ -510,13 +543,13 @@ func resourceClouddeployTargetDelete(d *schema.ResourceData, meta interface{}) e
 	obj := &clouddeploy.Target{
 		Location:         dcl.String(d.Get("location").(string)),
 		Name:             dcl.String(d.Get("name").(string)),
-		Annotations:      tpgresource.CheckStringMap(d.Get("annotations")),
 		AnthosCluster:    expandClouddeployTargetAnthosCluster(d.Get("anthos_cluster")),
 		DeployParameters: tpgresource.CheckStringMap(d.Get("deploy_parameters")),
 		Description:      dcl.String(d.Get("description").(string)),
+		Annotations:      tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		Labels:           tpgresource.CheckStringMap(d.Get("effective_labels")),
 		ExecutionConfigs: expandClouddeployTargetExecutionConfigsArray(d.Get("execution_configs")),
 		Gke:              expandClouddeployTargetGke(d.Get("gke")),
-		Labels:           tpgresource.CheckStringMap(d.Get("labels")),
 		MultiTarget:      expandClouddeployTargetMultiTarget(d.Get("multi_target")),
 		Project:          dcl.String(project),
 		RequireApproval:  dcl.Bool(d.Get("require_approval").(bool)),
@@ -737,6 +770,52 @@ func flattenClouddeployTargetRun(obj *clouddeploy.TargetRun) interface{} {
 	return []interface{}{transformed}
 
 }
+
+func flattenClouddeployTargetLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenClouddeployTargetTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenClouddeployTargetAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenClouddeployTargetExecutionConfigsUsagesArray(obj []clouddeploy.TargetExecutionConfigsUsagesEnum) interface{} {
 	if obj == nil {
 		return nil

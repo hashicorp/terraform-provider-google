@@ -25,17 +25,19 @@ func TestAccNetworkServicesGateway_update(t *testing.T) {
 				Config: testAccNetworkServicesGateway_basic(gatewayName),
 			},
 			{
-				ResourceName:      "google_network_services_gateway.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_services_gateway.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkServicesGateway_update(gatewayName),
 			},
 			{
-				ResourceName:      "google_network_services_gateway.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_services_gateway.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

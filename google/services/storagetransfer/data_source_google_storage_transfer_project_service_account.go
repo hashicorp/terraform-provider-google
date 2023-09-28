@@ -49,7 +49,7 @@ func dataSourceGoogleStorageTransferProjectServiceAccountRead(d *schema.Resource
 
 	serviceAccount, err := config.NewStorageTransferClient(userAgent).GoogleServiceAccounts.Get(project).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "Google Cloud Storage Transfer service account not found")
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, "Google Cloud Storage Transfer service account not found", fmt.Sprintf("Project %q Google Cloud Storage Transfer account", project))
 	}
 
 	d.SetId(serviceAccount.AccountEmail)

@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -53,6 +54,11 @@ func ResourceBigQueryJob() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"copy": {
@@ -309,11 +315,15 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 				Description: `Job timeout in milliseconds. If this time limit is exceeded, BigQuery may attempt to terminate the job.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The labels associated with this job. You can use these to organize and group your jobs.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `The labels associated with this job. You can use these to organize and group your jobs.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"load": {
 				Type:        schema.TypeList,
@@ -878,10 +888,24 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 				},
 				ExactlyOneOf: []string{"query", "load", "copy", "extract"},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"job_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The type of the job.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 
 			"job_id": {
@@ -1186,12 +1210,12 @@ func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceBigQueryJobImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)",
-		"projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)",
-		"(?P<job_id>[^/]+)/(?P<location>[^/]+)",
-		"(?P<project>[^/]+)/(?P<job_id>[^/]+)",
-		"(?P<job_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)/location/(?P<location>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/jobs/(?P<job_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<job_id>[^/]+)/(?P<location>[^/]+)$",
+		"^(?P<job_id>[^/]+)/(?P<location>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<job_id>[^/]+)$",
+		"^(?P<job_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1233,6 +1257,10 @@ func flattenBigQueryJobConfiguration(v interface{}, d *schema.ResourceData, conf
 		flattenBigQueryJobConfigurationCopy(original["copy"], d, config)
 	transformed["extract"] =
 		flattenBigQueryJobConfigurationExtract(original["extract"], d, config)
+	transformed["terraform_labels"] =
+		flattenBigQueryJobConfigurationTerraformLabels(original["labels"], d, config)
+	transformed["effective_labels"] =
+		flattenBigQueryJobConfigurationEffectiveLabels(original["labels"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBigQueryJobConfigurationJobType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1244,7 +1272,18 @@ func flattenBigQueryJobConfigurationJobTimeoutMs(v interface{}, d *schema.Resour
 }
 
 func flattenBigQueryJobConfigurationLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenBigQueryJobConfigurationQuery(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1919,6 +1958,25 @@ func flattenBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d *
 	return v
 }
 
+func flattenBigQueryJobConfigurationTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenBigQueryJobConfigurationEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigQueryJobJobReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2040,13 +2098,6 @@ func expandBigQueryJobConfiguration(v interface{}, d tpgresource.TerraformResour
 		transformed["jobTimeoutMs"] = transformedJobTimeoutMs
 	}
 
-	transformedLabels, err := expandBigQueryJobConfigurationLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["labels"] = transformedLabels
-	}
-
 	transformedQuery, err := expandBigQueryJobConfigurationQuery(d.Get("query"), d, config)
 	if err != nil {
 		return nil, err
@@ -2075,6 +2126,13 @@ func expandBigQueryJobConfiguration(v interface{}, d tpgresource.TerraformResour
 		transformed["extract"] = transformedExtract
 	}
 
+	transformedEffectiveLabels, err := expandBigQueryJobConfigurationEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEffectiveLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedEffectiveLabels
+	}
+
 	return transformed, nil
 }
 
@@ -2084,17 +2142,6 @@ func expandBigQueryJobConfigurationJobType(v interface{}, d tpgresource.Terrafor
 
 func expandBigQueryJobConfigurationJobTimeoutMs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandBigQueryJobConfigurationLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandBigQueryJobConfigurationQuery(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3152,6 +3199,17 @@ func expandBigQueryJobConfigurationExtractSourceModelDatasetId(v interface{}, d 
 
 func expandBigQueryJobConfigurationExtractSourceModelModelId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandBigQueryJobConfigurationEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandBigQueryJobJobReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceDataprocMetastoreService() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"service_id": {
@@ -146,10 +152,13 @@ The mappings override system defaults (some keys cannot be overridden)`,
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `User-defined labels for the metastore service.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the metastore service.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -293,6 +302,12 @@ There must be at least one IP address available in the subnet's primary range. T
 				Computed:    true,
 				Description: `A Cloud Storage URI (starting with gs://) that specifies where artifacts related to the metastore service are stored.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"endpoint_uri": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -312,6 +327,13 @@ There must be at least one IP address available in the subnet's primary range. T
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Additional information about the current state of the metastore service, if available.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -337,12 +359,6 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDataprocMetastoreServiceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	networkProp, err := expandDataprocMetastoreServiceNetwork(d.Get("network"), d, config)
 	if err != nil {
 		return err
@@ -408,6 +424,12 @@ func resourceDataprocMetastoreServiceCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("telemetry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(telemetryConfigProp)) && (ok || !reflect.DeepEqual(v, telemetryConfigProp)) {
 		obj["telemetryConfig"] = telemetryConfigProp
+	}
+	labelsProp, err := expandDataprocMetastoreServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{service_id}}")
@@ -558,6 +580,12 @@ func resourceDataprocMetastoreServiceRead(d *schema.ResourceData, meta interface
 	if err := d.Set("telemetry_config", flattenDataprocMetastoreServiceTelemetryConfig(res["telemetryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDataprocMetastoreServiceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDataprocMetastoreServiceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 
 	return nil
 }
@@ -578,12 +606,6 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDataprocMetastoreServiceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	portProp, err := expandDataprocMetastoreServicePort(d.Get("port"), d, config)
 	if err != nil {
 		return err
@@ -626,6 +648,12 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("telemetry_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, telemetryConfigProp)) {
 		obj["telemetryConfig"] = telemetryConfigProp
 	}
+	labelsProp, err := expandDataprocMetastoreServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataprocMetastoreBasePath}}projects/{{project}}/locations/{{location}}/services/{{service_id}}")
 	if err != nil {
@@ -634,10 +662,6 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 
 	log.Printf("[DEBUG] Updating Service %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
 
 	if d.HasChange("port") {
 		updateMask = append(updateMask, "port")
@@ -665,6 +689,10 @@ func resourceDataprocMetastoreServiceUpdate(d *schema.ResourceData, meta interfa
 
 	if d.HasChange("telemetry_config") {
 		updateMask = append(updateMask, "telemetryConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -761,9 +789,9 @@ func resourceDataprocMetastoreServiceDelete(d *schema.ResourceData, meta interfa
 func resourceDataprocMetastoreServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<service_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<service_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<service_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<service_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -783,7 +811,18 @@ func flattenDataprocMetastoreServiceName(v interface{}, d *schema.ResourceData, 
 }
 
 func flattenDataprocMetastoreServiceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDataprocMetastoreServiceNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1039,15 +1078,23 @@ func flattenDataprocMetastoreServiceTelemetryConfigLogFormat(v interface{}, d *s
 	return v
 }
 
-func expandDataprocMetastoreServiceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenDataprocMetastoreServiceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenDataprocMetastoreServiceEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandDataprocMetastoreServiceNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1350,4 +1397,15 @@ func expandDataprocMetastoreServiceTelemetryConfig(v interface{}, d tpgresource.
 
 func expandDataprocMetastoreServiceTelemetryConfigLogFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataprocMetastoreServiceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

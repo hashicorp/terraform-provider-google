@@ -51,17 +51,19 @@ func TestAccDataplexZone_BasicZone(t *testing.T) {
 				Config: testAccDataplexZone_BasicZone(context),
 			},
 			{
-				ResourceName:      "google_dataplex_zone.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_zone.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccDataplexZone_BasicZoneUpdate0(context),
 			},
 			{
-				ResourceName:      "google_dataplex_zone.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_dataplex_zone.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -85,8 +87,8 @@ resource "google_dataplex_zone" "primary" {
   type         = "RAW"
   description  = "Zone for DCL"
   display_name = "Zone for DCL"
-  labels       = {}
   project      = "%{project_name}"
+  labels       = {}
 }
 
 resource "google_dataplex_lake" "basic" {
@@ -94,12 +96,11 @@ resource "google_dataplex_lake" "basic" {
   name         = "tf-test-lake%{random_suffix}"
   description  = "Lake for DCL"
   display_name = "Lake for DCL"
+  project      = "%{project_name}"
 
   labels = {
     my-lake = "exists"
   }
-
-  project = "%{project_name}"
 }
 
 
@@ -124,12 +125,11 @@ resource "google_dataplex_zone" "primary" {
   type         = "RAW"
   description  = "Zone for DCL Updated"
   display_name = "Zone for DCL"
+  project      = "%{project_name}"
 
   labels = {
     updated_label = "exists"
   }
-
-  project = "%{project_name}"
 }
 
 resource "google_dataplex_lake" "basic" {
@@ -137,12 +137,11 @@ resource "google_dataplex_lake" "basic" {
   name         = "tf-test-lake%{random_suffix}"
   description  = "Lake for DCL"
   display_name = "Lake for DCL"
+  project      = "%{project_name}"
 
   labels = {
     my-lake = "exists"
   }
-
-  project = "%{project_name}"
 }
 
 

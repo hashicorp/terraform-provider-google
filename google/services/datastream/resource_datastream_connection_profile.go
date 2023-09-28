@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,11 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"connection_profile_id": {
@@ -140,10 +146,13 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Labels.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"mysql_profile": {
 				Type:        schema.TypeList,
@@ -328,10 +337,23 @@ If this field is used then the 'client_certificate' and the
 				},
 				ConflictsWith: []string{"forward_ssh_connectivity"},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The resource's name.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -352,12 +374,6 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDatastreamConnectionProfileLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	displayNameProp, err := expandDatastreamConnectionProfileDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -405,6 +421,12 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("private_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateConnectivityProp)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
 		obj["privateConnectivity"] = privateConnectivityProp
+	}
+	labelsProp, err := expandDatastreamConnectionProfileEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
@@ -545,6 +567,12 @@ func resourceDatastreamConnectionProfileRead(d *schema.ResourceData, meta interf
 	if err := d.Set("private_connectivity", flattenDatastreamConnectionProfilePrivateConnectivity(res["privateConnectivity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDatastreamConnectionProfileTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDatastreamConnectionProfileEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ConnectionProfile: %s", err)
+	}
 
 	return nil
 }
@@ -565,12 +593,6 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandDatastreamConnectionProfileLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	displayNameProp, err := expandDatastreamConnectionProfileDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -619,6 +641,12 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("private_connectivity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, privateConnectivityProp)) {
 		obj["privateConnectivity"] = privateConnectivityProp
 	}
+	labelsProp, err := expandDatastreamConnectionProfileEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles/{{connection_profile_id}}")
 	if err != nil {
@@ -627,10 +655,6 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Updating ConnectionProfile %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
@@ -662,6 +686,10 @@ func resourceDatastreamConnectionProfileUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("private_connectivity") {
 		updateMask = append(updateMask, "privateConnectivity")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -758,9 +786,9 @@ func resourceDatastreamConnectionProfileDelete(d *schema.ResourceData, meta inte
 func resourceDatastreamConnectionProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/connectionProfiles/(?P<connection_profile_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<connection_profile_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -780,7 +808,18 @@ func flattenDatastreamConnectionProfileName(v interface{}, d *schema.ResourceDat
 }
 
 func flattenDatastreamConnectionProfileLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDatastreamConnectionProfileDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1101,15 +1140,23 @@ func flattenDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v in
 	return v
 }
 
-func expandDatastreamConnectionProfileLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenDatastreamConnectionProfileTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenDatastreamConnectionProfileEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandDatastreamConnectionProfileDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1546,4 +1593,15 @@ func expandDatastreamConnectionProfilePrivateConnectivity(v interface{}, d tpgre
 
 func expandDatastreamConnectionProfilePrivateConnectivityPrivateConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamConnectionProfileEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

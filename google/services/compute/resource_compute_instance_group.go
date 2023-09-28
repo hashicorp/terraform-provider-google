@@ -13,6 +13,7 @@ import (
 
 	"google.golang.org/api/googleapi"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"google.golang.org/api/compute/v1"
@@ -33,6 +34,11 @@ func ResourceComputeInstanceGroup() *schema.Resource {
 			Update: schema.DefaultTimeout(6 * time.Minute),
 			Delete: schema.DefaultTimeout(6 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderZone,
+		),
 
 		SchemaVersion: 2,
 		MigrateState:  resourceComputeInstanceGroupMigrateState,

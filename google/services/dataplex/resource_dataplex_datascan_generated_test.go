@@ -51,7 +51,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicProfileExample(t *testing.T) {
 				ResourceName:            "google_dataplex_datascan.basic_profile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_scan_id"},
+				ImportStateVerifyIgnore: []string{"location", "data_scan_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -100,7 +100,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullProfileExample(t *testing.T) {
 				ResourceName:            "google_dataplex_datascan.full_profile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_scan_id"},
+				ImportStateVerifyIgnore: []string{"location", "data_scan_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -182,7 +182,7 @@ func TestAccDataplexDatascan_dataplexDatascanBasicQualityExample(t *testing.T) {
 				ResourceName:            "google_dataplex_datascan.basic_quality",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_scan_id"},
+				ImportStateVerifyIgnore: []string{"location", "data_scan_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -240,7 +240,7 @@ func TestAccDataplexDatascan_dataplexDatascanFullQualityExample(t *testing.T) {
 				ResourceName:            "google_dataplex_datascan.full_quality",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_scan_id"},
+				ImportStateVerifyIgnore: []string{"location", "data_scan_id", "labels", "terraform_labels"},
 			},
 		},
 	})

@@ -374,7 +374,7 @@ func resourceCloudIdentityGroupMembershipDelete(d *schema.ResourceData, meta int
 func resourceCloudIdentityGroupMembershipImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"(?P<name>.+)",
+		"^(?P<name>.+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

@@ -462,6 +462,12 @@ The `networking` block supports:
 * `annotations` -
   (Optional)
   Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Key can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
+  
+* `binary_authorization` -
+  (Optional)
+  Configuration options for the Binary Authorization feature.
   
 * `description` -
   (Optional)
@@ -477,6 +483,12 @@ The `networking` block supports:
   
 
 
+The `binary_authorization` block supports:
+    
+* `evaluation_mode` -
+  (Optional)
+  Mode of operation for Binary Authorization policy evaluation. Possible values: DISABLED, PROJECT_SINGLETON_POLICY_ENFORCE
+    
 The `instance_placement` block supports:
     
 * `tenancy` -
@@ -563,6 +575,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   Output only. The time at which this cluster was created.
+  
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
   
 * `endpoint` -
   Output only. The endpoint of the cluster's API server.

@@ -64,7 +64,7 @@ func dataSourceGoogleAppEngineDefaultServiceAccountRead(d *schema.ResourceData, 
 
 	sa, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Get(serviceAccountName).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Service Account %q", serviceAccountName))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Service Account %q", serviceAccountName), serviceAccountName)
 	}
 
 	d.SetId(sa.Name)

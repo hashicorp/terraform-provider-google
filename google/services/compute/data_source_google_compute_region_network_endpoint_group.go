@@ -28,6 +28,7 @@ func DataSourceGoogleComputeRegionNetworkEndpointGroup() *schema.Resource {
 
 func dataSourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	id := ""
 	if name, ok := d.GetOk("name"); ok {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
@@ -38,7 +39,7 @@ func dataSourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, met
 			return err
 		}
 
-		d.SetId(fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/%s", project, region, name.(string)))
+		id = fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/%s", project, region, name.(string))
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := tpgresource.ParseNetworkEndpointGroupRegionalFieldValue(selfLink.(string), d, config)
 		if err != nil {
@@ -54,10 +55,19 @@ func dataSourceComputeRegionNetworkEndpointGroupRead(d *schema.ResourceData, met
 			return fmt.Errorf("Error setting region: %s", err)
 		}
 
-		d.SetId(fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/%s", parsed.Project, parsed.Region, parsed.Name))
+		id = fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/%s", parsed.Project, parsed.Region, parsed.Name)
 	} else {
 		return errors.New("Must provide either `self_link` or `region/name`")
 	}
+	d.SetId(id)
+	err := resourceComputeRegionNetworkEndpointGroupRead(d, meta)
+	if err != nil {
+		return err
+	}
 
-	return resourceComputeRegionNetworkEndpointGroupRead(d, meta)
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

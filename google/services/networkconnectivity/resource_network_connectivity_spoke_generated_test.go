@@ -51,17 +51,19 @@ func TestAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWritten(t *testing.T) {
 				Config: testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWritten(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivitySpoke_LinkedVPCNetworkHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -85,17 +87,19 @@ func TestAccNetworkConnectivitySpoke_RouterApplianceHandWritten(t *testing.T) {
 				Config: testAccNetworkConnectivitySpoke_RouterApplianceHandWritten(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccNetworkConnectivitySpoke_RouterApplianceHandWrittenUpdate0(context),
 			},
 			{
-				ResourceName:      "google_network_connectivity_spoke.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

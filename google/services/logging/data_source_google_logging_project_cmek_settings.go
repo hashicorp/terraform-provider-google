@@ -87,7 +87,7 @@ func dataSourceGoogleLoggingProjectCmekSettingsRead(d *schema.ResourceData, meta
 		UserAgent: userAgent,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("LoggingProjectCmekSettings %q", d.Id()))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("LoggingProjectCmekSettings %q", d.Id()), url)
 	}
 
 	d.SetId(fmt.Sprintf("projects/%s/cmekSettings", project))

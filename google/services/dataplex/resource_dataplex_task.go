@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceDataplexTask() *schema.Resource {
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"execution_spec": {
@@ -133,10 +139,14 @@ func ResourceDataplexTask() *schema.Resource {
 				Description: `User friendly display name.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `User-defined labels for the task.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the task.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"lake": {
 				Type:        schema.TypeString,
@@ -448,6 +458,12 @@ func ResourceDataplexTask() *schema.Resource {
 				Computed:    true,
 				Description: `The time when the task was created.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"execution_status": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -526,6 +542,13 @@ func ResourceDataplexTask() *schema.Resource {
 				Computed:    true,
 				Description: `Current state of the task.`,
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -567,12 +590,6 @@ func resourceDataplexTaskCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDataplexTaskLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	triggerSpecProp, err := expandDataplexTaskTriggerSpec(d.Get("trigger_spec"), d, config)
 	if err != nil {
 		return err
@@ -596,6 +613,12 @@ func resourceDataplexTaskCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("notebook"); !tpgresource.IsEmptyValue(reflect.ValueOf(notebookProp)) && (ok || !reflect.DeepEqual(v, notebookProp)) {
 		obj["notebook"] = notebookProp
+	}
+	labelsProp, err := expandDataplexTaskEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/lakes/{{lake}}/tasks?task_id={{task_id}}")
@@ -731,6 +754,12 @@ func resourceDataplexTaskRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("notebook", flattenDataplexTaskNotebook(res["notebook"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Task: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenDataplexTaskTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Task: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenDataplexTaskEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Task: %s", err)
+	}
 
 	return nil
 }
@@ -763,12 +792,6 @@ func resourceDataplexTaskUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandDataplexTaskLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	triggerSpecProp, err := expandDataplexTaskTriggerSpec(d.Get("trigger_spec"), d, config)
 	if err != nil {
 		return err
@@ -793,6 +816,12 @@ func resourceDataplexTaskUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("notebook"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notebookProp)) {
 		obj["notebook"] = notebookProp
 	}
+	labelsProp, err := expandDataplexTaskEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DataplexBasePath}}projects/{{project}}/locations/{{location}}/lakes/{{lake}}/tasks/{{task_id}}")
 	if err != nil {
@@ -810,10 +839,6 @@ func resourceDataplexTaskUpdate(d *schema.ResourceData, meta interface{}) error 
 		updateMask = append(updateMask, "displayName")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("trigger_spec") {
 		updateMask = append(updateMask, "triggerSpec")
 	}
@@ -828,6 +853,10 @@ func resourceDataplexTaskUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("notebook") {
 		updateMask = append(updateMask, "notebook")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -924,9 +953,9 @@ func resourceDataplexTaskDelete(d *schema.ResourceData, meta interface{}) error 
 func resourceDataplexTaskImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/tasks/(?P<task_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lakes/(?P<lake>[^/]+)/tasks/(?P<task_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<lake>[^/]+)/(?P<task_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -970,7 +999,18 @@ func flattenDataplexTaskState(v interface{}, d *schema.ResourceData, config *tra
 }
 
 func flattenDataplexTaskLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenDataplexTaskTriggerSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1511,23 +1551,31 @@ func flattenDataplexTaskNotebookArchiveUris(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenDataplexTaskTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenDataplexTaskEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDataplexTaskDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandDataplexTaskDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandDataplexTaskLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandDataplexTaskTriggerSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2167,4 +2215,15 @@ func expandDataplexTaskNotebookFileUris(v interface{}, d tpgresource.TerraformRe
 
 func expandDataplexTaskNotebookArchiveUris(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDataplexTaskEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

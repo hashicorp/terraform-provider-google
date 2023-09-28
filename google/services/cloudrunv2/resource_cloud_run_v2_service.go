@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,12 @@ func ResourceCloudRunV2Service() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -241,22 +248,6 @@ If not specified, defaults to the same value as container.ports[0].containerPort
 													Optional:    true,
 													Description: `How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value for liveness probe is 3600. Maximum value for startup probe is 240. Must be greater or equal than timeoutSeconds`,
 													Default:     10,
-												},
-												"tcp_socket": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Deprecated:  "`tcp_socket` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
-													Description: `TCPSocket specifies an action involving a TCP port. This field is not supported in liveness probe currently.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"port": {
-																Type:        schema.TypeInt,
-																Optional:    true,
-																Description: `Port number to access on the container. Must be in the range 1 to 65535. If not specified, defaults to 8080.`,
-															},
-														},
-													},
 												},
 												"timeout_seconds": {
 													Type:        schema.TypeInt,
@@ -560,12 +551,13 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"instances": {
-													Type:        schema.TypeList,
+													Type:        schema.TypeSet,
 													Optional:    true,
 													Description: `The Cloud SQL instance connection names, as can be found in https://console.cloud.google.com/sql/instances. Visit https://cloud.google.com/sql/docs/mysql/connect-run for more information on how to connect Cloud SQL and Cloud Run. Format: {project}:{location}:{instance}`,
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
+													Set: schema.HashString,
 												},
 											},
 										},
@@ -735,7 +727,10 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels.
 
 Cloud Run API v2 does not support labels with  'run.googleapis.com', 'cloud.googleapis.com', 'serving.knative.dev', or 'autoscaling.knative.dev' namespaces, and they will be rejected.
-All system labels in v1 now have a corresponding field in v2 Service.`,
+All system labels in v1 now have a corresponding field in v2 Service.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"launch_stage": {
@@ -852,6 +847,18 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 				Computed:    true,
 				Description: `The deletion time.`,
 			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -947,6 +954,13 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 					},
 				},
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"traffic_statuses": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1021,18 +1035,6 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandCloudRunV2ServiceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandCloudRunV2ServiceAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	clientProp, err := expandCloudRunV2ServiceClient(d.Get("client"), d, config)
 	if err != nil {
 		return err
@@ -1074,6 +1076,18 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("traffic"); !tpgresource.IsEmptyValue(reflect.ValueOf(trafficProp)) && (ok || !reflect.DeepEqual(v, trafficProp)) {
 		obj["traffic"] = trafficProp
+	}
+	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/services?serviceId={{name}}")
@@ -1261,6 +1275,15 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("etag", flattenCloudRunV2ServiceEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCloudRunV2ServiceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCloudRunV2ServiceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
+	if err := d.Set("effective_annotations", flattenCloudRunV2ServiceEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 
 	return nil
 }
@@ -1286,18 +1309,6 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
-	}
-	labelsProp, err := expandCloudRunV2ServiceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandCloudRunV2ServiceAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
 	}
 	clientProp, err := expandCloudRunV2ServiceClient(d.Get("client"), d, config)
 	if err != nil {
@@ -1340,6 +1351,18 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("traffic"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, trafficProp)) {
 		obj["traffic"] = trafficProp
+	}
+	labelsProp, err := expandCloudRunV2ServiceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandCloudRunV2ServiceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudRunV2BasePath}}projects/{{project}}/locations/{{location}}/services/{{name}}")
@@ -1437,9 +1460,9 @@ func resourceCloudRunV2ServiceDelete(d *schema.ResourceData, meta interface{}) e
 func resourceCloudRunV2ServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/services/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -1467,11 +1490,33 @@ func flattenCloudRunV2ServiceGeneration(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenCloudRunV2ServiceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunV2ServiceAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunV2ServiceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1927,8 +1972,6 @@ func flattenCloudRunV2ServiceTemplateContainersLivenessProbe(v interface{}, d *s
 		flattenCloudRunV2ServiceTemplateContainersLivenessProbeFailureThreshold(original["failureThreshold"], d, config)
 	transformed["http_get"] =
 		flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGet(original["httpGet"], d, config)
-	transformed["tcp_socket"] =
-		flattenCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocket(original["tcpSocket"], d, config)
 	transformed["grpc"] =
 		flattenCloudRunV2ServiceTemplateContainersLivenessProbeGrpc(original["grpc"], d, config)
 	return []interface{}{transformed}
@@ -2061,33 +2104,6 @@ func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeadersNa
 
 func flattenCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeadersValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["port"] =
-		flattenCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocketPort(original["port"], d, config)
-	return []interface{}{transformed}
-}
-func flattenCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocketPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunV2ServiceTemplateContainersLivenessProbeGrpc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2459,7 +2475,10 @@ func flattenCloudRunV2ServiceTemplateVolumesCloudSqlInstance(v interface{}, d *s
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2ServiceTemplateVolumesCloudSqlInstanceInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenCloudRunV2ServiceTemplateExecutionEnvironment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2736,30 +2755,31 @@ func flattenCloudRunV2ServiceEtag(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenCloudRunV2ServiceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCloudRunV2ServiceEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2ServiceEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandCloudRunV2ServiceDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandCloudRunV2ServiceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
-func expandCloudRunV2ServiceAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandCloudRunV2ServiceClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -3451,13 +3471,6 @@ func expandCloudRunV2ServiceTemplateContainersLivenessProbe(v interface{}, d tpg
 		transformed["httpGet"] = transformedHttpGet
 	}
 
-	transformedTcpSocket, err := expandCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocket(original["tcp_socket"], d, config)
-	if err != nil {
-		return nil, err
-	} else {
-		transformed["tcpSocket"] = transformedTcpSocket
-	}
-
 	transformedGrpc, err := expandCloudRunV2ServiceTemplateContainersLivenessProbeGrpc(original["grpc"], d, config)
 	if err != nil {
 		return nil, err
@@ -3564,34 +3577,6 @@ func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeadersNam
 }
 
 func expandCloudRunV2ServiceTemplateContainersLivenessProbeHttpGetHttpHeadersValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 {
-		return nil, nil
-	}
-
-	if l[0] == nil {
-		transformed := make(map[string]interface{})
-		return transformed, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedPort, err := expandCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocketPort(original["port"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["port"] = transformedPort
-	}
-
-	return transformed, nil
-}
-
-func expandCloudRunV2ServiceTemplateContainersLivenessProbeTcpSocketPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -4010,6 +3995,7 @@ func expandCloudRunV2ServiceTemplateVolumesCloudSqlInstance(v interface{}, d tpg
 }
 
 func expandCloudRunV2ServiceTemplateVolumesCloudSqlInstanceInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 
@@ -4086,4 +4072,26 @@ func expandCloudRunV2ServiceTrafficPercent(v interface{}, d tpgresource.Terrafor
 
 func expandCloudRunV2ServiceTrafficTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCloudRunV2ServiceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCloudRunV2ServiceEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -53,7 +53,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -129,7 +129,7 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -229,7 +229,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -366,7 +366,7 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -508,7 +508,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -607,7 +607,7 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -704,7 +704,7 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 				ResourceName:            "google_cloudfunctions2_function.function",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})

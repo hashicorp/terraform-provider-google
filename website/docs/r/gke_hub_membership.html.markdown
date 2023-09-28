@@ -41,6 +41,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -49,6 +50,10 @@ resource "google_gke_hub_membership" "membership" {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
+  }
+
+  labels = {
+    env = "test"
   }
 }
 ```
@@ -63,6 +68,7 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -100,6 +106,9 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Labels to apply to this membership.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `endpoint` -
   (Optional)
@@ -150,6 +159,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The unique identifier of the membership.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

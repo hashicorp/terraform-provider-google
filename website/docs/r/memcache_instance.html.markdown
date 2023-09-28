@@ -45,7 +45,7 @@ To get more information about Instance, see:
 // If this network hasn't been created and you are using this example in your
 // config, add an additional network resource or change
 // this from "data"to "resource"
-data "google_compute_network" "memcache_network" {
+resource "google_compute_network" "memcache_network" {
   name = "test-network"
 }
 
@@ -54,11 +54,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.memcache_network.id
+  network       = google_compute_network.memcache_network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.memcache_network.id
+  network                 = google_compute_network.memcache_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
@@ -66,6 +66,10 @@ resource "google_service_networking_connection" "private_service_connection" {
 resource "google_memcache_instance" "instance" {
   name = "test-instance"
   authorized_network = google_service_networking_connection.private_service_connection.network
+
+  labels = {
+    env = "test"
+  }
 
   node_config {
     cpu_count      = 1
@@ -128,6 +132,9 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user-provided metadata.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `zones` -
   (Optional)
@@ -272,6 +279,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `maintenance_schedule` -
   Output only. Published maintenance schedule.
   Structure is [documented below](#nested_maintenance_schedule).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_memcache_nodes"></a>The `memcache_nodes` block contains:

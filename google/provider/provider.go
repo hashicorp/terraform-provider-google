@@ -38,7 +38,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudids"
-	"github.com/hashicorp/terraform-provider-google/google/services/cloudiot"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
@@ -67,7 +66,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	"github.com/hashicorp/terraform-provider-google/google/services/filestore"
 	"github.com/hashicorp/terraform-provider-google/google/services/firestore"
-	"github.com/hashicorp/terraform-provider-google/google/services/gameservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub2"
@@ -120,8 +118,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
-
-	googleoauth "golang.org/x/oauth2/google"
 )
 
 // Provider returns a *schema.Provider.
@@ -150,12 +146,14 @@ func Provider() *schema.Provider {
 			"access_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				ValidateFunc:  ValidateEmptyStrings,
 				ConflictsWith: []string{"credentials"},
 			},
 
 			"impersonate_service_account": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"impersonate_service_account_delegates": {
@@ -165,23 +163,27 @@ func Provider() *schema.Provider {
 			},
 
 			"project": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"billing_project": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"zone": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateEmptyStrings,
 			},
 
 			"scopes": {
@@ -222,6 +224,12 @@ func Provider() *schema.Provider {
 			"request_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+
+			"default_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			// Generated Products
@@ -351,11 +359,6 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"cloud_ids_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
-			},
-			"cloud_iot_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -496,11 +499,6 @@ func Provider() *schema.Provider {
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
 			"firestore_custom_endpoint": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
-			},
-			"game_services_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -836,7 +834,6 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_container_registry_repository":                containeranalysis.DataSourceGoogleContainerRepo(),
 		"google_dataproc_metastore_service":                   dataprocmetastore.DataSourceDataprocMetastoreService(),
 		"google_datastream_static_ips":                        datastream.DataSourceGoogleDatastreamStaticIps(),
-		"google_game_services_game_server_deployment_rollout": gameservices.DataSourceGameServicesGameServerDeploymentRollout(),
 		"google_iam_policy":                                   resourcemanager.DataSourceGoogleIamPolicy(),
 		"google_iam_role":                                     resourcemanager.DataSourceGoogleIamRole(),
 		"google_iam_testable_permissions":                     resourcemanager.DataSourceGoogleIamTestablePermissions(),
@@ -914,7 +911,6 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
 			"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
 			"google_cloudfunctions2_function_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudfunctions2.Cloudfunctions2functionIamSchema, cloudfunctions2.Cloudfunctions2functionIamUpdaterProducer),
-			"google_cloudiot_registry_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer),
 			"google_cloud_run_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer),
 			"google_cloud_run_v2_job_iam_policy":                     tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2JobIamSchema, cloudrunv2.CloudRunV2JobIamUpdaterProducer),
 			"google_cloud_run_v2_service_iam_policy":                 tpgiamresource.DataSourceIamPolicy(cloudrunv2.CloudRunV2ServiceIamSchema, cloudrunv2.CloudRunV2ServiceIamUpdaterProducer),
@@ -994,9 +990,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 328
-// Generated IAM resources: 210
-// Total generated resources: 538
+// Generated resources: 321
+// Generated IAM resources: 207
+// Total generated resources: 528
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1121,11 +1117,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_cloud_identity_group":                                    cloudidentity.ResourceCloudIdentityGroup(),
 			"google_cloud_identity_group_membership":                         cloudidentity.ResourceCloudIdentityGroupMembership(),
 			"google_cloud_ids_endpoint":                                      cloudids.ResourceCloudIdsEndpoint(),
-			"google_cloudiot_device":                                         cloudiot.ResourceCloudIotDevice(),
-			"google_cloudiot_registry":                                       cloudiot.ResourceCloudIotDeviceRegistry(),
-			"google_cloudiot_registry_iam_binding":                           tpgiamresource.ResourceIamBinding(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
-			"google_cloudiot_registry_iam_member":                            tpgiamresource.ResourceIamMember(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
-			"google_cloudiot_registry_iam_policy":                            tpgiamresource.ResourceIamPolicy(cloudiot.CloudIotDeviceRegistryIamSchema, cloudiot.CloudIotDeviceRegistryIamUpdaterProducer, cloudiot.CloudIotDeviceRegistryIdParseFunc),
 			"google_cloud_run_domain_mapping":                                cloudrun.ResourceCloudRunDomainMapping(),
 			"google_cloud_run_service":                                       cloudrun.ResourceCloudRunService(),
 			"google_cloud_run_service_iam_binding":                           tpgiamresource.ResourceIamBinding(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer, cloudrun.CloudRunServiceIdParseFunc),
@@ -1328,11 +1319,6 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_firestore_document":                                      firestore.ResourceFirestoreDocument(),
 			"google_firestore_field":                                         firestore.ResourceFirestoreField(),
 			"google_firestore_index":                                         firestore.ResourceFirestoreIndex(),
-			"google_game_services_game_server_cluster":                       gameservices.ResourceGameServicesGameServerCluster(),
-			"google_game_services_game_server_config":                        gameservices.ResourceGameServicesGameServerConfig(),
-			"google_game_services_game_server_deployment":                    gameservices.ResourceGameServicesGameServerDeployment(),
-			"google_game_services_game_server_deployment_rollout":            gameservices.ResourceGameServicesGameServerDeploymentRollout(),
-			"google_game_services_realm":                                     gameservices.ResourceGameServicesRealm(),
 			"google_gke_backup_backup_plan":                                  gkebackup.ResourceGKEBackupBackupPlan(),
 			"google_gke_backup_backup_plan_iam_binding":                      tpgiamresource.ResourceIamBinding(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
 			"google_gke_backup_backup_plan_iam_member":                       tpgiamresource.ResourceIamMember(gkebackup.GKEBackupBackupPlanIamSchema, gkebackup.GKEBackupBackupPlanIamUpdaterProducer, gkebackup.GKEBackupBackupPlanIdParseFunc),
@@ -1761,6 +1747,13 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.Scopes[i] = scope.(string)
 	}
 
+	config.DefaultLabels = make(map[string]string)
+	defaultLabels := d.Get("default_labels").(map[string]interface{})
+
+	for k, v := range defaultLabels {
+		config.DefaultLabels[k] = v.(string)
+	}
+
 	batchCfg, err := transport_tpg.ExpandProviderBatchingConfig(d.Get("batching"))
 	if err != nil {
 		return nil, diag.FromErr(err)
@@ -1794,7 +1787,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.Cloudfunctions2BasePath = d.Get("cloudfunctions2_custom_endpoint").(string)
 	config.CloudIdentityBasePath = d.Get("cloud_identity_custom_endpoint").(string)
 	config.CloudIdsBasePath = d.Get("cloud_ids_custom_endpoint").(string)
-	config.CloudIotBasePath = d.Get("cloud_iot_custom_endpoint").(string)
 	config.CloudRunBasePath = d.Get("cloud_run_custom_endpoint").(string)
 	config.CloudRunV2BasePath = d.Get("cloud_run_v2_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
@@ -1823,7 +1815,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.EssentialContactsBasePath = d.Get("essential_contacts_custom_endpoint").(string)
 	config.FilestoreBasePath = d.Get("filestore_custom_endpoint").(string)
 	config.FirestoreBasePath = d.Get("firestore_custom_endpoint").(string)
-	config.GameServicesBasePath = d.Get("game_services_custom_endpoint").(string)
 	config.GKEBackupBasePath = d.Get("gke_backup_custom_endpoint").(string)
 	config.GKEHubBasePath = d.Get("gke_hub_custom_endpoint").(string)
 	config.GKEHub2BasePath = d.Get("gke_hub2_custom_endpoint").(string)
@@ -1894,23 +1885,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 
 	return transport_tpg.ProviderDCLConfigure(d, &config), nil
-}
-
-func ValidateCredentials(v interface{}, k string) (warnings []string, errors []error) {
-	if v == nil || v.(string) == "" {
-		return
-	}
-	creds := v.(string)
-	// if this is a path and we can stat it, assume it's ok
-	if _, err := os.Stat(creds); err == nil {
-		return
-	}
-	if _, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(creds)); err != nil {
-		errors = append(errors,
-			fmt.Errorf("JSON credentials are not valid: %s", err))
-	}
-
-	return
 }
 
 func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {

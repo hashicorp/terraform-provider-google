@@ -96,7 +96,7 @@ func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()), url)
 	}
 	var locations []map[string]interface{}
 	for {
@@ -144,7 +144,7 @@ func dataSourceAlloydbLocationsRead(d *schema.ResourceData, meta interface{}) er
 			UserAgent: userAgent,
 		})
 		if err != nil {
-			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()))
+			return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Locations %q", d.Id()), url)
 		}
 	}
 

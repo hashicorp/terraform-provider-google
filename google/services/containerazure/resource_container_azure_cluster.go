@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceContainerAzureCluster() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"authorization": {
@@ -114,14 +119,6 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				Description: "The ARM ID of the resource group where the cluster resources are deployed. For example: `/subscriptions/*/resourceGroups/*`",
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"azure_services_authentication": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -145,6 +142,13 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				Description: "Optional. A human readable description of this cluster. Cannot be longer than 255 UTF-8 encoded bytes.",
 			},
 
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
+			},
+
 			"project": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -152,6 +156,14 @@ func ResourceContainerAzureCluster() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The project for the resource",
+			},
+
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Annotations on the cluster. This field has the same restrictions as Kubernetes annotations. The total size of all keys and values combined is limited to 256k. Keys can have 2 segments: prefix (optional) and name (required), separated by a slash (/). Prefix must be a DNS subdomain. Name must be 63 characters or less, begin and end with alphanumerics, with dashes (-), underscores (_), dots (.), and alphanumerics between.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"create_time": {
@@ -520,10 +532,10 @@ func resourceContainerAzureClusterCreate(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:                     dcl.String(project),
 	}
 
@@ -580,10 +592,10 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:                     dcl.String(project),
 	}
 
@@ -633,9 +645,6 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("resource_group_id", res.ResourceGroupId); err != nil {
 		return fmt.Errorf("error setting resource_group_id in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("azure_services_authentication", flattenContainerAzureClusterAzureServicesAuthentication(res.AzureServicesAuthentication)); err != nil {
 		return fmt.Errorf("error setting azure_services_authentication in state: %s", err)
 	}
@@ -645,8 +654,14 @@ func resourceContainerAzureClusterRead(d *schema.ResourceData, meta interface{})
 	if err = d.Set("description", res.Description); err != nil {
 		return fmt.Errorf("error setting description in state: %s", err)
 	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
+	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
+	}
+	if err = d.Set("annotations", flattenContainerAzureClusterAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
@@ -691,10 +706,10 @@ func resourceContainerAzureClusterUpdate(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:                     dcl.String(project),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -746,10 +761,10 @@ func resourceContainerAzureClusterDelete(d *schema.ResourceData, meta interface{
 		Name:                        dcl.String(d.Get("name").(string)),
 		Networking:                  expandContainerAzureClusterNetworking(d.Get("networking")),
 		ResourceGroupId:             dcl.String(d.Get("resource_group_id").(string)),
-		Annotations:                 tpgresource.CheckStringMap(d.Get("annotations")),
 		AzureServicesAuthentication: expandContainerAzureClusterAzureServicesAuthentication(d.Get("azure_services_authentication")),
 		Client:                      dcl.String(d.Get("client").(string)),
 		Description:                 dcl.String(d.Get("description").(string)),
+		Annotations:                 tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Project:                     dcl.String(project),
 	}
 
@@ -1210,4 +1225,19 @@ func flattenContainerAzureClusterWorkloadIdentityConfig(obj *containerazure.Clus
 
 	return []interface{}{transformed}
 
+}
+
+func flattenContainerAzureClusterAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

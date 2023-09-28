@@ -54,14 +54,6 @@ func TestAccFirebaserulesRelease_FirestoreReleaseHandWritten(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
-				Config: testAccFirebaserulesRelease_FirestoreReleaseHandWrittenUpdate0(context),
-			},
-			{
-				ResourceName:      "google_firebaserules_release.primary",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
@@ -84,34 +76,6 @@ resource "google_firebaserules_ruleset" "firestore" {
   source {
     files {
       content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if false; } } }"
-      name    = "firestore.rules"
-    }
-  }
-
-  project = "%{project_name}"
-}
-
-`, context)
-}
-
-func testAccFirebaserulesRelease_FirestoreReleaseHandWrittenUpdate0(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_firebaserules_release" "primary" {
-  name         = "cloud.firestore"
-  ruleset_name = "projects/%{project_name}/rulesets/${google_firebaserules_ruleset.firestore.name}"
-  project      = "%{project_name}"
-
-  lifecycle {
-    replace_triggered_by = [
-      google_firebaserules_ruleset.firestore
-    ]
-  }
-}
-
-resource "google_firebaserules_ruleset" "firestore" {
-  source {
-    files {
-      content = "service cloud.firestore {match /databases/{database}/documents { match /{document=**} { allow read, write: if request.auth != null; } } }"
       name    = "firestore.rules"
     }
   }

@@ -102,6 +102,8 @@ func ResourceTPUNode() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpuNodeCustomizeDiff,
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -145,11 +147,14 @@ is peered with another network that is using that CIDR block.`,
 				Description: `The user-supplied description of the TPU. Maximum of 512 characters.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Resource labels to represent user provided metadata.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Resource labels to represent user provided metadata.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"network": {
 				Type:             schema.TypeString,
@@ -199,6 +204,13 @@ TPU Node to is a Shared VPC network, the node must be created with this this fie
 				ForceNew:    true,
 				Description: `The GCP location for the TPU. If it is not provided, the provider zone is used.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"network_endpoints": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -227,6 +239,13 @@ to the first (index 0) entry.`,
 node. To share resources, including Google Cloud Storage data, with
 the Tensorflow job running in the Node, this account must have
 permissions to that data.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -295,10 +314,10 @@ func resourceTPUNodeCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("scheduling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(schedulingConfigProp)) && (ok || !reflect.DeepEqual(v, schedulingConfigProp)) {
 		obj["schedulingConfig"] = schedulingConfigProp
 	}
-	labelsProp, err := expandTPUNodeLabels(d.Get("labels"), d, config)
+	labelsProp, err := expandTPUNodeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
@@ -443,6 +462,12 @@ func resourceTPUNodeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("labels", flattenTPUNodeLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Node: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenTPUNodeTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Node: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenTPUNodeEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Node: %s", err)
+	}
 
 	return nil
 }
@@ -568,10 +593,10 @@ func resourceTPUNodeDelete(d *schema.ResourceData, meta interface{}) error {
 func resourceTPUNodeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/nodes/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<zone>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<zone>[^/]+)/nodes/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<zone>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<zone>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -679,6 +704,36 @@ func flattenTPUNodeNetworkEndpointsPort(v interface{}, d *schema.ResourceData, c
 }
 
 func flattenTPUNodeLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenTPUNodeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenTPUNodeEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -733,7 +788,7 @@ func expandTPUNodeSchedulingConfigPreemptible(v interface{}, d tpgresource.Terra
 	return v, nil
 }
 
-func expandTPUNodeLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandTPUNodeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

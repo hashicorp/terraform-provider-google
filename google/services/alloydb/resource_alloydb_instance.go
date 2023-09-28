@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,11 @@ func ResourceAlloydbInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(40 * time.Minute),
 			Delete: schema.DefaultTimeout(40 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"cluster": {
@@ -105,10 +111,13 @@ can have regional availability (nodes are present in 2 or more zones in a region
 				Description: `The Compute Engine zone that the instance should serve from, per https://cloud.google.com/compute/docs/regions-zones This can ONLY be specified for ZONAL instances. If present for a REGIONAL instance, an error will be thrown. If this is absent for a ZONAL instance, instance is created in a random zone with available capacity.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `User-defined labels for the alloydb instance.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the alloydb instance.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"machine_config": {
 				Type:        schema.TypeList,
@@ -178,6 +187,18 @@ can have regional availability (nodes are present in 2 or more zones in a region
 				Computed:    true,
 				Description: `Time the Instance was created in UTC.`,
 			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"ip_address": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -197,6 +218,13 @@ can have regional availability (nodes are present in 2 or more zones in a region
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The current state of the alloydb instance.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -222,18 +250,6 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandAlloydbInstanceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandAlloydbInstanceAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	displayNameProp, err := expandAlloydbInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -281,6 +297,18 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("machine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(machineConfigProp)) && (ok || !reflect.DeepEqual(v, machineConfigProp)) {
 		obj["machineConfig"] = machineConfigProp
+	}
+	labelsProp, err := expandAlloydbInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandAlloydbInstanceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances?instanceId={{instance_id}}")
@@ -409,6 +437,15 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("machine_config", flattenAlloydbInstanceMachineConfig(res["machineConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenAlloydbInstanceTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenAlloydbInstanceEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("effective_annotations", flattenAlloydbInstanceEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 
 	return nil
 }
@@ -424,18 +461,6 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandAlloydbInstanceLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandAlloydbInstanceAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	displayNameProp, err := expandAlloydbInstanceDisplayName(d.Get("display_name"), d, config)
 	if err != nil {
 		return err
@@ -478,6 +503,18 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("machine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, machineConfigProp)) {
 		obj["machineConfig"] = machineConfigProp
 	}
+	labelsProp, err := expandAlloydbInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandAlloydbInstanceEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
 	if err != nil {
@@ -486,14 +523,6 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
-	if d.HasChange("annotations") {
-		updateMask = append(updateMask, "annotations")
-	}
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
@@ -521,6 +550,14 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("machine_config") {
 		updateMask = append(updateMask, "machineConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("effective_annotations") {
+		updateMask = append(updateMask, "annotations")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -646,11 +683,33 @@ func flattenAlloydbInstanceUid(v interface{}, d *schema.ResourceData, config *tr
 }
 
 func flattenAlloydbInstanceLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenAlloydbInstanceAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenAlloydbInstanceState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -802,26 +861,27 @@ func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.Resour
 	return v // let terraform core handle it otherwise
 }
 
-func expandAlloydbInstanceLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenAlloydbInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
 }
 
-func expandAlloydbInstanceAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenAlloydbInstanceEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandAlloydbInstanceDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -951,4 +1011,26 @@ func expandAlloydbInstanceMachineConfig(v interface{}, d tpgresource.TerraformRe
 
 func expandAlloydbInstanceMachineConfigCpuCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandAlloydbInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandAlloydbInstanceEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

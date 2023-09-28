@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceCloudbuildv2Connection() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -66,17 +71,16 @@ func ResourceCloudbuildv2Connection() *schema.Resource {
 				Description: "Immutable. The resource name of the connection, in the format `projects/{project}/locations/{location}/connections/{connection_id}`.",
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Allows clients to store small amounts of arbitrary data.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"disabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "If disabled is set to true, functionality is disabled for this connection. Repository based API methods and webhooks processing for repositories in this connection will be disabled.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"github_config": {
@@ -113,6 +117,13 @@ func ResourceCloudbuildv2Connection() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The project for the resource",
+			},
+
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Allows clients to store small amounts of arbitrary data.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"create_time": {
@@ -400,8 +411,8 @@ func resourceCloudbuildv2ConnectionCreate(d *schema.ResourceData, meta interface
 	obj := &cloudbuildv2.Connection{
 		Location:               dcl.String(d.Get("location").(string)),
 		Name:                   dcl.String(d.Get("name").(string)),
-		Annotations:            tpgresource.CheckStringMap(d.Get("annotations")),
 		Disabled:               dcl.Bool(d.Get("disabled").(bool)),
+		Annotations:            tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		GithubConfig:           expandCloudbuildv2ConnectionGithubConfig(d.Get("github_config")),
 		GithubEnterpriseConfig: expandCloudbuildv2ConnectionGithubEnterpriseConfig(d.Get("github_enterprise_config")),
 		GitlabConfig:           expandCloudbuildv2ConnectionGitlabConfig(d.Get("gitlab_config")),
@@ -455,8 +466,8 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuildv2.Connection{
 		Location:               dcl.String(d.Get("location").(string)),
 		Name:                   dcl.String(d.Get("name").(string)),
-		Annotations:            tpgresource.CheckStringMap(d.Get("annotations")),
 		Disabled:               dcl.Bool(d.Get("disabled").(bool)),
+		Annotations:            tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		GithubConfig:           expandCloudbuildv2ConnectionGithubConfig(d.Get("github_config")),
 		GithubEnterpriseConfig: expandCloudbuildv2ConnectionGithubEnterpriseConfig(d.Get("github_enterprise_config")),
 		GitlabConfig:           expandCloudbuildv2ConnectionGitlabConfig(d.Get("gitlab_config")),
@@ -491,11 +502,11 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("disabled", res.Disabled); err != nil {
 		return fmt.Errorf("error setting disabled in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("github_config", flattenCloudbuildv2ConnectionGithubConfig(res.GithubConfig)); err != nil {
 		return fmt.Errorf("error setting github_config in state: %s", err)
@@ -508,6 +519,9 @@ func resourceCloudbuildv2ConnectionRead(d *schema.ResourceData, meta interface{}
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudbuildv2ConnectionAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
@@ -537,8 +551,8 @@ func resourceCloudbuildv2ConnectionUpdate(d *schema.ResourceData, meta interface
 	obj := &cloudbuildv2.Connection{
 		Location:               dcl.String(d.Get("location").(string)),
 		Name:                   dcl.String(d.Get("name").(string)),
-		Annotations:            tpgresource.CheckStringMap(d.Get("annotations")),
 		Disabled:               dcl.Bool(d.Get("disabled").(bool)),
+		Annotations:            tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		GithubConfig:           expandCloudbuildv2ConnectionGithubConfig(d.Get("github_config")),
 		GithubEnterpriseConfig: expandCloudbuildv2ConnectionGithubEnterpriseConfig(d.Get("github_enterprise_config")),
 		GitlabConfig:           expandCloudbuildv2ConnectionGitlabConfig(d.Get("gitlab_config")),
@@ -587,8 +601,8 @@ func resourceCloudbuildv2ConnectionDelete(d *schema.ResourceData, meta interface
 	obj := &cloudbuildv2.Connection{
 		Location:               dcl.String(d.Get("location").(string)),
 		Name:                   dcl.String(d.Get("name").(string)),
-		Annotations:            tpgresource.CheckStringMap(d.Get("annotations")),
 		Disabled:               dcl.Bool(d.Get("disabled").(bool)),
+		Annotations:            tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		GithubConfig:           expandCloudbuildv2ConnectionGithubConfig(d.Get("github_config")),
 		GithubEnterpriseConfig: expandCloudbuildv2ConnectionGithubEnterpriseConfig(d.Get("github_enterprise_config")),
 		GitlabConfig:           expandCloudbuildv2ConnectionGitlabConfig(d.Get("gitlab_config")),
@@ -891,4 +905,19 @@ func flattenCloudbuildv2ConnectionInstallationState(obj *cloudbuildv2.Connection
 
 	return []interface{}{transformed}
 
+}
+
+func flattenCloudbuildv2ConnectionAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

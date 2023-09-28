@@ -78,11 +78,6 @@ The following arguments are supported:
   The spec for this DomainMapping.
   Structure is [documented below](#nested_spec).
 
-* `metadata` -
-  (Required)
-  Metadata associated with this DomainMapping.
-  Structure is [documented below](#nested_metadata).
-
 * `location` -
   (Required)
   The location of the cloud run instance. eg us-central1
@@ -108,6 +103,18 @@ The following arguments are supported:
   Default value is `AUTOMATIC`.
   Possible values are: `NONE`, `AUTOMATIC`.
 
+- - -
+
+
+* `metadata` -
+  (Optional)
+  Metadata associated with this DomainMapping.
+  Structure is [documented below](#nested_metadata).
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+
 <a name="nested_metadata"></a>The `metadata` block supports:
 
 * `labels` -
@@ -116,6 +123,8 @@ The following arguments are supported:
   (scope and select) objects. May match selectors of replication controllers
   and routes.
   More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `generation` -
   (Output)
@@ -155,12 +164,18 @@ The following arguments are supported:
   If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
   or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
 
-- - -
+* `terraform_labels` -
+  (Output)
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
 
+* `effective_labels` -
+  (Output)
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
-
+* `effective_annotations` -
+  (Output)
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 ## Attributes Reference
 

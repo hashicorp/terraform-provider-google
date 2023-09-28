@@ -49,7 +49,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBasicExample(
 				ResourceName:            "google_datastream_connection_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -89,7 +89,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPriva
 				ResourceName:            "google_datastream_connection_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -149,7 +149,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileFullExample(t
 				ResourceName:            "google_datastream_connection_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "forward_ssh_connectivity.0.password"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "forward_ssh_connectivity.0.password", "labels", "terraform_labels"},
 			},
 		},
 	})

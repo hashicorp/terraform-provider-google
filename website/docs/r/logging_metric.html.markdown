@@ -300,29 +300,29 @@ The following arguments are supported:
 <a name="nested_linear_buckets"></a>The `linear_buckets` block supports:
 
 * `num_finite_buckets` -
-  (Optional)
+  (Required)
   Must be greater than 0.
 
 * `width` -
-  (Optional)
+  (Required)
   Must be greater than 0.
 
 * `offset` -
-  (Optional)
+  (Required)
   Lower bound of the first bucket.
 
 <a name="nested_exponential_buckets"></a>The `exponential_buckets` block supports:
 
 * `num_finite_buckets` -
-  (Optional)
+  (Required)
   Must be greater than 0.
 
 * `growth_factor` -
-  (Optional)
+  (Required)
   Must be greater than 1.
 
 * `scale` -
-  (Optional)
+  (Required)
   Must be greater than 0.
 
 <a name="nested_explicit_buckets"></a>The `explicit_buckets` block supports:

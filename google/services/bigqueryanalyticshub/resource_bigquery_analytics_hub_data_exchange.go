@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceBigqueryAnalyticsHubDataExchange() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"data_exchange_id": {
@@ -411,10 +416,10 @@ func resourceBigqueryAnalyticsHubDataExchangeDelete(d *schema.ResourceData, meta
 func resourceBigqueryAnalyticsHubDataExchangeImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)",
-		"(?P<data_exchange_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dataExchanges/(?P<data_exchange_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<data_exchange_id>[^/]+)$",
+		"^(?P<data_exchange_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

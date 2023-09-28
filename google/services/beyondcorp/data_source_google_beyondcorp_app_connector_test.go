@@ -181,6 +181,9 @@ resource "google_beyondcorp_app_connector" "foo" {
 			email = google_service_account.service_account.email
 		}
 	}
+	labels = {
+		my-label = "my-label-value"
+	}
 }
 
 data "google_beyondcorp_app_connector" "foo" {

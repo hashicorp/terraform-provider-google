@@ -35,7 +35,8 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -50,7 +51,7 @@ func TestAccGKEHubMembership_gkehubMembershipBasicExample(t *testing.T) {
 				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"membership_id"},
+				ImportStateVerifyIgnore: []string{"membership_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -62,6 +63,7 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -71,6 +73,10 @@ resource "google_gke_hub_membership" "membership" {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
+
+  labels = {
+    env = "test"
+  }
 }
 `, context)
 }
@@ -79,8 +85,9 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"random_suffix": acctest.RandString(t, 10),
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -95,7 +102,7 @@ func TestAccGKEHubMembership_gkehubMembershipIssuerExample(t *testing.T) {
 				ResourceName:            "google_gke_hub_membership.membership",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"membership_id"},
+				ImportStateVerifyIgnore: []string{"membership_id", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -110,6 +117,7 @@ resource "google_container_cluster" "primary" {
   workload_identity_config {
     workload_pool = "%{project}.svc.id.goog"
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 
 resource "google_gke_hub_membership" "membership" {

@@ -77,6 +77,9 @@ func ResourceSecretManagerSecret() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			secretManagerSecretAutoCustomizeDiff,
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -92,6 +95,7 @@ after the Secret has been created.`,
 						"auto": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `The Secret will automatically be replicated without any restrictions.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -115,14 +119,7 @@ encryption is used.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
-						},
-						"automatic": {
-							Type:         schema.TypeBool,
-							Optional:     true,
-							Deprecated:   "`automatic` is deprecated and will be removed in a future major release. Use `auto` instead.",
-							Description:  `The Secret will automatically be replicated without any restrictions.`,
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
+							ExactlyOneOf: []string{"replication.0.user_managed", "replication.0.auto"},
 						},
 						"user_managed": {
 							Type:        schema.TypeList,
@@ -166,7 +163,7 @@ encryption is used.`,
 									},
 								},
 							},
-							ExactlyOneOf: []string{"replication.0.automatic", "replication.0.user_managed", "replication.0.auto"},
+							ExactlyOneOf: []string{"replication.0.user_managed", "replication.0.auto"},
 						},
 					},
 				},
@@ -217,7 +214,11 @@ and must conform to the following PCRE regular expression: [\p{Ll}\p{Lo}\p{N}_-]
 No more than 64 labels can be assigned to a given resource.
 
 An object containing a list of "key": value pairs. Example:
-{ "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+{ "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"rotation": {
@@ -285,11 +286,30 @@ An object containing a list of "key": value pairs. Example:
 				Computed:    true,
 				Description: `The time at which the Secret was created.`,
 			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The resource name of the Secret. Format:
 'projects/{{project}}/secrets/{{secret_id}}'`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -310,18 +330,6 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandSecretManagerSecretLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandSecretManagerSecretAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	versionAliasesProp, err := expandSecretManagerSecretVersionAliases(d.Get("version_aliases"), d, config)
 	if err != nil {
 		return err
@@ -357,6 +365,18 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("rotation"); !tpgresource.IsEmptyValue(reflect.ValueOf(rotationProp)) && (ok || !reflect.DeepEqual(v, rotationProp)) {
 		obj["rotation"] = rotationProp
+	}
+	labelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets?secretId={{secret_id}}")
@@ -473,6 +493,15 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("rotation", flattenSecretManagerSecretRotation(res["rotation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenSecretManagerSecretTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenSecretManagerSecretEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err := d.Set("effective_annotations", flattenSecretManagerSecretEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
 
 	return nil
 }
@@ -493,18 +522,6 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandSecretManagerSecretLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
-	annotationsProp, err := expandSecretManagerSecretAnnotations(d.Get("annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 	versionAliasesProp, err := expandSecretManagerSecretVersionAliases(d.Get("version_aliases"), d, config)
 	if err != nil {
 		return err
@@ -529,6 +546,18 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("rotation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rotationProp)) {
 		obj["rotation"] = rotationProp
 	}
+	labelsProp, err := expandSecretManagerSecretEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandSecretManagerSecretEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+		obj["annotations"] = annotationsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecretManagerBasePath}}projects/{{project}}/secrets/{{secret_id}}")
 	if err != nil {
@@ -537,14 +566,6 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Updating Secret %q: %#v", d.Id(), obj)
 	updateMask := []string{}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
-	if d.HasChange("annotations") {
-		updateMask = append(updateMask, "annotations")
-	}
 
 	if d.HasChange("version_aliases") {
 		updateMask = append(updateMask, "versionAliases")
@@ -560,6 +581,14 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("rotation") {
 		updateMask = append(updateMask, "rotation")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("effective_annotations") {
+		updateMask = append(updateMask, "annotations")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -658,9 +687,9 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 func resourceSecretManagerSecretImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<secret_id>[^/]+)",
-		"(?P<secret_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/secrets/(?P<secret_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<secret_id>[^/]+)$",
+		"^(?P<secret_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -684,11 +713,33 @@ func flattenSecretManagerSecretCreateTime(v interface{}, d *schema.ResourceData,
 }
 
 func flattenSecretManagerSecretLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenSecretManagerSecretAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenSecretManagerSecretVersionAliases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -704,22 +755,12 @@ func flattenSecretManagerSecretReplication(v interface{}, d *schema.ResourceData
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	_, ok := d.GetOk("replication.0.automatic")
-	if ok {
-		transformed["automatic"] =
-			flattenSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
-	} else {
-		transformed["auto"] =
-			flattenSecretManagerSecretReplicationAuto(original["automatic"], d, config)
-	}
+	transformed["auto"] =
+		flattenSecretManagerSecretReplicationAuto(original["automatic"], d, config)
 	transformed["user_managed"] =
 		flattenSecretManagerSecretReplicationUserManaged(original["userManaged"], d, config)
 	return []interface{}{transformed}
 }
-func flattenSecretManagerSecretReplicationAutomatic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v != nil
-}
-
 func flattenSecretManagerSecretReplicationAuto(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -849,26 +890,27 @@ func flattenSecretManagerSecretRotationRotationPeriod(v interface{}, d *schema.R
 	return v
 }
 
-func expandSecretManagerSecretLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenSecretManagerSecretTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
 }
 
-func expandSecretManagerSecretAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenSecretManagerSecretEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecretManagerSecretEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandSecretManagerSecretVersionAliases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
@@ -891,22 +933,11 @@ func expandSecretManagerSecretReplication(v interface{}, d tpgresource.Terraform
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	if _, ok := d.GetOk("replication.0.automatic"); ok {
-		transformedAutomatic, err := expandSecretManagerSecretReplicationAutomatic(original["automatic"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedAutomatic); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["automatic"] = transformedAutomatic
-		}
-	}
-
-	if _, ok := d.GetOk("replication.0.auto"); ok {
-		transformedAuto, err := expandSecretManagerSecretReplicationAuto(original["auto"], d, config)
-		if err != nil {
-			return nil, err
-		} else {
-			transformed["automatic"] = transformedAuto
-		}
+	transformedAuto, err := expandSecretManagerSecretReplicationAuto(original["auto"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["automatic"] = transformedAuto
 	}
 
 	transformedUserManaged, err := expandSecretManagerSecretReplicationUserManaged(original["user_managed"], d, config)
@@ -917,14 +948,6 @@ func expandSecretManagerSecretReplication(v interface{}, d tpgresource.Terraform
 	}
 
 	return transformed, nil
-}
-
-func expandSecretManagerSecretReplicationAutomatic(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil || !v.(bool) {
-		return nil, nil
-	}
-
-	return struct{}{}, nil
 }
 
 func expandSecretManagerSecretReplicationAuto(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1115,4 +1138,26 @@ func expandSecretManagerSecretRotationNextRotationTime(v interface{}, d tpgresou
 
 func expandSecretManagerSecretRotationRotationPeriod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandSecretManagerSecretEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandSecretManagerSecretEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

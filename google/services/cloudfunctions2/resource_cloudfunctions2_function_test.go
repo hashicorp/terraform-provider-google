@@ -30,7 +30,7 @@ func TestAccCloudFunctions2Function_update(t *testing.T) {
 				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccCloudFunctions2Function_test_update(context),
@@ -39,7 +39,7 @@ func TestAccCloudFunctions2Function_update(t *testing.T) {
 				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccCloudFunctions2Function_test_redeploy(context),
@@ -48,7 +48,7 @@ func TestAccCloudFunctions2Function_update(t *testing.T) {
 				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket"},
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -72,6 +72,9 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   name = "tf-test-test-function%{random_suffix}"
   location = "us-central1"
   description = "a new function"
+  labels = {
+    env = "test"
+  }
 
   build_config {
     runtime = "nodejs12"
@@ -111,7 +114,10 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   name = "tf-test-test-function%{random_suffix}"
   location = "us-central1"
   description = "an updated function"
-
+  labels = {
+    env = "test-update"
+  }
+  
   build_config {
     runtime = "nodejs12"
     entry_point = "helloHttp"

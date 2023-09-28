@@ -28,9 +28,10 @@ func TestAccComputeImage_withLicense(t *testing.T) {
 				Config: testAccComputeImage_license("image-test-" + acctest.RandString(t, 10)),
 			},
 			{
-				ResourceName:      "google_compute_image.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_image.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -54,7 +55,6 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageExists(
 						t, "google_compute_image.foobar", &image),
 					testAccCheckComputeImageContainsLabel(&image, "my-label", "my-label-value"),
-					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
 				),
 			},
 			{
@@ -71,7 +71,7 @@ func TestAccComputeImage_update(t *testing.T) {
 				ResourceName:            "google_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk"},
+				ImportStateVerifyIgnore: []string{"raw_disk", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -367,7 +367,6 @@ resource "google_compute_image" "foobar" {
   }
   labels = {
     my-label    = "my-label-value"
-    empty-label = ""
   }
 }
 `, name)
@@ -393,7 +392,6 @@ resource "google_compute_image" "foobar" {
 
   labels = {
     my-label    = "my-label-value"
-    empty-label = ""
   }
   licenses = [
     "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/licenses/debian-11-bullseye",

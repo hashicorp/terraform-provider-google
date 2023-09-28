@@ -29,6 +29,7 @@ func DataSourceGoogleComputeNetworkEndpointGroup() *schema.Resource {
 
 func dataSourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	id := ""
 	if name, ok := d.GetOk("name"); ok {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
@@ -38,7 +39,8 @@ func dataSourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta inte
 		if err != nil {
 			return err
 		}
-		d.SetId(fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/%s", project, zone, name.(string)))
+		id = fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/%s", project, zone, name.(string))
+		d.SetId(id)
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := tpgresource.ParseNetworkEndpointGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
@@ -53,10 +55,20 @@ func dataSourceComputeNetworkEndpointGroupRead(d *schema.ResourceData, meta inte
 		if err := d.Set("project", parsed.Project); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
 		}
-		d.SetId(fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/%s", parsed.Project, parsed.Zone, parsed.Name))
+		id = fmt.Sprintf("projects/%s/zones/%s/networkEndpointGroups/%s", parsed.Project, parsed.Zone, parsed.Name)
+		d.SetId(id)
 	} else {
 		return errors.New("Must provide either `self_link` or `zone/name`")
 	}
 
-	return resourceComputeNetworkEndpointGroupRead(d, meta)
+	err := resourceComputeNetworkEndpointGroupRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

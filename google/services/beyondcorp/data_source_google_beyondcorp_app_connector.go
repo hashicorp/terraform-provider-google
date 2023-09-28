@@ -40,7 +40,21 @@ func dataSourceGoogleBeyondcorpAppConnectorRead(d *schema.ResourceData, meta int
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("projects/%s/locations/%s/appConnectors/%s", project, region, name))
+	id := fmt.Sprintf("projects/%s/locations/%s/appConnectors/%s", project, region, name)
+	d.SetId(id)
 
-	return resourceBeyondcorpAppConnectorRead(d, meta)
+	err = resourceBeyondcorpAppConnectorRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"description": {
@@ -83,6 +88,7 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The set of labels that can be used to describe a specific instance of this metric type. In order to delete a label, the entire resource must be deleted, then created with the desired labels.`,
 				Elem:        monitoringMetricDescriptorLabelsSchema(),
 				// Default schema.HashSchema is used.
@@ -97,7 +103,6 @@ func ResourceMonitoringMetricDescriptor() *schema.Resource {
 			"metadata": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Metadata which can be used to guide usage of the metric.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{

@@ -49,7 +49,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -61,6 +61,9 @@ resource "google_certificate_manager_certificate" "default" {
   name        = "tf-test-dns-cert%{random_suffix}"
   description = "The default cert"
   scope       = "EDGE_CACHE"
+  labels = {
+    env = "test"
+  }
   managed {
     domains = [
       google_certificate_manager_dns_authorization.instance.domain,
@@ -107,7 +110,7 @@ func TestAccCertificateManagerCertificate_certificateManagerGoogleManagedCertifi
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -210,7 +213,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -249,7 +252,7 @@ func TestAccCertificateManagerCertificate_certificateManagerSelfManagedCertifica
 				ResourceName:            "google_certificate_manager_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_managed", "name", "location"},
+				ImportStateVerifyIgnore: []string{"self_managed", "name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})

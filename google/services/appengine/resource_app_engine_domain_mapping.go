@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -61,6 +62,10 @@ func ResourceAppEngineDomainMapping() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {
@@ -453,9 +458,9 @@ func resourceAppEngineDomainMappingDelete(d *schema.ResourceData, meta interface
 func resourceAppEngineDomainMappingImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<domain_name>[^/]+)",
-		"(?P<domain_name>[^/]+)",
+		"^apps/(?P<project>[^/]+)/domainMappings/(?P<domain_name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<domain_name>[^/]+)$",
+		"^(?P<domain_name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

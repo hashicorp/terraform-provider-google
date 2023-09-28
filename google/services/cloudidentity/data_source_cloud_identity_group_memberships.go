@@ -79,7 +79,7 @@ func dataSourceGoogleCloudIdentityGroupMembershipsRead(d *schema.ResourceData, m
 		return nil
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudIdentityGroupMemberships %q", d.Id()))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("CloudIdentityGroupMemberships %q", d.Id()), "")
 	}
 
 	if err := d.Set("memberships", result); err != nil {

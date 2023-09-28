@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceDNSResponsePolicy() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"response_policy_name": {
@@ -398,9 +403,9 @@ func resourceDNSResponsePolicyDelete(d *schema.ResourceData, meta interface{}) e
 func resourceDNSResponsePolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/responsePolicies/(?P<response_policy_name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<response_policy_name>[^/]+)",
-		"(?P<response_policy_name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/responsePolicies/(?P<response_policy_name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<response_policy_name>[^/]+)$",
+		"^(?P<response_policy_name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

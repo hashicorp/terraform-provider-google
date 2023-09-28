@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -17,6 +18,10 @@ func ResourceContainerRegistry() *schema.Resource {
 		Create: resourceContainerRegistryCreate,
 		Read:   resourceContainerRegistryRead,
 		Delete: resourceContainerRegistryDelete,
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {

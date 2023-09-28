@@ -55,7 +55,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccAssuredWorkloadsWorkload_BasicHandWrittenUpdate0(context),
@@ -64,7 +64,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
 			},
 		},
 	})

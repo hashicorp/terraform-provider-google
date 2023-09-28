@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/errwrap"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -29,7 +30,10 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceSecurityPolicyStateImporter,
 		},
-		CustomizeDiff: rulesCustomizeDiff,
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			rulesCustomizeDiff,
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(8 * time.Minute),
@@ -212,7 +216,6 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 									"enforce_on_key": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										Default:      "ALL",
 										Description:  `Determines the key to enforce the rateLimitThreshold on`,
 										ValidateFunc: validation.StringInSlice([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", ""}, false),
 									},

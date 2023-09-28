@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -48,6 +49,10 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"jobs": {
@@ -88,12 +93,11 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 				Description: "Optional. Timeout duration for the DAG of jobs, expressed in seconds (see [JSON representation of duration](https://developers.google.com/protocol-buffers/docs/proto3#json)). The timeout duration must be from 10 minutes (\"600s\") to 24 hours (\"86400s\"). The timer begins when the first job is submitted. If the workflow is running at the end of the timeout period, any remaining jobs are cancelled, the workflow is ended, and if the workflow was running on a [managed cluster](/dataproc/docs/concepts/workflows/using-workflows#configuring_or_selecting_a_cluster), the cluster is deleted.",
 			},
 
-			"labels": {
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
 				ForceNew:    true,
-				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"parameters": {
@@ -126,6 +130,20 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. The time template was created.",
+			},
+
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"update_time": {
@@ -2090,7 +2108,7 @@ func resourceDataprocWorkflowTemplateCreate(d *schema.ResourceData, meta interfa
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
 		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
-		Labels:     tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
 		Version:    dcl.Int64OrNil(int64(d.Get("version").(int))),
@@ -2146,7 +2164,7 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
 		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
-		Labels:     tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
 		Version:    dcl.Int64OrNil(int64(d.Get("version").(int))),
@@ -2189,8 +2207,8 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	if err = d.Set("dag_timeout", res.DagTimeout); err != nil {
 		return fmt.Errorf("error setting dag_timeout in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("parameters", flattenDataprocWorkflowTemplateParametersArray(res.Parameters)); err != nil {
 		return fmt.Errorf("error setting parameters in state: %s", err)
@@ -2203,6 +2221,12 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
+	}
+	if err = d.Set("labels", flattenDataprocWorkflowTemplateLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataprocWorkflowTemplateTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("update_time", res.UpdateTime); err != nil {
 		return fmt.Errorf("error setting update_time in state: %s", err)
@@ -2224,7 +2248,7 @@ func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interfa
 		Name:       dcl.String(d.Get("name").(string)),
 		Placement:  expandDataprocWorkflowTemplatePlacement(d.Get("placement")),
 		DagTimeout: dcl.String(d.Get("dag_timeout").(string)),
-		Labels:     tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:     tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Parameters: expandDataprocWorkflowTemplateParametersArray(d.Get("parameters")),
 		Project:    dcl.String(project),
 		Version:    dcl.Int64OrNil(int64(d.Get("version").(int))),
@@ -4082,6 +4106,37 @@ func flattenDataprocWorkflowTemplateParametersValidationValues(obj *dataproc.Wor
 	return []interface{}{transformed}
 
 }
+
+func flattenDataprocWorkflowTemplateLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenDataprocWorkflowTemplateTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenDataprocWorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsArray(obj []dataproc.WorkflowTemplatePlacementManagedClusterConfigSoftwareConfigOptionalComponentsEnum) interface{} {
 	if obj == nil {
 		return nil

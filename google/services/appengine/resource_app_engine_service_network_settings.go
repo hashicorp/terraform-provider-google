@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,10 @@ func ResourceAppEngineServiceNetworkSettings() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"network_settings": {
@@ -316,9 +321,9 @@ func resourceAppEngineServiceNetworkSettingsDelete(d *schema.ResourceData, meta 
 func resourceAppEngineServiceNetworkSettingsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)",
-		"(?P<project>[^/]+)/(?P<service>[^/]+)",
-		"(?P<service>[^/]+)",
+		"^apps/(?P<project>[^/]+)/services/(?P<service>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<service>[^/]+)$",
+		"^(?P<service>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

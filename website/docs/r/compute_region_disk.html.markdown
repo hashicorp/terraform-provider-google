@@ -176,6 +176,9 @@ The following arguments are supported:
   (Optional)
   Labels to apply to this disk.  A list of key->value pairs.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `size` -
   (Optional)
   Size of the persistent disk, specified in GB. You can specify this
@@ -342,6 +345,13 @@ In addition to the arguments listed above, the following computed attributes are
   The ID value of the disk used to create this image. This value may
   be used to determine whether the image was taken from the current
   or a previous instance of a given disk name.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `source_snapshot_id` -
   The unique ID of the snapshot used to create this disk. This value

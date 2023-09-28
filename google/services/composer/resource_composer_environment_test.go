@@ -98,9 +98,10 @@ func TestAccComposerEnvironment_update(t *testing.T) {
 				Config: testAccComposerEnvironment_update(envName, network, subnetwork),
 			},
 			{
-				ResourceName:      "google_composer_environment.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_composer_environment.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			// This is a terrible clean-up step in order to get destroy to succeed,
 			// due to dangling firewall rules left by the Composer Environment blocking network deletion.

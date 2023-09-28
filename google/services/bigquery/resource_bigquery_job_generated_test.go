@@ -44,7 +44,7 @@ func TestAccBigQueryJob_bigqueryJobQueryExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -110,7 +110,7 @@ func TestAccBigQueryJob_bigqueryJobQueryTableReferenceExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "query.0.default_dataset.0.dataset_id", "query.0.destination_table.0.table_id", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "query.0.default_dataset.0.dataset_id", "query.0.destination_table.0.table_id", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -178,7 +178,7 @@ func TestAccBigQueryJob_bigqueryJobLoadExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -246,7 +246,7 @@ func TestAccBigQueryJob_bigqueryJobLoadGeojsonExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -333,7 +333,7 @@ func TestAccBigQueryJob_bigqueryJobLoadParquetExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -416,7 +416,7 @@ func TestAccBigQueryJob_bigqueryJobLoadTableReferenceExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "load.0.destination_table.0.table_id", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "load.0.destination_table.0.table_id", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -482,7 +482,7 @@ func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -637,7 +637,7 @@ func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "copy.0.destination_table.0.table_id", "copy.0.source_tables.0.table_id", "copy.0.source_tables.1.table_id", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "copy.0.destination_table.0.table_id", "copy.0.source_tables.0.table_id", "copy.0.source_tables.1.table_id", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -785,7 +785,7 @@ func TestAccBigQueryJob_bigqueryJobExtractExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -869,7 +869,7 @@ func TestAccBigQueryJob_bigqueryJobExtractTableReferenceExample(t *testing.T) {
 				ResourceName:            "google_bigquery_job.job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "extract.0.source_table.0.table_id", "status.0.state"},
+				ImportStateVerifyIgnore: []string{"etag", "extract.0.source_table.0.table_id", "status.0.state", "labels", "terraform_labels"},
 			},
 		},
 	})

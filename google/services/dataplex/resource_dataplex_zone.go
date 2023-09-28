@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceDataplexZone() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"discovery_spec": {
@@ -109,11 +114,10 @@ func ResourceDataplexZone() *schema.Resource {
 				Description: "Optional. User friendly display name.",
 			},
 
-			"labels": {
+			"effective_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Optional. User defined labels for the zone.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
+				Description: "All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.",
 			},
 
 			"project": {
@@ -138,10 +142,23 @@ func ResourceDataplexZone() *schema.Resource {
 				Description: "Output only. The time when the zone was created.",
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Optional. User defined labels for the zone.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Output only. Current state of the zone. Possible values: STATE_UNSPECIFIED, ACTIVE, CREATING, DELETING, ACTION_REQUIRED",
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
 			"uid": {
@@ -311,7 +328,7 @@ func resourceDataplexZoneCreate(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -368,7 +385,7 @@ func resourceDataplexZoneRead(d *schema.ResourceData, meta interface{}) error {
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -418,8 +435,8 @@ func resourceDataplexZoneRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("display_name", res.DisplayName); err != nil {
 		return fmt.Errorf("error setting display_name in state: %s", err)
 	}
-	if err = d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("error setting labels in state: %s", err)
+	if err = d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("error setting effective_labels in state: %s", err)
 	}
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
@@ -430,8 +447,14 @@ func resourceDataplexZoneRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
 	}
+	if err = d.Set("labels", flattenDataplexZoneLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting labels in state: %s", err)
+	}
 	if err = d.Set("state", res.State); err != nil {
 		return fmt.Errorf("error setting state in state: %s", err)
+	}
+	if err = d.Set("terraform_labels", flattenDataplexZoneTerraformLabels(res.Labels, d)); err != nil {
+		return fmt.Errorf("error setting terraform_labels in state: %s", err)
 	}
 	if err = d.Set("uid", res.Uid); err != nil {
 		return fmt.Errorf("error setting uid in state: %s", err)
@@ -458,7 +481,7 @@ func resourceDataplexZoneUpdate(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 	directive := tpgdclresource.UpdateDirective
@@ -510,7 +533,7 @@ func resourceDataplexZoneDelete(d *schema.ResourceData, meta interface{}) error 
 		Type:          dataplex.ZoneTypeEnumRef(d.Get("type").(string)),
 		Description:   dcl.String(d.Get("description").(string)),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
-		Labels:        tpgresource.CheckStringMap(d.Get("labels")),
+		Labels:        tpgresource.CheckStringMap(d.Get("effective_labels")),
 		Project:       dcl.String(project),
 	}
 
@@ -694,4 +717,34 @@ func flattenDataplexZoneAssetStatus(obj *dataplex.ZoneAssetStatus) interface{} {
 
 	return []interface{}{transformed}
 
+}
+
+func flattenDataplexZoneLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenDataplexZoneTerraformLabels(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("terraform_labels").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

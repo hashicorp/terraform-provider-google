@@ -95,6 +95,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Text labels used for extra metadata and/or filtering
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `expire_time` -
   (Optional)
@@ -118,6 +120,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `name` -
   The fully-qualified resource name for the channel, in the format:
   sites/SITE_ID/channels/CHANNEL_ID
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

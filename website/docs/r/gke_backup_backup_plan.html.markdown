@@ -44,6 +44,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -80,6 +81,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "autopilot" {
@@ -109,6 +111,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "cmek" {
@@ -153,6 +156,7 @@ resource "google_container_cluster" "primary" {
       enabled = true
     }
   }
+  deletion_protection  = "true"
 }
 
 resource "google_gke_backup_backup_plan" "full" {
@@ -218,6 +222,9 @@ The following arguments are supported:
   Description: A set of custom labels supplied by the user.
   A list of key->value pairs.
   Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `backup_schedule` -
   (Optional)
@@ -370,6 +377,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state_reason` -
   Detailed description of why BackupPlan is in its current state.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

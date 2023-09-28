@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -146,6 +147,12 @@ func ResourceComposerEnvironment() *schema.Resource {
 			Update: schema.DefaultTimeout(120 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.DefaultProviderRegion,
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -800,10 +807,27 @@ func ResourceComposerEnvironment() *schema.Resource {
 				},
 			},
 			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `User-defined labels for this environment. The labels map can contain no more than 64 entries. Entries of the labels map are UTF8 strings that comply with the following restrictions: Label keys must be between 1 and 63 characters long and must conform to the following regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63 characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No more than 64 labels can be associated with a given environment. Both keys and values must be <= 128 bytes in size.
+				
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+
+			"terraform_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `User-defined labels for this environment. The labels map can contain no more than 64 entries. Entries of the labels map are UTF8 strings that comply with the following restrictions: Label keys must be between 1 and 63 characters long and must conform to the following regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63 characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No more than 64 labels can be associated with a given environment. Both keys and values must be <= 128 bytes in size.`,
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 		UseJSONNumber: true,
@@ -829,7 +853,7 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 
 	env := &composer.Environment{
 		Name:   envName.ResourceName(),
-		Labels: tpgresource.ExpandLabels(d),
+		Labels: tpgresource.ExpandEffectiveLabels(d),
 		Config: transformedConfig,
 	}
 
@@ -907,8 +931,14 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("config", flattenComposerEnvironmentConfig(res.Config)); err != nil {
 		return fmt.Errorf("Error setting Environment: %s", err)
 	}
-	if err := d.Set("labels", res.Labels); err != nil {
-		return fmt.Errorf("Error setting Environment: %s", err)
+	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error setting Environment labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", res.Labels); err != nil {
+		return fmt.Errorf("Error setting Environment effective_labels: %s", err)
 	}
 	return nil
 }
@@ -1117,8 +1147,8 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if d.HasChange("labels") {
-		patchEnv := &composer.Environment{Labels: tpgresource.ExpandLabels(d)}
+	if d.HasChange("effective_labels") {
+		patchEnv := &composer.Environment{Labels: tpgresource.ExpandEffectiveLabels(d)}
 		err := resourceComposerEnvironmentPatchField("labels", userAgent, patchEnv, d, tfConfig)
 		if err != nil {
 			return err

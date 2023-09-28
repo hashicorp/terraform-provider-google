@@ -1,5 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
 package logging
 
 import (
@@ -38,8 +40,8 @@ func ResourceLoggingProjectSink() *schema.Resource {
 	schm.Schema["unique_writer_identity"] = &schema.Schema{
 		Type:        schema.TypeBool,
 		Optional:    true,
-		Default:     false,
-		Description: `Whether or not to create a unique identity associated with this sink. If false (the default), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true, then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
+		Default:     true,
+		Description: `Whether or not to create a unique identity associated with this sink. If false (the legacy behavior), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true, then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
 	}
 	return schm
 }

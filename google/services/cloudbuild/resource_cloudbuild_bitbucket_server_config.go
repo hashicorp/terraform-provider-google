@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,10 @@ func ResourceCloudBuildBitbucketServerConfig() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"api_key": {
@@ -695,9 +700,9 @@ func resourceCloudBuildBitbucketServerConfigDelete(d *schema.ResourceData, meta 
 func resourceCloudBuildBitbucketServerConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/bitbucketServerConfigs/(?P<config_id>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<config_id>[^/]+)",
-		"(?P<location>[^/]+)/(?P<config_id>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/bitbucketServerConfigs/(?P<config_id>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<config_id>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<config_id>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

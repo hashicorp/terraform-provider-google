@@ -38,12 +38,22 @@ func ResourceStorageBucket() *schema.Resource {
 		},
 		CustomizeDiff: customdiff.All(
 			customdiff.ForceNewIfChange("retention_policy.0.is_locked", isPolicyLocked),
+			tpgresource.SetLabelsDiff,
 		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(4 * time.Minute),
 			Read:   schema.DefaultTimeout(4 * time.Minute),
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceStorageBucketV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceStorageBucketStateUpgradeV0,
+				Version: 0,
+			},
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -84,13 +94,24 @@ func ResourceStorageBucket() *schema.Resource {
 			},
 
 			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
-				// GCP (Dataplex) automatically adds labels
-				DiffSuppressFunc: resourceDataplexLabelDiffSuppress,
-				Elem:             &schema.Schema{Type: schema.TypeString},
-				Description:      `A set of key/value label pairs to assign to the bucket.`,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A set of key/value label pairs to assign to the bucket.`,
+			},
+
+			"terraform_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"location": {
@@ -443,7 +464,8 @@ func ResourceStorageBucket() *schema.Resource {
 	}
 }
 
-const resourceDataplexGoogleProvidedLabelPrefix = "labels.goog-dataplex"
+const resourceDataplexGoogleLabelPrefix = "goog-dataplex"
+const resourceDataplexGoogleProvidedLabelPrefix = "labels." + resourceDataplexGoogleLabelPrefix
 
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if strings.HasPrefix(k, resourceDataplexGoogleProvidedLabelPrefix) && new == "" {
@@ -495,7 +517,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 	// Create a bucket, setting the labels, location and name.
 	sb := &storage.Bucket{
 		Name:             bucket,
-		Labels:           tpgresource.ExpandLabels(d),
+		Labels:           tpgresource.ExpandEffectiveLabels(d),
 		Location:         location,
 		IamConfiguration: expandIamConfiguration(d),
 	}
@@ -696,15 +718,15 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if d.HasChange("labels") {
-		sb.Labels = tpgresource.ExpandLabels(d)
+	if d.HasChange("effective_labels") {
+		sb.Labels = tpgresource.ExpandEffectiveLabels(d)
 		if len(sb.Labels) == 0 {
 			sb.NullFields = append(sb.NullFields, "Labels")
 		}
 
 		// To delete a label using PATCH, we have to explicitly set its value
 		// to null.
-		old, _ := d.GetChange("labels")
+		old, _ := d.GetChange("effective_labels")
 		for k := range old.(map[string]interface{}) {
 			if _, ok := sb.Labels[k]; !ok {
 				sb.NullFields = append(sb.NullFields, fmt.Sprintf("Labels.%s", k))
@@ -1598,7 +1620,13 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
 		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
 	}
-	if err := d.Set("labels", res.Labels); err != nil {
+	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(res.Labels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting labels: %s", err)
 	}
 	if err := d.Set("website", flattenBucketWebsite(res.Website)); err != nil {

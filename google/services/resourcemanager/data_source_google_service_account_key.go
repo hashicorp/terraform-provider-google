@@ -68,7 +68,7 @@ func dataSourceGoogleServiceAccountKeyRead(d *schema.ResourceData, meta interfac
 	// Confirm the service account key exists
 	sak, err := config.NewIamClient(userAgent).Projects.ServiceAccounts.Keys.Get(keyName).PublicKeyType(publicKeyType).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", keyName))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", keyName), keyName)
 	}
 
 	d.SetId(sak.Name)

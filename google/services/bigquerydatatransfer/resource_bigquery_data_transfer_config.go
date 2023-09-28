@@ -114,6 +114,7 @@ func ResourceBigqueryDataTransferConfig() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			sensitiveParamCustomizeDiff,
 			paramsCustomizeDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{

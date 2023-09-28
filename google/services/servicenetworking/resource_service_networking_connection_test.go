@@ -15,7 +15,7 @@ import (
 func TestAccServiceNetworkingConnection_create(t *testing.T) {
 	t.Parallel()
 
-	network := acctest.BootstrapSharedTestNetwork(t, "service-networking-connection-create")
+	network := fmt.Sprintf("tf-test-service-networking-connection-create-%s", acctest.RandString(t, 10))
 	addr := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	service := "servicenetworking.googleapis.com"
 
@@ -39,7 +39,7 @@ func TestAccServiceNetworkingConnection_create(t *testing.T) {
 func TestAccServiceNetworkingConnection_update(t *testing.T) {
 	t.Parallel()
 
-	network := acctest.BootstrapSharedTestNetwork(t, "service-networking-connection-update")
+	network := fmt.Sprintf("tf-test-service-networking-connection-update-%s", acctest.RandString(t, 10))
 	addr1 := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	addr2 := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	service := "servicenetworking.googleapis.com"
@@ -96,7 +96,7 @@ func testServiceNetworkingConnectionDestroy(t *testing.T, parent, network string
 
 func testAccServiceNetworkingConnection(networkName, addressRangeName, serviceName string) string {
 	return fmt.Sprintf(`
-data "google_compute_network" "servicenet" {
+resource "google_compute_network" "servicenet" {
   name = "%s"
 }
 
@@ -105,11 +105,11 @@ resource "google_compute_global_address" "foobar" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.servicenet.self_link
+  network       = google_compute_network.servicenet.self_link
 }
 
 resource "google_service_networking_connection" "foobar" {
-  network                 = data.google_compute_network.servicenet.self_link
+  network                 = google_compute_network.servicenet.self_link
   service                 = "%s"
   reserved_peering_ranges = [google_compute_global_address.foobar.name]
 }

@@ -39,6 +39,10 @@ resource "google_dataproc_metastore_service" "my_metastore" {
 	hive_metastore_config {
 		version = "2.3.6"
 	}
+
+	labels = {
+		env = "test"
+	}
 }
 
 data "google_dataproc_metastore_service" "my_metastore" {

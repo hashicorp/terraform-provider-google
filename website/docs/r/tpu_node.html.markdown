@@ -84,8 +84,8 @@ resource "google_tpu_node" "tpu" {
   }
 }
 
-data "google_compute_network" "network" {
-  name = "default"
+resource "google_compute_network" "network" {
+  name = "tpu-node-network"
 }
 
 resource "google_compute_global_address" "service_range" {
@@ -93,11 +93,11 @@ resource "google_compute_global_address" "service_range" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = data.google_compute_network.network.id
+  network       = google_compute_network.network.id
 }
 
 resource "google_service_networking_connection" "private_service_connection" {
-  network                 = data.google_compute_network.network.id
+  network                 = google_compute_network.network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.service_range.name]
 }
@@ -161,6 +161,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Resource labels to represent user provided metadata.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `zone` -
   (Optional)
@@ -193,6 +195,13 @@ In addition to the arguments listed above, the following computed attributes are
   It is recommended that Tensorflow clients of the node first reach out
   to the first (index 0) entry.
   Structure is [documented below](#nested_network_endpoints).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_network_endpoints"></a>The `network_endpoints` block contains:

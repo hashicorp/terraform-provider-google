@@ -47,6 +47,9 @@ resource "google_workflows_workflow" "example" {
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id
+  labels = {
+    env = "test"
+  }
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
   #
@@ -99,6 +102,9 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs to assign to this Workflow.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `service_account` -
   (Optional)
   Name of the service account associated with the latest workflow version. This service
@@ -145,6 +151,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `revision_id` -
   The revision of the workflow. A new one is generated if the service account or source contents is changed.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

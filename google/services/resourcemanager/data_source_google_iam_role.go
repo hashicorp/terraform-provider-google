@@ -45,7 +45,7 @@ func dataSourceGoogleIamRoleRead(d *schema.ResourceData, meta interface{}) error
 	roleName := d.Get("name").(string)
 	role, err := config.NewIamClient(userAgent).Roles.Get(roleName).Do()
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Error reading IAM Role %s: %s", roleName, err))
+		return transport_tpg.HandleDataSourceNotFoundError(err, d, fmt.Sprintf("Error reading IAM Role %s: %s", roleName, err), roleName)
 	}
 
 	d.SetId(role.Name)

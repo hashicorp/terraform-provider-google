@@ -44,27 +44,6 @@ func revisionNameCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v i
 	return nil
 }
 
-var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status)|(?:operation-id))$|cloud\.googleapis\.com/(?:(?:location))`)
-
-func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the annotations provided by Google
-	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
-		return true
-	}
-
-	if strings.HasSuffix(k, "run.googleapis.com/ingress") {
-		return old == "all" && new == ""
-	}
-
-	// Let diff be determined by annotations (above)
-	if strings.Contains(k, "annotations.%") {
-		return true
-	}
-
-	// For other keys, don't suppress diff.
-	return false
-}
-
 var cloudRunGoogleProvidedTemplateAnnotations = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.run\.googleapis\.com/sandbox`)
 var cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale = regexp.MustCompile(`template\.0\.metadata\.0\.annotations\.autoscaling\.knative\.dev/maxScale`)
 
@@ -76,23 +55,6 @@ func cloudrunTemplateAnnotationDiffSuppress(k, old, new string, d *schema.Resour
 	}
 
 	if cloudRunGoogleProvidedTemplateAnnotations_autoscaling_maxscale.MatchString(k) && new == "" {
-		return true
-	}
-
-	// For other keys, don't suppress diff.
-	return false
-}
-
-var cloudRunGoogleProvidedLabels = regexp.MustCompile(`cloud\.googleapis\.com/(?:(?:location))`)
-
-func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// Suppress diffs for the labels provided by Google
-	if cloudRunGoogleProvidedLabels.MatchString(k) && new == "" {
-		return true
-	}
-
-	// Let diff be determined by labels (above)
-	if strings.Contains(k, "labels.%") {
 		return true
 	}
 
@@ -138,9 +100,20 @@ func ResourceCloudRunService() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceCloudRunServiceResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceCloudRunServiceUpgradeV1,
+				Version: 1,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			revisionNameCustomizeDiff,
+			tpgresource.SetMetadataLabelsDiff,
+			tpgresource.SetMetadataAnnotationsDiff,
+			tpgresource.DefaultProviderProject,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -924,10 +897,8 @@ and annotations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"annotations": {
-							Type:             schema.TypeMap,
-							Computed:         true,
-							Optional:         true,
-							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
+							Type:     schema.TypeMap,
+							Optional: true,
 							Description: `Annotations is a key value map stored with a resource that
 may be set by external tools to store and retrieve arbitrary metadata. More
 info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
@@ -952,13 +923,14 @@ keys to configure features on a Service:
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"labels": {
-							Type:             schema.TypeMap,
-							Computed:         true,
-							Optional:         true,
-							DiffSuppressFunc: cloudrunLabelDiffSuppress,
+							Type:     schema.TypeMap,
+							Optional: true,
 							Description: `Map of string keys and values that can be used to organize and categorize
 (scope and select) objects. May match selectors of replication controllers
-and routes.`,
+and routes.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"namespace": {
@@ -967,6 +939,18 @@ and routes.`,
 							Optional: true,
 							Description: `In Cloud Run the namespace must be equal to either the
 project ID or project number.`,
+						},
+						"effective_annotations": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"effective_labels": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"generation": {
 							Type:        schema.TypeInt,
@@ -986,6 +970,13 @@ particular resource or set of resources.`,
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `SelfLink is a URL representing this object.`,
+						},
+						"terraform_labels": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"uid": {
 							Type:     schema.TypeString,
@@ -1507,9 +1498,9 @@ func resourceCloudRunServiceDelete(d *schema.ResourceData, meta interface{}) err
 func resourceCloudRunServiceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"locations/(?P<location>[^/]+)/namespaces/(?P<project>[^/]+)/services/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^locations/(?P<location>[^/]+)/namespaces/(?P<project>[^/]+)/services/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<project>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -2729,10 +2720,27 @@ func flattenCloudRunServiceMetadata(v interface{}, d *schema.ResourceData, confi
 		flattenCloudRunServiceMetadataNamespace(original["namespace"], d, config)
 	transformed["annotations"] =
 		flattenCloudRunServiceMetadataAnnotations(original["annotations"], d, config)
+	transformed["terraform_labels"] =
+		flattenCloudRunServiceMetadataTerraformLabels(original["labels"], d, config)
+	transformed["effective_labels"] =
+		flattenCloudRunServiceMetadataEffectiveLabels(original["labels"], d, config)
+	transformed["effective_annotations"] =
+		flattenCloudRunServiceMetadataEffectiveAnnotations(original["annotations"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunServiceMetadataLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("metadata.0.labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCloudRunServiceMetadataGeneration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2769,6 +2777,40 @@ func flattenCloudRunServiceMetadataNamespace(v interface{}, d *schema.ResourceDa
 }
 
 func flattenCloudRunServiceMetadataAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("metadata.0.annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCloudRunServiceMetadataTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("metadata.0.terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCloudRunServiceMetadataEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunServiceMetadataEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4127,13 +4169,6 @@ func expandCloudRunServiceMetadata(v interface{}, d tpgresource.TerraformResourc
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedLabels, err := expandCloudRunServiceMetadataLabels(original["labels"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["labels"] = transformedLabels
-	}
-
 	transformedGeneration, err := expandCloudRunServiceMetadataGeneration(original["generation"], d, config)
 	if err != nil {
 		return nil, err
@@ -4169,25 +4204,21 @@ func expandCloudRunServiceMetadata(v interface{}, d tpgresource.TerraformResourc
 		transformed["namespace"] = transformedNamespace
 	}
 
-	transformedAnnotations, err := expandCloudRunServiceMetadataAnnotations(original["annotations"], d, config)
+	transformedEffectiveLabels, err := expandCloudRunServiceMetadataEffectiveLabels(original["effective_labels"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedAnnotations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["annotations"] = transformedAnnotations
+	} else if val := reflect.ValueOf(transformedEffectiveLabels); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["labels"] = transformedEffectiveLabels
+	}
+
+	transformedEffectiveAnnotations, err := expandCloudRunServiceMetadataEffectiveAnnotations(original["effective_annotations"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEffectiveAnnotations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["annotations"] = transformedEffectiveAnnotations
 	}
 
 	return transformed, nil
-}
-
-func expandCloudRunServiceMetadataLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandCloudRunServiceMetadataGeneration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4217,7 +4248,18 @@ func expandCloudRunServiceMetadataNamespace(v interface{}, d tpgresource.Terrafo
 	return v, nil
 }
 
-func expandCloudRunServiceMetadataAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandCloudRunServiceMetadataEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandCloudRunServiceMetadataEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}
@@ -4252,4 +4294,1082 @@ func resourceCloudRunServiceDecoder(d *schema.ResourceData, meta interface{}, re
 		}
 	}
 	return res, nil
+}
+
+var cloudRunGoogleProvidedAnnotations = regexp.MustCompile(`serving\.knative\.dev/(?:(?:creator)|(?:lastModifier))$|run\.googleapis\.com/(?:(?:ingress-status)|(?:operation-id))$|cloud\.googleapis\.com/(?:(?:location))`)
+
+func cloudrunAnnotationDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the annotations provided by Google
+	if cloudRunGoogleProvidedAnnotations.MatchString(k) && new == "" {
+		return true
+	}
+
+	if strings.HasSuffix(k, "run.googleapis.com/ingress") {
+		return old == "all" && new == ""
+	}
+
+	// Let diff be determined by annotations (above)
+	if strings.Contains(k, "annotations.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
+var cloudRunGoogleProvidedLabels = regexp.MustCompile(`cloud\.googleapis\.com/(?:(?:location))`)
+
+func cloudrunLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Suppress diffs for the labels provided by Google
+	if cloudRunGoogleProvidedLabels.MatchString(k) && new == "" {
+		return true
+	}
+
+	// Let diff be determined by labels (above)
+	if strings.Contains(k, "labels.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
+func resourceCloudRunServiceResourceV1() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location of the cloud run instance. eg us-central1`,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `Name must be unique within a Google Cloud project and region.
+Is required when creating resources. Name is primarily intended
+for creation idempotence and configuration definition. Cannot be updated.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names`,
+			},
+			"template": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `template holds the latest specification for the Revision to
+be stamped out. The template references the container image, and may also
+include labels and annotations that should be attached to the Revision.
+To correlate a Revision, and/or to force a Revision to be created when the
+spec doesn't otherwise change, a nonce label may be provided in the
+template metadata. For more details, see:
+https://github.com/knative/serving/blob/main/docs/client-conventions.md#associate-modifications-with-revisions
+
+Cloud Run does not currently support referencing a build that is
+responsible for materializing the container image from source.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"spec": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `RevisionSpec holds the desired state of the Revision (from the client).`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"containers": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Optional:    true,
+										Description: `Containers defines the unit of execution for this Revision.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"image": {
+													Type:     schema.TypeString,
+													Required: true,
+													Description: `Docker image name. This is most often a reference to a container located
+in the container registry, such as gcr.io/cloudrun/hello`,
+												},
+												"args": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Arguments to the entrypoint.
+The docker image's CMD is used if this is not provided.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"command": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Entrypoint array. Not executed within a shell.
+The docker image's ENTRYPOINT is used if this is not provided.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"env": {
+													Type:        schema.TypeSet,
+													Optional:    true,
+													Description: `List of environment variables to set in the container.`,
+													Elem:        cloudrunServiceSpecTemplateSpecContainersContainersEnvSchema(),
+													// Default schema.HashSchema is used.
+												},
+												"env_from": {
+													Type:       schema.TypeList,
+													Optional:   true,
+													Deprecated: "`env_from` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
+													ForceNew:   true,
+													Description: `List of sources to populate environment variables in the container.
+All invalid keys will be reported as an event when the container is starting.
+When a key exists in multiple sources, the value associated with the last source will
+take precedence. Values defined by an Env with a duplicate key will take
+precedence.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"config_map_ref": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The ConfigMap to select from.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"local_object_reference": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The ConfigMap to select from.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the referent.`,
+																					},
+																				},
+																			},
+																		},
+																		"optional": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Specify whether the ConfigMap must be defined`,
+																		},
+																	},
+																},
+															},
+															"prefix": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `An optional identifier to prepend to each key in the ConfigMap.`,
+															},
+															"secret_ref": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `The Secret to select from.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"local_object_reference": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The Secret to select from.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `Name of the referent.`,
+																					},
+																				},
+																			},
+																		},
+																		"optional": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: `Specify whether the Secret must be defined`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"liveness_probe": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Periodic probe of container liveness. Container will be restarted if the probe fails.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"failure_threshold": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Minimum consecutive failures for the probe to be considered failed after
+having succeeded. Defaults to 3. Minimum value is 1.`,
+																Default: 3,
+															},
+															"grpc": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `GRPC specifies an action involving a GRPC port.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																		"service": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The name of the service to place in the gRPC HealthCheckRequest
+(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+If this is not specified, the default behavior is defined by gRPC.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"http_get": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `HttpGet specifies the http request to perform.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"http_headers": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Custom headers to set in the request. HTTP allows repeated headers.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `The header field name.`,
+																					},
+																					"value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The header field value.`,
+																						Default:     "",
+																					},
+																				},
+																			},
+																		},
+																		"path": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Path to access on the HTTP server. If set, it should not be empty string.`,
+																			Default:     "/",
+																		},
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"initial_delay_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Number of seconds after the container has started before the probe is
+initiated.
+Defaults to 0 seconds. Minimum value is 0. Maximum value is 3600.`,
+																Default: 0,
+															},
+															"period_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `How often (in seconds) to perform the probe.
+Default to 10 seconds. Minimum value is 1. Maximum value is 3600.`,
+																Default: 10,
+															},
+															"timeout_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Number of seconds after which the probe times out.
+Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
+Must be smaller than period_seconds.`,
+																Default: 1,
+															},
+														},
+													},
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `Name of the container`,
+												},
+												"ports": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Optional:    true,
+													Description: `List of open ports in the container.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"container_port": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `Port number the container listens on. This must be a valid port number (between 1 and 65535). Defaults to "8080".`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Optional:    true,
+																Description: `If specified, used to specify which protocol to use. Allowed values are "http1" (HTTP/1) and "h2c" (HTTP/2 end-to-end). Defaults to "http1".`,
+															},
+															"protocol": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Protocol for port. Must be "TCP". Defaults to "TCP".`,
+															},
+														},
+													},
+												},
+												"resources": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Optional:    true,
+													Description: `Compute Resources required by this container. Used to set values such as max memory`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"limits": {
+																Type:     schema.TypeMap,
+																Computed: true,
+																Optional: true,
+																Description: `Limits describes the maximum amount of compute resources allowed.
+The values of the map is string form of the 'quantity' k8s type:
+https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
+																Elem: &schema.Schema{Type: schema.TypeString},
+															},
+															"requests": {
+																Type:     schema.TypeMap,
+																Optional: true,
+																Description: `Requests describes the minimum amount of compute resources required.
+If Requests is omitted for a container, it defaults to Limits if that is
+explicitly specified, otherwise to an implementation-defined value.
+The values of the map is string form of the 'quantity' k8s type:
+https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/api/resource/quantity.go`,
+																Elem: &schema.Schema{Type: schema.TypeString},
+															},
+														},
+													},
+												},
+												"startup_probe": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Optional: true,
+													Description: `Startup probe of application within the container.
+All other probes are disabled if a startup probe is provided, until it
+succeeds. Container will not be added to service endpoints if the probe fails.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"failure_threshold": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Minimum consecutive failures for the probe to be considered failed after
+having succeeded. Defaults to 3. Minimum value is 1.`,
+																Default: 3,
+															},
+															"grpc": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `GRPC specifies an action involving a GRPC port.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																		"service": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The name of the service to place in the gRPC HealthCheckRequest
+(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+If this is not specified, the default behavior is defined by gRPC.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"http_get": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `HttpGet specifies the http request to perform.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"http_headers": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Custom headers to set in the request. HTTP allows repeated headers.`,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: `The header field name.`,
+																					},
+																					"value": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `The header field value.`,
+																						Default:     "",
+																					},
+																				},
+																			},
+																		},
+																		"path": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Path to access on the HTTP server. If set, it should not be empty string.`,
+																			Default:     "/",
+																		},
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"initial_delay_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Number of seconds after the container has started before the probe is
+initiated.
+Defaults to 0 seconds. Minimum value is 0. Maximum value is 240.`,
+																Default: 0,
+															},
+															"period_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `How often (in seconds) to perform the probe.
+Default to 10 seconds. Minimum value is 1. Maximum value is 240.`,
+																Default: 10,
+															},
+															"tcp_socket": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `TcpSocket specifies an action involving a TCP port.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Computed: true,
+																			Optional: true,
+																			Description: `Port number to access on the container. Number must be in the range 1 to 65535.
+If not specified, defaults to the same value as container.ports[0].containerPort.`,
+																		},
+																	},
+																},
+																ExactlyOneOf: []string{},
+															},
+															"timeout_seconds": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Number of seconds after which the probe times out.
+Defaults to 1 second. Minimum value is 1. Maximum value is 3600.
+Must be smaller than periodSeconds.`,
+																Default: 1,
+															},
+														},
+													},
+												},
+												"volume_mounts": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Volume to mount into the container's filesystem.
+Only supports SecretVolumeSources.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"mount_path": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `Path within the container at which the volume should be mounted.  Must
+not contain ':'.`,
+															},
+															"name": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `This must match the Name of a Volume.`,
+															},
+														},
+													},
+												},
+												"working_dir": {
+													Type:       schema.TypeString,
+													Optional:   true,
+													Deprecated: "`working_dir` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
+													ForceNew:   true,
+													Description: `Container's working directory.
+If not specified, the container runtime's default will be used, which
+might be configured in the container image.`,
+												},
+											},
+										},
+									},
+									"container_concurrency": {
+										Type:     schema.TypeInt,
+										Computed: true,
+										Optional: true,
+										Description: `ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
+requests per container of the Revision. Values are:
+- '0' thread-safe, the system should manage the max concurrency. This is
+    the default value.
+- '1' not-thread-safe. Single concurrency
+- '2-N' thread-safe, max concurrency of N`,
+									},
+									"service_account_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `Email address of the IAM service account associated with the revision of the
+service. The service account represents the identity of the running revision,
+and determines what permissions the revision has. If not provided, the revision
+will use the project's default service account.`,
+									},
+									"timeout_seconds": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Optional:    true,
+										Description: `TimeoutSeconds holds the max duration the instance is allowed for responding to a request.`,
+									},
+									"volumes": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Volume represents a named volume in a container.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `Volume's name.`,
+												},
+												"secret": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `The secret's value will be presented as the content of a file whose
+name is defined in the item path. If no items are defined, the name of
+the file is the secret_name.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"secret_name": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `The name of the secret in Cloud Secret Manager. By default, the secret
+is assumed to be in the same project.
+If the secret is in another project, you must define an alias.
+An alias definition has the form:
+{alias}:projects/{project-id|project-number}/secrets/{secret-name}.
+If multiple alias definitions are needed, they must be separated by
+commas.
+The alias definitions must be set on the run.googleapis.com/secrets
+annotation.`,
+															},
+															"default_mode": {
+																Type:     schema.TypeInt,
+																Optional: true,
+																Description: `Mode bits to use on created files by default. Must be a value between 0000
+and 0777. Defaults to 0644. Directories within the path are not affected by
+this setting. This might be in conflict with other options that affect the
+file mode, like fsGroup, and the result can be other mode bits set.`,
+															},
+															"items": {
+																Type:     schema.TypeList,
+																Optional: true,
+																Description: `If unspecified, the volume will expose a file whose name is the
+secret_name.
+If specified, the key will be used as the version to fetch from Cloud
+Secret Manager and the path will be the name of the file exposed in the
+volume. When items are defined, they must specify a key and a path.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																			Description: `The Cloud Secret Manager secret version.
+Can be 'latest' for the latest value or an integer for a specific version.`,
+																		},
+																		"path": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																			Description: `The relative path of the file to map the key to.
+May not be an absolute path.
+May not contain the path element '..'.
+May not start with the string '..'.`,
+																		},
+																		"mode": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Description: `Mode bits to use on this file, must be a value between 0000 and 0777. If
+not specified, the volume defaultMode will be used. This might be in
+conflict with other options that affect the file mode, like fsGroup, and
+the result can be other mode bits set.`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"serving_state": {
+										Type:       schema.TypeString,
+										Computed:   true,
+										Deprecated: "`serving_state` is deprecated and will be removed in a future major release. This field is not supported by the Cloud Run API.",
+										Description: `ServingState holds a value describing the state the resources
+are in for this Revision.
+It is expected
+that the system will manipulate this based on routability and load.`,
+									},
+								},
+							},
+						},
+						"metadata": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Optional: true,
+							Description: `Optional metadata for this Revision, including labels and annotations.
+Name will be generated by the Configuration. To set minimum instances
+for this revision, use the "autoscaling.knative.dev/minScale" annotation
+key. To set maximum instances for this revision, use the
+"autoscaling.knative.dev/maxScale" annotation key. To set Cloud SQL
+connections for the revision, use the "run.googleapis.com/cloudsql-instances"
+annotation key.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"annotations": {
+										Type:             schema.TypeMap,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: cloudrunTemplateAnnotationDiffSuppress,
+										Description: `Annotations is a key value map stored with a resource that
+may be set by external tools to store and retrieve arbitrary metadata. More
+info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
+
+Annotations with 'run.googleapis.com/' and 'autoscaling.knative.dev' are restricted. Use the following annotation
+keys to configure features on a Revision template:
+
+- 'autoscaling.knative.dev/maxScale' sets the [maximum number of container
+  instances](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--max-instances) of the Revision to run.
+- 'autoscaling.knative.dev/minScale' sets the [minimum number of container
+  instances](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--min-instances) of the Revision to run.
+- 'run.googleapis.com/client-name' sets the client name calling the Cloud Run API.
+- 'run.googleapis.com/cloudsql-instances' sets the [Cloud SQL
+  instances](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--add-cloudsql-instances) the Revision connects to.
+- 'run.googleapis.com/cpu-throttling' sets whether to throttle the CPU when the container is not actively serving
+  requests. See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--[no-]cpu-throttling.
+- 'run.googleapis.com/encryption-key-shutdown-hours' sets the number of hours to wait before an automatic shutdown
+  server after CMEK key revocation is detected.
+- 'run.googleapis.com/encryption-key' sets the [CMEK key](https://cloud.google.com/run/docs/securing/using-cmek)
+  reference to encrypt the container with.
+- 'run.googleapis.com/execution-environment' sets the [execution
+  environment](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--execution-environment)
+  where the application will run.
+- 'run.googleapis.com/post-key-revocation-action-type' sets the
+  [action type](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--post-key-revocation-action-type)
+  after CMEK key revocation.
+- 'run.googleapis.com/secrets' sets a list of key-value pairs to set as
+  [secrets](https://cloud.google.com/run/docs/configuring/secrets#yaml).
+- 'run.googleapis.com/sessionAffinity' sets whether to enable
+  [session affinity](https://cloud.google.com/sdk/gcloud/reference/beta/run/deploy#--[no-]session-affinity)
+  for connections to the Revision.
+- 'run.googleapis.com/startup-cpu-boost' sets whether to allocate extra CPU to containers on startup.
+  See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--[no-]cpu-boost.
+- 'run.googleapis.com/vpc-access-connector' sets a [VPC connector](https://cloud.google.com/run/docs/configuring/connecting-vpc#terraform_1)
+  for the Revision.
+- 'run.googleapis.com/vpc-access-egress' sets the outbound traffic to send through the VPC connector for this resource.
+  See https://cloud.google.com/sdk/gcloud/reference/run/deploy#--vpc-egress.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"labels": {
+										Type:             schema.TypeMap,
+										Computed:         true,
+										Optional:         true,
+										DiffSuppressFunc: cloudrunTemplateLabelDiffSuppress,
+										Description: `Map of string keys and values that can be used to organize and categorize
+(scope and select) objects.`,
+										Elem: &schema.Schema{Type: schema.TypeString},
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `Name must be unique within a Google Cloud project and region.
+Is required when creating resources. Name is primarily intended
+for creation idempotence and configuration definition. Cannot be updated.`,
+									},
+									"namespace": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `In Cloud Run the namespace must be equal to either the
+project ID or project number. It will default to the resource's project.`,
+									},
+									"generation": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `A sequence number representing a specific generation of the desired state.`,
+									},
+									"resource_version": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `An opaque value that represents the internal version of this object that
+can be used by clients to determine when objects have changed. May be used
+for optimistic concurrency, change detection, and the watch operation on a
+resource or set of resources. They may only be valid for a
+particular resource or set of resources.`,
+									},
+									"self_link": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `SelfLink is a URL representing this object.`,
+									},
+									"uid": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `UID is a unique id generated by the server on successful creation of a resource and is not
+allowed to change on PUT operations.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"traffic": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Traffic specifies how to distribute traffic over a collection of Knative Revisions
+and Configurations`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"percent": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: `Percent specifies percent of the traffic to this Revision or Configuration.`,
+						},
+						"latest_revision": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `LatestRevision may be optionally provided to indicate that the latest ready
+Revision of the Configuration should be used for this traffic target. When
+provided LatestRevision must be true if RevisionName is empty; it must be
+false when RevisionName is non-empty.`,
+						},
+						"revision_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `RevisionName of a specific revision to which to send this portion of traffic.`,
+						},
+						"tag": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Tag is optionally used to expose a dedicated url for referencing this target exclusively.`,
+						},
+						"url": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `URL displays the URL for accessing tagged traffic targets. URL is displayed in status,
+and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
+but may not contain anything else (e.g. basic auth, url path, etc.)`,
+						},
+					},
+				},
+			},
+
+			"metadata": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				Description: `Metadata associated with this Service, including name, namespace, labels,
+and annotations.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"annotations": {
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunAnnotationDiffSuppress,
+							Description: `Annotations is a key value map stored with a resource that
+may be set by external tools to store and retrieve arbitrary metadata. More
+info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+
+**Note**: The Cloud Run API may add additional annotations that were not provided in your config.
+If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
+or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
+
+Annotations with 'run.googleapis.com/' and 'autoscaling.knative.dev' are restricted. Use the following annotation
+keys to configure features on a Service:
+
+- 'run.googleapis.com/binary-authorization-breakglass' sets the [Binary Authorization breakglass](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--breakglass).
+- 'run.googleapis.com/binary-authorization' sets the [Binary Authorization](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--binary-authorization).
+- 'run.googleapis.com/client-name' sets the client name calling the Cloud Run API.
+- 'run.googleapis.com/custom-audiences' sets the [custom audiences](https://cloud.google.com/sdk/gcloud/reference/alpha/run/deploy#--add-custom-audiences)
+  that can be used in the audience field of ID token for authenticated requests.
+- 'run.googleapis.com/description' sets a user defined description for the Service.
+- 'run.googleapis.com/ingress' sets the [ingress settings](https://cloud.google.com/sdk/gcloud/reference/run/deploy#--ingress)
+  for the Service. For example, '"run.googleapis.com/ingress" = "all"'.
+- 'run.googleapis.com/launch-stage' sets the [launch stage](https://cloud.google.com/run/docs/troubleshooting#launch-stage-validation)
+  when a preview feature is used. For example, '"run.googleapis.com/launch-stage": "BETA"'`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"labels": {
+							Type:             schema.TypeMap,
+							Computed:         true,
+							Optional:         true,
+							DiffSuppressFunc: cloudrunLabelDiffSuppress,
+							Description: `Map of string keys and values that can be used to organize and categorize
+(scope and select) objects. May match selectors of replication controllers
+and routes.`,
+							Elem: &schema.Schema{Type: schema.TypeString},
+						},
+						"namespace": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `In Cloud Run the namespace must be equal to either the
+project ID or project number.`,
+						},
+						"generation": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `A sequence number representing a specific generation of the desired state.`,
+						},
+						"resource_version": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `An opaque value that represents the internal version of this object that
+can be used by clients to determine when objects have changed. May be used
+for optimistic concurrency, change detection, and the watch operation on a
+resource or set of resources. They may only be valid for a
+particular resource or set of resources.`,
+						},
+						"self_link": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `SelfLink is a URL representing this object.`,
+						},
+						"uid": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `UID is a unique id generated by the server on successful creation of a resource and is not
+allowed to change on PUT operations.`,
+						},
+					},
+				},
+			},
+			"status": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The current status of the Service.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"conditions": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Array of observed Service Conditions, indicating the current ready state of the service.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"message": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Human readable message indicating details about the current status.`,
+									},
+									"reason": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `One-word CamelCase reason for the condition's current status.`,
+									},
+									"status": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Status of the condition, one of True, False, Unknown.`,
+									},
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Type of domain mapping condition.`,
+									},
+								},
+							},
+						},
+						"latest_created_revision_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `From ConfigurationStatus. LatestCreatedRevisionName is the last revision that was created
+from this Service's Configuration. It might not be ready yet, for that use
+LatestReadyRevisionName.`,
+						},
+						"latest_ready_revision_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `From ConfigurationStatus. LatestReadyRevisionName holds the name of the latest Revision
+stamped out from this Service's Configuration that has had its "Ready" condition become
+"True".`,
+						},
+						"observed_generation": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Description: `ObservedGeneration is the 'Generation' of the Route that was last processed by the
+controller.
+
+Clients polling for completed reconciliation should poll until observedGeneration =
+metadata.generation and the Ready condition's status is True or False.`,
+						},
+						"traffic": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: `Traffic specifies how to distribute traffic over a collection of Knative Revisions
+and Configurations`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"latest_revision": {
+										Type:     schema.TypeBool,
+										Computed: true,
+										Description: `LatestRevision may be optionally provided to indicate that the latest ready
+Revision of the Configuration should be used for this traffic target. When
+provided LatestRevision must be true if RevisionName is empty; it must be
+false when RevisionName is non-empty.`,
+									},
+									"percent": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: `Percent specifies percent of the traffic to this Revision or Configuration.`,
+									},
+									"revision_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `RevisionName of a specific revision to which to send this portion of traffic.`,
+									},
+									"tag": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Tag is optionally used to expose a dedicated url for referencing this target exclusively.`,
+									},
+									"url": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: `URL displays the URL for accessing tagged traffic targets. URL is displayed in status,
+and is disallowed on spec. URL must contain a scheme (e.g. http://) and a hostname,
+but may not contain anything else (e.g. basic auth, url path, etc.)`,
+									},
+								},
+							},
+						},
+						"url": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `From RouteStatus. URL holds the url that will distribute traffic over the provided traffic
+targets. It generally has the form
+https://{route-hash}-{project-hash}-{cluster-level-suffix}.a.run.app`,
+						},
+					},
+				},
+			},
+			"autogenerate_revision_name": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: `If set to 'true', the revision name (template.metadata.name) will be omitted and
+autogenerated by Cloud Run. This cannot be set to 'true' while 'template.metadata.name'
+is also set.
+(For legacy support, if 'template.metadata.name' is unset in state while
+this field is set to false, the revision name will still autogenerate.)`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func upgradeAnnotations(rawMetadata map[string]interface{}) {
+	rawAnnotations := rawMetadata["annotations"]
+	if rawAnnotations != nil {
+		annotations := make(map[string]interface{})
+		effectiveAnnotations := make(map[string]interface{})
+
+		for k, v := range rawAnnotations.(map[string]interface{}) {
+			effectiveAnnotations[k] = v
+
+			if !(cloudRunGoogleProvidedAnnotations.MatchString(k) || (strings.HasSuffix(k, "run.googleapis.com/ingress") && v == "all")) {
+				annotations[k] = v
+			}
+		}
+
+		rawMetadata["annotations"] = annotations
+		rawMetadata["effective_annotations"] = effectiveAnnotations
+	}
+}
+
+func ResourceCloudRunServiceUpgradeV1(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+
+	if rawState["metadata"] != nil {
+		rawMetadatas := rawState["metadata"].([]interface{})
+
+		// Upgrade labels fields
+		if len(rawMetadatas) > 0 && rawMetadatas[0] != nil {
+			rawMetadata := rawMetadatas[0].(map[string]interface{})
+
+			rawLabels := rawMetadata["labels"]
+			if rawLabels != nil {
+				labels := make(map[string]interface{})
+				effectiveLabels := make(map[string]interface{})
+
+				for k, v := range rawLabels.(map[string]interface{}) {
+					effectiveLabels[k] = v
+
+					if !cloudRunGoogleProvidedLabels.MatchString(k) {
+						labels[k] = v
+					}
+				}
+
+				rawMetadata["labels"] = labels
+				rawMetadata["effective_labels"] = effectiveLabels
+			}
+
+			upgradeAnnotations(rawMetadata)
+
+			rawState["metadata"] = []interface{}{rawMetadata}
+		}
+	}
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
 }

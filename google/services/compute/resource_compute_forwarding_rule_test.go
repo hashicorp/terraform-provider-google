@@ -25,17 +25,19 @@ func TestAccComputeForwardingRule_update(t *testing.T) {
 				Config: testAccComputeForwardingRule_basic(poolName, ruleName),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeForwardingRule_update(poolName, ruleName),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.foobar",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})

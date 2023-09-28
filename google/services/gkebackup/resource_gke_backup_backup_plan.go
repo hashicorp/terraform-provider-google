@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,6 +47,11 @@ func ResourceGKEBackupBackupPlan() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"cluster": {
@@ -203,7 +209,11 @@ from being created via this BackupPlan (including scheduled Backups).`,
 				Optional: true,
 				Description: `Description: A set of custom labels supplied by the user.
 A list of key->value pairs.
-Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"retention_policy": {
@@ -250,6 +260,12 @@ the locked field itself.`,
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -274,6 +290,13 @@ backupPlans.delete to ensure that their change will be applied to the same versi
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Detailed description of why BackupPlan is in its current state.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"uid": {
 				Type:        schema.TypeString,
@@ -323,12 +346,6 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("retention_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(retentionPolicyProp)) && (ok || !reflect.DeepEqual(v, retentionPolicyProp)) {
 		obj["retentionPolicy"] = retentionPolicyProp
 	}
-	labelsProp, err := expandGKEBackupBackupPlanLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	backupScheduleProp, err := expandGKEBackupBackupPlanBackupSchedule(d.Get("backup_schedule"), d, config)
 	if err != nil {
 		return err
@@ -346,6 +363,12 @@ func resourceGKEBackupBackupPlanCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupConfigProp)) && (ok || !reflect.DeepEqual(v, backupConfigProp)) {
 		obj["backupConfig"] = backupConfigProp
+	}
+	labelsProp, err := expandGKEBackupBackupPlanEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans?backupPlanId={{name}}")
@@ -495,6 +518,12 @@ func resourceGKEBackupBackupPlanRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("state_reason", flattenGKEBackupBackupPlanStateReason(res["stateReason"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackupPlan: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenGKEBackupBackupPlanTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenGKEBackupBackupPlanEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPlan: %s", err)
+	}
 
 	return nil
 }
@@ -527,12 +556,6 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("retention_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, retentionPolicyProp)) {
 		obj["retentionPolicy"] = retentionPolicyProp
 	}
-	labelsProp, err := expandGKEBackupBackupPlanLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	backupScheduleProp, err := expandGKEBackupBackupPlanBackupSchedule(d.Get("backup_schedule"), d, config)
 	if err != nil {
 		return err
@@ -551,6 +574,12 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupConfigProp)) {
 		obj["backupConfig"] = backupConfigProp
 	}
+	labelsProp, err := expandGKEBackupBackupPlanEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEBackupBasePath}}projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 	if err != nil {
@@ -568,10 +597,6 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 		updateMask = append(updateMask, "retentionPolicy")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("backup_schedule") {
 		updateMask = append(updateMask, "backupSchedule")
 	}
@@ -582,6 +607,10 @@ func resourceGKEBackupBackupPlanUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("backup_config") {
 		updateMask = append(updateMask, "backupConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -678,9 +707,9 @@ func resourceGKEBackupBackupPlanDelete(d *schema.ResourceData, meta interface{})
 func resourceGKEBackupBackupPlanImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backupPlans/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backupPlans/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -770,7 +799,18 @@ func flattenGKEBackupBackupPlanRetentionPolicyLocked(v interface{}, d *schema.Re
 }
 
 func flattenGKEBackupBackupPlanLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenGKEBackupBackupPlanBackupSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -938,6 +978,25 @@ func flattenGKEBackupBackupPlanStateReason(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenGKEBackupBackupPlanTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenGKEBackupBackupPlanEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandGKEBackupBackupPlanName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/backupPlans/{{name}}")
 }
@@ -993,17 +1052,6 @@ func expandGKEBackupBackupPlanRetentionPolicyBackupRetainDays(v interface{}, d t
 
 func expandGKEBackupBackupPlanRetentionPolicyLocked(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandGKEBackupBackupPlanLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandGKEBackupBackupPlanBackupSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1210,4 +1258,15 @@ func expandGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesNam
 
 func expandGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandGKEBackupBackupPlanEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

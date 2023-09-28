@@ -49,7 +49,7 @@ func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigExample(t
 				ResourceName:            "google_certificate_manager_trust_config.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})

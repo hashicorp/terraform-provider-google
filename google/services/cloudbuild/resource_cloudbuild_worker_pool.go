@@ -24,6 +24,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
@@ -50,6 +51,10 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+		CustomizeDiff: customdiff.All(
+			tpgresource.DefaultProviderProject,
+			tpgresource.SetAnnotationsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"location": {
@@ -66,17 +71,16 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 				Description: "User-defined name of the `WorkerPool`.",
 			},
 
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.",
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
-
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "A user-specified, human-readable name for the `WorkerPool`. If provided, this value must be 1-63 characters.",
+			},
+
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
 			"network_config": {
@@ -104,6 +108,13 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 				Description: "Configuration to be used for a creating workers in the `WorkerPool`.",
 				MaxItems:    1,
 				Elem:        CloudbuildWorkerPoolWorkerConfigSchema(),
+			},
+
+			"annotations": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"create_time": {
@@ -195,8 +206,8 @@ func resourceCloudbuildWorkerPoolCreate(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
 		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
@@ -249,8 +260,8 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
 		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
@@ -284,11 +295,11 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("name", res.Name); err != nil {
 		return fmt.Errorf("error setting name in state: %s", err)
 	}
-	if err = d.Set("annotations", res.Annotations); err != nil {
-		return fmt.Errorf("error setting annotations in state: %s", err)
-	}
 	if err = d.Set("display_name", res.DisplayName); err != nil {
 		return fmt.Errorf("error setting display_name in state: %s", err)
+	}
+	if err = d.Set("effective_annotations", res.Annotations); err != nil {
+		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
 	if err = d.Set("network_config", flattenCloudbuildWorkerPoolNetworkConfig(res.NetworkConfig)); err != nil {
 		return fmt.Errorf("error setting network_config in state: %s", err)
@@ -298,6 +309,9 @@ func resourceCloudbuildWorkerPoolRead(d *schema.ResourceData, meta interface{}) 
 	}
 	if err = d.Set("worker_config", flattenCloudbuildWorkerPoolWorkerConfig(res.WorkerConfig)); err != nil {
 		return fmt.Errorf("error setting worker_config in state: %s", err)
+	}
+	if err = d.Set("annotations", flattenCloudbuildWorkerPoolAnnotations(res.Annotations, d)); err != nil {
+		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
 	if err = d.Set("create_time", res.CreateTime); err != nil {
 		return fmt.Errorf("error setting create_time in state: %s", err)
@@ -327,8 +341,8 @@ func resourceCloudbuildWorkerPoolUpdate(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
 		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
@@ -376,8 +390,8 @@ func resourceCloudbuildWorkerPoolDelete(d *schema.ResourceData, meta interface{}
 	obj := &cloudbuild.WorkerPool{
 		Location:      dcl.String(d.Get("location").(string)),
 		Name:          dcl.String(d.Get("name").(string)),
-		Annotations:   tpgresource.CheckStringMap(d.Get("annotations")),
 		DisplayName:   dcl.String(d.Get("display_name").(string)),
+		Annotations:   tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		NetworkConfig: expandCloudbuildWorkerPoolNetworkConfig(d.Get("network_config")),
 		Project:       dcl.String(project),
 		WorkerConfig:  expandCloudbuildWorkerPoolWorkerConfig(d.Get("worker_config")),
@@ -485,4 +499,19 @@ func flattenCloudbuildWorkerPoolWorkerConfig(obj *cloudbuild.WorkerPoolWorkerCon
 
 	return []interface{}{transformed}
 
+}
+
+func flattenCloudbuildWorkerPoolAnnotations(v map[string]string, d *schema.ResourceData) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.Get("annotations").(map[string]interface{}); ok {
+		for k, _ := range l {
+			transformed[k] = v[k]
+		}
+	}
+
+	return transformed
 }

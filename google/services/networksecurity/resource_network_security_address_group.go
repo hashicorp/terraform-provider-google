@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -47,6 +48,10 @@ func ResourceNetworkSecurityAddressGroup() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"capacity": {
@@ -88,7 +93,11 @@ The default value is 'global'.`,
 				Type:     schema.TypeMap,
 				Optional: true,
 				Description: `Set of label tags associated with the AddressGroup resource.
-An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"parent": {
@@ -103,6 +112,19 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 				Description: `The timestamp when the resource was created.
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z"`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:     schema.TypeString,
@@ -130,12 +152,6 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetworkSecurityAddressGroupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	typeProp, err := expandNetworkSecurityAddressGroupType(d.Get("type"), d, config)
 	if err != nil {
 		return err
@@ -153,6 +169,12 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(capacityProp)) && (ok || !reflect.DeepEqual(v, capacityProp)) {
 		obj["capacity"] = capacityProp
+	}
+	labelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/addressGroups?addressGroupId={{name}}")
@@ -254,6 +276,12 @@ func resourceNetworkSecurityAddressGroupRead(d *schema.ResourceData, meta interf
 	if err := d.Set("capacity", flattenNetworkSecurityAddressGroupCapacity(res["capacity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AddressGroup: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenNetworkSecurityAddressGroupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenNetworkSecurityAddressGroupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AddressGroup: %s", err)
+	}
 
 	return nil
 }
@@ -274,12 +302,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	labelsProp, err := expandNetworkSecurityAddressGroupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	typeProp, err := expandNetworkSecurityAddressGroupType(d.Get("type"), d, config)
 	if err != nil {
 		return err
@@ -298,6 +320,12 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, capacityProp)) {
 		obj["capacity"] = capacityProp
 	}
+	labelsProp, err := expandNetworkSecurityAddressGroupEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkSecurityBasePath}}{{parent}}/locations/{{location}}/addressGroups/{{name}}")
 	if err != nil {
@@ -311,10 +339,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("type") {
 		updateMask = append(updateMask, "type")
 	}
@@ -325,6 +349,10 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 
 	if d.HasChange("capacity") {
 		updateMask = append(updateMask, "capacity")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -414,7 +442,7 @@ func resourceNetworkSecurityAddressGroupDelete(d *schema.ResourceData, meta inte
 func resourceNetworkSecurityAddressGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"(?P<parent>.+)/locations/(?P<location>[^/]+)/addressGroups/(?P<name>[^/]+)",
+		"^(?P<parent>.+)/locations/(?P<location>[^/]+)/addressGroups/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -442,7 +470,18 @@ func flattenNetworkSecurityAddressGroupUpdateTime(v interface{}, d *schema.Resou
 }
 
 func flattenNetworkSecurityAddressGroupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenNetworkSecurityAddressGroupType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -470,19 +509,27 @@ func flattenNetworkSecurityAddressGroupCapacity(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func expandNetworkSecurityAddressGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenNetworkSecurityAddressGroupTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandNetworkSecurityAddressGroupLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenNetworkSecurityAddressGroupEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandNetworkSecurityAddressGroupDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetworkSecurityAddressGroupType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -495,4 +542,15 @@ func expandNetworkSecurityAddressGroupItems(v interface{}, d tpgresource.Terrafo
 
 func expandNetworkSecurityAddressGroupCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetworkSecurityAddressGroupEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

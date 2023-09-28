@@ -133,12 +133,6 @@ The following arguments are supported:
 
 <a name="nested_replication"></a>The `replication` block supports:
 
-* `automatic` -
-  (Optional, Deprecated)
-  The Secret will automatically be replicated without any restrictions.
-
-  ~> **Warning:** `automatic` is deprecated and will be removed in a future major release. Use `auto` instead.
-
 * `auto` -
   (Optional)
   The Secret will automatically be replicated without any restrictions.
@@ -205,6 +199,9 @@ The following arguments are supported:
   No more than 64 labels can be assigned to a given resource.
   An object containing a list of "key": value pairs. Example:
   { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `annotations` -
   (Optional)
@@ -284,6 +281,16 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `create_time` -
   The time at which the Secret was created.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 ## Timeouts

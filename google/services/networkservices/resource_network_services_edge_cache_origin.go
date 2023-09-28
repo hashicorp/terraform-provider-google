@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -48,6 +49,11 @@ func ResourceNetworkServicesEdgeCacheOrigin() *schema.Resource {
 			Update: schema.DefaultTimeout(120 * time.Minute),
 			Delete: schema.DefaultTimeout(120 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -111,10 +117,13 @@ The value of timeout.maxAttemptsTimeout dictates the timeout across all origins.
 A reference to a Topic resource.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Set of label tags associated with the EdgeCache resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Set of label tags associated with the EdgeCache resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"max_attempts": {
 				Type:         schema.TypeInt,
@@ -331,6 +340,19 @@ If the response headers have already been written to the connection, the respons
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -355,12 +377,6 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
-	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
 	}
 	originAddressProp, err := expandNetworkServicesEdgeCacheOriginOriginAddress(d.Get("origin_address"), d, config)
 	if err != nil {
@@ -421,6 +437,12 @@ func resourceNetworkServicesEdgeCacheOriginCreate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("origin_redirect"); !tpgresource.IsEmptyValue(reflect.ValueOf(originRedirectProp)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
 		obj["originRedirect"] = originRedirectProp
+	}
+	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins?edgeCacheOriginId={{name}}")
@@ -553,6 +575,12 @@ func resourceNetworkServicesEdgeCacheOriginRead(d *schema.ResourceData, meta int
 	if err := d.Set("origin_redirect", flattenNetworkServicesEdgeCacheOriginOriginRedirect(res["originRedirect"], d, config)); err != nil {
 		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenNetworkServicesEdgeCacheOriginTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenNetworkServicesEdgeCacheOriginEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading EdgeCacheOrigin: %s", err)
+	}
 
 	return nil
 }
@@ -578,12 +606,6 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
-	}
-	labelsProp, err := expandNetworkServicesEdgeCacheOriginLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
 	}
 	originAddressProp, err := expandNetworkServicesEdgeCacheOriginOriginAddress(d.Get("origin_address"), d, config)
 	if err != nil {
@@ -645,6 +667,12 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 	} else if v, ok := d.GetOkExists("origin_redirect"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, originRedirectProp)) {
 		obj["originRedirect"] = originRedirectProp
 	}
+	labelsProp, err := expandNetworkServicesEdgeCacheOriginEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/global/edgeCacheOrigins/{{name}}")
 	if err != nil {
@@ -656,10 +684,6 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
-	}
-
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
 	}
 
 	if d.HasChange("origin_address") {
@@ -700,6 +724,10 @@ func resourceNetworkServicesEdgeCacheOriginUpdate(d *schema.ResourceData, meta i
 
 	if d.HasChange("origin_redirect") {
 		updateMask = append(updateMask, "originRedirect")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -796,9 +824,9 @@ func resourceNetworkServicesEdgeCacheOriginDelete(d *schema.ResourceData, meta i
 func resourceNetworkServicesEdgeCacheOriginImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/global/edgeCacheOrigins/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<name>[^/]+)",
-		"(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/global/edgeCacheOrigins/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -818,7 +846,18 @@ func flattenNetworkServicesEdgeCacheOriginDescription(v interface{}, d *schema.R
 }
 
 func flattenNetworkServicesEdgeCacheOriginLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenNetworkServicesEdgeCacheOriginOriginAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1018,19 +1057,27 @@ func flattenNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v int
 	return v
 }
 
-func expandNetworkServicesEdgeCacheOriginDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenNetworkServicesEdgeCacheOriginTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandNetworkServicesEdgeCacheOriginLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenNetworkServicesEdgeCacheOriginEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandNetworkServicesEdgeCacheOriginDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandNetworkServicesEdgeCacheOriginOriginAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1295,4 +1342,15 @@ func expandNetworkServicesEdgeCacheOriginOriginRedirect(v interface{}, d tpgreso
 
 func expandNetworkServicesEdgeCacheOriginOriginRedirectRedirectConditions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheOriginEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

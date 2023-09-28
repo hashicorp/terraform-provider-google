@@ -201,9 +201,9 @@ cluster.
 
 <a name="nested_management"></a>The `management` block supports:
 
-* `auto_repair` - (Optional) Whether the nodes will be automatically repaired.
+* `auto_repair` - (Optional) Whether the nodes will be automatically repaired. Enabled by default.
 
-* `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded.
+* `auto_upgrade` - (Optional) Whether the nodes will be automatically upgraded. Enabled by default.
 
 <a name="nested_network_config"></a>The `network_config` block supports:
 

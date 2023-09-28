@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -44,6 +45,11 @@ func ResourceCertificateManagerCertificateIssuanceConfig() *schema.Resource {
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.DefaultProviderProject,
+		),
 
 		Schema: map[string]*schema.Schema{
 			"certificate_authority_config": {
@@ -118,7 +124,11 @@ the certificate has been issued and at least 7 days before it expires.`,
 				Optional: true,
 				ForceNew: true,
 				Description: `'Set of label tags associated with the CertificateIssuanceConfig resource.
- An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.`,
+ An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"location": {
@@ -134,6 +144,20 @@ the certificate has been issued and at least 7 days before it expires.`,
 				Description: `The creation timestamp of a CertificateIssuanceConfig. Timestamp is in RFC3339 UTC "Zulu" format,
 accurate to nanoseconds with up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:     schema.TypeString,
@@ -185,17 +209,17 @@ func resourceCertificateManagerCertificateIssuanceConfigCreate(d *schema.Resourc
 	} else if v, ok := d.GetOkExists("lifetime"); !tpgresource.IsEmptyValue(reflect.ValueOf(lifetimeProp)) && (ok || !reflect.DeepEqual(v, lifetimeProp)) {
 		obj["lifetime"] = lifetimeProp
 	}
-	labelsProp, err := expandCertificateManagerCertificateIssuanceConfigLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	certificateAuthorityConfigProp, err := expandCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(d.Get("certificate_authority_config"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("certificate_authority_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(certificateAuthorityConfigProp)) && (ok || !reflect.DeepEqual(v, certificateAuthorityConfigProp)) {
 		obj["certificateAuthorityConfig"] = certificateAuthorityConfigProp
+	}
+	labelsProp, err := expandCertificateManagerCertificateIssuanceConfigEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/certificateIssuanceConfigs?certificateIssuanceConfigId={{name}}")
@@ -316,6 +340,12 @@ func resourceCertificateManagerCertificateIssuanceConfigRead(d *schema.ResourceD
 	if err := d.Set("certificate_authority_config", flattenCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(res["certificateAuthorityConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenCertificateManagerCertificateIssuanceConfigTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenCertificateManagerCertificateIssuanceConfigEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CertificateIssuanceConfig: %s", err)
+	}
 
 	return nil
 }
@@ -376,9 +406,9 @@ func resourceCertificateManagerCertificateIssuanceConfigDelete(d *schema.Resourc
 func resourceCertificateManagerCertificateIssuanceConfigImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateIssuanceConfigs/(?P<name>[^/]+)",
-		"(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)",
-		"(?P<location>[^/]+)/(?P<name>[^/]+)",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/certificateIssuanceConfigs/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
@@ -431,7 +461,18 @@ func flattenCertificateManagerCertificateIssuanceConfigUpdateTime(v interface{},
 }
 
 func flattenCertificateManagerCertificateIssuanceConfigLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -464,6 +505,25 @@ func flattenCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfi
 	return v
 }
 
+func flattenCertificateManagerCertificateIssuanceConfigTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenCertificateManagerCertificateIssuanceConfigEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandCertificateManagerCertificateIssuanceConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -478,17 +538,6 @@ func expandCertificateManagerCertificateIssuanceConfigKeyAlgorithm(v interface{}
 
 func expandCertificateManagerCertificateIssuanceConfigLifetime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandCertificateManagerCertificateIssuanceConfigLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
 
 func expandCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -531,4 +580,15 @@ func expandCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfig
 
 func expandCertificateManagerCertificateIssuanceConfigCertificateAuthorityConfigCertificateAuthorityServiceConfigCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandCertificateManagerCertificateIssuanceConfigEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

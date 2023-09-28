@@ -10,13 +10,11 @@ import (
 	"strings"
 	"time"
 
-	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/servicenetworking/v1"
 )
 
@@ -96,27 +94,16 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	project := networkFieldValue.Project
 
 	parentService := formatParentService(d.Get("service").(string))
-	// We use Patch instead of Create, because we're getting
-	//  "Error waiting for Create Service Networking Connection:
-	//   Error code 9, message: Cannot modify allocated ranges in
-	//   CreateConnection. Please use UpdateConnection."
-	// if we're creating peerings to more than one VPC (like two
-	// CloudSQL instances within one project, peered with two
-	// clusters.)
-	//
-	// This is a workaround for:
-	// https://issuetracker.google.com/issues/131908322
-	//
-	// The API docs don't specify that you can do connections/-,
-	// but that's what gcloud does, and it's easier than grabbing
-	// the connection name.
+
+	// There is no blocker to use Create method, as the bug in CloudSQL has been fixed (https://b.corp.google.com/issues/123276199).
+	// Read more in https://stackoverflow.com/questions/55135559/unable-to-recreate-private-service-access-on-gcp
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		project = bp
 	}
 
-	createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+	createCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Create(parentService, connection)
 	if config.UserProjectOverride {
 		createCall.Header().Add("X-Goog-User-Project", project)
 	}
@@ -274,40 +261,33 @@ func resourceServiceNetworkingConnectionDelete(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	obj := make(map[string]interface{})
-	peering := d.Get("peering").(string)
-	obj["name"] = peering
-	url := fmt.Sprintf("%s%s/removePeering", config.ComputeBasePath, serviceNetworkingNetworkName)
-
 	networkFieldValue, err := tpgresource.ParseNetworkFieldValue(network, d, config)
 	if err != nil {
 		return errwrap.Wrapf("Failed to retrieve network field value, err: {{err}}", err)
 	}
 
 	project := networkFieldValue.Project
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   project,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-	})
+	connectionId, err := parseConnectionId(d.Id())
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ServiceNetworkingConnection %q", d.Id()))
+		return errwrap.Wrapf("Unable to parse Service Networking Connection id, err: {{err}}", err)
+	}
+	parentService := formatParentService(connectionId.Service)
+
+	deleteConnectionRequest := &servicenetworking.DeleteConnectionRequest{
+		ConsumerNetwork: serviceNetworkingNetworkName,
 	}
 
-	op := &compute.Operation{}
-	err = tpgresource.Convert(res, op)
+	deleteCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.DeleteConnection(parentService+"/connections/servicenetworking-googleapis-com", deleteConnectionRequest)
+	if config.UserProjectOverride {
+		deleteCall.Header().Add("X-Goog-User-Project", project)
+	}
+	op, err := deleteCall.Do()
 	if err != nil {
 		return err
 	}
 
-	err = tpgcompute.ComputeOperationWaitTime(
-		config, op, project, "Updating Network", userAgent, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return err
+	if err := ServiceNetworkingOperationWaitTime(config, op, "Delete Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return errwrap.Wrapf("Unable to remove Service Networking Connection, err: {{err}}", err)
 	}
 
 	d.SetId("")

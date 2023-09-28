@@ -41,7 +41,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"domain_name"},
+				ImportStateVerifyIgnore: []string{"domain_name", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccADDomainUpdate(context),
@@ -50,7 +50,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"domain_name"},
+				ImportStateVerifyIgnore: []string{"domain_name", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccADDomainBasic(context),
@@ -59,7 +59,7 @@ func TestAccActiveDirectoryDomain_update(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"domain_name"},
+				ImportStateVerifyIgnore: []string{"domain_name", "labels", "terraform_labels"},
 			},
 		},
 	})

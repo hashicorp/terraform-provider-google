@@ -210,6 +210,7 @@ resource "google_container_cluster" "cluster-1" {
     cluster_secondary_range_name  = google_compute_subnetwork.subnetwork-1.secondary_ip_range[0].range_name
     services_secondary_range_name = google_compute_subnetwork.subnetwork-1.secondary_ip_range[1].range_name
   }
+  deletion_protection  = "true"
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -343,6 +344,9 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   A set of key/value label pairs to assign to this ManagedZone.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `visibility` -
   (Optional)
@@ -554,6 +558,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_time` -
   The time that this resource was created on the server.
   This is in RFC3339 text format.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

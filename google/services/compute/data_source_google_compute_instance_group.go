@@ -86,6 +86,7 @@ func DataSourceGoogleComputeInstanceGroup() *schema.Resource {
 
 func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
+	id := ""
 	if name, ok := d.GetOk("name"); ok {
 		zone, err := tpgresource.GetZone(d, config)
 		if err != nil {
@@ -95,7 +96,7 @@ func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-		d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name.(string)))
+		id = fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", project, zone, name.(string))
 	} else if selfLink, ok := d.GetOk("self_link"); ok {
 		parsed, err := tpgresource.ParseInstanceGroupFieldValue(selfLink.(string), d, config)
 		if err != nil {
@@ -110,10 +111,20 @@ func dataSourceComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}
 		if err := d.Set("project", parsed.Project); err != nil {
 			return fmt.Errorf("Error setting project: %s", err)
 		}
-		d.SetId(fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", parsed.Project, parsed.Zone, parsed.Name))
+		id = fmt.Sprintf("projects/%s/zones/%s/instanceGroups/%s", parsed.Project, parsed.Zone, parsed.Name)
 	} else {
 		return errors.New("Must provide either `self_link` or `zone/name`")
 	}
+	d.SetId(id)
 
-	return resourceComputeInstanceGroupRead(d, meta)
+	err := resourceComputeInstanceGroupRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+
+	return nil
 }

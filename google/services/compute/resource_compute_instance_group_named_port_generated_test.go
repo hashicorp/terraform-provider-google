@@ -35,7 +35,8 @@ func TestAccComputeInstanceGroupNamedPort_instanceGroupNamedPortGkeExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,6 +99,7 @@ resource "google_container_cluster" "my_cluster" {
     cluster_ipv4_cidr_block  = "/19"
     services_ipv4_cidr_block = "/22"
   }
+  deletion_protection  = "%{deletion_protection}"
 }
 `, context)
 }

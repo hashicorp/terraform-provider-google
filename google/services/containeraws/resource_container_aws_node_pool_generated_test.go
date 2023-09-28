@@ -63,7 +63,7 @@ func TestAccContainerAwsNodePool_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair", "annotations"},
 			},
 			{
 				Config: testAccContainerAwsNodePool_BasicHandWrittenUpdate0(context),
@@ -72,7 +72,7 @@ func TestAccContainerAwsNodePool_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair", "annotations"},
 			},
 		},
 	})
@@ -107,7 +107,7 @@ func TestAccContainerAwsNodePool_BasicEnumHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair", "annotations"},
 			},
 			{
 				Config: testAccContainerAwsNodePool_BasicEnumHandWrittenUpdate0(context),
@@ -116,7 +116,7 @@ func TestAccContainerAwsNodePool_BasicEnumHandWritten(t *testing.T) {
 				ResourceName:            "google_container_aws_node_pool.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair"},
+				ImportStateVerifyIgnore: []string{"fleet.0.project", "management.#", "management.0.%", "management.0.auto_repair", "annotations"},
 			},
 		},
 	})

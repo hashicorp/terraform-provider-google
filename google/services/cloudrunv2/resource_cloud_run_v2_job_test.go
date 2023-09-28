@@ -29,7 +29,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobFullUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "labels", "terraform_labels", "annotations"},
 			},
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobFullUpdate(context),
@@ -38,7 +38,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobFullUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "labels", "terraform_labels", "annotations"},
 			},
 		},
 	})

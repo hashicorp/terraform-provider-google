@@ -24,7 +24,16 @@ func DataSourceGoogleFolderOrganizationPolicy() *schema.Resource {
 
 func datasourceGoogleFolderOrganizationPolicyRead(d *schema.ResourceData, meta interface{}) error {
 
-	d.SetId(fmt.Sprintf("%s/%s", d.Get("folder"), d.Get("constraint")))
+	id := fmt.Sprintf("%s/%s", d.Get("folder"), d.Get("constraint"))
+	d.SetId(id)
 
-	return resourceGoogleFolderOrganizationPolicyRead(d, meta)
+	err := resourceGoogleFolderOrganizationPolicyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	if d.Id() == "" {
+		return fmt.Errorf("%s not found", id)
+	}
+	return nil
 }

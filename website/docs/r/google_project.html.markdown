@@ -82,6 +82,14 @@ The following arguments are supported:
     without deleting the Project via the Google API.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+	Please refer to the field 'effective_labels' for all of the labels present on the resource.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 * `auto_create_network` - (Optional) Controls whether the 'default' network exists on the project. Defaults
     to `true`, where it is created. If set to `false`, the default network will still be created by GCP but

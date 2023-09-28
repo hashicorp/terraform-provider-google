@@ -467,6 +467,9 @@ The following arguments are supported:
   (Optional)
   Labels with user-defined metadata to apply to this resource.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `pem_csr` -
   (Optional)
   Immutable. A pem-encoded X.509 certificate signing request (CSR).
@@ -839,12 +842,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `pem_certificate_chain` -
   The chain that may be used to verify the X.509 certificate. Expected to be in issuer-to-root order according to RFC 5246.
 
-* `pem_certificates` -
-  (Deprecated)
-  Required. Expected to be in leaf-to-root order according to RFC 5246.
-
-  ~> **Warning:** `pem_certificates` is deprecated and will be removed in a future major release. Use `pem_certificate_chain` instead.
-
 * `create_time` -
   The time that this resource was created on the server.
   This is in RFC3339 text format.
@@ -852,6 +849,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `update_time` -
   Output only. The time at which this CertificateAuthority was updated.
   This is in RFC3339 text format.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_revocation_details"></a>The `revocation_details` block contains:
@@ -875,13 +879,6 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   A structured description of the issued X.509 certificate.
   Structure is [documented below](#nested_x509_description).
-
-* `config_values` -
-  (Output, Deprecated)
-  Describes some of the technical fields in a certificate.
-  Structure is [documented below](#nested_config_values).
-
-  ~> **Warning:** `config_values` is deprecated and will be removed in a future release. Use `x509_description` instead.
 
 * `public_key` -
   (Output)
@@ -1243,118 +1240,6 @@ In addition to the arguments listed above, the following computed attributes are
   Contains the excluded URIs that apply to the host part of the name.
   The value can be a hostname or a domain with a
   leading period (like `.example.com`)
-
-<a name="nested_config_values"></a>The `config_values` block contains:
-
-* `key_usage` -
-  (Output)
-  Indicates the intended use for keys that correspond to a certificate.
-  Structure is [documented below](#nested_key_usage).
-
-
-<a name="nested_key_usage"></a>The `key_usage` block contains:
-
-* `base_key_usage` -
-  (Output)
-  Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_base_key_usage).
-
-* `extended_key_usage` -
-  (Output)
-  Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_extended_key_usage).
-
-* `unknown_extended_key_usages` -
-  (Output)
-  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
-  Structure is [documented below](#nested_unknown_extended_key_usages).
-
-
-<a name="nested_base_key_usage"></a>The `base_key_usage` block contains:
-
-* `key_usage_options` -
-  (Output)
-  Describes high-level ways in which a key may be used.
-  Structure is [documented below](#nested_key_usage_options).
-
-
-<a name="nested_key_usage_options"></a>The `key_usage_options` block contains:
-
-* `digital_signature` -
-  (Output)
-  The key may be used for digital signatures.
-
-* `content_commitment` -
-  (Output)
-  The key may be used for cryptographic commitments. Note that this may also be referred to as "non-repudiation".
-
-* `key_encipherment` -
-  (Output)
-  The key may be used to encipher other keys.
-
-* `data_encipherment` -
-  (Output)
-  The key may be used to encipher data.
-
-* `key_agreement` -
-  (Output)
-  The key may be used in a key agreement protocol.
-
-* `cert_sign` -
-  (Output)
-  The key may be used to sign certificates.
-
-* `crl_sign` -
-  (Output)
-  The key may be used sign certificate revocation lists.
-
-* `encipher_only` -
-  (Output)
-  The key may be used to encipher only.
-
-* `decipher_only` -
-  (Output)
-  The key may be used to decipher only.
-
-<a name="nested_extended_key_usage"></a>The `extended_key_usage` block contains:
-
-* `server_auth` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.1. Officially described as "TLS WWW server authentication", though regularly used for non-WWW TLS.
-
-* `client_auth` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.2. Officially described as "TLS WWW client authentication", though regularly used for non-WWW TLS.
-
-* `code_signing` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.3. Officially described as "Signing of downloadable executable code client authentication".
-
-* `email_protection` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.4. Officially described as "Email protection".
-
-* `time_stamping` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.8. Officially described as "Binding the hash of an object to a time".
-
-* `ocsp_signing` -
-  (Output)
-  Corresponds to OID 1.3.6.1.5.5.7.3.9. Officially described as "Signing OCSP responses".
-
-<a name="nested_unknown_extended_key_usages"></a>The `unknown_extended_key_usages` block contains:
-
-* `obect_id` -
-  (Output)
-  Required. Describes how some of the technical fields in a certificate should be populated.
-  Structure is [documented below](#nested_obect_id).
-
-
-<a name="nested_obect_id"></a>The `obect_id` block contains:
-
-* `object_id_path` -
-  (Output)
-  An ObjectId specifies an object identifier (OID). These provide context and describe types in ASN.1 messages.
 
 <a name="nested_public_key"></a>The `public_key` block contains:
 

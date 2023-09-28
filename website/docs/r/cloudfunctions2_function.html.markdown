@@ -769,6 +769,10 @@ The following arguments are supported:
   A user-defined name of the function. Function names must
   be unique globally and match pattern `projects/*/locations/*/functions/*`.
 
+* `location` -
+  (Required)
+  The location of this cloud function.
+
 
 - - -
 
@@ -798,14 +802,13 @@ The following arguments are supported:
   (Optional)
   A set of key/value label pairs associated with this Cloud Function.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `kms_key_name` -
   (Optional)
   Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.
   It must match the pattern projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}.
-
-* `location` -
-  (Optional)
-  The location of this cloud function.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -1115,6 +1118,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `update_time` -
   The last update timestamp of a Cloud Function.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts

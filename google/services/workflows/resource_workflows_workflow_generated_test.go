@@ -61,6 +61,9 @@ resource "google_workflows_workflow" "example" {
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id
+  labels = {
+    env = "test"
+  }
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
   #

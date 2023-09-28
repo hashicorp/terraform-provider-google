@@ -27,7 +27,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAITensorboard_Update(random_suffix+"new", random_suffix, random_suffix, random_suffix),
@@ -36,7 +36,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAITensorboard_Update(random_suffix+"new", random_suffix+"new", random_suffix, random_suffix),
@@ -45,7 +45,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAITensorboard_Update(random_suffix+"new", random_suffix+"new", random_suffix+"new", random_suffix),
@@ -54,7 +54,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAITensorboard_Update(random_suffix+"new", random_suffix+"new", random_suffix+"new", random_suffix+"new"),
@@ -63,7 +63,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAITensorboard_Update(random_suffix, random_suffix, random_suffix, random_suffix),
@@ -72,7 +72,7 @@ func TestAccVertexAITensorboard_Update(t *testing.T) {
 				ResourceName:            "google_vertex_ai_tensorboard.tensorboard",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "project"},
+				ImportStateVerifyIgnore: []string{"region", "project", "labels", "terraform_labels"},
 			},
 		},
 	})
