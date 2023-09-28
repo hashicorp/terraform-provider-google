@@ -268,6 +268,54 @@ email/password or email link.`,
 					},
 				},
 			},
+			"sms_region_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configures the regions where users are allowed to send verification SMS for the project or tenant. This is based on the calling code of the destination phone number.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"allow_by_default": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A policy of allowing SMS to every region by default and adding disallowed regions to a disallow list.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disallowed_regions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Two letter unicode region codes to disallow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"sms_region_config.0.allow_by_default", "sms_region_config.0.allowlist_only"},
+						},
+						"allowlist_only": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `A policy of only allowing regions by explicitly adding them to an allowlist.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allowed_regions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Two letter unicode region codes to allow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"sms_region_config.0.allow_by_default", "sms_region_config.0.allowlist_only"},
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -399,6 +447,9 @@ func resourceIdentityPlatformConfigRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("authorized_domains", flattenIdentityPlatformConfigAuthorizedDomains(res["authorizedDomains"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("sms_region_config", flattenIdentityPlatformConfigSmsRegionConfig(res["smsRegionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 
 	return nil
 }
@@ -449,6 +500,12 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("authorized_domains"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizedDomainsProp)) {
 		obj["authorizedDomains"] = authorizedDomainsProp
 	}
+	smsRegionConfigProp, err := expandIdentityPlatformConfigSmsRegionConfig(d.Get("sms_region_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("sms_region_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, smsRegionConfigProp)) {
+		obj["smsRegionConfig"] = smsRegionConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
@@ -476,6 +533,10 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("authorized_domains") {
 		updateMask = append(updateMask, "authorizedDomains")
+	}
+
+	if d.HasChange("sms_region_config") {
+		updateMask = append(updateMask, "smsRegionConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -824,6 +885,55 @@ func flattenIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(v interfac
 }
 
 func flattenIdentityPlatformConfigAuthorizedDomains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSmsRegionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allow_by_default"] =
+		flattenIdentityPlatformConfigSmsRegionConfigAllowByDefault(original["allowByDefault"], d, config)
+	transformed["allowlist_only"] =
+		flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnly(original["allowlistOnly"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSmsRegionConfigAllowByDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disallowed_regions"] =
+		flattenIdentityPlatformConfigSmsRegionConfigAllowByDefaultDisallowedRegions(original["disallowedRegions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSmsRegionConfigAllowByDefaultDisallowedRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["allowed_regions"] =
+		flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(original["allowedRegions"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1223,5 +1333,77 @@ func expandIdentityPlatformConfigQuotaSignUpQuotaConfigQuotaDuration(v interface
 }
 
 func expandIdentityPlatformConfigAuthorizedDomains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSmsRegionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowByDefault, err := expandIdentityPlatformConfigSmsRegionConfigAllowByDefault(original["allow_by_default"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowByDefault); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowByDefault"] = transformedAllowByDefault
+	}
+
+	transformedAllowlistOnly, err := expandIdentityPlatformConfigSmsRegionConfigAllowlistOnly(original["allowlist_only"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowlistOnly); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowlistOnly"] = transformedAllowlistOnly
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSmsRegionConfigAllowByDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisallowedRegions, err := expandIdentityPlatformConfigSmsRegionConfigAllowByDefaultDisallowedRegions(original["disallowed_regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisallowedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disallowedRegions"] = transformedDisallowedRegions
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSmsRegionConfigAllowByDefaultDisallowedRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigSmsRegionConfigAllowlistOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAllowedRegions, err := expandIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(original["allowed_regions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAllowedRegions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["allowedRegions"] = transformedAllowedRegions
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

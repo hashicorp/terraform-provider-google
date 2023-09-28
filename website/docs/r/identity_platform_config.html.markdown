@@ -73,6 +73,14 @@ resource "google_identity_platform_config" "default" {
         }
     }
   }
+  sms_region_config {
+    allowlist_only {
+      allowed_regions = [
+        "US",
+        "CA",
+      ]
+    }
+  }
   blocking_functions {
     triggers {
       event_type = "beforeSignIn"
@@ -130,6 +138,11 @@ The following arguments are supported:
 * `authorized_domains` -
   (Optional)
   List of domains authorized for OAuth redirects.
+
+* `sms_region_config` -
+  (Optional)
+  Configures the regions where users are allowed to send verification SMS for the project or tenant. This is based on the calling code of the destination phone number.
+  Structure is [documented below](#nested_sms_region_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -272,6 +285,31 @@ The following arguments are supported:
 * `quota_duration` -
   (Optional)
   How long this quota will be active for. It is measurred in seconds, e.g., Example: "9.615s".
+
+<a name="nested_sms_region_config"></a>The `sms_region_config` block supports:
+
+* `allow_by_default` -
+  (Optional)
+  A policy of allowing SMS to every region by default and adding disallowed regions to a disallow list.
+  Structure is [documented below](#nested_allow_by_default).
+
+* `allowlist_only` -
+  (Optional)
+  A policy of only allowing regions by explicitly adding them to an allowlist.
+  Structure is [documented below](#nested_allowlist_only).
+
+
+<a name="nested_allow_by_default"></a>The `allow_by_default` block supports:
+
+* `disallowed_regions` -
+  (Optional)
+  Two letter unicode region codes to disallow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
+
+<a name="nested_allowlist_only"></a>The `allowlist_only` block supports:
+
+* `allowed_regions` -
+  (Optional)
+  Two letter unicode region codes to allow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
 
 ## Attributes Reference
 
