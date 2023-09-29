@@ -319,7 +319,7 @@ one of which has a `target_size.percent` of `60` will create 2 instances of that
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `id` - an identifier for the resource with format `{{disk.name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{name}}`
 
 * `fingerprint` - The fingerprint of the instance group manager.
 
