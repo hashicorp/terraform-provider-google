@@ -1,0 +1,3 @@
+```release-note:none
+gkehub: removed beta-only note from the feature_membership documentation
+```
