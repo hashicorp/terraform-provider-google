@@ -206,6 +206,15 @@ resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
       konnectivity_server_node_port = 30008
     }
   }
+  vcenter {
+    resource_pool = "test-resource-pool"
+    datastore = "test-datastore"
+    datacenter = "test-datacenter"
+    cluster = "test-cluster"
+    folder = "test-folder"
+    ca_cert_data = "test-ca-cert-data"
+    storage_policy_name = "test-storage-policy-name"
+  }
   dataplane_v2 {
     dataplane_v2_enabled = true
     windows_dataplane_v2_enabled = true
@@ -373,6 +382,12 @@ The following arguments are supported:
   (Optional)
   Specifies upgrade policy for the cluster.
   Structure is [documented below](#nested_upgrade_policy).
+
+* `vcenter` -
+  (Optional)
+  VmwareVCenterConfig specifies vCenter config for the user cluster.
+  Inherited from the admin cluster.
+  Structure is [documented below](#nested_vcenter).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -664,6 +679,40 @@ The following arguments are supported:
   (Optional)
   Controls whether the upgrade applies to the control plane only.
 
+<a name="nested_vcenter"></a>The `vcenter` block supports:
+
+* `resource_pool` -
+  (Optional)
+  The name of the vCenter resource pool for the user cluster.
+
+* `datastore` -
+  (Optional)
+  The name of the vCenter datastore for the user cluster.
+
+* `datacenter` -
+  (Optional)
+  The name of the vCenter datacenter for the user cluster.
+
+* `cluster` -
+  (Optional)
+  The name of the vCenter cluster for the user cluster.
+
+* `folder` -
+  (Optional)
+  The name of the vCenter folder for the user cluster.
+
+* `ca_cert_data` -
+  (Optional)
+  Contains the vCenter CA certificate public key for SSL verification.
+
+* `address` -
+  (Output)
+  The vCenter IP address.
+
+* `storage_policy_name` -
+  (Optional)
+  The name of the vCenter storage policy for the user cluster.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -717,11 +766,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `fleet` -
   Fleet configuration for the cluster.
   Structure is [documented below](#nested_fleet).
-
-* `vcenter` -
-  VmwareVCenterConfig specifies vCenter config for the user cluster.
-  Inherited from the admin cluster.
-  Structure is [documented below](#nested_vcenter).
 
 * `status` -
   ResourceStatus representing detailed cluster state.
@@ -784,40 +828,6 @@ In addition to the arguments listed above, the following computed attributes are
   The name of the managed Hub Membership resource associated to this cluster.
   Membership names are formatted as
   `projects/<project-number>/locations/<location>/memberships/<cluster-id>`.
-
-<a name="nested_vcenter"></a>The `vcenter` block contains:
-
-* `resource_pool` -
-  (Output)
-  The name of the vCenter resource pool for the user cluster.
-
-* `datastore` -
-  (Output)
-  The name of the vCenter datastore for the user cluster.
-
-* `datacenter` -
-  (Output)
-  The name of the vCenter datacenter for the user cluster.
-
-* `cluster` -
-  (Output)
-  The name of the vCenter cluster for the user cluster.
-
-* `folder` -
-  (Output)
-  The name of the vCenter folder for the user cluster.
-
-* `ca_cert_data` -
-  (Output)
-  Contains the vCenter CA certificate public key for SSL verification.
-
-* `address` -
-  (Output)
-  The vCenter IP address.
-
-* `storage_policy_name` -
-  (Output)
-  The name of the vCenter storage policy for the user cluster.
 
 <a name="nested_status"></a>The `status` block contains:
 
