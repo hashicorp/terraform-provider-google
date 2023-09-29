@@ -15,7 +15,7 @@ var defaultParallelism = 6
 var defaultTerraformCoreVersion = "1.2.5"
 
 // This represents a cron view of days of the week
-const val defaultDaysOfWeek = "1-4,6-7" // All nights except Thursday (5) for GA; feature branch testing happens on Thursdays and TeamCity numbers days Sun=1...Sat=7
+const val defaultDaysOfWeek = "*"
 
 // Cron value for any day of month
 const val defaultDaysOfMonth = "*"
