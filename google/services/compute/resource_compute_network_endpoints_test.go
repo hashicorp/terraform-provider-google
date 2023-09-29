@@ -45,6 +45,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 				ResourceName:      "google_compute_network_endpoints.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     negId,
 			},
 			{
 				// Force-recreate old endpoint
@@ -57,6 +58,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 				ResourceName:      "google_compute_network_endpoints.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     negId,
 			},
 			{
 				// Add four new endpoints
@@ -66,6 +68,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 				ResourceName:      "google_compute_network_endpoints.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     negId,
 			},
 			{
 				// Add enough endpoints to trigger pagination
@@ -75,6 +78,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 				ResourceName:      "google_compute_network_endpoints.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     negId,
 			},
 			{
 				// Remove enough endpoints to trigger pagination
@@ -84,6 +88,7 @@ func TestAccComputeNetworkEndpoints_networkEndpointsBasic(t *testing.T) {
 				ResourceName:      "google_compute_network_endpoints.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateId:     negId,
 			},
 			{
 				// delete all endpoints
