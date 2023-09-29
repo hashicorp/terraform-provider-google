@@ -1,0 +1,5 @@
+```release-note:new-resource
+`google_edgecontainer_cluster`
+`google_edgecontainer_node_pool`
+`google_edgecontainer_vpn_connection`
+```

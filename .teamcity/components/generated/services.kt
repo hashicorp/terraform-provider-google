@@ -306,6 +306,11 @@ var services = mapOf(
         "displayName" to "Documentaiwarehouse",
         "path" to "./google/services/documentaiwarehouse"
     ),
+    "edgecontainer" to mapOf(
+        "name" to "edgecontainer",
+        "displayName" to "Edgecontainer",
+        "path" to "./google/services/edgecontainer"
+    ),
     "edgenetwork" to mapOf(
         "name" to "edgenetwork",
         "displayName" to "Edgenetwork",
