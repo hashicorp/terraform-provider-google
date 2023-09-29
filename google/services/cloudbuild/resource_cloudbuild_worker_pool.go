@@ -113,7 +113,7 @@ func ResourceCloudbuildWorkerPool() *schema.Resource {
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Description: "User specified annotations. See https://google.aip.dev/128#annotations for more details such as format and size limitations.\n\n**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.\nPlease refer to the field `effective_annotations` for all of the annotations present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 

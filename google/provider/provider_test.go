@@ -129,9 +129,10 @@ func TestAccProviderUserProjectOverride(t *testing.T) {
 				Config: testAccProviderUserProjectOverride_step2(accessToken, pid, true, topicName),
 			},
 			{
-				ResourceName:      "google_pubsub_topic.project-2-topic",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_pubsub_topic.project-2-topic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccProviderUserProjectOverride_step3(accessToken, true),

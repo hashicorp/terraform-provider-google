@@ -1642,8 +1642,19 @@ func resourceDatastreamStreamUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	// lables and terraform_labels fields are overriden with the labels before updating inside the function waitForDatastreamStreamReady
+	labels := d.Get("labels")
+	terraformLabels := d.Get("terraform_labels")
+
 	if err := waitForDatastreamStreamReady(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
 		return fmt.Errorf("Error waiting for Stream %q to be NOT_STARTED, RUNNING, or PAUSED before updating: %q", d.Get("name").(string), err)
+	}
+
+	if err := d.Set("labels", labels); err != nil {
+		return fmt.Errorf("Error setting back labels field: %s", err)
+	}
+	if err := d.Set("terraform_labels", terraformLabels); err != nil {
+		return fmt.Errorf("Error setting back terraform_labels field: %s", err)
 	}
 
 	// err == nil indicates that the billing_project value was found

@@ -169,7 +169,8 @@ The `read_authorizer_credential` block supports:
   (Optional)
   Allows clients to store small amounts of arbitrary data.
 
-**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
+**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+Please refer to the field `effective_annotations` for all of the annotations present on the resource.
   
 * `disabled` -
   (Optional)

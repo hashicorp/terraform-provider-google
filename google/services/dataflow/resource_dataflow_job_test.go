@@ -282,7 +282,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "6"),
 				),
 			},
 			{
@@ -304,7 +304,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "6"),
 				),
 			},
 			{
@@ -327,7 +327,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "6"),
 				),
 			},
 			{
@@ -349,7 +349,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "6"),
 				),
 			},
 			{
@@ -362,7 +362,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 				Config: testAccDataflowJob_zone(bucket, job, zone),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("google_dataflow_job.with_labels", "labels.%"),
-					resource.TestCheckNoResourceAttr("google_dataflow_job.with_labels", "effective_labels.%"),
+					resource.TestCheckResourceAttr("google_dataflow_job.with_labels", "effective_labels.%", "3"),
 				),
 			},
 			{

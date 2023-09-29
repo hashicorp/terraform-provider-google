@@ -161,6 +161,9 @@ The following arguments are supported:
   (Optional)
   User-defined labels for the alloydb backup. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `type` -
   (Optional)
   The backup type, which suggests the trigger for the backup.
@@ -179,6 +182,9 @@ The following arguments are supported:
   (Optional)
   Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
   An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -242,6 +248,16 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. The QuantityBasedExpiry of the backup, specified by the backup's retention policy.
   Once the expiry quantity is over retention, the backup is eligible to be garbage collected.
   Structure is [documented below](#nested_expiry_quantity).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 <a name="nested_encryption_info"></a>The `encryption_info` block contains:
