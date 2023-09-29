@@ -156,7 +156,7 @@ func ResourceEventarcTrigger() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: "Optional. User labels attached to the triggers that can be used to group resources.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.",
+				Description: "Optional. User labels attached to the triggers that can be used to group resources.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 

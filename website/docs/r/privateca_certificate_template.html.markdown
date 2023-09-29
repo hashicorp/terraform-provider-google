@@ -146,7 +146,8 @@ The `object_id` block supports:
   (Optional)
   Optional. Labels with user-defined metadata.
 
-**Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field `effective_labels` for all of the labels present on the resource.
   
 * `passthrough_extensions` -
   (Optional)

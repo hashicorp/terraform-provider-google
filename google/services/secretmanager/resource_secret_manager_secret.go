@@ -190,7 +190,11 @@ symbols.
 The total size of annotation keys and values must be less than 16KiB.
 
 An object containing a list of "key": value pairs. Example:
-{ "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+{ "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"expire_time": {

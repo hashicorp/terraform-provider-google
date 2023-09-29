@@ -897,6 +897,9 @@ The following arguments are supported:
   Name must be 63 characters or less, begin and end with alphanumerics,
   with dashes (-), underscores (_), dots (.), and alphanumerics between.
 
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
 * `proxy` -
   (Optional)
   Specifies the cluster proxy configuration.

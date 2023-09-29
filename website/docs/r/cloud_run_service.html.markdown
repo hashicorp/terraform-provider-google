@@ -969,6 +969,8 @@ this field is set to false, the revision name will still autogenerate.)
     for the Service. For example, `"run.googleapis.com/ingress" = "all"`.
   - `run.googleapis.com/launch-stage` sets the [launch stage](https://cloud.google.com/run/docs/troubleshooting#launch-stage-validation)
     when a preview feature is used. For example, `"run.googleapis.com/launch-stage": "BETA"`
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
 * `terraform_labels` -
   (Output)
