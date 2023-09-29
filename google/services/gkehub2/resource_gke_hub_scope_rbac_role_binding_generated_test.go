@@ -48,7 +48,7 @@ func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(t
 				Config: testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(context),
 			},
 			{
-				ResourceName:            "google_gke_hub_scope_rbac_role_binding.scoperbacrolebinding",
+				ResourceName:            "google_gke_hub_scope_rbac_role_binding.scope_rbac_role_binding",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"scope_rbac_role_binding_id", "scope_id", "labels", "terraform_labels"},
@@ -59,13 +59,13 @@ func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(t
 
 func testAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_gke_hub_scope" "scoperbacrolebinding" {
+resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
 }
 
-resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
+resource "google_gke_hub_scope_rbac_role_binding" "scope_rbac_role_binding" {
   scope_rbac_role_binding_id = "tf-test-scope-rbac-role-binding%{random_suffix}"
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = google_gke_hub_scope.scope.scope_id
   user = "test-email@gmail.com"
   role {
     predefined_role = "ADMIN"
@@ -73,7 +73,7 @@ resource "google_gke_hub_scope_rbac_role_binding" "scoperbacrolebinding" {
   labels = {
       key = "value" 
   }
-  depends_on = [google_gke_hub_scope.scoperbacrolebinding]
+  depends_on = [google_gke_hub_scope.scope]
 }
 `, context)
 }

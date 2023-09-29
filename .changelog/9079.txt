@@ -1,0 +1,3 @@
+```release-note:none
+gkehub: made naming consistent across examples in documentation.
+```
