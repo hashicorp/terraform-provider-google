@@ -491,13 +491,15 @@ has a default value.
 
 ## Resource: `google_container_node_pool`
 
-### `logging_variant` no longer has a provider default value
-
-Previously `logging_variant` defaulted to "DEFAULT". It no longer has a default value.
-
 ### `management.auto_repair` and `management.auto_upgrade` now default to true
 
-Previously both fields defaulted to false. They now default to true.
+Previously both fields defaulted to false if `management` was set as an empty block.
+They now default to true.
+
+### `logging_variant` no longer has a provider default value
+
+The provider no longer shows a default value at plan-time, and defers to the 
+API server default.
 
 ### `node_config.0.taint` field change
 
