@@ -50,6 +50,8 @@ func ResourceAlloydbBackup() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
+			tpgresource.SetAnnotationsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -77,7 +79,11 @@ func ResourceAlloydbBackup() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Description: `Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
-An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"description": {
@@ -107,10 +113,14 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `User-defined labels for the alloydb backup. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the alloydb backup. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -135,6 +145,18 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 				Computed: true,
 				Description: `Output only. Delete time stamp. A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"effective_annotations": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"encryption_info": {
 				Type:        schema.TypeList,
@@ -210,6 +232,13 @@ This can happen due to user-triggered updates or system actions like failover or
 				Computed:    true,
 				Description: `Output only. The current state of the backup.`,
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -246,12 +275,6 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandAlloydbBackupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	typeProp, err := expandAlloydbBackupType(d.Get("type"), d, config)
 	if err != nil {
 		return err
@@ -276,10 +299,16 @@ func resourceAlloydbBackupCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
 	}
-	annotationsProp, err := expandAlloydbBackupAnnotations(d.Get("annotations"), d, config)
+	labelsProp, err := expandAlloydbBackupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandAlloydbBackupEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
 		obj["annotations"] = annotationsProp
 	}
 
@@ -442,6 +471,15 @@ func resourceAlloydbBackupRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("expiry_quantity", flattenAlloydbBackupExpiryQuantity(res["expiryQuantity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Backup: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenAlloydbBackupTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenAlloydbBackupEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
+	if err := d.Set("effective_annotations", flattenAlloydbBackupEffectiveAnnotations(res["annotations"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Backup: %s", err)
+	}
 
 	return nil
 }
@@ -468,12 +506,6 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
-	labelsProp, err := expandAlloydbBackupLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	typeProp, err := expandAlloydbBackupType(d.Get("type"), d, config)
 	if err != nil {
 		return err
@@ -492,10 +524,16 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
 	}
-	annotationsProp, err := expandAlloydbBackupAnnotations(d.Get("annotations"), d, config)
+	labelsProp, err := expandAlloydbBackupEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
+	annotationsProp, err := expandAlloydbBackupEffectiveAnnotations(d.Get("effective_annotations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
 		obj["annotations"] = annotationsProp
 	}
 
@@ -516,10 +554,6 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 		updateMask = append(updateMask, "displayName")
 	}
 
-	if d.HasChange("labels") {
-		updateMask = append(updateMask, "labels")
-	}
-
 	if d.HasChange("type") {
 		updateMask = append(updateMask, "type")
 	}
@@ -532,7 +566,11 @@ func resourceAlloydbBackupUpdate(d *schema.ResourceData, meta interface{}) error
 		updateMask = append(updateMask, "encryptionConfig")
 	}
 
-	if d.HasChange("annotations") {
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+
+	if d.HasChange("effective_annotations") {
 		updateMask = append(updateMask, "annotations")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -672,7 +710,18 @@ func flattenAlloydbBackupDeleteTime(v interface{}, d *schema.ResourceData, confi
 }
 
 func flattenAlloydbBackupLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenAlloydbBackupState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -744,7 +793,18 @@ func flattenAlloydbBackupEtag(v interface{}, d *schema.ResourceData, config *tra
 }
 
 func flattenAlloydbBackupAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("annotations"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenAlloydbBackupSizeBytes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -804,19 +864,31 @@ func flattenAlloydbBackupExpiryQuantityTotalRetentionCount(v interface{}, d *sch
 	return v // let terraform core handle it otherwise
 }
 
-func expandAlloydbBackupDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+func flattenAlloydbBackupTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
-func expandAlloydbBackupLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
+func flattenAlloydbBackupEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbBackupEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func expandAlloydbBackupDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandAlloydbBackupType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -854,7 +926,18 @@ func expandAlloydbBackupEncryptionConfigKmsKeyName(v interface{}, d tpgresource.
 	return v, nil
 }
 
-func expandAlloydbBackupAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandAlloydbBackupEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandAlloydbBackupEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

@@ -38,7 +38,7 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
 			},
 			{
 				Config: testAccBigtableInstance(instanceName, 4),
@@ -47,7 +47,7 @@ func TestAccBigtableInstance_basic(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
 			},
 		},
 	})
@@ -313,7 +313,7 @@ func TestAccBigtableInstance_enableAndDisableAutoscaling(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
 			},
 			{
 				// Enable Autoscaling.
@@ -335,7 +335,7 @@ func TestAccBigtableInstance_enableAndDisableAutoscaling(t *testing.T) {
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
 			},
 		},
 	})
@@ -375,7 +375,7 @@ func TestAccBigtableInstance_enableAndDisableAutoscalingWithoutNumNodes(t *testi
 				ResourceName:            "google_bigtable_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type"}, // we don't read instance type back
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
 			},
 		},
 	})

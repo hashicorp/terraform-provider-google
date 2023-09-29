@@ -848,6 +848,8 @@ The following arguments are supported:
   Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected in new resources.
   All system annotations in v1 now have a corresponding field in v2 Service.
   This field follows Kubernetes annotations' namespacing, limits, and rules.
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
 * `client` -
   (Optional)

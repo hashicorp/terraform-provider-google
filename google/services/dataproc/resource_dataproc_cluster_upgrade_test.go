@@ -164,6 +164,8 @@ func TestAccDataprocClusterLabelsMigration_withUpdate(t *testing.T) {
 	})
 }
 
+// This test fails in the nightly test. The reason to keep it is that
+// it could tell if the new model is broken later.
 func TestAccDataprocClusterLabelsMigration_withRemoval(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -192,7 +194,7 @@ func TestAccDataprocClusterLabelsMigration_withRemoval(t *testing.T) {
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
 					resource.TestCheckNoResourceAttr("google_dataproc_cluster.with_labels", "labels.%"),
-					// We only provide one, but GCP adds three and goog-dataproc-autozone is added internally, so expect 4.
+					// GCP adds three and goog-dataproc-autozone is added internally, so expect 4.
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_labels", "effective_labels.%", "4"),
 				),
 			},

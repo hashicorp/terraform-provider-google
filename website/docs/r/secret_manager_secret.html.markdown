@@ -216,6 +216,9 @@ The following arguments are supported:
   An object containing a list of "key": value pairs. Example:
   { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
 * `version_aliases` -
   (Optional)
   Mapping from version alias to version name.

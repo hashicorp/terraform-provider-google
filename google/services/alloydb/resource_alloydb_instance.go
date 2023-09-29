@@ -77,10 +77,13 @@ func ResourceAlloydbInstance() *schema.Resource {
 				Description:  `The type of the instance. If the instance type is READ_POOL, provide the associated PRIMARY instance in the 'depends_on' meta-data attribute. Possible values: ["PRIMARY", "READ_POOL"]`,
 			},
 			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: `Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels.
+
+**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"availability_type": {
 				Type:         schema.TypeString,

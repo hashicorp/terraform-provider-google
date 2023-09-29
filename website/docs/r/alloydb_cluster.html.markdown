@@ -241,6 +241,9 @@ The following arguments are supported:
   Annotations to allow client tools to store small amount of arbitrary data. This is distinct from labels. https://google.aip.dev/128
   An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
+  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
+  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
 * `initial_user` -
   (Optional)
   Initial user to setup during cluster creation.
@@ -475,6 +478,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+* `effective_annotations` -
+  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 <a name="nested_encryption_info"></a>The `encryption_info` block contains:
