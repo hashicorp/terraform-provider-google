@@ -237,7 +237,7 @@ Throughout the provider there were many resources which erroneously gave false p
 
 ### Datasources now error universally on 404
 
-All data sources have been updated to return an error when a target resource URI can not be reached. Previously this was inconsistent between different datasources in whether an empty value was returned to Terraform state upon 404 or if an error was returned, but this has been standardized. Any plans that reference datasources which no longer exist (or do not exist yet) will need to be revised to have these datasources removed from configuration files.
+All non-IAM data sources have been updated to return an error when a target resource URI can not be reached. Previously this was inconsistent between different datasources in whether an empty value was returned to Terraform state upon 404 or if an error was returned, but this has been standardized. Any plans that reference datasources which no longer exist (or do not exist yet) will need to be revised to have these datasources removed from configuration files.
 
 ## Datasource: `google_product_datasource`
 
