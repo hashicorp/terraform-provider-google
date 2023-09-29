@@ -434,6 +434,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"edgecontainer_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"edgenetwork_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{

@@ -98,6 +98,7 @@ type FrameworkProviderConfig struct {
 	DNSBasePath                      string
 	DocumentAIBasePath               string
 	DocumentAIWarehouseBasePath      string
+	EdgecontainerBasePath            string
 	EdgenetworkBasePath              string
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
@@ -234,6 +235,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DNSBasePath = data.DNSCustomEndpoint.ValueString()
 	p.DocumentAIBasePath = data.DocumentAICustomEndpoint.ValueString()
 	p.DocumentAIWarehouseBasePath = data.DocumentAIWarehouseCustomEndpoint.ValueString()
+	p.EdgecontainerBasePath = data.EdgecontainerCustomEndpoint.ValueString()
 	p.EdgenetworkBasePath = data.EdgenetworkCustomEndpoint.ValueString()
 	p.EssentialContactsBasePath = data.EssentialContactsCustomEndpoint.ValueString()
 	p.FilestoreBasePath = data.FilestoreCustomEndpoint.ValueString()
@@ -804,6 +806,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.DocumentAIWarehouseBasePathKey])
 		if customEndpoint != nil {
 			data.DocumentAIWarehouseCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.EdgecontainerCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_EDGECONTAINER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.EdgecontainerBasePathKey])
+		if customEndpoint != nil {
+			data.EdgecontainerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.EdgenetworkCustomEndpoint.IsNull() {
