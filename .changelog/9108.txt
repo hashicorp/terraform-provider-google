@@ -1,0 +1,3 @@
+```release-note:none
+bigquery: link to `max_staleness` syntax
+```
