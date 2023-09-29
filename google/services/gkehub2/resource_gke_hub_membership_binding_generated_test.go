@@ -50,7 +50,7 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 				Config: testAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(context),
 			},
 			{
-				ResourceName:            "google_gke_hub_membership_binding.example",
+				ResourceName:            "google_gke_hub_membership_binding.membership_binding",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"membership_binding_id", "scope", "membership_id", "location", "labels", "terraform_labels"},
@@ -68,7 +68,7 @@ resource "google_container_cluster" "primary" {
   deletion_protection  = "%{deletion_protection}"
 }
 
-resource "google_gke_hub_membership" "example" {
+resource "google_gke_hub_membership" "membership" {
   membership_id = "tf-test-membership%{random_suffix}"
   endpoint {
     gke_cluster {
@@ -79,14 +79,14 @@ resource "google_gke_hub_membership" "example" {
   depends_on = [google_container_cluster.primary]
 }
 
-resource "google_gke_hub_scope" "example" {
+resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
 }
 
-resource "google_gke_hub_membership_binding" "example" {
+resource "google_gke_hub_membership_binding" "membership_binding" {
   membership_binding_id = "tf-test-membership-binding%{random_suffix}"
-  scope = google_gke_hub_scope.example.name
-  membership_id = "tf-test-membership%{random_suffix}"
+  scope = google_gke_hub_scope.scope.name
+  membership_id = google_gke_hub_membership.membership.membership_id
   location = "global"
   labels = {
       keyb = "valueb"
@@ -94,8 +94,8 @@ resource "google_gke_hub_membership_binding" "example" {
       keyc = "valuec" 
   }
   depends_on = [
-    google_gke_hub_membership.example,
-    google_gke_hub_scope.example
+    google_gke_hub_membership.membership,
+    google_gke_hub_scope.scope
   ]
 }
 `, context)

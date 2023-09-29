@@ -42,7 +42,7 @@ resource "google_container_cluster" "primary" {
   deletion_protection  = "true"
 }
 
-resource "google_gke_hub_membership" "membershiprbacrolebinding" {
+resource "google_gke_hub_membership" "membership" {
   provider = google-beta
   membership_id = "tf-test-membership%{random_suffix}"
   endpoint {
@@ -54,16 +54,16 @@ resource "google_gke_hub_membership" "membershiprbacrolebinding" {
   depends_on = [google_container_cluster.primary]
 }
 
-resource "google_gke_hub_membership_rbac_role_binding" "membershiprbacrolebinding" {
+resource "google_gke_hub_membership_rbac_role_binding" "membership_rbac_role_binding" {
   provider = google-beta
   membership_rbac_role_binding_id = "tf-test-membership-rbac-role-binding%{random_suffix}"
-  membership_id = "tf-test-membership%{random_suffix}"
+  membership_id = google_gke_hub_membership.membership.membership_id
   user = "service-${data.google_project.project.number}@gcp-sa-anthossupport.iam.gserviceaccount.com"
   role {
     predefined_role = "ANTHOS_SUPPORT"
   }
   location = "global"
-  depends_on = [google_gke_hub_membership.membershiprbacrolebinding]
+  depends_on = [google_gke_hub_membership.membership]
 }
 
 data "google_project" "project" {

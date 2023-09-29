@@ -32,15 +32,15 @@ To get more information about Namespace, see:
 
 
 ```hcl
-resource "google_gke_hub_scope" "namespace" {
+resource "google_gke_hub_scope" "scope" {
   scope_id = "tf-test-scope%{random_suffix}"
 }
 
 
 resource "google_gke_hub_namespace" "namespace" { 
   scope_namespace_id = "tf-test-namespace%{random_suffix}"
-  scope_id = "tf-test-scope%{random_suffix}"
-  scope = "${google_gke_hub_scope.namespace.name}"
+  scope_id = google_gke_hub_scope.scope.scope_id
+  scope = google_gke_hub_scope.scope.name
   namespace_labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -51,7 +51,7 @@ resource "google_gke_hub_namespace" "namespace" {
       keya = "valuea"
       keyc = "valuec" 
   }
-  depends_on = [google_gke_hub_scope.namespace]
+  depends_on = [google_gke_hub_scope.scope]
 }
 ```
 
