@@ -15,13 +15,13 @@ and
 
 ```hcl
 resource "google_service_account" "default" {
-  account_id   = "service_account_id"
-  display_name = "Service Account"
+  account_id   = "my-custom-sa"
+  display_name = "Custom SA for VM Instance"
 }
 
 resource "google_compute_instance" "default" {
-  name         = "test"
-  machine_type = "e2-medium"
+  name         = "my-instance"
+  machine_type = "n2-standard-2"
   zone         = "us-central1-a"
 
   tags = ["foo", "bar"]
@@ -37,7 +37,7 @@ resource "google_compute_instance" "default" {
 
   // Local SSD disk
   scratch_disk {
-    interface = "SCSI"
+    interface = "NVME"
   }
 
   network_interface {
