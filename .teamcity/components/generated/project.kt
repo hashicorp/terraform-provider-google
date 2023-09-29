@@ -113,11 +113,4 @@ class NightlyTriggerConfiguration(environment: String, branchRef: String, nightl
     var daysOfWeek = daysOfWeek
     var daysOfMonth = daysOfMonth
 
-    init {
-        // If the environment parameter is set to the value of MAJOR_RELEASE_TESTING, 
-        // change the days of week to the day for v5.0.0 feature branch testing
-        if (environment == MAJOR_RELEASE_TESTING) {
-            this.daysOfWeek = "5" // Thursday for GA, TeamCity numbers days Sun=1...Sat=7
-        }
-    }
 }
