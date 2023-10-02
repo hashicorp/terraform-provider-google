@@ -134,6 +134,14 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 					},
 				},
 			},
+			"api_scope": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ANY_API", "DATASTORE_MODE_API", ""}),
+				Description:  `The API scope at which a query is run. Default value: "ANY_API" Possible values: ["ANY_API", "DATASTORE_MODE_API"]`,
+				Default:      "ANY_API",
+			},
 			"database": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -145,8 +153,8 @@ Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCEN
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"COLLECTION", "COLLECTION_GROUP", ""}),
-				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"COLLECTION", "COLLECTION_GROUP", "COLLECTION_RECURSIVE", ""}),
+				Description:  `The scope at which a query is run. Default value: "COLLECTION" Possible values: ["COLLECTION", "COLLECTION_GROUP", "COLLECTION_RECURSIVE"]`,
 				Default:      "COLLECTION",
 			},
 			"name": {
@@ -191,6 +199,12 @@ func resourceFirestoreIndexCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("query_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(queryScopeProp)) && (ok || !reflect.DeepEqual(v, queryScopeProp)) {
 		obj["queryScope"] = queryScopeProp
+	}
+	apiScopeProp, err := expandFirestoreIndexApiScope(d.Get("api_scope"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("api_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(apiScopeProp)) && (ok || !reflect.DeepEqual(v, apiScopeProp)) {
+		obj["apiScope"] = apiScopeProp
 	}
 	fieldsProp, err := expandFirestoreIndexFields(d.Get("fields"), d, config)
 	if err != nil {
@@ -328,6 +342,9 @@ func resourceFirestoreIndexRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("query_scope", flattenFirestoreIndexQueryScope(res["queryScope"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
+	if err := d.Set("api_scope", flattenFirestoreIndexApiScope(res["apiScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Index: %s", err)
+	}
 	if err := d.Set("fields", flattenFirestoreIndexFields(res["fields"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Index: %s", err)
 	}
@@ -426,6 +443,14 @@ func flattenFirestoreIndexQueryScope(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenFirestoreIndexApiScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return "ANY_API"
+	}
+
+	return v
+}
+
 func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -467,6 +492,10 @@ func expandFirestoreIndexCollection(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandFirestoreIndexQueryScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexApiScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
