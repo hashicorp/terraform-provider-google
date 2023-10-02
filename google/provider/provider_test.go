@@ -199,14 +199,18 @@ func TestAccProviderCredentialsEmptyString(t *testing.T) {
 		// No TestDestroy since that's not really the point of this test
 		Steps: []resource.TestStep{
 			{
+				// This is a control for the other test steps; the provider block doesn't contain `credentials = ""`
 				Config:                   testAccProviderCredentials_actWithCredsFromEnv(pid),
 				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				PlanOnly:                 true,
+				ExpectNonEmptyPlan:       true,
 			},
 			{
 				// Assert that errors are expected with credentials when
 				// - GOOGLE_CREDENTIALS is set
 				// - provider block has credentials = ""
 				// - TPG v4.60.2 is used
+				// Context: this was an addidental breaking change introduced with muxing
 				Config: testAccProviderCredentials_actWithCredsFromEnv_emptyString(pid),
 				ExternalProviders: map[string]resource.ExternalProvider{
 					"google": {
@@ -214,12 +218,34 @@ func TestAccProviderCredentialsEmptyString(t *testing.T) {
 						Source:            "hashicorp/google",
 					},
 				},
-				ExpectError: regexp.MustCompile(`unexpected end of JSON input`),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ExpectError:        regexp.MustCompile(`unexpected end of JSON input`),
 			},
 			{
-				// Errors are not expected when using the latest 4.x.x version of the provider
+				// Assert that errors are NOT expected with credentials when
+				// - GOOGLE_CREDENTIALS is set
+				// - provider block has credentials = ""
+				// - TPG v4.84.0 is used
+				// Context: this was the fix for the unintended breaking change in 4.60.2
+				Config: testAccProviderCredentials_actWithCredsFromEnv_emptyString(pid),
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "4.84.0",
+						Source:            "hashicorp/google",
+					},
+				},
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Validation errors are expected in 5.0.0+
+				// Context: we intentionally introduced the breaking change again in 5.0.0+
 				Config:                   testAccProviderCredentials_actWithCredsFromEnv_emptyString(pid),
 				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				PlanOnly:                 true,
+				ExpectNonEmptyPlan:       true,
+				ExpectError:              regexp.MustCompile(`expected a non-empty string`),
 			},
 		},
 	})
