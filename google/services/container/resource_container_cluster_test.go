@@ -189,7 +189,7 @@ func TestAccContainerCluster_withDeletionProtection(t *testing.T) {
 			{
 				Config:      testAccContainerCluster_withDeletionProtection(clusterName, "true"),
 				Destroy:     true,
-				ExpectError: regexp.MustCompile("Cannot destroy cluster because deletion_protection is set to true. Set it to false to proceed with instance deletion."),
+				ExpectError: regexp.MustCompile("Cannot destroy cluster because deletion_protection is set to true. Set it to false to proceed with cluster deletion."),
 			},
 			{
 				Config: testAccContainerCluster_withDeletionProtection(clusterName, "false"),
