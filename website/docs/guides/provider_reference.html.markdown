@@ -240,6 +240,34 @@ following ordered by precedence.
     * GCLOUD_ZONE
     * CLOUDSDK_COMPUTE_ZONE
 
+---
+
+* `default_labels` (Optional) Labels that will be applied to all resources
+with a top level `labels` field or a `labels` field nested inside a top level
+`metadata` field. Setting the same key as a default label at the resource level
+will override the default value for that label. These values will be recorded in 
+individual resource plans through the `terraform_labels` and `effective_labels`
+fields.
+
+```
+provider "google" {
+  default_labels = {
+    my_global_key = "one"
+    my_default_key = "two"
+  }
+}
+
+resource "google_compute_address" "my_address" {
+  name     = "my-address"
+
+  labels = {
+    my_key = "three"
+    # overrides provider-wide setting
+    my_default_key = "four"
+  }
+}
+```
+
 ## Advanced Settings Configuration
 
 * `request_timeout` - (Optional) A duration string controlling the amount of time
