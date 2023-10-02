@@ -32,12 +32,11 @@ To get more information about Index, see:
 
 ~> **Warning:** This resource creates a Firestore Index on a project that already has
 a Firestore database. If you haven't already created it, you may
-create a `google_firestore_database` resource with `type` set to
-`"FIRESTORE_NATIVE"` and `location_id` set to your chosen location.
-If you wish to use App Engine, you may instead create a
-`google_app_engine_application` resource with `database_type` set to
-`"CLOUD_FIRESTORE"`. Your Firestore location will be the same as
-the App Engine location specified.
+create a `google_firestore_database` resource and `location_id` set
+to your chosen location. If you wish to use App Engine, you may
+instead create a `google_app_engine_application` resource with
+`database_type` set to `"CLOUD_FIRESTORE"`. Your Firestore location
+will be the same as the App Engine location specified.
 
 ## Example Usage - Firestore Index Basic
 
@@ -47,6 +46,30 @@ resource "google_firestore_index" "my-index" {
   project = "my-project-name"
 
   collection = "chatrooms"
+
+  fields {
+    field_path = "name"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "description"
+    order      = "DESCENDING"
+  }
+
+}
+```
+## Example Usage - Firestore Index Datastore Mode
+
+
+```hcl
+resource "google_firestore_index" "my-datastore-mode-index" {
+  project = "my-project-name"
+
+  collection = "chatrooms"
+
+  query_scope = "COLLECTION_RECURSIVE"
+  api_scope = "DATASTORE_MODE_API"
 
   fields {
     field_path = "name"
@@ -110,7 +133,13 @@ The following arguments are supported:
   (Optional)
   The scope at which a query is run.
   Default value is `COLLECTION`.
-  Possible values are: `COLLECTION`, `COLLECTION_GROUP`.
+  Possible values are: `COLLECTION`, `COLLECTION_GROUP`, `COLLECTION_RECURSIVE`.
+
+* `api_scope` -
+  (Optional)
+  The API scope at which a query is run.
+  Default value is `ANY_API`.
+  Possible values are: `ANY_API`, `DATASTORE_MODE_API`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
