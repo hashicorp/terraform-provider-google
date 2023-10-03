@@ -8,8 +8,7 @@ default: build
 build: lint
 	go install
 
-test: lint
-	go test $(TESTARGS) -timeout=30s $(TEST)
+test: lint testnolint
 
 # Used in CI to prevent lint failures from being interpreted as test failures
 testnolint:
