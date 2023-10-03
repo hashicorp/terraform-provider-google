@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_database_migration_service_private_connection`
+```
