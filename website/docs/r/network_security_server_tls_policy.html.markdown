@@ -117,6 +117,57 @@ resource "google_network_security_server_tls_policy" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_security_server_tls_policy_mtls&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Security Server Tls Policy Mtls
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_network_security_server_tls_policy" "default" {
+  provider = google-beta
+  name     = "my-server-tls-policy"
+
+  description = "my description"
+  location    = "global"
+  allow_open  = "false"
+
+  mtls_policy {
+    client_validation_mode         = "REJECT_INVALID"
+    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_certificate_manager_trust_config" "default" {
+  provider    = google-beta
+  name        = "my-trust-config"
+  description = "sample trust config description"
+  location    = "global"
+
+  trust_stores {
+    trust_anchors {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+    intermediate_cas {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
