@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkehub: added `location` field to `google_gke_hub_membership` resource
+```
+```release-note:enhancement
+gkehub: added `location` field to `google_gke_hub_membership_iam_*` resources
+```
