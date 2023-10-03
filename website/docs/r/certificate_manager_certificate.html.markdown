@@ -189,6 +189,127 @@ resource "google_certificate_manager_certificate" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_google_managed_certificate_issuance_config_all_regions&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Google Managed Certificate Issuance Config All Regions
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "issuance-config-cert"
+  description = "sample google managed all_regions certificate with issuance config for terraform"
+  scope       = "ALL_REGIONS" 
+  managed {
+    domains = [
+        "terraform.subdomain1.com"
+      ]
+    issuance_config = google_certificate_manager_certificate_issuance_config.issuanceconfig.id
+  }
+}
+
+
+
+# creating certificate_issuance_config to use it in the managed certificate
+resource "google_certificate_manager_certificate_issuance_config" "issuanceconfig" {
+  name    = "issuance-config"
+  description = "sample description for the certificate issuanceConfigs"
+  certificate_authority_config {
+    certificate_authority_service_config {
+        ca_pool = google_privateca_ca_pool.pool.id
+    }
+  }
+  lifetime = "1814400s"
+  rotation_window_percentage = 34
+  key_algorithm = "ECDSA_P256"
+  depends_on=[google_privateca_certificate_authority.ca_authority]
+}
+  
+resource "google_privateca_ca_pool" "pool" {
+  name     = "ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "ca_authority" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.pool.name
+  certificate_authority_id = "ca-authority"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_google_managed_certificate_dns_all_regions&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Google Managed Certificate Dns All Regions
+
+
+```hcl
+resource "google_certificate_manager_certificate" "default" {
+  name        = "dns-cert"
+  description = "The default cert"
+  scope       = "ALL_REGIONS"
+  managed {
+    domains = [
+      google_certificate_manager_dns_authorization.instance.domain,
+      google_certificate_manager_dns_authorization.instance2.domain,
+      ]
+    dns_authorizations = [
+      google_certificate_manager_dns_authorization.instance.id,
+      google_certificate_manager_dns_authorization.instance2.id,
+      ]
+  }
+}
+
+
+resource "google_certificate_manager_dns_authorization" "instance" {
+  name        = "dns-auth"
+  description = "The default dnss"
+  domain      = "subdomain.hashicorptest.com"
+}
+
+resource "google_certificate_manager_dns_authorization" "instance2" {
+  name        = "dns-auth2"
+  description = "The default dnss"
+  domain      = "subdomain2.hashicorptest.com"
+}
+```
 
 ## Argument Reference
 
@@ -220,10 +341,10 @@ The following arguments are supported:
   The scope of the certificate.
   DEFAULT: Certificates with default scope are served from core Google data centers.
   If unsure, choose this option.
-  EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates,
-  served from non-core Google data centers.
+  EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates, served from Edge Points of Presence.
+  See https://cloud.google.com/vpc/docs/edge-locations.
   ALL_REGIONS: Certificates with ALL_REGIONS scope are served from all GCP regions (You can only use ALL_REGIONS with global certs).
-  see https://cloud.google.com/compute/docs/regions-zones
+  See https://cloud.google.com/compute/docs/regions-zones
 
 * `self_managed` -
   (Optional)
