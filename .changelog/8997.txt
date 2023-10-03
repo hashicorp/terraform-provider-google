@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `node_config.linux_node_config.cgroup_mode` field to `google_container_node_pool`
+```

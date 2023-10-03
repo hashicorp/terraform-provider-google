@@ -501,9 +501,17 @@ func schemaNodeConfig() *schema.Schema {
 						Schema: map[string]*schema.Schema{
 							"sysctls": {
 								Type:        schema.TypeMap,
-								Required:    true,
+								Optional:    true,
 								Elem:        &schema.Schema{Type: schema.TypeString},
 								Description: `The Linux kernel parameters to be applied to the nodes and all pods running on the nodes.`,
+							},
+							"cgroup_mode": {
+								Type:             schema.TypeString,
+								Optional:         true,
+								Computed:         true,
+								ValidateFunc:     validation.StringInSlice([]string{"CGROUP_MODE_UNSPECIFIED", "CGROUP_MODE_V1", "CGROUP_MODE_V2"}, false),
+								Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
+								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
 							},
 						},
 					},
@@ -950,17 +958,39 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 		return &container.LinuxNodeConfig{}
 	}
 	cfg := ls[0].(map[string]interface{})
+
+	linuxNodeConfig := &container.LinuxNodeConfig{}
+	sysctls := expandSysctls(cfg)
+	if sysctls != nil {
+		linuxNodeConfig.Sysctls = sysctls
+	}
+	cgroupMode := expandCgroupMode(cfg)
+	if len(cgroupMode) != 0 {
+		linuxNodeConfig.CgroupMode = cgroupMode
+	}
+
+	return linuxNodeConfig
+}
+
+func expandSysctls(cfg map[string]interface{}) map[string]string {
 	sysCfgRaw, ok := cfg["sysctls"]
 	if !ok {
 		return nil
 	}
-	m := make(map[string]string)
+	sysctls := make(map[string]string)
 	for k, v := range sysCfgRaw.(map[string]interface{}) {
-		m[k] = v.(string)
+		sysctls[k] = v.(string)
 	}
-	return &container.LinuxNodeConfig{
-		Sysctls: m,
+	return sysctls
+}
+
+func expandCgroupMode(cfg map[string]interface{}) string {
+	cgroupMode, ok := cfg["cgroup_mode"]
+	if !ok {
+		return ""
 	}
+
+	return cgroupMode.(string)
 }
 
 func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
@@ -1249,7 +1279,8 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"sysctls": c.Sysctls,
+			"sysctls":     c.Sysctls,
+			"cgroup_mode": c.CgroupMode,
 		})
 	}
 	return result
