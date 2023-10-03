@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 
@@ -287,7 +289,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Context = ctx
 	p.BillingProject = data.BillingProject
 	p.Project = data.Project
-	p.Region = data.Region
+	p.Region = GetRegionFromRegionSelfLink(data.Region)
 	p.Scopes = data.Scopes
 	p.Zone = data.Zone
 	p.UserProjectOverride = data.UserProjectOverride
@@ -1653,4 +1655,17 @@ func GetBatchingConfig(ctx context.Context, data types.List, diags *diag.Diagnos
 	}
 
 	return bc
+}
+
+func GetRegionFromRegionSelfLink(selfLink basetypes.StringValue) basetypes.StringValue {
+	re := regexp.MustCompile("/compute/[a-zA-Z0-9]*/projects/[a-zA-Z0-9-]*/regions/([a-zA-Z0-9-]*)")
+	value := selfLink.String()
+	switch {
+	case re.MatchString(value):
+		if res := re.FindStringSubmatch(value); len(res) == 2 && res[1] != "" {
+			region := res[1]
+			return types.StringValue(region)
+		}
+	}
+	return selfLink
 }

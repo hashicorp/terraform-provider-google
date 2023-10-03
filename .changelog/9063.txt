@@ -1,0 +1,3 @@
+```release-note:bug
+provider: Fixed an issue where the plugin-framework implementation of the provider handled default region values that were self-links differently to the SDK implementation. This issue is not believed to have affected users because of downstream functions that turn self links into region names.
+```
