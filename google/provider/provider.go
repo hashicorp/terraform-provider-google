@@ -996,9 +996,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 325
+// Generated resources: 326
 // Generated IAM resources: 207
-// Total generated resources: 532
+// Total generated resources: 533
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1235,6 +1235,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_container_attached_cluster":                              containerattached.ResourceContainerAttachedCluster(),
 			"google_billing_project_info":                                    corebilling.ResourceCoreBillingProjectInfo(),
 			"google_database_migration_service_connection_profile":           databasemigrationservice.ResourceDatabaseMigrationServiceConnectionProfile(),
+			"google_database_migration_service_private_connection":           databasemigrationservice.ResourceDatabaseMigrationServicePrivateConnection(),
 			"google_data_catalog_entry":                                      datacatalog.ResourceDataCatalogEntry(),
 			"google_data_catalog_entry_group":                                datacatalog.ResourceDataCatalogEntryGroup(),
 			"google_data_catalog_entry_group_iam_binding":                    tpgiamresource.ResourceIamBinding(datacatalog.DataCatalogEntryGroupIamSchema, datacatalog.DataCatalogEntryGroupIamUpdaterProducer, datacatalog.DataCatalogEntryGroupIdParseFunc),
