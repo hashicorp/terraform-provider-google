@@ -28,6 +28,27 @@ To get more information about Membership, see:
 * How-to Guides
     * [Registering a Cluster](https://cloud.google.com/anthos/multicluster-management/connect/registering-a-cluster#register_cluster)
 
+## Example Usage - Gkehub Membership Regional
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "basiccluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "basic"
+  location = "us-west1"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
+    }
+  }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=gkehub_membership_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -122,6 +143,11 @@ The following arguments are supported:
   https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
   Structure is [documented below](#nested_authority).
 
+* `location` -
+  (Optional)
+  Location of the membership.
+  The default value is `global`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -155,7 +181,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/memberships/{{membership_id}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}`
 
 * `name` -
   The unique identifier of the membership.
@@ -183,9 +209,9 @@ This resource provides the following
 Membership can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_gke_hub_membership.default projects/{{project}}/locations/global/memberships/{{membership_id}}
-$ terraform import google_gke_hub_membership.default {{project}}/{{membership_id}}
-$ terraform import google_gke_hub_membership.default {{membership_id}}
+$ terraform import google_gke_hub_membership.default projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}
+$ terraform import google_gke_hub_membership.default {{project}}/{{location}}/{{membership_id}}
+$ terraform import google_gke_hub_membership.default {{location}}/{{membership_id}}
 ```
 
 ## User Project Overrides

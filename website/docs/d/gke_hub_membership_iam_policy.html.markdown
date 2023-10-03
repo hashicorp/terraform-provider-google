@@ -28,6 +28,7 @@ Retrieves the current IAM policy data for membership
 ```hcl
 data "google_gke_hub_membership_iam_policy" "policy" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
 }
 ```
@@ -36,6 +37,9 @@ data "google_gke_hub_membership_iam_policy" "policy" {
 
 The following arguments are supported:
 
+* `location` - (Required) Location of the membership.
+The default value is `global`.
+ Used to find the parent resource to bind the IAM policy to
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

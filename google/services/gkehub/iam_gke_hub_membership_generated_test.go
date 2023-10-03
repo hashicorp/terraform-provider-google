@@ -31,9 +31,10 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":       acctest.RandString(t, 10),
-		"role":                "roles/viewer",
-		"deletion_protection": false,
+		"random_suffix": acctest.RandString(t, 10),
+		"role":          "roles/viewer",
+		"project":       envvar.GetTestProjectFromEnv(),
+		"location":      envvar.GetTestRegionFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -67,9 +68,10 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":       acctest.RandString(t, 10),
-		"role":                "roles/viewer",
-		"deletion_protection": false,
+		"random_suffix": acctest.RandString(t, 10),
+		"role":          "roles/viewer",
+		"project":       envvar.GetTestProjectFromEnv(),
+		"location":      envvar.GetTestRegionFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,9 +96,10 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix":       acctest.RandString(t, 10),
-		"role":                "roles/viewer",
-		"deletion_protection": false,
+		"random_suffix": acctest.RandString(t, 10),
+		"role":          "roles/viewer",
+		"project":       envvar.GetTestProjectFromEnv(),
+		"location":      envvar.GetTestRegionFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,24 +135,22 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
+  location = "%{location}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-
-  labels = {
-    env = "test"
-  }
 }
 
 resource "google_gke_hub_membership_iam_member" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   role = "%{role}"
   member = "user:admin@hashicorptest.com"
@@ -163,19 +164,16 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
+  location = "%{location}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
-  }
-
-  labels = {
-    env = "test"
   }
 }
 
@@ -188,12 +186,14 @@ data "google_iam_policy" "foo" {
 
 resource "google_gke_hub_membership_iam_policy" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   policy_data = data.google_iam_policy.foo.policy_data
 }
 
 data "google_gke_hub_membership_iam_policy" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   depends_on = [
     google_gke_hub_membership_iam_policy.foo
@@ -208,19 +208,16 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
+  location = "%{location}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
-  }
-
-  labels = {
-    env = "test"
   }
 }
 
@@ -229,6 +226,7 @@ data "google_iam_policy" "foo" {
 
 resource "google_gke_hub_membership_iam_policy" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   policy_data = data.google_iam_policy.foo.policy_data
 }
@@ -241,24 +239,22 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
+  location = "%{location}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-
-  labels = {
-    env = "test"
-  }
 }
 
 resource "google_gke_hub_membership_iam_binding" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com"]
@@ -272,24 +268,22 @@ resource "google_container_cluster" "primary" {
   name               = "basiccluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
-  deletion_protection  = "%{deletion_protection}"
+  deletion_protection = false
 }
 
 resource "google_gke_hub_membership" "membership" {
   membership_id = "basic%{random_suffix}"
+  location = "%{location}"
   endpoint {
     gke_cluster {
       resource_link = "//container.googleapis.com/${google_container_cluster.primary.id}"
     }
   }
-
-  labels = {
-    env = "test"
-  }
 }
 
 resource "google_gke_hub_membership_iam_binding" "foo" {
   project = google_gke_hub_membership.membership.project
+  location = google_gke_hub_membership.membership.location
   membership_id = google_gke_hub_membership.membership.membership_id
   role = "%{role}"
   members = ["user:admin@hashicorptest.com", "user:gterraformtest1@gmail.com"]
