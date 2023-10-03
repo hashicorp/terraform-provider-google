@@ -1,0 +1,3 @@
+```release-note:enhancement
+databasemigrationservice: added support for `oracle` profiles to `google_database_migration_service_connection_profile`
+```
