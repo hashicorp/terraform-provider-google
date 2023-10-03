@@ -48,4 +48,4 @@ endif
 docscheck:
 	@sh -c "'$(CURDIR)/scripts/docscheck.sh'"
 
-.PHONY: build test testacc fmt fmtcheck vet lint test-compile website website-test docscheck
+.PHONY: build test testnolint testacc fmt fmtcheck vet lint test-compile website website-test docscheck
