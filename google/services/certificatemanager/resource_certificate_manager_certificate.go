@@ -211,11 +211,11 @@ Not guaranteed to be stable. For programmatic access use 'reason' field.`,
 DEFAULT: Certificates with default scope are served from core Google data centers.
 If unsure, choose this option.
 
-EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates,
-served from non-core Google data centers.
+EDGE_CACHE: Certificates with scope EDGE_CACHE are special-purposed certificates, served from Edge Points of Presence.
+See https://cloud.google.com/vpc/docs/edge-locations.
 
 ALL_REGIONS: Certificates with ALL_REGIONS scope are served from all GCP regions (You can only use ALL_REGIONS with global certs).
-see https://cloud.google.com/compute/docs/regions-zones`,
+See https://cloud.google.com/compute/docs/regions-zones`,
 				Default: "DEFAULT",
 			},
 			"self_managed": {
