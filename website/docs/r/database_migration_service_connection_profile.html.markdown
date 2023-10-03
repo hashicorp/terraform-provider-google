@@ -29,7 +29,7 @@ To get more information about ConnectionProfile, see:
     * [Database Migration](https://cloud.google.com/database-migration/docs/)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `mysql.password`, `mysql.ssl.client_key`, `mysql.ssl.client_certificate`, `mysql.ssl.ca_certificate`, `postgresql.password`, `postgresql.ssl.client_key`, `postgresql.ssl.client_certificate`, `postgresql.ssl.ca_certificate`, `cloudsql.settings.root_password`, `alloydb.settings.initial_user.password`.
+values will be stored in the raw state as plain text: `mysql.password`, `mysql.ssl.client_key`, `mysql.ssl.client_certificate`, `mysql.ssl.ca_certificate`, `postgresql.password`, `postgresql.ssl.client_key`, `postgresql.ssl.client_certificate`, `postgresql.ssl.ca_certificate`, `oracle.password`, `oracle.ssl.client_key`, `oracle.ssl.client_certificate`, `oracle.ssl.ca_certificate`, `oracle.forward_ssh_connectivity.password`, `oracle.forward_ssh_connectivity.private_key`, `cloudsql.settings.root_password`, `alloydb.settings.initial_user.password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -183,6 +183,27 @@ resource "google_database_migration_service_connection_profile" "postgresprofile
   depends_on = [google_sql_user.sqldb_user]
 }
 ```
+## Example Usage - Database Migration Service Connection Profile Oracle
+
+
+```hcl
+resource "google_database_migration_service_connection_profile" "oracleprofile" {
+  location = "us-central1"
+  connection_profile_id = "my-profileid"
+  display_name = "my-profileid_display"
+  labels = { 
+    foo = "bar" 
+  }
+  oracle {
+    host = "host"
+    port = 1521
+    username = "username"
+    password = "password"
+    database_service = "dbprovider"
+    static_service_ip_connectivity {}
+  }
+}
+```
 ## Example Usage - Database Migration Service Connection Profile Alloydb
 
 
@@ -278,6 +299,11 @@ The following arguments are supported:
   (Optional)
   Specifies connection parameters required specifically for PostgreSQL databases.
   Structure is [documented below](#nested_postgresql).
+
+* `oracle` -
+  (Optional)
+  Specifies connection parameters required specifically for Oracle databases.
+  Structure is [documented below](#nested_oracle).
 
 * `cloudsql` -
   (Optional)
@@ -416,6 +442,109 @@ The following arguments are supported:
   Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
   The replica will use this certificate to verify it's connecting to the right host.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_oracle"></a>The `oracle` block supports:
+
+* `host` -
+  (Required)
+  Required. The IP or hostname of the source Oracle database.
+
+* `port` -
+  (Required)
+  Required. The network port of the source Oracle database.
+
+* `username` -
+  (Required)
+  Required. The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.
+
+* `password` -
+  (Required)
+  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
+  This field is not returned on request, and the value is encrypted when stored in Database Migration Service.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `password_set` -
+  (Output)
+  Output only. Indicates If this connection profile password is stored.
+
+* `database_service` -
+  (Required)
+  Required. Database service for the Oracle connection.
+
+* `ssl` -
+  (Optional)
+  SSL configuration for the destination to connect to the source database.
+  Structure is [documented below](#nested_ssl).
+
+* `static_service_ip_connectivity` -
+  (Optional)
+  This object has no nested fields.
+  Static IP address connectivity configured on service project.
+
+* `forward_ssh_connectivity` -
+  (Optional)
+  SSL configuration for the destination to connect to the source database.
+  Structure is [documented below](#nested_forward_ssh_connectivity).
+
+* `private_connectivity` -
+  (Optional)
+  Configuration for using a private network to communicate with the source database
+  Structure is [documented below](#nested_private_connectivity).
+
+
+<a name="nested_ssl"></a>The `ssl` block supports:
+
+* `type` -
+  (Output)
+  The current connection profile state.
+
+* `client_key` -
+  (Optional)
+  Input only. The unencrypted PKCS#1 or PKCS#8 PEM-encoded private key associated with the Client Certificate.
+  If this field is used then the 'clientCertificate' field is mandatory.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `client_certificate` -
+  (Optional)
+  Input only. The x509 PEM-encoded certificate that will be used by the replica to authenticate against the source database server.
+  If this field is used then the 'clientKey' field is mandatory
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `ca_certificate` -
+  (Required)
+  Required. Input only. The x509 PEM-encoded certificate of the CA that signed the source database server's certificate.
+  The replica will use this certificate to verify it's connecting to the right host.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_forward_ssh_connectivity"></a>The `forward_ssh_connectivity` block supports:
+
+* `hostname` -
+  (Required)
+  Required. Hostname for the SSH tunnel.
+
+* `username` -
+  (Required)
+  Required. Username for the SSH tunnel.
+
+* `port` -
+  (Required)
+  Port for the SSH tunnel, default value is 22.
+
+* `password` -
+  (Optional)
+  Input only. SSH password. Only one of `password` and `private_key` can be configured.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `private_key` -
+  (Optional)
+  Input only. SSH private key. Only one of `password` and `private_key` can be configured.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_private_connectivity"></a>The `private_connectivity` block supports:
+
+* `private_connection` -
+  (Required)
+  Required. The resource name (URI) of the private connection.
 
 <a name="nested_cloudsql"></a>The `cloudsql` block supports:
 
