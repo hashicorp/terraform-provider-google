@@ -523,15 +523,13 @@ func TestFrameworkProvider_LoadAndValidateFramework_region(t *testing.T) {
 			ExpectedDataModelValue:    types.StringValue("region-from-config"),
 			ExpectedConfigStructValue: types.StringValue("region-from-config"),
 		},
-		// This test currently fails - PF code doesn't behave like SDK code
-		// TODO(SarahFrench) - address https://github.com/hashicorp/terraform-provider-google/issues/15714
-		// "region values can be supplied as a self link": {
-		// 	ConfigValues: fwmodels.ProviderModel{
-		// 		Region: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
-		// 	},
-		// 	ExpectedDataModelValue:    types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
-		// 	ExpectedConfigStructValue: types.StringValue("us-central1"),
-		// },
+		"region values can be supplied as a self link": {
+			ConfigValues: fwmodels.ProviderModel{
+				Region: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+			},
+			ExpectedDataModelValue:    types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+			ExpectedConfigStructValue: types.StringValue("us-central1"),
+		},
 		"region value can be set by environment variable: GOOGLE_REGION is used": {
 			ConfigValues: fwmodels.ProviderModel{
 				Region: types.StringNull(),
@@ -1710,6 +1708,37 @@ func TestFrameworkProvider_LoadAndValidateFramework_batching(t *testing.T) {
 			}
 			if !types.StringValue(p.RequestBatcherIam.BatchingConfig.SendAfter.String()).Equal(tc.ExpectSendAfterValue) {
 				t.Fatalf("want batching.send_after to be `%s`, but got the value `%s`", tc.ExpectSendAfterValue.String(), p.RequestBatcherIam.BatchingConfig.SendAfter.String())
+			}
+		})
+	}
+}
+
+func TestGetRegionFromRegionSelfLink(t *testing.T) {
+	cases := map[string]struct {
+		Input          basetypes.StringValue
+		ExpectedOutput basetypes.StringValue
+	}{
+		"A short region name is returned unchanged": {
+			Input:          types.StringValue("us-central1"),
+			ExpectedOutput: types.StringValue("us-central1"),
+		},
+		"A selflink is shortened to a region name": {
+			Input:          types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1"),
+			ExpectedOutput: types.StringValue("us-central1"),
+		},
+		"Logic is specific to region selflinks; zone selflinks are not shortened": {
+			Input:          types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/asia-east1-a"),
+			ExpectedOutput: types.StringValue("https://www.googleapis.com/compute/v1/projects/my-project/zones/asia-east1-a"),
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			region := fwtransport.GetRegionFromRegionSelfLink(tc.Input)
+
+			if region != tc.ExpectedOutput {
+				t.Fatalf("want %s,  got %s", region, tc.ExpectedOutput)
 			}
 		})
 	}

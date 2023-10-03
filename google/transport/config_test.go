@@ -702,3 +702,34 @@ func TestRemoveBasePathVersion(t *testing.T) {
 		}
 	}
 }
+
+func TestGetRegionFromRegionSelfLink(t *testing.T) {
+	cases := map[string]struct {
+		Input          string
+		ExpectedOutput string
+	}{
+		"A short region name is returned unchanged": {
+			Input:          "us-central1",
+			ExpectedOutput: "us-central1",
+		},
+		"A selflink is shortened to a region name": {
+			Input:          "https://www.googleapis.com/compute/v1/projects/my-project/regions/us-central1",
+			ExpectedOutput: "us-central1",
+		},
+		"Logic is specific to region selflinks; zone selflinks are not shortened": {
+			Input:          "https://www.googleapis.com/compute/v1/projects/my-project/zones/asia-east1-a",
+			ExpectedOutput: "https://www.googleapis.com/compute/v1/projects/my-project/zones/asia-east1-a",
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+
+			region := transport_tpg.GetRegionFromRegionSelfLink(tc.Input)
+
+			if region != tc.ExpectedOutput {
+				t.Fatalf("want %s,  got %s", region, tc.ExpectedOutput)
+			}
+		})
+	}
+}
