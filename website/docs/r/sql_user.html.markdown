@@ -141,12 +141,34 @@ This resource provides the following
 
 SQL users for MySQL databases can be imported using the `project`, `instance`, `host` and `name`, e.g.
 
-```
-$ terraform import google_sql_user.users my-project/main-instance/my-domain.com/me
-```
+* `{{project_id}}/{{instance}}/{{host}}/{{name}}`
 
 SQL users for PostgreSQL databases can be imported using the `project`, `instance` and `name`, e.g.
 
+* `{{project_id}}/{{instance}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NAME_HERE using one of the formats above. For example:
+
+```tf
+# MySQL database
+import {
+  id = "{{project_id}}/{{instance}}/{{host}}/{{name}}"
+  to = google_sql_user.default
+}
+
+# PostgreSQL database
+import {
+  id = "{{project_id}}/{{instance}}/{{name}}"
+  to = google_sql_user.default
+}
 ```
-$ terraform import google_sql_user.users my-project/main-instance/me
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), NAME_HERE can be imported using one of the formats above. For example:
+
+```
+# MySQL database
+$ terraform import google_sql_user.default {{project_id}}/{{instance}}/{{host}}/{{name}}
+
+# PostgreSQL database
+$ terraform import google_sql_user.default {{project_id}}/{{instance}}/{{name}}
 ```

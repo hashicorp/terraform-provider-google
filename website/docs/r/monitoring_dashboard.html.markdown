@@ -146,6 +146,20 @@ This resource provides the following
 
 Dashboard can be imported using any of these accepted formats:
 
+* `projects/{{project}}/dashboards/{{dashboard_id}}`
+* `{{dashboard_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Dashboard using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/dashboards/{{dashboard_id}}"
+  to = google_monitoring_dashboard.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Dashboard can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_monitoring_dashboard.default projects/{{project}}/dashboards/{{dashboard_id}}
 $ terraform import google_monitoring_dashboard.default {{dashboard_id}}

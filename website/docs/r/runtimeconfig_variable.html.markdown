@@ -84,10 +84,22 @@ Example: "2016-10-09T12:33:37.578138407Z".
 
 Runtime Config Variables can be imported using the `name` or full variable name, e.g.
 
+* `projects/my-gcp-project/configs/{{config_id}}/variables/{{name}}`
+* `{{config_id}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Runtime Config Variables using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/my-gcp-project/configs/{{config_id}}/variables/{{name}}"
+  to = google_runtimeconfig_variable.default
+}
 ```
-$ terraform import google_runtimeconfig_variable.myvariable myconfig/myvariable
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Runtime Config Variables can be imported using one of the formats above. For example:
+
 ```
-```
-$ terraform import google_runtimeconfig_variable.myvariable projects/my-gcp-project/configs/myconfig/variables/myvariable
+$ terraform import google_runtimeconfig_variable.default projects/my-gcp-project/configs/{{config_id}}/variables/{{name}}
+$ terraform import google_runtimeconfig_variable.default {{config_id}}/{{name}}
 ```
 When importing using only the name, the provider project must be set.
