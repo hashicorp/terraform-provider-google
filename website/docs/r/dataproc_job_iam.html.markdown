@@ -4,7 +4,7 @@ description: |-
  Collection of resources to manage IAM policy for a Dataproc job.
 ---
 
-# IAM policy for Dataproc job
+# IAM policy for Dataproc Job
 
 Three different resources help you manage IAM policies on dataproc jobs. Each of these resources serves a different use case:
 
@@ -99,15 +99,68 @@ exported:
 
 ## Import
 
-Job IAM resources can be imported using the project, region, job id, role and/or member.
-
-```
-$ terraform import google_dataproc_job_iam_policy.editor "projects/{project}/regions/{region}/jobs/{job_id}"
-
-$ terraform import google_dataproc_job_iam_binding.editor "projects/{project}/regions/{region}/jobs/{job_id} roles/editor"
-
-$ terraform import google_dataproc_job_iam_member.editor "projects/{project}/regions/{region}/jobs/{job_id} roles/editor user:jane@example.com"
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contain the resource's `job_id`, `role`, and `member`. For example:
+
+* `"projects/{project}/regions/{region}/jobs/{job_id} roles/editor user:jane@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{project}/regions/{region}/jobs/{job_id} roles/editor user:jane@example.com"
+  to = google_dataproc_job_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_job_iam_member.default "projects/{project}/regions/{region}/jobs/{job_id} roles/editor user:jane@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `job_id`, `role`. For example:
+
+* `"projects/{project}/regions/{region}/jobs/{job_id} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{project}/regions/{region}/jobs/{job_id} roles/editor"
+  to = google_dataproc_job_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_job_iam_binding.default "projects/{project}/regions/{region}/jobs/{job_id} roles/editor"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the `job_id` identifier of the Dataproc Job resource only. For example:
+
+* `projects/{project}/regions/{region}/jobs/{job_id}`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "projects/{project}/regions/{region}/jobs/{job_id}"
+  to = google_dataproc_job_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_job_iam_policy.default "projects/{project}/regions/{region}/jobs/{job_id}"
+```

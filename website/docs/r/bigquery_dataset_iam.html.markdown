@@ -4,7 +4,7 @@ description: |-
  Collection of resources to manage IAM policy for a BigQuery dataset.
 ---
 
-# IAM policy for BigQuery dataset
+# IAM policy for BigQuery Dataset
 
 Three different resources help you manage your IAM policy for BigQuery dataset. Each of these resources serves a different use case:
 
@@ -112,23 +112,68 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `dataset_id`, role, and account e.g.
+-> **Custom Roles** If you're importing a IAM resource with a custom role, make sure to use the full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `dataset_id`, `role`, and `member`. For example:
+
+* `"projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"
+  to = google_bigquery_dataset_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigquery_dataset_iam_member.dataset_iam "projects/your-project-id/datasets/dataset-id roles/viewer user:foo@example.com"
+$ terraform import google_bigquery_dataset_iam_member.default "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"
 ```
 
-IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `dataset_id` and role, e.g.
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `dataset_id` and `role`. For example:
+
+* `"projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer"
+  to = google_bigquery_dataset_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigquery_dataset_iam_binding.dataset_iam "projects/your-project-id/datasets/dataset-id roles/viewer"
+$ terraform import google_bigquery_dataset_iam_binding.default "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer"
 ```
 
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `dataset_id`, role, and account e.g.
+### Importing IAM policies
+
+IAM policy imports use the identifier of the BigQuery Dataset resource. For example:
+
+* `projects/{{project_id}}/datasets/{{dataset_id}}`
+
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = projects/{{project_id}}/datasets/{{dataset_id}}
+  to = google_bigquery_dataset_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigquery_dataset_iam_policy.dataset_iam projects/your-project-id/datasets/dataset-id
+$ terraform import google_bigquery_dataset_iam_policy.default projects/{{project_id}}/datasets/{{dataset_id}}
 ```
-
--> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
- full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.

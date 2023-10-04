@@ -212,33 +212,95 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `folder`, role, and member e.g.
-
-```
-$ terraform import google_folder_iam_member.my_folder "folder roles/viewer user:foo@example.com"
-```
-
-IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `folder` and role, e.g.
-
-```
-terraform import google_folder_iam_binding.my_folder "folder roles/viewer"
-```
-
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `folder`.
-
-```
-$ terraform import google_folder_iam_policy.my_folder folder
-```
-
-IAM audit config imports use the identifier of the resource in question and the service, e.g.
-
-```
-terraform import google_folder_iam_audit_config.my_folder "folder foo.googleapis.com"
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `organizations/{{org_id}}/roles/{{role_id}}`.
  
 -> **Conditional IAM Bindings**: If you're importing a IAM binding with a condition block, make sure
  to include the title of condition, e.g. `terraform import google_folder_iam_binding.my_folder "folder roles/{{role_id}} condition-title"`
  
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contain the resource's `folder_id`, `role`, and `member` e.g.
+
+* `"folders/{{folder_id}} roles/viewer user:foo@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "folders/{{folder_id}} roles/viewer user:foo@example.com"
+  to = google_folder_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_folder_iam_member.default "folder roles/viewer user:foo@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `folder_id` and `role`, e.g.
+
+* `"folders/{{folder_id}} roles/viewer"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "folders/{{folder_id}} roles/viewer"
+  to = google_folder_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_folder_iam_binding.default "folder roles/viewer"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Folder only. For example:
+
+* `folders/{{folder_id}}`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "folders/{{folder_id}}"
+  to = google_folder_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_folder_iam_policy.default folders/{{folder_id}}
+```
+
+
+### Importing Audit Configs
+
+An audit config can be imported into a `google_folder_iam_audit_config` resource using the resource's `folder_id` and the `service`, e.g:
+
+* `"folder/{{folder_id}} foo.googleapis.com"`
+
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import audit configs:
+
+```tf
+import {
+  id = "folder/{{folder_id}} foo.googleapis.com"
+  to = google_folder_iam_audit_config.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+terraform import google_folder_iam_audit_config.default "folder/{{folder_id}} foo.googleapis.com"
+```
