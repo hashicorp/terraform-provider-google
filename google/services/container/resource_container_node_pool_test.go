@@ -339,6 +339,7 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 }
 
 func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
+	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -602,6 +603,7 @@ resource "google_container_node_pool" "with_enable_private_nodes" {
 }
 
 func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
+	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
