@@ -105,6 +105,43 @@ func TestAccPubsubTopic_schema(t *testing.T) {
 	})
 }
 
+func TestAccPubsubTopic_migration(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "4.84.0", // a version that doesn't separate user defined labels and system labels
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy: testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccPubsubTopic_update(topic, "foo", "bar"),
+				ExternalProviders: oldVersion,
+			},
+			{
+				Config:                   testAccPubsubTopic_update(topic, "foo", "bar"),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+			},
+			{
+				ResourceName:             "google_pubsub_topic.foo",
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				ImportStateId:            topic,
+				ImportState:              true,
+				ImportStateVerify:        true,
+				ImportStateVerifyIgnore:  []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccPubsubTopic_update(topic, key, value string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {

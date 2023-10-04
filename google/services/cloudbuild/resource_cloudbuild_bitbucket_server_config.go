@@ -531,28 +531,31 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating BitbucketServerConfig %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating BitbucketServerConfig %q: %#v", d.Id(), res)
-	}
+		if err != nil {
+			return fmt.Errorf("Error updating BitbucketServerConfig %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating BitbucketServerConfig %q: %#v", d.Id(), res)
+		}
 
-	err = CloudBuildOperationWaitTime(
-		config, res, project, "Updating BitbucketServerConfig", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+		err = CloudBuildOperationWaitTime(
+			config, res, project, "Updating BitbucketServerConfig", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	if d.HasChange("connected_repositories") {
@@ -578,7 +581,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 		for _, repo := range removeRepos {
 			obj := make(map[string]interface{})
 			obj["connectedRepository"] = repo
-			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "POST",
 				Project:   billingProject,
@@ -618,7 +621,7 @@ func resourceCloudBuildBitbucketServerConfigUpdate(d *schema.ResourceData, meta 
 				return err
 			}
 
-			res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
 				Method:    "POST",
 				Project:   billingProject,

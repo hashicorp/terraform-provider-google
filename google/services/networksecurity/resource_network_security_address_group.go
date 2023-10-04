@@ -139,6 +139,7 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 }
 
 func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta interface{}) error {
+	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -190,6 +191,7 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
+	project = ""
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -210,8 +212,8 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 	}
 	d.SetId(id)
 
-	err = NetworkSecurityAddressGroupOperationWaitTime(
-		config, res, "Creating AddressGroup", userAgent,
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Creating AddressGroup", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
@@ -287,6 +289,7 @@ func resourceNetworkSecurityAddressGroupRead(d *schema.ResourceData, meta interf
 }
 
 func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -360,39 +363,45 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
+	project = ""
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating AddressGroup %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating AddressGroup %q: %#v", d.Id(), res)
+		if err != nil {
+			return fmt.Errorf("Error updating AddressGroup %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating AddressGroup %q: %#v", d.Id(), res)
+		}
+
+		err = NetworkSecurityOperationWaitTime(
+			config, res, project, "Updating AddressGroup", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
 	}
 
-	err = NetworkSecurityAddressGroupOperationWaitTime(
-		config, res, "Updating AddressGroup", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
-
-	if err != nil {
-		return err
-	}
 	return resourceNetworkSecurityAddressGroupRead(d, meta)
 }
 
 func resourceNetworkSecurityAddressGroupDelete(d *schema.ResourceData, meta interface{}) error {
+	var project string
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -407,6 +416,7 @@ func resourceNetworkSecurityAddressGroupDelete(d *schema.ResourceData, meta inte
 	}
 
 	var obj map[string]interface{}
+	project = ""
 	log.Printf("[DEBUG] Deleting AddressGroup %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -427,8 +437,8 @@ func resourceNetworkSecurityAddressGroupDelete(d *schema.ResourceData, meta inte
 		return transport_tpg.HandleNotFoundError(err, d, "AddressGroup")
 	}
 
-	err = NetworkSecurityAddressGroupOperationWaitTime(
-		config, res, "Deleting AddressGroup", userAgent,
+	err = NetworkSecurityOperationWaitTime(
+		config, res, project, "Deleting AddressGroup", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {

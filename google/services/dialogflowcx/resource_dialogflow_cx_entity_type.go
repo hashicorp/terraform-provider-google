@@ -445,20 +445,24 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating EntityType %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating EntityType %q: %#v", d.Id(), res)
+		if err != nil {
+			return fmt.Errorf("Error updating EntityType %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating EntityType %q: %#v", d.Id(), res)
+		}
+
 	}
 
 	return resourceDialogflowCXEntityTypeRead(d, meta)

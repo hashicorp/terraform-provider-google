@@ -327,21 +327,25 @@ func resourceMonitoringGenericServiceUpdate(d *schema.ResourceData, meta interfa
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "PATCH",
-		Project:              billingProject,
-		RawURL:               url,
-		UserAgent:            userAgent,
-		Body:                 obj,
-		Timeout:              d.Timeout(schema.TimeoutUpdate),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 obj,
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating GenericService %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating GenericService %q: %#v", d.Id(), res)
+		if err != nil {
+			return fmt.Errorf("Error updating GenericService %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating GenericService %q: %#v", d.Id(), res)
+		}
+
 	}
 
 	return resourceMonitoringGenericServiceRead(d, meta)
