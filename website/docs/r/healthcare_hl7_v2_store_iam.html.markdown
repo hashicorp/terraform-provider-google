@@ -96,20 +96,68 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `hl7_v2_store_id`, role, and account e.g.
+-> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `hl7_v2_store_id`, `role`, and `member`. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor jane@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor jane@example.com"
+  to = google_healthcare_hl7_v2_store_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_healthcare_hl7_v2_store_iam_member.hl7_v2_store_iam "your-project-id/location-name/dataset-name/hl7-v2-store-name roles/viewer user:foo@example.com"
+$ terraform import google_healthcare_hl7_v2_store_iam_member.default "{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor jane@example.com"
 ```
 
-IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `hl7_v2_store_id` and role, e.g.
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `hl7_v2_store_id` and `role`. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor"
+  to = google_healthcare_hl7_v2_store_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_healthcare_hl7_v2_store_iam_binding.hl7_v2_store_iam "your-project-id/location-name/dataset-name/hl7-v2-store-name roles/viewer"
+$ terraform import google_healthcare_hl7_v2_store_iam_binding.default "{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}} roles/editor"
 ```
 
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `hl7_v2_store_id`, role, and account e.g.
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Google Cloud Healthcare HL7v2 store resource. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}}"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}}"
+  to = google_healthcare_hl7_v2_store_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_healthcare_hl7_v2_store_iam_policy.hl7_v2_store_iam your-project-id/location-name/dataset-name/hl7-v2-store-name
+$ terraform import google_healthcare_hl7_v2_store_iam_policy.default {{project_id}}/{{location}}/{{dataset}}/{{hl7_v2_store}}
 ```

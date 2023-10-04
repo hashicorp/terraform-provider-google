@@ -92,15 +92,68 @@ exported:
 
 ## Import
 
-Pubsub subscription IAM resources can be imported using the project, subscription name, role and member.
-
-```
-$ terraform import google_pubsub_subscription_iam_policy.editor projects/{your-project-id}/subscriptions/{your-subscription-name}
-
-$ terraform import google_pubsub_subscription_iam_binding.editor "projects/{your-project-id}/subscriptions/{your-subscription-name} roles/editor"
-
-$ terraform import google_pubsub_subscription_iam_member.editor "projects/{your-project-id}/subscriptions/{your-subscription-name} roles/editor jane@example.com"
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `subscription`, `role`, and `member`. For example:
+
+* `"projects/{{project_id}}/subscriptions/{{subscription}} roles/editor jane@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{{project_id}}/subscriptions/{{subscription}} roles/editor jane@example.com"
+  to = google_pubsub_subscription_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_pubsub_subscription_iam_member.default "projects/{{project_id}}/subscriptions/{{subscription}} roles/editor jane@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `subscription` and `role`. For example:
+
+* `"projects/{{project_id}}/subscriptions/{{subscription}} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{{project_id}}/subscriptions/{{subscription}} roles/editor"
+  to = google_pubsub_subscription_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_pubsub_subscription_iam_binding.default "projects/{{project_id}}/subscriptions/{{subscription}} roles/editor"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Pubsub Subscription resource. For example:
+
+* `"projects/{{project_id}}/subscriptions/{{subscription}}"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "projects/{{project_id}}/subscriptions/{{subscription}}"
+  to = google_pubsub_subscription_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_pubsub_subscription_iam_policy.default projects/{{project_id}}/subscriptions/{{subscription}}
+```

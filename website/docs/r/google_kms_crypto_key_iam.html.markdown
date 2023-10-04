@@ -176,20 +176,65 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `crypto_key_id`, role, and member identity e.g.
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contain the resource's `crypto_key_id`, `role`, and member identity e.g.
+
+* `"{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer user:foo@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer user:foo@example.com"
+  to = google_kms_crypto_key_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_kms_crypto_key_iam_member.crypto_key "your-project-id/location-name/key-ring-name/key-name roles/viewer user:foo@example.com"
+$ terraform import google_kms_crypto_key_iam_member.default "{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer user:foo@example.com"
 ```
 
-IAM binding imports use space-delimited identifiers; first the resource in question and then the role.  These bindings can be imported using the `crypto_key_id` and role, e.g.
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the `crypto_key_id` and role, e.g.
+
+* `"{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer"
+  to = google_kms_crypto_key_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_kms_crypto_key_iam_binding.crypto_key "your-project-id/location-name/key-ring-name/key-name roles/editor"
+$ terraform import google_kms_crypto_key_iam_binding.default "{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}} roles/viewer"
 ```
 
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `crypto_key_id`, e.g.
+### Importing IAM policies
+
+IAM policy imports use the identifier of the KMS crypto key only. For example:
+
+* `{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}}`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}}"
+  to = google_kms_crypto_key_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_kms_crypto_key_iam_policy.crypto_key your-project-id/location-name/key-ring-name/key-name
+$ terraform import google_kms_crypto_key_iam_policy.default {{project_id}}/{{location}}/{{key_ring_name}}/{{crypto_key_name}}
 ```

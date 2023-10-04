@@ -4,7 +4,7 @@ description: |-
  Collection of resources to manage IAM policy for a Spanner database.
 ---
 
-# IAM policy for Spanner databases
+# IAM policy for Spanner Databases
 
 Three different resources help you manage your IAM policy for a Spanner database. Each of these resources serves a different use case:
 
@@ -100,29 +100,74 @@ exported:
 
 ## Import
 
+-> **Custom Roles:** If you're importing a IAM resource with a custom role, make sure to use the
+ full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
 For all import syntaxes, the "resource in question" can take any of the following forms:
 
 * {{project}}/{{instance}}/{{database}}
 * {{instance}}/{{database}} (project is taken from provider project)
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the member identity, e.g.
+### Importing IAM members
 
-```
-$ terraform import google_spanner_database_iam_member.database "project-name/instance-name/database-name roles/viewer user:foo@example.com"
-```
+IAM member imports use space-delimited identifiers that contains the `database`, `role`, and `member`. For example:
 
-IAM binding imports use space-delimited identifiers; the resource in question and the role, e.g.
+* `"{{project}}/{{instance}}/{{database}} roles/viewer user:foo@example.com"`
 
-```
-$ terraform import google_spanner_database_iam_binding.database "project-name/instance-name/database-name roles/viewer"
-```
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
 
-IAM policy imports use the identifier of the resource in question, e.g.
-
-```
-$ terraform import google_spanner_database_iam_policy.database project-name/instance-name/database-name
+```tf
+import {
+  id = "{{project}}/{{instance}}/{{database}} roles/viewer user:foo@example.com"
+  to = google_spanner_database_iam_member.default
+}
 ```
 
--> **Custom Roles:** If you're importing a IAM resource with a custom role, make sure to use the
- full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
+```
+$ terraform import google_spanner_database_iam_member.default "{{project}}/{{instance}}/{{database}} roles/viewer user:foo@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `database` and `role`. For example:
+
+* `"{{project}}/{{instance}}/{{database}} roles/viewer"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "{{project}}/{{instance}}/{{database}} roles/viewer"
+  to = google_spanner_database_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_spanner_database_iam_binding.default "{{project}}/{{instance}}/{{database}} roles/viewer"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Spanner Database resource in question. For example:
+
+* `{{project}}/{{instance}}/{{database}}`
+
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = {{project}}/{{instance}}/{{database}}
+  to = google_spanner_database_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_spanner_database_iam_policy.default {{project}}/{{instance}}/{{database}}
+```

@@ -95,23 +95,68 @@ exported:
 
 ## Import
 
-IAM member imports use space-delimited identifiers; the resource in question, the role, and the account.  This member resource can be imported using the `dataset_id`, role, and account e.g.
-
-```
-$ terraform import google_healthcare_dataset_iam_member.dataset_iam "your-project-id/location-name/dataset-name roles/viewer user:foo@example.com"
-```
-
-IAM binding imports use space-delimited identifiers; the resource in question and the role.  This binding resource can be imported using the `dataset_id` and role, e.g.
-
-```
-$ terraform import google_healthcare_dataset_iam_binding.dataset_iam "your-project-id/location-name/dataset-name roles/viewer"
-```
-
-IAM policy imports use the identifier of the resource in question.  This policy resource can be imported using the `dataset_id`, role, and account e.g.
-
-```
-$ terraform import google_healthcare_dataset_iam_policy.dataset_iam your-project-id/location-name/dataset-name
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `dataset_id`, `role`, and `member`. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}} roles/editor jane@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}} roles/editor jane@example.com"
+  to = google_healthcare_dataset_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_healthcare_dataset_iam_member.default "{{project_id}}/{{location}}/{{dataset}} roles/editor jane@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `dataset_id` and `role`. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}} roles/editor"
+  to = google_healthcare_dataset_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_healthcare_dataset_iam_binding.default "{{project_id}}/{{location}}/{{dataset}} roles/editor"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Healthcase Dataset resource. For example:
+
+* `"{{project_id}}/{{location}}/{{dataset}}"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{dataset}}"
+  to = google_healthcare_dataset_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_healthcare_dataset_iam_policy.default {{project_id}}/{{location}}/{{dataset}}
+```

@@ -4,7 +4,7 @@ description: |-
  Collection of resources to manage IAM policy for a service account.
 ---
 
-# IAM policy for service account
+# IAM policy for Service Account
 
 When managing IAM roles, you can treat a service account either as a resource or as an identity. This resource is to add iam policy bindings to a service account resource, such as allowing the members to run operations as or modify the service account. To configure permissions for a service account on other GCP resources, use the [google_project_iam](google_project_iam.html) set of resources.
 
@@ -176,20 +176,76 @@ exported:
 
 ## Import
 
-Service account IAM resources can be imported using the project, service account email, role, member identity, and condition (beta).
-
-```
-$ terraform import google_service_account_iam_policy.admin-account-iam projects/{your-project-id}/serviceAccounts/{your-service-account-email}
-
-$ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/iam.serviceAccountUser"
-
-$ terraform import google_service_account_iam_member.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/editor user:foo@example.com"
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
 full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
 
-With conditions:
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `service_account_id`, `role`, and `member`. For example:
+
+* `"projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor user:foo@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor user:foo@example.com"
+  to = google_service_account_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_service_account_iam_member.default "projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor user:foo@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contains the `service_account_id` and `role`. For example:
+
+* `"projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor"
+  to = google_service_account_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_service_account_iam_binding.default "projects/{{project_id}}/serviceAccounts/{{service_account_email}} roles/editor"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the Service Account resource in question. For example:
+
+* `"projects/{{project_id}}/serviceAccounts/{{service_account_email}}"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = "projects/{{project_id}}/serviceAccounts/{{service_account_email}}"
+  to = google_service_account_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_service_account_iam_policy.default projects/{{project_id}}/serviceAccounts/{{service_account_email}}
+```
+
+### Importing with conditions:
+
+Here are examples of importing IAM memberships and bindings that include conditions:
+
 ```
 $ terraform import google_service_account_iam_binding.admin-account-iam "projects/{your-project-id}/serviceAccounts/{your-service-account-email} roles/iam.serviceAccountUser expires_after_2019_12_31"
 

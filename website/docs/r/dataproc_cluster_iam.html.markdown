@@ -4,7 +4,7 @@ description: |-
  Collection of resources to manage IAM policy for a Dataproc cluster.
 ---
 
-# IAM policy for Dataproc cluster
+# IAM policy for Dataproc Cluster
 
 Three different resources help you manage IAM policies on dataproc clusters. Each of these resources serves a different use case:
 
@@ -99,15 +99,68 @@ exported:
 
 ## Import
 
-Cluster IAM resources can be imported using the project, region, cluster name, role and/or member.
-
-```
-$ terraform import google_dataproc_cluster_iam_policy.editor "projects/{project}/regions/{region}/clusters/{cluster}"
-
-$ terraform import google_dataproc_cluster_iam_binding.editor "projects/{project}/regions/{region}/clusters/{cluster} roles/editor"
-
-$ terraform import google_dataproc_cluster_iam_member.editor "projects/{project}/regions/{region}/clusters/{cluster} roles/editor user:jane@example.com"
-```
-
 -> **Custom Roles**: If you're importing a IAM resource with a custom role, make sure to use the
  full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contain the resource's `cluster`, `role`, and `member`. For example:
+
+* `"projects/{project}/regions/{region}/clusters/{cluster} roles/editor user:jane@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{project}/regions/{region}/clusters/{cluster} roles/editor user:jane@example.com"
+  to = google_dataproc_cluster_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_cluster_iam_member.default "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `cluster`, `role`. For example:
+
+* `"projects/{project}/regions/{region}/clusters/{cluster} roles/editor"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{project}/regions/{region}/clusters/{cluster} roles/editor"
+  to = google_dataproc_cluster_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_cluster_iam_binding.default "projects/{project}/regions/{region}/clusters/{cluster} roles/editor"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the `cluster` identifier of the Dataproc Cluster resource only. For example:
+
+* `projects/{project}/regions/{region}/clusters/{cluster}`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = projects/{project}/regions/{region}/clusters/{cluster}
+  to = google_dataproc_cluster_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_dataproc_cluster_iam_policy.default projects/{project}/regions/{region}/clusters/{cluster}
+```
