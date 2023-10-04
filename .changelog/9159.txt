@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `labels`, `effective_labels`, `terraform_labels`, and `label_fingerprint` to `google_compute_address` (GA)
+```

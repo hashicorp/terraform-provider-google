@@ -225,7 +225,7 @@ The following arguments are supported:
   GCE_ENDPOINT/DNS_RESOLVER purposes.
 
 * `labels` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Labels to apply to this address.  A list of key->value pairs.
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
@@ -275,17 +275,14 @@ In addition to the arguments listed above, the following computed attributes are
   The URLs of the resources that are using this address.
 
 * `label_fingerprint` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 
 * `terraform_labels` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
 
 * `effective_labels` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
