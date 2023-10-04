@@ -174,10 +174,25 @@ This resource provides the following
 
 ## Import
 
-Instance group can be imported using the `zone` and `name` with an optional `project`, e.g.
+Instance groups can be imported using the `zone` and `name` with an optional `project`, e.g.
+
+* `projects/{{project_id}}/zones/{{zone}}/instanceGroups/{{instance_group_id}}`
+* `{{project_id}}/{{zone}}/{{instance_group_id}}`
+* `{{zone}}/{{instance_group_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import instance groups using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project_id}}/zones/{{zone}}/instanceGroups/{{instance_group_id}}"
+  to = google_compute_instance_group.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), instance groups can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_compute_instance_group.webservers us-central1-a/terraform-webservers
-$ terraform import google_compute_instance_group.webservers big-project/us-central1-a/terraform-webservers
-$ terraform import google_compute_instance_group.webservers projects/big-project/zones/us-central1-a/instanceGroups/terraform-webservers
+$ terraform import google_compute_instance_group.default {{zone}}/{{instance_group_id}}
+$ terraform import google_compute_instance_group.default {{project_id}}/{{zone}}/{{instance_group_id}}
+$ terraform import google_compute_instance_group.default projects/{{project_id}}/zones/{{zone}}/instanceGroups/{{instance_group_id}}
 ```

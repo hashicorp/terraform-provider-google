@@ -99,7 +99,24 @@ This resource provides the following
 
 ## Import
 
+-> **Fields affected by import** The following fields can't be read and will show diffs if set in config when imported: `split_keys`
+
 Bigtable Tables can be imported using any of these accepted formats:
+
+* `projects/{{project}}/instances/{{instance_name}}/tables/{{name}}`
+* `{{project}}/{{instance_name}}/{{name}}`
+* `{{instance_name}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Bigtable Tables using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/instances/{{instance_name}}/tables/{{name}}"
+  to = google_bigtable_table.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Bigtable Tables can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_bigtable_table.default projects/{{project}}/instances/{{instance_name}}/tables/{{name}}
@@ -107,6 +124,4 @@ $ terraform import google_bigtable_table.default {{project}}/{{instance_name}}/{
 $ terraform import google_bigtable_table.default {{instance_name}}/{{name}}
 ```
 
-The following fields can't be read and will show diffs if set in config when imported:
 
-- `split_keys`

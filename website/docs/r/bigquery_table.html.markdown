@@ -455,7 +455,22 @@ exported:
 
 ## Import
 
-BigQuery tables imported using any of these accepted formats:
+BigQuery tables can be imported using any of these accepted formats:
+
+* `projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}`
+* `{{project}}/{{dataset_id}}/{{table_id}}`
+* `{{dataset_id}}/{{table_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BigQuery tables using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}"
+  to = google_bigquery_table.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), BigQuery tables can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_bigquery_table.default projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}

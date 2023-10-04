@@ -57,8 +57,22 @@ This resource provides the following
 
 ## Import
 
-Google Compute Engine Shared VPC host project feature can be imported using the `project`, e.g.
+Google Compute Engine Shared VPC host project feature can be imported using `project`, e.g.
+
+* `{{project_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Google Compute Engine Shared VPC host projects using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}"
+  to = google_compute_shared_vpc_host_project.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Google Compute Engine Shared VPC host projects can be imported using one of the formats above. For example:
+
 
 ```
-$ terraform import google_compute_shared_vpc_host_project.host host-project-id
+$ terraform import google_compute_shared_vpc_host_project.default {{project_id}}
 ```

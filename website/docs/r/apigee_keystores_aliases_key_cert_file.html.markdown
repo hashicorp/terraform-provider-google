@@ -135,6 +135,20 @@ This resource provides the following
 
 KeystoresAliasesKeyCertFile can be imported using any of these accepted formats:
 
+* `organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}`
+* `{{org_id}}/{{environment}}/{{keystore}}/{{alias}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import KeystoresAliasesKeyCertFile using one of the formats above. For example:
+
+```tf
+import {
+  id = "organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}"
+  to = google_apigee_keystores_aliases_key_cert_file.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), KeystoresAliasesKeyCertFile can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_apigee_keystores_aliases_key_cert_file.default organizations/{{org_id}}/environments/{{environment}}/keystores/{{keystore}}/aliases/{{alias}}
 $ terraform import google_apigee_keystores_aliases_key_cert_file.default {{org_id}}/{{environment}}/{{keystore}}/{{alias}}
