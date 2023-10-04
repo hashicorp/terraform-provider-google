@@ -5,6 +5,7 @@
 package tpgresource
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
@@ -179,9 +180,24 @@ func TimestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 	}
 }
 
-// suppress diff when saved is Ipv4 format while new is required a reference
+// suppress diff when saved is Ipv4 and Ipv6 format while new is required a reference
 // this happens for an internal ip for Private Services Connect
 func InternalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	olds := strings.Split(old, "/")
+	news := strings.Split(new, "/")
+
+	if len(olds) == 2 {
+		if len(news) == 2 {
+			return bytes.Equal(net.ParseIP(olds[0]), net.ParseIP(news[0])) && olds[1] == news[1]
+		} else {
+			return (net.ParseIP(olds[0]) != nil) && (net.ParseIP(new) == nil)
+		}
+	}
+
+	if (net.ParseIP(old) != nil) && (net.ParseIP(new) != nil) {
+		return bytes.Equal(net.ParseIP(old), net.ParseIP(new))
+	}
+
 	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
 }
 
