@@ -138,7 +138,21 @@ exported:
 
 Folder organization policies can be imported using any of the follow formats:
 
+* `folders/{{folder_id}}/constraints/serviceuser.services`
+* `{{folder_id}}/serviceuser.services`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import folder organization policies using one of the formats above. For example:
+
+```tf
+import {
+  id = "folders/{{folder_id}}/constraints/serviceuser.services"
+  to = google_folder_organization_policy.default
+}
 ```
-$ terraform import google_folder_organization_policy.policy folders/folder-1234/constraints/serviceuser.services
-$ terraform import google_folder_organization_policy.policy folder-1234/serviceuser.services
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), folder organization policies can be imported using one of the formats above. For example:
+
+```
+* `$ terraform import google_folder_organization_policy.default folders/* ``{{folder_id}}/constraints/serviceuser.services`
+* `* `$ terraform import google_folder_organization_policy.default {{folder_id}}/``serviceuser.services
 ```

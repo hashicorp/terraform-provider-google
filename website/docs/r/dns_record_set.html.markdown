@@ -341,10 +341,25 @@ The following arguments are supported:
 
 DNS record sets can be imported using either of these accepted formats:
 
+* `projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}`
+* `{{project}}/{{zone}}/{{name}}/{{type}}`
+* `{{zone}}/{{name}}/{{type}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DNS record sets using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}"
+  to = google_dns_record_set.default
+}
 ```
-$ terraform import google_dns_record_set.frontend projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}
-$ terraform import google_dns_record_set.frontend {{project}}/{{zone}}/{{name}}/{{type}}
-$ terraform import google_dns_record_set.frontend {{zone}}/{{name}}/{{type}}
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DNS record sets can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_dns_record_set.default projects/{{project}}/managedZones/{{zone}}/rrsets/{{name}}/{{type}}
+$ terraform import google_dns_record_set.default {{project}}/{{zone}}/{{name}}/{{type}}
+$ terraform import google_dns_record_set.default {{zone}}/{{name}}/{{type}}
 ```
 
 Note: The record name must include the trailing dot at the end.

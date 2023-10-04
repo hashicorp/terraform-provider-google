@@ -137,8 +137,21 @@ exported:
 
 Organization Policies can be imported using the `org_id` and the `constraint`, e.g.
 
+* `{{org_id}}/constraints/{{constraint}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Organization Policies using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{org_id}}/constraints/{{constraint}}"
+  to = google_organization_policy.default
+}
 ```
-$ terraform import google_organization_policy.services_policy 123456789/constraints/serviceuser.services
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Organization Policies can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_organization_policy.default {{org_id}}/constraints/{{constraint}}
 ```
 
 It is all right if the constraint contains a slash, as in the example above.

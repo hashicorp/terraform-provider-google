@@ -56,18 +56,30 @@ This resource provides the following
 
 ## Import
 
-Project peered DNS domains can be imported using the `service`, `project`, `network` and `name`, e.g.
-
-```
-$ terraform import google_service_networking_peered_dns_domain.my_domain services/{service}/projects/{project}/global/networks/{network}/peeredDnsDomains/{name}
-```
-
-Where:
+Project peered DNS domains can be imported using the `service`, `project`, `network` and `name`, where:
 
 - `service` is the service connection, defaults to `servicenetworking.googleapis.com`.
 - `project` is the producer project name.
 - `network` is the consumer network name.
 - `name` is the name of your peered DNS domain.
+
+* `services/{service}/projects/{project}/global/networks/{network}/peeredDnsDomains/{name}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import project peered DNS domains using one of the formats above. For example:
+
+```tf
+import {
+  id = "services/{service}/projects/{project}/global/networks/{network}/peeredDnsDomains/{name}"
+  to = google_service_networking_peered_dns_domain.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), project peered DNS domains can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_service_networking_peered_dns_domain.default services/{service}/projects/{project}/global/networks/{network}/peeredDnsDomains/{name}
+```
+
 
 ## User Project Overrides
 

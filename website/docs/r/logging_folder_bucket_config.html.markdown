@@ -57,6 +57,19 @@ exported:
 
 This resource can be imported using the following format:
 
+* `folders/{{folder}}/locations/{{location}}/buckets/{{bucket_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import this resource using one of the formats above. For example:
+
+```tf
+import {
+  id = "folders/{{folder}}/locations/{{location}}/buckets/{{bucket_id}}"
+  to = google_logging_folder_bucket_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), this resource can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_logging_folder_bucket_config.default folders/{{folder}}/locations/{{location}}/buckets/{{bucket_id}}
 ```

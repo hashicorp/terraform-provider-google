@@ -1338,12 +1338,27 @@ This resource provides the following
 GKE clusters can be imported using the `project` , `location`, and `name`. If the project is omitted, the default
 provider value will be used. Examples:
 
+* `projects/{{project_id}}/locations/{{location}}/clusters/{{cluster_id}}`
+* `{{project_id}}/{{location}}/{{cluster_id}}`
+* `{{location}}/{{cluster_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GKE clusters using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project_id}}/locations/{{location}}/clusters/{{cluster_id}}"
+  to = google_container_cluster.default
+}
 ```
-$ terraform import google_container_cluster.mycluster projects/my-gcp-project/locations/us-east1-a/clusters/my-cluster
 
-$ terraform import google_container_cluster.mycluster my-gcp-project/us-east1-a/my-cluster
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), GKE clusters can be imported using one of the formats above. For example:
 
-$ terraform import google_container_cluster.mycluster us-east1-a/my-cluster
+```
+$ terraform import google_container_cluster.default projects/{{project_id}}/locations/{{location}}/clusters/{{cluster_id}}
+
+$ terraform import google_container_cluster.default {{project_id}}/{{location}}/{{cluster_id}}
+
+$ terraform import google_container_cluster.default {{location}}/{{cluster_id}}
 ```
 
 ~> **Note:** This resource has several fields that control Terraform-specific behavior and aren't present in the API. If they are set in config and you import a cluster, Terraform may need to perform an update immediately after import. Most of these updates should be no-ops but some may modify your cluster if the imported state differs.

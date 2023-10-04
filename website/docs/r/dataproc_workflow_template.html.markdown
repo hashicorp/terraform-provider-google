@@ -962,6 +962,21 @@ This resource provides the following
 
 WorkflowTemplate can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/workflowTemplates/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkflowTemplate using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/workflowTemplates/{{name}}"
+  to = google_dataproc_workflow_template.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), WorkflowTemplate can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataproc_workflow_template.default projects/{{project}}/locations/{{location}}/workflowTemplates/{{name}}
 $ terraform import google_dataproc_workflow_template.default {{project}}/{{location}}/{{name}}

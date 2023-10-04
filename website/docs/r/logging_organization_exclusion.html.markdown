@@ -55,6 +55,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 Organization-level logging exclusions can be imported using their URI, e.g.
 
+* `organizations/{{organization}}/exclusions/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import organization-level logging exclusions using one of the formats above. For example:
+
+```tf
+import {
+  id = "organizations/{{organization}}/exclusions/{{name}}"
+  to = google_logging_organization_exclusion.default
+}
 ```
-$ terraform import google_logging_organization_exclusion.my_exclusion organizations/{{organization}}/exclusions/{{name}}
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), organization-level logging exclusions can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_logging_organization_exclusion.default organizations/{{organization}}/exclusions/{{name}}
 ```
