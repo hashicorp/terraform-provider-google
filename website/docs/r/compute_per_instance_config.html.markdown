@@ -265,6 +265,23 @@ This resource provides the following
 
 PerInstanceConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/{{name}}`
+* `{{project}}/{{zone}}/{{instance_group_manager}}/{{name}}`
+* `{{zone}}/{{instance_group_manager}}/{{name}}`
+* `{{instance_group_manager}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import PerInstanceConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/{{name}}"
+  to = google_compute_per_instance_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), PerInstanceConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_per_instance_config.default projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/{{name}}
 $ terraform import google_compute_per_instance_config.default {{project}}/{{zone}}/{{instance_group_manager}}/{{name}}

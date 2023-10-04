@@ -280,6 +280,21 @@ This resource provides the following
 
 FolderCustomModule can be imported using any of these accepted formats:
 
+* `folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}`
+* `{{folder}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderCustomModule using one of the formats above. For example:
+
+```tf
+import {
+  id = "folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}"
+  to = google_scc_folder_custom_module.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), FolderCustomModule can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_scc_folder_custom_module.default folders/{{folder}}/securityHealthAnalyticsSettings/customModules/{{name}}
 $ terraform import google_scc_folder_custom_module.default {{folder}}/{{name}}

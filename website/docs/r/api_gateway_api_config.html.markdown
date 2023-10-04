@@ -281,6 +281,22 @@ This resource provides the following
 
 ApiConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/apis/{{api}}/configs/{{api_config_id}}`
+* `{{project}}/{{api}}/{{api_config_id}}`
+* `{{api}}/{{api_config_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ApiConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/apis/{{api}}/configs/{{api_config_id}}"
+  to = google_api_gateway_api_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ApiConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_api_gateway_api_config.default projects/{{project}}/locations/global/apis/{{api}}/configs/{{api_config_id}}
 $ terraform import google_api_gateway_api_config.default {{project}}/{{api}}/{{api_config_id}}

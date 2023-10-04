@@ -576,6 +576,20 @@ This resource provides the following
 
 TestCase can be imported using any of these accepted formats:
 
+* `{{parent}}/testCases/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import TestCase using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/testCases/{{name}}"
+  to = google_dialogflow_cx_test_case.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), TestCase can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dialogflow_cx_test_case.default {{parent}}/testCases/{{name}}
 ```

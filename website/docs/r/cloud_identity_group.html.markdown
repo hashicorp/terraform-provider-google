@@ -153,6 +153,20 @@ This resource provides the following
 
 Group can be imported using any of these accepted formats:
 
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Group using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{name}}"
+  to = google_cloud_identity_group.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Group can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_cloud_identity_group.default {{name}}
 ```

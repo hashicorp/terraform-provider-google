@@ -262,6 +262,21 @@ This resource provides the following
 ## Import
 
 Key can be imported using any of these accepted formats:
+* `projects/{{project}}/keys/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Key using one of the formats above. For example:
+
+
+```tf
+import {
+  id = "projects/{{project}}/keys/{{name}}"
+  to = google_recaptcha_enterprise_key.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Key can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_recaptcha_enterprise_key.default projects/{{project}}/keys/{{name}}

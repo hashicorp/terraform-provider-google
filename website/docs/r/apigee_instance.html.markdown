@@ -307,6 +307,21 @@ This resource provides the following
 
 Instance can be imported using any of these accepted formats:
 
+* `{{org_id}}/instances/{{name}}`
+* `{{org_id}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Instance using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{org_id}}/instances/{{name}}"
+  to = google_apigee_instance.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Instance can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_apigee_instance.default {{org_id}}/instances/{{name}}
 $ terraform import google_apigee_instance.default {{org_id}}/{{name}}

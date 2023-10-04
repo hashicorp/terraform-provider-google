@@ -229,6 +229,22 @@ This resource provides the following
 
 TargetHttpProxy can be imported using any of these accepted formats:
 
+* `projects/{{project}}/global/targetHttpProxies/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import TargetHttpProxy using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/targetHttpProxies/{{name}}"
+  to = google_compute_target_http_proxy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), TargetHttpProxy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_target_http_proxy.default projects/{{project}}/global/targetHttpProxies/{{name}}
 $ terraform import google_compute_target_http_proxy.default {{project}}/{{name}}

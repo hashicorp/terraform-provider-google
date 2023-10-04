@@ -117,6 +117,22 @@ This resource provides the following
 
 Namespace can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}`
+* `{{project}}/{{location}}/{{namespace_id}}`
+* `{{location}}/{{namespace_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Namespace using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}"
+  to = google_service_directory_namespace.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Namespace can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_service_directory_namespace.default projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}
 $ terraform import google_service_directory_namespace.default {{project}}/{{location}}/{{namespace_id}}

@@ -445,6 +445,21 @@ This resource provides the following
 
 FhirStore can be imported using any of these accepted formats:
 
+* `{{dataset}}/fhirStores/{{name}}`
+* `{{dataset}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FhirStore using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{dataset}}/fhirStores/{{name}}"
+  to = google_healthcare_fhir_store.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), FhirStore can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_healthcare_fhir_store.default {{dataset}}/fhirStores/{{name}}
 $ terraform import google_healthcare_fhir_store.default {{dataset}}/{{name}}

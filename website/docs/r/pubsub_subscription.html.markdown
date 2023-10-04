@@ -643,6 +643,22 @@ This resource provides the following
 
 Subscription can be imported using any of these accepted formats:
 
+* `projects/{{project}}/subscriptions/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Subscription using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/subscriptions/{{name}}"
+  to = google_pubsub_subscription.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Subscription can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_pubsub_subscription.default projects/{{project}}/subscriptions/{{name}}
 $ terraform import google_pubsub_subscription.default {{project}}/{{name}}

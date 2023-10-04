@@ -583,6 +583,23 @@ This resource provides the following
 
 Repository can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}`
+* `{{project}}/{{location}}/{{repository_id}}`
+* `{{location}}/{{repository_id}}`
+* `{{repository_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Repository using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}"
+  to = google_artifact_registry_repository.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Repository can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_artifact_registry_repository.default projects/{{project}}/locations/{{location}}/repositories/{{repository_id}}
 $ terraform import google_artifact_registry_repository.default {{project}}/{{location}}/{{repository_id}}

@@ -178,6 +178,22 @@ This resource provides the following
 
 CertificateMapEntry can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}`
+* `{{project}}/{{map}}/{{name}}`
+* `{{map}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CertificateMapEntry using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}"
+  to = google_certificate_manager_certificate_map_entry.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), CertificateMapEntry can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_certificate_manager_certificate_map_entry.default projects/{{project}}/locations/global/certificateMaps/{{map}}/certificateMapEntries/{{name}}
 $ terraform import google_certificate_manager_certificate_map_entry.default {{project}}/{{map}}/{{name}}

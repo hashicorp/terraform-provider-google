@@ -175,6 +175,22 @@ This resource provides the following
 
 Endpoint can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}/endpoints/{{endpoint_id}}`
+* `{{project}}/{{location}}/{{namespace_id}}/{{service_id}}/{{endpoint_id}}`
+* `{{location}}/{{namespace_id}}/{{service_id}}/{{endpoint_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Endpoint using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}/endpoints/{{endpoint_id}}"
+  to = google_service_directory_endpoint.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Endpoint can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_service_directory_endpoint.default projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}/endpoints/{{endpoint_id}}
 $ terraform import google_service_directory_endpoint.default {{project}}/{{location}}/{{namespace_id}}/{{service_id}}/{{endpoint_id}}

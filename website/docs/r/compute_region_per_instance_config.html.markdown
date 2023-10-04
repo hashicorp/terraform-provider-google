@@ -272,6 +272,23 @@ This resource provides the following
 
 RegionPerInstanceConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/{{name}}`
+* `{{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}`
+* `{{region}}/{{region_instance_group_manager}}/{{name}}`
+* `{{region_instance_group_manager}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionPerInstanceConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/{{name}}"
+  to = google_compute_region_per_instance_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionPerInstanceConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_per_instance_config.default projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/{{name}}
 $ terraform import google_compute_region_per_instance_config.default {{project}}/{{region}}/{{region_instance_group_manager}}/{{name}}

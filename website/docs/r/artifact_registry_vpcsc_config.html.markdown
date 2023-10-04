@@ -90,6 +90,22 @@ This resource provides the following
 
 VPCSCConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/vpcscConfig/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VPCSCConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/vpcscConfig/{{name}}"
+  to = google_artifact_registry_vpcsc_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), VPCSCConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_artifact_registry_vpcsc_config.default projects/{{project}}/locations/{{location}}/vpcscConfig/{{name}}
 $ terraform import google_artifact_registry_vpcsc_config.default {{project}}/{{location}}/{{name}}

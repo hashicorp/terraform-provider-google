@@ -101,6 +101,21 @@ This resource provides the following
 ## Import
 
 GoogleChannelConfig can be imported using any of these accepted formats:
+* `projects/{{project}}/locations/{{location}}/googleChannelConfig`
+* `{{project}}/{{location}}`
+* `{{location}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GoogleChannelConfig using one of the formats above. For example:
+
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/googleChannelConfig"
+  to = google_eventarc_google_channel_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), GoogleChannelConfig can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_eventarc_google_channel_config.default projects/{{project}}/locations/{{location}}/googleChannelConfig

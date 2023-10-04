@@ -178,6 +178,21 @@ This resource provides the following
 
 CryptoKey can be imported using any of these accepted formats:
 
+* `{{key_ring}}/cryptoKeys/{{name}}`
+* `{{key_ring}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CryptoKey using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{key_ring}}/cryptoKeys/{{name}}"
+  to = google_kms_crypto_key.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), CryptoKey can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_kms_crypto_key.default {{key_ring}}/cryptoKeys/{{name}}
 $ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}

@@ -212,6 +212,23 @@ This resource provides the following
 
 RegionCommitment can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/commitments/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionCommitment using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/commitments/{{name}}"
+  to = google_compute_region_commitment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionCommitment can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_commitment.default projects/{{project}}/regions/{{region}}/commitments/{{name}}
 $ terraform import google_compute_region_commitment.default {{project}}/{{region}}/{{name}}

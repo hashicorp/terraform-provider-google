@@ -147,6 +147,23 @@ This resource provides the following
 
 NetworkEndpoint can be imported using any of these accepted formats:
 
+* `projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+* `{{project}}/{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+* `{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+* `{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NetworkEndpoint using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}"
+  to = google_compute_network_endpoint.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), NetworkEndpoint can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_network_endpoint.default projects/{{project}}/zones/{{zone}}/networkEndpointGroups/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}
 $ terraform import google_compute_network_endpoint.default {{project}}/{{zone}}/{{network_endpoint_group}}/{{instance}}/{{ip_address}}/{{port}}

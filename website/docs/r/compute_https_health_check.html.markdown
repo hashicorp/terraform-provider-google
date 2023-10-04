@@ -144,6 +144,22 @@ This resource provides the following
 
 HttpsHealthCheck can be imported using any of these accepted formats:
 
+* `projects/{{project}}/global/httpsHealthChecks/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import HttpsHealthCheck using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/httpsHealthChecks/{{name}}"
+  to = google_compute_https_health_check.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), HttpsHealthCheck can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_https_health_check.default projects/{{project}}/global/httpsHealthChecks/{{name}}
 $ terraform import google_compute_https_health_check.default {{project}}/{{name}}

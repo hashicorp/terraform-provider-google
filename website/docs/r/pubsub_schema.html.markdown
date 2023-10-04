@@ -120,6 +120,22 @@ This resource provides the following
 
 Schema can be imported using any of these accepted formats:
 
+* `projects/{{project}}/schemas/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Schema using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/schemas/{{name}}"
+  to = google_pubsub_schema.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Schema can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_pubsub_schema.default projects/{{project}}/schemas/{{name}}
 $ terraform import google_pubsub_schema.default {{project}}/{{name}}

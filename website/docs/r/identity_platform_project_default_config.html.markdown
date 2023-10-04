@@ -175,6 +175,22 @@ This resource provides the following
 
 ProjectDefaultConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/config/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ProjectDefaultConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/config/{{name}}"
+  to = google_identity_platform_project_default_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ProjectDefaultConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_identity_platform_project_default_config.default projects/{{project}}/config/{{name}}
 $ terraform import google_identity_platform_project_default_config.default {{project}}/{{name}}

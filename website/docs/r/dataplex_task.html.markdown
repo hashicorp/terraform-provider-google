@@ -589,6 +589,22 @@ This resource provides the following
 
 Task can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/lakes/{{lake}}/tasks/{{task_id}}`
+* `{{project}}/{{location}}/{{lake}}/{{task_id}}`
+* `{{location}}/{{lake}}/{{task_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Task using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/tasks/{{task_id}}"
+  to = google_dataplex_task.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Task can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataplex_task.default projects/{{project}}/locations/{{location}}/lakes/{{lake}}/tasks/{{task_id}}
 $ terraform import google_dataplex_task.default {{project}}/{{location}}/{{lake}}/{{task_id}}

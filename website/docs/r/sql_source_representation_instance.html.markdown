@@ -154,6 +154,22 @@ This resource provides the following
 
 SourceRepresentationInstance can be imported using any of these accepted formats:
 
+* `projects/{{project}}/instances/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import SourceRepresentationInstance using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/instances/{{name}}"
+  to = google_sql_source_representation_instance.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), SourceRepresentationInstance can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_sql_source_representation_instance.default projects/{{project}}/instances/{{name}}
 $ terraform import google_sql_source_representation_instance.default {{project}}/{{name}}

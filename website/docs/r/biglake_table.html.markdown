@@ -212,6 +212,20 @@ This resource provides the following
 
 Table can be imported using any of these accepted formats:
 
+* `{{database}}/tables/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Table using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{database}}/tables/{{name}}"
+  to = google_biglake_table.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Table can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_biglake_table.default {{database}}/tables/{{name}}
 ```

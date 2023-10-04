@@ -179,6 +179,22 @@ This resource provides the following
 
 GlobalAddress can be imported using any of these accepted formats:
 
+* `projects/{{project}}/global/addresses/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GlobalAddress using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/addresses/{{name}}"
+  to = google_compute_global_address.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), GlobalAddress can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_global_address.default projects/{{project}}/global/addresses/{{name}}
 $ terraform import google_compute_global_address.default {{project}}/{{name}}

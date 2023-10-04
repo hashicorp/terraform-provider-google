@@ -190,6 +190,22 @@ This resource provides the following
 
 Federation can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/federations/{{federation_id}}`
+* `{{project}}/{{location}}/{{federation_id}}`
+* `{{location}}/{{federation_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Federation using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/federations/{{federation_id}}"
+  to = google_dataproc_metastore_federation.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Federation can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataproc_metastore_federation.default projects/{{project}}/locations/{{location}}/federations/{{federation_id}}
 $ terraform import google_dataproc_metastore_federation.default {{project}}/{{location}}/{{federation_id}}

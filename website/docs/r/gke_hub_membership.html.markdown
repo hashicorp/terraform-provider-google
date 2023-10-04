@@ -208,6 +208,22 @@ This resource provides the following
 
 Membership can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}`
+* `{{project}}/{{location}}/{{membership_id}}`
+* `{{location}}/{{membership_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Membership using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}"
+  to = google_gke_hub_membership.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Membership can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_gke_hub_membership.default projects/{{project}}/locations/{{location}}/memberships/{{membership_id}}
 $ terraform import google_gke_hub_membership.default {{project}}/{{location}}/{{membership_id}}

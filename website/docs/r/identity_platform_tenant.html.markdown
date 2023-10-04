@@ -100,6 +100,22 @@ This resource provides the following
 
 Tenant can be imported using any of these accepted formats:
 
+* `projects/{{project}}/tenants/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Tenant using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/tenants/{{name}}"
+  to = google_identity_platform_tenant.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Tenant can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_identity_platform_tenant.default projects/{{project}}/tenants/{{name}}
 $ terraform import google_identity_platform_tenant.default {{project}}/{{name}}

@@ -159,6 +159,23 @@ This resource provides the following
 
 AppGateway can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/appGateways/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import AppGateway using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/appGateways/{{name}}"
+  to = google_beyondcorp_app_gateway.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AppGateway can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_beyondcorp_app_gateway.default projects/{{project}}/locations/{{region}}/appGateways/{{name}}
 $ terraform import google_beyondcorp_app_gateway.default {{project}}/{{region}}/{{name}}

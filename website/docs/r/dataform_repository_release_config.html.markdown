@@ -235,6 +235,23 @@ This resource provides the following
 
 RepositoryReleaseConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/repositories/{{repository}}/releaseConfigs/{{name}}`
+* `{{project}}/{{region}}/{{repository}}/{{name}}`
+* `{{region}}/{{repository}}/{{name}}`
+* `{{repository}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RepositoryReleaseConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/repositories/{{repository}}/releaseConfigs/{{name}}"
+  to = google_dataform_repository_release_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RepositoryReleaseConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataform_repository_release_config.default projects/{{project}}/locations/{{region}}/repositories/{{repository}}/releaseConfigs/{{name}}
 $ terraform import google_dataform_repository_release_config.default {{project}}/{{region}}/{{repository}}/{{name}}

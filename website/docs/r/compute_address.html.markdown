@@ -304,6 +304,23 @@ This resource provides the following
 
 Address can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/addresses/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Address using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/addresses/{{name}}"
+  to = google_compute_address.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Address can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_address.default projects/{{project}}/regions/{{region}}/addresses/{{name}}
 $ terraform import google_compute_address.default {{project}}/{{region}}/{{name}}

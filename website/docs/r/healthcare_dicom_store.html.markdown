@@ -224,6 +224,21 @@ This resource provides the following
 
 DicomStore can be imported using any of these accepted formats:
 
+* `{{dataset}}/dicomStores/{{name}}`
+* `{{dataset}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DicomStore using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{dataset}}/dicomStores/{{name}}"
+  to = google_healthcare_dicom_store.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DicomStore can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_healthcare_dicom_store.default {{dataset}}/dicomStores/{{name}}
 $ terraform import google_healthcare_dicom_store.default {{dataset}}/{{name}}

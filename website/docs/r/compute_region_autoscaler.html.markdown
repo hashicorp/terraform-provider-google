@@ -426,6 +426,23 @@ This resource provides the following
 
 RegionAutoscaler can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/autoscalers/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionAutoscaler using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/autoscalers/{{name}}"
+  to = google_compute_region_autoscaler.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionAutoscaler can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_autoscaler.default projects/{{project}}/regions/{{region}}/autoscalers/{{name}}
 $ terraform import google_compute_region_autoscaler.default {{project}}/{{region}}/{{name}}

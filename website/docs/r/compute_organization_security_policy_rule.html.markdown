@@ -202,6 +202,20 @@ This resource provides the following
 
 OrganizationSecurityPolicyRule can be imported using any of these accepted formats:
 
+* `{{policy_id}}/priority/{{priority}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationSecurityPolicyRule using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{policy_id}}/priority/{{priority}}"
+  to = google_compute_organization_security_policy_rule.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), OrganizationSecurityPolicyRule can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_organization_security_policy_rule.default {{policy_id}}/priority/{{priority}}
 ```

@@ -151,6 +151,20 @@ This resource provides the following
 
 ObjectAccessControl can be imported using any of these accepted formats:
 
+* `{{bucket}}/{{object}}/{{entity}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ObjectAccessControl using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{bucket}}/{{object}}/{{entity}}"
+  to = google_storage_object_access_control.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ObjectAccessControl can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_storage_object_access_control.default {{bucket}}/{{object}}/{{entity}}
 ```

@@ -85,6 +85,21 @@ This resource provides the following
 
 MonitoredProject can be imported using any of these accepted formats:
 
+* `v1/locations/global/metricsScopes/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import MonitoredProject using one of the formats above. For example:
+
+```tf
+import {
+  id = "v1/locations/global/metricsScopes/{{name}}"
+  to = google_monitoring_monitored_project.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), MonitoredProject can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_monitoring_monitored_project.default v1/locations/global/metricsScopes/{{name}}
 $ terraform import google_monitoring_monitored_project.default {{name}}

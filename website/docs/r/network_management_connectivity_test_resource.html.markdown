@@ -332,6 +332,22 @@ This resource provides the following
 
 ConnectivityTest can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/connectivityTests/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ConnectivityTest using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/connectivityTests/{{name}}"
+  to = google_network_management_connectivity_test.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ConnectivityTest can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_network_management_connectivity_test.default projects/{{project}}/locations/global/connectivityTests/{{name}}
 $ terraform import google_network_management_connectivity_test.default {{project}}/{{name}}

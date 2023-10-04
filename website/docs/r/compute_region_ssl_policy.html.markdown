@@ -121,6 +121,23 @@ This resource provides the following
 
 RegionSslPolicy can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/sslPolicies/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionSslPolicy using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/sslPolicies/{{name}}"
+  to = google_compute_region_ssl_policy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionSslPolicy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_ssl_policy.default projects/{{project}}/regions/{{region}}/sslPolicies/{{name}}
 $ terraform import google_compute_region_ssl_policy.default {{project}}/{{region}}/{{name}}

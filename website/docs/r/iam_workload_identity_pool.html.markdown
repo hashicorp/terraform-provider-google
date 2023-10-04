@@ -128,6 +128,22 @@ This resource provides the following
 
 WorkloadIdentityPool can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}`
+* `{{project}}/{{workload_identity_pool_id}}`
+* `{{workload_identity_pool_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkloadIdentityPool using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}"
+  to = google_iam_workload_identity_pool.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), WorkloadIdentityPool can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_iam_workload_identity_pool.default projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}
 $ terraform import google_iam_workload_identity_pool.default {{project}}/{{workload_identity_pool_id}}

@@ -460,6 +460,23 @@ This resource provides the following
 
 Pipeline can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/pipelines/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Pipeline using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/pipelines/{{name}}"
+  to = google_data_pipeline_pipeline.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Pipeline can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_data_pipeline_pipeline.default projects/{{project}}/locations/{{region}}/pipelines/{{name}}
 $ terraform import google_data_pipeline_pipeline.default {{project}}/{{region}}/{{name}}

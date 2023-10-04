@@ -116,6 +116,22 @@ This resource provides the following
 
 AgentPool can be imported using any of these accepted formats:
 
+* `projects/{{project}}/agentPools/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import AgentPool using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/agentPools/{{name}}"
+  to = google_storage_transfer_agent_pool.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AgentPool can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_storage_transfer_agent_pool.default projects/{{project}}/agentPools/{{name}}
 $ terraform import google_storage_transfer_agent_pool.default {{project}}/{{name}}

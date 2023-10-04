@@ -263,6 +263,22 @@ This resource provides the following
 
 DomainMapping can be imported using any of these accepted formats:
 
+* `locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}`
+* `{{location}}/{{project}}/{{name}}`
+* `{{location}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DomainMapping using one of the formats above. For example:
+
+```tf
+import {
+  id = "locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}"
+  to = google_cloud_run_domain_mapping.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DomainMapping can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_cloud_run_domain_mapping.default locations/{{location}}/namespaces/{{project}}/domainmappings/{{name}}
 $ terraform import google_cloud_run_domain_mapping.default {{location}}/{{project}}/{{name}}

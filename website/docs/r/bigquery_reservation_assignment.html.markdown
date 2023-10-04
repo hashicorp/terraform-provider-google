@@ -92,6 +92,21 @@ This resource provides the following
 ## Import
 
 Assignment can be imported using any of these accepted formats:
+* `projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments/{{name}}`
+* `{{project}}/{{location}}/{{reservation}}/{{name}}`
+* `{{location}}/{{reservation}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Assignment using one of the formats above. For example:
+
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments/{{name}}"
+  to = google_bigquery_reservation_assignment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Assignment can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_bigquery_reservation_assignment.default projects/{{project}}/locations/{{location}}/reservations/{{reservation}}/assignments/{{name}}

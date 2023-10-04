@@ -231,6 +231,23 @@ This resource provides the following
 
 HaVpnGateway can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import HaVpnGateway using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}"
+  to = google_compute_ha_vpn_gateway.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), HaVpnGateway can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_ha_vpn_gateway.default projects/{{project}}/regions/{{region}}/vpnGateways/{{name}}
 $ terraform import google_compute_ha_vpn_gateway.default {{project}}/{{region}}/{{name}}

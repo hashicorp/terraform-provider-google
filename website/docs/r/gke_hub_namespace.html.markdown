@@ -148,6 +148,22 @@ This resource provides the following
 
 Namespace can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}`
+* `{{project}}/{{scope_id}}/{{scope_namespace_id}}`
+* `{{scope_id}}/{{scope_namespace_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Namespace using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}"
+  to = google_gke_hub_namespace.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Namespace can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_gke_hub_namespace.default projects/{{project}}/locations/global/scopes/{{scope_id}}/namespaces/{{scope_namespace_id}}
 $ terraform import google_gke_hub_namespace.default {{project}}/{{scope_id}}/{{scope_namespace_id}}

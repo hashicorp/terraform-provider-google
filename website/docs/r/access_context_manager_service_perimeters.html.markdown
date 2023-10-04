@@ -700,6 +700,21 @@ This resource provides the following
 
 ServicePerimeters can be imported using any of these accepted formats:
 
+* `{{parent}}/servicePerimeters`
+* `{{parent}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServicePerimeters using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/servicePerimeters"
+  to = google_access_context_manager_service_perimeters.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ServicePerimeters can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_access_context_manager_service_perimeters.default {{parent}}/servicePerimeters
 $ terraform import google_access_context_manager_service_perimeters.default {{parent}}

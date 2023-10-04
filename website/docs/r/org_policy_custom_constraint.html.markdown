@@ -146,6 +146,20 @@ This resource provides the following
 
 CustomConstraint can be imported using any of these accepted formats:
 
+* `{{parent}}/customConstraints/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CustomConstraint using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/customConstraints/{{name}}"
+  to = google_org_policy_custom_constraint.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), CustomConstraint can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_org_policy_custom_constraint.default {{parent}}/customConstraints/{{name}}
 ```

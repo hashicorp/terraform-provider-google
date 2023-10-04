@@ -477,6 +477,23 @@ This resource provides the following
 
 RegionNetworkEndpointGroup can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionNetworkEndpointGroup using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}"
+  to = google_compute_region_network_endpoint_group.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionNetworkEndpointGroup can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_network_endpoint_group.default projects/{{project}}/regions/{{region}}/networkEndpointGroups/{{name}}
 $ terraform import google_compute_region_network_endpoint_group.default {{project}}/{{region}}/{{name}}

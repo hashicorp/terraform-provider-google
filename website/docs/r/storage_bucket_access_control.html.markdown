@@ -130,6 +130,20 @@ This resource provides the following
 
 BucketAccessControl can be imported using any of these accepted formats:
 
+* `{{bucket}}/{{entity}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BucketAccessControl using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{bucket}}/{{entity}}"
+  to = google_storage_bucket_access_control.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), BucketAccessControl can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_storage_bucket_access_control.default {{bucket}}/{{entity}}
 ```
