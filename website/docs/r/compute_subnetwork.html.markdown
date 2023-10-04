@@ -209,6 +209,32 @@ resource "google_compute_network" "custom-test" {
   auto_create_subnetworks = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_cidr_overlap&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Subnetwork Cidr Overlap
+
+
+```hcl
+resource "google_compute_subnetwork" "subnetwork-cidr-overlap" {
+  provider = google-beta
+
+  name                             = "subnet-cidr-overlap"
+  region                           = "us-west2"
+  ip_cidr_range                    = "192.168.1.0/24"
+  allow_subnet_cidr_routes_overlap = true
+  network                          = google_compute_network.net-cidr-overlap.id
+}
+
+resource "google_compute_network" "net-cidr-overlap" {
+  provider                = google-beta
+
+  name                    = "net-cidr-overlap"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -312,6 +338,13 @@ The following arguments are supported:
   or the first time the subnet is updated into IPV4_IPV6 dual stack. If the ipv6_type is EXTERNAL then this subnet
   cannot enable direct path.
   Possible values are: `EXTERNAL`, `INTERNAL`.
+
+* `allow_subnet_cidr_routes_overlap` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Typically packets destined to IPs within the subnetwork range that do not match
+  existing resources are dropped and prevented from leaving the VPC.
+  Setting this field to true will allow these packets to match dynamic routes injected
+  via BGP even if their destinations match existing subnet ranges.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
