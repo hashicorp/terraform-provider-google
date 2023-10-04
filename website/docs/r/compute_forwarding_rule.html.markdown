@@ -1630,6 +1630,23 @@ This resource provides the following
 
 ForwardingRule can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ForwardingRule using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}"
+  to = google_compute_forwarding_rule.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ForwardingRule can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_forwarding_rule.default projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}
 $ terraform import google_compute_forwarding_rule.default {{project}}/{{region}}/{{name}}

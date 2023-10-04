@@ -112,6 +112,22 @@ This resource provides the following
 
 Api can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/apis/{{api_id}}`
+* `{{project}}/{{api_id}}`
+* `{{api_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Api using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/apis/{{api_id}}"
+  to = google_api_gateway_api.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Api can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_api_gateway_api.default projects/{{project}}/locations/global/apis/{{api_id}}
 $ terraform import google_api_gateway_api.default {{project}}/{{api_id}}

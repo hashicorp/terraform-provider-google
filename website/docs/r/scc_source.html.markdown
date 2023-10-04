@@ -94,6 +94,21 @@ This resource provides the following
 
 Source can be imported using any of these accepted formats:
 
+* `organizations/{{organization}}/sources/{{name}}`
+* `{{organization}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Source using one of the formats above. For example:
+
+```tf
+import {
+  id = "organizations/{{organization}}/sources/{{name}}"
+  to = google_scc_source.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Source can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_scc_source.default organizations/{{organization}}/sources/{{name}}
 $ terraform import google_scc_source.default {{organization}}/{{name}}

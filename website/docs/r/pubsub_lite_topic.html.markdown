@@ -172,6 +172,23 @@ This resource provides the following
 
 Topic can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{zone}}/topics/{{name}}`
+* `{{project}}/{{zone}}/{{name}}`
+* `{{zone}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Topic using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{zone}}/topics/{{name}}"
+  to = google_pubsub_lite_topic.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Topic can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_pubsub_lite_topic.default projects/{{project}}/locations/{{zone}}/topics/{{name}}
 $ terraform import google_pubsub_lite_topic.default {{project}}/{{zone}}/{{name}}

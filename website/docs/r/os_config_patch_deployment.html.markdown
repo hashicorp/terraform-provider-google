@@ -869,6 +869,22 @@ This resource provides the following
 
 PatchDeployment can be imported using any of these accepted formats:
 
+* `projects/{{project}}/patchDeployments/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import PatchDeployment using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/patchDeployments/{{name}}"
+  to = google_os_config_patch_deployment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), PatchDeployment can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_os_config_patch_deployment.default projects/{{project}}/patchDeployments/{{name}}
 $ terraform import google_os_config_patch_deployment.default {{project}}/{{name}}

@@ -187,6 +187,20 @@ This resource provides the following
 
 DenyPolicy can be imported using any of these accepted formats:
 
+* `{{parent}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DenyPolicy using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/{{name}}"
+  to = google_iam_deny_policy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DenyPolicy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_iam_deny_policy.default {{parent}}/{{name}}
 ```

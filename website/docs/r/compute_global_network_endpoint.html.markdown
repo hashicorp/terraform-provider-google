@@ -97,6 +97,22 @@ This resource provides the following
 
 GlobalNetworkEndpoint can be imported using any of these accepted formats:
 
+* `projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
+* `{{project}}/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
+* `{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import GlobalNetworkEndpoint using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}"
+  to = google_compute_global_network_endpoint.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), GlobalNetworkEndpoint can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_global_network_endpoint.default projects/{{project}}/global/networkEndpointGroups/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}
 $ terraform import google_compute_global_network_endpoint.default {{project}}/{{global_network_endpoint_group}}/{{ip_address}}/{{fqdn}}/{{port}}

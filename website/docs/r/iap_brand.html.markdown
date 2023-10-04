@@ -112,6 +112,22 @@ This resource provides the following
 
 Brand can be imported using any of these accepted formats:
 
+* `projects/{{project_id}}/brands/{{brand_id}}`
+* `projects/{{project_number}}/brands/{{brand_id}}`
+* `{{project_number}}/{{brand_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Brand using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project_id}}/brands/{{brand_id}}"
+  to = google_iap_brand.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Brand can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_iap_brand.default projects/{{project_id}}/brands/{{brand_id}}
 $ terraform import google_iap_brand.default projects/{{project_number}}/brands/{{brand_id}}

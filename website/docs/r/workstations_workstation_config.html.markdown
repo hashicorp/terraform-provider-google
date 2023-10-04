@@ -804,6 +804,22 @@ This resource provides the following
 
 WorkstationConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}`
+* `{{project}}/{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}`
+* `{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import WorkstationConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}"
+  to = google_workstations_workstation_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), WorkstationConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_workstations_workstation_config.default projects/{{project}}/locations/{{location}}/workstationClusters/{{workstation_cluster_id}}/workstationConfigs/{{workstation_config_id}}
 $ terraform import google_workstations_workstation_config.default {{project}}/{{location}}/{{workstation_cluster_id}}/{{workstation_config_id}}

@@ -286,6 +286,23 @@ This resource provides the following
 
 InterconnectAttachment can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import InterconnectAttachment using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}"
+  to = google_compute_interconnect_attachment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), InterconnectAttachment can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_interconnect_attachment.default projects/{{project}}/regions/{{region}}/interconnectAttachments/{{name}}
 $ terraform import google_compute_interconnect_attachment.default {{project}}/{{region}}/{{name}}

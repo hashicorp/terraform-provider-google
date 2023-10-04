@@ -453,6 +453,22 @@ This resource provides the following
 
 Service can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/services/{{service_id}}`
+* `{{project}}/{{location}}/{{service_id}}`
+* `{{location}}/{{service_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Service using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/services/{{service_id}}"
+  to = google_dataproc_metastore_service.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Service can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataproc_metastore_service.default projects/{{project}}/locations/{{location}}/services/{{service_id}}
 $ terraform import google_dataproc_metastore_service.default {{project}}/{{location}}/{{service_id}}

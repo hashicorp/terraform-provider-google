@@ -114,6 +114,23 @@ This resource provides the following
 
 DiskResourcePolicyAttachment can be imported using any of these accepted formats:
 
+* `projects/{{project}}/zones/{{zone}}/disks/{{disk}}/{{name}}`
+* `{{project}}/{{zone}}/{{disk}}/{{name}}`
+* `{{zone}}/{{disk}}/{{name}}`
+* `{{disk}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DiskResourcePolicyAttachment using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/zones/{{zone}}/disks/{{disk}}/{{name}}"
+  to = google_compute_disk_resource_policy_attachment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DiskResourcePolicyAttachment can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_disk_resource_policy_attachment.default projects/{{project}}/zones/{{zone}}/disks/{{disk}}/{{name}}
 $ terraform import google_compute_disk_resource_policy_attachment.default {{project}}/{{zone}}/{{disk}}/{{name}}

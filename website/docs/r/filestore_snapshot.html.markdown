@@ -177,6 +177,22 @@ This resource provides the following
 
 Snapshot can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/instances/{{instance}}/snapshots/{{name}}`
+* `{{project}}/{{location}}/{{instance}}/{{name}}`
+* `{{location}}/{{instance}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Snapshot using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/instances/{{instance}}/snapshots/{{name}}"
+  to = google_filestore_snapshot.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Snapshot can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_filestore_snapshot.default projects/{{project}}/locations/{{location}}/instances/{{instance}}/snapshots/{{name}}
 $ terraform import google_filestore_snapshot.default {{project}}/{{location}}/{{instance}}/{{name}}

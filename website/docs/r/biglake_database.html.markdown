@@ -152,6 +152,20 @@ This resource provides the following
 
 Database can be imported using any of these accepted formats:
 
+* `{{catalog}}/databases/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Database using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{catalog}}/databases/{{name}}"
+  to = google_biglake_database.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Database can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_biglake_database.default {{catalog}}/databases/{{name}}
 ```

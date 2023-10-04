@@ -310,6 +310,22 @@ This resource provides the following
 
 Secret can be imported using any of these accepted formats:
 
+* `projects/{{project}}/secrets/{{secret_id}}`
+* `{{project}}/{{secret_id}}`
+* `{{secret_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Secret using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/secrets/{{secret_id}}"
+  to = google_secret_manager_secret.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Secret can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_secret_manager_secret.default projects/{{project}}/secrets/{{secret_id}}
 $ terraform import google_secret_manager_secret.default {{project}}/{{secret_id}}

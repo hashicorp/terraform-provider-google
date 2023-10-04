@@ -109,6 +109,20 @@ This resource provides the following
 
 ServicePerimeterResource can be imported using any of these accepted formats:
 
+* `{{perimeter_name}}/{{resource}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServicePerimeterResource using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{perimeter_name}}/{{resource}}"
+  to = google_access_context_manager_service_perimeter_resource.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ServicePerimeterResource can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_access_context_manager_service_perimeter_resource.default {{perimeter_name}}/{{resource}}
 ```

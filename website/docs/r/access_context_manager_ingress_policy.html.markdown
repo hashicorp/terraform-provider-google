@@ -64,6 +64,20 @@ This resource provides the following
 
 IngressPolicy can be imported using any of these accepted formats:
 
+* `{{ingress_policy_name}}/{{resource}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import IngressPolicy using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{ingress_policy_name}}/{{resource}}"
+  to = google_access_context_manager_ingress_policy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), IngressPolicy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_access_context_manager_ingress_policy.default {{ingress_policy_name}}/{{resource}}
 ```

@@ -228,6 +228,23 @@ This resource provides the following
 
 Node can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{zone}}/nodes/{{name}}`
+* `{{project}}/{{zone}}/{{name}}`
+* `{{zone}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Node using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{zone}}/nodes/{{name}}"
+  to = google_tpu_node.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Node can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_tpu_node.default projects/{{project}}/locations/{{zone}}/nodes/{{name}}
 $ terraform import google_tpu_node.default {{project}}/{{zone}}/{{name}}

@@ -786,6 +786,22 @@ This resource provides the following
 
 CertificateAuthority can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}`
+* `{{project}}/{{location}}/{{pool}}/{{certificate_authority_id}}`
+* `{{location}}/{{pool}}/{{certificate_authority_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import CertificateAuthority using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}"
+  to = google_privateca_certificate_authority.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), CertificateAuthority can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_privateca_certificate_authority.default projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}
 $ terraform import google_privateca_certificate_authority.default {{project}}/{{location}}/{{pool}}/{{certificate_authority_id}}

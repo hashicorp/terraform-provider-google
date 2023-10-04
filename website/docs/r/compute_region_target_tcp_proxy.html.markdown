@@ -144,6 +144,23 @@ This resource provides the following
 
 RegionTargetTcpProxy can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/targetTcpProxies/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RegionTargetTcpProxy using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/targetTcpProxies/{{name}}"
+  to = google_compute_region_target_tcp_proxy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RegionTargetTcpProxy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_region_target_tcp_proxy.default projects/{{project}}/regions/{{region}}/targetTcpProxies/{{name}}
 $ terraform import google_compute_region_target_tcp_proxy.default {{project}}/{{region}}/{{name}}

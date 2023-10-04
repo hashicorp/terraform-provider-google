@@ -882,6 +882,22 @@ This resource provides the following
 
 VmwareCluster can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VmwareCluster using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}"
+  to = google_gkeonprem_vmware_cluster.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), VmwareCluster can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_gkeonprem_vmware_cluster.default projects/{{project}}/locations/{{location}}/vmwareClusters/{{name}}
 $ terraform import google_gkeonprem_vmware_cluster.default {{project}}/{{location}}/{{name}}

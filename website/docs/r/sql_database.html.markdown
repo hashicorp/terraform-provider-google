@@ -145,6 +145,24 @@ This resource provides the following
 
 Database can be imported using any of these accepted formats:
 
+* `projects/{{project}}/instances/{{instance}}/databases/{{name}}`
+* `instances/{{instance}}/databases/{{name}}`
+* `{{project}}/{{instance}}/{{name}}`
+* `{{instance}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Database using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/instances/{{instance}}/databases/{{name}}"
+  to = google_sql_database.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Database can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_sql_database.default projects/{{project}}/instances/{{instance}}/databases/{{name}}
 $ terraform import google_sql_database.default instances/{{instance}}/databases/{{name}}

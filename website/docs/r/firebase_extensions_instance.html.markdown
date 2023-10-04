@@ -274,6 +274,22 @@ This resource provides the following
 
 Instance can be imported using any of these accepted formats:
 
+* `projects/{{project}}/instances/{{instance_id}}`
+* `{{project}}/{{instance_id}}`
+* `{{instance_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Instance using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/instances/{{instance_id}}"
+  to = google_firebase_extensions_instance.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Instance can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_firebase_extensions_instance.default projects/{{project}}/instances/{{instance_id}}
 $ terraform import google_firebase_extensions_instance.default {{project}}/{{instance_id}}

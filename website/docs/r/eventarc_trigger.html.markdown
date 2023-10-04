@@ -250,6 +250,21 @@ This resource provides the following
 ## Import
 
 Trigger can be imported using any of these accepted formats:
+* `projects/{{project}}/locations/{{location}}/triggers/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Trigger using one of the formats above. For example:
+
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/triggers/{{name}}"
+  to = google_eventarc_trigger.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Trigger can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_eventarc_trigger.default projects/{{project}}/locations/{{location}}/triggers/{{name}}

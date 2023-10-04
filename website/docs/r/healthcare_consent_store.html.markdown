@@ -177,6 +177,20 @@ This resource provides the following
 
 ConsentStore can be imported using any of these accepted formats:
 
+* `{{dataset}}/consentStores/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ConsentStore using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{dataset}}/consentStores/{{name}}"
+  to = google_healthcare_consent_store.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ConsentStore can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_healthcare_consent_store.default {{dataset}}/consentStores/{{name}}
 ```

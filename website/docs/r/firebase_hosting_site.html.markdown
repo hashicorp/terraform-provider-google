@@ -115,6 +115,23 @@ This resource provides the following
 
 Site can be imported using any of these accepted formats:
 
+* `projects/{{project}}/sites/{{site_id}}`
+* `{{project}}/{{site_id}}`
+* `sites/{{site_id}}`
+* `{{site_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Site using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/sites/{{site_id}}"
+  to = google_firebase_hosting_site.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Site can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_firebase_hosting_site.default projects/{{project}}/sites/{{site_id}}
 $ terraform import google_firebase_hosting_site.default {{project}}/{{site_id}}

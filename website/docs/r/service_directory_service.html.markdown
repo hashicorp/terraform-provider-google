@@ -108,6 +108,22 @@ This resource provides the following
 
 Service can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}`
+* `{{project}}/{{location}}/{{namespace_id}}/{{service_id}}`
+* `{{location}}/{{namespace_id}}/{{service_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Service using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}"
+  to = google_service_directory_service.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Service can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_service_directory_service.default projects/{{project}}/locations/{{location}}/namespaces/{{namespace_id}}/services/{{service_id}}
 $ terraform import google_service_directory_service.default {{project}}/{{location}}/{{namespace_id}}/{{service_id}}

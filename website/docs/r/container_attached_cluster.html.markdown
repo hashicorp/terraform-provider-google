@@ -380,6 +380,22 @@ This resource provides the following
 
 Cluster can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Cluster using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}"
+  to = google_container_attached_cluster.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Cluster can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_container_attached_cluster.default projects/{{project}}/locations/{{location}}/attachedClusters/{{name}}
 $ terraform import google_container_attached_cluster.default {{project}}/{{location}}/{{name}}

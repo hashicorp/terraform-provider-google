@@ -298,6 +298,21 @@ This resource provides the following
 
 AccessLevels can be imported using any of these accepted formats:
 
+* `{{parent}}/accessLevels`
+* `{{parent}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import AccessLevels using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/accessLevels"
+  to = google_access_context_manager_access_levels.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), AccessLevels can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_access_context_manager_access_levels.default {{parent}}/accessLevels
 $ terraform import google_access_context_manager_access_levels.default {{parent}}

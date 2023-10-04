@@ -112,6 +112,21 @@ This resource provides the following
 
 Client can be imported using any of these accepted formats:
 
+* `{{brand}}/identityAwareProxyClients/{{client_id}}`
+* `{{brand}}/{{client_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Client using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{brand}}/identityAwareProxyClients/{{client_id}}"
+  to = google_iap_client.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Client can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_iap_client.default {{brand}}/identityAwareProxyClients/{{client_id}}
 $ terraform import google_iap_client.default {{brand}}/{{client_id}}

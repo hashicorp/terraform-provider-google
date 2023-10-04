@@ -258,6 +258,21 @@ This resource provides the following
 ## Import
 
 Asset can be imported using any of these accepted formats:
+* `projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{dataplex_zone}}/assets/{{name}}`
+* `{{project}}/{{location}}/{{lake}}/{{dataplex_zone}}/{{name}}`
+* `{{location}}/{{lake}}/{{dataplex_zone}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Asset using one of the formats above. For example:
+
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{dataplex_zone}}/assets/{{name}}"
+  to = google_dataplex_asset.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Asset can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_dataplex_asset.default projects/{{project}}/locations/{{location}}/lakes/{{lake}}/zones/{{dataplex_zone}}/assets/{{name}}

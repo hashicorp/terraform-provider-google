@@ -124,6 +124,21 @@ This resource provides the following
 
 EndpointAttachment can be imported using any of these accepted formats:
 
+* `{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}`
+* `{{org_id}}/{{endpoint_attachment_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EndpointAttachment using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{org_id}}/endpointAttachments/{{endpoint_attachment_id}}"
+  to = google_apigee_endpoint_attachment.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), EndpointAttachment can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_apigee_endpoint_attachment.default {{org_id}}/endpointAttachments/{{endpoint_attachment_id}}
 $ terraform import google_apigee_endpoint_attachment.default {{org_id}}/{{endpoint_attachment_id}}

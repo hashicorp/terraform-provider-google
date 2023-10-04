@@ -1158,6 +1158,25 @@ This resource provides the following
 
 Job can be imported using any of these accepted formats:
 
+* `projects/{{project}}/jobs/{{job_id}}/location/{{location}}`
+* `projects/{{project}}/jobs/{{job_id}}`
+* `{{project}}/{{job_id}}/{{location}}`
+* `{{job_id}}/{{location}}`
+* `{{project}}/{{job_id}}`
+* `{{job_id}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Job using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/jobs/{{job_id}}/location/{{location}}"
+  to = google_bigquery_job.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Job can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_bigquery_job.default projects/{{project}}/jobs/{{job_id}}/location/{{location}}
 $ terraform import google_bigquery_job.default projects/{{project}}/jobs/{{job_id}}

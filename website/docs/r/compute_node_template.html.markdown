@@ -184,6 +184,23 @@ This resource provides the following
 
 NodeTemplate can be imported using any of these accepted formats:
 
+* `projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NodeTemplate using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}"
+  to = google_compute_node_template.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), NodeTemplate can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_node_template.default projects/{{project}}/regions/{{region}}/nodeTemplates/{{name}}
 $ terraform import google_compute_node_template.default {{project}}/{{region}}/{{name}}

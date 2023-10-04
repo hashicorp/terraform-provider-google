@@ -110,6 +110,21 @@ This resource provides the following
 
 Envgroup can be imported using any of these accepted formats:
 
+* `{{org_id}}/envgroups/{{name}}`
+* `{{org_id}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Envgroup using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{org_id}}/envgroups/{{name}}"
+  to = google_apigee_envgroup.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Envgroup can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_apigee_envgroup.default {{org_id}}/envgroups/{{name}}
 $ terraform import google_apigee_envgroup.default {{org_id}}/{{name}}

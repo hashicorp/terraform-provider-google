@@ -214,6 +214,22 @@ This resource provides the following
 
 EndpointPolicy can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/global/endpointPolicies/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EndpointPolicy using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/global/endpointPolicies/{{name}}"
+  to = google_network_services_endpoint_policy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), EndpointPolicy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_network_services_endpoint_policy.default projects/{{project}}/locations/global/endpointPolicies/{{name}}
 $ terraform import google_network_services_endpoint_policy.default {{project}}/{{name}}

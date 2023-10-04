@@ -352,6 +352,21 @@ This resource provides the following
 
 Metric can be imported using any of these accepted formats:
 
+* `{{project}} {{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Metric using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project}} {{name}}"
+  to = google_logging_metric.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Metric can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_logging_metric.default {{project}} {{name}}
 $ terraform import google_logging_metric.default {{name}}

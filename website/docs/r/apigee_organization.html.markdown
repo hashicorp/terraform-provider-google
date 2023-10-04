@@ -312,6 +312,21 @@ This resource provides the following
 
 Organization can be imported using any of these accepted formats:
 
+* `organizations/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Organization using one of the formats above. For example:
+
+```tf
+import {
+  id = "organizations/{{name}}"
+  to = google_apigee_organization.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Organization can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_apigee_organization.default organizations/{{name}}
 $ terraform import google_apigee_organization.default {{name}}

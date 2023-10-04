@@ -174,6 +174,23 @@ This resource provides the following
 
 IndexEndpoint can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/indexEndpoints/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import IndexEndpoint using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/indexEndpoints/{{name}}"
+  to = google_vertex_ai_index_endpoint.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), IndexEndpoint can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_vertex_ai_index_endpoint.default projects/{{project}}/locations/{{region}}/indexEndpoints/{{name}}
 $ terraform import google_vertex_ai_index_endpoint.default {{project}}/{{region}}/{{name}}

@@ -277,6 +277,23 @@ This resource provides the following
 
 RepositoryWorkflowConfig can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/repositories/{{repository}}/workflowConfigs/{{name}}`
+* `{{project}}/{{region}}/{{repository}}/{{name}}`
+* `{{region}}/{{repository}}/{{name}}`
+* `{{repository}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import RepositoryWorkflowConfig using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/repositories/{{repository}}/workflowConfigs/{{name}}"
+  to = google_dataform_repository_workflow_config.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), RepositoryWorkflowConfig can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_dataform_repository_workflow_config.default projects/{{project}}/locations/{{region}}/repositories/{{repository}}/workflowConfigs/{{name}}
 $ terraform import google_dataform_repository_workflow_config.default {{project}}/{{region}}/{{repository}}/{{name}}

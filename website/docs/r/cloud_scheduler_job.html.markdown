@@ -468,6 +468,23 @@ This resource provides the following
 
 Job can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{region}}/jobs/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Job using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{region}}/jobs/{{name}}"
+  to = google_cloud_scheduler_job.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Job can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_cloud_scheduler_job.default projects/{{project}}/locations/{{region}}/jobs/{{name}}
 $ terraform import google_cloud_scheduler_job.default {{project}}/{{region}}/{{name}}

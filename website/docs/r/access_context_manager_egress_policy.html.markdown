@@ -64,6 +64,20 @@ This resource provides the following
 
 EgressPolicy can be imported using any of these accepted formats:
 
+* `{{egress_policy_name}}/{{resource}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import EgressPolicy using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{egress_policy_name}}/{{resource}}"
+  to = google_access_context_manager_egress_policy.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), EgressPolicy can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_access_context_manager_egress_policy.default {{egress_policy_name}}/{{resource}}
 ```

@@ -279,6 +279,21 @@ This resource provides the following
 
 StoredInfoType can be imported using any of these accepted formats:
 
+* `{{parent}}/storedInfoTypes/{{name}}`
+* `{{parent}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import StoredInfoType using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{parent}}/storedInfoTypes/{{name}}"
+  to = google_data_loss_prevention_stored_info_type.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), StoredInfoType can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_data_loss_prevention_stored_info_type.default {{parent}}/storedInfoTypes/{{name}}
 $ terraform import google_data_loss_prevention_stored_info_type.default {{parent}}/{{name}}

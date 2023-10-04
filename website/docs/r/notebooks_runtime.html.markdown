@@ -660,6 +660,22 @@ This resource provides the following
 
 Runtime can be imported using any of these accepted formats:
 
+* `projects/{{project}}/locations/{{location}}/runtimes/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
+
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Runtime using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/locations/{{location}}/runtimes/{{name}}"
+  to = google_notebooks_runtime.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Runtime can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_notebooks_runtime.default projects/{{project}}/locations/{{location}}/runtimes/{{name}}
 $ terraform import google_notebooks_runtime.default {{project}}/{{location}}/{{name}}
