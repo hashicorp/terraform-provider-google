@@ -246,28 +246,31 @@ func resourceAccessContextManagerGcpUserAccessBindingUpdate(d *schema.ResourceDa
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PATCH",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating GcpUserAccessBinding %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating GcpUserAccessBinding %q: %#v", d.Id(), res)
-	}
+		if err != nil {
+			return fmt.Errorf("Error updating GcpUserAccessBinding %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating GcpUserAccessBinding %q: %#v", d.Id(), res)
+		}
 
-	err = AccessContextManagerOperationWaitTime(
-		config, res, "Updating GcpUserAccessBinding", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+		err = AccessContextManagerOperationWaitTime(
+			config, res, "Updating GcpUserAccessBinding", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceAccessContextManagerGcpUserAccessBindingRead(d, meta)
