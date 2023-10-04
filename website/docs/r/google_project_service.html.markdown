@@ -76,8 +76,21 @@ This resource provides the following
 
 Project services can be imported using the `project_id` and `service`, e.g.
 
+* `{{project_id}}/{{service}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import project services using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}/{{service}}"
+  to = google_project_service.default
+}
 ```
-$ terraform import google_project_service.my_project your-project-id/iam.googleapis.com
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), project services can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_project_service.default {{project_id}}/{{service}}
 ```
 
 Note that unlike other resources that fail if they already exist,

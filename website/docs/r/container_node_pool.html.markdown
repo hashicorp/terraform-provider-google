@@ -300,8 +300,22 @@ In addition to the arguments listed above, the following computed attributes are
 Node pools can be imported using the `project`, `location`, `cluster` and `name`. If
 the project is omitted, the project value in the provider configuration will be used. Examples:
 
-```
-$ terraform import google_container_node_pool.mainpool my-gcp-project/us-east1-a/my-cluster/main-pool
+* `{{project_id}}/{{location}}/{{cluster_id}}/{{pool_id}}`
+* `{{location}}/{{cluster_id}}/{{pool_id}}`
 
-$ terraform import google_container_node_pool.mainpool us-east1/my-cluster/main-pool
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import node pools using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}/{{location}}/{{cluster_id}}/{{pool_id}}"
+  to = google_container_node_pool.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), node pools can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_container_node_pool.default {{project_id}}/{{location}}/{{cluster_id}}/{{pool_id}}
+
+$ terraform import google_container_node_pool.default {{location}}/{{cluster_id}}/{{pool_id}}
 ```

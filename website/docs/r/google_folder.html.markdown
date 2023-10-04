@@ -61,8 +61,21 @@ exported:
 
 Folders can be imported using the folder's id, e.g.
 
+* `folders/{{folder_id}}`
+* `{{folder_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Folders using one of the formats above. For example:
+
+```tf
+import {
+  id = "folders/{{folder_id}}"
+  to = google_folder.default
+}
 ```
-# Both syntaxes are valid
-$ terraform import google_folder.department1 1234567
-$ terraform import google_folder.department1 folders/1234567
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Folders can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_folder.default {{folder_id}}
+$ terraform import google_folder.default folders/{{folder_id}}
 ```

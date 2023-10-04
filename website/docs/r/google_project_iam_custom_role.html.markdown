@@ -63,8 +63,22 @@ exported:
 
 ## Import
 
-
 Custom Roles can be imported using any of these accepted formats:
+
+* `projects/{{project}}/roles/{{role_id}}`
+* `{{project}}/{{role_id}}`
+* `{{role_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Custom Roles using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/roles/{{role_id}}"
+  to = google_project_iam_custom_role.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Custom Roles can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_project_iam_custom_role.default projects/{{project}}/roles/{{role_id}}

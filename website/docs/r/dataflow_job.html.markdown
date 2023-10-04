@@ -133,6 +133,19 @@ The following arguments are supported:
 
 Dataflow jobs can be imported using the job `id` e.g.
 
+* `{{id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import dataflow jobs using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{id}}"
+  to = google_dataflow_job.default
+}
 ```
-$ terraform import google_dataflow_job.example 2022-07-31_06_25_42-11926927532632678660
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), dataflow jobs can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_dataflow_job.default {{id}}
 ```

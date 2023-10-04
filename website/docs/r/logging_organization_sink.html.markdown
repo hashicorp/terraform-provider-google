@@ -100,6 +100,19 @@ exported:
 
 Organization-level logging sinks can be imported using this format:
 
+* `organizations/{{organization_id}}/sinks/{{sink_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import organization-level logging sinks using one of the formats above. For example:
+
+```tf
+import {
+  id = "organizations/{{organization_id}}/sinks/{{sink_id}}"
+  to = google_logging_organization_sink.default
+}
 ```
-$ terraform import google_logging_organization_sink.my_sink organizations/{{organization_id}}/sinks/{{sink_id}}
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), organization-level logging sinks can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_logging_organization_sink.default organizations/{{organization_id}}/sinks/{{sink_id}}
 ```

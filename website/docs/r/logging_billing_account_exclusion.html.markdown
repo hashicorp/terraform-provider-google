@@ -55,6 +55,19 @@ In addition to the arguments listed above, the following computed attributes are
 
 Billing account logging exclusions can be imported using their URI, e.g.
 
+* `billingAccounts/{{billing_account}}/exclusions/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import billing account logging exclusions using one of the formats above. For example:
+
+```tf
+import {
+  id = "billingAccounts/{{billing_account}}/exclusions/{{name}}"
+  to = google_logging_billing_account_exclusion.default
+}
 ```
-$ terraform import google_logging_billing_account_exclusion.my_exclusion billingAccounts/my-billing_account/exclusions/my-exclusion
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), billing account logging exclusions can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_logging_billing_account_exclusion.default billingAccounts/{{billing_account}}/exclusions/{{name}}
 ```

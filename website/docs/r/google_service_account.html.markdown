@@ -79,6 +79,19 @@ This resource provides the following
 
 Service accounts can be imported using their URI, e.g.
 
+* `projects/{{project_id}}/serviceAccounts/{{email}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import service accounts using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project_id}}/serviceAccounts/{{email}}"
+  to = google_service_account.default
+}
 ```
-$ terraform import google_service_account.my_sa projects/my-project/serviceAccounts/my-sa@my-project.iam.gserviceaccount.com
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), service accounts can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_service_account.default projects/{{project_id}}/serviceAccounts/{{email}}
 ```

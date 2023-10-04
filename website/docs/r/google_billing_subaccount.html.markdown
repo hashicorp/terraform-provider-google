@@ -42,6 +42,19 @@ The following additional attributes are exported:
 
 Billing Subaccounts can be imported using any of these accepted formats:
 
+* `billingAccounts/{billing_account_id}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Billing Subaccounts using one of the formats above. For example:
+
+```tf
+import {
+  id = "billingAccounts/{billing_account_id}"
+  to = google_billing_subaccount.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Billing Subaccounts can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_billing_subaccount.default billingAccounts/{billing_account_id}
 ```
