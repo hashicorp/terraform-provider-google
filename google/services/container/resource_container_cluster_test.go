@@ -123,6 +123,7 @@ func TestAccContainerCluster_misc(t *testing.T) {
 }
 
 func TestAccContainerCluster_withAddons(t *testing.T) {
+	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16114", t.Name())
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
