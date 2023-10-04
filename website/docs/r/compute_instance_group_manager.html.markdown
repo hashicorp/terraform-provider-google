@@ -357,8 +357,25 @@ This resource provides the following
 Instance group managers can be imported using any of these accepted formats:
 
 ```
-$ terraform import google_compute_instance_group_manager.appserver projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}
-$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{zone}}/{{name}}
-$ terraform import google_compute_instance_group_manager.appserver {{project}}/{{name}}
-$ terraform import google_compute_instance_group_manager.appserver {{name}}
+* `projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}`
+* `{{project}}/{{zone}}/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import instance group managers using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}"
+  to = google_compute_instance_group_manager.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), instance group managers can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_compute_instance_group_manager.default projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}
+$ terraform import google_compute_instance_group_manager.default {{project}}/{{zone}}/{{name}}
+$ terraform import google_compute_instance_group_manager.default {{project}}/{{name}}
+$ terraform import google_compute_instance_group_manager.default {{name}}
 ```

@@ -48,6 +48,21 @@ This resource provides the following
 
 ## Import
 
-This resource can be imported using the project ID:
+Compute Engine Default Network Tier can be imported using any of these accepted formats:
 
-`terraform import google_compute_project_default_network_tier.default project-id`
+* `{{project_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import Compute Engine Default Network Tier using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}"
+  to = google_compute_project_default_network_tier.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), Compute Engine Default Network Tier can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_compute_project_default_network_tier.default {{project_id}}
+```

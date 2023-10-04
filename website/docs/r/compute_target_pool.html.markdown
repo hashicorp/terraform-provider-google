@@ -97,6 +97,22 @@ This resource provides the following
 
 Target pools can be imported using any of the following formats:
 
+* `projects/{{project}}/regions/{{region}}/targetPools/{{name}}`
+* `{{project}}/{{region}}/{{name}}`
+* `{{region}}/{{name}}`
+* `{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import target pools using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/regions/{{region}}/targetPools/{{name}}"
+  to = google_compute_target_pool.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), target pools can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_target_pool.default projects/{{project}}/regions/{{region}}/targetPools/{{name}}
 $ terraform import google_compute_target_pool.default {{project}}/{{region}}/{{name}}

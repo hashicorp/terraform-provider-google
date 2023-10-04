@@ -84,7 +84,21 @@ This resource provides the following
 
 Router interfaces can be imported using the `project` (optional), `region`, `router`, and `name`, e.g.
 
+* `{{project_id}}/{{region}}/{{router}}/{{name}}`
+* `{{region}}/{{router}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import router interfaces using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}/{{region}}/{{router}}/{{name}}"
+  to = google_compute_router_interface.default
+}
 ```
-$ terraform import google_compute_router_interface.foobar my-project/us-central1/router-1/interface-1
-$ terraform import google_compute_router_interface.foobar us-central1/router-1/interface-1
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), router interfaces can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_compute_router_interface.default {{project_id}}/{{region}}/{{router}}/{{name}}
+$ terraform import google_compute_router_interface.default {{region}}/{{router}}/{{name}}
 ```

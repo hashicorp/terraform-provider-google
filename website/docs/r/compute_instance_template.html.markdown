@@ -288,7 +288,7 @@ The following arguments are supported:
 
 * `machine_type` - (Required) The machine type to create.
 
-    To create a machine with a [custom type][custom-vm-types] (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
+    To create a machine with a [custom type](https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types) (such as extended memory), format the value like `custom-VCPUS-MEM_IN_MB` like `custom-6-20480` for 6 vCPU and 20GB of RAM.
 
 - - -
 * `name` - (Optional) The name of the instance template. If you leave
@@ -515,7 +515,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
     network ip. If not given, one will be generated.
 
-* `network_tier` - (Optional) The [networking tier][network-tier] used for configuring
+* `network_tier` - (Optional) The [networking tier](https://cloud.google.com/network-tiers/docs/overview) used for configuring
     this instance template. This field can take the following values: PREMIUM,
     STANDARD or FIXED_STANDARD. If this field is not specified, it is assumed to be PREMIUM.
 
@@ -686,11 +686,23 @@ This resource provides the following
 
 Instance templates can be imported using any of these accepted formats:
 
+* `projects/{{project}}/global/instanceTemplates/{{name}}`
+* `{{project}}/{{name}}`
+* `{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import instance templates using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/instanceTemplates/{{name}}"
+  to = google_compute_instance_template.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), instance templates can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_instance_template.default projects/{{project}}/global/instanceTemplates/{{name}}
 $ terraform import google_compute_instance_template.default {{project}}/{{name}}
 $ terraform import google_compute_instance_template.default {{name}}
 ```
-
-[custom-vm-types]: https://cloud.google.com/dataproc/docs/concepts/compute/custom-machine-types
-[network-tier]: https://cloud.google.com/network-tiers/docs/overview

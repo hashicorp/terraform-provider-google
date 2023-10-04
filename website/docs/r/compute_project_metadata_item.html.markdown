@@ -43,8 +43,21 @@ In addition to the arguments listed above, the following computed attributes are
 
 Project metadata items can be imported using the `key`, e.g.
 
+* `{{key}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import project metadata items using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{key}}"
+  to = google_compute_project_metadata_item.default
+}
 ```
-$ terraform import google_compute_project_metadata_item.default my_metadata
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), project metadata items can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_compute_project_metadata_item.default {{key}}
 ```
 
 ## Timeouts

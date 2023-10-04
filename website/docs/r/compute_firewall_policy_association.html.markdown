@@ -84,6 +84,20 @@ This resource provides the following
 
 FirewallPolicyAssociation can be imported using any of these accepted formats:
 
+* `locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}`
+* `{{firewall_policy}}/{{name}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FirewallPolicyAssociation using one of the formats above. For example:
+
+```tf
+import {
+  id = "locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}"
+  to = google_compute_firewall_policy_association.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), FirewallPolicyAssociation can be imported using one of the formats above. For example:
+
 ```
 $ terraform import google_compute_firewall_policy_association.default locations/global/firewallPolicies/{{firewall_policy}}/associations/{{name}}
 $ terraform import google_compute_firewall_policy_association.default {{firewall_policy}}/{{name}}
