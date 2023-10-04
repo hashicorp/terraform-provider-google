@@ -48,6 +48,19 @@ This resource provides the following
 
 A project's Usage Export Bucket can be imported using this format:
 
+* `{{project_id}}`
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NAME_HERE using one of the formats above. For example:
+
+```tf
+import {
+  id = "{{project_id}}"
+  to = google_project_usage_export_bucket.default
+}
 ```
-$ terraform import google_project_usage_export_bucket.usage_export {{project}}
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), NAME_HERE can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_project_usage_export_bucket.default {{project_id}}
 ```

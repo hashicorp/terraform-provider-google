@@ -67,12 +67,26 @@ In addition to the arguments listed above, the following computed attributes are
 
 
 ## Import
+
 ServiceNetworkingConnection can be imported using any of these accepted formats
 
-```
-$ terraform import google_service_networking_connection.peering_connection {{peering-network}}:{{service}}
+* `{{peering-network}}:{{service}}`
+* `projects/{{project}}/global/networks/{{peering-network}}:{{service}}`
 
-$ terraform import google_service_networking_connection.peering_connection /projects/{{project}}/global/networks/{{peering-network}}:{{service}}
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import NAME_HERE using one of the formats above. For example:
+
+```tf
+import {
+  id = "projects/{{project}}/global/networks/{{peering-network}}:{{service}}"
+  to = google_service_networking_connection.default
+}
+```
+
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), NAME_HERE can be imported using one of the formats above. For example:
+
+```
+$ terraform import google_service_networking_connection.default {{peering-network}}:{{service}}
+$ terraform import google_service_networking_connection.default /projects/{{project}}/global/networks/{{peering-network}}:{{service}}
 ```
 
 
