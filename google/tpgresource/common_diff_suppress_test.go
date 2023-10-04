@@ -287,6 +287,70 @@ func TestDurationDiffSuppress(t *testing.T) {
 	}
 }
 
+func TestInternalIpDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"same1 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000::",
+			ExpectDiffSuppress: true,
+		},
+		"same2 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8000::/96",
+			ExpectDiffSuppress: true,
+		},
+		"same3 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "https://www.googleapis.com/compute/v1/projects/myproject/regions/us-central1/addresses/myaddress",
+			ExpectDiffSuppress: true,
+		},
+		"different1 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8001::",
+			ExpectDiffSuppress: false,
+		},
+		"different2 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000:0:0:8000",
+			ExpectDiffSuppress: false,
+		},
+		"different3 ipv6s": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8001::/96",
+			ExpectDiffSuppress: false,
+		},
+		"different ipv4s": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.5",
+			ExpectDiffSuppress: false,
+		},
+		"same ipv4s": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.4",
+			ExpectDiffSuppress: true,
+		},
+		"ipv4 vs id": {
+			Old:                "1.2.3.4",
+			New:                "google_compute_address.my_ipv4_addr.address",
+			ExpectDiffSuppress: true,
+		},
+		"ipv6 vs id": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "google_compute_address.my_ipv6_addr.address",
+			ExpectDiffSuppress: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		if InternalIpDiffSuppress("ipv4/v6_compare", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func TestLastSlashDiffSuppress(t *testing.T) {
 	cases := map[string]struct {
 		Old, New           string

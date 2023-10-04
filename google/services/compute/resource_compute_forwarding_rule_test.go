@@ -176,6 +176,31 @@ func TestAccComputeForwardingRule_forwardingRuleRegionalSteeringExampleUpdate(t 
 	})
 }
 
+func TestAccComputeForwardingRule_forwardingRuleIpAddressIpv6(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeForwardingRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeForwardingRule_forwardingRuleIpAddressIpv6(context),
+			},
+			{
+				ResourceName:            "google_compute_forwarding_rule.external",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"backend_service", "network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
 func testAccComputeForwardingRule_basic(poolName, ruleName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_pool" "foo-tp" {
@@ -398,6 +423,48 @@ resource "google_compute_forwarding_rule" "external" {
   ip_address = google_compute_address.basic.self_link
   backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
+}
+`, context)
+}
+
+func testAccComputeForwardingRule_forwardingRuleIpAddressIpv6(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_address" "basic" {
+	name = "tf-test-address%{random_suffix}"
+	region = "us-central1"
+
+	address_type       = "EXTERNAL"
+	ipv6_endpoint_type = "NETLB"
+	ip_version         = "IPV6"
+	subnetwork         = google_compute_subnetwork.subnetwork-ipv6.id
+}
+
+resource "google_compute_region_backend_service" "external" {
+	name = "tf-test-backend%{random_suffix}"
+	region = "us-central1"
+	load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_forwarding_rule" "external" {
+	name = "tf-test-forwarding-rule%{random_suffix}"
+	region = "us-central1"
+	ip_address = google_compute_address.basic.self_link
+	backend_service = google_compute_region_backend_service.external.self_link
+	load_balancing_scheme = "EXTERNAL"
+}
+
+resource "google_compute_subnetwork" "subnetwork-ipv6" {
+		name          = "tf-test-subnetwork%{random_suffix}"
+		ip_cidr_range = "10.0.0.0/22"
+		region        = "us-central1"
+		stack_type       = "IPV4_IPV6"
+		ipv6_access_type = "EXTERNAL"
+		network       = google_compute_network.custom-test.id
+}
+
+resource "google_compute_network" "custom-test" {
+	name                    = "tf-test-network%{random_suffix}"
+	auto_create_subnetworks = false
 }
 `, context)
 }
