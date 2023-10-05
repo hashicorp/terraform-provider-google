@@ -71,18 +71,73 @@ resource "google_compute_subnetwork" "default" {
 
 resource "google_project" "rejected_producer_project" {
     provider = google-beta
-    project_id      = "prj-rejected%{random_suffix}"
-    name            = "prj-rejected%{random_suffix}"
+    project_id      = "prj-rejected"
+    name            = "prj-rejected"
     org_id          = "123456789"
     billing_account = "000000-0000000-0000000-000000"
 }
 
 resource "google_project" "accepted_producer_project" {
     provider = google-beta
-    project_id      = "prj-accepted%{random_suffix}"
-    name            = "prj-accepted%{random_suffix}"
+    project_id      = "prj-accepted"
+    name            = "prj-accepted"
     org_id          = "123456789"
     billing_account = "000000-0000000-0000000-000000"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=network_attachment_instance_usage&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Attachment Instance Usage
+
+
+```hcl
+resource "google_compute_network" "default" {
+    provider = google-beta
+    name = "basic-network"
+    auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+    provider = google-beta
+    name   = "basic-subnetwork"
+    region = "us-central1"
+
+    network       = google_compute_network.default.id
+    ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "default" {
+    provider = google-beta
+    name   = "basic-network-attachment"
+    region = "us-central1"
+    description = "my basic network attachment"
+
+    subnetworks = [google_compute_subnetwork.default.id]
+    connection_preference = "ACCEPT_AUTOMATIC"
+}
+
+resource "google_compute_instance" "default" {
+    provider = google-beta
+    name         = "basic-instance"
+    zone         = "us-central1-a"
+    machine_type = "e2-micro"
+
+    boot_disk {
+        initialize_params {
+            image = "debian-cloud/debian-11"
+        }
+    }
+
+    network_interface {
+		network = "default"
+	}
+
+    network_interface {
+        network_attachment = google_compute_network_attachment.default.self_link
+    }
 }
 ```
 
