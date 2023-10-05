@@ -169,9 +169,9 @@ group. You can specify one or more values. For more information, see the [offici
 
 * `stateful_disk` - (Optional) Disks created on the instances that will be preserved on instance delete, update, etc. Structure is [documented below](#nested_stateful_disk). For more information see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/configuring-stateful-disks-in-migs). Proactive cross zone instance redistribution must be disabled before you can update stateful disks on existing instance group managers. This can be controlled via the `update_policy`.
 
-* `stateful_internal_ip` - (Optional, [Beta](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_versions.html)) Internal network IPs assigned to the instances that will be preserved on instance delete, update, etc. This map is keyed with the network interface name. Structure is [documented below](#nested_stateful_internal_ip).
+* `stateful_internal_ip` - (Optional) Internal network IPs assigned to the instances that will be preserved on instance delete, update, etc. This map is keyed with the network interface name. Structure is [documented below](#nested_stateful_internal_ip).
 
-* `stateful_external_ip` - (Optional, [Beta](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_versions.html)) External network IPs assigned to the instances that will be preserved on instance delete, update, etc. This map is keyed with the network interface name. Structure is [documented below](#nested_stateful_external_ip).
+* `stateful_external_ip` - (Optional) External network IPs assigned to the instances that will be preserved on instance delete, update, etc. This map is keyed with the network interface name. Structure is [documented below](#nested_stateful_external_ip).
 
 - - -
 

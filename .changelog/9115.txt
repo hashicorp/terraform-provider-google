@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` to GA
+```
+```release-note:enhancement
+compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_per_instance_config` and `google_compute_region_per_instance_config` to GA
+```
