@@ -996,9 +996,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 326
+// Generated resources: 327
 // Generated IAM resources: 207
-// Total generated resources: 533
+// Total generated resources: 534
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1031,6 +1031,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_alloydb_backup":                                          alloydb.ResourceAlloydbBackup(),
 			"google_alloydb_cluster":                                         alloydb.ResourceAlloydbCluster(),
 			"google_alloydb_instance":                                        alloydb.ResourceAlloydbInstance(),
+			"google_alloydb_user":                                            alloydb.ResourceAlloydbUser(),
 			"google_apigee_addons_config":                                    apigee.ResourceApigeeAddonsConfig(),
 			"google_apigee_endpoint_attachment":                              apigee.ResourceApigeeEndpointAttachment(),
 			"google_apigee_env_keystore":                                     apigee.ResourceApigeeEnvKeystore(),
