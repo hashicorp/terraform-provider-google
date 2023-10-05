@@ -49,7 +49,7 @@ If you have configuration questions, or general questions about using the provid
 
 Interested in the provider's latest features, or want to make sure you're up to date?
 Check out the [`google` provider Releases](https://github.com/hashicorp/terraform-provider-google/releases)
-and the [`google-beta` provider Releases](https://github.com/hashicorp/terraform-provider-google-beta/releases
+and the [`google-beta` provider Releases](https://github.com/hashicorp/terraform-provider-google-beta/releases)
 for release notes and additional information.
 
 Per [Terraform Provider Versioning](https://www.hashicorp.com/blog/hashicorp-terraform-provider-versioning),
