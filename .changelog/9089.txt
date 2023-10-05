@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `google_compute_global_address` can't be created when default_network_tier set to STANDARD
+```

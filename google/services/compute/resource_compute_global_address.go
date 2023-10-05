@@ -227,6 +227,11 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	// Note: Global external IP addresses and internal IP addresses are always Premium Tier.
+	// An address with type INTERNAL cannot have a network tier
+	if addressTypeProp != "INTERNAL" {
+		obj["networkTier"] = "PREMIUM"
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
