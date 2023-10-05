@@ -1461,6 +1461,16 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     device_name = "my-stateful-disk"
     delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
   }
+
+  stateful_internal_ip {
+    interface_name = "nic0"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+
+  stateful_external_ip {
+    interface_name = "nic0"
+    delete_rule = "NEVER"
+  }
 }
 
 resource "google_compute_http_health_check" "zero" {
@@ -1546,6 +1556,15 @@ resource "google_compute_instance_group_manager" "igm-basic" {
     delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
   }
 
+  stateful_internal_ip {
+    interface_name = "nic0"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+
+  stateful_external_ip {
+    interface_name = "nic0"
+    delete_rule = "NEVER"
+  }
 }
 
 resource "google_compute_http_health_check" "zero" {

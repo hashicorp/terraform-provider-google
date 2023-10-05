@@ -163,12 +163,12 @@ State will be removed on the next instance recreation or update.
   Structure is [documented below](#nested_disk).
 
 * `internal_ip` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Preserved internal IPs defined for this instance. This map is keyed with the name of the network interface.
   Structure is [documented below](#nested_internal_ip).
 
 * `external_ip` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Preserved external IPs defined for this instance. This map is keyed with the name of the network interface.
   Structure is [documented below](#nested_external_ip).
 
