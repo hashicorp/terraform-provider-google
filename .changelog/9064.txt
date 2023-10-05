@@ -1,0 +1,4 @@
+```release-note: enhancement
+
+alloydb: added `client_connection_config`, `client_connection_config.require_connectors`, `client_connection_config.ssl_config`, and `client_connection_config.ssl_config.ssl_mode` fields to `google_alloydb_instance` resource
+```

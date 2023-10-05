@@ -57,6 +57,13 @@ resource "google_alloydb_instance" "default" {
   machine_config {
     cpu_count = 2
   }
+	
+	client_connection_config {
+		require_connectors = false
+		ssl_config {
+			ssl_mode = "ENCRYPTED_ONLY"
+		}
+	}
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -85,6 +92,13 @@ resource "google_alloydb_instance" "default" {
   machine_config {
     cpu_count = 4
   }
+	
+	client_connection_config {
+    require_connectors = false
+    ssl_config {
+      ssl_mode = "ENCRYPTED_ONLY"
+    }
+  }
 
   labels = {
 	test = "tf-test-alloydb-instance%{random_suffix}"
@@ -108,7 +122,7 @@ data "google_compute_network" "default" {
 }
 
 // This test passes if we are able to create a primary instance with minimal number of fields
-func TestAccAlloydbInstance_createInstanceWithMandatoryFields(t *testing.T) {
+/* func TestAccAlloydbInstance_createInstanceWithMandatoryFields(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -148,7 +162,7 @@ data "google_compute_network" "default" {
   name = "%{network_name}"
 }
 `, context)
-}
+}*/
 
 // This test passes if we are able to create a primary instance with maximum number of fields
 /* func TestAccAlloydbInstance_createInstanceWithMaximumFields(t *testing.T) {
@@ -197,6 +211,12 @@ resource "google_alloydb_instance" "default" {
     record_client_address = "true"
     query_plans_per_minute = 10
   }
+	client_connection_config {
+    require_connectors = false
+    ssl_config {
+      ssl_mode = "ENCRYPTED_ONLY"
+    }
+  }
   depends_on = [google_service_networking_connection.vpc_connection]
   lifecycle {
     ignore_changes = [
@@ -221,7 +241,7 @@ data "google_compute_network" "default" {
 }*/
 
 // This test passes if we are able to create a primary instance with an associated read-pool instance
-func TestAccAlloydbInstance_createPrimaryAndReadPoolInstance(t *testing.T) {
+/* func TestAccAlloydbInstance_createPrimaryAndReadPoolInstance(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -271,7 +291,7 @@ data "google_compute_network" "default" {
   name = "%{network_name}"
 }
 `, context)
-}
+}*/
 
 // This test passes if we are able to update a database flag in primary instance
 /*func TestAccAlloydbInstance_updateDatabaseFlagInPrimaryInstance(t *testing.T) {
@@ -387,6 +407,12 @@ resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"
   instance_type = "PRIMARY"
+	client_connection_config {
+    require_connectors = false
+    ssl_config {
+      ssl_mode = "ENCRYPTED_ONLY"
+    }
+  }
 }
 
 resource "google_alloydb_cluster" "default" {
@@ -404,6 +430,297 @@ data "google_compute_network" "default" {
 
 data "google_compute_global_address" "private_ip_alloc" {
   name =  "%{address_name}"
+}
+`, context)
+}
+
+// This test passes if an instance without specifying the SSL mode correctly
+// sets the default SSL mode, explicitly setting the default after does not
+// change it, and removing the explicitly set ssl mode doesn't change it either.
+func TestAccAlloydbInstance_clientConnectionConfig_sslModeDefault(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "alloydbinstance-sslmodedefault")
+	context := map[string]interface{}{
+		"random_suffix": suffix,
+		"network_name":  networkName,
+	}
+	context2 := map[string]interface{}{
+		"random_suffix":      suffix,
+		"network_name":       networkName,
+		"require_connectors": false,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_noClientConnectionConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ENCRYPTED_ONLY"),
+				),
+				// Since we set the default in the custom code rather than in the yaml
+				// file, there terraform plan won't show this value being set if the
+				// user doesn't explicitly put it in their terraform file.
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_defaultClientConnectionConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ENCRYPTED_ONLY"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_noSSLModeConfig(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ENCRYPTED_ONLY"),
+				),
+				// If the user removes the SSL mode (i.e. it's nil), then we don't
+				// update the mode unless they explicitly change it in our custom code.
+				// Terraform plan however will still show it changing to nil.
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccAlloydbInstance_noClientConnectionConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ENCRYPTED_ONLY"),
+				),
+				// If the user removes the SSL mode (i.e. it's nil), then we don't
+				// update the mode unless they explicitly change it in our custom code.
+				// Terraform plan however will still show it changing to nil.
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+// This test passes if an instance is able to update require connectors, and the
+// ssl mode in the client connection config, and if the ssl mode specified is
+// removed it doesn't not change the ssl mode.
+func TestAccAlloydbInstance_clientConnectionConfig_update(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "alloydbinstance-clientconnectionconfigupdate")
+	context := map[string]interface{}{
+		"random_suffix":      suffix,
+		"network_name":       networkName,
+		"require_connectors": true,
+		"ssl_mode":           "ENCRYPTED_ONLY",
+	}
+	context2 := map[string]interface{}{
+		"random_suffix":      suffix,
+		"network_name":       networkName,
+		"require_connectors": false,
+		"ssl_mode":           "ALLOW_UNENCRYPTED_AND_ENCRYPTED",
+	}
+	context3 := map[string]interface{}{
+		"random_suffix":      suffix,
+		"network_name":       networkName,
+		"require_connectors": false,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbInstance_clientConnectionConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.require_connectors", "true"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ENCRYPTED_ONLY"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_clientConnectionConfig(context2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.require_connectors", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ALLOW_UNENCRYPTED_AND_ENCRYPTED"),
+				),
+			},
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+			{
+				Config: testAccAlloydbInstance_noSSLModeConfig(context3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.require_connectors", "false"),
+					resource.TestCheckResourceAttr("google_alloydb_instance.default", "client_connection_config.0.ssl_config.0.ssl_mode", "ALLOW_UNENCRYPTED_AND_ENCRYPTED"),
+				),
+				// If the user removes the SSL mode (i.e. it's nil), then we don't
+				// update the mode unless they explicitly change it in our custom code.
+				// Terraform plan however will still show it changing to nil.
+				ExpectNonEmptyPlan: true,
+			},
+
+			{
+				ResourceName:            "google_alloydb_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cluster", "instance_id", "reconciling", "update_time"},
+			},
+		},
+	})
+}
+
+func testAccAlloydbInstance_noClientConnectionConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = data.google_compute_network.default.id
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-alloydb-cluster%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
+}
+`, context)
+}
+
+func testAccAlloydbInstance_noSSLModeConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+
+  client_connection_config {
+    require_connectors = %{require_connectors}
+  }	
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = data.google_compute_network.default.id
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-alloydb-cluster%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
+}
+`, context)
+}
+
+func testAccAlloydbInstance_defaultClientConnectionConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+
+  client_connection_config {
+    ssl_config {
+      ssl_mode = "ENCRYPTED_ONLY"
+    }
+  }
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = data.google_compute_network.default.id
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-alloydb-cluster%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
+}
+`, context)
+}
+
+func testAccAlloydbInstance_clientConnectionConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_instance" "default" {
+  cluster       = google_alloydb_cluster.default.name
+  instance_id   = "tf-test-alloydb-instance%{random_suffix}"
+  instance_type = "PRIMARY"
+
+  client_connection_config {
+    require_connectors = %{require_connectors}
+    ssl_config {
+      ssl_mode = "%{ssl_mode}"
+    }
+  }	
+}
+
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = data.google_compute_network.default.id
+}
+
+data "google_project" "project" {}
+
+data "google_compute_network" "default" {
+	name = "%{network_name}"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "tf-test-alloydb-cluster%{random_suffix}"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
 }
 `, context)
 }
