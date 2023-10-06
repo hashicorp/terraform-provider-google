@@ -74,8 +74,6 @@ resource "google_firestore_field" "basic" {
         array_config = "CONTAINS"
     }
   }
-
-  ttl_config {}
 }
 `, context)
 }
@@ -113,9 +111,11 @@ resource "google_firestore_field" "timestamp" {
   collection = "chatrooms_%{random_suffix}"
   field = "timestamp"
 
+  # enables a TTL policy for the document based on the value of entries with this field
+  ttl_config {}
+
   // Disable all single field indexes for the timestamp property.
   index_config {}
-  ttl_config {}
 }
 `, context)
 }
