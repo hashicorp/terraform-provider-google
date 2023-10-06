@@ -54,8 +54,6 @@ resource "google_firestore_field" "basic" {
         array_config = "CONTAINS"
     }
   }
-
-  ttl_config {}
 }
 ```
 ## Example Usage - Firestore Field Timestamp
@@ -67,9 +65,11 @@ resource "google_firestore_field" "timestamp" {
   collection = "chatrooms_%{random_suffix}"
   field = "timestamp"
 
+  # enables a TTL policy for the document based on the value of entries with this field
+  ttl_config {}
+
   // Disable all single field indexes for the timestamp property.
   index_config {}
-  ttl_config {}
 }
 ```
 ## Example Usage - Firestore Field Match Override
@@ -126,7 +126,7 @@ The following arguments are supported:
 
 * `ttl_config` -
   (Optional)
-  If set, this field is configured for TTL deletion.
+  The TTL configuration for this Field. If set to an empty block (i.e. `ttl_config {}`), a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).
   Structure is [documented below](#nested_ttl_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -167,7 +167,7 @@ The following arguments are supported:
 
 * `state` -
   (Output)
-  The state of the TTL configuration.
+  The state of TTL (time-to-live) configuration for documents that have this Field set.
 
 ## Attributes Reference
 

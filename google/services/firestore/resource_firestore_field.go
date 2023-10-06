@@ -93,14 +93,14 @@ the field.`,
 			"ttl_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: `If set, this field is configured for TTL deletion.`,
+				Description: `The TTL configuration for this Field. If set to an empty block (i.e. 'ttl_config {}'), a TTL policy is configured based on the field. If unset, a TTL policy is not configured (or will be disabled upon updating the resource).`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"state": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The state of the TTL configuration.`,
+							Description: `The state of TTL (time-to-live) configuration for documents that have this Field set.`,
 						},
 					},
 				},
