@@ -48,6 +48,7 @@ func ResourceEdgecontainerNodePool() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -82,11 +83,13 @@ func ResourceEdgecontainerNodePool() *schema.Resource {
 				Description: `Name of the Google Distributed Cloud Edge zone where this node pool will be created. For example: 'us-central1-edge-customer-a'.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Optional:    true,
-				Description: `Labels associated with this resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels associated with this resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"local_disk_encryption": {
 				Type:        schema.TypeList,
@@ -147,10 +150,23 @@ documented in more detail in [AIP-160](https://google.aip.dev/160).`,
 				Computed:    true,
 				Description: `The time when the node pool was created.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"node_version": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The lowest release version among all worker nodes.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:        schema.TypeString,
@@ -176,12 +192,6 @@ func resourceEdgecontainerNodePoolCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerNodePoolLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	nodeLocationProp, err := expandEdgecontainerNodePoolNodeLocation(d.Get("node_location"), d, config)
 	if err != nil {
 		return err
@@ -211,6 +221,12 @@ func resourceEdgecontainerNodePoolCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeConfigProp)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
+	}
+	labelsProp, err := expandEdgecontainerNodePoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools?nodePoolId={{name}}")
@@ -334,6 +350,12 @@ func resourceEdgecontainerNodePoolRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("node_config", flattenEdgecontainerNodePoolNodeConfig(res["nodeConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodePool: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenEdgecontainerNodePoolTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenEdgecontainerNodePoolEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodePool: %s", err)
+	}
 
 	return nil
 }
@@ -354,12 +376,6 @@ func resourceEdgecontainerNodePoolUpdate(d *schema.ResourceData, meta interface{
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerNodePoolLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	nodeLocationProp, err := expandEdgecontainerNodePoolNodeLocation(d.Get("node_location"), d, config)
 	if err != nil {
 		return err
@@ -389,6 +405,12 @@ func resourceEdgecontainerNodePoolUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
+	}
+	labelsProp, err := expandEdgecontainerNodePoolEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{cluster}}/nodePools/{{name}}")
@@ -512,7 +534,18 @@ func flattenEdgecontainerNodePoolUpdateTime(v interface{}, d *schema.ResourceDat
 }
 
 func flattenEdgecontainerNodePoolLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenEdgecontainerNodePoolNodeLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -590,15 +623,23 @@ func flattenEdgecontainerNodePoolNodeConfigLabels(v interface{}, d *schema.Resou
 	return v
 }
 
-func expandEdgecontainerNodePoolLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenEdgecontainerNodePoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenEdgecontainerNodePoolEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandEdgecontainerNodePoolNodeLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -678,6 +719,17 @@ func expandEdgecontainerNodePoolNodeConfig(v interface{}, d tpgresource.Terrafor
 }
 
 func expandEdgecontainerNodePoolNodeConfigLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
+func expandEdgecontainerNodePoolEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

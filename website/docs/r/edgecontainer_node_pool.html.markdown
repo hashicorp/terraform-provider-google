@@ -58,6 +58,11 @@ resource "google_edgecontainer_node_pool" "default" {
   location = "us-central1"
   node_location = "us-central1-edge-example-edgesite"
   node_count = 3
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
 }
 
 data "google_project" "project" {}
@@ -196,6 +201,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   Labels associated with this resource.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `machine_filter` -
   (Optional)
@@ -253,6 +260,13 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `node_version` -
   The lowest release version among all worker nodes.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts
