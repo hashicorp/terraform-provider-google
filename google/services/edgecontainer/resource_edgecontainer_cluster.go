@@ -49,6 +49,7 @@ func ResourceEdgecontainerCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -334,11 +335,13 @@ Kubernetes default value will be used.`,
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Optional:    true,
-				Description: `User-defined labels for the edgecloud cluster.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `User-defined labels for the edgecloud cluster.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"maintenance_policy": {
 				Type:        schema.TypeList,
@@ -468,6 +471,12 @@ consists of istiod and istio-ingress.`,
 				Computed:    true,
 				Description: `The time the cluster was created, in RFC3339 text format.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"endpoint": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -554,6 +563,13 @@ if the cluster does not have any worker nodes.`,
 				Computed:    true,
 				Description: `Indicates the status of the cluster.`,
 			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -578,12 +594,6 @@ func resourceEdgecontainerClusterCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerClusterLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	fleetProp, err := expandEdgecontainerClusterFleet(d.Get("fleet"), d, config)
 	if err != nil {
 		return err
@@ -649,6 +659,12 @@ func resourceEdgecontainerClusterCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("release_channel"); !tpgresource.IsEmptyValue(reflect.ValueOf(releaseChannelProp)) && (ok || !reflect.DeepEqual(v, releaseChannelProp)) {
 		obj["releaseChannel"] = releaseChannelProp
+	}
+	labelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters?cluster_id={{name}}")
@@ -808,6 +824,12 @@ func resourceEdgecontainerClusterRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("release_channel", flattenEdgecontainerClusterReleaseChannel(res["releaseChannel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenEdgecontainerClusterTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenEdgecontainerClusterEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 
 	return nil
 }
@@ -828,12 +850,6 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerClusterLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	fleetProp, err := expandEdgecontainerClusterFleet(d.Get("fleet"), d, config)
 	if err != nil {
 		return err
@@ -893,6 +909,12 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("release_channel"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, releaseChannelProp)) {
 		obj["releaseChannel"] = releaseChannelProp
+	}
+	labelsProp, err := expandEdgecontainerClusterEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{name}}")
@@ -1062,7 +1084,18 @@ func flattenEdgecontainerClusterUpdateTime(v interface{}, d *schema.ResourceData
 }
 
 func flattenEdgecontainerClusterLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenEdgecontainerClusterFleet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1543,15 +1576,23 @@ func flattenEdgecontainerClusterReleaseChannel(v interface{}, d *schema.Resource
 	return v
 }
 
-func expandEdgecontainerClusterLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenEdgecontainerClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenEdgecontainerClusterEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandEdgecontainerClusterFleet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2057,4 +2098,15 @@ func expandEdgecontainerClusterTargetVersion(v interface{}, d tpgresource.Terraf
 
 func expandEdgecontainerClusterReleaseChannel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandEdgecontainerClusterEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

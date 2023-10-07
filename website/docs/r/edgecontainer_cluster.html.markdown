@@ -59,6 +59,11 @@ resource "google_edgecontainer_cluster" "default" {
   fleet {
     project = "projects/${data.google_project.project.number}"
   }
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
+  }
 }
 
 data "google_project" "project" {}
@@ -248,6 +253,8 @@ The following arguments are supported:
 * `labels` -
   (Optional)
   User-defined labels for the edgecloud cluster.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `default_max_pods_per_node` -
   (Optional)
@@ -472,6 +479,13 @@ In addition to the arguments listed above, the following computed attributes are
   All the maintenance events scheduled for the cluster, including the ones
   ongoing, planned for the future and done in the past (up to 90 days).
   Structure is [documented below](#nested_maintenance_events).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_maintenance_events"></a>The `maintenance_events` block contains:
