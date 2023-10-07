@@ -48,6 +48,7 @@ func ResourceEdgecontainerVpnConnection() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -78,12 +79,14 @@ func ResourceEdgecontainerVpnConnection() *schema.Resource {
 				Description: `Whether this VPN connection has HA enabled on cluster side. If enabled, when creating VPN connection we will attempt to use 2 ANG floating IPs.`,
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Labels associated with this resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Labels associated with this resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"nat_gateway_ip": {
 				Type:     schema.TypeString,
@@ -171,6 +174,20 @@ This is empty if NAT is not used.`,
 					},
 				},
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"update_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -195,12 +212,6 @@ func resourceEdgecontainerVpnConnectionCreate(d *schema.ResourceData, meta inter
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerVpnConnectionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	natGatewayIpProp, err := expandEdgecontainerVpnConnectionNatGatewayIp(d.Get("nat_gateway_ip"), d, config)
 	if err != nil {
 		return err
@@ -236,6 +247,12 @@ func resourceEdgecontainerVpnConnectionCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("router"); !tpgresource.IsEmptyValue(reflect.ValueOf(routerProp)) && (ok || !reflect.DeepEqual(v, routerProp)) {
 		obj["router"] = routerProp
+	}
+	labelsProp, err := expandEdgecontainerVpnConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections?vpnConnectionId={{name}}")
@@ -362,6 +379,12 @@ func resourceEdgecontainerVpnConnectionRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("details", flattenEdgecontainerVpnConnectionDetails(res["details"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnConnection: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenEdgecontainerVpnConnectionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnConnection: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenEdgecontainerVpnConnectionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnConnection: %s", err)
+	}
 
 	return nil
 }
@@ -382,12 +405,6 @@ func resourceEdgecontainerVpnConnectionUpdate(d *schema.ResourceData, meta inter
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgecontainerVpnConnectionLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	natGatewayIpProp, err := expandEdgecontainerVpnConnectionNatGatewayIp(d.Get("nat_gateway_ip"), d, config)
 	if err != nil {
 		return err
@@ -423,6 +440,12 @@ func resourceEdgecontainerVpnConnectionUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("router"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, routerProp)) {
 		obj["router"] = routerProp
+	}
+	labelsProp, err := expandEdgecontainerVpnConnectionEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}")
@@ -546,7 +569,18 @@ func flattenEdgecontainerVpnConnectionUpdateTime(v interface{}, d *schema.Resour
 }
 
 func flattenEdgecontainerVpnConnectionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenEdgecontainerVpnConnectionNatGatewayIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -647,15 +681,23 @@ func flattenEdgecontainerVpnConnectionDetailsCloudVpnsGateway(v interface{}, d *
 	return v
 }
 
-func expandEdgecontainerVpnConnectionLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenEdgecontainerVpnConnectionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenEdgecontainerVpnConnectionEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandEdgecontainerVpnConnectionNatGatewayIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -699,4 +741,15 @@ func expandEdgecontainerVpnConnectionEnableHighAvailability(v interface{}, d tpg
 
 func expandEdgecontainerVpnConnectionRouter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandEdgecontainerVpnConnectionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

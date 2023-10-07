@@ -49,7 +49,7 @@ func TestAccEdgecontainerCluster_edgecontainerClusterExample(t *testing.T) {
 				ResourceName:            "google_edgecontainer_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -74,6 +74,11 @@ resource "google_edgecontainer_cluster" "default" {
 
   fleet {
     project = "projects/${data.google_project.project.number}"
+  }
+
+  labels = {
+    my_key    = "my_val"
+    other_key = "other_val"
   }
 }
 
@@ -100,7 +105,7 @@ func TestAccEdgecontainerCluster_edgecontainerClusterWithMaintenanceWindowExampl
 				ResourceName:            "google_edgecontainer_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
 			},
 		},
 	})

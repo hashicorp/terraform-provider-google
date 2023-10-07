@@ -50,7 +50,7 @@ func TestAccEdgecontainerNodePool_edgecontainerLocalControlPlaneNodePoolInternal
 				ResourceName:            "google_edgecontainer_node_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "cluster"},
+				ImportStateVerifyIgnore: []string{"name", "location", "cluster", "labels", "terraform_labels"},
 			},
 		},
 	})
