@@ -870,6 +870,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_pubsub_subscription":                          pubsub.DataSourceGooglePubsubSubscription(),
 		"google_pubsub_topic":                                 pubsub.DataSourceGooglePubsubTopic(),
 		"google_secret_manager_secret":                        secretmanager.DataSourceSecretManagerSecret(),
+		"google_secret_manager_secrets":                       secretmanager.DataSourceSecretManagerSecrets(),
 		"google_secret_manager_secret_version":                secretmanager.DataSourceSecretManagerSecretVersion(),
 		"google_secret_manager_secret_version_access":         secretmanager.DataSourceSecretManagerSecretVersionAccess(),
 		"google_service_account":                              resourcemanager.DataSourceGoogleServiceAccount(),
