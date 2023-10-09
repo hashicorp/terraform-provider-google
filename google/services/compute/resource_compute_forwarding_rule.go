@@ -18,6 +18,7 @@
 package compute
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -31,6 +32,23 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+func forwardingRuleCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	log.Println("[DEBUG] [PSC] Reached forwardingRuleCustomizeDiff function")
+
+	// if target is not a string it's not set so no PSC connection
+	if target, ok := diff.Get("target").(string); ok {
+		if strings.Contains(target, "/serviceAttachments/") {
+			recreateClosedPsc, _ := diff.Get("recreate_closed_psc").(bool)
+			if pscConnectionStatus, ok := diff.Get("psc_connection_status").(string); ok && recreateClosedPsc && pscConnectionStatus == "CLOSED" {
+				// https://discuss.hashicorp.com/t/force-new-resource-based-on-api-read-difference/29759/6
+				diff.SetNewComputed("psc_connection_status")
+				diff.ForceNew("psc_connection_status")
+			}
+		}
+	}
+	return nil
+}
 
 func ResourceComputeForwardingRule() *schema.Resource {
 	return &schema.Resource{
@@ -50,6 +68,7 @@ func ResourceComputeForwardingRule() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
+			forwardingRuleCustomizeDiff,
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
@@ -486,6 +505,12 @@ This field is only used for INTERNAL load balancing.`,
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"recreate_closed_psc": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `This is used in PSC consumer ForwardingRule to make terraform recreate the ForwardingRule when the status is closed`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -807,6 +832,12 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeForwardingRule %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("recreate_closed_psc"); !ok {
+		if err := d.Set("recreate_closed_psc", false); err != nil {
+			return fmt.Errorf("Error setting recreate_closed_psc: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
@@ -1204,6 +1235,11 @@ func resourceComputeForwardingRuleImport(d *schema.ResourceData, meta interface{
 	}
 	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("recreate_closed_psc", false); err != nil {
+		return nil, fmt.Errorf("Error setting recreate_closed_psc: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
