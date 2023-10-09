@@ -997,9 +997,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 327
+// Generated resources: 328
 // Generated IAM resources: 207
-// Total generated resources: 534
+// Total generated resources: 535
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1327,6 +1327,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_filestore_backup":                                        filestore.ResourceFilestoreBackup(),
 			"google_filestore_instance":                                      filestore.ResourceFilestoreInstance(),
 			"google_filestore_snapshot":                                      filestore.ResourceFilestoreSnapshot(),
+			"google_firestore_backup_schedule":                               firestore.ResourceFirestoreBackupSchedule(),
 			"google_firestore_database":                                      firestore.ResourceFirestoreDatabase(),
 			"google_firestore_document":                                      firestore.ResourceFirestoreDocument(),
 			"google_firestore_field":                                         firestore.ResourceFirestoreField(),
