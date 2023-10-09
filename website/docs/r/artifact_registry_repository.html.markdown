@@ -193,7 +193,7 @@ resource "google_artifact_registry_repository" "my-repo" {
     yum_repository {
       public_repository {
         repository_base = "CENTOS"
-        repository_path = "8-stream/BaseOs/x86_64/os"
+        repository_path = "centos/8-stream/BaseOS/x86_64/os"
       }
     }
   }
@@ -543,7 +543,7 @@ The following arguments are supported:
 
 * `repository_path` -
   (Required)
-  Specific repository from the base, e.g. `"8-stream/BaseOs/x86_64/os"`
+  Specific repository from the base, e.g. `"centos/8-stream/BaseOS/x86_64/os"`
 
 ## Attributes Reference
 
