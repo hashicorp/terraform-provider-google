@@ -334,7 +334,7 @@ resource "google_artifact_registry_repository" "my-repo" {
     yum_repository {
       public_repository {
         repository_base = "CENTOS"
-        repository_path = "8-stream/BaseOs/x86_64/os"
+        repository_path = "centos/8-stream/BaseOS/x86_64/os"
       }
     }
   }
