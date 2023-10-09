@@ -1,0 +1,3 @@
+```release-note:bug
+Add new field `certificateManagerCertificates` in the resource `ComputeTargetHttpsProxy`
+```

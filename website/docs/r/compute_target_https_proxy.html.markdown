@@ -251,6 +251,61 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=target_https_proxy_certificate_manager_certificate&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Target Https Proxy Certificate Manager Certificate
+
+
+```hcl
+
+resource "google_compute_target_https_proxy" "default" {
+  name                             = "target-http-proxy"
+  url_map                          = google_compute_url_map.default.id
+  certificate_manager_certificates =  ["//certificatemanager.googleapis.com/${google_certificate_manager_certificate.default.id}"] # [google_certificate_manager_certificate.default.id] is also acceptable
+}
+
+resource "google_certificate_manager_certificate" "default" {
+  name              = "my-certificate"
+  scope             = "ALL_REGIONS"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")                                                                                                                
+  }
+}
+
+resource "google_compute_url_map" "default" {
+  name        = "url-map"
+  description = "a description"
+
+  default_service = google_compute_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_backend_service" "default" {
+  name        = "backend-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+```
 
 ## Argument Reference
 
@@ -289,9 +344,15 @@ The following arguments are supported:
   Default value is `NONE`.
   Possible values are: `NONE`, `ENABLE`, `DISABLE`.
 
+* `certificate_manager_certificates` -
+  (Optional)
+  A list of Certificate Manager certificate URLs that are used to authenticate
+  connections between users and the load balancer. At least one resource must be specified.
+  Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}` or just the self_link projects/{project}/locations/{location}/certificates/{resourceName}
+
 * `ssl_certificates` -
   (Optional)
-  A list of SslCertificate resource URLs or Certificate Manager certificate URLs that are used to authenticate
+  A list of SslCertificate resource URLs that are used to authenticate
   connections between users and the load balancer. At least one resource must be specified.
 
 * `certificate_map` -
