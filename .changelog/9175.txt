@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `SEV_LIVE_MIGRATABLE_V2` to `guest_os_features` enum on `google_compute_image` resource.
+```
