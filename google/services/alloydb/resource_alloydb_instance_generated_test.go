@@ -65,13 +65,6 @@ resource "google_alloydb_instance" "default" {
   machine_config {
     cpu_count = 2
   }
-  
-  client_connection_config {
-    require_connectors = false
-    ssl_config {
-      ssl_mode = "ENCRYPTED_ONLY"
-    }
-  }
 
   depends_on = [google_service_networking_connection.vpc_connection]
 }
