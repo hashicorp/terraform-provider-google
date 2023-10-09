@@ -1,13 +1,10 @@
 ## 5.1.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Add Edgecontainer api TF support ([#16055](https://github.com/hashicorp/terraform-provider-google/pull/16055))
-* Add testnolint build rule ([#16047](https://github.com/hashicorp/terraform-provider-google/pull/16047))
-BREAKING CHANGES:
-* container: newly created `google_container_cluster` resources now default to VPC-native instead of routes-based. ([#16050](https://github.com/hashicorp/terraform-provider-google/pull/16050))
-
 FEATURES:
 * **New Resource:** `google_database_migration_service_private_connection` ([#16104](https://github.com/hashicorp/terraform-provider-google/pull/16104))
+* **New Resource:** `google_edgecontainer_cluster` ([#16055](https://github.com/hashicorp/terraform-provider-google/pull/16055))
+* **New Resource:** `google_edgecontainer_node_pool` ([#16055](https://github.com/hashicorp/terraform-provider-google/pull/16055))
+* **New Resource:** `google_edgecontainer_vpn_connection` ([#16055](https://github.com/hashicorp/terraform-provider-google/pull/16055))
 * **New Resource:** `google_firebase_hosting_custom_domain` ([#16062](https://github.com/hashicorp/terraform-provider-google/pull/16062))
 * **New Resource:** `google_gke_hub_fleet` ([#16072](https://github.com/hashicorp/terraform-provider-google/pull/16072))
 
@@ -18,13 +15,13 @@ IMPROVEMENTS:
 * firestore: added `api_scope` field to `google_firestore_index` resource ([#16085](https://github.com/hashicorp/terraform-provider-google/pull/16085))
 * gkehub: added `location` field to `google_gke_hub_membership_iam_*` resources ([#16105](https://github.com/hashicorp/terraform-provider-google/pull/16105))
 * gkehub: added `location` field to `google_gke_hub_membership` resource ([#16105](https://github.com/hashicorp/terraform-provider-google/pull/16105))
-* gkeonprem: `vcenter` fields made mutable in `google_gkeonprem_vmware_cluster` ([#16073](https://github.com/hashicorp/terraform-provider-google/pull/16073))
+* gkeonprem: added update-in-place support for `vcenter` fields in `google_gkeonprem_vmware_cluster` ([#16073](https://github.com/hashicorp/terraform-provider-google/pull/16073))
 * identityplatform: added `sms_region_config` to the resource `google_identity_platform_config` ([#16044](https://github.com/hashicorp/terraform-provider-google/pull/16044))
 
 BUG FIXES:
 * dns: fixed record set configuration parsing in `google_dns_record_set` ([#16042](https://github.com/hashicorp/terraform-provider-google/pull/16042))
-* provider: Fixed an issue where the plugin-framework implementation of the provider handled default region values that were self-links differently to the SDK implementation. This issue is not believed to have affected users because of downstream functions that turn self links into region names. ([#16100](https://github.com/hashicorp/terraform-provider-google/pull/16100))
-* provider: fixed the bug that update request is sent to services when updateMask is empty ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
+* provider: fixed an issue where the plugin-framework implementation of the provider handled default region values that were self-links differently to the SDK implementation. This issue is not believed to have affected users because of downstream functions that turn self links into region names. ([#16100](https://github.com/hashicorp/terraform-provider-google/pull/16100))
+* provider: fixed a bug that caused update requests to be sent for resources with a terraform_labels field even if no fields were updated ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
 
 ## 5.0.0 (Oct 2, 2023)
 
