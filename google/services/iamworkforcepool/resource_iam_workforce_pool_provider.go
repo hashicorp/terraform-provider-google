@@ -239,6 +239,33 @@ However, existing tokens still grant access.`,
 								},
 							},
 						},
+						"jwks_json": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `OIDC JWKs in JSON String format. For details on definition of a
+JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
+use the 'jwks_uri' from the discovery document fetched from the
+.well-known path for the 'issuer_uri'. Currently, RSA and EC asymmetric
+keys are supported. The JWK must use following format and include only
+the following fields:
+'''
+{
+  "keys": [
+    {
+          "kty": "RSA/EC",
+          "alg": "<algorithm>",
+          "use": "sig",
+          "kid": "<key-id>",
+          "n": "",
+          "e": "",
+          "x": "",
+          "y": "",
+          "crv": ""
+    }
+  ]
+}
+'''`,
+						},
 						"web_sso_config": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -799,6 +826,8 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d *schema.R
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcClientSecret(original["clientSecret"], d, config)
 	transformed["web_sso_config"] =
 		flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfig(original["webSsoConfig"], d, config)
+	transformed["jwks_json"] =
+		flattenIAMWorkforcePoolWorkforcePoolProviderOidcJwksJson(original["jwksJson"], d, config)
 	return []interface{}{transformed}
 }
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcIssuerUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -866,6 +895,10 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaims
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderOidcJwksJson(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -954,6 +987,13 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidc(v interface{}, d tpgresourc
 		return nil, err
 	} else if val := reflect.ValueOf(transformedWebSsoConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["webSsoConfig"] = transformedWebSsoConfig
+	}
+
+	transformedJwksJson, err := expandIAMWorkforcePoolWorkforcePoolProviderOidcJwksJson(original["jwks_json"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJwksJson); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jwksJson"] = transformedJwksJson
 	}
 
 	return transformed, nil
@@ -1062,6 +1102,10 @@ func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAssertionClaimsB
 }
 
 func expandIAMWorkforcePoolWorkforcePoolProviderOidcWebSsoConfigAdditionalScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMWorkforcePoolWorkforcePoolProviderOidcJwksJson(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

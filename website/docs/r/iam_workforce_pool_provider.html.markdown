@@ -305,7 +305,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_web_sso_config).
 
 * `jwks_json` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   OIDC JWKs in JSON String format. For details on definition of a
   JWK, see https:tools.ietf.org/html/rfc7517. If not set, then we
   use the `jwks_uri` from the discovery document fetched from the
