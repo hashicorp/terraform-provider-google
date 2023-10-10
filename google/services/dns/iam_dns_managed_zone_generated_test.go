@@ -33,6 +33,7 @@ func TestAccDNSManagedZoneIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
+		"dns_name":      "mz.gcp.tfacc.hashicorptest.com.",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -68,6 +69,7 @@ func TestAccDNSManagedZoneIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
+		"dns_name":      "mz.gcp.tfacc.hashicorptest.com.",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -94,6 +96,7 @@ func TestAccDNSManagedZoneIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
+		"dns_name":      "mz.gcp.tfacc.hashicorptest.com.",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -164,7 +167,7 @@ resource "google_compute_firewall" "default" {
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
   name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
-  dns_name      = "googlecloudexample.net."
+  dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
 }
@@ -230,7 +233,7 @@ resource "google_compute_firewall" "default" {
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
   name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
-  dns_name      = "googlecloudexample.net."
+  dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
 }
@@ -310,7 +313,7 @@ resource "google_compute_firewall" "default" {
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
   name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
-  dns_name      = "googlecloudexample.net."
+  dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
 }
@@ -378,7 +381,7 @@ resource "google_compute_firewall" "default" {
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
   name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
-  dns_name      = "googlecloudexample.net."
+  dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
 }
@@ -444,7 +447,7 @@ resource "google_compute_firewall" "default" {
 # to create a DNS zone
 resource "google_dns_managed_zone" "default" {
   name          = "tf-test-example-zone-googlecloudexample%{random_suffix}"
-  dns_name      = "googlecloudexample.net."
+  dns_name      = "%{dns_name}"
   description   = "Example DNS zone"
   force_destroy = "true"
 }
