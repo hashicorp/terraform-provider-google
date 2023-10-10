@@ -1,0 +1,3 @@
+```release-note:none
+docs: updated the description of the `ssl_certificates` and `certificate_manager_certificates` fields in `google_compute_target_https_proxy`
+```
