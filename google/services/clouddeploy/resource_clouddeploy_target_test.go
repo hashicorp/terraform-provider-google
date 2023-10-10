@@ -26,8 +26,7 @@ func TestAccClouddeployTarget_withProviderDefaultLabels(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		// Comment it out temporarily to fix the build of EAP
-		// CheckDestroy:             testAccCheckClouddeployTargetDestroyProducer(t),
+		CheckDestroy:             testAccCheckClouddeployTargetDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccClouddeployTarget_withProviderDefaultLabels(context),
