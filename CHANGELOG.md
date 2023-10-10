@@ -23,7 +23,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * dns: fixed record set configuration parsing in `google_dns_record_set` ([#16042](https://github.com/hashicorp/terraform-provider-google/pull/16042))
 * provider: fixed an issue where the plugin-framework implementation of the provider handled default region values that were self-links differently to the SDK implementation. This issue is not believed to have affected users because of downstream functions that turn self links into region names. ([#16100](https://github.com/hashicorp/terraform-provider-google/pull/16100))
-* provider: fixed a bug that caused update requests to be sent for resources with a terraform_labels field even if no fields were updated ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
+* provider: fixed a bug that caused update requests to be sent for resources with a `terraform_labels` field even if no fields were updated ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
 
 ## 5.0.0 (Oct 2, 2023)
 
