@@ -997,9 +997,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 328
+// Generated resources: 329
 // Generated IAM resources: 207
-// Total generated resources: 535
+// Total generated resources: 536
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1469,6 +1469,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_pubsub_lite_reservation":                                 pubsublite.ResourcePubsubLiteReservation(),
 			"google_pubsub_lite_subscription":                                pubsublite.ResourcePubsubLiteSubscription(),
 			"google_pubsub_lite_topic":                                       pubsublite.ResourcePubsubLiteTopic(),
+			"google_redis_cluster":                                           redis.ResourceRedisCluster(),
 			"google_redis_instance":                                          redis.ResourceRedisInstance(),
 			"google_resource_manager_lien":                                   resourcemanager.ResourceResourceManagerLien(),
 			"google_secret_manager_secret":                                   secretmanager.ResourceSecretManagerSecret(),

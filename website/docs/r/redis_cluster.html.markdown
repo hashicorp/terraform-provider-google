@@ -21,12 +21,10 @@ description: |-
 
 A Google Cloud Redis Cluster instance.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Cluster, see:
 
-* [API documentation](https://cloud.google.com/memorystore/docs/cluster/reference/rest/v1beta1/projects.locations.clusters)
+* [API documentation](https://cloud.google.com/memorystore/docs/cluster/reference/rest/v1/projects.locations.clusters)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/memorystore/docs/cluster/)
 
@@ -40,7 +38,6 @@ To get more information about Cluster, see:
 
 ```hcl
 resource "google_redis_cluster" "cluster-ha" {
-  provider       = google-beta
   name           = "ha-cluster"
   shard_count    = 3
   psc_configs {
@@ -56,7 +53,6 @@ resource "google_redis_cluster" "cluster-ha" {
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
-  provider = google-beta
   name = "mypolicy"
   location = "us-central1"
   service_class = "gcp-memorystore-redis"
@@ -68,7 +64,6 @@ resource "google_network_connectivity_service_connection_policy" "default" {
 }
 
 resource "google_compute_subnetwork" "producer_subnet" {
-  provider      = google-beta
   name          = "mysubnet"
   ip_cidr_range = "10.0.0.248/29"
   region        = "us-central1"
@@ -76,7 +71,6 @@ resource "google_compute_subnetwork" "producer_subnet" {
 }
 
 resource "google_compute_network" "producer_net" {
-  provider                = google-beta
   name                    = "mynetwork"
   auto_create_subnetworks = false
 }
