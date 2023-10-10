@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataform: added `ssh_authentication_config` and `service_account` to `google_dataform_repository` resource
+```
