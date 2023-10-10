@@ -77,6 +77,58 @@ resource "google_dataform_repository" "dataform_respository" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dataform_repository_ssh&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataform Repository Ssh
+
+
+```hcl
+resource "google_sourcerepo_repository" "git_repository" {
+  provider = google-beta
+  name = "my/repository"
+}
+
+resource "google_secret_manager_secret" "secret" {
+  provider = google-beta
+  secret_id = "secret"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "secret_version" {
+  provider = google-beta
+  secret = google_secret_manager_secret.secret.id
+
+  secret_data = "secret-data"
+}
+
+resource "google_dataform_repository" "dataform_respository" {
+  provider = google-beta
+  name = "dataform_repository"
+
+  git_remote_settings {
+      url = google_sourcerepo_repository.git_repository.url
+      default_branch = "main"
+      ssh_authentication_config {
+        user_private_key_secret_version = google_secret_manager_secret_version.secret_version.id
+        host_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSU"
+      }
+  }
+
+  workspace_compilation_overrides {
+    default_database = "database"
+    schema_suffix = "_suffix"
+    table_prefix = "prefix_"
+  }
+
+  service_account = "1234567890-compute@developer.gserviceaccount.com"
+}
+```
 
 ## Argument Reference
 
@@ -98,8 +150,12 @@ The following arguments are supported:
 
 * `workspace_compilation_overrides` -
   (Optional)
-  Optional. If set, fields of workspaceCompilationOverrides override the default compilation settings that are specified in dataform.json when creating workspace-scoped compilation results.
+  If set, fields of workspaceCompilationOverrides override the default compilation settings that are specified in dataform.json when creating workspace-scoped compilation results.
   Structure is [documented below](#nested_workspace_compilation_overrides).
+
+* `service_account` -
+  (Optional)
+  The service account to run workflow invocations under.
 
 * `region` -
   (Optional)
@@ -120,26 +176,42 @@ The following arguments are supported:
   The Git remote's default branch name.
 
 * `authentication_token_secret_version` -
-  (Required)
-  The name of the Secret Manager secret version to use as an authentication token for Git operations. Must be in the format projects/*/secrets/*/versions/*.
+  (Optional)
+  The name of the Secret Manager secret version to use as an authentication token for Git operations. This secret is for assigning with HTTPS only(for SSH use `ssh_authentication_config`). Must be in the format projects/*/secrets/*/versions/*.
+
+* `ssh_authentication_config` -
+  (Optional)
+  Authentication fields for remote uris using SSH protocol.
+  Structure is [documented below](#nested_ssh_authentication_config).
 
 * `token_status` -
   (Output)
   Indicates the status of the Git access token. https://cloud.google.com/dataform/reference/rest/v1beta1/projects.locations.repositories#TokenStatus
 
+
+<a name="nested_ssh_authentication_config"></a>The `ssh_authentication_config` block supports:
+
+* `user_private_key_secret_version` -
+  (Required)
+  The name of the Secret Manager secret version to use as a ssh private key for Git operations. Must be in the format projects/*/secrets/*/versions/*.
+
+* `host_public_key` -
+  (Required)
+  Content of a public SSH key to verify an identity of a remote Git host.
+
 <a name="nested_workspace_compilation_overrides"></a>The `workspace_compilation_overrides` block supports:
 
 * `default_database` -
   (Optional)
-  Optional. The default database (Google Cloud project ID).
+  The default database (Google Cloud project ID).
 
 * `schema_suffix` -
   (Optional)
-  Optional. The suffix that should be appended to all schema (BigQuery dataset ID) names.
+  The suffix that should be appended to all schema (BigQuery dataset ID) names.
 
 * `table_prefix` -
   (Optional)
-  Optional. The prefix that should be prepended to all table names.
+  The prefix that should be prepended to all table names.
 
 ## Attributes Reference
 
