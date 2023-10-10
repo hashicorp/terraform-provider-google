@@ -346,14 +346,16 @@ The following arguments are supported:
 
 * `certificate_manager_certificates` -
   (Optional)
-  A list of Certificate Manager certificate URLs that are used to authenticate
-  connections between users and the load balancer. At least one resource must be specified.
-  Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}` or just the self_link projects/{project}/locations/{location}/certificates/{resourceName}
+  URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
+  Currently, you may specify up to 15 certificates. Certificate manager certificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
+  sslCertificates and certificateManagerCertificates fields can not be defined together.
+  Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}` or just the self_link `projects/{project}/locations/{location}/certificates/{resourceName}`
 
 * `ssl_certificates` -
   (Optional)
-  A list of SslCertificate resource URLs that are used to authenticate
-  connections between users and the load balancer. At least one resource must be specified.
+  URLs to SslCertificate resources that are used to authenticate connections between users and the load balancer.
+  Currently, you may specify up to 15 SSL certificates. sslCertificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
+  sslCertificates and certificateManagerCertificates can not be defined together.
 
 * `certificate_map` -
   (Optional)
