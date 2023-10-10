@@ -456,8 +456,22 @@ func TestAccBigQueryTable_WithViewAndSchema(t *testing.T) {
 		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccBigQueryTableWithViewAndSchema(datasetID, tableID, "table description"),
-				ExpectError: regexp.MustCompile("\"view\": conflicts with schema"),
+				Config: testAccBigQueryTableWithViewAndSchema(datasetID, tableID, "table description1"),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableWithViewAndSchema(datasetID, tableID, "table description2"),
+			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -590,51 +604,6 @@ func TestAccBigQueryTable_MaterializedView_NonIncremental_basic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"etag", "last_modified_time", "deletion_protection"},
-			},
-		},
-	})
-}
-
-func TestAccBigQueryTable_MaterializedView_WithSchema(t *testing.T) {
-	t.Parallel()
-	// Pending VCR support in https://github.com/hashicorp/terraform-provider-google/issues/15427.
-	acctest.SkipIfVcr(t)
-
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	materializedViewID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	query := fmt.Sprintf("SELECT some_int FROM `%s.%s`", datasetID, tableID)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccBigQueryTableWithMatViewAndSchema(datasetID, tableID, materializedViewID, query),
-				ExpectError: regexp.MustCompile("\"materialized_view\": conflicts with schema"),
-			},
-		},
-	})
-}
-
-func TestAccBigQueryTable_MaterializedView_WithView(t *testing.T) {
-	t.Parallel()
-	acctest.SkipIfVcr(t)
-
-	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	materializedViewID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
-	query := fmt.Sprintf("SELECT some_int FROM `%s.%s`", datasetID, tableID)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccBigQueryTableWithMatViewAndView(datasetID, tableID, materializedViewID, query),
-				ExpectError: regexp.MustCompile("\"materialized_view\": conflicts with view"),
 			},
 		},
 	})
@@ -2174,103 +2143,6 @@ resource "google_bigquery_table" "mv_test" {
   ]
 }
 `, datasetID, tableID, mViewID, enable_refresh, refresh_interval, query)
-}
-
-func testAccBigQueryTableWithMatViewAndSchema(datasetID, tableID, mViewID, query string) string {
-	return fmt.Sprintf(`
-resource "google_bigquery_dataset" "test" {
-  dataset_id = "%s"
-}
-
-resource "google_bigquery_table" "test" {
-  deletion_protection = false
-  table_id   = "%s"
-  dataset_id = google_bigquery_dataset.test.dataset_id
-
-  schema     = <<EOH
-[
-  {
-    "name": "some_int",
-    "type": "INTEGER"
-  }
-]
-EOH
-
-}
-
-resource "google_bigquery_table" "mv_test" {
-  deletion_protection = false
-  table_id   = "%s"
-  dataset_id = google_bigquery_dataset.test.dataset_id
-
-  materialized_view {
-    enable_refresh = true
-    refresh_interval_ms = 360000
-    query          = "%s"
-  }
-
-  schema     = <<EOH
-[
-  {
-    "description": "special new description with capital letter Z",
-    "name": "some_int",
-    "type": "INTEGER"
-  }
-]
-EOH
-
-  depends_on = [
-    google_bigquery_table.test,
-  ]
-}
-`, datasetID, tableID, mViewID, query)
-}
-
-func testAccBigQueryTableWithMatViewAndView(datasetID, tableID, mViewID, query string) string {
-	return fmt.Sprintf(`
-resource "google_bigquery_dataset" "test" {
-  dataset_id = "%s"
-}
-
-resource "google_bigquery_table" "test" {
-  deletion_protection = false
-  table_id   = "%s"
-  dataset_id = google_bigquery_dataset.test.dataset_id
-
-  schema     = <<EOH
-[
-  {
-    "name": "some_int",
-    "type": "INTEGER"
-  }
-]
-EOH
-
-}
-
-resource "google_bigquery_table" "mv_test" {
-  deletion_protection = false
-  table_id   = "%s"
-  dataset_id = google_bigquery_dataset.test.dataset_id
-
-  view {
-    query = <<SQL
-select "val1" as col1, "val2" as col2
-SQL
-    use_legacy_sql = false
-  }
-
-  materialized_view {
-    enable_refresh = true
-    refresh_interval_ms = 360000
-    query          = "%s"
-  }
-
-  depends_on = [
-    google_bigquery_table.test,
-  ]
-}
-`, datasetID, tableID, mViewID, query)
 }
 
 func testAccBigQueryTableWithMatViewNonIncremental_basic(datasetID, tableID, mViewID, query, maxStaleness string) string {

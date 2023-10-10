@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: removed mutual exclusivity checks for view, materialized view, and schema for the Table resource.
+```
