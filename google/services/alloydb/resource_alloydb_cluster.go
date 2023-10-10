@@ -44,9 +44,9 @@ func ResourceAlloydbCluster() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -215,6 +215,14 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 						},
 					},
 				},
+			},
+			"cluster_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PRIMARY", "SECONDARY", ""}),
+				Description:  `The type of cluster. If not set, defaults to PRIMARY. Default value: "PRIMARY" Possible values: ["PRIMARY", "SECONDARY"]`,
+				Default:      "PRIMARY",
 			},
 			"continuous_backup_config": {
 				Type:     schema.TypeList,
@@ -391,6 +399,23 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 					},
 				},
 				ConflictsWith: []string{"restore_backup_source"},
+			},
+			"secondary_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configuration of the secondary cluster for Cross Region Replication. This should be set if and only if the cluster is of type SECONDARY.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"primary_cluster_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Name of the primary cluster must be in the format
+'projects/{project}/locations/{location}/clusters/{cluster_id}'`,
+						},
+					},
+				},
 			},
 			"backup_source": {
 				Type:        schema.TypeList,
@@ -626,6 +651,18 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("automated_backup_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(automatedBackupPolicyProp)) && (ok || !reflect.DeepEqual(v, automatedBackupPolicyProp)) {
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
+	clusterTypeProp, err := expandAlloydbClusterClusterType(d.Get("cluster_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cluster_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(clusterTypeProp)) && (ok || !reflect.DeepEqual(v, clusterTypeProp)) {
+		obj["clusterType"] = clusterTypeProp
+	}
+	secondaryConfigProp, err := expandAlloydbClusterSecondaryConfig(d.Get("secondary_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(secondaryConfigProp)) && (ok || !reflect.DeepEqual(v, secondaryConfigProp)) {
+		obj["secondaryConfig"] = secondaryConfigProp
+	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -690,6 +727,37 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 		restoreClusterRequestBody["cluster"] = cluster
 		obj = restoreClusterRequestBody
+	}
+
+	// Read the secondary cluster config to call the api for creating secondary cluster
+
+	var secondaryConfig interface{}
+	var clusterType interface{}
+
+	if val, ok := obj["secondaryConfig"]; ok {
+		secondaryConfig = val
+	}
+
+	if val, ok := obj["clusterType"]; ok {
+		clusterType = val
+	}
+
+	if clusterType == "SECONDARY" {
+		if secondaryConfig != nil {
+			// Use createsecondary API if this is a secondary cluster
+			url = strings.Replace(url, "clusters?clusterId", "clusters:createsecondary?cluster_id", 1)
+
+			// Validation error if secondary_config is not defined
+		} else {
+			return fmt.Errorf("Error creating cluster. Can not create secondary cluster without secondary_config field.")
+		}
+	}
+
+	// Validation error if secondary_config is defined but, cluster type is not secondary
+	if secondaryConfig != nil {
+		if clusterType != "SECONDARY" {
+			return fmt.Errorf("Error creating cluster. Add {cluster_type: \"SECONDARY\"} if attempting to create a secondary cluster, otherwise remove the secondary_config.")
+		}
 	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -820,6 +888,12 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("migration_source", flattenAlloydbClusterMigrationSource(res["migrationSource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("cluster_type", flattenAlloydbClusterClusterType(res["clusterType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("secondary_config", flattenAlloydbClusterSecondaryConfig(res["secondaryConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -897,6 +971,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("automated_backup_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupPolicyProp)) {
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
+	secondaryConfigProp, err := expandAlloydbClusterSecondaryConfig(d.Get("secondary_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("secondary_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryConfigProp)) {
+		obj["secondaryConfig"] = secondaryConfigProp
+	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -948,6 +1028,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("automated_backup_policy") {
 		updateMask = append(updateMask, "automatedBackupPolicy")
+	}
+
+	if d.HasChange("secondary_config") {
+		updateMask = append(updateMask, "secondaryConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1569,6 +1653,27 @@ func flattenAlloydbClusterMigrationSourceSourceType(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenAlloydbClusterClusterType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterSecondaryConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["primary_cluster_name"] =
+		flattenAlloydbClusterSecondaryConfigPrimaryClusterName(original["primaryClusterName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterSecondaryConfigPrimaryClusterName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAlloydbClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2062,6 +2167,33 @@ func expandAlloydbClusterAutomatedBackupPolicyQuantityBasedRetentionCount(v inte
 }
 
 func expandAlloydbClusterAutomatedBackupPolicyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterClusterType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterSecondaryConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPrimaryClusterName, err := expandAlloydbClusterSecondaryConfigPrimaryClusterName(original["primary_cluster_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrimaryClusterName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["primaryClusterName"] = transformedPrimaryClusterName
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterSecondaryConfigPrimaryClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

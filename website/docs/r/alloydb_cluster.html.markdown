@@ -187,6 +187,70 @@ resource "google_service_networking_connection" "vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=alloydb_secondary_cluster_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Alloydb Secondary Cluster Basic
+
+
+```hcl
+resource "google_alloydb_cluster" "primary" {
+  cluster_id = "alloydb-primary-cluster"
+  location   = "us-central1"
+  network    = google_compute_network.default.id
+}
+
+resource "google_alloydb_instance" "primary" {
+  cluster       = google_alloydb_cluster.primary.name
+  instance_id   = "alloydb-primary-instance"
+  instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_alloydb_cluster" "secondary" {
+  cluster_id   = "alloydb-secondary-cluster"
+  location     = "us-east1"
+  network      = google_compute_network.default.id
+  cluster_type = "SECONDARY"
+
+  continuous_backup_config {
+    enabled = false
+  }
+
+  secondary_config {
+    primary_cluster_name = google_alloydb_cluster.primary.name
+  }
+
+  depends_on = [google_alloydb_instance.primary]
+}
+
+data "google_project" "project" {}
+
+resource "google_compute_network" "default" {
+  name = "alloydb-secondary-cluster"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "alloydb-secondary-cluster"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+```
 
 ## Argument Reference
 
@@ -269,6 +333,17 @@ The following arguments are supported:
   (Optional)
   The automated backup policy for this cluster. AutomatedBackupPolicy is disabled by default.
   Structure is [documented below](#nested_automated_backup_policy).
+
+* `cluster_type` -
+  (Optional)
+  The type of cluster. If not set, defaults to PRIMARY.
+  Default value is `PRIMARY`.
+  Possible values are: `PRIMARY`, `SECONDARY`.
+
+* `secondary_config` -
+  (Optional)
+  Configuration of the secondary cluster for Cross Region Replication. This should be set if and only if the cluster is of type SECONDARY.
+  Structure is [documented below](#nested_secondary_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -433,6 +508,13 @@ The following arguments are supported:
   (Optional)
   The number of backups to retain.
 
+<a name="nested_secondary_config"></a>The `secondary_config` block supports:
+
+* `primary_cluster_name` -
+  (Required)
+  Name of the primary cluster must be in the format
+  'projects/{project}/locations/{location}/clusters/{cluster_id}'
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -548,9 +630,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 10 minutes.
-- `update` - Default is 10 minutes.
-- `delete` - Default is 10 minutes.
+- `create` - Default is 30 minutes.
+- `update` - Default is 30 minutes.
+- `delete` - Default is 30 minutes.
 
 ## Import
 
