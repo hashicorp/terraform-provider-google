@@ -948,7 +948,7 @@ The `workloads_config` block supports:
   Configuration for resources used by Airflow schedulers.
 
 * `triggerer` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Configuration for resources used by Airflow triggerer.
 
 * `web_server` -

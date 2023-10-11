@@ -558,6 +558,44 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
+	// TODO: This test was seemingly working, but then started to re-run on every gcbrun https://github.com/hashicorp/terraform-provider-google/issues/14160
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
+	subnetwork := network + "-1"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_composerV2(envName, network, subnetwork),
+			},
+			{
+				Config: testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_composerV2WithDisabledTriggerer(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 func TestAccComposerEnvironment_UpdateComposerV2(t *testing.T) {
 	t.Parallel()
 
@@ -1628,7 +1666,12 @@ resource "google_composer_environment" "test" {
           min_count   = 2
           max_count   = 5
         }
-				      }
+		triggerer {
+		  cpu         = 0.5
+		  memory_gb   = 2.0
+		  count   		= 1
+		}
+      }
       environment_size = "ENVIRONMENT_SIZE_MEDIUM"
       private_environment_config {
         enable_private_endpoint                 = true
@@ -2001,7 +2044,12 @@ resource "google_composer_environment" "test" {
           min_count   = 3
           max_count   = 6
         }
-				      }
+		triggerer {
+		  cpu         = 0.75
+		  memory_gb   = 2
+		  count   	  = 1
+		}
+      }
       environment_size = "ENVIRONMENT_SIZE_LARGE"
       private_environment_config {
         enable_private_endpoint                 = true
