@@ -21,8 +21,6 @@ description: |-
 
 Custom constraints are created by administrators to provide more granular and customizable control over the specific fields that are restricted by your organization policies.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about CustomConstraint, see:
 
@@ -36,7 +34,6 @@ To get more information about CustomConstraint, see:
 
 ```hcl
 resource "google_org_policy_custom_constraint" "constraint" {
-  provider = google-beta
 
   name         = "custom.disableGkeAutoUpgrade"
   parent       = "organizations/123456789"
@@ -52,7 +49,6 @@ resource "google_org_policy_custom_constraint" "constraint" {
 
 ```hcl
 resource "google_org_policy_custom_constraint" "constraint" {
-  provider = google-beta
 
   name         = "custom.disableGkeAutoUpgrade"
   parent       = "organizations/123456789"
@@ -66,7 +62,6 @@ resource "google_org_policy_custom_constraint" "constraint" {
 }
 
 resource "google_org_policy_policy" "bool" {
-  provider = google-beta
 
   name   = "organizations/123456789/policies/${google_org_policy_custom_constraint.constraint.name}"
   parent = "organizations/123456789"
