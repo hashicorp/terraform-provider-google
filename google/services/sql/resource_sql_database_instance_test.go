@@ -1520,13 +1520,17 @@ func TestAccSqlDatabaseInstance_Edition(t *testing.T) {
 	enterprisePlusTier := "db-perf-optimized-N-2"
 	enterpriseName := "tf-test-enterprise-" + acctest.RandString(t, 10)
 	enterpriseTier := "db-custom-2-13312"
+	noEditionName := "tf-test-enterprise-noedition-" + acctest.RandString(t, 10)
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testGoogleSqlDatabaseInstance_EditionConfig(enterprisePlusName, enterprisePlusTier, "ENTERPRISE_PLUS"),
+				Config: testGoogleSqlDatabaseInstance_EditionConfig_noEdition(noEditionName, enterpriseTier),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE"),
+				),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -1534,8 +1538,25 @@ func TestAccSqlDatabaseInstance_Edition(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
+			// Delete and recreate (ForceNew) triggered by passing in a new `name` value
+			{
+				Config: testGoogleSqlDatabaseInstance_EditionConfig(enterprisePlusName, enterprisePlusTier, "ENTERPRISE_PLUS"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE_PLUS"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			// Delete and recreate (ForceNew) triggered by passing in a new `name` value
 			{
 				Config: testGoogleSqlDatabaseInstance_EditionConfig(enterpriseName, enterpriseTier, "ENTERPRISE"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "settings.0.edition", "ENTERPRISE"),
+				),
 			},
 			{
 				ResourceName:            "google_sql_database_instance.instance",
@@ -2239,6 +2260,20 @@ resource "google_sql_database_instance" "instance" {
     }
   }
 }`, databaseName, endDate, startDate, time)
+}
+
+func testGoogleSqlDatabaseInstance_EditionConfig_noEdition(databaseName, tier string) string {
+	return fmt.Sprintf(`
+
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-east1"
+  database_version    = "POSTGRES_14"
+  deletion_protection = false
+  settings {
+    tier = "%s"
+  }
+}`, databaseName, tier)
 }
 
 func testGoogleSqlDatabaseInstance_EditionConfig(databaseName, tier, edition string) string {
