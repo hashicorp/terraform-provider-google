@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed issue where empty `autoscaling` block would crash the provider for `google_container_node_pool`
+```
