@@ -1566,6 +1566,7 @@ resource "google_container_node_pool" "np" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
+	autoscaling {}
 
   node_config {
     machine_type = "c2-standard-4"
@@ -3214,10 +3215,10 @@ resource "google_container_node_pool" "regular_pool" {
 	location           = "us-central2-b"
 	cluster            = google_container_cluster.cluster.name
 	initial_node_count = 1
-  
+
 	node_config {
 	  machine_type = "n1-standard-4"
-  
+
 	}
   }
 
