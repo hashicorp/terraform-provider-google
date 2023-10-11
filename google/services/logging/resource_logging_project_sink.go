@@ -43,6 +43,11 @@ func ResourceLoggingProjectSink() *schema.Resource {
 		Default:     true,
 		Description: `Whether or not to create a unique identity associated with this sink. If false (the legacy behavior), then the writer_identity used is serviceAccount:cloud-logs@system.gserviceaccount.com. If true, then a unique service account is created and used for this sink. If you wish to publish logs across projects, you must set unique_writer_identity to true.`,
 	}
+	schm.Schema["custom_writer_identity"] = &schema.Schema{
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: `A service account provided by the caller that will be used to write the log entries. The format must be serviceAccount:some@email. This field can only be specified if you are routing logs to a destination outside this sink's project. If not specified, a Logging service account will automatically be generated.`,
+	}
 	return schm
 }
 
@@ -60,8 +65,20 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 
 	id, sink := expandResourceLoggingSink(d, "projects", project)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
+	customWriterIdentity := d.Get("custom_writer_identity").(string)
 
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+	projectSinkCreateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink)
+
+	// if custom-sa is specified, use it to write log and it requires uniqueWriterIdentity to be set as well
+	// otherwise set the uniqueWriter identity
+	if customWriterIdentity != "" {
+		projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity).CustomWriterIdentity(customWriterIdentity)
+	} else {
+		projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity)
+	}
+
+	_, err = projectSinkCreateRequest.Do()
+
 	if err != nil {
 		return err
 	}
@@ -138,9 +155,20 @@ func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) 
 
 	sink, updateMask := expandResourceLoggingSinkForUpdate(d)
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
+	customWriterIdentity := d.Get("custom_writer_identity").(string)
 
-	_, err = config.NewLoggingClient(userAgent).Projects.Sinks.Patch(d.Id(), sink).
-		UpdateMask(updateMask).UniqueWriterIdentity(uniqueWriterIdentity).Do()
+	projectSinkUpdateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Patch(d.Id(), sink).UpdateMask(updateMask)
+
+	// if custom-sa is specified, use it to write log and it reqiures uniqueWriterIdentity to be set as well
+	// otherwise set the uniqueWriter identity
+	if customWriterIdentity != "" {
+		projectSinkUpdateRequest = projectSinkUpdateRequest.UniqueWriterIdentity(uniqueWriterIdentity).CustomWriterIdentity(customWriterIdentity)
+	} else {
+		projectSinkUpdateRequest = projectSinkUpdateRequest.UniqueWriterIdentity(uniqueWriterIdentity)
+	}
+
+	_, err = projectSinkUpdateRequest.Do()
+
 	if err != nil {
 		return err
 	}

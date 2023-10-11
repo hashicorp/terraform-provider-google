@@ -18,7 +18,7 @@ Manages a project-level logging sink. For more information see:
 
 ~> **Note** You must [enable the Cloud Resource Manager API](https://console.cloud.google.com/apis/library/cloudresourcemanager.googleapis.com)
 
-## Example Usage
+## Example Usage - Basic Sink
 
 ```hcl
 resource "google_logging_project_sink" "my-sink" {
@@ -34,6 +34,8 @@ resource "google_logging_project_sink" "my-sink" {
   unique_writer_identity = true
 }
 ```
+
+## Example Usage - Cloud Storage Bucket Destination
 
 A more complete example follows: this creates a compute instance, as well as a log sink that logs all activity to a
 cloud storage bucket. Because we are using `unique_writer_identity`, we must grant it access to the bucket.
@@ -88,6 +90,50 @@ resource "google_project_iam_binding" "gcs-bucket-writer" {
   ]
 }
 ```
+
+## Example Usage - User-managed Service Account 
+
+The following example creates a sink that are configured with user-managed service accounts, by specifying
+the `custom_writer_identity` field.
+
+Note that you can only create a sink that uses a user-managed service account when the sink destination
+is a log bucket.
+
+```hcl
+resource "google_service_account" "custom-sa" {
+  project      = "other-project-id"
+  account_id   = "gce-log-bucket-sink"
+  display_name = "gce-log-bucket-sink"
+}
+
+# Create a sink that uses user-managed service account
+resource "google_logging_project_sink" "my-sink" {
+  name = "other-project-log-bucket-sink"
+
+  # Can export to log bucket in another project
+  destination = "logging.googleapis.com/projects/other-project-id/locations/global/buckets/gce-logs"
+
+  # Log all WARN or higher severity messages relating to instances
+  filter = "resource.type = gce_instance AND severity >= WARNING"
+
+  unique_writer_identity = true
+  
+  # Use a user-managed service account
+  custom_writer_identity = google_service_account.custom-sa.email
+}
+
+# grant writer access to the user-managed service account
+resource "google_project_iam_member" "custom-sa-logbucket-binding" {
+  project = "destination-project-id"
+  role   = "roles/logging.bucketWriter"
+  member = "serviceAccount:${google_service_account.custom-sa.email}"
+}
+```
+
+The above example will create a log sink that route logs to destination GCP project using
+an user-managed service account. 
+
+## Example Usage - Sink Exclusions
 
 The following example uses `exclusions` to filter logs that will not be exported. In this example logs are exported to a [log bucket](https://cloud.google.com/logging/docs/buckets) and there are 2 exclusions configured
 
@@ -146,6 +192,11 @@ The following arguments are supported:
     (the default), then the `writer_identity` used is `serviceAccount:cloud-logs@system.gserviceaccount.com`. If `true`,
     then a unique service account is created and used for this sink. If you wish to publish logs across projects or utilize
     `bigquery_options`, you must set `unique_writer_identity` to true.
+
+* `custom_writer_identity` - (Optional) A user managed service account that will be used to write
+    the log entries. The format must be `serviceAccount:some@email`. This field can only be specified if you are
+    routing logs to a destination outside this sink's project. If not specified, a Logging service account 
+    will automatically be generated.
 
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure [documented below](#nested_bigquery_options).
 
