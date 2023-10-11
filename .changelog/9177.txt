@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflowcx: Fixed updating `google_dialogflow_cx_version`; updates will no longer time out.
+```
