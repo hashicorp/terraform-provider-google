@@ -125,6 +125,7 @@ type FrameworkProviderConfig struct {
 	NetworkSecurityBasePath          string
 	NetworkServicesBasePath          string
 	NotebooksBasePath                string
+	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
@@ -262,6 +263,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.NetworkSecurityBasePath = data.NetworkSecurityCustomEndpoint.ValueString()
 	p.NetworkServicesBasePath = data.NetworkServicesCustomEndpoint.ValueString()
 	p.NotebooksBasePath = data.NotebooksCustomEndpoint.ValueString()
+	p.OrgPolicyBasePath = data.OrgPolicyCustomEndpoint.ValueString()
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
 	p.PrivatecaBasePath = data.PrivatecaCustomEndpoint.ValueString()
@@ -1008,6 +1010,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.NotebooksBasePathKey])
 		if customEndpoint != nil {
 			data.NotebooksCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.OrgPolicyCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.OrgPolicyBasePathKey])
+		if customEndpoint != nil {
+			data.OrgPolicyCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.OSConfigCustomEndpoint.IsNull() {

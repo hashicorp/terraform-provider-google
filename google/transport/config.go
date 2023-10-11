@@ -258,6 +258,7 @@ type Config struct {
 	NetworkSecurityBasePath          string
 	NetworkServicesBasePath          string
 	NotebooksBasePath                string
+	OrgPolicyBasePath                string
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
@@ -377,6 +378,7 @@ const NetworkManagementBasePathKey = "NetworkManagement"
 const NetworkSecurityBasePathKey = "NetworkSecurity"
 const NetworkServicesBasePathKey = "NetworkServices"
 const NotebooksBasePathKey = "Notebooks"
+const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
 const PrivatecaBasePathKey = "Privateca"
@@ -490,6 +492,7 @@ var DefaultBasePaths = map[string]string{
 	NetworkSecurityBasePathKey:          "https://networksecurity.googleapis.com/v1/",
 	NetworkServicesBasePathKey:          "https://networkservices.googleapis.com/v1/",
 	NotebooksBasePathKey:                "https://notebooks.googleapis.com/v1/",
+	OrgPolicyBasePathKey:                "https://orgpolicy.googleapis.com/v2/",
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
@@ -965,6 +968,11 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 		d.Set("notebooks_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_NOTEBOOKS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[NotebooksBasePathKey]))
+	}
+	if d.Get("org_policy_custom_endpoint") == "" {
+		d.Set("org_policy_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[OrgPolicyBasePathKey]))
 	}
 	if d.Get("os_config_custom_endpoint") == "" {
 		d.Set("os_config_custom_endpoint", MultiEnvDefault([]string{
@@ -1996,6 +2004,7 @@ func ConfigureBasePaths(c *Config) {
 	c.NetworkSecurityBasePath = DefaultBasePaths[NetworkSecurityBasePathKey]
 	c.NetworkServicesBasePath = DefaultBasePaths[NetworkServicesBasePathKey]
 	c.NotebooksBasePath = DefaultBasePaths[NotebooksBasePathKey]
+	c.OrgPolicyBasePath = DefaultBasePaths[OrgPolicyBasePathKey]
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]

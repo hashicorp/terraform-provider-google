@@ -87,6 +87,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	"github.com/hashicorp/terraform-provider-google/google/services/notebooks"
+	"github.com/hashicorp/terraform-provider-google/google/services/orgpolicy"
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	"github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
@@ -609,6 +610,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"org_policy_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"os_config_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -997,9 +1003,9 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		})
 }
 
-// Generated resources: 331
+// Generated resources: 332
 // Generated IAM resources: 207
-// Total generated resources: 538
+// Total generated resources: 539
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1450,6 +1456,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_notebooks_runtime_iam_binding":                           tpgiamresource.ResourceIamBinding(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
 			"google_notebooks_runtime_iam_member":                            tpgiamresource.ResourceIamMember(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
 			"google_notebooks_runtime_iam_policy":                            tpgiamresource.ResourceIamPolicy(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
+			"google_org_policy_custom_constraint":                            orgpolicy.ResourceOrgPolicyCustomConstraint(),
 			"google_os_config_patch_deployment":                              osconfig.ResourceOSConfigPatchDeployment(),
 			"google_os_login_ssh_public_key":                                 oslogin.ResourceOSLoginSSHPublicKey(),
 			"google_privateca_ca_pool":                                       privateca.ResourcePrivatecaCaPool(),
@@ -1851,6 +1858,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.NetworkSecurityBasePath = d.Get("network_security_custom_endpoint").(string)
 	config.NetworkServicesBasePath = d.Get("network_services_custom_endpoint").(string)
 	config.NotebooksBasePath = d.Get("notebooks_custom_endpoint").(string)
+	config.OrgPolicyBasePath = d.Get("org_policy_custom_endpoint").(string)
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
