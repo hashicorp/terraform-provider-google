@@ -450,10 +450,6 @@ The provider will now enforce at plan time that `routine_type` be set.
 
 ## Resource: `google_bigquery_table`
 
-### At most one of `view`, `materialized_view`, and `schema` can be set.
-
-The provider will now enforce at plan time that at most one of these fields be set.
-
 ### `schema` can only be represented as a JSON array with non-null elements.
 
 The provider will now enforce at plan time that `schema` is a valid JSON array with non-null elements.
