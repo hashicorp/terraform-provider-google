@@ -152,11 +152,6 @@ The following arguments are supported:
   Configurations for the machines that host the underlying database engine.
   Structure is [documented below](#nested_machine_config).
 
-* `client_connection_config` -
-  (Optional)
-  Client connection specific configurations.
-  Structure is [documented below](#nested_client_connection_config).
-
 
 <a name="nested_query_insights_config"></a>The `query_insights_config` block supports:
 
@@ -187,25 +182,6 @@ The following arguments are supported:
 * `cpu_count` -
   (Optional)
   The number of CPU's in the VM instance.
-
-<a name="nested_client_connection_config"></a>The `client_connection_config` block supports:
-
-* `require_connectors` -
-  (Optional)
-  Configuration to enforce connectors only (ex: AuthProxy) connections to the database.
-
-* `ssl_config` -
-  (Optional)
-  SSL config option for this instance.
-  Structure is [documented below](#nested_ssl_config).
-
-
-<a name="nested_ssl_config"></a>The `ssl_config` block supports:
-
-* `ssl_mode` -
-  (Optional)
-  SSL mode. Specifies client-server SSL/TLS connection behavior.
-  Possible values are: `ENCRYPTED_ONLY`, `ALLOW_UNENCRYPTED_AND_ENCRYPTED`.
 
 ## Attributes Reference
 
