@@ -1,0 +1,3 @@
+```release-note:bug
+sql: removed host validation to support IP address and DNS address in host in `google_sql_source_representation_instance` resource
+```

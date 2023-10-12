@@ -89,7 +89,7 @@ The following arguments are supported:
 
 * `host` -
   (Required)
-  The externally accessible IPv4 address for the source database server.
+  The IPv4 address and port for the external server, or the the DNS address for the external server. If the external server is hosted on Cloud SQL, the port is 5432.
 
 
 - - -
