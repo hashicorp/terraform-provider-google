@@ -824,6 +824,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_compute_instance_template":                    compute.DataSourceGoogleComputeInstanceTemplate(),
 		"google_compute_lb_ip_ranges":                         compute.DataSourceGoogleComputeLbIpRanges(),
 		"google_compute_network":                              compute.DataSourceGoogleComputeNetwork(),
+		"google_compute_networks":                             compute.DataSourceGoogleComputeNetworks(),
 		"google_compute_network_endpoint_group":               compute.DataSourceGoogleComputeNetworkEndpointGroup(),
 		"google_compute_network_peering":                      compute.DataSourceComputeNetworkPeering(),
 		"google_compute_node_types":                           compute.DataSourceGoogleComputeNodeTypes(),
