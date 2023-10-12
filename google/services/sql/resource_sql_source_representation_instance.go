@@ -70,11 +70,10 @@ func ResourceSQLSourceRepresentationInstance() *schema.Resource {
 				Description: `The name of the source representation instance. Use any valid Cloud SQL instance name.`,
 			},
 			"host": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateIpAddress,
-				Description:  `The externally accessible IPv4 address for the source database server.`,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The IPv4 address and port for the external server, or the the DNS address for the external server. If the external server is hosted on Cloud SQL, the port is 5432.`,
 			},
 			"ca_certificate": {
 				Type:        schema.TypeString,
