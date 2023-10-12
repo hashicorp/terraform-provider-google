@@ -97,6 +97,40 @@ Zone is automatically chosen from the list of zones in the region specified.
 Read pool of size 1 can only have zonal availability. Read pools with node count of 2 or more
 can have regional availability (nodes are present in 2 or more zones in a region).' Possible values: ["AVAILABILITY_TYPE_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
 			},
+			"client_connection_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Client connection specific configurations.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"require_connectors": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Configuration to enforce connectors only (ex: AuthProxy) connections to the database.`,
+						},
+						"ssl_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Optional:    true,
+							Description: `SSL config option for this instance.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ssl_mode": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ENCRYPTED_ONLY", "ALLOW_UNENCRYPTED_AND_ENCRYPTED", ""}),
+										Description:  `SSL mode. Specifies client-server SSL/TLS connection behavior. Possible values: ["ENCRYPTED_ONLY", "ALLOW_UNENCRYPTED_AND_ENCRYPTED"]`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"database_flags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -301,6 +335,12 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("machine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(machineConfigProp)) && (ok || !reflect.DeepEqual(v, machineConfigProp)) {
 		obj["machineConfig"] = machineConfigProp
 	}
+	clientConnectionConfigProp, err := expandAlloydbInstanceClientConnectionConfig(d.Get("client_connection_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_connection_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientConnectionConfigProp)) && (ok || !reflect.DeepEqual(v, clientConnectionConfigProp)) {
+		obj["clientConnectionConfig"] = clientConnectionConfigProp
+	}
 	labelsProp, err := expandAlloydbInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -440,6 +480,9 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("machine_config", flattenAlloydbInstanceMachineConfig(res["machineConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("client_connection_config", flattenAlloydbInstanceClientConnectionConfig(res["clientConnectionConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenAlloydbInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -506,6 +549,12 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("machine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, machineConfigProp)) {
 		obj["machineConfig"] = machineConfigProp
 	}
+	clientConnectionConfigProp, err := expandAlloydbInstanceClientConnectionConfig(d.Get("client_connection_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_connection_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientConnectionConfigProp)) {
+		obj["clientConnectionConfig"] = clientConnectionConfigProp
+	}
 	labelsProp, err := expandAlloydbInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -553,6 +602,10 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("machine_config") {
 		updateMask = append(updateMask, "machineConfig")
+	}
+
+	if d.HasChange("client_connection_config") {
+		updateMask = append(updateMask, "clientConnectionConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -867,6 +920,42 @@ func flattenAlloydbInstanceMachineConfigCpuCount(v interface{}, d *schema.Resour
 	return v // let terraform core handle it otherwise
 }
 
+func flattenAlloydbInstanceClientConnectionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["require_connectors"] =
+		flattenAlloydbInstanceClientConnectionConfigRequireConnectors(original["requireConnectors"], d, config)
+	transformed["ssl_config"] =
+		flattenAlloydbInstanceClientConnectionConfigSslConfig(original["sslConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbInstanceClientConnectionConfigRequireConnectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbInstanceClientConnectionConfigSslConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ssl_mode"] =
+		flattenAlloydbInstanceClientConnectionConfigSslConfigSslMode(original["sslMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbInstanceClientConnectionConfigSslConfigSslMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAlloydbInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1016,6 +1105,59 @@ func expandAlloydbInstanceMachineConfig(v interface{}, d tpgresource.TerraformRe
 }
 
 func expandAlloydbInstanceMachineConfigCpuCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceClientConnectionConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRequireConnectors, err := expandAlloydbInstanceClientConnectionConfigRequireConnectors(original["require_connectors"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequireConnectors); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requireConnectors"] = transformedRequireConnectors
+	}
+
+	transformedSslConfig, err := expandAlloydbInstanceClientConnectionConfigSslConfig(original["ssl_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSslConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sslConfig"] = transformedSslConfig
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbInstanceClientConnectionConfigRequireConnectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbInstanceClientConnectionConfigSslConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSslMode, err := expandAlloydbInstanceClientConnectionConfigSslConfigSslMode(original["ssl_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSslMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sslMode"] = transformedSslMode
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbInstanceClientConnectionConfigSslConfigSslMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -1,0 +1,5 @@
+```release-note:enhancement
+
+alloydb: added `client_connection_config` field to `google_alloydb_instance` resource
+
+```
