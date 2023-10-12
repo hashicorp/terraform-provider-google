@@ -147,6 +147,10 @@ The following arguments are supported:
 * `range_partitioning` - (Optional) If specified, configures range-based
     partitioning for this table. Structure is [documented below](#nested_range_partitioning).
 
+* `require_partition_filter` - (Optional) If set to true, queries over this table
+    require a partition filter that can be used for partition elimination to be
+    specified.
+
 * `clustering` - (Optional) Specifies column names to use for data clustering.
     Up to four top-level columns are allowed, and should be specified in
     descending priority order.
@@ -335,7 +339,8 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 * `require_partition_filter` - (Optional) If set to true, queries over this table
     require a partition filter that can be used for partition elimination to be
-    specified.
+    specified. `require_partition_filter` is deprecated and will be removed in
+    a future major release. Use the top level field with the same name instead.
 
 <a name="nested_range_partitioning"></a>The `range_partitioning` block supports:
 
