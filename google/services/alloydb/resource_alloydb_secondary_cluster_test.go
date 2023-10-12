@@ -175,6 +175,9 @@ resource "google_service_networking_connection" "vpc_connection" {
 func TestAccAlloydbCluster_secondaryClusterDefinedSecondaryConfigButMissingClusterTypeSecondary(t *testing.T) {
 	t.Parallel()
 
+	// Unskip in https://github.com/hashicorp/terraform-provider-google/issues/16231
+	acctest.SkipIfVcr(t)
+
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
