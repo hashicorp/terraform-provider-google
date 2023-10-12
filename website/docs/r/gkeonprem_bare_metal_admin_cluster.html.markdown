@@ -21,8 +21,6 @@ description: |-
 
 A Google Bare Metal Admin Cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gkeonprem Bare Metal Admin Cluster Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
-  provider = google-beta
   name = "my-cluster"
   location = "us-west1"
   bare_metal_version = "1.13.4"
@@ -94,7 +91,6 @@ resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
 
 ```hcl
 resource "google_gkeonprem_bare_metal_admin_cluster" "admin-cluster-basic" {
-  provider = google-beta
   name = "my-cluster"
   location = "us-west1"
   description = "test description"

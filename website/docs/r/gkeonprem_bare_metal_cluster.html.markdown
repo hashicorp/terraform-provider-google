@@ -21,8 +21,6 @@ description: |-
 
 A Google Bare Metal User Cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gkeonprem Bare Metal Cluster Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
-  provider = google-beta
   name = "my-cluster"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -107,7 +104,6 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-basic" {
 
 ```hcl
 resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
-  provider = google-beta
   name = "cluster-manuallb"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -175,7 +171,6 @@ resource "google_gkeonprem_bare_metal_cluster" "cluster-manuallb" {
 
 ```hcl
 resource "google_gkeonprem_bare_metal_cluster" "cluster-bgplb" {
-  provider = google-beta
   name = "cluster-bgplb"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"

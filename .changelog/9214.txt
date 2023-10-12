@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkeonprem: promoted `google_gkeonprem_bare_metal_admin_cluster`, `google_gkeonprem_bare_metal_cluster`, and `google_gkeonprem_bare_metal_node_pool` resources to GA
+```
+```release-note:enhancement
+gkeonprem: promoted `google_gkeonprem_vmware_cluster` and `google_gkeonprem_vmware_node_pool` resources to GA
+```

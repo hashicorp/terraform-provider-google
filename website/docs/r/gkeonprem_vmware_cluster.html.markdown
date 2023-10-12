@@ -21,8 +21,6 @@ description: |-
 
 A Google VMware User Cluster.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gkeonprem Vmware Cluster Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "cluster-basic" {
-  provider = google-beta
   name = "cluster-basic"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -76,7 +73,6 @@ resource "google_gkeonprem_vmware_cluster" "cluster-basic" {
 
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
-  provider = google-beta  
   name = "cluster-f5lb"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -147,7 +143,6 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
 
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "cluster-manuallb" {
-  provider = google-beta
   name = "cluster-manuallb"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"

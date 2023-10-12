@@ -108,6 +108,7 @@ type FrameworkProviderConfig struct {
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
 	GKEHub2BasePath                  string
+	GkeonpremBasePath                string
 	HealthcareBasePath               string
 	IAM2BasePath                     string
 	IAMBetaBasePath                  string
@@ -246,6 +247,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.GKEBackupBasePath = data.GKEBackupCustomEndpoint.ValueString()
 	p.GKEHubBasePath = data.GKEHubCustomEndpoint.ValueString()
 	p.GKEHub2BasePath = data.GKEHub2CustomEndpoint.ValueString()
+	p.GkeonpremBasePath = data.GkeonpremCustomEndpoint.ValueString()
 	p.HealthcareBasePath = data.HealthcareCustomEndpoint.ValueString()
 	p.IAM2BasePath = data.IAM2CustomEndpoint.ValueString()
 	p.IAMBetaBasePath = data.IAMBetaCustomEndpoint.ValueString()
@@ -874,6 +876,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.GKEHub2BasePathKey])
 		if customEndpoint != nil {
 			data.GKEHub2CustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.GkeonpremCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_GKEONPREM_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.GkeonpremBasePathKey])
+		if customEndpoint != nil {
+			data.GkeonpremCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.HealthcareCustomEndpoint.IsNull() {

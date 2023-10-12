@@ -21,8 +21,6 @@ description: |-
 
 A Google Vmware Node Pool.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Gkeonprem Vmware Node Pool Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "default-basic" {
-  provider = google-beta
   name = "my-cluster"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -69,7 +66,6 @@ resource "google_gkeonprem_vmware_cluster" "default-basic" {
 }
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
-  provider = google-beta
   name = "my-nodepool"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-basic.name
@@ -85,7 +81,6 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-basic" {
 
 ```hcl
 resource "google_gkeonprem_vmware_cluster" "default-full" {
-  provider = google-beta
   name = "my-cluster"
   location = "us-west1"
   admin_cluster_membership = "projects/870316890899/locations/global/memberships/gkeonprem-terraform-test"
@@ -124,7 +119,6 @@ resource "google_gkeonprem_vmware_cluster" "default-full" {
 }
 
 resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
-  provider = google-beta
   name = "my-nodepool"
   location = "us-west1"
   vmware_cluster = google_gkeonprem_vmware_cluster.default-full.name
