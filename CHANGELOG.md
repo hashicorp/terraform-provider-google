@@ -15,14 +15,13 @@ IMPROVEMENTS:
 * compute: promoted `labels`, `effective_labels`, `terraform_labels`, and `label_fingerprint` fields in `google_compute_address` to GA ([#16120](https://github.com/hashicorp/terraform-provider-google/pull/16120))
 * compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` to GA ([#16140](https://github.com/hashicorp/terraform-provider-google/pull/16140))
 * compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_per_instance_config` and `google_compute_region_per_instance_config` to GA ([#16140](https://github.com/hashicorp/terraform-provider-google/pull/16140))
-* dataform: added `ssh_authentication_config` and `service_account` to `google_dataform_repository` resource ([#16205](https://github.com/hashicorp/terraform-provider-google/pull/16205))
 * iamworkforcepool: promoted field `oidc.jwks_json` in resource `google_iam_workforce_pool` to GA ([#16199](https://github.com/hashicorp/terraform-provider-google/pull/16199))
 
 BUG FIXES:
 * alloydb: added `client_connection_config` field to `google_alloydb_instance` resource ([#16202](https://github.com/hashicorp/terraform-provider-google/pull/16202))
 * bigquery: removed mutual exclusivity checks for `view`, `materialized_view`, and `schema` for the `google_bigquery_table` resource ([#16193](https://github.com/hashicorp/terraform-provider-google/pull/16193))
 * compute: added `certificate_manager_certificates` field to `google_compute_target_https_proxy` resource ([#16179](https://github.com/hashicorp/terraform-provider-google/pull/16179))
-* compute: * compute: fixed external `google_compute_global_address` can't be created when `network_tier` in `google_compute_project_default_network_tier` is set to `STANDARD`  ([#16144](https://github.com/hashicorp/terraform-provider-google/pull/16144))
+* compute: fixed an issue where external `google_compute_global_address` can't be created when `network_tier` in `google_compute_project_default_network_tier` is set to `STANDARD`  ([#16144](https://github.com/hashicorp/terraform-provider-google/pull/16144))
 * compute: fixed a false permadiff on `ip_address` when it is set to ipv6 on `google_compute_forwarding_rule` ([#16115](https://github.com/hashicorp/terraform-provider-google/pull/16115))
 * provider: fixed the bug that update request is sent to services when updateMask is empty ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
 
