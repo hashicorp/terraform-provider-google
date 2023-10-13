@@ -258,6 +258,61 @@ func TestAccComputeBackendService_withHttpsHealthCheck(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendService_withCdnPolicy(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	checkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withCdnPolicy(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicy2(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicyBypassCacheOnRequestHeaders(serviceName, checkName, "Proxy-Authorization"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicyBypassCacheOnRequestHeaders(serviceName, checkName, "Authorization"),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_withCdnPolicyUseOriginHeaders(serviceName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeBackendService_withSecurityPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -1166,6 +1221,113 @@ resource "google_compute_backend_service" "foobar" {
 }
 
 resource "google_compute_https_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_withCdnPolicy(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    negative_caching = false
+    serve_while_stale = 0
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+      query_string_whitelist = ["foo", "bar"]
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_withCdnPolicy2(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+      query_string_whitelist = ["foo", "bar"]
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, checkName)
+}
+
+func testAccComputeBackendService_withCdnPolicyBypassCacheOnRequestHeaders(serviceName, checkName, headerName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    negative_caching = false
+    serve_while_stale = 0
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+      query_string_whitelist = ["foo", "bar"]
+    }
+    bypass_cache_on_request_headers {
+      header_name = "%s"
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
+  name               = "%s"
+  request_path       = "/"
+  check_interval_sec = 1
+  timeout_sec        = 1
+}
+`, serviceName, headerName, checkName)
+}
+
+func testAccComputeBackendService_withCdnPolicyUseOriginHeaders(serviceName, checkName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name          = "%s"
+  health_checks = [google_compute_http_health_check.zero.self_link]
+
+  cdn_policy {
+    cache_mode = "USE_ORIGIN_HEADERS"
+    cache_key_policy {
+      include_protocol       = true
+      include_host           = true
+      include_query_string   = true
+    }
+  }
+}
+
+resource "google_compute_http_health_check" "zero" {
   name               = "%s"
   request_path       = "/"
   check_interval_sec = 1
