@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudidentity: Added `additional_group_keys` attribute to `google_cloud_identity_group` resource
+```

@@ -101,6 +101,10 @@ func testAccCloudIdentityGroup_cloudIdentityGroupsBasicExampleTest(t *testing.T)
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudIdentityGroup_cloudIdentityGroupsBasicExample(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_cloud_identity_group.cloud_identity_group_basic",
+						"additional_group_keys.#"),
+				),
 			},
 			{
 				ResourceName:            "google_cloud_identity_group.cloud_identity_group_basic",
