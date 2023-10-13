@@ -256,6 +256,28 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_withMinNumInstances(t *testing.T) {
+	t.Parallel()
+
+	var cluster dataproc.Cluster
+	rnd := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_withMinNumInstances(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_min_num_instances", &cluster),
+
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_min_num_instances", "cluster_config.0.worker_config.0.min_num_instances", "2"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
 	t.Parallel()
 
@@ -1333,6 +1355,25 @@ resource "google_dataproc_cluster" "basic" {
         baz = "qux"
       }
       tags = ["my-tag", "your-tag", "our-tag", "their-tag"]
+    }
+  }
+}
+`, rnd)
+}
+
+func testAccDataprocCluster_withMinNumInstances(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "with_min_num_instances" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+ 
+  cluster_config {
+    master_config{
+      num_instances=1
+    }
+    worker_config{
+      num_instances = 3
+      min_num_instances = 2
     }
   }
 }
