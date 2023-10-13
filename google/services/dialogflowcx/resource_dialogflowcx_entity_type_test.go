@@ -45,18 +45,6 @@ func TestAccDialogflowCXEntityType_update(t *testing.T) {
 
 func testAccDialogflowCXEntityType_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-	data "google_project" "project" {}
-
-	resource "google_service_account" "dialogflowcx_service_account" {
-		account_id = "tf-test-dialogflow-%{random_suffix}"
-	}
-
-	resource "google_project_iam_member" "agent_create" {
-		project = data.google_project.project.project_id
-		role    = "roles/dialogflow.admin"
-		member  = "serviceAccount:${google_service_account.dialogflowcx_service_account.email}"
-	}
-
 	resource "google_dialogflow_cx_agent" "agent_entity" {
 		display_name = "tf-test-%{random_suffix}"
 		location = "global"
@@ -65,7 +53,6 @@ func testAccDialogflowCXEntityType_basic(context map[string]interface{}) string 
 		time_zone = "America/New_York"
 		description = "Description 1."
 		avatar_uri = "https://storage.cloud.google.com/dialogflow-test-host-image/cloud-logo.png"
-		depends_on = [google_project_iam_member.agent_create]
 	}
     
 	resource "google_dialogflow_cx_entity_type" "my_entity" {
@@ -87,18 +74,6 @@ func testAccDialogflowCXEntityType_basic(context map[string]interface{}) string 
 
 func testAccDialogflowCXEntityType_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-	data "google_project" "project" {}
-
-	resource "google_service_account" "dialogflowcx_service_account" {
-		account_id = "tf-test-dialogflow-%{random_suffix}"
-	}
-
-	resource "google_project_iam_member" "agent_create" {
-		project = data.google_project.project.project_id
-		role    = "roles/dialogflow.admin"
-		member  = "serviceAccount:${google_service_account.dialogflowcx_service_account.email}"
-	}
-
 	resource "google_dialogflow_cx_agent" "agent_entity" {
 		display_name = "tf-test-%{random_suffix}"
 		location = "global"
@@ -107,7 +82,6 @@ func testAccDialogflowCXEntityType_full(context map[string]interface{}) string {
 		time_zone = "America/New_York"
 		description = "Description 1."
 		avatar_uri = "https://storage.cloud.google.com/dialogflow-test-host-image/cloud-logo.png"
-		depends_on = [google_project_iam_member.agent_create]
 	}
     
 	resource "google_dialogflow_cx_entity_type" "my_entity" {
