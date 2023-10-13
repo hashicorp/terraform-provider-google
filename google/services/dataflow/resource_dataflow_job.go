@@ -263,7 +263,7 @@ func resourceDataflowJobTypeCustomizeDiff(_ context.Context, d *schema.ResourceD
 				continue
 			}
 
-			if field != "labels" && field != "terraform_labels" && d.HasChange(field) {
+			if field != "terraform_labels" && d.HasChange(field) {
 				if err := d.ForceNew(field); err != nil {
 					return err
 				}
@@ -416,57 +416,58 @@ func resourceDataflowJobUpdateByReplacement(d *schema.ResourceData, meta interfa
 		return nil
 	}
 
-	config := meta.(*transport_tpg.Config)
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
+	if jobHasUpdate(d, ResourceDataflowJob().Schema) {
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return err
+		}
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return err
+		}
+
+		region, err := tpgresource.GetRegion(d, config)
+		if err != nil {
+			return err
+		}
+
+		params := tpgresource.ExpandStringMap(d, "parameters")
+		tnamemapping := tpgresource.ExpandStringMap(d, "transform_name_mapping")
+
+		env, err := resourceDataflowJobSetupEnv(d, config)
+		if err != nil {
+			return err
+		}
+
+		request := dataflow.LaunchTemplateParameters{
+			JobName:              d.Get("name").(string),
+			Parameters:           params,
+			TransformNameMapping: tnamemapping,
+			Environment:          &env,
+			Update:               true,
+		}
+
+		var response *dataflow.LaunchTemplateResponse
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (updateErr error) {
+				response, updateErr = resourceDataflowJobLaunchTemplate(config, project, region, userAgent, d.Get("template_gcs_path").(string), &request)
+				return updateErr
+			},
+			Timeout:              time.Minute * time.Duration(5),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataflowJobUpdateRetryableError},
+		})
+		if err != nil {
+			return err
+		}
+
+		if err := waitForDataflowJobToBeUpdated(d, config, response.Job.Id, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return fmt.Errorf("Error updating job with job ID %q: %v", d.Id(), err)
+		}
+
+		d.SetId(response.Job.Id)
 	}
-
-	project, err := tpgresource.GetProject(d, config)
-	if err != nil {
-		return err
-	}
-
-	region, err := tpgresource.GetRegion(d, config)
-	if err != nil {
-		return err
-	}
-
-	params := tpgresource.ExpandStringMap(d, "parameters")
-	tnamemapping := tpgresource.ExpandStringMap(d, "transform_name_mapping")
-
-	env, err := resourceDataflowJobSetupEnv(d, config)
-	if err != nil {
-		return err
-	}
-
-	request := dataflow.LaunchTemplateParameters{
-		JobName:              d.Get("name").(string),
-		Parameters:           params,
-		TransformNameMapping: tnamemapping,
-		Environment:          &env,
-		Update:               true,
-	}
-
-	var response *dataflow.LaunchTemplateResponse
-	err = transport_tpg.Retry(transport_tpg.RetryOptions{
-		RetryFunc: func() (updateErr error) {
-			response, updateErr = resourceDataflowJobLaunchTemplate(config, project, region, userAgent, d.Get("template_gcs_path").(string), &request)
-			return updateErr
-		},
-		Timeout:              time.Minute * time.Duration(5),
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsDataflowJobUpdateRetryableError},
-	})
-	if err != nil {
-		return err
-	}
-
-	if err := waitForDataflowJobToBeUpdated(d, config, response.Job.Id, userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return fmt.Errorf("Error updating job with job ID %q: %v", d.Id(), err)
-	}
-
-	d.SetId(response.Job.Id)
-
 	return resourceDataflowJobRead(d, meta)
 }
 
@@ -649,7 +650,7 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema m
 				continue
 			}
 
-			if field != "labels" && field != "terraform_labels" && d.HasChange(field) {
+			if d.HasChange(field) {
 				return false
 			}
 		}
@@ -658,6 +659,25 @@ func resourceDataflowJobIsVirtualUpdate(d *schema.ResourceData, resourceSchema m
 	}
 
 	return false
+}
+
+// If only fields on_delete, terraform_labels are changing, no update request is needed
+func jobHasUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
+	if d.HasChange("on_delete") || d.HasChange("labels") || d.HasChange("terraform_labels") {
+		for field := range resourceSchema {
+			if field == "on_delete" || field == "labels" || field == "terraform_labels" {
+				continue
+			}
+
+			if d.HasChange(field) {
+				return true
+			}
+		}
+		// on_delete, or terraform_labels are changing, but nothing else
+		return false
+	}
+
+	return true
 }
 
 func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *transport_tpg.Config, replacementJobID, userAgent string, timeout time.Duration) error {

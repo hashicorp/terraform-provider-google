@@ -1,0 +1,6 @@
+```release-note:bug
+dataflow: fixed the bug that the resource update returns error if  only `labels` field has changes for batch `google_dataflow_job`
+```
+```release-note:bug
+dataflow: fixed the bug that the resource update returns error if only `labels` field has changes for batch `google_dataflow_flex_template_job`
+```
