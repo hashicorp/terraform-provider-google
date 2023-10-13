@@ -13,7 +13,8 @@ import (
 // The cluster creation should succeed with minimal number of arguments
 func TestAccAlloydbCluster_secondaryClusterMandatoryFields(t *testing.T) {
 	t.Parallel()
-
+	// https://github.com/hashicorp/terraform-provider-google/issues/16231
+	acctest.SkipIfVcr(t)
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 	}
@@ -496,7 +497,7 @@ resource "google_alloydb_cluster" "secondary" {
   secondary_config {
     primary_cluster_name = google_alloydb_cluster.primary.name
   }
-  
+
   automated_backup_policy {
     location      = "us-central1"
     backup_window = "1800s"

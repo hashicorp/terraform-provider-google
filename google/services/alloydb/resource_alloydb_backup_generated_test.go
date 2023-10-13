@@ -100,6 +100,7 @@ resource "google_compute_network" "default" {
 }
 
 func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
