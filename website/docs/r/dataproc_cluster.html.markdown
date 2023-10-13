@@ -539,7 +539,7 @@ cluster_config {
     num_instances    = 3
     machine_type     = "e2-medium"
     min_cpu_platform = "Intel Skylake"
-
+    min_num_instance = 2
     disk_config {
       boot_disk_type    = "pd-standard"
       boot_disk_size_gb = 30
@@ -581,6 +581,8 @@ cluster_config {
 
 * `image_uri` (Optional) The URI for the image to use for this worker.  See [the guide](https://cloud.google.com/dataproc/docs/guides/dataproc-images)
     for more information.
+
+* `min_num_instances` (Optional) The minimum number of primary worker instances to create.  If `min_num_instances` is set, cluster creation will succeed if the number of primary workers created is at least equal to the `min_num_instances` number.
 
 * `accelerators` (Optional) The Compute Engine accelerator configuration for these instances. Can be specified multiple times.
 

@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `min_num_instances` field to `google_dataproc_cluster` resource
+```
