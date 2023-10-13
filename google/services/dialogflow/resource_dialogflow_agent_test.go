@@ -46,6 +46,8 @@ func TestAccDialogflowAgent_update(t *testing.T) {
 }
 
 func testAccDialogflowAgent_full1(context map[string]interface{}) string {
+	// NOTE: we're creating a new project because you're only allowed one Agent per project
+	// -> to test creating an Agent you need to create the project too
 	return acctest.Nprintf(`
 	resource "google_project" "agent_project" {
 		name = "tf-test-dialogflow-%{random_suffix}"
