@@ -134,6 +134,40 @@ See the
 for possible values. Default value: "EMPTY" Possible values: ["INITIAL_GROUP_CONFIG_UNSPECIFIED", "WITH_INITIAL_OWNER", "EMPTY"]`,
 				Default: "EMPTY",
 			},
+			"additional_group_keys": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Additional group keys associated with the Group`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The ID of the entity.
+
+For Google-managed entities, the id must be the email address of an existing
+group or user.
+
+For external-identity-mapped entities, the id must be a string conforming
+to the Identity Source's requirements.
+
+Must be unique within a namespace.`,
+						},
+						"namespace": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The namespace in which the entity exists.
+
+If not specified, the EntityKey represents a Google-managed entity
+such as a Google user or a Google Group.
+
+If specified, the EntityKey represents an external-identity-mapped group.
+The namespace must correspond to an identity source created in Admin Console
+and must be in the form of 'identitysources/{identity_source_id}'.`,
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -338,6 +372,9 @@ func resourceCloudIdentityGroupRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("description", flattenCloudIdentityGroupDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
+	if err := d.Set("additional_group_keys", flattenCloudIdentityGroupAdditionalGroupKeys(res["additionalGroupKeys"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Group: %s", err)
+	}
 	if err := d.Set("create_time", flattenCloudIdentityGroupCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Group: %s", err)
 	}
@@ -539,6 +576,33 @@ func flattenCloudIdentityGroupDisplayName(v interface{}, d *schema.ResourceData,
 }
 
 func flattenCloudIdentityGroupDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudIdentityGroupAdditionalGroupKeys(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"id":        flattenCloudIdentityGroupAdditionalGroupKeysId(original["id"], d, config),
+			"namespace": flattenCloudIdentityGroupAdditionalGroupKeysNamespace(original["namespace"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudIdentityGroupAdditionalGroupKeysId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudIdentityGroupAdditionalGroupKeysNamespace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

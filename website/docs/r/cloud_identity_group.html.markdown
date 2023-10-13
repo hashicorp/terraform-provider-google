@@ -132,12 +132,36 @@ In addition to the arguments listed above, the following computed attributes are
   Resource name of the Group in the format: groups/{group_id}, where group_id
   is the unique ID assigned to the Group.
 
+* `additional_group_keys` -
+  Additional group keys associated with the Group
+  Structure is [documented below](#nested_additional_group_keys).
+
 * `create_time` -
   The time when the Group was created.
 
 * `update_time` -
   The time when the Group was last updated.
 
+
+<a name="nested_additional_group_keys"></a>The `additional_group_keys` block contains:
+
+* `id` -
+  (Output)
+  The ID of the entity.
+  For Google-managed entities, the id must be the email address of an existing
+  group or user.
+  For external-identity-mapped entities, the id must be a string conforming
+  to the Identity Source's requirements.
+  Must be unique within a namespace.
+
+* `namespace` -
+  (Output)
+  The namespace in which the entity exists.
+  If not specified, the EntityKey represents a Google-managed entity
+  such as a Google user or a Google Group.
+  If specified, the EntityKey represents an external-identity-mapped group.
+  The namespace must correspond to an identity source created in Admin Console
+  and must be in the form of `identitysources/{identity_source_id}`.
 
 ## Timeouts
 
