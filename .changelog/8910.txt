@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue with TTLs being sent for `google_compute_backend_service` when `cache_mode` is set to `USE_ORIGIN_HEADERS`
+```
