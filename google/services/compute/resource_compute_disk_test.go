@@ -307,7 +307,11 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 
 	for _, publicImageProject := range tpgcompute.ImageMap {
 		token := ""
-		for paginate := true; paginate; {
+		// Hard limit on number of pages to prevent infinite loops
+		// caused by the API always returning a pagination token
+		page := 0
+		maxPages := 10
+		for paginate := true; paginate && page < maxPages; {
 			resp, err := config.NewComputeClient(config.UserAgent).Images.List(publicImageProject).Filter("deprecated.replacement ne .*images.*").PageToken(token).Do()
 			if err != nil {
 				t.Fatalf("Can't list public images for project %q", publicImageProject)
@@ -320,6 +324,7 @@ func TestAccComputeDisk_imageDiffSuppressPublicVendorsFamilyNames(t *testing.T) 
 			}
 			token := resp.NextPageToken
 			paginate = token != ""
+			page++
 		}
 	}
 }
