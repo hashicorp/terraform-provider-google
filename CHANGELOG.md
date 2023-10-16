@@ -1,4 +1,31 @@
-## 5.2.0 (Unreleased)
+## 5.3.0 (Unreleased)
+
+## 5.2.0 (Oct 16, 2023)
+
+FEATURES:
+* **New Data Source:** `google_secret_manager_secrets` ([#16182](https://github.com/hashicorp/terraform-provider-google/pull/16182))
+* **New Resource:** `google_alloydb_user` ([#16141](https://github.com/hashicorp/terraform-provider-google/pull/16141))
+* **New Resource:** `google_firestore_backup_schedule` ([#16186](https://github.com/hashicorp/terraform-provider-google/pull/16186))
+* **New Resource:** `google_redis_cluster` ([#16203](https://github.com/hashicorp/terraform-provider-google/pull/16203))
+
+IMPROVEMENTS:
+* alloydb: added `cluster_type` and `secondary_config` fields to support secondary clusters in `google_alloydb_cluster` resource. ([#16197](https://github.com/hashicorp/terraform-provider-google/pull/16197))
+* compute: added `recreate_closed_psc` flag to support recreating the PSC Consumer forwarding rule if the `psc_connection_status` is closed on `google_compute_forwarding_rule`. ([#16188](https://github.com/hashicorp/terraform-provider-google/pull/16188))
+* compute: added `INTERNET_IP_PORT`, `INTERNET_FQDN_PORT`, `SERVERLESS`, and `PRIVATE_SERVICE_CONNECT` as acceptable values for the `network_endpoint_type` field for the `resource_compute_network_endpoint_group` resource ([#16194](https://github.com/hashicorp/terraform-provider-google/pull/16194))
+* compute: added `SEV_LIVE_MIGRATABLE_V2` to `guest_os_features` enum on `google_compute_image` resource. ([#16187](https://github.com/hashicorp/terraform-provider-google/pull/16187))
+* compute: added `allow_subnet_cidr_routes_overlap` field to `google_compute_subnetwork` resource ([#16116](https://github.com/hashicorp/terraform-provider-google/pull/16116))
+* compute: promoted `labels`, `effective_labels`, `terraform_labels`, and `label_fingerprint` fields in `google_compute_address` to GA ([#16120](https://github.com/hashicorp/terraform-provider-google/pull/16120))
+* compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` to GA ([#16140](https://github.com/hashicorp/terraform-provider-google/pull/16140))
+* compute: promoted `internal_ip` and `external_ip` fields in resources `google_compute_per_instance_config` and `google_compute_region_per_instance_config` to GA ([#16140](https://github.com/hashicorp/terraform-provider-google/pull/16140))
+* iamworkforcepool: promoted field `oidc.jwks_json` in resource `google_iam_workforce_pool` to GA ([#16199](https://github.com/hashicorp/terraform-provider-google/pull/16199))
+
+BUG FIXES:
+* alloydb: added `client_connection_config` field to `google_alloydb_instance` resource ([#16202](https://github.com/hashicorp/terraform-provider-google/pull/16202))
+* bigquery: removed mutual exclusivity checks for `view`, `materialized_view`, and `schema` for the `google_bigquery_table` resource ([#16193](https://github.com/hashicorp/terraform-provider-google/pull/16193))
+* compute: added `certificate_manager_certificates` field to `google_compute_target_https_proxy` resource ([#16179](https://github.com/hashicorp/terraform-provider-google/pull/16179))
+* compute: fixed an issue where external `google_compute_global_address` can't be created when `network_tier` in `google_compute_project_default_network_tier` is set to `STANDARD`  ([#16144](https://github.com/hashicorp/terraform-provider-google/pull/16144))
+* compute: fixed a false permadiff on `ip_address` when it is set to ipv6 on `google_compute_forwarding_rule` ([#16115](https://github.com/hashicorp/terraform-provider-google/pull/16115))
+* provider: fixed a bug where an update request was sent to services when updateMask is empty ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
 
 ## 5.1.0 (Oct 9, 2023)
 
