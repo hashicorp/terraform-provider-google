@@ -752,11 +752,15 @@ func DefaultProviderProject(_ context.Context, diff *schema.ResourceDiff, meta i
 
 	//project
 	if project := diff.Get("project"); project != nil {
-		project, err := GetProjectFromDiff(diff, config)
+		project2, err := GetProjectFromDiff(diff, config)
 		if err != nil {
 			return fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", project, err)
 		}
-		err = diff.SetNew("project", project)
+		if CompareSelfLinkRelativePaths("", project.(string), project2, nil) {
+			return nil
+		}
+
+		err = diff.SetNew("project", project2)
 		if err != nil {
 			return err
 		}
