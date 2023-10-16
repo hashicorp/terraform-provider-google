@@ -116,14 +116,40 @@ fun BuildSteps.RunAcceptanceTests() {
     } else {
         step(ScriptBuildStep {
             name = "Compile Test Binary"
-            scriptContent = "go test -c -o test-binary"
             workingDir = "%PACKAGE_PATH%"
+            scriptContent = """
+                #!/bin/bash
+                export TEST_FILE_COUNT=$(ls ./*_test.go | wc -l)
+                if test ${'$'}TEST_FILE_COUNT -gt "0"; then
+                    echo "Compiling test binary"
+                    go test -c -o test-binary
+                else
+                    echo "Skipping compilation of test binary; no Go test files found"
+                fi
+            """.trimIndent()
+
         })
 
         step(ScriptBuildStep {
             name = "Run via jen20/teamcity-go-test"
-            scriptContent = "./test-binary -test.list=\"%TEST_PREFIX%\" | teamcity-go-test -test ./test-binary -parallelism \"%PARALLELISM%\" -timeout \"%TIMEOUT%h\""
             workingDir = "%PACKAGE_PATH%"
+            scriptContent = """
+                #!/bin/bash
+                if ! test -f "./test-binary"; then
+                  echo "Skipping test execution; file ./test-binary does not exist."
+                  exit 0
+                fi
+                
+                export TEST_COUNT=${'$'}(./test-binary -test.list=%TEST_PREFIX% | wc -l)
+                echo "Found ${'$'}{TEST_COUNT} tests that match the given test prefix %TEST_PREFIX%"
+                if test ${'$'}TEST_COUNT -le "0"; then
+                  echo "Skipping test execution; no tests to run"
+                  exit 0
+                fi
+                
+                echo "Starting tests"  
+                ./test-binary -test.list="%TEST_PREFIX%" | teamcity-go-test -test ./test-binary -parallelism "%PARALLELISM%" -timeout "%TIMEOUT%h"
+            """.trimIndent()
         })
     }
 }
