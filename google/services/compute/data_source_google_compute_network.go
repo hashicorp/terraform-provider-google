@@ -30,6 +30,11 @@ func DataSourceGoogleComputeNetwork() *schema.Resource {
 				Computed: true,
 			},
 
+			"internal_ipv6_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -70,6 +75,9 @@ func dataSourceGoogleComputeNetworkRead(d *schema.ResourceData, meta interface{}
 	}
 	if err := d.Set("gateway_ipv4", network.GatewayIPv4); err != nil {
 		return fmt.Errorf("Error setting gateway_ipv4: %s", err)
+	}
+	if err := d.Set("internal_ipv6_range", network.InternalIpv6Range); err != nil {
+		return fmt.Errorf("Error setting internal_ipv6_range: %s", err)
 	}
 	if err := d.Set("self_link", network.SelfLink); err != nil {
 		return fmt.Errorf("Error setting self_link: %s", err)

@@ -33,6 +33,10 @@ func DataSourceGoogleComputeSubnetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"internal_ipv6_prefix": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"private_ip_google_access": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -96,6 +100,9 @@ func dataSourceGoogleComputeSubnetworkRead(d *schema.ResourceData, meta interfac
 
 	if err := d.Set("ip_cidr_range", subnetwork.IpCidrRange); err != nil {
 		return fmt.Errorf("Error setting ip_cidr_range: %s", err)
+	}
+	if err := d.Set("internal_ipv6_prefix", subnetwork.InternalIpv6Prefix); err != nil {
+		return fmt.Errorf("Error setting internal_ipv6_prefix: %s", err)
 	}
 	if err := d.Set("private_ip_google_access", subnetwork.PrivateIpGoogleAccess); err != nil {
 		return fmt.Errorf("Error setting private_ip_google_access: %s", err)
