@@ -51,6 +51,7 @@ func testAccDataSourceGoogleSubnetworkCheck(data_source_name string, resource_na
 			"description",
 			"ip_cidr_range",
 			"private_ip_google_access",
+			"internal_ipv6_prefix",
 			"secondary_ip_range",
 		}
 
@@ -82,6 +83,8 @@ func testAccDataSourceGoogleSubnetwork(networkName, subnetName string) string {
 resource "google_compute_network" "foobar" {
   name        = "%s"
   description = "my-description"
+  enable_ula_internal_ipv6 = true
+  auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "foobar" {
@@ -89,6 +92,8 @@ resource "google_compute_subnetwork" "foobar" {
   description              = "my-description"
   ip_cidr_range            = "10.0.0.0/24"
   network                  = google_compute_network.foobar.self_link
+  stack_type               = "IPV4_IPV6"
+  ipv6_access_type         = "INTERNAL"
   private_ip_google_access = true
   secondary_ip_range {
     range_name    = "tf-test-secondary-range"

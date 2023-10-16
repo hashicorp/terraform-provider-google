@@ -45,6 +45,8 @@ In addition to the arguments listed above, the following attributes are exported
 * `ip_cidr_range` - The IP address range that machines in this
     network are assigned to, represented as a CIDR block.
 
+* `internal_ipv6_prefix` - The internal IPv6 address range that is assigned to this subnetwork.
+
 * `gateway_address` - The IP address of the gateway.
 
 * `private_ip_google_access` - Whether the VMs in this subnet

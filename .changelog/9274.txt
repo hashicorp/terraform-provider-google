@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `internal_ipv6_range` to `data.google_compute_network` data source and `internal_ipv6_prefix` field to `data.google_compute_subnetwork` data source
+```
