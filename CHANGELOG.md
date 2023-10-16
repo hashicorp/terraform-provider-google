@@ -23,7 +23,7 @@ BUG FIXES:
 * compute: added `certificate_manager_certificates` field to `google_compute_target_https_proxy` resource ([#16179](https://github.com/hashicorp/terraform-provider-google/pull/16179))
 * compute: fixed an issue where external `google_compute_global_address` can't be created when `network_tier` in `google_compute_project_default_network_tier` is set to `STANDARD`  ([#16144](https://github.com/hashicorp/terraform-provider-google/pull/16144))
 * compute: fixed a false permadiff on `ip_address` when it is set to ipv6 on `google_compute_forwarding_rule` ([#16115](https://github.com/hashicorp/terraform-provider-google/pull/16115))
-* provider: fixed the bug that update request is sent to services when updateMask is empty ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
+* provider: fixed a bug where an update request was sent to services when updateMask is empty ([#16111](https://github.com/hashicorp/terraform-provider-google/pull/16111))
 
 ## 5.1.0 (Oct 9, 2023)
 
