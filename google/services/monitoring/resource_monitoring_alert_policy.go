@@ -365,9 +365,7 @@ condition to be triggered.`,
 						"condition_prometheus_query_language": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `A Monitoring Query Language query that outputs a boolean stream
-
-A condition type that allows alert policies to be defined using
+							Description: `A condition type that allows alert policies to be defined using
 Prometheus Query Language (PromQL).
 
 The PrometheusQueryLanguageCondition message contains information
@@ -436,10 +434,7 @@ Some external tools may require this field to be populated correctly
 in order to refer to the original Prometheus configuration file.
 The rule group name and the alert name are necessary to update the
 relevant AlertPolicies in case the definition of the rule group changes
-in the future.
-
-This field is optional. If this field is not empty, then it must be a
-valid Prometheus label name.`,
+in the future. This field is optional.`,
 									},
 								},
 							},

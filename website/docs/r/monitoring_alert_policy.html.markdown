@@ -111,6 +111,29 @@ resource "google_monitoring_alert_policy" "alert_policy" {
   }
 }
 ```
+## Example Usage - Monitoring Alert Policy Promql Condition
+
+
+```hcl
+resource "google_monitoring_alert_policy" "alert_policy" {
+  display_name = "My Alert Policy"
+  combiner     = "OR"
+  conditions {
+    display_name = "test condition"
+    condition_prometheus_query_language {
+      query      = "compute_googleapis_com:instance_cpu_usage_time > 0"
+      duration   = "60s"
+      evaluation_interval = "60s"
+      alert_rule  = "AlwaysOn"
+      rule_group  = "a test"
+    }
+  }
+
+  alert_strategy {
+    auto_close  = "1800s"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -183,7 +206,6 @@ The following arguments are supported:
 
 * `condition_prometheus_query_language` -
   (Optional)
-  A Monitoring Query Language query that outputs a boolean stream
   A condition type that allows alert policies to be defined using
   Prometheus Query Language (PromQL).
   The PrometheusQueryLanguageCondition message contains information
@@ -797,9 +819,7 @@ The following arguments are supported:
   in order to refer to the original Prometheus configuration file.
   The rule group name and the alert name are necessary to update the
   relevant AlertPolicies in case the definition of the rule group changes
-  in the future.
-  This field is optional. If this field is not empty, then it must be a
-  valid Prometheus label name.
+  in the future. This field is optional.
 
 * `alert_rule` -
   (Optional)
