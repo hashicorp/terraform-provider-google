@@ -430,21 +430,27 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId, networkId string) st
 // testId specifies the test for which a shared network and a gobal address are used/initialized.
 func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string) string {
 	parentService := "services/servicenetworking.googleapis.com"
-	project := envvar.GetTestProjectFromEnv()
-	projectNumber := envvar.GetTestProjectNumberFromEnv()
+	projectId := envvar.GetTestProjectFromEnv()
 
 	config := BootstrapConfig(t)
 	if config == nil {
 		return ""
 	}
 
+	// Get project number by calling the API
+	crmClient := config.NewResourceManagerClient(config.UserAgent)
+	project, err := crmClient.Projects.Get(projectId).Do()
+	if err != nil {
+		t.Fatalf("Error getting project: %s", err)
+	}
+
 	networkName := BootstrapSharedTestNetwork(t, testId)
-	networkId := fmt.Sprintf("projects/%v/global/networks/%v", projectNumber, networkName)
+	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project.ProjectNumber, networkName)
 	globalAddressName := BootstrapSharedTestGlobalAddress(t, testId, networkId)
 
 	readCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.List(parentService).Network(networkId)
 	if config.UserProjectOverride {
-		readCall.Header().Add("X-Goog-User-Project", project)
+		readCall.Header().Add("X-Goog-User-Project", projectId)
 	}
 	response, err := readCall.Do()
 	if err != nil {
@@ -469,7 +475,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string) str
 
 		createCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.Create(parentService, connection)
 		if config.UserProjectOverride {
-			createCall.Header().Add("X-Goog-User-Project", project)
+			createCall.Header().Add("X-Goog-User-Project", projectId)
 		}
 		op, err := createCall.Do()
 		if err != nil {
@@ -477,7 +483,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string) str
 		}
 
 		log.Printf("[DEBUG] Waiting for service networking connection creation to finish")
-		if err := tpgservicenetworking.ServiceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", config.UserAgent, project, 4*time.Minute); err != nil {
+		if err := tpgservicenetworking.ServiceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", config.UserAgent, projectId, 4*time.Minute); err != nil {
 			t.Fatalf("Error bootstrapping shared test service networking connection: %s", err)
 		}
 	}
