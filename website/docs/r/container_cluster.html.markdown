@@ -122,14 +122,14 @@ locations. In contrast, in a regional cluster, cluster master nodes are present
 in multiple zones in the region. For that reason, regional clusters should be
 preferred.
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy 
-the cluster. Unless this field is set to false in Terraform state, a 
+* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy
+the cluster. Unless this field is set to false in Terraform state, a
 `terraform destroy` or `terraform apply` that would delete the cluster will fail.
 
 * `addons_config` - (Optional) The configuration for addons supported by GKE.
     Structure is [documented below](#nested_addons_config).
 
-* `allow_net_admin` - (Optional) Enable NET_ADMIN for the cluster. Defaults to 
+* `allow_net_admin` - (Optional) Enable NET_ADMIN for the cluster. Defaults to
 `false`. This field should only be enabled for Autopilot clusters (`enable_autopilot`
 set to `true`).
 
@@ -194,7 +194,7 @@ set this to a value of at least `1`, alongside setting
 `remove_default_node_pool` to `true`.
 
 * `ip_allocation_policy` - (Optional) Configuration of cluster IP allocation for
-VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend. 
+VPC-native clusters. If this block is unset during creation, it will be set by the GKE backend.
 Structure is [documented below](#nested_ip_allocation_policy).
 
 * `networking_mode` - (Optional) Determines whether alias IPs or routes will be used for pod IPs in the cluster.
@@ -732,7 +732,7 @@ Default value is `IPV4`.
 Possible values are `IPV4` and `IPV4_IPV6`.
 
 * `additional_pod_ranges_config` - (Optional) The configuration for additional pod secondary ranges at
-the cluster level. Used for Autopilot clusters and Standard clusters with which control of the 
+the cluster level. Used for Autopilot clusters and Standard clusters with which control of the
 secondary Pod IP address assignment to node pools isn't needed. Structure is [documented below](#nested_additional_pod_ranges_config).
 
 
@@ -1277,7 +1277,7 @@ linux_node_config {
 * `mode` - (Optional) Sets the mode of the Kubernetes security posture API's off-cluster features. Available options include `DISABLED` and `BASIC`.
 
 
-* `vulnerability_mode` - (Optional) Sets the mode of the Kubernetes security posture API's workload vulnerability scanning. Available options include `VULNERABILITY_DISABLED` and `VULNERABILITY_BASIC`.
+* `vulnerability_mode` - (Optional) Sets the mode of the Kubernetes security posture API's workload vulnerability scanning. Available options include `VULNERABILITY_DISABLED`, `VULNERABILITY_BASIC` and `VULNERABILITY_ENTERPRISE`.
 
 
 ## Attributes Reference
