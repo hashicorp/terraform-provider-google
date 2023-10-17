@@ -238,11 +238,13 @@ The following arguments are supported:
   (Optional)
   Timestamp in UTC when the Secret is scheduled to expire. This is always provided on output, regardless of what was sent on input.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+  Only one of `expire_time` or `ttl` can be provided.
 
 * `ttl` -
   (Optional)
   The TTL for the Secret.
   A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+  Only one of `ttl` or `expire_time` can be provided.
 
 * `rotation` -
   (Optional)

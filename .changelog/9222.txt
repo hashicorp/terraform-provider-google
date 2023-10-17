@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: `ttl` field made mutable in `google_secret_manager_secret`
+```
