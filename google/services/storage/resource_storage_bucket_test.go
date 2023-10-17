@@ -57,6 +57,8 @@ func TestAccStorageBucket_basic(t *testing.T) {
 func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 	t.Parallel()
 
+	var bucket storage.Bucket
+	var updated storage.Bucket
 	bucketName := acctest.TestBucketName(t)
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -67,8 +69,8 @@ func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 			{
 				Config: testAccStorageBucket_basicWithAutoclass(bucketName, true),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "force_destroy", "false"),
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
 				),
 			},
 			{
@@ -77,13 +79,22 @@ func TestAccStorageBucket_basicWithAutoclass(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
-			// Autoclass is ForceNew, so this destroys & recreates, but does test the explicitly disabled config
+			{
+				Config: testAccStorageBucket_basicWithAutoclass_update(bucketName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &updated),
+					testAccCheckStorageBucketWasUpdated(&updated, &bucket),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
 			{
 				Config: testAccStorageBucket_basicWithAutoclass(bucketName, false),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"google_storage_bucket.bucket", "force_destroy", "false"),
-				),
 			},
 			{
 				ResourceName:            "google_storage_bucket.bucket",
@@ -1297,9 +1308,24 @@ func testAccStorageBucket_basicWithAutoclass(bucketName string, autoclass bool) 
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "US"
+  force_destroy = true
   autoclass  {
     enabled  = %t
   }
+}
+`, bucketName, autoclass)
+}
+
+func testAccStorageBucket_basicWithAutoclass_update(bucketName string, autoclass bool) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+	name     = "%s"
+	location = "US"
+	force_destroy = true
+	autoclass  {
+		enabled  = %t
+		terminal_storage_class = "ARCHIVE"
+	}
 }
 `, bucketName, autoclass)
 }
