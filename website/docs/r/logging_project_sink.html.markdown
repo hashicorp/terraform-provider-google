@@ -188,8 +188,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project to create the sink in. If omitted, the project associated with the provider is
     used.
 
-* `unique_writer_identity` - (Optional) Whether or not to create a unique identity associated with this sink. If `false`
-    (the default), then the `writer_identity` used is `serviceAccount:cloud-logs@system.gserviceaccount.com`. If `true`,
+* `unique_writer_identity` - (Optional) Whether or not to create a unique identity associated with this sink. If `false`, then the `writer_identity` used is `serviceAccount:cloud-logs@system.gserviceaccount.com`. If `true` (the default),
     then a unique service account is created and used for this sink. If you wish to publish logs across projects or utilize
     `bigquery_options`, you must set `unique_writer_identity` to true.
 

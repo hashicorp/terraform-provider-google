@@ -1,0 +1,3 @@
+```release-note:note
+google_logging_project_sink: updated documentation for unique_writer_identity
+```
