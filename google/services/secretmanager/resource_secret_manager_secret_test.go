@@ -328,6 +328,101 @@ func TestAccSecretManagerSecret_rotationPeriodUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSecretManagerSecret_ttlUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_withoutTtl(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerSecret_basic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerSecret_ttlUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerSecret_withoutTtl(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccSecretManagerSecret_updateBetweenTtlAndExpireTime(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_basic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerSecret_expireTime(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerSecret_basic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccSecretManagerSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_secret_manager_secret" "secret-basic" {
@@ -957,6 +1052,81 @@ resource "google_secret_manager_secret" "secret-basic" {
   depends_on = [
     google_pubsub_topic_iam_member.secrets_manager_access,
   ]
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_withoutTtl(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_ttlUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+
+  ttl = "7200s"
+
+}
+`, context)
+}
+
+func testAccSecretManagerSecret_expireTime(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-basic" {
+  secret_id = "tf-test-secret-%{random_suffix}"
+
+  labels = {
+    label = "my-label"
+  }
+
+  replication {
+    user_managed {
+      replicas {
+        location = "us-central1"
+      }
+      replicas {
+        location = "us-east1"
+      }
+    }
+  }
+
+  expire_time = "2122-09-26T10:55:55.163240682Z"
+
 }
 `, context)
 }

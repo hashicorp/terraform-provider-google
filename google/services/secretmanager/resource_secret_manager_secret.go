@@ -202,7 +202,8 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				Computed: true,
 				Optional: true,
 				Description: `Timestamp in UTC when the Secret is scheduled to expire. This is always provided on output, regardless of what was sent on input.
-A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+Only one of 'expire_time' or 'ttl' can be provided.`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -267,9 +268,9 @@ For publication to succeed, the Secret Manager Service Agent service account mus
 			"ttl": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `The TTL for the Secret.
-A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".`,
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s".
+Only one of 'ttl' or 'expire_time' can be provided.`,
 			},
 			"version_aliases": {
 				Type:     schema.TypeMap,
@@ -544,6 +545,12 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("expire_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expireTimeProp)) {
 		obj["expireTime"] = expireTimeProp
 	}
+	ttlProp, err := expandSecretManagerSecretTtl(d.Get("ttl"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ttl"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ttlProp)) {
+		obj["ttl"] = ttlProp
+	}
 	rotationProp, err := expandSecretManagerSecretRotation(d.Get("rotation"), d, config)
 	if err != nil {
 		return err
@@ -583,6 +590,10 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 		updateMask = append(updateMask, "expireTime")
 	}
 
+	if d.HasChange("ttl") {
+		updateMask = append(updateMask, "ttl")
+	}
+
 	if d.HasChange("rotation") {
 		updateMask = append(updateMask, "rotation")
 	}
@@ -609,6 +620,11 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("replication") {
 		updateMask = append(updateMask, "replication")
+	}
+
+	// As the API expects only one of ttl or expireTime
+	if d.HasChange("ttl") && !d.HasChange("expire_time") {
+		delete(obj, "expireTime")
 	}
 
 	// Refreshing updateMask after adding extra schema entries
