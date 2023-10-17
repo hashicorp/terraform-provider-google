@@ -77,7 +77,7 @@ resource "google_folder" "folder" {
 resource "time_sleep" "wait_1_minute" {
 	depends_on = [google_folder.folder]
 
-	create_duration = "1m"
+	create_duration = "2m"
 }
 
 resource "google_scc_folder_custom_module" "example" {
