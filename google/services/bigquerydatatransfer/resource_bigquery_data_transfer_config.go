@@ -595,12 +595,52 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}?serviceAccountName={{service_account_name}}&updateMask=serviceAccountName,displayName,destinationDatasetId,schedule,scheduleOptions,emailPreferences,notificationPubsubTopic,dataRefreshWindowDays,disabled,params")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryDataTransferBasePath}}{{name}}?serviceAccountName={{service_account_name}}")
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[DEBUG] Updating Config %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+	if v, ok := d.GetOk("service_account_name"); ok {
+		if v != nil && d.HasChange("service_account_name") {
+			updateMask = append(updateMask, "serviceAccountName")
+		}
+	}
+	if d.HasChange("display_name") {
+		updateMask = append(updateMask, "displayName")
+	}
+	if d.HasChange("destination_dataset_id") {
+		updateMask = append(updateMask, "destinationDatasetId")
+	}
+	if d.HasChange("schedule") {
+		updateMask = append(updateMask, "schedule")
+	}
+	if d.HasChange("schedule_options") {
+		updateMask = append(updateMask, "scheduleOptions")
+	}
+	if d.HasChange("email_preferences") {
+		updateMask = append(updateMask, "emailPreferences")
+	}
+	if d.HasChange("notification_pubsub_topic") {
+		updateMask = append(updateMask, "notificationPubsubTopic")
+	}
+	if d.HasChange("data_refresh_window_days") {
+		updateMask = append(updateMask, "dataRefreshWindowDays")
+	}
+	if d.HasChange("disabled") {
+		updateMask = append(updateMask, "disabled")
+	}
+	if d.HasChange("params") {
+		updateMask = append(updateMask, "params")
+	}
+
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
