@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an error during the deletion when post was set to 0 on `google_compute_global_network_endpoint`
+```

@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -58,10 +59,11 @@ func ResourceComputeGlobalNetworkEndpoint() *schema.Resource {
 				Description:      `The global network endpoint group this endpoint is part of.`,
 			},
 			"port": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Port number of the external endpoint.`,
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(1),
+				Description:  `Port number of the external endpoint.`,
 			},
 			"fqdn": {
 				Type:     schema.TypeString,
@@ -291,7 +293,7 @@ func resourceComputeGlobalNetworkEndpointDelete(d *schema.ResourceData, meta int
 	if err != nil {
 		return err
 	}
-	if portProp != "" {
+	if portProp != "" && portProp != 0 {
 		toDelete["port"] = portProp
 	}
 
