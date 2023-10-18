@@ -48,6 +48,14 @@ resource "google_cloud_run_v2_service" "hello" {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
     }
   }
+
+  labels = {
+    "key" = "value"
+  }
+
+  annotations = {
+    "key" = "value"
+  }
 }
 
 data "google_cloud_run_v2_service" "hello" {
