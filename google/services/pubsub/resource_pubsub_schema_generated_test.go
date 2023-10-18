@@ -58,7 +58,7 @@ func TestAccPubsubSchema_pubsubSchemaBasicExample(t *testing.T) {
 func testAccPubsubSchema_pubsubSchemaBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_pubsub_schema" "example" {
-  name = "example%{random_suffix}"
+  name = "tf-test-example-schema%{random_suffix}"
   type = "AVRO"
   definition = "{\n  \"type\" : \"record\",\n  \"name\" : \"Avro\",\n  \"fields\" : [\n    {\n      \"name\" : \"StringField\",\n      \"type\" : \"string\"\n    },\n    {\n      \"name\" : \"IntField\",\n      \"type\" : \"int\"\n    }\n  ]\n}\n"
 }

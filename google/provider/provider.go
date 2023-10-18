@@ -977,6 +977,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_notebooks_runtime_iam_policy":                    tpgiamresource.DataSourceIamPolicy(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer),
 			"google_privateca_ca_pool_iam_policy":                    tpgiamresource.DataSourceIamPolicy(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer),
 			"google_privateca_certificate_template_iam_policy":       tpgiamresource.DataSourceIamPolicy(privateca.PrivatecaCertificateTemplateIamSchema, privateca.PrivatecaCertificateTemplateIamUpdaterProducer),
+			"google_pubsub_schema_iam_policy":                        tpgiamresource.DataSourceIamPolicy(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer),
 			"google_pubsub_topic_iam_policy":                         tpgiamresource.DataSourceIamPolicy(pubsub.PubsubTopicIamSchema, pubsub.PubsubTopicIamUpdaterProducer),
 			"google_secret_manager_secret_iam_policy":                tpgiamresource.DataSourceIamPolicy(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer),
 			"google_scc_source_iam_policy":                           tpgiamresource.DataSourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer),
@@ -1014,8 +1015,8 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 }
 
 // Generated resources: 337
-// Generated IAM resources: 207
-// Total generated resources: 544
+// Generated IAM resources: 210
+// Total generated resources: 547
 func ResourceMap() map[string]*schema.Resource {
 	resourceMap, _ := ResourceMapWithErrors()
 	return resourceMap
@@ -1485,6 +1486,9 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 			"google_privateca_certificate_template_iam_policy":               tpgiamresource.ResourceIamPolicy(privateca.PrivatecaCertificateTemplateIamSchema, privateca.PrivatecaCertificateTemplateIamUpdaterProducer, privateca.PrivatecaCertificateTemplateIdParseFunc),
 			"google_public_ca_external_account_key":                          publicca.ResourcePublicCAExternalAccountKey(),
 			"google_pubsub_schema":                                           pubsub.ResourcePubsubSchema(),
+			"google_pubsub_schema_iam_binding":                               tpgiamresource.ResourceIamBinding(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer, pubsub.PubsubSchemaIdParseFunc),
+			"google_pubsub_schema_iam_member":                                tpgiamresource.ResourceIamMember(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer, pubsub.PubsubSchemaIdParseFunc),
+			"google_pubsub_schema_iam_policy":                                tpgiamresource.ResourceIamPolicy(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer, pubsub.PubsubSchemaIdParseFunc),
 			"google_pubsub_subscription":                                     pubsub.ResourcePubsubSubscription(),
 			"google_pubsub_topic":                                            pubsub.ResourcePubsubTopic(),
 			"google_pubsub_topic_iam_binding":                                tpgiamresource.ResourceIamBinding(pubsub.PubsubTopicIamSchema, pubsub.PubsubTopicIamUpdaterProducer, pubsub.PubsubTopicIdParseFunc),
