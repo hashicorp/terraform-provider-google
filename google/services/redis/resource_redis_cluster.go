@@ -279,7 +279,7 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	replicaCountProp, err := expandRedisClusterReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("replica_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(replicaCountProp)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
 		obj["replicaCount"] = replicaCountProp
 	}
 	shardCountProp, err := expandRedisClusterShardCount(d.Get("shard_count"), d, config)
@@ -453,7 +453,7 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	replicaCountProp, err := expandRedisClusterReplicaCount(d.Get("replica_count"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("replica_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, replicaCountProp)) {
+	} else if v, ok := d.GetOkExists("replica_count"); ok || !reflect.DeepEqual(v, replicaCountProp) {
 		obj["replicaCount"] = replicaCountProp
 	}
 	shardCountProp, err := expandRedisClusterShardCount(d.Get("shard_count"), d, config)
