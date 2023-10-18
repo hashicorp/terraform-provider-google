@@ -297,7 +297,7 @@ resource "google_cloud_identity_group" "group" {
   parent = "customers/%{cust_id}"
 
   group_key {
-  	id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
+    id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
   }
 
   labels = {
@@ -311,7 +311,7 @@ resource "google_cloud_identity_group" "child-group" {
   parent = "customers/%{cust_id}"
 
   group_key {
-  	id = "tf-test-my-identity-group%{random_suffix}-child@%{org_domain}"
+    id = "tf-test-my-identity-group%{random_suffix}-child@%{org_domain}"
   }
 
   labels = {
@@ -327,7 +327,7 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
   }
 
   roles {
-  	name = "MEMBER"
+    name = "MEMBER"
   }
 }
 `, context)

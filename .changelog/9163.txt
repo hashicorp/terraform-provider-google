@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_cloud_identity_group_lookup`
+```
