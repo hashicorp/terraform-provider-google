@@ -31,6 +31,7 @@ func TestAccCloudIdentityGroup(t *testing.T) {
 		"membership_user":              testAccCloudIdentityGroupMembership_cloudIdentityGroupMembershipUserExampleTest,
 		"data_source_basic":            testAccDataSourceCloudIdentityGroups_basicTest,
 		"data_source_membership_basic": testAccDataSourceCloudIdentityGroupMemberships_basicTest,
+		"data_source_group_lookup":     testAccDataSourceCloudIdentityGroupLookup_basicTest,
 	}
 
 	for name, tc := range testCases {
@@ -125,7 +126,7 @@ resource "google_cloud_identity_group" "cloud_identity_group_basic" {
   parent = "customers/%{cust_id}"
 
   group_key {
-  	id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
+    id = "tf-test-my-identity-group%{random_suffix}@%{org_domain}"
   }
 
   labels = {
