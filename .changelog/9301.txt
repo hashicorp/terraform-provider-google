@@ -1,0 +1,12 @@
+```release-note:bug
+cloudrunv2: set fields `labels` and `terraform_labels` having all of labels present on the resource in GCP in data source `google_cloud_run_v2_service`
+```
+```release-note:bug
+cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_service`
+```
+```release-note:bug
+cloudrunv2: set fields `labels` and `terraform_labels` having all of labels present on the resource in GCP in data source `google_cloud_run_v2_job`
+```
+```release-note:bug
+cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_job`
+```

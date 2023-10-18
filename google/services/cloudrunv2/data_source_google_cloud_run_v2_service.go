@@ -39,6 +39,14 @@ func dataSourceGoogleCloudRunV2ServiceRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	if err := tpgresource.SetDataSourceLabels(d); err != nil {
+		return err
+	}
+
+	if err := tpgresource.SetDataSourceAnnotations(d); err != nil {
+		return err
+	}
+
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
 	}
