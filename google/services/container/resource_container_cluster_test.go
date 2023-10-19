@@ -4487,34 +4487,6 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_failedCreation(t *testing.T) {
-	// Test that in a scenario where the cluster fails to create, a subsequent apply will delete the resource.
-	// Skip this test for now as we don't have a good way to force cluster creation to fail. https://github.com/hashicorp/terraform-provider-google/issues/13711
-	t.Skip()
-	t.Parallel()
-
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-
-	project := acctest.BootstrapProject(t, "tf-fail-cluster-", envvar.GetTestBillingAccountFromEnv(t), []string{"container.googleapis.com"})
-	acctest.RemoveContainerServiceAgentRoleFromContainerEngineRobot(t, project)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccContainerCluster_failedCreation(clusterName, project.ProjectId),
-				ExpectError: regexp.MustCompile("timeout while waiting for state to become 'DONE'"),
-			},
-			{
-				Config:      testAccContainerCluster_failedCreation_update(clusterName, project.ProjectId),
-				ExpectError: regexp.MustCompile("Failed to create cluster"),
-				Check:       testAccCheckContainerClusterDestroyProducer(t),
-			},
-		},
-	})
-}
-
 func testAccContainerCluster_withEnablePrivateEndpoint(clusterName string, flag string) string {
 
 	return fmt.Sprintf(`
@@ -7261,40 +7233,6 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, name, name, name)
-}
-
-func testAccContainerCluster_failedCreation(cluster, project string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  project            = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-
-  workload_identity_config {
-    workload_pool = "%s.svc.id.goog"
-  }
-
-  timeouts {
-    create = "40s"
-  }
-  deletion_protection = false
-}`, cluster, project, project)
-}
-
-func testAccContainerCluster_failedCreation_update(cluster, project string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  project            = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-
-  workload_identity_config {
-    workload_pool = "%s.svc.id.goog"
-  }
-  deletion_protection = false
-}`, cluster, project, project)
 }
 
 func testAccContainerCluster_autopilot_minimal(name string) string {
