@@ -1486,7 +1486,7 @@ resource "google_container_node_pool" "np" {
     machine_type = "n1-standard-8"
     image_type = "COS_CONTAINERD"
     guest_accelerator {
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
       count = 1
       }
     gvnic {
@@ -2890,7 +2890,7 @@ resource "google_container_node_pool" "np" {
   node_config {
     guest_accelerator {
       count = 1
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
 	machine_type = "n1-highmem-4"
   }
