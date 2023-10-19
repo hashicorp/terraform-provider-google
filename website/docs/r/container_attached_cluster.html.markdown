@@ -89,6 +89,7 @@ resource "google_container_attached_cluster" "primary" {
   }
   authorization {
     admin_users = [ "user1@example.com", "user2@example.com"]
+    admin_groups = [ "group1@example.com", "group2@example.com"]
   }
   oidc_config {
       issuer_url = "https://oidc.issuer.url"
@@ -278,6 +279,14 @@ The following arguments are supported:
   Users that can perform operations as a cluster admin. A managed
   ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole
   to the users. Up to ten admin users can be provided.
+  For more info on RBAC, see
+  https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+
+* `admin_groups` -
+  (Optional)
+  Groups that can perform operations as a cluster admin. A managed
+  ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole
+  to the groups. Up to ten admin groups can be provided.
   For more info on RBAC, see
   https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
 
