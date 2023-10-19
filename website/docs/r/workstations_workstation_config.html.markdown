@@ -398,7 +398,7 @@ resource "google_workstations_workstation_config" "default" {
       boot_disk_size_gb           = 35
       disable_public_ip_addresses = true
       accelerators {
-        type  = "nvidia-tesla-p100"
+        type  = "nvidia-tesla-t4"
         count = "1"
       }
     }
