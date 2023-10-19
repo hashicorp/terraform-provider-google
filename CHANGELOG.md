@@ -1,17 +1,16 @@
 ## 5.3.0 (Unreleased)
 
 DEPRECATIONS:
-* bigquery: deprecated `time_partitioning.require_partition_filter` in favor of new top level field `require_partition_filter` instead in resource `google_bigquery_table` ([#16238](https://github.com/hashicorp/terraform-provider-google/pull/16238))
+* bigquery: deprecated `time_partitioning.require_partition_filter` in favor of new top level field `require_partition_filter` in resource `google_bigquery_table` ([#16238](https://github.com/hashicorp/terraform-provider-google/pull/16238))
 
 FEATURES:
 * **New Data Source:** `google_cloud_run_v2_job` ([#16260](https://github.com/hashicorp/terraform-provider-google/pull/16260))
 * **New Data Source:** `google_cloud_run_v2_service` ([#16290](https://github.com/hashicorp/terraform-provider-google/pull/16290))
 * **New Data Source:** `google_compute_networks` ([#16240](https://github.com/hashicorp/terraform-provider-google/pull/16240))
-* **New Resource:** `google_org_policy_custom_constraint` (GA) ([#16220](https://github.com/hashicorp/terraform-provider-google/pull/16220))
+* **New Resource:** `google_org_policy_custom_constraint` ([#16220](https://github.com/hashicorp/terraform-provider-google/pull/16220))
 
 IMPROVEMENTS:
-* alloydb: added `client_connection_config` field to `google_alloydb_instance` resource ([#16236](https://github.com/hashicorp/terraform-provider-google/pull/16236))
-* cloudidentity: Added `additional_group_keys` attribute to `google_cloud_identity_group` resource ([#16250](https://github.com/hashicorp/terraform-provider-google/pull/16250))
+* cloudidentity: added `additional_group_keys` attribute to `google_cloud_identity_group` resource ([#16250](https://github.com/hashicorp/terraform-provider-google/pull/16250))
 * composer: promoted `config.0.workloads_config.0.triggerer` to GA in resource `google_composer_environment` ([#16218](https://github.com/hashicorp/terraform-provider-google/pull/16218))
 * compute: added `internal_ipv6_range` to `data.google_compute_network` data source and `internal_ipv6_prefix` field to `data.google_compute_subnetwork` data source ([#16267](https://github.com/hashicorp/terraform-provider-google/pull/16267))
 * container: added support for `security_posture_config.vulnerability_mode` value "VULNERABILITY_ENTERPRISE" in `google_container_cluster` ([#16283](https://github.com/hashicorp/terraform-provider-google/pull/16283))
@@ -20,7 +19,7 @@ IMPROVEMENTS:
 * gkeonprem: promoted `google_gkeonprem_bare_metal_admin_cluster`, `google_gkeonprem_bare_metal_cluster`, and `google_gkeonprem_bare_metal_node_pool` resources to GA ([#16237](https://github.com/hashicorp/terraform-provider-google/pull/16237))
 * gkeonprem: promoted `google_gkeonprem_vmware_cluster` and `google_gkeonprem_vmware_node_pool` resources to GA ([#16237](https://github.com/hashicorp/terraform-provider-google/pull/16237))
 * logging: added `custom_writer_identity` field to `google_logging_project_sink` ([#16216](https://github.com/hashicorp/terraform-provider-google/pull/16216))
-* secretmanager: `ttl` field made mutable in `google_secret_manager_secret` ([#16285](https://github.com/hashicorp/terraform-provider-google/pull/16285))
+* secretmanager: made `ttl` field mutable in `google_secret_manager_secret` ([#16285](https://github.com/hashicorp/terraform-provider-google/pull/16285))
 * storage: added `terminal_storage_class` to the `autoclass` field in `google_storage_bucket` resource ([#16282](https://github.com/hashicorp/terraform-provider-google/pull/16282))
 
 BUG FIXES:
