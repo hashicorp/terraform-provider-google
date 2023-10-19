@@ -367,6 +367,10 @@ The following arguments are supported:
   The template used to create revisions for this Service.
   Structure is [documented below](#nested_template).
 
+* `location` -
+  (Required)
+  The location of the cloud run service
+
 
 <a name="nested_template"></a>The `template` block supports:
 
@@ -885,10 +889,6 @@ The following arguments are supported:
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.
   Structure is [documented below](#nested_traffic).
-
-* `location` -
-  (Optional)
-  The location of the cloud run service
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
