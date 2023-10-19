@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added data boost and parallelism input options to `google_bigquery_connection`
+```
