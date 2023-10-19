@@ -58,6 +58,46 @@ func ResourceDialogflowCXPage() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 64),
 				Description:  `The human-readable name of the page, unique within the agent.`,
 			},
+			"advanced_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Hierarchical advanced settings for this page. The settings exposed at the lower level overrides the settings exposed at the higher level.
+Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dtmf_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+* Agent level
+* Flow level
+* Page level
+* Parameter level`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).`,
+									},
+									"finish_digit": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The digit that terminates a DTMF digit sequence.`,
+									},
+									"max_digits": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Max length of DTMF digits.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"entry_fulfillment": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -520,6 +560,46 @@ You may set this, for example:
 							Description: `Parameters to collect from the user.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"advanced_settings": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Hierarchical advanced settings for this parameter. The settings exposed at the lower level overrides the settings exposed at the higher level.
+Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"dtmf_settings": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+* Agent level
+* Flow level
+* Page level
+* Parameter level`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"enabled": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).`,
+															},
+															"finish_digit": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The digit that terminates a DTMF digit sequence.`,
+															},
+															"max_digits": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: `Max length of DTMF digits.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"default_value": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -1375,6 +1455,12 @@ func resourceDialogflowCXPageCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("event_handlers"); !tpgresource.IsEmptyValue(reflect.ValueOf(eventHandlersProp)) && (ok || !reflect.DeepEqual(v, eventHandlersProp)) {
 		obj["eventHandlers"] = eventHandlersProp
 	}
+	advancedSettingsProp, err := expandDialogflowCXPageAdvancedSettings(d.Get("advanced_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedSettingsProp)) && (ok || !reflect.DeepEqual(v, advancedSettingsProp)) {
+		obj["advancedSettings"] = advancedSettingsProp
+	}
 	languageCodeProp, err := expandDialogflowCXPageLanguageCode(d.Get("language_code"), d, config)
 	if err != nil {
 		return err
@@ -1502,6 +1588,9 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("event_handlers", flattenDialogflowCXPageEventHandlers(res["eventHandlers"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Page: %s", err)
 	}
+	if err := d.Set("advanced_settings", flattenDialogflowCXPageAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Page: %s", err)
+	}
 	if err := d.Set("language_code", flattenDialogflowCXPageLanguageCode(res["languageCode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Page: %s", err)
 	}
@@ -1555,6 +1644,12 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("event_handlers"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, eventHandlersProp)) {
 		obj["eventHandlers"] = eventHandlersProp
 	}
+	advancedSettingsProp, err := expandDialogflowCXPageAdvancedSettings(d.Get("advanced_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advancedSettingsProp)) {
+		obj["advancedSettings"] = advancedSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/pages/{{name}}")
 	if err != nil {
@@ -1586,6 +1681,10 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("event_handlers") {
 		updateMask = append(updateMask, "eventHandlers")
+	}
+
+	if d.HasChange("advanced_settings") {
+		updateMask = append(updateMask, "advancedSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -2032,13 +2131,14 @@ func flattenDialogflowCXPageFormParameters(v interface{}, d *schema.ResourceData
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"display_name":  flattenDialogflowCXPageFormParametersDisplayName(original["displayName"], d, config),
-			"required":      flattenDialogflowCXPageFormParametersRequired(original["required"], d, config),
-			"entity_type":   flattenDialogflowCXPageFormParametersEntityType(original["entityType"], d, config),
-			"is_list":       flattenDialogflowCXPageFormParametersIsList(original["isList"], d, config),
-			"fill_behavior": flattenDialogflowCXPageFormParametersFillBehavior(original["fillBehavior"], d, config),
-			"default_value": flattenDialogflowCXPageFormParametersDefaultValue(original["defaultValue"], d, config),
-			"redact":        flattenDialogflowCXPageFormParametersRedact(original["redact"], d, config),
+			"display_name":      flattenDialogflowCXPageFormParametersDisplayName(original["displayName"], d, config),
+			"required":          flattenDialogflowCXPageFormParametersRequired(original["required"], d, config),
+			"entity_type":       flattenDialogflowCXPageFormParametersEntityType(original["entityType"], d, config),
+			"is_list":           flattenDialogflowCXPageFormParametersIsList(original["isList"], d, config),
+			"fill_behavior":     flattenDialogflowCXPageFormParametersFillBehavior(original["fillBehavior"], d, config),
+			"default_value":     flattenDialogflowCXPageFormParametersDefaultValue(original["defaultValue"], d, config),
+			"redact":            flattenDialogflowCXPageFormParametersRedact(original["redact"], d, config),
+			"advanced_settings": flattenDialogflowCXPageFormParametersAdvancedSettings(original["advancedSettings"], d, config),
 		})
 	}
 	return transformed
@@ -2694,6 +2794,61 @@ func flattenDialogflowCXPageFormParametersRedact(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenDialogflowCXPageFormParametersAdvancedSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dtmf_settings"] =
+		flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettings(original["dtmfSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	transformed["max_digits"] =
+		flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsMaxDigits(original["maxDigits"], d, config)
+	transformed["finish_digit"] =
+		flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsFinishDigit(original["finishDigit"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDialogflowCXPageTransitionRouteGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -3345,6 +3500,61 @@ func flattenDialogflowCXPageEventHandlersTargetFlow(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenDialogflowCXPageAdvancedSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dtmf_settings"] =
+		flattenDialogflowCXPageAdvancedSettingsDtmfSettings(original["dtmfSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXPageAdvancedSettingsDtmfSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenDialogflowCXPageAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	transformed["max_digits"] =
+		flattenDialogflowCXPageAdvancedSettingsDtmfSettingsMaxDigits(original["maxDigits"], d, config)
+	transformed["finish_digit"] =
+		flattenDialogflowCXPageAdvancedSettingsDtmfSettingsFinishDigit(original["finishDigit"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXPageAdvancedSettingsDtmfSettingsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXPageAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowCXPageAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDialogflowCXPageLanguageCode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -3859,6 +4069,13 @@ func expandDialogflowCXPageFormParameters(v interface{}, d tpgresource.Terraform
 			return nil, err
 		} else if val := reflect.ValueOf(transformedRedact); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["redact"] = transformedRedact
+		}
+
+		transformedAdvancedSettings, err := expandDialogflowCXPageFormParametersAdvancedSettings(original["advanced_settings"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAdvancedSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["advancedSettings"] = transformedAdvancedSettings
 		}
 
 		req = append(req, transformed)
@@ -4847,6 +5064,70 @@ func expandDialogflowCXPageFormParametersDefaultValue(v interface{}, d tpgresour
 }
 
 func expandDialogflowCXPageFormParametersRedact(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageFormParametersAdvancedSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDtmfSettings, err := expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettings(original["dtmf_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDtmfSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dtmfSettings"] = transformedDtmfSettings
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedMaxDigits, err := expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsMaxDigits(original["max_digits"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDigits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxDigits"] = transformedMaxDigits
+	}
+
+	transformedFinishDigit, err := expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsFinishDigit(original["finish_digit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFinishDigit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["finishDigit"] = transformedFinishDigit
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageFormParametersAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5854,6 +6135,70 @@ func expandDialogflowCXPageEventHandlersTargetPage(v interface{}, d tpgresource.
 }
 
 func expandDialogflowCXPageEventHandlersTargetFlow(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageAdvancedSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDtmfSettings, err := expandDialogflowCXPageAdvancedSettingsDtmfSettings(original["dtmf_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDtmfSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dtmfSettings"] = transformedDtmfSettings
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXPageAdvancedSettingsDtmfSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandDialogflowCXPageAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedMaxDigits, err := expandDialogflowCXPageAdvancedSettingsDtmfSettingsMaxDigits(original["max_digits"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDigits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxDigits"] = transformedMaxDigits
+	}
+
+	transformedFinishDigit, err := expandDialogflowCXPageAdvancedSettingsDtmfSettingsFinishDigit(original["finish_digit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFinishDigit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["finishDigit"] = transformedFinishDigit
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXPageAdvancedSettingsDtmfSettingsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXPageAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

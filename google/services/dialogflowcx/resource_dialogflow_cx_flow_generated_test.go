@@ -72,6 +72,12 @@ resource "google_dialogflow_cx_agent" "agent" {
   }
 }
 
+resource "google_storage_bucket" "bucket" {
+  name                        = "tf-test-dialogflowcx-bucket%{random_suffix}"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
 
 resource "google_dialogflow_cx_flow" "basic_flow" {
   parent       = google_dialogflow_cx_agent.agent.id
@@ -320,6 +326,17 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
       }
     }
     target_flow = google_dialogflow_cx_agent.agent.start_flow
+  }
+
+  advanced_settings {
+    audio_export_gcs_destination {
+      uri = "${google_storage_bucket.bucket.url}/prefix-"
+    }
+    dtmf_settings {
+      enabled      = true
+      max_digits   = 1
+      finish_digit = "#"
+    }
   }
 } 
 `, context)

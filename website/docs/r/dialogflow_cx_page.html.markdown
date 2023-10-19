@@ -471,6 +471,13 @@ resource "google_dialogflow_cx_page" "basic_page" {
       }
       required = "true"
       redact   = "true"
+      advanced_settings {
+        dtmf_settings {
+          enabled      = true
+          max_digits   = 1
+          finish_digit = "#"
+        }
+      }
     }
   }
 
@@ -574,6 +581,14 @@ resource "google_dialogflow_cx_page" "basic_page" {
     }
     target_page = google_dialogflow_cx_page.my_page2.id
   }
+
+  advanced_settings {
+    dtmf_settings {
+      enabled      = true
+      max_digits   = 1
+      finish_digit = "#"
+    }
+  }
 }
 
 resource "google_dialogflow_cx_page" "my_page2" {
@@ -636,6 +651,12 @@ The following arguments are supported:
   (Optional)
   Handlers associated with the page to handle events such as webhook errors, no match or no input.
   Structure is [documented below](#nested_event_handlers).
+
+* `advanced_settings` -
+  (Optional)
+  Hierarchical advanced settings for this page. The settings exposed at the lower level overrides the settings exposed at the higher level.
+  Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.
+  Structure is [documented below](#nested_advanced_settings).
 
 * `parent` -
   (Optional)
@@ -847,6 +868,12 @@ The following arguments are supported:
   (Optional)
   Indicates whether the parameter content should be redacted in log.
   If redaction is enabled, the parameter content will be replaced by parameter name during logging. Note: the parameter content is subject to redaction if either parameter level redaction or entity type level redaction is enabled.
+
+* `advanced_settings` -
+  (Optional)
+  Hierarchical advanced settings for this parameter. The settings exposed at the lower level overrides the settings exposed at the higher level.
+  Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.
+  Structure is [documented below](#nested_advanced_settings).
 
 
 <a name="nested_fill_behavior"></a>The `fill_behavior` block supports:
@@ -1193,6 +1220,32 @@ The following arguments are supported:
   (Optional)
   A JSON encoded list of cascading if-else conditions. Cases are mutually exclusive. The first one with a matching condition is selected, all the rest ignored.
   See [Case](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/Fulfillment#case) for the schema.
+
+<a name="nested_advanced_settings"></a>The `advanced_settings` block supports:
+
+* `dtmf_settings` -
+  (Optional)
+  Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  * Page level
+  * Parameter level
+  Structure is [documented below](#nested_dtmf_settings).
+
+
+<a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
+
+* `enabled` -
+  (Optional)
+  If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).
+
+* `max_digits` -
+  (Optional)
+  Max length of DTMF digits.
+
+* `finish_digit` -
+  (Optional)
+  The digit that terminates a DTMF digit sequence.
 
 <a name="nested_transition_routes"></a>The `transition_routes` block supports:
 
@@ -1547,6 +1600,32 @@ The following arguments are supported:
   (Optional)
   A JSON encoded list of cascading if-else conditions. Cases are mutually exclusive. The first one with a matching condition is selected, all the rest ignored.
   See [Case](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/Fulfillment#case) for the schema.
+
+<a name="nested_advanced_settings"></a>The `advanced_settings` block supports:
+
+* `dtmf_settings` -
+  (Optional)
+  Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  * Page level
+  * Parameter level
+  Structure is [documented below](#nested_dtmf_settings).
+
+
+<a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
+
+* `enabled` -
+  (Optional)
+  If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).
+
+* `max_digits` -
+  (Optional)
+  Max length of DTMF digits.
+
+* `finish_digit` -
+  (Optional)
+  The digit that terminates a DTMF digit sequence.
 
 ## Attributes Reference
 

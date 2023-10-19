@@ -52,6 +52,12 @@ resource "google_dialogflow_cx_agent" "agent" {
   }
 }
 
+resource "google_storage_bucket" "bucket" {
+  name                        = "dialogflowcx-bucket"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
 
 resource "google_dialogflow_cx_flow" "basic_flow" {
   parent       = google_dialogflow_cx_agent.agent.id
@@ -301,6 +307,17 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
     }
     target_flow = google_dialogflow_cx_agent.agent.start_flow
   }
+
+  advanced_settings {
+    audio_export_gcs_destination {
+      uri = "${google_storage_bucket.bucket.url}/prefix-"
+    }
+    dtmf_settings {
+      enabled      = true
+      max_digits   = 1
+      finish_digit = "#"
+    }
+  }
 } 
 ```
 
@@ -351,6 +368,12 @@ The following arguments are supported:
   (Optional)
   NLU related settings of the flow.
   Structure is [documented below](#nested_nlu_settings).
+
+* `advanced_settings` -
+  (Optional)
+  Hierarchical advanced settings for this flow. The settings exposed at the lower level overrides the settings exposed at the higher level.
+  Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.
+  Structure is [documented below](#nested_advanced_settings).
 
 * `parent` -
   (Optional)
@@ -741,6 +764,46 @@ The following arguments are supported:
   * MODEL_TRAINING_MODE_AUTOMATIC: NLU model training is automatically triggered when a flow gets modified. User can also manually trigger model training in this mode.
   * MODEL_TRAINING_MODE_MANUAL: User needs to manually trigger NLU model training. Best for large flows whose models take long time to train.
   Possible values are: `MODEL_TRAINING_MODE_AUTOMATIC`, `MODEL_TRAINING_MODE_MANUAL`.
+
+<a name="nested_advanced_settings"></a>The `advanced_settings` block supports:
+
+* `audio_export_gcs_destination` -
+  (Optional)
+  If present, incoming audio is exported by Dialogflow to the configured Google Cloud Storage destination. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  Structure is [documented below](#nested_audio_export_gcs_destination).
+
+* `dtmf_settings` -
+  (Optional)
+  Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  * Page level
+  * Parameter level
+  Structure is [documented below](#nested_dtmf_settings).
+
+
+<a name="nested_audio_export_gcs_destination"></a>The `audio_export_gcs_destination` block supports:
+
+* `uri` -
+  (Optional)
+  The Google Cloud Storage URI for the exported objects. Whether a full object name, or just a prefix, its usage depends on the Dialogflow operation.
+  Format: gs://bucket/object-name-or-prefix
+
+<a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
+
+* `enabled` -
+  (Optional)
+  If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).
+
+* `max_digits` -
+  (Optional)
+  Max length of DTMF digits.
+
+* `finish_digit` -
+  (Optional)
+  The digit that terminates a DTMF digit sequence.
 
 ## Attributes Reference
 

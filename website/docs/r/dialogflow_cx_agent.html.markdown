@@ -28,6 +28,10 @@ To get more information about Agent, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/dialogflow/cx/docs)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `git_integration_settings.github_settings.access_token`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dialogflowcx_agent_full&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -37,6 +41,12 @@ To get more information about Agent, see:
 
 
 ```hcl
+resource "google_storage_bucket" "bucket" {
+  name                        = "dialogflowcx-bucket"
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
 resource "google_dialogflow_cx_agent" "full_agent" {
   display_name = "dialogflowcx-agent"
   location = "global"
@@ -47,9 +57,42 @@ resource "google_dialogflow_cx_agent" "full_agent" {
   avatar_uri = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
   enable_stackdriver_logging = true
   enable_spell_correction    = true
-	speech_to_text_settings {
-		enable_speech_adaptation = true
-	}
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+  advanced_settings {
+    audio_export_gcs_destination {
+      uri = "${google_storage_bucket.bucket.url}/prefix-"
+    }
+    dtmf_settings {
+      enabled = true
+      max_digits = 1
+      finish_digit = "#"
+    }
+  }
+  git_integration_settings {
+    github_settings {
+      display_name = "Github Repo"
+      repository_uri = "https://api.github.com/repos/githubtraining/hellogitworld"
+      tracking_branch = "main"
+      access_token = "secret-token"
+      branches = ["main"]
+    }
+  }
+  text_to_speech_settings {
+    synthesize_speech_configs = jsonencode({
+      en = {
+        voice = {
+          name = "en-US-Neural2-A"
+        }
+      }
+      fr = {
+        voice = {
+          name = "fr-CA-Neural2-A",
+        }
+      }
+    })
+  }
 }
 ```
 
@@ -112,6 +155,22 @@ The following arguments are supported:
   (Optional)
   Indicates if automatic spell correction is enabled in detect intent requests.
 
+* `advanced_settings` -
+  (Optional)
+  Hierarchical advanced settings for this agent. The settings exposed at the lower level overrides the settings exposed at the higher level.
+  Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.
+  Structure is [documented below](#nested_advanced_settings).
+
+* `git_integration_settings` -
+  (Optional)
+  Git integration settings for this agent.
+  Structure is [documented below](#nested_git_integration_settings).
+
+* `text_to_speech_settings` -
+  (Optional)
+  Settings related to speech synthesizing.
+  Structure is [documented below](#nested_text_to_speech_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -121,6 +180,86 @@ The following arguments are supported:
 * `enable_speech_adaptation` -
   (Optional)
   Whether to use speech adaptation for speech recognition.
+
+<a name="nested_advanced_settings"></a>The `advanced_settings` block supports:
+
+* `audio_export_gcs_destination` -
+  (Optional)
+  If present, incoming audio is exported by Dialogflow to the configured Google Cloud Storage destination. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  Structure is [documented below](#nested_audio_export_gcs_destination).
+
+* `dtmf_settings` -
+  (Optional)
+  Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+  * Agent level
+  * Flow level
+  * Page level
+  * Parameter level
+  Structure is [documented below](#nested_dtmf_settings).
+
+
+<a name="nested_audio_export_gcs_destination"></a>The `audio_export_gcs_destination` block supports:
+
+* `uri` -
+  (Optional)
+  The Google Cloud Storage URI for the exported objects. Whether a full object name, or just a prefix, its usage depends on the Dialogflow operation.
+  Format: gs://bucket/object-name-or-prefix
+
+<a name="nested_dtmf_settings"></a>The `dtmf_settings` block supports:
+
+* `enabled` -
+  (Optional)
+  If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).
+
+* `max_digits` -
+  (Optional)
+  Max length of DTMF digits.
+
+* `finish_digit` -
+  (Optional)
+  The digit that terminates a DTMF digit sequence.
+
+<a name="nested_git_integration_settings"></a>The `git_integration_settings` block supports:
+
+* `github_settings` -
+  (Optional)
+  Settings of integration with GitHub.
+  Structure is [documented below](#nested_github_settings).
+
+
+<a name="nested_github_settings"></a>The `github_settings` block supports:
+
+* `display_name` -
+  (Optional)
+  The unique repository display name for the GitHub repository.
+
+* `repository_uri` -
+  (Optional)
+  The GitHub repository URI related to the agent.
+
+* `tracking_branch` -
+  (Optional)
+  The branch of the GitHub repository tracked for this agent.
+
+* `access_token` -
+  (Optional)
+  The access token used to authenticate the access to the GitHub repository.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `branches` -
+  (Optional)
+  A list of branches configured to be used from Dialogflow.
+
+<a name="nested_text_to_speech_settings"></a>The `text_to_speech_settings` block supports:
+
+* `synthesize_speech_configs` -
+  (Optional)
+  Configuration of how speech should be synthesized, mapping from [language](https://cloud.google.com/dialogflow/cx/docs/reference/language) to [SynthesizeSpeechConfig](https://cloud.google.com/dialogflow/cx/docs/reference/rest/v3/projects.locations.agents#synthesizespeechconfig).
+  These settings affect:
+  * The phone gateway synthesize configuration set via Agent.text_to_speech_settings.
+  * How speech is synthesized when invoking session APIs. `Agent.text_to_speech_settings` only applies if `OutputAudioConfig.synthesize_speech_config` is not specified.
 
 ## Attributes Reference
 
