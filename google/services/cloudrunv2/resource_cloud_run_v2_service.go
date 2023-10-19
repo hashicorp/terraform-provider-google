@@ -55,6 +55,12 @@ func ResourceCloudRunV2Service() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The location of the cloud run service`,
+			},
 			"name": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -745,12 +751,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 If no value is specified, GA is assumed. Set the launch stage to a preview stage on input to allow use of preview features in that stage. On read (or output), describes whether the resource uses preview features.
 
 For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output. Possible values: ["UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
-			},
-			"location": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The location of the cloud run service`,
 			},
 			"traffic": {
 				Type:        schema.TypeList,

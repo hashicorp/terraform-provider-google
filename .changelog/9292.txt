@@ -1,0 +1,6 @@
+```release-note:breaking-change
+cloudrunv2: marked `location` field as required in resource `google_cloud_run_v2_job`. Any configuration without `location` specified will cause resource creation fail
+```
+```release-note:breaking-change
+cloudrunv2: marked `location` field as required in resource `google_cloud_run_v2_service`. Any configuration without `location` specified will cause resource creation fail
+```
