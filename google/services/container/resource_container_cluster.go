@@ -1578,6 +1578,23 @@ func ResourceContainerCluster() *schema.Resource {
 				},
 			},
 
+			"identity_service_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `Configuration for Identity Service which allows customers to use external identity providers with the K8S API.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether to enable the Identity Service component.",
+						},
+					},
+				},
+			},
+
 			"service_external_ips_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
@@ -2070,6 +2087,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		cluster.WorkloadIdentityConfig = expandWorkloadIdentityConfig(v)
 	}
 
+	if v, ok := d.GetOk("identity_service_config"); ok {
+		cluster.IdentityServiceConfig = expandIdentityServiceConfig(v)
+	}
+
 	if v, ok := d.GetOk("resource_usage_export_config"); ok {
 		cluster.ResourceUsageExportConfig = expandResourceUsageExportConfig(v)
 	}
@@ -2484,6 +2505,10 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := d.Set("workload_identity_config", flattenWorkloadIdentityConfig(cluster.WorkloadIdentityConfig, d, config)); err != nil {
+		return err
+	}
+
+	if err := d.Set("identity_service_config", flattenIdentityServiceConfig(cluster.IdentityServiceConfig, d, config)); err != nil {
 		return err
 	}
 
@@ -3434,6 +3459,29 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s workload identity config has been updated", d.Id())
+	}
+
+	if d.HasChange("identity_service_config") {
+		req := &container.UpdateClusterRequest{}
+		if v, ok := d.GetOk("identity_service_config"); !ok {
+			req.Update = &container.ClusterUpdate{
+				DesiredIdentityServiceConfig: &container.IdentityServiceConfig{
+					Enabled: false,
+				},
+			}
+		} else {
+			req.Update = &container.ClusterUpdate{
+				DesiredIdentityServiceConfig: expandIdentityServiceConfig(v),
+			}
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster identity service config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s identity service config has been updated", d.Id())
 	}
 
 	if d.HasChange("logging_config") {
@@ -4489,6 +4537,16 @@ func expandWorkloadIdentityConfig(configured interface{}) *container.WorkloadIde
 	return v
 }
 
+func expandIdentityServiceConfig(configured interface{}) *container.IdentityServiceConfig {
+	l := configured.([]interface{})
+	v := &container.IdentityServiceConfig{}
+
+	config := l[0].(map[string]interface{})
+	v.Enabled = config["enabled"].(bool)
+
+	return v
+}
+
 func expandDefaultMaxPodsConstraint(v interface{}) *container.MaxPodsConstraint {
 	if v == nil {
 		return nil
@@ -4965,6 +5023,18 @@ func flattenWorkloadIdentityConfig(c *container.WorkloadIdentityConfig, d *schem
 	return []map[string]interface{}{
 		{
 			"workload_pool": c.WorkloadPool,
+		},
+	}
+}
+
+func flattenIdentityServiceConfig(c *container.IdentityServiceConfig, d *schema.ResourceData, config *transport_tpg.Config) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"enabled": c.Enabled,
 		},
 	}
 }
