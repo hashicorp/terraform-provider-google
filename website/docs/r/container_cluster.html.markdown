@@ -420,7 +420,7 @@ Enable/Disable Security Posture API features for the cluster. Structure is [docu
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Structure is [documented below](#nested_istio_config).
 
-* `identity_service_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)). Structure is [documented below](#nested_identity_service_config).
+* `identity_service_config` - (Optional). Structure is [documented below](#nested_identity_service_config).
 
 * `dns_cache_config` - (Optional).
     The status of the NodeLocal DNSCache addon. It is disabled by default.

@@ -2487,6 +2487,55 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withIdentityServiceConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_basic(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withIdentityServiceConfigEnabled(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withIdentityServiceConfigUpdated(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_basic(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withLoggingConfig(t *testing.T) {
 	t.Parallel()
 
@@ -6908,6 +6957,34 @@ resource "google_container_cluster" "primary" {
 	deletion_protection = false
 }
 `, clusterName, gatewayApiChannel)
+}
+
+func testAccContainerCluster_withIdentityServiceConfigEnabled(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  identity_service_config {
+	  enabled = true
+  }
+  deletion_protection = false
+}
+`, name)
+}
+
+func testAccContainerCluster_withIdentityServiceConfigUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  identity_service_config {
+	  enabled = false
+  }
+  deletion_protection = false
+}
+`, name)
 }
 
 func testAccContainerCluster_withLoggingConfigEnabled(name string) string {

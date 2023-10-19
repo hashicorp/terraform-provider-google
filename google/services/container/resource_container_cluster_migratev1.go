@@ -1388,6 +1388,23 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 				},
 			},
 
+			"identity_service_config": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				Computed:    true,
+				Description: `Configuration for Identity Service which allows customers to use external identity providers with the K8S API.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether to enable the Identity Service component.",
+						},
+					},
+				},
+			},
+
 			"service_external_ips_config": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
