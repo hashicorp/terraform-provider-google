@@ -382,26 +382,22 @@ func schemaNodeConfig() *schema.Schema {
 				"taint": {
 					Type:        schema.TypeList,
 					Optional:    true,
-					ForceNew:    true,
 					Description: `List of Kubernetes taints to be applied to each node.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"key": {
 								Type:        schema.TypeString,
 								Required:    true,
-								ForceNew:    true,
 								Description: `Key for taint.`,
 							},
 							"value": {
 								Type:        schema.TypeString,
 								Required:    true,
-								ForceNew:    true,
 								Description: `Value for taint.`,
 							},
 							"effect": {
 								Type:         schema.TypeString,
 								Required:     true,
-								ForceNew:     true,
 								ValidateFunc: validation.StringInSlice([]string{"NO_SCHEDULE", "PREFER_NO_SCHEDULE", "NO_EXECUTE"}, false),
 								Description:  `Effect for taint.`,
 							},
