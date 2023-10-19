@@ -151,10 +151,11 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
-func TestAccAlloydbCluster_alloydbSecondaryClusterBasicExample(t *testing.T) {
+func TestAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-network-config-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -164,7 +165,7 @@ func TestAccAlloydbCluster_alloydbSecondaryClusterBasicExample(t *testing.T) {
 		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAlloydbCluster_alloydbSecondaryClusterBasicExample(context),
+				Config: testAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(context),
 			},
 			{
 				ResourceName:            "google_alloydb_cluster.secondary",
@@ -176,12 +177,12 @@ func TestAccAlloydbCluster_alloydbSecondaryClusterBasicExample(t *testing.T) {
 	})
 }
 
-func testAccAlloydbCluster_alloydbSecondaryClusterBasicExample(context map[string]interface{}) string {
+func testAccAlloydbCluster_alloydbSecondaryClusterBasicTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network    = data.google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -192,14 +193,12 @@ resource "google_alloydb_instance" "primary" {
   machine_config {
     cpu_count = 2
   }
-
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
   location     = "us-east1"
-  network      = google_compute_network.default.id
+  network      = data.google_compute_network.default.id
   cluster_type = "SECONDARY"
 
   continuous_backup_config {
@@ -215,22 +214,8 @@ resource "google_alloydb_cluster" "secondary" {
 
 data "google_project" "project" {}
 
-resource "google_compute_network" "default" {
-  name = "tf-test-alloydb-secondary-cluster%{random_suffix}"
-}
-
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "tf-test-alloydb-secondary-cluster%{random_suffix}"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 `, context)
 }
