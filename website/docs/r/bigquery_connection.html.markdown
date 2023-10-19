@@ -209,6 +209,29 @@ resource "google_bigquery_connection" "connection" {
    description   = "a riveting description"
    cloud_spanner { 
       database = "projects/project/instances/instance/databases/database"
+      database_role = "database_role"
+   }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_cloudspanner_databoost&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Cloudspanner Databoost
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   cloud_spanner { 
+      database        = "projects/project/instances/instance/databases/database"
+      use_parallelism = true
+      use_data_boost  = true
+      max_parallelism = 100
    }
 }
 ```
@@ -361,15 +384,29 @@ The following arguments are supported:
 
 * `database` -
   (Required)
-  Cloud Spanner database in the form `project/instance/database'
+  Cloud Spanner database in the form `project/instance/database'.
 
 * `use_parallelism` -
   (Optional)
-  If parallelism should be used when reading from Cloud Spanner
+  If parallelism should be used when reading from Cloud Spanner.
+
+* `max_parallelism` -
+  (Optional)
+  Allows setting max parallelism per query when executing on Spanner independent compute resources. If unspecified, default values of parallelism are chosen that are dependent on the Cloud Spanner instance configuration. `useParallelism` and `useDataBoost` must be set when setting max parallelism.
+
+* `use_data_boost` -
+  (Optional)
+  If set, the request will be executed via Spanner independent compute resources. `use_parallelism` must be set when using data boost.
+
+* `database_role` -
+  (Optional)
+  Cloud Spanner database role for fine-grained access control. The Cloud Spanner admin should have provisioned the database role with appropriate permissions, such as `SELECT` and `INSERT`. Other users should only use roles provided by their Cloud Spanner admins. The database role name must start with a letter, and can only contain letters, numbers, and underscores. For more details, see https://cloud.google.com/spanner/docs/fgac-about.
 
 * `use_serverless_analytics` -
-  (Optional)
-  If the serverless analytics service should be used to read data from Cloud Spanner. useParallelism must be set when using serverless analytics
+  (Optional, Deprecated)
+  If the serverless analytics service should be used to read data from Cloud Spanner. `useParallelism` must be set when using serverless analytics.
+
+  ~> **Warning:** `useServerlessAnalytics` is deprecated and will be removed in a future major release. Use `useDataBoost` instead.
 
 <a name="nested_cloud_resource"></a>The `cloud_resource` block supports:
 

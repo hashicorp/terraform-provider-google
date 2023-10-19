@@ -353,12 +353,13 @@ resource "google_bigquery_connection" "connection" {
    description   = "a riveting description"
    cloud_spanner { 
       database = "projects/project/instances/instance/databases/database%{random_suffix}"
+      database_role = "tf_test_database_role%{random_suffix}"
    }
 }
 `, context)
 }
 
-func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalyticsExample(t *testing.T) {
+func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboostExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -375,7 +376,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalytics
 		CheckDestroy: testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalyticsExample(context),
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboostExample(context),
 			},
 			{
 				ResourceName:            "google_bigquery_connection.connection",
@@ -387,7 +388,7 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalytics
 	})
 }
 
-func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerAnalyticsExample(context map[string]interface{}) string {
+func testAccBigqueryConnectionConnection_bigqueryConnectionCloudspannerDataboostExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
    connection_id = "tf-test-my-connection%{random_suffix}"
@@ -395,9 +396,10 @@ resource "google_bigquery_connection" "connection" {
    friendly_name = "👋"
    description   = "a riveting description"
    cloud_spanner { 
-      database                 = "projects/project/instances/instance/databases/database%{random_suffix}"
-      use_serverless_analytics = true
-      use_parallelism          = true
+      database        = "projects/project/instances/instance/databases/database%{random_suffix}"
+      use_parallelism = true
+      use_data_boost  = true
+      max_parallelism = 100
    }
 }
 `, context)

@@ -157,17 +157,36 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						"database": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: `Cloud Spanner database in the form 'project/instance/database'`,
+							Description: `Cloud Spanner database in the form 'project/instance/database'.`,
+						},
+						"database_role": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateRegexp(`^[a-zA-Z][a-zA-Z0-9_]*$`),
+							Description:  `Cloud Spanner database role for fine-grained access control. The Cloud Spanner admin should have provisioned the database role with appropriate permissions, such as 'SELECT' and 'INSERT'. Other users should only use roles provided by their Cloud Spanner admins. The database role name must start with a letter, and can only contain letters, numbers, and underscores. For more details, see https://cloud.google.com/spanner/docs/fgac-about.`,
+						},
+						"max_parallelism": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Description:  `Allows setting max parallelism per query when executing on Spanner independent compute resources. If unspecified, default values of parallelism are chosen that are dependent on the Cloud Spanner instance configuration. 'useParallelism' and 'useDataBoost' must be set when setting max parallelism.`,
+							RequiredWith: []string{"cloud_spanner.0.use_data_boost", "cloud_spanner.0.use_parallelism"},
+						},
+						"use_data_boost": {
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `If set, the request will be executed via Spanner independent compute resources. 'use_parallelism' must be set when using data boost.`,
+							RequiredWith: []string{"cloud_spanner.0.use_parallelism"},
 						},
 						"use_parallelism": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: `If parallelism should be used when reading from Cloud Spanner`,
+							Description: `If parallelism should be used when reading from Cloud Spanner.`,
 						},
 						"use_serverless_analytics": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: `If the serverless analytics service should be used to read data from Cloud Spanner. useParallelism must be set when using serverless analytics`,
+							Deprecated:  "`useServerlessAnalytics` is deprecated and will be removed in a future major release. Use `useDataBoost` instead.",
+							Description: `If the serverless analytics service should be used to read data from Cloud Spanner. 'useParallelism' must be set when using serverless analytics.`,
 						},
 					},
 				},
@@ -844,6 +863,12 @@ func flattenBigqueryConnectionConnectionCloudSpanner(v interface{}, d *schema.Re
 		flattenBigqueryConnectionConnectionCloudSpannerDatabase(original["database"], d, config)
 	transformed["use_parallelism"] =
 		flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(original["useParallelism"], d, config)
+	transformed["max_parallelism"] =
+		flattenBigqueryConnectionConnectionCloudSpannerMaxParallelism(original["maxParallelism"], d, config)
+	transformed["use_data_boost"] =
+		flattenBigqueryConnectionConnectionCloudSpannerUseDataBoost(original["useDataBoost"], d, config)
+	transformed["database_role"] =
+		flattenBigqueryConnectionConnectionCloudSpannerDatabaseRole(original["databaseRole"], d, config)
 	transformed["use_serverless_analytics"] =
 		flattenBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(original["useServerlessAnalytics"], d, config)
 	return []interface{}{transformed}
@@ -853,6 +878,31 @@ func flattenBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d *s
 }
 
 func flattenBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSpannerMaxParallelism(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenBigqueryConnectionConnectionCloudSpannerUseDataBoost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionCloudSpannerDatabaseRole(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1151,6 +1201,27 @@ func expandBigqueryConnectionConnectionCloudSpanner(v interface{}, d tpgresource
 		transformed["useParallelism"] = transformedUseParallelism
 	}
 
+	transformedMaxParallelism, err := expandBigqueryConnectionConnectionCloudSpannerMaxParallelism(original["max_parallelism"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxParallelism); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxParallelism"] = transformedMaxParallelism
+	}
+
+	transformedUseDataBoost, err := expandBigqueryConnectionConnectionCloudSpannerUseDataBoost(original["use_data_boost"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseDataBoost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useDataBoost"] = transformedUseDataBoost
+	}
+
+	transformedDatabaseRole, err := expandBigqueryConnectionConnectionCloudSpannerDatabaseRole(original["database_role"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDatabaseRole); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["databaseRole"] = transformedDatabaseRole
+	}
+
 	transformedUseServerlessAnalytics, err := expandBigqueryConnectionConnectionCloudSpannerUseServerlessAnalytics(original["use_serverless_analytics"], d, config)
 	if err != nil {
 		return nil, err
@@ -1166,6 +1237,18 @@ func expandBigqueryConnectionConnectionCloudSpannerDatabase(v interface{}, d tpg
 }
 
 func expandBigqueryConnectionConnectionCloudSpannerUseParallelism(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerMaxParallelism(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerUseDataBoost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionCloudSpannerDatabaseRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

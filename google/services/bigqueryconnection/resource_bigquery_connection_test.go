@@ -183,15 +183,15 @@ func TestAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(t *testing.
 func testAccBigqueryConnectionConnection_bigqueryConnectionAws(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
-   location      = "aws-us-east-1"
-   friendly_name = "👋"
-   description   = "a riveting description"
-   aws {
+  connection_id = "tf-test-my-connection%{random_suffix}"
+  location      = "aws-us-east-1"
+  friendly_name = "👋"
+  description   = "a riveting description"
+  aws {
       access_role {
-         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}"
+        iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}"
       }
-   }
+  }
 }
 `, context)
 }
@@ -199,15 +199,141 @@ resource "google_bigquery_connection" "connection" {
 func testAccBigqueryConnectionConnection_bigqueryConnectionAwsUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_connection" "connection" {
-   connection_id = "tf-test-my-connection%{random_suffix}"
-   location      = "aws-us-east-1"
-   friendly_name = "👋"
-   description   = "a riveting description"
-   aws {
+  connection_id = "tf-test-my-connection%{random_suffix}"
+  location      = "aws-us-east-1"
+  friendly_name = "👋"
+  description   = "a riveting description"
+  aws {
       access_role {
-         iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}update"
+        iam_role_id =  "arn:aws:iam::999999999999:role/omnirole%{random_suffix}update"
       }
-   }
+  }
+}
+`, context)
+}
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelism(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelism(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelismUpdate(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelism(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+  connection_id = "tf-test-my-connection%{random_suffix}"
+    location      = "US"
+    friendly_name = "👋"
+    description   = "a riveting description"
+    cloud_spanner { 
+      database        = "projects/project/instances/instance/databases/database"
+      use_parallelism = true
+      use_data_boost  = true
+      max_parallelism = 10
+      database_role   = "database_role"
+    }
+}
+`, context)
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelismUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+  connection_id = "tf-test-my-connection%{random_suffix}"
+    location      = "US"
+    friendly_name = "👋"
+    description   = "a riveting description"
+    cloud_spanner { 
+      database        = "projects/project/instances/instance/databases/databaseUpdate"
+      use_parallelism = true
+      use_data_boost  = true
+      max_parallelism = 20
+      database_role   = "database_role_update"
+    }
+}
+`, context)
+}
+
+func TestAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerServerlessAnalyticsToDataBoostUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerServerlessAnalytics(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerDataBoostWithParallelismUpdate(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionCloudSpannerServerlessAnalytics(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+  connection_id = "tf-test-my-connection%{random_suffix}"
+    location      = "US"
+    friendly_name = "👋"
+    description   = "a riveting description"
+    cloud_spanner { 
+      database                 = "projects/project/instances/instance/databases/database"
+      use_parallelism          = true
+      use_serverless_analytics = true
+    }
 }
 `, context)
 }
