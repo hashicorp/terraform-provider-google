@@ -30,10 +30,11 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
+func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -43,7 +44,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(context),
+				Config: testAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(context),
 			},
 			{
 				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
@@ -55,7 +56,7 @@ func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(t *testing.T) {
 	})
 }
 
-func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointExample(context map[string]interface{}) string {
+func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_vertex_ai_index_endpoint" "index_endpoint" {
   display_name = "sample-endpoint"
@@ -64,28 +65,11 @@ resource "google_vertex_ai_index_endpoint" "index_endpoint" {
   labels       = {
     label-one = "value-one"
   }
-  network      = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.vertex_network.name}"
-  depends_on   = [
-    google_service_networking_connection.vertex_vpc_connection
-  ]
+  network      = "projects/${data.google_project.project.number}/global/networks/${data.google_compute_network.vertex_network.name}"
 }
 
-resource "google_service_networking_connection" "vertex_vpc_connection" {
-  network                 = google_compute_network.vertex_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.vertex_range.name]
-}
-
-resource "google_compute_global_address" "vertex_range" {
-  name          = "tf-test-address-name%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 24
-  network       = google_compute_network.vertex_network.id
-}
-
-resource "google_compute_network" "vertex_network" {
-  name       = "tf-test-network-name%{random_suffix}"
+data "google_compute_network" "vertex_network" {
+  name       = "%{network_name}"
 }
 
 data "google_project" "project" {}

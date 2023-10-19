@@ -3,12 +3,10 @@
 package alloydb_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccAlloydbInstance_update(t *testing.T) {
@@ -356,12 +354,9 @@ data "google_compute_network" "default" {
 func TestAccAlloydbInstance_createInstanceWithNetworkConfigAndAllocatedIPRange(t *testing.T) {
 	t.Parallel()
 
-	projectNumber := envvar.GetTestProjectNumberFromEnv()
 	testId := "alloydbinstance-network-config-1"
-	networkName := acctest.BootstrapSharedTestNetwork(t, testId)
-	networkId := fmt.Sprintf("projects/%v/global/networks/%v", projectNumber, networkName)
-	addressName := acctest.BootstrapSharedTestGlobalAddress(t, testId, networkId)
-	acctest.BootstrapSharedServiceNetworkingConnection(t, testId)
+	addressName := acctest.BootstrapSharedTestGlobalAddress(t, testId)
+	networkName := acctest.BootstrapSharedServiceNetworkingConnection(t, testId)
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),

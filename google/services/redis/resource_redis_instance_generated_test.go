@@ -181,10 +181,11 @@ resource "google_redis_instance" "cache-persis" {
 `, context)
 }
 
-func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
+func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -194,7 +195,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 		CheckDestroy:             testAccCheckRedisInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRedisInstance_redisInstancePrivateServiceExample(context),
+				Config: testAccRedisInstance_redisInstancePrivateServiceTestExample(context),
 			},
 			{
 				ResourceName:            "google_redis_instance.cache",
@@ -206,7 +207,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceExample(t *testing.T) {
 	})
 }
 
-func testAccRedisInstance_redisInstancePrivateServiceExample(context map[string]interface{}) string {
+func testAccRedisInstance_redisInstancePrivateServiceTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 // This example assumes this network already exists.
 // The API creates a tenant network per network authorized for a
@@ -216,22 +217,8 @@ func testAccRedisInstance_redisInstancePrivateServiceExample(context map[string]
 // If this network hasn't been created and you are using this example in your
 // config, add an additional network resource or change
 // this from "data"to "resource"
-resource "google_compute_network" "redis-network" {
-  name = "tf-test-redis-test-network%{random_suffix}"
-}
-
-resource "google_compute_global_address" "service_range" {
-  name          = "address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.redis-network.id
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.redis-network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
+data "google_compute_network" "redis-network" {
+  name = "%{network_name}"
 }
 
 resource "google_redis_instance" "cache" {
@@ -242,14 +229,11 @@ resource "google_redis_instance" "cache" {
   location_id             = "us-central1-a"
   alternative_location_id = "us-central1-f"
 
-  authorized_network = google_compute_network.redis-network.id
+  authorized_network = data.google_compute_network.redis-network.id
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
 
   redis_version     = "REDIS_4_0"
   display_name      = "Terraform Test Instance"
-
-  depends_on = [google_service_networking_connection.private_service_connection]
-
 }
 `, context)
 }

@@ -30,10 +30,11 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
+func TestAccAlloydbBackup_alloydbBackupBasicTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-network-config-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -43,7 +44,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
 		CheckDestroy:             testAccCheckAlloydbBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAlloydbBackup_alloydbBackupBasicExample(context),
+				Config: testAccAlloydbBackup_alloydbBackupBasicTestExample(context),
 			},
 			{
 				ResourceName:            "google_alloydb_backup.default",
@@ -55,7 +56,7 @@ func TestAccAlloydbBackup_alloydbBackupBasicExample(t *testing.T) {
 	})
 }
 
-func testAccAlloydbBackup_alloydbBackupBasicExample(context map[string]interface{}) string {
+func testAccAlloydbBackup_alloydbBackupBasicTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   location     = "us-central1"
@@ -68,42 +69,27 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network    = data.google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"
   instance_type = "PRIMARY"
-
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "tf-test-alloydb-cluster%{random_suffix}"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-}
-
-resource "google_compute_network" "default" {
-  name = "tf-test-alloydb-network%{random_suffix}"
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 `, context)
 }
 
-func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
+func TestAccAlloydbBackup_alloydbBackupFullTestExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "alloydbinstance-network-config-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -113,7 +99,7 @@ func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
 		CheckDestroy:             testAccCheckAlloydbBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAlloydbBackup_alloydbBackupFullExample(context),
+				Config: testAccAlloydbBackup_alloydbBackupFullTestExample(context),
 			},
 			{
 				ResourceName:            "google_alloydb_backup.default",
@@ -125,7 +111,7 @@ func TestAccAlloydbBackup_alloydbBackupFullExample(t *testing.T) {
 	})
 }
 
-func testAccAlloydbBackup_alloydbBackupFullExample(context map[string]interface{}) string {
+func testAccAlloydbBackup_alloydbBackupFullTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_backup" "default" {
   location     = "us-central1"
@@ -143,33 +129,17 @@ resource "google_alloydb_backup" "default" {
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network    = data.google_compute_network.default.id
 }
 
 resource "google_alloydb_instance" "default" {
   cluster       = google_alloydb_cluster.default.name
   instance_id   = "tf-test-alloydb-instance%{random_suffix}"
   instance_type = "PRIMARY"
-
-  depends_on = [google_service_networking_connection.vpc_connection]
 }
 
-resource "google_compute_global_address" "private_ip_alloc" {
-  name          =  "tf-test-alloydb-cluster%{random_suffix}"
-  address_type  = "INTERNAL"
-  purpose       = "VPC_PEERING"
-  prefix_length = 16
-  network       = google_compute_network.default.id
-}
-
-resource "google_service_networking_connection" "vpc_connection" {
-  network                 = google_compute_network.default.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
-}
-
-resource "google_compute_network" "default" {
-  name = "tf-test-alloydb-network%{random_suffix}"
+data "google_compute_network" "default" {
+  name = "%{network_name}"
 }
 `, context)
 }

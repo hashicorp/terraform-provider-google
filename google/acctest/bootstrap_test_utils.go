@@ -360,9 +360,13 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 
 const SharedTestGlobalAddressPrefix = "tf-bootstrap-addr-"
 
-func BootstrapSharedTestGlobalAddress(t *testing.T, testId, networkId string) string {
+// params := [prefixLength] prefixLength should be the first item in params
+func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...interface{}) string {
 	project := envvar.GetTestProjectFromEnv()
+	projectNumber := envvar.GetTestProjectNumberFromEnv()
 	addressName := SharedTestGlobalAddressPrefix + testId
+	networkName := BootstrapSharedTestNetwork(t, testId)
+	networkId := fmt.Sprintf("projects/%v/global/networks/%v", projectNumber, networkName)
 
 	config := BootstrapConfig(t)
 	if config == nil {
@@ -374,11 +378,17 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId, networkId string) st
 	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[DEBUG] Global address %q not found, bootstrapping", addressName)
 		url := fmt.Sprintf("%sprojects/%s/global/addresses", config.ComputeBasePath, project)
+
+		prefixLength := 16
+		if len(params) != 0 {
+			prefixLength = params[0].(int)
+		}
+
 		netObj := map[string]interface{}{
 			"name":          addressName,
 			"address_type":  "INTERNAL",
 			"purpose":       "VPC_PEERING",
-			"prefix_length": 16,
+			"prefix_length": prefixLength,
 			"network":       networkId,
 		}
 
@@ -417,6 +427,8 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId, networkId string) st
 // if it hasn't been created in the test project, and a service networking connection
 // if it hasn't been created in the test project.
 //
+// params := [prefixLength] prefixLength should be the first item in params
+//
 // BootstrapSharedServiceNetworkingConnection returns a persistent compute network name
 // for a test or set of tests.
 //
@@ -428,7 +440,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId, networkId string) st
 // https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection
 //
 // testId specifies the test for which a shared network and a gobal address are used/initialized.
-func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string) string {
+func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, params ...interface{}) string {
 	parentService := "services/servicenetworking.googleapis.com"
 	projectId := envvar.GetTestProjectFromEnv()
 
@@ -444,9 +456,9 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string) str
 		t.Fatalf("Error getting project: %s", err)
 	}
 
-	networkName := BootstrapSharedTestNetwork(t, testId)
+	networkName := SharedTestNetworkPrefix + testId
 	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project.ProjectNumber, networkName)
-	globalAddressName := BootstrapSharedTestGlobalAddress(t, testId, networkId)
+	globalAddressName := BootstrapSharedTestGlobalAddress(t, testId, params...)
 
 	readCall := config.NewServiceNetworkingClient(config.UserAgent).Services.Connections.List(parentService).Network(networkId)
 	if config.UserProjectOverride {

@@ -72,10 +72,11 @@ resource "google_tpu_node" "tpu" {
 `, context)
 }
 
-func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
+func TestAccTPUNode_tpuNodeFullTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -85,7 +86,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 		CheckDestroy:             testAccCheckTPUNodeDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTPUNode_tpuNodeFullExample(context),
+				Config: testAccTPUNode_tpuNodeFullTestExample(context),
 			},
 			{
 				ResourceName:            "google_tpu_node.tpu",
@@ -97,7 +98,7 @@ func TestAccTPUNode_tpuNodeFullExample(t *testing.T) {
 	})
 }
 
-func testAccTPUNode_tpuNodeFullExample(context map[string]interface{}) string {
+func testAccTPUNode_tpuNodeFullTestExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_tpu_tensorflow_versions" "available" {
 }
@@ -113,7 +114,7 @@ resource "google_tpu_node" "tpu" {
 
   description = "Terraform Google Provider test TPU"
   use_service_networking = true
-  network = google_service_networking_connection.private_service_connection.network
+  network = data.google_compute_network.network.id
 
   labels = {
     foo = "bar"
@@ -124,22 +125,8 @@ resource "google_tpu_node" "tpu" {
   }
 }
 
-resource "google_compute_network" "network" {
-  name = "tf-test-tpu-node-network%{random_suffix}"
-}
-
-resource "google_compute_global_address" "service_range" {
-  name          = "tf-test-my-global-address%{random_suffix}"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.network.id
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                 = google_compute_network.network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.service_range.name]
+data "google_compute_network" "network" {
+  name = "%{network_name}"
 }
 `, context)
 }
