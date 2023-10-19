@@ -1,0 +1,3 @@
+```release-note:enhancement
+containerattached: added `admin_groups` field to `google_container_attached_cluster` resource
+```

@@ -168,6 +168,19 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"admin_groups": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Groups that can perform operations as a cluster admin. A managed
+ClusterRoleBinding will be created to grant the 'cluster-admin' ClusterRole
+to the groups. Up to ten admin groups can be provided.
+
+For more info on RBAC, see
+https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"admin_users": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -743,8 +756,11 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	}
 	// The generated code sets the wrong masks for the following fields.
 	newUpdateMask := []string{}
-	if d.HasChange("authorization") {
+	if d.HasChange("authorization.0.admin_users") {
 		newUpdateMask = append(newUpdateMask, "authorization.admin_users")
+	}
+	if d.HasChange("authorization.0.admin_groups") {
+		newUpdateMask = append(newUpdateMask, "authorization.admin_groups")
 	}
 	if d.HasChange("logging_config") {
 		newUpdateMask = append(newUpdateMask, "logging_config.component_config.enable_components")
@@ -1079,6 +1095,10 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 //	     { username = "user1" },
 //	     { username = "user2" }
 //	   ]
+//	   admin_groups [
+//	     { group = "group1" },
+//	     { group = "group2" },
+//	   ]
 //	}
 //
 // The custom flattener transforms input back into something like this:
@@ -1088,6 +1108,10 @@ func flattenContainerAttachedClusterErrorsMessage(v interface{}, d *schema.Resou
 //	     "user1",
 //	     "user2"
 //	   ]
+//	   admin_groups = [
+//	     "group1",
+//	     "group2"
+//	   ],
 //	}
 func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
@@ -1100,6 +1124,13 @@ func flattenContainerAttachedClusterAuthorization(v interface{}, d *schema.Resou
 	for i, u := range orig {
 		if u != nil {
 			transformed["admin_users"][i] = u.(map[string]interface{})["username"].(string)
+		}
+	}
+	orig = v.(map[string]interface{})["adminGroups"].([]interface{})
+	transformed["admin_groups"] = make([]string, len(orig))
+	for i, u := range orig {
+		if u != nil {
+			transformed["admin_groups"][i] = u.(map[string]interface{})["group"].(string)
 		}
 	}
 
@@ -1284,12 +1315,20 @@ type attachedClusterUser struct {
 	Username string `json:"username"`
 }
 
+type attachedClusterGroup struct {
+	Group string `json:"group"`
+}
+
 // The custom expander transforms input into something like this:
 //
 //	authorization {
 //	   admin_users [
 //	     { username = "user1" },
 //	     { username = "user2" }
+//	   ]
+//	   admin_groups [
+//	     { group = "group1" },
+//	     { group = "group2" },
 //	   ]
 //	}
 //
@@ -1300,6 +1339,10 @@ type attachedClusterUser struct {
 //	     "user1",
 //	     "user2"
 //	   ]
+//	   admin_groups = [
+//	     "group1",
+//	     "group2"
+//	   ],
 //	}
 func expandContainerAttachedClusterAuthorization(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
@@ -1313,6 +1356,13 @@ func expandContainerAttachedClusterAuthorization(v interface{}, d tpgresource.Te
 	for i, u := range orig {
 		if u != nil {
 			transformed["admin_users"][i] = attachedClusterUser{Username: u.(string)}
+		}
+	}
+	orig = raw.(map[string]interface{})["admin_groups"].([]interface{})
+	transformed["admin_groups"] = make([]interface{}, len(orig))
+	for i, u := range orig {
+		if u != nil {
+			transformed["admin_groups"][i] = attachedClusterGroup{Group: u.(string)}
 		}
 	}
 	return transformed, nil

@@ -128,6 +128,7 @@ resource "google_container_attached_cluster" "primary" {
   }
   authorization {
     admin_users = [ "user1@example.com", "user2@example.com"]
+    admin_groups = [ "group1@example.com", "group2@example.com"]
   }
   oidc_config {
       issuer_url = "https://oidc.issuer.url"
