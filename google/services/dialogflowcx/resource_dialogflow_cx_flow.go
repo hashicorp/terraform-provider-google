@@ -58,6 +58,64 @@ func ResourceDialogflowCXFlow() *schema.Resource {
 				Required:    true,
 				Description: `The human-readable name of the flow.`,
 			},
+			"advanced_settings": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Hierarchical advanced settings for this flow. The settings exposed at the lower level overrides the settings exposed at the higher level.
+Hierarchy: Agent->Flow->Page->Fulfillment/Parameter.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"audio_export_gcs_destination": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `If present, incoming audio is exported by Dialogflow to the configured Google Cloud Storage destination. Exposed at the following levels:
+* Agent level
+* Flow level`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"uri": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The Google Cloud Storage URI for the exported objects. Whether a full object name, or just a prefix, its usage depends on the Dialogflow operation.
+Format: gs://bucket/object-name-or-prefix`,
+									},
+								},
+							},
+						},
+						"dtmf_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Define behaviors for DTMF (dual tone multi frequency). DTMF settings does not override each other. DTMF settings set at different levels define DTMF detections running in parallel. Exposed at the following levels:
+* Agent level
+* Flow level
+* Page level
+* Parameter level`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, incoming audio is processed for DTMF (dual tone multi frequency) events. For example, if the caller presses a button on their telephone keypad and DTMF processing is enabled, Dialogflow will detect the event (e.g. a "3" was pressed) in the incoming audio and pass the event to the bot to drive business logic (e.g. when 3 is pressed, return the account balance).`,
+									},
+									"finish_digit": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The digit that terminates a DTMF digit sequence.`,
+									},
+									"max_digits": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Max length of DTMF digits.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -678,6 +736,12 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("nlu_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(nluSettingsProp)) && (ok || !reflect.DeepEqual(v, nluSettingsProp)) {
 		obj["nluSettings"] = nluSettingsProp
 	}
+	advancedSettingsProp, err := expandDialogflowCXFlowAdvancedSettings(d.Get("advanced_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(advancedSettingsProp)) && (ok || !reflect.DeepEqual(v, advancedSettingsProp)) {
+		obj["advancedSettings"] = advancedSettingsProp
+	}
 	languageCodeProp, err := expandDialogflowCXFlowLanguageCode(d.Get("language_code"), d, config)
 	if err != nil {
 		return err
@@ -805,6 +869,9 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("nlu_settings", flattenDialogflowCXFlowNluSettings(res["nluSettings"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Flow: %s", err)
 	}
+	if err := d.Set("advanced_settings", flattenDialogflowCXFlowAdvancedSettings(res["advancedSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Flow: %s", err)
+	}
 	if err := d.Set("language_code", flattenDialogflowCXFlowLanguageCode(res["languageCode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Flow: %s", err)
 	}
@@ -858,6 +925,12 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("nlu_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nluSettingsProp)) {
 		obj["nluSettings"] = nluSettingsProp
 	}
+	advancedSettingsProp, err := expandDialogflowCXFlowAdvancedSettings(d.Get("advanced_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("advanced_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, advancedSettingsProp)) {
+		obj["advancedSettings"] = advancedSettingsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DialogflowCXBasePath}}{{parent}}/flows/{{name}}")
 	if err != nil {
@@ -889,6 +962,10 @@ func resourceDialogflowCXFlowUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("nlu_settings") {
 		updateMask = append(updateMask, "nluSettings")
+	}
+
+	if d.HasChange("advanced_settings") {
+		updateMask = append(updateMask, "advancedSettings")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1707,6 +1784,80 @@ func flattenDialogflowCXFlowNluSettingsClassificationThreshold(v interface{}, d 
 }
 
 func flattenDialogflowCXFlowNluSettingsModelTrainingMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXFlowAdvancedSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["audio_export_gcs_destination"] =
+		flattenDialogflowCXFlowAdvancedSettingsAudioExportGcsDestination(original["audioExportGcsDestination"], d, config)
+	transformed["dtmf_settings"] =
+		flattenDialogflowCXFlowAdvancedSettingsDtmfSettings(original["dtmfSettings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXFlowAdvancedSettingsAudioExportGcsDestination(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["uri"] =
+		flattenDialogflowCXFlowAdvancedSettingsAudioExportGcsDestinationUri(original["uri"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXFlowAdvancedSettingsAudioExportGcsDestinationUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXFlowAdvancedSettingsDtmfSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	transformed["max_digits"] =
+		flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsMaxDigits(original["maxDigits"], d, config)
+	transformed["finish_digit"] =
+		flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsFinishDigit(original["finishDigit"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDialogflowCXFlowAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2771,6 +2922,100 @@ func expandDialogflowCXFlowNluSettingsClassificationThreshold(v interface{}, d t
 }
 
 func expandDialogflowCXFlowNluSettingsModelTrainingMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAudioExportGcsDestination, err := expandDialogflowCXFlowAdvancedSettingsAudioExportGcsDestination(original["audio_export_gcs_destination"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudioExportGcsDestination); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["audioExportGcsDestination"] = transformedAudioExportGcsDestination
+	}
+
+	transformedDtmfSettings, err := expandDialogflowCXFlowAdvancedSettingsDtmfSettings(original["dtmf_settings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDtmfSettings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dtmfSettings"] = transformedDtmfSettings
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsAudioExportGcsDestination(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUri, err := expandDialogflowCXFlowAdvancedSettingsAudioExportGcsDestinationUri(original["uri"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uri"] = transformedUri
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsAudioExportGcsDestinationUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsDtmfSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandDialogflowCXFlowAdvancedSettingsDtmfSettingsEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedMaxDigits, err := expandDialogflowCXFlowAdvancedSettingsDtmfSettingsMaxDigits(original["max_digits"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxDigits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxDigits"] = transformedMaxDigits
+	}
+
+	transformedFinishDigit, err := expandDialogflowCXFlowAdvancedSettingsDtmfSettingsFinishDigit(original["finish_digit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFinishDigit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["finishDigit"] = transformedFinishDigit
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsDtmfSettingsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsDtmfSettingsMaxDigits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowCXFlowAdvancedSettingsDtmfSettingsFinishDigit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

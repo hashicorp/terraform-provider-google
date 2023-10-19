@@ -1,0 +1,9 @@
+```release-note:enhancement
+dialogflowcx: added `advanced_settings`, `text_to_speech_settings`, `git_integration_settings` fields to `google_dialogflow_cx_agent` resource
+```
+```release-note:enhancement
+dialogflowcx: added `advanced_settings` field to `google_dialogflow_cx_flow` resource
+```
+```release-note:enhancement
+dialogflowcx: added `advanced_settings` fields to `google_dialogflow_cx_page` resource
+```

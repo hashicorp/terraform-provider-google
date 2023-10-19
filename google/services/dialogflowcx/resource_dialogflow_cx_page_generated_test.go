@@ -491,6 +491,13 @@ resource "google_dialogflow_cx_page" "basic_page" {
       }
       required = "true"
       redact   = "true"
+      advanced_settings {
+        dtmf_settings {
+          enabled      = true
+          max_digits   = 1
+          finish_digit = "#"
+        }
+      }
     }
   }
 
@@ -593,6 +600,14 @@ resource "google_dialogflow_cx_page" "basic_page" {
       }
     }
     target_page = google_dialogflow_cx_page.my_page2.id
+  }
+
+  advanced_settings {
+    dtmf_settings {
+      enabled      = true
+      max_digits   = 1
+      finish_digit = "#"
+    }
   }
 }
 

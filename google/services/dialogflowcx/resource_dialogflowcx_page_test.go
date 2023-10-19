@@ -497,6 +497,13 @@ func testAccDialogflowCXPage_full(context map[string]interface{}) string {
         }
         required = "true"
         redact   = "true"
+        advanced_settings {
+          dtmf_settings {
+            enabled      = true
+            max_digits   = 1
+            finish_digit = "#"
+          }
+        }
       }
     }
 
@@ -599,6 +606,14 @@ func testAccDialogflowCXPage_full(context map[string]interface{}) string {
         }
       }
       target_page = google_dialogflow_cx_page.my_page2.id
+    }
+
+    advanced_settings {
+      dtmf_settings {
+        enabled      = true
+        max_digits   = 1
+        finish_digit = "#"
+      }
     }
   }
 
