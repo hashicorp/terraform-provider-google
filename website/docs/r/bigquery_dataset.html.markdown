@@ -360,6 +360,11 @@ destroying the resource will fail if tables are present.
 
   * `allAuthenticatedUsers`: All authenticated BigQuery users.
 
+* `iam_member` -
+  (Optional)
+  Some other type of member that appears in the IAM Policy but isn't a user,
+  group, domain, or special group. For example: `allUsers`
+
 * `user_by_email` -
   (Optional)
   An email address of a user to grant access to. For example:

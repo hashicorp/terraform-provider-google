@@ -229,7 +229,7 @@ func TestAccBigQueryDataset_access(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
-				Config: testAccBigQueryDatasetWithTwoAccess(datasetID),
+				Config: testAccBigQueryDatasetWithThreeAccess(datasetID),
 			},
 			{
 				ResourceName:            "google_bigquery_dataset.access_test",
@@ -506,7 +506,7 @@ resource "google_bigquery_dataset" "access_test" {
 `, datasetID)
 }
 
-func testAccBigQueryDatasetWithTwoAccess(datasetID string) string {
+func testAccBigQueryDatasetWithThreeAccess(datasetID string) string {
 	return fmt.Sprintf(`
 resource "google_bigquery_dataset" "access_test" {
   dataset_id = "%s"
@@ -518,6 +518,10 @@ resource "google_bigquery_dataset" "access_test" {
   access {
     role   = "READER"
     domain = "hashicorp.com"
+  }
+  access {
+    role       = "READER"
+    iam_member = "allUsers"
   }
 
   labels = {
