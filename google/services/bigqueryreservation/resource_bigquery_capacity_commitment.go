@@ -104,7 +104,7 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 			"renewal_plan": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable some commitment plans.`,
+				Description: `The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for some commitment plans.`,
 			},
 			"commitment_end_time": {
 				Type:        schema.TypeString,
@@ -206,7 +206,7 @@ func resourceBigqueryReservationCapacityCommitmentCreate(d *schema.ResourceData,
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, "{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -224,7 +224,7 @@ func resourceBigqueryReservationCapacityCommitmentRead(d *schema.ResourceData, m
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func resourceBigqueryReservationCapacityCommitmentUpdate(d *schema.ResourceData,
 		obj["renewalPlan"] = renewalPlanProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -379,7 +379,7 @@ func resourceBigqueryReservationCapacityCommitmentDelete(d *schema.ResourceData,
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{BigqueryReservationBasePath}}{{name}}")
 	if err != nil {
 		return err
 	}
@@ -419,8 +419,13 @@ func resourceBigqueryReservationCapacityCommitmentImport(d *schema.ResourceData,
 		return nil, err
 	}
 
+	// Set name based on the components
+	if err := d.Set("name", "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}"); err != nil {
+		return nil, fmt.Errorf("Error setting name: %s", err)
+	}
+
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+	id, err := tpgresource.ReplaceVars(d, config, d.Get("name").(string))
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

@@ -1,0 +1,3 @@
+```release-note:bug
+bigqueryreservation: fixed bug of incorrect resource recreation when `capacity_commitment_id` is unspecified in resource `bigquery_reservation_capacity_commitment`
+```

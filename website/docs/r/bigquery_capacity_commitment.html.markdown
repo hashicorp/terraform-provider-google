@@ -63,7 +63,7 @@ The following arguments are supported:
 
 * `renewal_plan` -
   (Optional)
-  The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable some commitment plans.
+  The plan this capacity commitment is converted to after commitmentEndTime passes. Once the plan is changed, committed period is extended according to commitment plan. Only applicable for some commitment plans.
 
 * `edition` -
   (Optional)
@@ -93,7 +93,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}`
+* `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
   The resource name of the capacity commitment, e.g., projects/myproject/locations/US/capacityCommitments/123
