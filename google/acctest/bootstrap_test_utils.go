@@ -363,10 +363,31 @@ func BootstrapSharedTestNetwork(t *testing.T, testId string) string {
 	return network.Name
 }
 
+type AddressSettings struct {
+	PrefixLength int
+}
+
+func AddressWithPrefixLength(prefixLength int) func(*AddressSettings) {
+	return func(settings *AddressSettings) {
+		settings.PrefixLength = prefixLength
+	}
+}
+
+func NewAddressSettings(options ...func(*AddressSettings)) *AddressSettings {
+	settings := &AddressSettings{
+		PrefixLength: 16, // default prefix length
+	}
+
+	for _, o := range options {
+		o(settings)
+	}
+	return settings
+}
+
 const SharedTestGlobalAddressPrefix = "tf-bootstrap-addr-"
 
-// params := [prefixLength] prefixLength should be the first item in params
-func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...interface{}) string {
+// params are the functions to set compute global address
+func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...func(*AddressSettings)) string {
 	project := envvar.GetTestProjectFromEnv()
 	projectNumber := envvar.GetTestProjectNumberFromEnv()
 	addressName := SharedTestGlobalAddressPrefix + testId
@@ -384,16 +405,13 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...int
 		log.Printf("[DEBUG] Global address %q not found, bootstrapping", addressName)
 		url := fmt.Sprintf("%sprojects/%s/global/addresses", config.ComputeBasePath, project)
 
-		prefixLength := 16
-		if len(params) != 0 {
-			prefixLength = params[0].(int)
-		}
+		settings := NewAddressSettings(params...)
 
 		netObj := map[string]interface{}{
 			"name":          addressName,
 			"address_type":  "INTERNAL",
 			"purpose":       "VPC_PEERING",
-			"prefix_length": prefixLength,
+			"prefix_length": settings.PrefixLength,
 			"network":       networkId,
 		}
 
@@ -432,7 +450,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...int
 // if it hasn't been created in the test project, and a service networking connection
 // if it hasn't been created in the test project.
 //
-// params := [prefixLength] prefixLength should be the first item in params
+// params are the functions to set compute global address
 //
 // BootstrapSharedServiceNetworkingConnection returns a persistent compute network name
 // for a test or set of tests.
@@ -445,7 +463,7 @@ func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...int
 // https://cloud.google.com/vpc/docs/configure-private-services-access#removing-connection
 //
 // testId specifies the test for which a shared network and a gobal address are used/initialized.
-func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, params ...interface{}) string {
+func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, params ...func(*AddressSettings)) string {
 	parentService := "services/servicenetworking.googleapis.com"
 	projectId := envvar.GetTestProjectFromEnv()
 
