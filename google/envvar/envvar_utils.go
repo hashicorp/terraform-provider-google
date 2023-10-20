@@ -76,6 +76,10 @@ var OrgTargetEnvVars = []string{
 	"GOOGLE_ORG_2",
 }
 
+var UniverseDomainEnvVars = []string{
+	"GOOGLE_UNIVERSE_DOMAIN",
+}
+
 // This is the billing account that will be charged for the infrastructure used during testing. For
 // that reason, it is also the billing account used for creating new projects.
 var BillingAccountEnvVars = []string{
@@ -111,6 +115,12 @@ func GetTestCredsFromEnv() string {
 		return ""
 	}
 	return transport_tpg.MultiEnvSearch(CredsEnvVars)
+}
+
+// Returns googleapis.com if there's no universe set.
+func GetTestUniverseDomainFromEnv(t *testing.T) string {
+	SkipIfEnvNotSet(t, IdentityUserEnvVars...)
+	return transport_tpg.MultiEnvSearch(UniverseDomainEnvVars)
 }
 
 // AccTestPreCheck ensures at least one of the region env variables is set.

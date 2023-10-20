@@ -1,0 +1,3 @@
+```release-note:note
+provider: added `universe_domain` attribute as a provider attribute
+```

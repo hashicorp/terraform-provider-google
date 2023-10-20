@@ -315,6 +315,10 @@ being considered a breaking change.
 
 ---
 
+* `universe_domain` - (Optional) Specify the GCP universe to deploy in.
+
+---
+
 * `batching` - (Optional) Controls batching for specific GCP request types
 where users have encountered quota or speed issues using many resources of
 the same type, typically `google_project_service`.

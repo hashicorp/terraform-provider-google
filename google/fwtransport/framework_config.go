@@ -46,6 +46,7 @@ type FrameworkProviderConfig struct {
 	RequestBatcherServiceUsage *transport_tpg.RequestBatcher
 	Scopes                     types.List
 	TokenSource                oauth2.TokenSource
+	UniverseDomain             types.String
 	UserAgent                  string
 	UserProjectOverride        types.Bool
 
@@ -298,6 +299,8 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Zone = data.Zone
 	p.UserProjectOverride = data.UserProjectOverride
 	p.PollInterval = 10 * time.Second
+	p.Project = data.Project
+	p.UniverseDomain = data.UniverseDomain
 	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)
 }
