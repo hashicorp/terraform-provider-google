@@ -23,7 +23,9 @@ A Cloud Firestore Database.
 
 If you wish to use Firestore with App Engine, use the
 [`google_app_engine_application`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/app_engine_application)
-resource instead.
+resource instead. If you were previously using the `google_app_engine_application` resource exclusively for managing a Firestore database
+and would like to use the `google_firestore_database` resource instead, please follow the instructions
+[here](https://cloud.google.com/firestore/docs/app-engine-requirement).
 
 
 To get more information about Database, see:
