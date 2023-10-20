@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_network_connectivity_policy_based_route`
+```
