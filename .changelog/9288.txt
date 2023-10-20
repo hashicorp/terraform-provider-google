@@ -1,0 +1,6 @@
+```release-note:enhancement
+bigquery: added support for `iam_member` to `google_bigquery_dataset.access`
+```
+```release-note:bug
+bigquery: fixed a bug when updating a `google_bigquery_dataset` that contained an `iamMember` access rule added out of band with Terraform
+```

@@ -341,6 +341,12 @@ domain specified will be granted the specified access`,
 				Optional:    true,
 				Description: `An email address of a Google Group to grant access to.`,
 			},
+			"iam_member": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Some other type of member that appears in the IAM Policy but isn't a user,
+group, domain, or special group. For example: 'allUsers'`,
+			},
 			"role": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -906,6 +912,7 @@ func flattenBigQueryDatasetAccess(v interface{}, d *schema.ResourceData, config 
 			"group_by_email": flattenBigQueryDatasetAccessGroupByEmail(original["groupByEmail"], d, config),
 			"role":           flattenBigQueryDatasetAccessRole(original["role"], d, config),
 			"special_group":  flattenBigQueryDatasetAccessSpecialGroup(original["specialGroup"], d, config),
+			"iam_member":     flattenBigQueryDatasetAccessIamMember(original["iamMember"], d, config),
 			"user_by_email":  flattenBigQueryDatasetAccessUserByEmail(original["userByEmail"], d, config),
 			"view":           flattenBigQueryDatasetAccessView(original["view"], d, config),
 			"dataset":        flattenBigQueryDatasetAccessDataset(original["dataset"], d, config),
@@ -927,6 +934,10 @@ func flattenBigQueryDatasetAccessRole(v interface{}, d *schema.ResourceData, con
 }
 
 func flattenBigQueryDatasetAccessSpecialGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetAccessIamMember(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1247,6 +1258,13 @@ func expandBigQueryDatasetAccess(v interface{}, d tpgresource.TerraformResourceD
 			transformed["specialGroup"] = transformedSpecialGroup
 		}
 
+		transformedIamMember, err := expandBigQueryDatasetAccessIamMember(original["iam_member"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedIamMember); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["iamMember"] = transformedIamMember
+		}
+
 		transformedUserByEmail, err := expandBigQueryDatasetAccessUserByEmail(original["user_by_email"], d, config)
 		if err != nil {
 			return nil, err
@@ -1293,6 +1311,10 @@ func expandBigQueryDatasetAccessRole(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandBigQueryDatasetAccessSpecialGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetAccessIamMember(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
