@@ -80,7 +80,7 @@ func TestAccProjectService_disableDependentServices(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 	pid := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
-	services := []string{"cloudbuild.googleapis.com", "containerregistry.googleapis.com"}
+	services := []string{"bigquerystorage.googleapis.com", "bigquery.googleapis.com"}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
