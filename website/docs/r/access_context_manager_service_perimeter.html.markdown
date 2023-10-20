@@ -494,11 +494,28 @@ The following arguments are supported:
   be allowed access.
   Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
+* `sources` -
+  (Optional)
+  Sources that this EgressPolicy authorizes access from.
+  Structure is [documented below](#nested_sources).
+
+* `source_restriction` -
+  (Optional)
+  Whether to enforce traffic restrictions based on `sources` field. If the `sources` field is non-empty, then this field must be set to `SOURCE_RESTRICTION_ENABLED`.
+  Possible values are: `SOURCE_RESTRICTION_UNSPECIFIED`, `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
+
 * `identities` -
   (Optional)
   A list of identities that are allowed access through this `EgressPolicy`.
   Should be in the format of email address. The email address should
   represent individual user or service account only.
+
+
+<a name="nested_sources"></a>The `sources` block supports:
+
+* `access_level` -
+  (Optional)
+  An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.
 
 <a name="nested_egress_to"></a>The `egress_to` block supports:
 
@@ -747,11 +764,28 @@ The following arguments are supported:
   be allowed access.
   Possible values are: `IDENTITY_TYPE_UNSPECIFIED`, `ANY_IDENTITY`, `ANY_USER_ACCOUNT`, `ANY_SERVICE_ACCOUNT`.
 
+* `sources` -
+  (Optional)
+  Sources that this EgressPolicy authorizes access from.
+  Structure is [documented below](#nested_sources).
+
+* `source_restriction` -
+  (Optional)
+  Whether to enforce traffic restrictions based on `sources` field. If the `sources` field is non-empty, then this field must be set to `SOURCE_RESTRICTION_ENABLED`.
+  Possible values are: `SOURCE_RESTRICTION_UNSPECIFIED`, `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
+
 * `identities` -
   (Optional)
   A list of identities that are allowed access through this `EgressPolicy`.
   Should be in the format of email address. The email address should
   represent individual user or service account only.
+
+
+<a name="nested_sources"></a>The `sources` block supports:
+
+* `access_level` -
+  (Optional)
+  An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.
 
 <a name="nested_egress_to"></a>The `egress_to` block supports:
 

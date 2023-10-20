@@ -20,6 +20,7 @@ import (
 
 func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	vpcName := fmt.Sprintf("test-vpc-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -27,7 +28,7 @@ func testAccAccessContextManagerAccessLevel_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level"),
+				Config: testAccAccessContextManagerAccessLevel_basic(org, "my policy", "level", vpcName),
 			},
 			{
 				ResourceName:      "google_access_context_manager_access_level.test-access",
@@ -115,7 +116,7 @@ func testAccAccessContextManagerAccessLevel_customTest(t *testing.T) {
 	})
 }
 
-func testAccAccessContextManagerAccessLevel_basic(org, policyTitle, levelTitleName string) string {
+func testAccAccessContextManagerAccessLevel_basic(org, policyTitle, levelTitleName, vpcName string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -134,7 +135,30 @@ resource "google_access_context_manager_access_level" "test-access" {
     }
   }
 }
-`, org, policyTitle, levelTitleName, levelTitleName)
+
+resource "google_compute_network" "vpc_network" {
+  name = "%s"
+}
+
+resource "google_access_context_manager_access_level" "test-access2" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/%s2"
+  title       = "%s2"
+  description = "hello2"
+  basic {
+    combining_function = "AND"
+    conditions {
+      vpc_network_sources {
+        vpc_subnetwork {
+          network = "//compute.googleapis.com/${google_compute_network.vpc_network.id}"
+          vpc_ip_subnetworks = ["20.0.5.0/24"]
+        }
+      }
+    }
+  }
+}
+
+`, org, policyTitle, levelTitleName, levelTitleName, vpcName, levelTitleName, levelTitleName)
 }
 
 func testAccAccessContextManagerAccessLevel_custom(org, policyTitle, levelTitleName string) string {

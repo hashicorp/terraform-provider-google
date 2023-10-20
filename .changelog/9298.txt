@@ -1,0 +1,3 @@
+```release-note:enhancement
+accesscontextmanager: added support for Access Context Manager's VPC Sub-segmentation feature
+```
