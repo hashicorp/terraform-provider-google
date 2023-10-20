@@ -62,19 +62,66 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 func testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_capacity_commitment" "commitment" {
-	capacity_commitment_id = "capacity-tf-test%{random_suffix}"
+  capacity_commitment_id = "capacity-tf-test%{random_suffix}"
 
-	location   = "us-west2"
-	slot_count = 100
-	plan       = "FLEX_FLAT_RATE"
-	edition    = "ENTERPRISE"
+  location   = "us-west2"
+  slot_count = 100
+  plan       = "FLEX_FLAT_RATE"
+  edition    = "ENTERPRISE"
 }
 
 resource "time_sleep" "wait_61_seconds" {
 	depends_on = [google_bigquery_capacity_commitment.commitment]
-    
+
 	# Only needed for CI tests to be able to tear down the commitment once it's expired
-    create_duration = "61s"
+  create_duration = "61s"
+}
+`, context)
+}
+
+func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentNoIdExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckBigqueryReservationCapacityCommitmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentNoIdExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_capacity_commitment.commitment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "location", "enforce_single_admin_project_per_org"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCommitmentNoIdExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_capacity_commitment" "commitment" {
+  location   = "us-west2"
+  slot_count = 100
+  plan       = "FLEX_FLAT_RATE"
+  edition    = "ENTERPRISE"
+}
+
+resource "time_sleep" "wait_61_seconds" {
+  depends_on = [google_bigquery_capacity_commitment.commitment]
+
+  # Only needed for CI tests to be able to tear down the commitment once it's expired
+  create_duration = "61s"
 }
 `, context)
 }
@@ -91,7 +138,7 @@ func testAccCheckBigqueryReservationCapacityCommitmentDestroyProducer(t *testing
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigqueryReservationBasePath}}projects/{{project}}/locations/{{location}}/capacityCommitments/{{capacity_commitment_id}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{BigqueryReservationBasePath}}{{name}}")
 			if err != nil {
 				return err
 			}
