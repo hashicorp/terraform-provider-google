@@ -195,6 +195,42 @@ Format: accessPolicies/{policy_id}/accessLevels/{short_name}`,
 					Type: schema.TypeString,
 				},
 			},
+			"vpc_network_sources": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The request must originate from one of the provided VPC networks in Google Cloud. Cannot specify this field together with 'ip_subnetworks'.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vpc_subnetwork": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Sub networks within a VPC network.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network": {
+										Type:        schema.TypeString,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Required. Network name to be allowed by this Access Level. Networks of foreign organizations requires 'compute.network.get' permission to be granted to caller.`,
+									},
+									"vpc_ip_subnetworks": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `CIDR block IP subnetwork specification. Must be IPv4.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -243,6 +279,12 @@ func resourceAccessContextManagerAccessLevelConditionCreate(d *schema.ResourceDa
 		return err
 	} else if v, ok := d.GetOkExists("regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(regionsProp)) && (ok || !reflect.DeepEqual(v, regionsProp)) {
 		obj["regions"] = regionsProp
+	}
+	vpcNetworkSourcesProp, err := expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSources(d.Get("vpc_network_sources"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("vpc_network_sources"); !tpgresource.IsEmptyValue(reflect.ValueOf(vpcNetworkSourcesProp)) && (ok || !reflect.DeepEqual(v, vpcNetworkSourcesProp)) {
+		obj["vpcNetworkSources"] = vpcNetworkSourcesProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "{{access_level}}")
@@ -408,6 +450,9 @@ func resourceAccessContextManagerAccessLevelConditionRead(d *schema.ResourceData
 	if err := d.Set("regions", flattenNestedAccessContextManagerAccessLevelConditionRegions(res["regions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AccessLevelCondition: %s", err)
 	}
+	if err := d.Set("vpc_network_sources", flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSources(res["vpcNetworkSources"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AccessLevelCondition: %s", err)
+	}
 
 	return nil
 }
@@ -557,6 +602,47 @@ func flattenNestedAccessContextManagerAccessLevelConditionRegions(v interface{},
 	return v
 }
 
+func flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"vpc_subnetwork": flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetwork(original["vpcSubnetwork"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network"] =
+		flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkNetwork(original["network"], d, config)
+	transformed["vpc_ip_subnetworks"] =
+		flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkVpcIpSubnetworks(original["vpcIpSubnetworks"], d, config)
+	return []interface{}{transformed}
+}
+func flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkVpcIpSubnetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandNestedAccessContextManagerAccessLevelConditionIpSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -685,6 +771,62 @@ func expandNestedAccessContextManagerAccessLevelConditionDevicePolicyRequireCorp
 }
 
 func expandNestedAccessContextManagerAccessLevelConditionRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedVpcSubnetwork, err := expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetwork(original["vpc_subnetwork"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVpcSubnetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["vpcSubnetwork"] = transformedVpcSubnetwork
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetwork, err := expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkNetwork(original["network"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetwork); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["network"] = transformedNetwork
+	}
+
+	transformedVpcIpSubnetworks, err := expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkVpcIpSubnetworks(original["vpc_ip_subnetworks"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVpcIpSubnetworks); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vpcIpSubnetworks"] = transformedVpcIpSubnetworks
+	}
+
+	return transformed, nil
+}
+
+func expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerAccessLevelConditionVpcNetworkSourcesVpcSubnetworkVpcIpSubnetworks(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

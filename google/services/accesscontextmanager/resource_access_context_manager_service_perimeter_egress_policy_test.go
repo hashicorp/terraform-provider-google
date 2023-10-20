@@ -112,10 +112,27 @@ resource "google_access_context_manager_service_perimeter_egress_policy" "test-a
 
 }
 
+resource "google_access_context_manager_access_level" "test-access" {
+  parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
+  name        = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/accessLevels/level"
+  title       = "level"
+  description = "hello"
+  basic {
+    combining_function = "AND"
+    conditions {
+      ip_subnetworks = ["192.0.4.0/24"]
+    }
+  }
+}
+
 resource "google_access_context_manager_service_perimeter_egress_policy" "test-access2" {
 	perimeter = google_access_context_manager_service_perimeter.test-access.name
 	egress_from {
 		identity_type = "ANY_USER_ACCOUNT"
+		sources {
+			access_level = google_access_context_manager_access_level.test-access.name
+		}
+		source_restriction = "SOURCE_RESTRICTION_ENABLED"
 	}
 }
 

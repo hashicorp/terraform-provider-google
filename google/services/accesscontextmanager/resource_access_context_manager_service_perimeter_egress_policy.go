@@ -81,6 +81,26 @@ represent individual user or service account only.`,
 perimeter. If left unspecified, then members of 'identities' field will
 be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT"]`,
 						},
+						"source_restriction": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED", ""}),
+							Description:  `Whether to enforce traffic restrictions based on 'sources' field. If the 'sources' field is non-empty, then this field must be set to 'SOURCE_RESTRICTION_ENABLED'. Possible values: ["SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED"]`,
+						},
+						"sources": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Sources that this EgressPolicy authorizes access from.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_level": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -511,6 +531,10 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v i
 		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(original["identityType"], d, config)
 	transformed["identities"] =
 		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(original["identities"], d, config)
+	transformed["sources"] =
+		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(original["sources"], d, config)
+	transformed["source_restriction"] =
+		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(original["sourceRestriction"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -518,6 +542,32 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIden
 }
 
 func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"access_level": flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -619,6 +669,20 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v in
 		transformed["identities"] = transformedIdentities
 	}
 
+	transformedSources, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(original["sources"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sources"] = transformedSources
+	}
+
+	transformedSourceRestriction, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(original["source_restriction"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceRestriction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceRestriction"] = transformedSourceRestriction
+	}
+
 	return transformed, nil
 }
 
@@ -627,6 +691,36 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdent
 }
 
 func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAccessLevel, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(original["access_level"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAccessLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["accessLevel"] = transformedAccessLevel
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

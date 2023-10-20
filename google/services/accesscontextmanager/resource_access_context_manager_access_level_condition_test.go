@@ -24,10 +24,10 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 
 	serviceAccountName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	vpcName := fmt.Sprintf("test-vpc-%s", acctest.RandString(t, 10))
 
 	expected := map[string]interface{}{
-		"ipSubnetworks": []interface{}{"192.0.4.0/24"},
-		"members":       []interface{}{"user:test@google.com", "user:test2@google.com", fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", serviceAccountName, project)},
+		"members": []interface{}{"user:test@google.com", "user:test2@google.com", fmt.Sprintf("serviceAccount:%s@%s.iam.gserviceaccount.com", serviceAccountName, project)},
 		"devicePolicy": map[string]interface{}{
 			"requireCorpOwned": true,
 			"osConstraints": []interface{}{
@@ -37,6 +37,14 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 			},
 		},
 		"regions": []interface{}{"IT", "US"},
+		"vpcNetworkSources": []interface{}{
+			map[string]interface{}{
+				"vpcSubnetwork": map[string]interface{}{
+					"network":          fmt.Sprintf("//compute.googleapis.com/projects/%s/global/networks/%s", project, vpcName),
+					"vpcIpSubnetworks": []interface{}{"20.0.5.0/24"},
+				},
+			},
+		},
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -45,7 +53,7 @@ func testAccAccessContextManagerAccessLevelCondition_basicTest(t *testing.T) {
 		CheckDestroy:             testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAccessContextManagerAccessLevelCondition_basic(org, "my policy", "level", serviceAccountName),
+				Config: testAccAccessContextManagerAccessLevelCondition_basic(org, "my policy", "level", serviceAccountName, vpcName),
 				Check:  testAccCheckAccessContextManagerAccessLevelConditionPresent(t, "google_access_context_manager_access_level_condition.access-level-condition", expected),
 			},
 		},
@@ -113,7 +121,7 @@ func testAccCheckAccessContextManagerAccessLevelConditionDestroyProducer(t *test
 	}
 }
 
-func testAccAccessContextManagerAccessLevelCondition_basic(org, policyTitle, levelTitleName, saName string) string {
+func testAccAccessContextManagerAccessLevelCondition_basic(org, policyTitle, levelTitleName, saName, vpcName string) string {
 	return fmt.Sprintf(`
 resource "google_access_context_manager_access_policy" "test-access" {
   parent = "organizations/%s"
@@ -141,10 +149,6 @@ resource "google_access_context_manager_access_level" "test-access" {
   "US",
       ]
     }
-
-    conditions {
-      ip_subnetworks = ["176.0.4.0/24"]
-    }
   }
 
   lifecycle {
@@ -156,9 +160,12 @@ resource "google_service_account" "created-later" {
   account_id = "%s"
 }
 
+resource "google_compute_network" "vpc_network" {
+	name = "%s"
+}
+
 resource "google_access_context_manager_access_level_condition" "access-level-condition" {
   access_level = google_access_context_manager_access_level.test-access.name
-  ip_subnetworks = ["192.0.4.0/24"]
   members = ["user:test@google.com", "user:test2@google.com", "serviceAccount:${google_service_account.created-later.email}"]
   negate = false
   device_policy {
@@ -173,6 +180,13 @@ resource "google_access_context_manager_access_level_condition" "access-level-co
     "IT",
     "US",
   ]
+
+	vpc_network_sources {
+		vpc_subnetwork {
+      network = "//compute.googleapis.com/${google_compute_network.vpc_network.id}"
+      vpc_ip_subnetworks = ["20.0.5.0/24"]
+		}
+	}
 }
-`, org, policyTitle, levelTitleName, levelTitleName, saName)
+`, org, policyTitle, levelTitleName, levelTitleName, saName, vpcName)
 }

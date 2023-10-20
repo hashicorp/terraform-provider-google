@@ -162,6 +162,11 @@ The following arguments are supported:
   countries/regions.
   Format: A valid ISO 3166-1 alpha-2 code.
 
+* `vpc_network_sources` -
+  (Optional)
+  The request must originate from one of the provided VPC networks in Google Cloud. Cannot specify this field together with `ip_subnetworks`.
+  Structure is [documented below](#nested_vpc_network_sources).
+
 
 <a name="nested_device_policy"></a>The `device_policy` block supports:
 
@@ -209,6 +214,24 @@ The following arguments are supported:
   (Required)
   The operating system type of the device.
   Possible values are: `OS_UNSPECIFIED`, `DESKTOP_MAC`, `DESKTOP_WINDOWS`, `DESKTOP_LINUX`, `DESKTOP_CHROME_OS`, `ANDROID`, `IOS`.
+
+<a name="nested_vpc_network_sources"></a>The `vpc_network_sources` block supports:
+
+* `vpc_subnetwork` -
+  (Optional)
+  Sub networks within a VPC network.
+  Structure is [documented below](#nested_vpc_subnetwork).
+
+
+<a name="nested_vpc_subnetwork"></a>The `vpc_subnetwork` block supports:
+
+* `network` -
+  (Required)
+  Required. Network name to be allowed by this Access Level. Networks of foreign organizations requires `compute.network.get` permission to be granted to caller.
+
+* `vpc_ip_subnetworks` -
+  (Optional)
+  CIDR block IP subnetwork specification. Must be IPv4.
 
 ## Attributes Reference
 
