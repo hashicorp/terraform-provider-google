@@ -86,6 +86,13 @@ func GetProject(d TerraformResourceData, config *transport_tpg.Config) (string, 
 	return GetProjectFromSchema("project", d, config)
 }
 
+// GetUniverse reads the "universe_domain" field from the given resource data and falls
+// back to the provider's value if not given. If the provider's value is not
+// given, an error is returned.
+func GetUniverseDomain(d TerraformResourceData, config *transport_tpg.Config) (string, error) {
+	return GetUniverseDomainFromSchema("universe_domain", d, config)
+}
+
 // GetBillingProject reads the "billing_project" field from the given resource data and falls
 // back to the provider's value if not given. If no value is found, an error is returned.
 func GetBillingProject(d TerraformResourceData, config *transport_tpg.Config) (string, error) {

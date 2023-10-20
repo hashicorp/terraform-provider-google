@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
+	"google.golang.org/api/option/internaloption"
 
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 
@@ -166,6 +167,7 @@ type Config struct {
 	Region                             string
 	BillingProject                     string
 	Zone                               string
+	UniverseDomain                     string
 	Scopes                             []string
 	BatchingConfig                     *BatchingConfig
 	UserProjectOverride                bool
@@ -1896,14 +1898,24 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 			return *creds, nil
 		}
 
-		creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
-		if err != nil {
-			return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
+		if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+			creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
+			}
+			log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
+			log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+			log.Printf("[INFO]   -- Sending EnableJwtWithScope option")
+			return *creds, nil
+		} else {
+			creds, err := transport.Creds(c.Context, option.WithCredentialsJSON([]byte(contents)), option.WithScopes(clientScopes...))
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("unable to parse credentials from '%s': %s", contents, err)
+			}
+			log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
+			log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+			return *creds, nil
 		}
-
-		log.Printf("[INFO] Authenticating using configured Google JSON 'credentials'...")
-		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-		return *creds, nil
 	}
 
 	if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
@@ -1918,6 +1930,16 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 
 	log.Printf("[INFO] Authenticating using DefaultClient...")
 	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
+
+	if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+		log.Printf("[INFO]   -- Sending JwtWithScope option")
+		creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
+		if err != nil {
+			return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+		}
+		return *creds, nil
+	}
+
 	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
 	if err != nil {
 		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)

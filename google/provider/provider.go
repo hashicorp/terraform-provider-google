@@ -4,8 +4,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -193,6 +195,11 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
+			"universe_domain": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"batching": {
@@ -1764,6 +1771,43 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.AccessToken = transport_tpg.MultiEnvSearch([]string{
 			"GOOGLE_OAUTH_ACCESS_TOKEN",
 		})
+	}
+
+	// set universe_domain based on the service account key file.
+	if config.Credentials != "" {
+		contents, _, err := verify.PathOrContents(config.Credentials)
+		if err != nil {
+			return nil, diag.FromErr(fmt.Errorf("error loading service account credentials: %s", err))
+		}
+		var content map[string]any
+
+		if err := json.Unmarshal([]byte(contents), &content); err != nil {
+			return nil, diag.FromErr(err)
+		}
+
+		if content["universe_domain"] != nil {
+			config.UniverseDomain = content["universe_domain"].(string)
+		}
+	}
+
+	// Check if the user provided a value from the universe_domain field
+	if v, ok := d.GetOk("universe_domain"); ok {
+		if config.UniverseDomain == "" {
+			config.UniverseDomain = v.(string)
+		} else if v.(string) != config.UniverseDomain {
+			if _, err := os.Stat(config.Credentials); err == nil {
+				return nil, diag.FromErr(fmt.Errorf("'%s' does not match the universe domain '%s' already set in the credential file '%s'. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain, config.Credentials))
+			} else {
+				return nil, diag.FromErr(fmt.Errorf("'%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain))
+			}
+		}
+	}
+
+	// Replace hostname by the universe_domain field.
+	if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
+		for key, basePath := range transport_tpg.DefaultBasePaths {
+			transport_tpg.DefaultBasePaths[key] = strings.ReplaceAll(basePath, "googleapis.com", config.UniverseDomain)
+		}
 	}
 
 	// Given that impersonate_service_account is a secondary auth method, it has
