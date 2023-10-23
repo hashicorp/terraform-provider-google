@@ -1,0 +1,3 @@
+```release-note:enhancement
+tpuv2: added`accelerator_config` field to `google_tpu_v2_vm` resource
+```
