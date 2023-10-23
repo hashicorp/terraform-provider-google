@@ -30,6 +30,11 @@ To get more information about Vm, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/tpu/docs/)
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=tpu_v2_vm_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Tpu V2 Vm Basic
 
 
@@ -47,6 +52,11 @@ resource "google_tpu_v2_vm" "tpu" {
   runtime_version = "tpu-vm-tf-2.13.0"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=tpu_v2_vm_full&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Tpu V2 Vm Full
 
 
@@ -68,6 +78,78 @@ resource "google_tpu_v2_vm" "tpu" {
 
   runtime_version  = "tpu-vm-tf-2.13.0"
   accelerator_type = "v2-8"
+
+  cidr_block = "10.0.0.0/29"
+
+  network_config {
+    can_ip_forward      = true
+    enable_external_ips = true
+    network             = google_compute_network.network.id
+    subnetwork          = google_compute_subnetwork.subnet.id
+  }
+  
+  scheduling_config {
+    preemptible = true
+  }
+
+  shielded_instance_config {
+    enable_secure_boot = true
+  }
+
+  service_account {
+    email = google_service_account.sa.email
+    scope = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+  }
+
+  data_disks {
+    source_disk = google_compute_disk.disk.id
+    mode        = "READ_ONLY"
+  }
+
+  labels = {
+    foo = "bar"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  tags = ["foo"]
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  provider = google-beta
+
+  name          = "tpu-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.network.id
+}
+
+resource "google_compute_network" "network" {
+  provider = google-beta
+
+  name                    = "tpu-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_service_account" "sa" {
+  provider = google-beta
+
+  account_id   = "tpu-sa"
+  display_name = "Test TPU VM"
+}
+
+resource "google_compute_disk" "disk" {
+  provider = google-beta
+
+  name  = "tpu-disk"
+  image = "debian-cloud/debian-11"
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-c"
 }
 ```
 
@@ -96,6 +178,55 @@ The following arguments are supported:
   (Optional)
   Text description of the TPU.
 
+* `cidr_block` -
+  (Optional)
+  The CIDR block that the TPU node will use when selecting an IP address. This CIDR block must
+  be a /29 block; the Compute Engine networks API forbids a smaller block, and using a larger
+  block would be wasteful (a node can only consume one IP address). Errors will occur if the
+  CIDR block has already been used for a currently existing TPU node, the CIDR block conflicts
+  with any subnetworks in the user's provided network, or the provided network is peered with
+  another network that is using that CIDR block.
+
+* `network_config` -
+  (Optional)
+  Network configurations for the TPU node.
+  Structure is [documented below](#nested_network_config).
+
+* `service_account` -
+  (Optional)
+  The Google Cloud Platform Service Account to be used by the TPU node VMs. If None is
+  specified, the default compute service account will be used.
+  Structure is [documented below](#nested_service_account).
+
+* `scheduling_config` -
+  (Optional)
+  The scheduling options for this node.
+  Structure is [documented below](#nested_scheduling_config).
+
+* `data_disks` -
+  (Optional)
+  The additional data disks for the Node.
+  Structure is [documented below](#nested_data_disks).
+
+* `shielded_instance_config` -
+  (Optional)
+  Shielded Instance options.
+  Structure is [documented below](#nested_shielded_instance_config).
+
+* `labels` -
+  (Optional)
+  Resource labels to represent user-provided metadata.
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `metadata` -
+  (Optional)
+  Custom metadata to apply to the TPU Node. Can set startup-script and shutdown-script.
+
+* `tags` -
+  (Optional)
+  Tags to apply to the TPU Node. Tags are used to identify valid sources or targets for network firewalls.
+
 * `zone` -
   (Optional)
   The GCP location for the TPU. If it is not provided, the provider zone is used.
@@ -104,12 +235,153 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
+<a name="nested_network_config"></a>The `network_config` block supports:
+
+* `network` -
+  (Optional)
+  The name of the network for the TPU node. It must be a preexisting Google Compute Engine
+  network. If both network and subnetwork are specified, the given subnetwork must belong
+  to the given network. If network is not specified, it will be looked up from the
+  subnetwork if one is provided, or otherwise use "default".
+
+* `subnetwork` -
+  (Optional)
+  The name of the subnetwork for the TPU node. It must be a preexisting Google Compute
+  Engine subnetwork. If both network and subnetwork are specified, the given subnetwork
+  must belong to the given network. If subnetwork is not specified, the subnetwork with the
+  same name as the network will be used.
+
+* `enable_external_ips` -
+  (Optional)
+  Indicates that external IP addresses would be associated with the TPU workers. If set to
+  false, the specified subnetwork or network should have Private Google Access enabled.
+
+* `can_ip_forward` -
+  (Optional)
+  Allows the TPU node to send and receive packets with non-matching destination or source
+  IPs. This is required if you plan to use the TPU workers to forward routes.
+
+<a name="nested_service_account"></a>The `service_account` block supports:
+
+* `email` -
+  (Optional)
+  Email address of the service account. If empty, default Compute service account will be used.
+
+* `scope` -
+  (Optional)
+  The list of scopes to be made available for this service account. If empty, access to all
+  Cloud APIs will be allowed.
+
+<a name="nested_scheduling_config"></a>The `scheduling_config` block supports:
+
+* `preemptible` -
+  (Optional)
+  Defines whether the node is preemptible.
+
+* `reserved` -
+  (Optional)
+  Whether the node is created under a reservation.
+
+<a name="nested_data_disks"></a>The `data_disks` block supports:
+
+* `source_disk` -
+  (Required)
+  Specifies the full path to an existing disk. For example:
+  "projects/my-project/zones/us-central1-c/disks/my-disk".
+
+* `mode` -
+  (Optional)
+  The mode in which to attach this disk. If not specified, the default is READ_WRITE
+  mode. Only applicable to dataDisks.
+  Default value is `READ_WRITE`.
+  Possible values are: `READ_WRITE`, `READ_ONLY`.
+
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` -
+  (Required)
+  Defines whether the instance has Secure Boot enabled.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{zone}}/nodes/{{name}}`
 
+* `state` -
+  The current state for the TPU Node.
+
+* `health` -
+  The health status of the TPU node.
+
+* `health_description` -
+  If this field is populated, it contains a description of why the TPU Node is unhealthy.
+
+* `api_version` -
+  The API version that created this Node.
+
+* `queued_resource` -
+  The qualified name of the QueuedResource that requested this Node.
+
+* `multislice_node` -
+  Whether the Node belongs to a Multislice group.
+
+* `network_endpoints` -
+  The network endpoints where TPU workers can be accessed and sent work. It is recommended that
+  runtime clients of the node reach out to the 0th entry in this map first.
+  Structure is [documented below](#nested_network_endpoints).
+
+* `symptoms` -
+  The Symptoms that have occurred to the TPU Node.
+  Structure is [documented below](#nested_symptoms).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
+
+<a name="nested_network_endpoints"></a>The `network_endpoints` block contains:
+
+* `ip_address` -
+  (Output)
+  The internal IP address of this network endpoint.
+
+* `port` -
+  (Output)
+  The port of this network endpoint.
+
+* `access_config` -
+  (Output)
+  The access config for the TPU worker.
+  Structure is [documented below](#nested_access_config).
+
+
+<a name="nested_access_config"></a>The `access_config` block contains:
+
+* `external_ip` -
+  (Output)
+  An external IP address associated with the TPU worker.
+
+<a name="nested_symptoms"></a>The `symptoms` block contains:
+
+* `create_time` -
+  (Output)
+  Timestamp when the Symptom is created.
+
+* `symptom_type` -
+  (Output)
+  Type of the Symptom.
+
+* `details` -
+  (Output)
+  Detailed information of the current Symptom.
+
+* `worker_id` -
+  (Output)
+  A string used to uniquely distinguish a worker within a TPU node.
 
 ## Timeouts
 
