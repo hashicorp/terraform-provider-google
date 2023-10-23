@@ -112,7 +112,7 @@ resource "google_iam_deny_policy" "example" {
         title = "Some expr"
         expression = "!resource.matchTag('12345678/env', 'test')"
       }
-      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.delete"]
+      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.update"]
     }
   }
   rules {
@@ -123,7 +123,7 @@ resource "google_iam_deny_policy" "example" {
         title = "Some expr"
         expression = "!resource.matchTag('12345678/env', 'test')"
       }
-      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.delete"]
+      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.update"]
       exception_principals = ["principal://iam.googleapis.com/projects/-/serviceAccounts/${google_service_account.test-account.email}"]
     }
   }
@@ -160,7 +160,7 @@ resource "google_iam_deny_policy" "example" {
         location = "/some/file"
         description = "A denial condition"
       }
-      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.delete"]
+      denied_permissions = ["cloudresourcemanager.googleapis.com/projects.update"]
     }
   }
 }
