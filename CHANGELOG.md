@@ -1,4 +1,38 @@
-## 5.3.0 (Unreleased)
+## 5.4.0 (Unreleased)
+
+## 5.3.0 (Oct 23, 2023)
+
+DEPRECATIONS:
+* bigquery: deprecated `time_partitioning.require_partition_filter` in favor of new top level field `require_partition_filter` in resource `google_bigquery_table` ([#16238](https://github.com/hashicorp/terraform-provider-google/pull/16238))
+
+FEATURES:
+* **New Data Source:** `google_cloud_run_v2_job` ([#16260](https://github.com/hashicorp/terraform-provider-google/pull/16260))
+* **New Data Source:** `google_cloud_run_v2_service` ([#16290](https://github.com/hashicorp/terraform-provider-google/pull/16290))
+* **New Data Source:** `google_compute_networks` ([#16240](https://github.com/hashicorp/terraform-provider-google/pull/16240))
+* **New Resource:** `google_org_policy_custom_constraint` ([#16220](https://github.com/hashicorp/terraform-provider-google/pull/16220))
+
+IMPROVEMENTS:
+* cloudidentity: added `additional_group_keys` attribute to `google_cloud_identity_group` resource ([#16250](https://github.com/hashicorp/terraform-provider-google/pull/16250))
+* composer: promoted `config.0.workloads_config.0.triggerer` to GA in resource `google_composer_environment` ([#16218](https://github.com/hashicorp/terraform-provider-google/pull/16218))
+* compute: added `internal_ipv6_range` to `google_compute_network` data source and `internal_ipv6_prefix` field to `google_compute_subnetwork` data source ([#16267](https://github.com/hashicorp/terraform-provider-google/pull/16267))
+* container: added support for `security_posture_config.vulnerability_mode` value `VULNERABILITY_ENTERPRISE`in `google_container_cluster` ([#16283](https://github.com/hashicorp/terraform-provider-google/pull/16283))
+* dataform: added `ssh_authentication_config` and `service_account` to `google_dataform_repository` resource ([#16205](https://github.com/hashicorp/terraform-provider-google/pull/16205))
+* dataproc: added `min_num_instances` field to `google_dataproc_cluster` resource ([#16249](https://github.com/hashicorp/terraform-provider-google/pull/16249))
+* gkeonprem: promoted `google_gkeonprem_bare_metal_admin_cluster`, `google_gkeonprem_bare_metal_cluster`, and `google_gkeonprem_bare_metal_node_pool` resources to GA ([#16237](https://github.com/hashicorp/terraform-provider-google/pull/16237))
+* gkeonprem: promoted `google_gkeonprem_vmware_cluster` and `google_gkeonprem_vmware_node_pool` resources to GA ([#16237](https://github.com/hashicorp/terraform-provider-google/pull/16237))
+* logging: added `custom_writer_identity` field to `google_logging_project_sink` ([#16216](https://github.com/hashicorp/terraform-provider-google/pull/16216))
+* secretmanager: made `ttl` field mutable in `google_secret_manager_secret` ([#16285](https://github.com/hashicorp/terraform-provider-google/pull/16285))
+* storage: added `terminal_storage_class` to the `autoclass` field in `google_storage_bucket` resource ([#16282](https://github.com/hashicorp/terraform-provider-google/pull/16282))
+
+BUG FIXES:
+* bigquerydatatransfer: fixed an error when updating `google_bigquery_data_transfer_config` related to incorrect update masks ([#16269](https://github.com/hashicorp/terraform-provider-google/pull/16269))
+* compute: fixed an error during the deletion when post was set to 0 on `google_compute_global_network_endpoint` ([#16286](https://github.com/hashicorp/terraform-provider-google/pull/16286))
+* compute: fixed an issue with TTLs being sent for `google_compute_backend_service` when `cache_mode` is set to `USE_ORIGIN_HEADERS` ([#16245](https://github.com/hashicorp/terraform-provider-google/pull/16245))
+* container: fixed an issue where empty `autoscaling` block would crash the provider for `google_container_node_pool` ([#16212](https://github.com/hashicorp/terraform-provider-google/pull/16212))
+* dataflow: fixed a bug where resource updates returns an error if only `labels` has changes for batch `google_dataflow_job` and `google_dataflow_flex_template_job` ([#16248](https://github.com/hashicorp/terraform-provider-google/pull/16248))
+* dialogflowcx: fixed updating `google_dialogflow_cx_version`; updates will no longer time out. ([#16214](https://github.com/hashicorp/terraform-provider-google/pull/16214))
+* sql: fixed a bug where adding the `edition` field to a `google_sql_database_instance` resource that already existed and used ENTERPRISE edition resulted in a permant diff in plans ([#16215](https://github.com/hashicorp/terraform-provider-google/pull/16215))
+* sql: removed host validation to support IP address and DNS address in host in `google_sql_source_representation_instance` resource ([#16235](https://github.com/hashicorp/terraform-provider-google/pull/16235))
 
 ## 5.2.0 (Oct 16, 2023)
 
