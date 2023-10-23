@@ -77,7 +77,11 @@ resource "google_tpu_v2_vm" "tpu" {
   description = "Text description of the TPU."
 
   runtime_version  = "tpu-vm-tf-2.13.0"
-  accelerator_type = "v2-8"
+
+  accelerator_config {
+    type     = "V2"
+    topology = "2x2"
+  }
 
   cidr_block = "10.0.0.0/29"
 
@@ -172,7 +176,8 @@ The following arguments are supported:
 
 * `accelerator_type` -
   (Optional)
-  TPU accelerator type for the TPU. If not specified, this defaults to 'v2-8'.
+  TPU accelerator type for the TPU. `accelerator_type` cannot be used at the same time as
+  `accelerator_config`. If neither is specified, `accelerator_type` defaults to 'v2-8'.
 
 * `description` -
   (Optional)
@@ -212,6 +217,12 @@ The following arguments are supported:
   (Optional)
   Shielded Instance options.
   Structure is [documented below](#nested_shielded_instance_config).
+
+* `accelerator_config` -
+  (Optional)
+  The AccleratorConfig for the TPU Node. `accelerator_config` cannot be used at the same time
+  as `accelerator_type`. If neither is specified, `accelerator_type` defaults to 'v2-8'.
+  Structure is [documented below](#nested_accelerator_config).
 
 * `labels` -
   (Optional)
@@ -301,6 +312,17 @@ The following arguments are supported:
 * `enable_secure_boot` -
   (Required)
   Defines whether the instance has Secure Boot enabled.
+
+<a name="nested_accelerator_config"></a>The `accelerator_config` block supports:
+
+* `type` -
+  (Required)
+  Type of TPU.
+  Possible values are: `V2`, `V3`, `V4`.
+
+* `topology` -
+  (Required)
+  Topology of TPU in chips.
 
 ## Attributes Reference
 
