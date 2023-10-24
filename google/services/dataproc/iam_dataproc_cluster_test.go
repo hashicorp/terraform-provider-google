@@ -18,6 +18,10 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s",
 		envvar.GetTestProjectFromEnv(), "us-central1", cluster, role)
 
@@ -27,7 +31,7 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
-				Config: testAccDataprocClusterIamBinding_basic(cluster, account, role),
+				Config: testAccDataprocClusterIamBinding_basic(cluster, subnetworkName, account, role),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_dataproc_cluster_iam_binding.binding", "role", role),
@@ -41,7 +45,7 @@ func TestAccDataprocClusterIamBinding(t *testing.T) {
 			},
 			{
 				// Test IAM Binding update
-				Config: testAccDataprocClusterIamBinding_update(cluster, account, role),
+				Config: testAccDataprocClusterIamBinding_update(cluster, subnetworkName, account, role),
 			},
 			{
 				ResourceName:      "google_dataproc_cluster_iam_binding.binding",
@@ -60,6 +64,10 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s %s serviceAccount:%s",
 		envvar.GetTestProjectFromEnv(),
 		"us-central1",
@@ -73,7 +81,7 @@ func TestAccDataprocClusterIamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
-				Config: testAccDataprocClusterIamMember(cluster, account, role),
+				Config: testAccDataprocClusterIamMember(cluster, subnetworkName, account, role),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_dataproc_cluster_iam_member.member", "role", role),
@@ -98,6 +106,10 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	importId := fmt.Sprintf("projects/%s/regions/%s/clusters/%s",
 		envvar.GetTestProjectFromEnv(), "us-central1", cluster)
 
@@ -107,7 +119,7 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test IAM Binding creation
-				Config: testAccDataprocClusterIamPolicy(cluster, account, role),
+				Config: testAccDataprocClusterIamPolicy(cluster, subnetworkName, account, role),
 				Check:  resource.TestCheckResourceAttrSet("data.google_dataproc_cluster_iam_policy.policy", "policy_data"),
 			},
 			{
@@ -120,7 +132,7 @@ func TestAccDataprocClusterIamPolicy(t *testing.T) {
 	})
 }
 
-func testAccDataprocClusterIamBinding_basic(cluster, account, role string) string {
+func testAccDataprocClusterIamBinding_basic(cluster, subnetworkName, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
@@ -140,10 +152,10 @@ resource "google_dataproc_cluster_iam_binding" "binding" {
     "serviceAccount:${google_service_account.test-account1.email}",
   ]
 }
-`, cluster, account, account, role)
+`, cluster, subnetworkName, account, account, role)
 }
 
-func testAccDataprocClusterIamBinding_update(cluster, account, role string) string {
+func testAccDataprocClusterIamBinding_update(cluster, subnetworkName, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account1" {
   account_id   = "%s-1"
@@ -164,10 +176,10 @@ resource "google_dataproc_cluster_iam_binding" "binding" {
     "serviceAccount:${google_service_account.test-account2.email}",
   ]
 }
-`, cluster, account, account, role)
+`, cluster, subnetworkName, account, account, role)
 }
 
-func testAccDataprocClusterIamMember(cluster, account, role string) string {
+func testAccDataprocClusterIamMember(cluster, subnetworkName, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
@@ -179,10 +191,10 @@ resource "google_dataproc_cluster_iam_member" "member" {
   role    = "%s"
   member  = "serviceAccount:${google_service_account.test-account.email}"
 }
-`, cluster, account, role)
+`, cluster, subnetworkName, account, role)
 }
 
-func testAccDataprocClusterIamPolicy(cluster, account, role string) string {
+func testAccDataprocClusterIamPolicy(cluster, subnetworkName, account, role string) string {
 	return fmt.Sprintf(testDataprocIamSingleNodeCluster+`
 resource "google_service_account" "test-account" {
   account_id   = "%s"
@@ -207,7 +219,7 @@ data "google_dataproc_cluster_iam_policy" "policy" {
   region      = "us-central1"
 }
 
-`, cluster, account, role)
+`, cluster, subnetworkName, account, role)
 }
 
 // Smallest cluster possible for testing
@@ -217,6 +229,10 @@ resource "google_dataproc_cluster" "cluster" {
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+      
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {

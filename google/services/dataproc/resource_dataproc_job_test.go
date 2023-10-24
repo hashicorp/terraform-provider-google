@@ -51,20 +51,24 @@ func TestAccDataprocJob_updatable(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	jobId := fmt.Sprintf("dproc-update-job-id-%s", rnd)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_updatable(rnd, jobId, "false"),
+				Config: testAccDataprocJob_updatable(rnd, subnetworkName, jobId, "false"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.updatable", &job),
 					resource.TestCheckResourceAttr("google_dataproc_job.updatable", "force_delete", "false"),
 				),
 			},
 			{
-				Config: testAccDataprocJob_updatable(rnd, jobId, "true"),
+				Config: testAccDataprocJob_updatable(rnd, subnetworkName, jobId, "true"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.updatable", &job),
 					resource.TestCheckResourceAttr("google_dataproc_job.updatable", "force_delete", "true"),
@@ -80,13 +84,17 @@ func TestAccDataprocJob_PySpark(t *testing.T) {
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
 	jobId := fmt.Sprintf("dproc-custom-job-id-%s", rnd)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_pySpark(rnd),
+				Config: testAccDataprocJob_pySpark(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.pyspark", &job),
@@ -118,13 +126,17 @@ func TestAccDataprocJob_Spark(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_spark(rnd),
+				Config: testAccDataprocJob_spark(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.spark", &job),
 
@@ -150,13 +162,17 @@ func TestAccDataprocJob_Hadoop(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_hadoop(rnd),
+				Config: testAccDataprocJob_hadoop(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.hadoop", &job),
 
@@ -182,13 +198,17 @@ func TestAccDataprocJob_Hive(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_hive(rnd),
+				Config: testAccDataprocJob_hive(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.hive", &job),
 
@@ -214,13 +234,17 @@ func TestAccDataprocJob_Pig(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_pig(rnd),
+				Config: testAccDataprocJob_pig(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.pig", &job),
 
@@ -246,13 +270,17 @@ func TestAccDataprocJob_SparkSql(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_sparksql(rnd),
+				Config: testAccDataprocJob_sparksql(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.sparksql", &job),
 
@@ -278,13 +306,17 @@ func TestAccDataprocJob_Presto(t *testing.T) {
 
 	var job dataproc.Job
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocJobDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocJob_presto(rnd),
+				Config: testAccDataprocJob_presto(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocJobExists(t, "google_dataproc_job.presto", &job),
 
@@ -638,11 +670,15 @@ resource "google_dataproc_cluster" "basic" {
         boot_disk_size_gb = 35
       }
     }
+
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
   }
 }
 `
 
-func testAccDataprocJob_updatable(rnd, jobId, del string) string {
+func testAccDataprocJob_updatable(rnd, subnetworkName, jobId, del string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "updatable" {
@@ -660,10 +696,10 @@ resource "google_dataproc_job" "updatable" {
     main_python_file_uri = "gs://dataproc-examples-2f10d78d114f6aaec76462e3c310f31f/src/pyspark/hello-world/hello-world.py"
   }
 }
-`, rnd, jobId, del)
+`, rnd, subnetworkName, jobId, del)
 }
 
-func testAccDataprocJob_pySpark(rnd string) string {
+func testAccDataprocJob_pySpark(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "pyspark" {
@@ -698,10 +734,10 @@ resource "google_dataproc_job" "pyspark" {
     one = "1"
   }
 }
-`, rnd, rnd)
+`, rnd, subnetworkName, rnd)
 }
 
-func testAccDataprocJob_spark(rnd string) string {
+func testAccDataprocJob_spark(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "spark" {
@@ -724,11 +760,11 @@ resource "google_dataproc_job" "spark" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 
 }
 
-func testAccDataprocJob_hadoop(rnd string) string {
+func testAccDataprocJob_hadoop(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "hadoop" {
@@ -747,11 +783,11 @@ resource "google_dataproc_job" "hadoop" {
     ]
   }
 }
-`, rnd, rnd)
+`, rnd, subnetworkName, rnd)
 
 }
 
-func testAccDataprocJob_hive(rnd string) string {
+func testAccDataprocJob_hive(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "hive" {
@@ -769,11 +805,11 @@ resource "google_dataproc_job" "hive" {
     ]
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 
 }
 
-func testAccDataprocJob_pig(rnd string) string {
+func testAccDataprocJob_pig(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "pig" {
@@ -793,11 +829,11 @@ resource "google_dataproc_job" "pig" {
     ]
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 
 }
 
-func testAccDataprocJob_sparksql(rnd string) string {
+func testAccDataprocJob_sparksql(rnd, subnetworkName string) string {
 	return fmt.Sprintf(
 		singleNodeClusterConfig+`
 resource "google_dataproc_job" "sparksql" {
@@ -815,11 +851,11 @@ resource "google_dataproc_job" "sparksql" {
     ]
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 
 }
 
-func testAccDataprocJob_presto(rnd string) string {
+func testAccDataprocJob_presto(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name   = "dproc-job-test-%s"
@@ -831,7 +867,7 @@ resource "google_dataproc_cluster" "basic" {
       override_properties = {
         "dataproc:dataproc.allow.zero.workers" = "true"
       }
-	  optional_components = ["PRESTO"]
+      optional_components = ["PRESTO"]
     }
 
     master_config {
@@ -840,6 +876,10 @@ resource "google_dataproc_cluster" "basic" {
       disk_config {
         boot_disk_size_gb = 35
       }
+    }
+
+    gce_cluster_config {
+      subnetwork = "%s"
     }
   }
 }
@@ -857,6 +897,6 @@ resource "google_dataproc_job" "presto" {
     ]
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 
 }
