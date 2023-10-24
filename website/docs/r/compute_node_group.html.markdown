@@ -53,6 +53,34 @@ resource "google_compute_node_group" "nodes" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_group_maintenance_interval&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Node Group Maintenance Interval
+
+
+```hcl
+resource "google_compute_node_template" "soletenant-tmpl" {
+  provider  = google-beta
+  name      = "soletenant-tmpl"
+  region    = "us-central1"
+  node_type = "c2-node-60-240"
+}
+
+resource "google_compute_node_group" "nodes" {
+  provider    = google-beta
+  name        = "soletenant-group"
+  zone        = "us-central1-a"
+  description = "example google_compute_node_group for Terraform Google Provider"
+
+  initial_size          = 1
+  node_template = google_compute_node_template.soletenant-tmpl.id
+
+  maintenance_interval  = "RECURRENT"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=node_group_autoscaling_policy&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -163,6 +191,13 @@ The following arguments are supported:
   (Optional)
   Share settings for the node group.
   Structure is [documented below](#nested_share_settings).
+
+* `maintenance_interval` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the frequency of planned maintenance events. Set to one of the following:
+    - AS_NEEDED: Hosts are eligible to receive infrastructure and hypervisor updates as they become available.
+    - RECURRENT: Hosts receive planned infrastructure and hypervisor updates on a periodic basis, but not more frequently than every 28 days. This minimizes the number of planned maintenance operations on individual hosts and reduces the frequency of disruptions, both live migrations and terminations, on individual VMs.
+  Possible values are: `AS_NEEDED`, `RECURRENT`.
 
 * `zone` -
   (Optional)
