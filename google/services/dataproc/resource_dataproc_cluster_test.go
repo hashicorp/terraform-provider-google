@@ -113,6 +113,9 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	pid := envvar.GetTestProjectFromEnv()
 	version := "3.1-dataproc-7"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -120,7 +123,7 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocVirtualCluster_basic(pid, rnd),
+				Config: testAccDataprocVirtualCluster_basic(pid, rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.virtual_cluster", &cluster),
 
@@ -152,6 +155,9 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	project := envvar.GetTestProjectFromEnv()
 	acceleratorType := "nvidia-tesla-k80"
 	zone := "us-central1-c"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -159,7 +165,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone),
+				Config: testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.accelerated_cluster", &cluster),
 					testAccCheckDataprocClusterAccelerator(&cluster, project, 1, 1),
@@ -237,13 +243,17 @@ func TestAccDataprocCluster_withMetadataAndTags(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMetadataAndTags(rnd),
+				Config: testAccDataprocCluster_withMetadataAndTags(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 
@@ -261,13 +271,17 @@ func TestAccDataprocCluster_withMinNumInstances(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withMinNumInstances(rnd),
+				Config: testAccDataprocCluster_withMinNumInstances(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_min_num_instances", &cluster),
 
@@ -283,13 +297,17 @@ func TestAccDataprocCluster_withReservationAffinity(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withReservationAffinity(rnd),
+				Config: testAccDataprocCluster_withReservationAffinity(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 
@@ -307,13 +325,17 @@ func TestAccDataprocCluster_withDataprocMetricConfig(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withDataprocMetricConfig(rnd),
+				Config: testAccDataprocCluster_withDataprocMetricConfig(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 
@@ -332,13 +354,17 @@ func TestAccDataprocCluster_withNodeGroupAffinity(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withNodeGroupAffinity(rnd),
+				Config: testAccDataprocCluster_withNodeGroupAffinity(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 
@@ -353,6 +379,10 @@ func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -360,7 +390,7 @@ func TestAccDataprocCluster_singleNodeCluster(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_singleNodeCluster(rnd),
+				Config: testAccDataprocCluster_singleNodeCluster(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.single_node_cluster", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.single_node_cluster", "cluster_config.0.master_config.0.num_instances", "1"),
@@ -417,14 +447,18 @@ func TestAccDataprocCluster_nonPreemptibleSecondary(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_nonPreemptibleSecondary(rnd),
+				Config: testAccDataprocCluster_nonPreemptibleSecondary(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.non_preemptible_secondary", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.non_preemptible_secondary", "cluster_config.0.preemptible_worker_config.0.preemptibility", "NON_PREEMPTIBLE"),
@@ -438,14 +472,18 @@ func TestAccDataprocCluster_spotSecondary(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_spotSecondary(rnd),
+				Config: testAccDataprocCluster_spotSecondary(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.spot_secondary", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_secondary", "cluster_config.0.preemptible_worker_config.0.preemptibility", "SPOT"),
@@ -462,6 +500,9 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	var cluster dataproc.Cluster
 	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
 	bucketName := fmt.Sprintf("%s-bucket", clusterName)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -469,7 +510,7 @@ func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName),
+				Config: testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_bucket", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_bucket", "cluster_config.0.staging_bucket", bucketName),
@@ -494,6 +535,9 @@ func TestAccDataprocCluster_withTempBucket(t *testing.T) {
 	var cluster dataproc.Cluster
 	clusterName := fmt.Sprintf("tf-test-dproc-%s", rnd)
 	bucketName := fmt.Sprintf("%s-temp-bucket", clusterName)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -501,7 +545,7 @@ func TestAccDataprocCluster_withTempBucket(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName),
+				Config: testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_bucket", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_bucket", "cluster_config.0.temp_bucket", bucketName)),
@@ -525,13 +569,17 @@ func TestAccDataprocCluster_withInitAction(t *testing.T) {
 	var cluster dataproc.Cluster
 	bucketName := fmt.Sprintf("tf-test-dproc-%s-init-bucket", rnd)
 	objectName := "msg.txt"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withInitAction(rnd, bucketName, objectName),
+				Config: testAccDataprocCluster_withInitAction(rnd, bucketName, objectName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_init_action", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_init_action", "cluster_config.0.initialization_action.#", "2"),
@@ -548,13 +596,17 @@ func TestAccDataprocCluster_withConfigOverrides(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	var cluster dataproc.Cluster
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withConfigOverrides(rnd),
+				Config: testAccDataprocCluster_withConfigOverrides(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_config_overrides", &cluster),
 					validateDataprocCluster_withConfigOverrides("google_dataproc_cluster.with_config_overrides", &cluster),
@@ -570,6 +622,9 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	sa := "a" + acctest.RandString(t, 10)
 	saEmail := fmt.Sprintf("%s@%s.iam.gserviceaccount.com", sa, envvar.GetTestProjectFromEnv())
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 
@@ -579,7 +634,7 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withServiceAcc(sa, rnd),
+				Config: testAccDataprocCluster_withServiceAcc(sa, rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(
 						t, "google_dataproc_cluster.with_service_account", &cluster),
@@ -601,6 +656,9 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	version := "2.0.35-debian10"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -609,7 +667,7 @@ func TestAccDataprocCluster_withImageVersion(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withImageVersion(rnd, version),
+				Config: testAccDataprocCluster_withImageVersion(rnd, version, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_image_version", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_image_version", "cluster_config.0.software_config.0.image_version", version),
@@ -623,14 +681,18 @@ func TestAccDataprocCluster_withOptionalComponents(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withOptionalComponents(rnd),
+				Config: testAccDataprocCluster_withOptionalComponents(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_opt_components", &cluster),
 					testAccCheckDataprocClusterHasOptionalComponents(&cluster, "ZOOKEEPER", "DOCKER"),
@@ -644,20 +706,24 @@ func TestAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "600s"),
+				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "600s", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "610s"),
+				Config: testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, "610s", subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
 				),
@@ -674,6 +740,9 @@ func TestAccDataprocCluster_withLifecycleConfigAutoDeletion(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	now := time.Now()
 	fmtString := "2006-01-02T15:04:05.072Z"
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -682,13 +751,13 @@ func TestAccDataprocCluster_withLifecycleConfigAutoDeletion(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*10).Format(fmtString)),
+				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*10).Format(fmtString), subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*20).Format(fmtString)),
+				Config: testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, now.Add(time.Hour*20).Format(fmtString), subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_lifecycle_config", &cluster),
 				),
@@ -701,14 +770,18 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 	var cluster dataproc.Cluster
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withoutLabels(rnd),
+				Config: testAccDataprocCluster_withoutLabels(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
@@ -718,7 +791,7 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withLabels(rnd),
+				Config: testAccDataprocCluster_withLabels(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
@@ -730,7 +803,7 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withLabelsUpdate(rnd),
+				Config: testAccDataprocCluster_withLabelsUpdate(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
@@ -740,7 +813,7 @@ func TestAccDataprocCluster_withLabels(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataprocCluster_withoutLabels(rnd),
+				Config: testAccDataprocCluster_withoutLabels(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_labels", &cluster),
 
@@ -783,13 +856,17 @@ func TestAccDataprocCluster_withEndpointConfig(t *testing.T) {
 
 	var cluster dataproc.Cluster
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withEndpointConfig(rnd),
+				Config: testAccDataprocCluster_withEndpointConfig(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.with_endpoint_config", &cluster),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_endpoint_config", "cluster_config.0.endpoint_config.0.enable_http_port_access", "true"),
@@ -804,6 +881,9 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	kms := acctest.BootstrapKMSKey(t)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
@@ -816,7 +896,7 @@ func TestAccDataprocCluster_KMS(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_KMS(rnd, kms.CryptoKey.Name),
+				Config: testAccDataprocCluster_KMS(rnd, kms.CryptoKey.Name, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.kms", &cluster),
 				),
@@ -830,6 +910,9 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 
 	rnd := acctest.RandString(t, 10)
 	kms := acctest.BootstrapKMSKey(t)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -838,7 +921,7 @@ func TestAccDataprocCluster_withKerberos(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withKerberos(rnd, kms.CryptoKey.Name),
+				Config: testAccDataprocCluster_withKerberos(rnd, kms.CryptoKey.Name, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.kerb", &cluster),
 				),
@@ -851,6 +934,9 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 	t.Parallel()
 
 	rnd := acctest.RandString(t, 10)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
+	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
 
 	var cluster dataproc.Cluster
 	acctest.VcrTest(t, resource.TestCase{
@@ -859,14 +945,14 @@ func TestAccDataprocCluster_withAutoscalingPolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocCluster_withAutoscalingPolicy(rnd),
+				Config: testAccDataprocCluster_withAutoscalingPolicy(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 					testAccCheckDataprocClusterAutoscaling(t, &cluster, true),
 				),
 			},
 			{
-				Config: testAccDataprocCluster_removeAutoscalingPolicy(rnd),
+				Config: testAccDataprocCluster_removeAutoscalingPolicy(rnd, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.basic", &cluster),
 					testAccCheckDataprocClusterAutoscaling(t, &cluster, false),
@@ -1168,7 +1254,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocVirtualCluster_basic(projectID string, rnd string) string {
+func testAccDataprocVirtualCluster_basic(projectID, rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
@@ -1177,6 +1263,11 @@ data "google_project" "project" {
 resource "google_container_cluster" "primary" {
   name     = "tf-test-gke-%s"
   location = "us-central1-a"
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
 
   initial_node_count = 1
 
@@ -1225,7 +1316,7 @@ resource "google_dataproc_cluster" "virtual_cluster" {
 	  }
 	}
   }
-`, projectID, rnd, projectID, rnd, rnd, rnd, rnd, rnd, rnd)
+`, projectID, rnd, subnetworkName, projectID, rnd, rnd, rnd, rnd, rnd, rnd)
 }
 
 func testAccCheckDataprocGkeClusterNodePoolsHaveRoles(cluster *dataproc.Cluster, roles ...string) func(s *terraform.State) error {
@@ -1241,7 +1332,7 @@ func testAccCheckDataprocGkeClusterNodePoolsHaveRoles(cluster *dataproc.Cluster,
 	}
 }
 
-func testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone string) string {
+func testAccDataprocCluster_withAccelerators(rnd, acceleratorType, zone, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "accelerated_cluster" {
   name   = "tf-test-dproc-%s"
@@ -1249,6 +1340,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 
   cluster_config {
     gce_cluster_config {
+      subnetwork = "%s"
       zone = "%s"
     }
 
@@ -1267,7 +1359,7 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
     }
   }
 }
-`, rnd, zone, acceleratorType, acceleratorType)
+`, rnd, subnetworkName, zone, acceleratorType, acceleratorType)
 }
 
 func testAccDataprocCluster_withInternalIpOnlyTrueAndShieldedConfig(rnd string) string {
@@ -1342,7 +1434,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_withMetadataAndTags(rnd string) string {
+func testAccDataprocCluster_withMetadataAndTags(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name   = "tf-test-dproc-%s"
@@ -1350,6 +1442,7 @@ resource "google_dataproc_cluster" "basic" {
 
   cluster_config {
     gce_cluster_config {
+      subnetwork = "%s"
       metadata = {
         foo = "bar"
         baz = "qux"
@@ -1358,16 +1451,19 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withMinNumInstances(rnd string) string {
+func testAccDataprocCluster_withMinNumInstances(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_min_num_instances" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
  
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
     master_config{
       num_instances=1
     }
@@ -1377,10 +1473,10 @@ resource "google_dataproc_cluster" "with_min_num_instances" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withReservationAffinity(rnd string) string {
+func testAccDataprocCluster_withReservationAffinity(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 
 resource "google_compute_reservation" "reservation" {
@@ -1401,7 +1497,6 @@ resource "google_dataproc_cluster" "basic" {
   region = "us-central1"
 
   cluster_config {
-
     master_config {
       machine_type  = "n1-standard-2"
     }
@@ -1411,6 +1506,7 @@ resource "google_dataproc_cluster" "basic" {
     }
 
     gce_cluster_config {
+      subnetwork = "%s"
       zone = "us-central1-f"
       reservation_affinity {
         consume_reservation_type = "SPECIFIC_RESERVATION"
@@ -1420,16 +1516,19 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-`, rnd, rnd)
+`, rnd, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withDataprocMetricConfig(rnd string) string {
+func testAccDataprocCluster_withDataprocMetricConfig(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
     dataproc_metric_config {
       metrics {
         metric_source = "HDFS"
@@ -1443,10 +1542,10 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withNodeGroupAffinity(rnd string) string {
+func testAccDataprocCluster_withNodeGroupAffinity(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 
 resource "google_compute_node_template" "nodetmpl" {
@@ -1476,6 +1575,7 @@ resource "google_dataproc_cluster" "basic" {
 
   cluster_config {
     gce_cluster_config {
+      subnetwork = "%s"
       zone = "us-central1-f"
       node_group_affinity {
         node_group_uri = google_compute_node_group.nodes.name
@@ -1483,16 +1583,20 @@ resource "google_dataproc_cluster" "basic" {
     }
   }
 }
-`, rnd, rnd, rnd)
+`, rnd, rnd, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_singleNodeCluster(rnd string) string {
+func testAccDataprocCluster_singleNodeCluster(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "single_node_cluster" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -1501,16 +1605,19 @@ resource "google_dataproc_cluster" "single_node_cluster" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withConfigOverrides(rnd string) string {
+func testAccDataprocCluster_withConfigOverrides(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_config_overrides" {
   name     = "tf-test-dproc-%s"
   region   = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
     master_config {
       num_instances = 3
       machine_type  = "n1-standard-2"  // can't be e2 because of min_cpu_platform
@@ -1543,10 +1650,10 @@ resource "google_dataproc_cluster" "with_config_overrides" {
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withInitAction(rnd, bucket, objName string) string {
+func testAccDataprocCluster_withInitAction(rnd, bucket, objName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "init_bucket" {
   name          = "%s"
@@ -1570,6 +1677,10 @@ resource "google_dataproc_cluster" "with_init_action" {
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -1593,7 +1704,7 @@ resource "google_dataproc_cluster" "with_init_action" {
     }
   }
 }
-`, bucket, rnd, objName, objName, rnd)
+`, bucket, rnd, objName, objName, rnd, subnetworkName)
 }
 
 func testAccDataprocCluster_updatable(rnd string, w, p int) string {
@@ -1631,48 +1742,56 @@ resource "google_dataproc_cluster" "updatable" {
 `, rnd, w, p)
 }
 
-func testAccDataprocCluster_nonPreemptibleSecondary(rnd string) string {
+func testAccDataprocCluster_nonPreemptibleSecondary(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "non_preemptible_secondary" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     master_config {
-	  num_instances = "1"
-	  machine_type  = "e2-medium"
-	  disk_config {
-		boot_disk_size_gb = 35
-	  }
-	}
+      num_instances = "1"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
   
-	worker_config {
-	  num_instances = "2"
-	  machine_type  = "e2-medium"
-	  disk_config {
-		boot_disk_size_gb = 35
-	  }
-	}
+    worker_config {
+      num_instances = "2"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
   
-	preemptible_worker_config {
-	  num_instances = "1"
-	  preemptibility = "NON_PREEMPTIBLE"
-	  disk_config {
-		boot_disk_size_gb = 35
-	  }
-	}
+    preemptible_worker_config {
+      num_instances = "1"
+      preemptibility = "NON_PREEMPTIBLE"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
   }
 }
-	`, rnd)
+	`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_spotSecondary(rnd string) string {
+func testAccDataprocCluster_spotSecondary(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "spot_secondary" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     master_config {
       num_instances = "1"
       machine_type  = "e2-medium"
@@ -1698,7 +1817,7 @@ resource "google_dataproc_cluster" "spot_secondary" {
     }
   }
 }
-	`, rnd)
+	`, rnd, subnetworkName)
 }
 
 func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
@@ -1721,7 +1840,7 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
-func testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName string) string {
+func testAccDataprocCluster_withStagingBucketAndCluster(clusterName, bucketName, subnetworkName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -1732,6 +1851,10 @@ resource "google_dataproc_cluster" "with_bucket" {
   cluster_config {
     staging_bucket = google_storage_bucket.bucket.name
 
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -1747,10 +1870,10 @@ resource "google_dataproc_cluster" "with_bucket" {
     }
   }
 }
-`, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName)
+`, testAccDataprocCluster_withStagingBucketOnly(bucketName), clusterName, subnetworkName)
 }
 
-func testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName string) string {
+func testAccDataprocCluster_withTempBucketAndCluster(clusterName, bucketName, subnetworkName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -1761,6 +1884,10 @@ resource "google_dataproc_cluster" "with_bucket" {
   cluster_config {
     temp_bucket = google_storage_bucket.bucket.name
 
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -1776,120 +1903,155 @@ resource "google_dataproc_cluster" "with_bucket" {
     }
   }
 }
-`, testAccDataprocCluster_withTempBucketOnly(bucketName), clusterName)
+`, testAccDataprocCluster_withTempBucketOnly(bucketName), clusterName, subnetworkName)
 }
 
-func testAccDataprocCluster_withLabels(rnd string) string {
+func testAccDataprocCluster_withLabels(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_labels" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
 
   labels = {
     key1 = "value1"
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withLabelsUpdate(rnd string) string {
+func testAccDataprocCluster_withLabelsUpdate(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_labels" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
 
   labels = {
     key2 = "value2"
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withoutLabels(rnd string) string {
+func testAccDataprocCluster_withoutLabels(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_labels" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
+  cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+  }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withEndpointConfig(rnd string) string {
+func testAccDataprocCluster_withEndpointConfig(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_endpoint_config" {
 	name                  = "tf-test-%s"
 	region                = "us-central1"
 
 	cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
 		endpoint_config {
 			enable_http_port_access = "true"
 		}
 	}
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withImageVersion(rnd, version string) string {
+func testAccDataprocCluster_withImageVersion(rnd, version, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_image_version" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     software_config {
       image_version = "%s"
     }
   }
 }
-`, rnd, version)
+`, rnd, subnetworkName, version)
 }
 
-func testAccDataprocCluster_withOptionalComponents(rnd string) string {
+func testAccDataprocCluster_withOptionalComponents(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_opt_components" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     software_config {
       optional_components = ["DOCKER", "ZOOKEEPER"]
     }
   }
 }
-`, rnd)
+`, rnd, subnetworkName)
 }
 
-func testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, tm string) string {
+func testAccDataprocCluster_withLifecycleConfigIdleDeleteTtl(rnd, tm, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_lifecycle_config" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     lifecycle_config {
       idle_delete_ttl = "%s"
     }
   }
 }
-`, rnd, tm)
+`, rnd, subnetworkName, tm)
 }
 
-func testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, tm string) string {
+func testAccDataprocCluster_withLifecycleConfigAutoDeletionTime(rnd, tm, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_lifecycle_config" {
  name   = "tf-test-dproc-%s"
  region = "us-central1"
 
  cluster_config {
+  gce_cluster_config {
+      subnetwork = "%s"
+    }
+
    lifecycle_config {
      auto_delete_time = "%s"
    }
  }
 }
-`, rnd, tm)
+`, rnd, subnetworkName, tm)
 }
 
-func testAccDataprocCluster_withServiceAcc(sa string, rnd string) string {
+func testAccDataprocCluster_withServiceAcc(sa, rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -1923,6 +2085,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     }
 
     gce_cluster_config {
+      subnetwork = "%s"
       service_account = google_service_account.service_account.email
       service_account_scopes = [
 		#	User supplied scopes
@@ -1941,7 +2104,7 @@ resource "google_dataproc_cluster" "with_service_account" {
 
   depends_on = [google_project_iam_member.service_account]
 }
-`, sa, rnd)
+`, sa, rnd, subnetworkName)
 }
 
 func testAccDataprocCluster_withNetworkRefs(rnd, netName string) string {
@@ -1985,6 +2148,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_name" {
   depends_on = [google_compute_firewall.dataproc_network_firewall]
 
   cluster_config {
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -2011,6 +2175,7 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
   depends_on = [google_compute_firewall.dataproc_network_firewall]
 
   cluster_config {
+
     # Keep the costs down with smallest config we can get away with
     software_config {
       override_properties = {
@@ -2033,22 +2198,26 @@ resource "google_dataproc_cluster" "with_net_ref_by_url" {
 `, netName, rnd, rnd, rnd)
 }
 
-func testAccDataprocCluster_KMS(rnd, kmsKey string) string {
+func testAccDataprocCluster_KMS(rnd, kmsKey, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "kms" {
   name   = "tf-test-dproc-%s"
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     encryption_config {
       kms_key_name = "%s"
     }
   }
 }
-`, rnd, kmsKey)
+`, rnd, subnetworkName, kmsKey)
 }
 
-func testAccDataprocCluster_withKerberos(rnd, kmsKey string) string {
+func testAccDataprocCluster_withKerberos(rnd, kmsKey, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name     = "tf-test-dproc-%s"
@@ -2065,6 +2234,10 @@ resource "google_dataproc_cluster" "kerb" {
   region = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     security_config {
       kerberos_config {
         root_principal_password_uri = google_storage_bucket_object.password.self_link
@@ -2073,16 +2246,20 @@ resource "google_dataproc_cluster" "kerb" {
     }
   }
 }
-`, rnd, rnd, rnd, kmsKey)
+`, rnd, rnd, rnd, subnetworkName, kmsKey)
 }
 
-func testAccDataprocCluster_withAutoscalingPolicy(rnd string) string {
+func testAccDataprocCluster_withAutoscalingPolicy(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name     = "tf-test-dataproc-policy-%s"
   region   = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     autoscaling_config {
       policy_uri = google_dataproc_autoscaling_policy.asp.id
     }
@@ -2105,16 +2282,20 @@ resource "google_dataproc_autoscaling_policy" "asp" {
     }
   }
 }
-`, rnd, rnd)
+`, rnd, subnetworkName, rnd)
 }
 
-func testAccDataprocCluster_removeAutoscalingPolicy(rnd string) string {
+func testAccDataprocCluster_removeAutoscalingPolicy(rnd, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "basic" {
   name     = "tf-test-dataproc-policy-%s"
   region   = "us-central1"
 
   cluster_config {
+    gce_cluster_config {
+      subnetwork = "%s"
+    }
+
     autoscaling_config {
       policy_uri = ""
     }
@@ -2137,36 +2318,36 @@ resource "google_dataproc_autoscaling_policy" "asp" {
     }
   }
 }
-`, rnd, rnd)
+`, rnd, subnetworkName, rnd)
 }
 
 func testAccDataprocCluster_withMetastoreConfig(clusterName, serviceId string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_metastore_config" {
-	name                  = "%s"
-	region                = "us-central1"
+  name                  = "%s"
+  region                = "us-central1"
 
-	cluster_config {
-		metastore_config {
-			dataproc_metastore_service = google_dataproc_metastore_service.ms.name
-		}
-	}
+  cluster_config {
+    metastore_config {
+      dataproc_metastore_service = google_dataproc_metastore_service.ms.name
+    }
+  }
 }
 
 resource "google_dataproc_metastore_service" "ms" {
-	service_id = "%s"
-	location   = "us-central1"
-	port       = 9080
-	tier       = "DEVELOPER"
+  service_id = "%s"
+  location   = "us-central1"
+  port       = 9080
+  tier       = "DEVELOPER"
 
-	maintenance_window {
-		hour_of_day = 2
-		day_of_week = "SUNDAY"
-	}
+  maintenance_window {
+    hour_of_day = 2
+    day_of_week = "SUNDAY"
+  }
 
-	hive_metastore_config {
-		version = "3.1.2"
-	}
+  hive_metastore_config {
+    version = "3.1.2"
+  }
 }
 `, clusterName, serviceId)
 }
@@ -2174,30 +2355,30 @@ resource "google_dataproc_metastore_service" "ms" {
 func testAccDataprocCluster_withMetastoreConfig_update(clusterName, serviceId string) string {
 	return fmt.Sprintf(`
 resource "google_dataproc_cluster" "with_metastore_config" {
-	name                  = "%s"
-	region                = "us-central1"
+  name                  = "%s"
+  region                = "us-central1"
 
-	cluster_config {
-		metastore_config {
-			dataproc_metastore_service = google_dataproc_metastore_service.ms.name
-		}
-	}
+  cluster_config {
+    metastore_config {
+      dataproc_metastore_service = google_dataproc_metastore_service.ms.name
+    }
+  }
 }
 
 resource "google_dataproc_metastore_service" "ms" {
-	service_id = "%s"
-	location   = "us-central1"
-	port       = 9080
-	tier       = "DEVELOPER"
+  service_id = "%s"
+  location   = "us-central1"
+  port       = 9080
+  tier       = "DEVELOPER"
 
-	maintenance_window {
-		hour_of_day = 2
-		day_of_week = "SUNDAY"
-	}
+  maintenance_window {
+    hour_of_day = 2
+    day_of_week = "SUNDAY"
+  }
 
-	hive_metastore_config {
-		version = "3.1.2"
-	}
+  hive_metastore_config {
+    version = "3.1.2"
+  }
 }
 `, clusterName, serviceId)
 }

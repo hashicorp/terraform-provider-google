@@ -1060,6 +1060,79 @@ func BootstrapNetworkAttachment(t *testing.T, networkAttachmentName string, subn
 	return networkAttachment.Name
 }
 
+// The default network within GCP already comes pre configured with
+// certain firewall rules open to allow internal communication. As we
+// are boostrapping a network for dataproc tests, we need to additionally
+// open up similar rules to allow the nodes to talk to each other
+// internally as part of their configuration or this will just hang.
+const SharedTestFirewallPrefix = "tf-bootstrap-firewall-"
+
+func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string, networkName string) string {
+	project := envvar.GetTestProjectFromEnv()
+	firewallName = SharedTestFirewallPrefix + firewallName
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting Firewall %q for Network %q", firewallName, networkName)
+	_, err := config.NewComputeClient(config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] firewallName %q not found, bootstrapping", firewallName)
+		url := fmt.Sprintf("%sprojects/%s/global/firewalls", config.ComputeBasePath, project)
+
+		networkId := fmt.Sprintf("projects/%s/global/networks/%s", project, networkName)
+		allowObj := []interface{}{
+			map[string]interface{}{
+				"IPProtocol": "icmp",
+			},
+			map[string]interface{}{
+				"IPProtocol": "tcp",
+				"ports":      []string{"0-65535"},
+			},
+			map[string]interface{}{
+				"IPProtocol": "udp",
+				"ports":      []string{"0-65535"},
+			},
+		}
+
+		firewallObj := map[string]interface{}{
+			"name":    firewallName,
+			"network": networkId,
+			"allowed": allowObj,
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      firewallObj,
+			Timeout:   4 * time.Minute,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping Firewall %q for Network %q: %s", firewallName, networkName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for Firewall creation to finish")
+		err = tpgcompute.ComputeOperationWaitTime(config, res, project, "Error bootstrapping Firewall", config.UserAgent, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping Firewall %q: %s", firewallName, err)
+		}
+	}
+
+	firewall, err := config.NewComputeClient(config.UserAgent).Firewalls.Get(project, firewallName).Do()
+	if err != nil {
+		t.Errorf("Error getting Firewall %q: %s", firewallName, err)
+	}
+	if firewall == nil {
+		t.Fatalf("Error getting Firewall %q: is nil", firewallName)
+	}
+	return firewall.Name
+}
+
 func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *transport_tpg.Config) (string, error) {
 	// Create project-1 and project-2
 	rmService := config.NewResourceManagerClient(config.UserAgent)
