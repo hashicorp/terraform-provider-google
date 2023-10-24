@@ -964,7 +964,7 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 			obj["targetVersion"] = targetVersionProp
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}:upgrade")
+		url, err := tpgresource.ReplaceVars(d, config, "{{EdgecontainerBasePath}}projects/{{project}}/locations/{{location}}/clusters/{{name}}:upgrade")
 		if err != nil {
 			return err
 		}
