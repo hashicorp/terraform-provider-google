@@ -1,0 +1,3 @@
+```release-note:bug
+edgecontainer: fixed an issue where the update endpoint for `google_edgecontainer_cluster` was incorrect.
+```

@@ -69,21 +69,21 @@ resource "google_edgecontainer_cluster" "cluster" {
   }
 
   networking {
-    cluster_ipv4_cidr_blocks = ["10.96.0.0/17"]
-    services_ipv4_cidr_blocks = ["10.0.0.0/21"]
+    cluster_ipv4_cidr_blocks = ["10.16.0.0/16"]
+    services_ipv4_cidr_blocks = ["10.17.0.0/16"]
   }
 
   fleet {
     project = "projects/${data.google_project.project.number}"
   }
 
-  external_load_balancer_ipv4_address_pools = ["10.100.68.100-10.100.68.102"]
+  external_load_balancer_ipv4_address_pools = ["172.17.34.97-172.17.34.99"]
 
   control_plane {
     local {
-      node_location = "us-central1-edge-den29"
+      node_location = "us-central1-edge-den25349"
       node_count = 1
-      machine_filter = "den29-06"
+      machine_filter = "den25349-01"
       shared_deployment_policy = "ALLOWED"
     }
   }
@@ -93,8 +93,8 @@ resource "google_edgecontainer_node_pool" "default" {
   name = "nodepool-1"
   cluster = google_edgecontainer_cluster.cluster.name
   location = "us-central1"
-  node_location = "us-central1-edge-den29"
-  machine_filter = "NOT name:den29-01"
+  node_location = "us-central1-edge-den25349"
+  machine_filter = "den25349-02"
   node_count = 1
 }
 
