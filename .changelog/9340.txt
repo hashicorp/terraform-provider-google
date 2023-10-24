@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: add support for type in `google_apigee_environment`
+```
