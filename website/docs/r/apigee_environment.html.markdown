@@ -115,6 +115,14 @@ The following arguments are supported:
   NodeConfig for setting the min/max number of nodes associated with the environment.
   Structure is [documented below](#nested_node_config).
 
+* `type` -
+  (Optional)
+  Types that can be selected for an Environment. Each of the types are
+  limited by capability and capacity. Refer to Apigee's public documentation
+  to understand about each of these types in details.
+  An Apigee org can support heterogeneous Environments.
+  Possible values are: `ENVIRONMENT_TYPE_UNSPECIFIED`, `BASE`, `INTERMEDIATE`, `COMPREHENSIVE`.
+
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 

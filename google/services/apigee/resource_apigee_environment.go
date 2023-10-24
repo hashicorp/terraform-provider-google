@@ -128,6 +128,16 @@ all instances.`,
 					},
 				},
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"ENVIRONMENT_TYPE_UNSPECIFIED", "BASE", "INTERMEDIATE", "COMPREHENSIVE", ""}),
+				Description: `Types that can be selected for an Environment. Each of the types are
+limited by capability and capacity. Refer to Apigee's public documentation
+to understand about each of these types in details.
+An Apigee org can support heterogeneous Environments. Possible values: ["ENVIRONMENT_TYPE_UNSPECIFIED", "BASE", "INTERMEDIATE", "COMPREHENSIVE"]`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -176,6 +186,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeConfigProp)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
+	}
+	typeProp, err := expandApigeeEnvironmentType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
@@ -288,6 +304,9 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("node_config", flattenApigeeEnvironmentNodeConfig(res["nodeConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
+	if err := d.Set("type", flattenApigeeEnvironmentType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
 
 	return nil
 }
@@ -308,6 +327,12 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("node_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeConfigProp)) {
 		obj["nodeConfig"] = nodeConfigProp
 	}
+	typeProp, err := expandApigeeEnvironmentType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
@@ -319,6 +344,10 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("node_config") {
 		updateMask = append(updateMask, "nodeConfig")
+	}
+
+	if d.HasChange("type") {
+		updateMask = append(updateMask, "type")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -503,6 +532,10 @@ func flattenApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, 
 	return v
 }
 
+func flattenApigeeEnvironmentType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -565,5 +598,9 @@ func expandApigeeEnvironmentNodeConfigMaxNodeCount(v interface{}, d tpgresource.
 }
 
 func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
