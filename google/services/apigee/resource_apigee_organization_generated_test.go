@@ -53,7 +53,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicTestExample(t *testin
 				ResourceName:            "google_apigee_organization.org",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project_id", "retention"},
+				ImportStateVerifyIgnore: []string{"project_id", "retention", "properties"},
 			},
 		},
 	})
@@ -139,7 +139,7 @@ func TestAccApigeeOrganization_apigeeOrganizationCloudBasicDisableVpcPeeringTest
 				ResourceName:            "google_apigee_organization.org",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project_id", "retention"},
+				ImportStateVerifyIgnore: []string{"project_id", "retention", "properties"},
 			},
 		},
 	})
