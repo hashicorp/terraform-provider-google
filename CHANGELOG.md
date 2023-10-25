@@ -30,7 +30,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: fixed a bug when updating a `google_bigquery_dataset` that contained an `iamMember` access rule added out of band with Terraform ([#16322](https://github.com/hashicorp/terraform-provider-google/pull/16322))
-* bigqueryreservation: fixed bug of incorrect resource recreation when `capacity_commitment_id` is unspecified in resource `bigquery_reservation_capacity_commitment` ([#16320](https://github.com/hashicorp/terraform-provider-google/pull/16320))
+* bigqueryreservation: fixed bug of incorrect resource recreation when `capacity_commitment_id` is unspecified in resource `google_bigquery_capacity_commitment` ([#16320](https://github.com/hashicorp/terraform-provider-google/pull/16320))
 * cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_job` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
 * cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_service` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
 * cloudrunv2: set fields `labels` and `terraform_labels` having all of labels present on the resource in GCP in data source `google_cloud_run_v2_job` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
