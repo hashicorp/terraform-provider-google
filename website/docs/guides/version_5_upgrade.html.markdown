@@ -723,6 +723,7 @@ For more information on configuring Firebase resources with Terraform, see [Get 
 If you have existing resources created using `google_firebase_project_location`:
 1. Remove the `google_firebase_project_location` block
 1. Add blocks according to "New config" in this section for any of the following that you need: `google_app_engine_application`, `google_firebase_storage_bucket`, and/or `google_firestore_database`.
+1. Run `terraform state rm` for your existing `google_firebase_project_location` resource
 1. Import the existing resources corresponding to the blocks added in the previous step:
    `terraform import google_app_engine_application.default <project-id>`
    `terraform import google_firebase_storage_bucket.default-bucket <project-id>/<project-id>.appspot.com`
