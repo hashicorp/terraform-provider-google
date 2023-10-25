@@ -1,0 +1,3 @@
+```release-note:bug
+filestore: retry field creation for error 409 with the text "Please retry, underlying data changed" in `google_firestore_field `
+```

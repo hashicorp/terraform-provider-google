@@ -172,3 +172,14 @@ func TestIsSwgAutogenRouterRetryableError_notReady(t *testing.T) {
 		t.Errorf("Error not detected as retryable")
 	}
 }
+
+func TestFirestoreField409_retryUnderlyingDataChanged(t *testing.T) {
+	err := googleapi.Error{
+		Code: 409,
+		Body: "Please retry, underlying data changed",
+	}
+	isRetryable, _ := FirestoreField409RetryUnderlyingDataChanged(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
