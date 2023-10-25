@@ -1,0 +1,3 @@
+```release-note:new-datasource
+google_bigquery_dataset
+```
