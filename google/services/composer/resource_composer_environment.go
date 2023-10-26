@@ -546,8 +546,14 @@ func ResourceComposerEnvironment() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"machine_type": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: `Optional. Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2, db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16. If not specified, db-n1-standard-2 will be used.`,
+									},
+									"zone": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Optional. Cloud SQL database preferred zone.`,
 									},
 								},
 							},
@@ -1336,6 +1342,7 @@ func flattenComposerEnvironmentConfigDatabaseConfig(databaseCfg *composer.Databa
 
 	transformed := make(map[string]interface{})
 	transformed["machine_type"] = databaseCfg.MachineType
+	transformed["zone"] = databaseCfg.Zone
 
 	return []interface{}{transformed}
 }
@@ -1734,6 +1741,7 @@ func expandComposerEnvironmentConfigDatabaseConfig(v interface{}, d *schema.Reso
 
 	transformed := &composer.DatabaseConfig{}
 	transformed.MachineType = original["machine_type"].(string)
+	transformed.Zone = original["zone"].(string)
 
 	return transformed, nil
 }

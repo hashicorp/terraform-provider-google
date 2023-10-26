@@ -572,6 +572,11 @@ The `web_server_network_access_control` supports:
   (Required)
   Cloud SQL machine type used by Airflow database. It has to be one of: db-n1-standard-2,
   db-n1-standard-4, db-n1-standard-8 or db-n1-standard-16.
+  
+* `Zone` -
+  (Optional)
+  Preferred Cloud SQL database zone.
+  
 
 <a name="nested_web_server_config"></a>The `web_server_config` block supports:
 

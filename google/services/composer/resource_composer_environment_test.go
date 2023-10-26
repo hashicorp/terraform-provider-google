@@ -1672,6 +1672,9 @@ resource "google_composer_environment" "test" {
 		  count   		= 1
 		}
       }
+      database_config {
+          zone = "us-east1-c"
+      }
       environment_size = "ENVIRONMENT_SIZE_MEDIUM"
       private_environment_config {
         enable_private_endpoint                 = true
