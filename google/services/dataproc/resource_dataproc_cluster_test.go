@@ -113,9 +113,8 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 	rnd := acctest.RandString(t, 10)
 	pid := envvar.GetTestProjectFromEnv()
 	version := "3.1-dataproc-7"
-	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
-	acctest.BootstrapFirewallForDataprocSharedNetwork(t, "dataproc-cluster", networkName)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -123,7 +122,7 @@ func TestAccDataprocVirtualCluster_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocVirtualCluster_basic(pid, rnd, subnetworkName),
+				Config: testAccDataprocVirtualCluster_basic(pid, rnd, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.virtual_cluster", &cluster),
 
@@ -1254,7 +1253,7 @@ resource "google_dataproc_cluster" "basic" {
 `, rnd)
 }
 
-func testAccDataprocVirtualCluster_basic(projectID, rnd, subnetworkName string) string {
+func testAccDataprocVirtualCluster_basic(projectID, rnd, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
   project_id = "%s"
@@ -1263,11 +1262,8 @@ data "google_project" "project" {
 resource "google_container_cluster" "primary" {
   name     = "tf-test-gke-%s"
   location = "us-central1-a"
-  cluster_config {
-    gce_cluster_config {
-      subnetwork = "%s"
-    }
-  }
+  network    = "%s"
+  subnetwork    = "%s"
 
   initial_node_count = 1
 
@@ -1316,7 +1312,7 @@ resource "google_dataproc_cluster" "virtual_cluster" {
 	  }
 	}
   }
-`, projectID, rnd, subnetworkName, projectID, rnd, rnd, rnd, rnd, rnd, rnd)
+`, projectID, rnd, networkName, subnetworkName, projectID, rnd, rnd, rnd, rnd, rnd, rnd)
 }
 
 func testAccCheckDataprocGkeClusterNodePoolsHaveRoles(cluster *dataproc.Cluster, roles ...string) func(s *terraform.State) error {
