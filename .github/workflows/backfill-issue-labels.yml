@@ -9,8 +9,9 @@ on:
       since:
         description: "The date to backfill tickets since in YYYY-MM-DD format"
         required: true
+        default: '1973-01-01'
       dry_run:
-        description: "Whether to skip actually updating issues"
+        description: "Dry run (no changes will be made to issues)"
         type: boolean
 
 jobs:
