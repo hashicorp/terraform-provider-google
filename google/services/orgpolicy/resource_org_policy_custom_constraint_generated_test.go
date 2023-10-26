@@ -36,6 +36,7 @@ func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintBasicExample(t *t
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"policy_name":   "custom.tfTestDisableGkeAutoUpgrade" + acctest.RandString(t, 10),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -61,7 +62,7 @@ func testAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintBasicExample(cont
 	return acctest.Nprintf(`
 resource "google_org_policy_custom_constraint" "constraint" {
 
-  name         = "custom.disableGkeAutoUpgrade"
+  name         = "%{policy_name}"
   parent       = "organizations/%{org_id}"
 
   action_type    = "ALLOW"
@@ -77,6 +78,7 @@ func TestAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintFullExample(t *te
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
+		"policy_name":   "custom.tfTestDisableGkeAutoUpgrade" + acctest.RandString(t, 10),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -102,7 +104,7 @@ func testAccOrgPolicyCustomConstraint_orgPolicyCustomConstraintFullExample(conte
 	return acctest.Nprintf(`
 resource "google_org_policy_custom_constraint" "constraint" {
 
-  name         = "custom.disableGkeAutoUpgrade"
+  name         = "%{policy_name}"
   parent       = "organizations/%{org_id}"
   display_name = "Disable GKE auto upgrade"
   description  = "Only allow GKE NodePool resource to be created or updated if AutoUpgrade is not enabled where this custom constraint is enforced."
