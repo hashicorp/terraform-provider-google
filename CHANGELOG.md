@@ -26,7 +26,7 @@ IMPROVEMENTS:
 * dialogflowcx: added `advanced_settings`, `text_to_speech_settings`, `git_integration_settings` fields to `google_dialogflow_cx_agent` resource ([#16315](https://github.com/hashicorp/terraform-provider-google/pull/16315))
 * redis: allow `replica_count` to be set to zero in the `google_redis_cluster` resource ([#16302](https://github.com/hashicorp/terraform-provider-google/pull/16302))
 * tpuv2: added more fields to `google_tpu_v2_vm` resource, including `network_config`, `scheduling_config`, `shielded_instance_config`, `service_account` and `data_disks` ([#16333](https://github.com/hashicorp/terraform-provider-google/pull/16333))
-* tpuv2: added`accelerator_config` field to `google_tpu_v2_vm` resource ([#16340](https://github.com/hashicorp/terraform-provider-google/pull/16340))
+* tpuv2: added `accelerator_config` field to `google_tpu_v2_vm` resource ([#16340](https://github.com/hashicorp/terraform-provider-google/pull/16340))
 
 BUG FIXES:
 * bigquery: fixed a bug when updating a `google_bigquery_dataset` that contained an `iamMember` access rule added out of band with Terraform ([#16322](https://github.com/hashicorp/terraform-provider-google/pull/16322))
