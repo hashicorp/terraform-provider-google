@@ -1,0 +1,9 @@
+```release-note:enhancement
+alloydb: added "SECONDARY" as an additional option for `instance_type` field in `google_alloydb_instance` to support creation of secondary instance inside a secondary cluster. 
+```
+```release-note:enhancement
+alloydb: added "deletion_policy" to `google_alloydb_cluster` to allow force-destroying instances along with their cluster. This is necessary to delete secondary instances, which cannot be deleted otherwise.
+```
+```release-note:enhancement
+alloydb: increased default timeout on `google_alloydb_instance` to 120m from 40m
+```

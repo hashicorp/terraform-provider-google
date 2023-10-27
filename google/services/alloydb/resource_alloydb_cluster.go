@@ -572,6 +572,14 @@ This can happen due to user-triggered updates or system actions like failover or
 				Computed:    true,
 				Description: `The system-generated UID of the resource.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "DEFAULT",
+				Description: `Policy to determine if the cluster should be deleted forcefully.
+Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
+Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned. This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -830,6 +838,12 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AlloydbCluster %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1104,6 +1118,10 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var obj map[string]interface{}
+	// Forcefully delete the secondary cluster and the dependent instances because deletion of secondary instance is not supported.
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url = url + "?force=true"
+	}
 	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -1153,6 +1171,11 @@ func resourceAlloydbClusterImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
