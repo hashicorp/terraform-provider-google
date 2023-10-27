@@ -121,6 +121,8 @@ resource "google_tpu_v2_vm" "tpu" {
   }
 
   tags = ["foo"]
+
+  depends_on = [time_sleep.wait_60_seconds]
 }
 
 resource "google_compute_subnetwork" "subnet" {
@@ -154,6 +156,13 @@ resource "google_compute_disk" "disk" {
   size  = 10
   type  = "pd-ssd"
   zone  = "us-central1-c"
+}
+
+# Wait after service account creation to limit eventual consistency errors.
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_service_account.sa]
+
+  create_duration = "60s"
 }
 ```
 
