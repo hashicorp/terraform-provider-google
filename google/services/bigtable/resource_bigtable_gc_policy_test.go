@@ -168,6 +168,7 @@ func TestAccBigtableGCPolicy_multiplePolicies(t *testing.T) {
 }
 
 func TestAccBigtableGCPolicy_gcRulesPolicy(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 

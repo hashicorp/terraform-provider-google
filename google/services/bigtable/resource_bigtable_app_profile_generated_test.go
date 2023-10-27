@@ -31,6 +31,7 @@ import (
 )
 
 func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -95,6 +96,7 @@ resource "google_bigtable_app_profile" "ap" {
 }
 
 func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -150,6 +152,7 @@ resource "google_bigtable_app_profile" "ap" {
 }
 
 func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
