@@ -81,6 +81,7 @@ var (
 		"settings.0.ip_configuration.0.allocated_ip_range",
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
 		"settings.0.ip_configuration.0.psc_config",
+		"settings.0.ip_configuration.0.ssl_mode",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -436,6 +437,7 @@ is set to true. Defaults to ZONAL.`,
 										Type:         schema.TypeBool,
 										Optional:     true,
 										AtLeastOneOf: ipConfigurationKeys,
+										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode.`,
 									},
 									"private_network": {
 										Type:             schema.TypeString,
@@ -479,6 +481,14 @@ is set to true. Defaults to ZONAL.`,
 												},
 											},
 										},
+									},
+									"ssl_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
+										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to require_ssl. To change this field, also set the correspoding value in require_ssl.`,
+										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
 							},
@@ -1382,6 +1392,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
 		ForceSendFields:                         forceSendFields,
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
+		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 	}
 }
 
@@ -2187,6 +2198,7 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
 		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
+		"ssl_mode": ipConfiguration.SslMode,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
