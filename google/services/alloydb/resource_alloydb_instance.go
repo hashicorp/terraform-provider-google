@@ -44,9 +44,9 @@ func ResourceAlloydbInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(40 * time.Minute),
-			Update: schema.DefaultTimeout(40 * time.Minute),
-			Delete: schema.DefaultTimeout(40 * time.Minute),
+			Create: schema.DefaultTimeout(120 * time.Minute),
+			Update: schema.DefaultTimeout(120 * time.Minute),
+			Delete: schema.DefaultTimeout(120 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -73,8 +73,14 @@ func ResourceAlloydbInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"PRIMARY", "READ_POOL"}),
-				Description:  `The type of the instance. If the instance type is READ_POOL, provide the associated PRIMARY instance in the 'depends_on' meta-data attribute. Possible values: ["PRIMARY", "READ_POOL"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"PRIMARY", "READ_POOL", "SECONDARY"}),
+				Description: `The type of the instance.
+If the instance type is READ_POOL, provide the associated PRIMARY/SECONDARY instance in the 'depends_on' meta-data attribute.
+If the instance type is SECONDARY, point to the cluster_type of the associated secondary cluster instead of mentioning SECONDARY.
+Example: {instance_type = google_alloydb_cluster.<secondary_cluster_name>.cluster_type} instead of {instance_type = SECONDARY}
+If the instance type is SECONDARY, the terraform delete instance operation does not delete the secondary instance but abandons it instead.
+Use deletion_policy = "FORCE" in the associated secondary cluster and delete the cluster forcefully to delete the secondary cluster as well its associated secondary instance.
+Users can undo the delete secondary instance action by importing the deleted secondary instance by calling terraform import. Possible values: ["PRIMARY", "READ_POOL", "SECONDARY"]`,
 			},
 			"annotations": {
 				Type:     schema.TypeMap,
@@ -367,6 +373,11 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	// Read the config and call createsecondary api if instance_type is SECONDARY
+
+	if instanceType := d.Get("instance_type"); instanceType == "SECONDARY" {
+		url = strings.Replace(url, "instances?instanceId", "instances:createsecondary?instanceId", 1)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -673,6 +684,24 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var obj map[string]interface{}
+	// Read the config and avoid calling the delete API if the instance_type is SECONDARY and instead return nil
+	// Returning nil is equivalent of returning a success message to the users
+	// This is done because deletion of secondary instance is not supported
+	// Instead users should be deleting the secondary cluster which will forcefully delete the associated secondary instance
+	// A warning message prompts the user to delete the associated secondary cluster.
+	// Users can always undo the delete secondary instance action by importing the deleted secondary instance by calling terraform import
+
+	var instanceType interface{}
+	instanceTypeProp, err := expandAlloydbInstanceInstanceType(d.Get("instance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceTypeProp)) && (ok || !reflect.DeepEqual(v, instanceTypeProp)) {
+		instanceType = instanceTypeProp
+	}
+	if instanceType != nil && instanceType == "SECONDARY" {
+		log.Printf("[WARNING] This operation didn't delete the Secondary Instance %q. Please delete the associated Secondary Cluster as well to delete the entire cluster and the secondary instance.\n", d.Id())
+		return nil
+	}
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found

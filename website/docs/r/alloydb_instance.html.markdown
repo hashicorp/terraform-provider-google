@@ -28,6 +28,10 @@ To get more information about Instance, see:
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
+~> **Warning:** Deleting an instance with instanceType = SECONDARY does not delete the secondary instance, and abandons it instead.
+Use deletion_policy = "FORCE" in the associated secondary cluster and delete the cluster forcefully to delete the secondary cluster as well its associated secondary instance.
+Users can undo the delete secondary instance action by importing the deleted secondary instance by calling terraform import.
+
 ## Example Usage - Alloydb Instance Basic
 
 
@@ -74,6 +78,79 @@ resource "google_service_networking_connection" "vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 ```
+## Example Usage - Alloydb Secondary Instance Basic
+
+
+```hcl
+resource "google_alloydb_cluster" "primary" {
+  cluster_id = "alloydb-primary-cluster"
+  location   = "us-central1"
+  network    = google_compute_network.default.id
+}
+
+resource "google_alloydb_instance" "primary" {
+  cluster       = google_alloydb_cluster.primary.name
+  instance_id   = "alloydb-primary-instance"
+  instance_type = "PRIMARY"
+
+  machine_config {
+    cpu_count = 2
+  }
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_alloydb_cluster" "secondary" {
+  cluster_id   = "alloydb-secondary-cluster"
+  location     = "us-east1"
+  network      = google_compute_network.default.id
+  cluster_type = "SECONDARY"
+
+  continuous_backup_config {
+    enabled = false
+  }
+
+  secondary_config {
+    primary_cluster_name = google_alloydb_cluster.primary.name
+  }
+
+  deletion_policy = "FORCE"
+
+  depends_on = [google_alloydb_instance.primary]
+}
+
+resource "google_alloydb_instance" "secondary" {
+  cluster       = google_alloydb_cluster.secondary.name
+  instance_id   = "alloydb-secondary-instance"
+  instance_type = google_alloydb_cluster.secondary.cluster_type
+
+  machine_config {
+    cpu_count = 2
+  }
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+data "google_project" "project" {}
+
+resource "google_compute_network" "default" {
+  name = "alloydb-secondary-network"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "alloydb-secondary-instance"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+```
 
 ## Argument Reference
 
@@ -82,8 +159,14 @@ The following arguments are supported:
 
 * `instance_type` -
   (Required)
-  The type of the instance. If the instance type is READ_POOL, provide the associated PRIMARY instance in the `depends_on` meta-data attribute.
-  Possible values are: `PRIMARY`, `READ_POOL`.
+  The type of the instance.
+  If the instance type is READ_POOL, provide the associated PRIMARY/SECONDARY instance in the `depends_on` meta-data attribute.
+  If the instance type is SECONDARY, point to the cluster_type of the associated secondary cluster instead of mentioning SECONDARY.
+  Example: {instance_type = google_alloydb_cluster.<secondary_cluster_name>.cluster_type} instead of {instance_type = SECONDARY}
+  If the instance type is SECONDARY, the terraform delete instance operation does not delete the secondary instance but abandons it instead.
+  Use deletion_policy = "FORCE" in the associated secondary cluster and delete the cluster forcefully to delete the secondary cluster as well its associated secondary instance.
+  Users can undo the delete secondary instance action by importing the deleted secondary instance by calling terraform import.
+  Possible values are: `PRIMARY`, `READ_POOL`, `SECONDARY`.
 
 * `cluster` -
   (Required)
@@ -245,9 +328,9 @@ In addition to the arguments listed above, the following computed attributes are
 This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 40 minutes.
-- `update` - Default is 40 minutes.
-- `delete` - Default is 40 minutes.
+- `create` - Default is 120 minutes.
+- `update` - Default is 120 minutes.
+- `delete` - Default is 120 minutes.
 
 ## Import
 
