@@ -1,0 +1,3 @@
+```release-note:none
+container_cluster: Fixed GPU config docs
+```
