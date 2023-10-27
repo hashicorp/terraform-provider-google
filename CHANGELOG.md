@@ -1,5 +1,7 @@
 ## 5.4.0 (Unreleased)
 
+DEPRECATIONS:
+* bigquery: deprecated `cloud_spanner.use_serverless_analytics` on `google_bigquery_connection`. Use `cloud_spanner.use_data_boost` instead. ([#16310](https://github.com/hashicorp/terraform-provider-google/pull/16310))
 
 NOTES:
 * provider: added `universe_domain` attribute as a provider attribute ([#16323](https://github.com/hashicorp/terraform-provider-google/pull/16323))
@@ -16,26 +18,27 @@ FEATURES:
 IMPROVEMENTS:
 * accesscontextmanager: added support for Access Context Manager's VPC Sub-segmentation feature ([#16327](https://github.com/hashicorp/terraform-provider-google/pull/16327))
 * apigee: added support for `type` in `google_apigee_environment` ([#16349](https://github.com/hashicorp/terraform-provider-google/pull/16349))
-* bigquery: added data boost and parallelism input options to `google_bigquery_connection` ([#16310](https://github.com/hashicorp/terraform-provider-google/pull/16310))
+* bigquery: added `cloud_spanner.database_role`, `cloud_spanner.use_data_boost`, and `cloud_spanner.max_parallelism` fields to `google_bigquery_connection` ([#16310](https://github.com/hashicorp/terraform-provider-google/pull/16310))
 * bigquery: added support for `iam_member` to `google_bigquery_dataset.access` ([#16322](https://github.com/hashicorp/terraform-provider-google/pull/16322))
-* container: Promoted field `identity_service_config` in `google_container_cluster` to GA ([#16305](https://github.com/hashicorp/terraform-provider-google/pull/16305))
+* container: promoted field `identity_service_config` in `google_container_cluster` to GA ([#16305](https://github.com/hashicorp/terraform-provider-google/pull/16305))
 * container: added update support for `google_container_node_pool.node_config.taint` ([#16306](https://github.com/hashicorp/terraform-provider-google/pull/16306))
 * containerattached: added `admin_groups` field to `google_container_attached_cluster` resource ([#16307](https://github.com/hashicorp/terraform-provider-google/pull/16307))
 * dialogflowcx: added `advanced_settings` field to `google_dialogflow_cx_flow` resource ([#16315](https://github.com/hashicorp/terraform-provider-google/pull/16315))
 * dialogflowcx: added `advanced_settings` fields to `google_dialogflow_cx_page` resource ([#16315](https://github.com/hashicorp/terraform-provider-google/pull/16315))
 * dialogflowcx: added `advanced_settings`, `text_to_speech_settings`, `git_integration_settings` fields to `google_dialogflow_cx_agent` resource ([#16315](https://github.com/hashicorp/terraform-provider-google/pull/16315))
-* redis: allow `replica_count` to be set to zero in the `google_redis_cluster` resource ([#16302](https://github.com/hashicorp/terraform-provider-google/pull/16302))
-* tpuv2: added more fields to `google_tpu_v2_vm` resource, including `network_config`, `scheduling_config`, `shielded_instance_config`, `service_account` and `data_disks` ([#16333](https://github.com/hashicorp/terraform-provider-google/pull/16333))
+* tpuv2: added `cidr_block`, `labels`, `tags`, `network_config`, `scheduling_config`, `shielded_instance_config`, `service_account` and `data_disks` fields to `google_tpu_v2_vm` ([#16333](https://github.com/hashicorp/terraform-provider-google/pull/16333))
 * tpuv2: added `accelerator_config` field to `google_tpu_v2_vm` resource ([#16340](https://github.com/hashicorp/terraform-provider-google/pull/16340))
 
 BUG FIXES:
 * bigquery: fixed a bug when updating a `google_bigquery_dataset` that contained an `iamMember` access rule added out of band with Terraform ([#16322](https://github.com/hashicorp/terraform-provider-google/pull/16322))
 * bigqueryreservation: fixed bug of incorrect resource recreation when `capacity_commitment_id` is unspecified in resource `google_bigquery_capacity_commitment` ([#16320](https://github.com/hashicorp/terraform-provider-google/pull/16320))
-* cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_job` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
-* cloudrunv2: set field `annotations` having all of annotations present on the resource in GCP in data source `google_cloud_run_v2_service` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
-* cloudrunv2: set fields `labels` and `terraform_labels` having all of labels present on the resource in GCP in data source `google_cloud_run_v2_job` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
-* cloudrunv2: set fields `labels` and `terraform_labels` having all of labels present on the resource in GCP in data source `google_cloud_run_v2_service` ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
+* cloudrunv2: made `annotations` field on the `google_cloud_run_v2_job` data source include all annotations present on the resource in GCP ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
+* cloudrunv2: made `annotations` field on the `google_cloud_run_v2_service` data source include all annotations present on the resource in GCP ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
+* cloudrunv2: made `labels` and `terraform labels` fields on the `google_cloud_run_v2_job` data source include all annotations present on the resource in GCP ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
+* cloudrunv2: made `labels` and `terraform labels` fields on the `google_cloud_run_v2_service` data source include all annotations present on the resource in GCP ([#16300](https://github.com/hashicorp/terraform-provider-google/pull/16300))
 * edgecontainer: fixed an issue where the update endpoint for `google_edgecontainer_cluster` was incorrect. ([#16347](https://github.com/hashicorp/terraform-provider-google/pull/16347))
+* redis: allow `replica_count` to be set to zero in the `google_redis_cluster` resource ([#16302](https://github.com/hashicorp/terraform-provider-google/pull/16302))
+
 
 ## 5.3.0 (Oct 23, 2023)
 
