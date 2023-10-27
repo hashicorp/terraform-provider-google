@@ -134,12 +134,88 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `autoscaling_config` -
+  (Optional)
+  The autoscaling configuration. Autoscaling is enabled if this field is set.
+  When autoscaling is enabled, num_nodes and processing_units are treated as,
+  OUTPUT_ONLY fields and reflect the current compute capacity allocated to
+  the instance.
+  Structure is [documented below](#nested_autoscaling_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
 * `force_destroy` - (Optional) When deleting a spanner instance, this boolean option will delete all backups of this instance.
 This must be set to true if you created a backup manually in the console.
 
+
+<a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:
+
+* `autoscaling_limits` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is [documented below](#nested_autoscaling_limits).
+
+* `autoscaling_targets` -
+  (Optional)
+  Defines scale in controls to reduce the risk of response latency
+  and outages due to abrupt scale-in events
+  Structure is [documented below](#nested_autoscaling_targets).
+
+
+<a name="nested_autoscaling_limits"></a>The `autoscaling_limits` block supports:
+
+* `min_limit` -
+  (Optional)
+  Specifies the minimum compute capacity for the instance.
+  Structure is [documented below](#nested_min_limit).
+
+* `max_limit` -
+  (Optional)
+  Specifies the maximum compute capacity for the instance.
+  The maximum compute capacity should be less than or equal to 10X the minimum compute capacity.
+  Structure is [documented below](#nested_max_limit).
+
+
+<a name="nested_min_limit"></a>The `min_limit` block supports:
+
+* `min_nodes` -
+  (Optional)
+  Specifies minimum number of processing units allocated to the instance.
+  If set, this number should be greater than or equal to 1.
+
+* `min_processing_units` -
+  (Optional)
+  Specifies minimum number of processing units allocated to the instance.
+  If set, this number should be multiples of 1000.
+
+<a name="nested_max_limit"></a>The `max_limit` block supports:
+
+* `max_nodes` -
+  (Optional)
+  Specifies maximum number of nodes allocated to the instance.
+  If set, this number should be greater than or equal to min_nodes.
+
+* `max_processing_units` -
+  (Optional)
+  Specifies maximum number of processing units allocated to the instance.
+  If set, this number should be multiples of 1000 and be greater than or equal to
+  min_processing_units.
+
+<a name="nested_autoscaling_targets"></a>The `autoscaling_targets` block supports:
+
+* `high_priority_cpu_utilization_percent` -
+  (Optional)
+  Specifies the target high priority cpu utilization percentage that the autoscaler
+  should be trying to achieve for the instance.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization)..
+
+* `storage_utilization_percent` -
+  (Optional)
+  Specifies the target storage utilization percentage that the autoscaler
+  should be trying to achieve for the instance.
+  This number is on a scale from 0 (no utilization) to 100 (full utilization).
 
 ## Attributes Reference
 
