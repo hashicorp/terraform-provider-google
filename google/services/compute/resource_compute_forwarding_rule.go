@@ -165,21 +165,21 @@ A forwarding rule with "L3_DEFAULT" IPProtocal cannot be attached to a backend s
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Description: `This field can only be used:
-* If 'IPProtocol' is one of TCP, UDP, or SCTP.
-* By internal TCP/UDP load balancers, backend service-based network load
-balancers, and internal and external protocol forwarding.
+				Description: `The 'ports', 'portRange', and 'allPorts' fields are mutually exclusive.
+Only packets addressed to ports in the specified range will be forwarded
+to the backends configured with this forwarding rule.
 
-This option should be set to TRUE when the Forwarding Rule
-IPProtocol is set to L3_DEFAULT.
-
-Set this field to true to allow packets addressed to any port or packets
+The 'allPorts' field has the following limitations:
+* It requires that the forwarding rule 'IPProtocol' be TCP, UDP, SCTP, or
+L3_DEFAULT.
+* It's applicable only to the following products: internal passthrough
+Network Load Balancers, backend service-based external passthrough Network
+Load Balancers, and internal and external protocol forwarding.
+* Set this field to true to allow packets addressed to any port or packets
 lacking destination port information (for example, UDP fragments after the
 first fragment) to be forwarded to the backends configured with this
-forwarding rule.
-
-The 'ports', 'port_range', and
-'allPorts' fields are mutually exclusive.`,
+forwarding rule. The L3_DEFAULT protocol requires 'allPorts' be set to
+true.`,
 			},
 			"allow_global_access": {
 				Type:     schema.TypeBool,
@@ -307,55 +307,57 @@ networkTier of the Address. Possible values: ["PREMIUM", "STANDARD"]`,
 				Optional:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.PortRangeDiffSuppress,
-				Description: `This field can only be used:
+				Description: `The 'ports', 'portRange', and 'allPorts' fields are mutually exclusive.
+Only packets addressed to ports in the specified range will be forwarded
+to the backends configured with this forwarding rule.
 
-* If 'IPProtocol' is one of TCP, UDP, or SCTP.
-* By backend service-based network load balancers, target pool-based
-network load balancers, internal proxy load balancers, external proxy load
-balancers, Traffic Director, external protocol forwarding, and Classic VPN.
-Some products have restrictions on what ports can be used. See
+The 'portRange' field has the following limitations:
+* It requires that the forwarding rule 'IPProtocol' be TCP, UDP, or SCTP,
+and
+* It's applicable only to the following products: external passthrough
+Network Load Balancers, internal and external proxy Network Load
+Balancers, internal and external Application Load Balancers, external
+protocol forwarding, and Classic VPN.
+* Some products have restrictions on what ports can be used. See
 [port specifications](https://cloud.google.com/load-balancing/docs/forwarding-rule-concepts#port_specifications)
 for details.
 
-
-Only packets addressed to ports in the specified range will be forwarded to
-the backends configured with this forwarding rule.
-
-The 'ports' and 'port_range' fields are mutually exclusive.
-
 For external forwarding rules, two or more forwarding rules cannot use the
-same '[IPAddress, IPProtocol]' pair, and cannot have
-overlapping 'portRange's.
+same '[IPAddress, IPProtocol]' pair, and cannot have overlapping
+'portRange's.
 
 For internal forwarding rules within the same VPC network, two or more
-forwarding rules cannot use the same '[IPAddress, IPProtocol]'
-pair, and cannot have overlapping 'portRange's.`,
+forwarding rules cannot use the same '[IPAddress, IPProtocol]' pair, and
+cannot have overlapping 'portRange's.
+
+@pattern: \d+(?:-\d+)?`,
 			},
 			"ports": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: true,
-				Description: `This field can only be used:
+				Description: `The 'ports', 'portRange', and 'allPorts' fields are mutually exclusive.
+Only packets addressed to ports in the specified range will be forwarded
+to the backends configured with this forwarding rule.
 
-* If 'IPProtocol' is one of TCP, UDP, or SCTP.
-* By internal TCP/UDP load balancers, backend service-based network load
-balancers, internal protocol forwarding and when protocol is not L3_DEFAULT.
-
-
-You can specify a list of up to five ports by number, separated by commas.
-The ports can be contiguous or discontiguous. Only packets addressed to
-these ports will be forwarded to the backends configured with this
-forwarding rule.
+The 'ports' field has the following limitations:
+* It requires that the forwarding rule 'IPProtocol' be TCP, UDP, or SCTP,
+and
+* It's applicable only to the following products: internal passthrough
+Network Load Balancers, backend service-based external passthrough Network
+Load Balancers, and internal protocol forwarding.
+* You can specify a list of up to five ports by number, separated by
+commas. The ports can be contiguous or discontiguous.
 
 For external forwarding rules, two or more forwarding rules cannot use the
-same '[IPAddress, IPProtocol]' pair, and cannot share any values
-defined in 'ports'.
+same '[IPAddress, IPProtocol]' pair if they share at least one port
+number.
 
 For internal forwarding rules within the same VPC network, two or more
-forwarding rules cannot use the same '[IPAddress, IPProtocol]'
-pair, and cannot share any values defined in 'ports'.
+forwarding rules cannot use the same '[IPAddress, IPProtocol]' pair if
+they share at least one port number.
 
-The 'ports' and 'port_range' fields are mutually exclusive.`,
+@pattern: \d+(?:-\d+)?`,
 				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
