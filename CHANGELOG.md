@@ -16,7 +16,7 @@ FEATURES:
 * **New Resource:** `google_pubsub_schema_iam_*` ([#16301](https://github.com/hashicorp/terraform-provider-google/pull/16301))
 
 IMPROVEMENTS:
-* accesscontextmanager: added support for Access Context Manager's VPC Sub-segmentation feature ([#16327](https://github.com/hashicorp/terraform-provider-google/pull/16327))
+* accesscontextmanager: added support for specifying `vpc_network_sources` to `google_access_context_manager_access_levels`, `google_access_context_manager_access_level`, and `google_access_context_manager_access_level_condition` ([#16327](https://github.com/hashicorp/terraform-provider-google/pull/16327))
 * apigee: added support for `type` in `google_apigee_environment` ([#16349](https://github.com/hashicorp/terraform-provider-google/pull/16349))
 * bigquery: added `cloud_spanner.database_role`, `cloud_spanner.use_data_boost`, and `cloud_spanner.max_parallelism` fields to `google_bigquery_connection` ([#16310](https://github.com/hashicorp/terraform-provider-google/pull/16310))
 * bigquery: added support for `iam_member` to `google_bigquery_dataset.access` ([#16322](https://github.com/hashicorp/terraform-provider-google/pull/16322))
