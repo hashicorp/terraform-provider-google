@@ -34,7 +34,8 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -60,6 +61,10 @@ func testAccRedisInstance_redisInstanceBasicExample(context map[string]interface
 resource "google_redis_instance" "cache" {
   name           = "tf-test-memory-cache%{random_suffix}"
   memory_size_gb = 1
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
+  }
 }
 `, context)
 }
@@ -68,8 +73,9 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-full"),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full"),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -122,6 +128,10 @@ resource "google_redis_instance" "cache" {
       }
     }
   }
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
+  }
 }
 
 // This example assumes this network already exists.
@@ -142,8 +152,9 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-full-persis"),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-full-persis"),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -177,6 +188,10 @@ resource "google_redis_instance" "cache-persis" {
     persistence_mode = "RDB"
     rdb_snapshot_period = "TWELVE_HOURS"
   }
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
+  }
 }
 `, context)
 }
@@ -185,8 +200,9 @@ func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":    acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -234,6 +250,10 @@ resource "google_redis_instance" "cache" {
 
   redis_version     = "REDIS_4_0"
   display_name      = "Terraform Test Instance"
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
+  }
 }
 `, context)
 }
@@ -242,8 +262,9 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "redis-mrr"),
-		"random_suffix": acctest.RandString(t, 10),
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "redis-mrr"),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -285,6 +306,10 @@ resource "google_redis_instance" "cache" {
   labels = {
     my_key    = "my_val"
     other_key = "other_val"
+  }
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
   }
 }
 

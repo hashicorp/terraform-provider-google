@@ -34,7 +34,8 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -70,6 +71,10 @@ resource "google_redis_cluster" "cluster-ha" {
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
+
+  lifecycle {
+    prevent_destroy = %{prevent_destroy}
+  }
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
