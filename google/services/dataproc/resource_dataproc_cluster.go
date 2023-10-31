@@ -1141,6 +1141,74 @@ func ResourceDataprocCluster() *schema.Resource {
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `List of preemptible instance names which have been assigned to the cluster.`,
 									},
+									"instance_flexibility_policy": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										Description: `Instance flexibility Policy allowing a mixture of VM shapes and provisioning models.`,
+										AtLeastOneOf: []string{
+											"cluster_config.0.preemptible_worker_config.0.num_instances",
+											"cluster_config.0.preemptible_worker_config.0.preemptibility",
+											"cluster_config.0.preemptible_worker_config.0.disk_config",
+											"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy",
+										},
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"instance_selection_list": {
+													Type:     schema.TypeList,
+													Computed: true,
+													Optional: true,
+													ForceNew: true,
+													AtLeastOneOf: []string{
+														"cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list",
+													},
+													Description: `List of instance selection options that the group will use when creating new VMs.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"machine_types": {
+																Type:        schema.TypeList,
+																Computed:    true,
+																Optional:    true,
+																ForceNew:    true,
+																Elem:        &schema.Schema{Type: schema.TypeString},
+																Description: `Full machine-type names, e.g. "n1-standard-16".`,
+															},
+															"rank": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Optional:    true,
+																ForceNew:    true,
+																Elem:        &schema.Schema{Type: schema.TypeInt},
+																Description: `Preference of this instance selection. Lower number means higher preference. Dataproc will first try to create a VM based on the machine-type with priority rank and fallback to next rank based on availability. Machine types and instance selections with the same priority have the same preference.`,
+															},
+														},
+													},
+												},
+												"instance_selection_results": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: `A list of instance selection results in the group.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"machine_type": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Elem:        &schema.Schema{Type: schema.TypeString},
+																Description: `Full machine-type names, e.g. "n1-standard-16".`,
+															},
+															"vm_count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Elem:        &schema.Schema{Type: schema.TypeInt},
+																Description: `Number of VM provisioned with the machine_type.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -2097,10 +2165,44 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 			}
 		}
 	}
+
+	if ifpc, ok := cfg["instance_flexibility_policy"]; ok {
+		ifps := ifpc.([]interface{})
+		if len(ifps) > 0 {
+			flexibilityPolicy := ifps[0].(map[string]interface{})
+			icg.InstanceFlexibilityPolicy = &dataproc.InstanceFlexibilityPolicy{}
+			if v, ok := flexibilityPolicy["instance_selection_list"]; ok {
+				icg.InstanceFlexibilityPolicy.InstanceSelectionList = expandInstanceSelectionList(v)
+			}
+		}
+
+	}
 	if p, ok := cfg["preemptibility"]; ok {
 		icg.Preemptibility = p.(string)
 	}
 	return icg
+}
+
+func expandInstanceSelectionList(v interface{}) []*dataproc.InstanceSelection {
+	instanceSelectionList := v.([]interface{})
+
+	instanceSelections := []*dataproc.InstanceSelection{}
+	for _, v1 := range instanceSelectionList {
+		instanceSelectionItem := v1.(map[string]interface{})
+		machineTypes := []string{}
+		for _, machineType := range instanceSelectionItem["machine_types"].([]interface{}) {
+			machineTypes = append(machineTypes, machineType.(string))
+		}
+		instanceSelection := &dataproc.InstanceSelection{
+			MachineTypes: machineTypes,
+		}
+		if x, ok := instanceSelectionItem["rank"]; ok {
+			instanceSelection.Rank = int64(x.(int))
+		}
+		instanceSelections = append(instanceSelections, instanceSelection)
+	}
+
+	return instanceSelections
 }
 
 func expandMasterInstanceGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupConfig {
@@ -2754,6 +2856,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 	}
 
 	disk := map[string]interface{}{}
+	instanceFlexibilityPolicy := map[string]interface{}{}
 	data := map[string]interface{}{}
 
 	if icg != nil {
@@ -2765,10 +2868,43 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
 			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
 		}
+		if icg.InstanceFlexibilityPolicy != nil {
+			instanceFlexibilityPolicy["instance_selection_list"] = flattenInstanceSelectionList(icg.InstanceFlexibilityPolicy.InstanceSelectionList)
+			instanceFlexibilityPolicy["instance_selection_results"] = flattenInstanceSelectionResults(icg.InstanceFlexibilityPolicy.InstanceSelectionResults)
+		}
 	}
 
 	data["disk_config"] = []map[string]interface{}{disk}
+	data["instance_flexibility_policy"] = []map[string]interface{}{instanceFlexibilityPolicy}
 	return []map[string]interface{}{data}
+}
+
+func flattenInstanceSelectionList(is []*dataproc.InstanceSelection) []map[string]interface{} {
+
+	instanceSelections := []map[string]interface{}{}
+	for _, v := range is {
+		instanceSelection := map[string]interface{}{}
+		if len(v.MachineTypes) > 0 {
+			instanceSelection["machine_types"] = v.MachineTypes
+		}
+		instanceSelection["rank"] = v.Rank
+		instanceSelections = append(instanceSelections, instanceSelection)
+	}
+	return instanceSelections
+
+}
+
+func flattenInstanceSelectionResults(isr []*dataproc.InstanceSelectionResult) []map[string]interface{} {
+
+	instanceSelectionResults := []map[string]interface{}{}
+	for _, v := range isr {
+		instanceSelection := map[string]interface{}{}
+		instanceSelection["machine_type"] = v.MachineType
+		instanceSelection["vm_count"] = v.VmCount
+		instanceSelectionResults = append(instanceSelectionResults, instanceSelection)
+	}
+	return instanceSelectionResults
+
 }
 
 func flattenMasterInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.InstanceGroupConfig) []map[string]interface{} {

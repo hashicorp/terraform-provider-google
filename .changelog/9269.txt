@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added support for `instance_flexibility_policy` in `google_dataproc_cluster`
+```

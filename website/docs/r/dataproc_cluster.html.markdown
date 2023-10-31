@@ -14,7 +14,7 @@ Manages a Cloud Dataproc cluster resource within GCP.
 
 
 !> **Warning:** Due to limitations of the API, all arguments except
-`labels`,`cluster_config.worker_config.num_instances` and `cluster_config.preemptible_worker_config.num_instances` are non-updatable. Changing others will cause recreation of the
+`labels`,`cluster_config.worker_config.num_instances` and `cluster_config.preemptible_worker_config.num_instances` are non-updatable. Changing `cluster_config.worker_config.min_num_instances` will be ignored. Changing others will cause recreation of the
 whole cluster!
 
 ## Example Usage - Basic
@@ -608,6 +608,16 @@ cluster_config {
       boot_disk_size_gb = 30
       num_local_ssds    = 1
     }
+    instance_flexibility_policy {
+      instance_selection_list {
+        machine_types = ["n2-standard-2","n1-standard-2"]
+        rank          = 1
+      }
+      instance_selection_list {
+        machine_types = ["n2d-standard-2"]
+        rank          = 3
+      }
+    }
   }
 }
 ```
@@ -637,6 +647,13 @@ will be set for you based on whatever was set for the `worker_config.machine_typ
 
 	* `num_local_ssds` - (Optional) The amount of local SSD disks that will be
 	attached to each preemptible worker node. Defaults to 0.
+
+* `instance_flexibility_policy` (Optional) Instance flexibility Policy allowing a mixture of VM shapes and provisioning models.
+
+    * `instance_selection_list` - (Optional) List of instance selection options that the group will use when creating new VMs.
+      * `machine_types` - (Optional) Full machine-type names, e.g. `"n1-standard-16"`.
+
+      * `rank` - (Optional) Preference of this instance selection. A lower number means higher preference. Dataproc will first try to create a VM based on the machine-type with priority rank and fallback to next rank based on availability. Machine types and instance selections with the same priority have the same preference.
 
 - - -
 
