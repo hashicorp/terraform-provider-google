@@ -40,6 +40,10 @@ To get more information about Instance, see:
 resource "google_redis_instance" "cache" {
   name           = "memory-cache"
   memory_size_gb = 1
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -81,6 +85,10 @@ resource "google_redis_instance" "cache" {
       }
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 // This example assumes this network already exists.
@@ -114,6 +122,10 @@ resource "google_redis_instance" "cache-persis" {
   persistence_config {
     persistence_mode = "RDB"
     rdb_snapshot_period = "TWELVE_HOURS"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 ```
@@ -163,6 +175,9 @@ resource "google_redis_instance" "cache" {
 
   depends_on = [google_service_networking_connection.private_service_connection]
 
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -193,6 +208,10 @@ resource "google_redis_instance" "cache" {
   labels = {
     my_key    = "my_val"
     other_key = "other_val"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -231,6 +250,10 @@ resource "google_redis_instance" "cache" {
     other_key = "other_val"
   }
   customer_managed_key = google_kms_crypto_key.redis_key.id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_kms_key_ring" "redis_keyring" {

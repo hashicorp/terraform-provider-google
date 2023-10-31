@@ -1,0 +1,4 @@
+```release-note:none
+redis: Updated the documentation examples to include the prevent_destroy metadata configuration
+
+```
