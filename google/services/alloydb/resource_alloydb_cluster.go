@@ -219,7 +219,6 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 			"cluster_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"PRIMARY", "SECONDARY", ""}),
 				Description:  `The type of cluster. If not set, defaults to PRIMARY. Default value: "PRIMARY" Possible values: ["PRIMARY", "SECONDARY"]`,
 				Default:      "PRIMARY",
@@ -410,7 +409,6 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 						"primary_cluster_name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							Description: `Name of the primary cluster must be in the format
 'projects/{project}/locations/{location}/clusters/{cluster_id}'`,
 						},
@@ -985,6 +983,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("automated_backup_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, automatedBackupPolicyProp)) {
 		obj["automatedBackupPolicy"] = automatedBackupPolicyProp
 	}
+	clusterTypeProp, err := expandAlloydbClusterClusterType(d.Get("cluster_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("cluster_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clusterTypeProp)) {
+		obj["clusterType"] = clusterTypeProp
+	}
 	secondaryConfigProp, err := expandAlloydbClusterSecondaryConfig(d.Get("secondary_config"), d, config)
 	if err != nil {
 		return err
@@ -1044,6 +1048,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		updateMask = append(updateMask, "automatedBackupPolicy")
 	}
 
+	if d.HasChange("cluster_type") {
+		updateMask = append(updateMask, "clusterType")
+	}
+
 	if d.HasChange("secondary_config") {
 		updateMask = append(updateMask, "secondaryConfig")
 	}
@@ -1060,6 +1068,78 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	// Restrict modification of cluster_type from PRIMARY to SECONDARY as it is an invalid operation
+	if d.HasChange("cluster_type") && d.Get("cluster_type") == "SECONDARY" {
+		return fmt.Errorf("Can not convert a primary cluster to a secondary cluster.")
+	}
+
+	// Restrict setting secondary_config if cluster_type is PRIMARY
+	if d.Get("cluster_type") == "PRIMARY" && !tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("secondary_config"))) {
+		return fmt.Errorf("Can not set secondary config for primary cluster.")
+	}
+
+	// Implementation for cluster promotion
+	if d.HasChange("cluster_type") && d.Get("cluster_type") == "PRIMARY" {
+
+		if !d.HasChange("secondary_config") || !tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("secondary_config"))) {
+			return fmt.Errorf("Remove the secondary_config field to promote the cluster to primary cluster.")
+		}
+
+		// If necassary precondition checks for cluster promotion is fine ONLY then
+		// Promote cluster as a separate implementation within the update logic
+
+		promoteUrl := strings.Split(url, "?updateMask=")[0] + ":promote"
+		emptyObj := make(map[string]interface{})
+
+		// Remove promote changes from obj and updateMask
+		delete(obj, "clusterType")
+		delete(obj, "secondaryConfig")
+
+		index := 0
+		for _, label := range updateMask {
+			if label != "clusterType" && label != "secondaryConfig" {
+				updateMask[index] = label
+				index++
+			}
+		}
+		updateMask = updateMask[:index]
+
+		// Update url with the new updateMask
+		url := strings.Split(url, "?updateMask=")[0]
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    promoteUrl,
+			UserAgent: userAgent,
+			Body:      emptyObj,
+			Timeout:   d.Timeout(schema.TimeoutCreate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error promoting Cluster: %s", err)
+		}
+
+		err = AlloydbOperationWaitTime(
+			config, res, project, "Promoting Cluster", userAgent,
+			d.Timeout(schema.TimeoutCreate))
+
+		if err != nil {
+			return fmt.Errorf("Error waiting to promote Cluster: %s", err)
+		}
+
+		log.Printf("[DEBUG] Finished promoting Cluster %q: %#v", d.Id(), res)
+
 	}
 
 	// err == nil indicates that the billing_project value was found
