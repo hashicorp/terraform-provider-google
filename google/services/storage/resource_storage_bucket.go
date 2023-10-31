@@ -257,6 +257,13 @@ func ResourceStorageBucket() *schema.Resource {
 				Description: `The bucket's Lifecycle Rules configuration.`,
 			},
 
+			"enable_object_retention": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Enables each object in the bucket to have its own retention policy, which prevents deletion until stored for a specific length of time.`,
+			},
+
 			"versioning": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -595,7 +602,11 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
-			res, err = config.NewStorageClient(userAgent).Buckets.Insert(project, sb).Do()
+			insertCall := config.NewStorageClient(userAgent).Buckets.Insert(project, sb)
+			if d.Get("enable_object_retention").(bool) {
+				insertCall.EnableObjectRetention(true)
+			}
+			res, err = insertCall.Do()
 			return err
 		},
 	})
@@ -1122,6 +1133,16 @@ func flattenBucketRetentionPolicy(bucketRetentionPolicy *storage.BucketRetention
 	return bucketRetentionPolicies
 }
 
+func flattenBucketObjectRetention(bucketObjectRetention *storage.BucketObjectRetention) bool {
+	if bucketObjectRetention == nil {
+		return false
+	}
+	if bucketObjectRetention.Mode == "Enabled" {
+		return true
+	}
+	return false
+}
+
 func expandBucketVersioning(configured interface{}) *storage.BucketVersioning {
 	versionings := configured.([]interface{})
 	if len(versionings) == 0 {
@@ -1620,6 +1641,9 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	}
 	if err := d.Set("logging", flattenBucketLogging(res.Logging)); err != nil {
 		return fmt.Errorf("Error setting logging: %s", err)
+	}
+	if err := d.Set("enable_object_retention", flattenBucketObjectRetention(res.ObjectRetention)); err != nil {
+		return fmt.Errorf("Error setting object retention: %s", err)
 	}
 	if err := d.Set("versioning", flattenBucketVersioning(res.Versioning)); err != nil {
 		return fmt.Errorf("Error setting versioning: %s", err)

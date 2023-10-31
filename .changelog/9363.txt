@@ -1,0 +1,6 @@
+```release-note:enhancement
+storage: added `retention` field to `google_storage_bucket_object` resource
+```
+```release-note:enhancement
+storage: added `enable_object_retention` to `google_storage_bucket` resource
+```

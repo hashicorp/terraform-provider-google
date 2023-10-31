@@ -692,6 +692,47 @@ func TestAccStorageBucket_forceDestroyObjectDeleteError(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_enable_object_retention(t *testing.T) {
+	t.Parallel()
+
+	var bucket storage.Bucket
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_enable_object_retention(bucketName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config: testAccStorageBucket_enable_object_retention(bucketName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(
+						t, "google_storage_bucket.bucket", bucketName, &bucket),
+				),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_versioning(t *testing.T) {
 	t.Parallel()
 
@@ -1494,6 +1535,17 @@ resource "google_storage_bucket" "bucket" {
   }
 }
 `, bucketName)
+}
+
+func testAccStorageBucket_enable_object_retention(bucketName string, enabled string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name                    = "%s"
+  location                = "US"
+  force_destroy           = "true"
+  enable_object_retention = "%s"
+}
+`, bucketName, enabled)
 }
 
 func testAccStorageBucket_versioning(bucketName, enabled string) string {
