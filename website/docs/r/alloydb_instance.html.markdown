@@ -116,6 +116,13 @@ resource "google_alloydb_cluster" "secondary" {
 
   deletion_policy = "FORCE"
 
+  # Need lifecycle.ignore_changes because instance_type is an immutable field.
+  # And when promoting cluster from SECONDARY to PRIMARY, the instance_type of the associated secondary instance also changes and becomes PRIMARY.
+  # And we do not want terraform to destroy and create the instance because the field is immutable
+  lifecycle {
+    ignore_changes = [instance_type]
+  }
+
   depends_on = [google_alloydb_instance.primary]
 }
 
