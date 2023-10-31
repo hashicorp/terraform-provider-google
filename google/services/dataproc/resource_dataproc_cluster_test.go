@@ -492,6 +492,29 @@ func TestAccDataprocCluster_spotSecondary(t *testing.T) {
 	})
 }
 
+func TestAccDataprocCluster_spotWithInstanceFlexibilityPolicy(t *testing.T) {
+	t.Parallel()
+
+	rnd := acctest.RandString(t, 10)
+	var cluster dataproc.Cluster
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocCluster_spotWithInstanceFlexibilityPolicy(rnd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(t, "google_dataproc_cluster.spot_with_instance_flexibility_policy", &cluster),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_with_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.preemptibility", "SPOT"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_with_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.machine_types.0", "n2d-standard-2"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.spot_with_instance_flexibility_policy", "cluster_config.0.preemptible_worker_config.0.instance_flexibility_policy.0.instance_selection_list.0.rank", "3"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataprocCluster_withStagingBucket(t *testing.T) {
 	t.Parallel()
 
@@ -1814,6 +1837,47 @@ resource "google_dataproc_cluster" "spot_secondary" {
   }
 }
 	`, rnd, subnetworkName)
+}
+
+func testAccDataprocCluster_spotWithInstanceFlexibilityPolicy(rnd string) string {
+	return fmt.Sprintf(`
+resource "google_dataproc_cluster" "spot_with_instance_flexibility_policy" {
+  name   = "tf-test-dproc-%s"
+  region = "us-central1"
+
+  cluster_config {
+    master_config {
+      num_instances = "1"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    worker_config {
+      num_instances = "2"
+      machine_type  = "e2-medium"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+    }
+
+    preemptible_worker_config {
+      num_instances = "3"
+      preemptibility = "SPOT"
+      disk_config {
+        boot_disk_size_gb = 35
+      }
+	  instance_flexibility_policy {
+        instance_selection_list {
+          machine_types = ["n2d-standard-2"]
+          rank          = 3
+        }
+      }
+    }
+  }
+}
+	`, rnd)
 }
 
 func testAccDataprocCluster_withStagingBucketOnly(bucketName string) string {
