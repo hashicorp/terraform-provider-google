@@ -1,0 +1,3 @@
+```release-note:enhancement
+monitoring: added `subject` field to `google_monitoring_alert_policy` resource
+```
