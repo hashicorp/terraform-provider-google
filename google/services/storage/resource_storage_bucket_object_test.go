@@ -417,6 +417,48 @@ func TestAccStorageObject_holds(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_retention(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+	data := []byte(content)
+	h := md5.New()
+	if _, err := h.Write(data); err != nil {
+		t.Errorf("error calculating md5: %v", err)
+	}
+	dataMd5 := base64.StdEncoding.EncodeToString(h.Sum(nil))
+	testFile := getNewTmpTestFile(t, "tf-test")
+	if err := ioutil.WriteFile(testFile.Name(), data, 0644); err != nil {
+		t.Errorf("error writing file: %v", err)
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageObjectDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleStorageBucketsObjectRetention(bucketName, "2040-01-01T02:03:04.000Z"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectRetention(bucketName, "2040-01-02T02:03:04.000Z"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+				),
+			},
+			{
+				Config: testGoogleStorageBucketsObjectRetentionDisabled(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleStorageObject(t, bucketName, objectName, dataMd5),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckGoogleStorageObject(t *testing.T, bucket, object, md5 string) resource.TestCheckFunc {
 	return testAccCheckGoogleStorageObjectWithEncryption(t, bucket, object, md5, "")
 }
@@ -646,6 +688,44 @@ resource "google_storage_bucket_object" "object" {
   }
 }
 `, bucketName, objectName, content, customerEncryptionKey)
+}
+
+func testGoogleStorageBucketsObjectRetention(bucketName string, retainUntilTime string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name                    = "%s"
+  location                = "US"
+  force_destroy           = true
+  enable_object_retention = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name      = "%s"
+  bucket    = google_storage_bucket.bucket.name
+  content   = "%s"
+  retention {
+	mode              = "Unlocked"
+	retain_until_time = "%s"
+  }      
+}
+`, bucketName, objectName, content, retainUntilTime)
+}
+
+func testGoogleStorageBucketsObjectRetentionDisabled(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name                    = "%s"
+  location                = "US"
+  force_destroy           = true
+  enable_object_retention = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name      = "%s"
+  bucket    = google_storage_bucket.bucket.name
+  content   = "%s" 
+}
+`, bucketName, objectName, content)
 }
 
 func testGoogleStorageBucketsObjectHolds(bucketName string, eventBasedHold bool, temporaryHold bool) string {

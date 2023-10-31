@@ -67,7 +67,9 @@ One of the following is required:
 * `content_type` - (Optional) [Content-Type](https://tools.ietf.org/html/rfc7231#section-3.1.1.5) of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".
 
 * `customer_encryption` - (Optional) Enables object encryption with Customer-Supplied Encryption Key (CSEK). [Google [documentation about](#nested_customer_encryption) CSEK.](https://cloud.google.com/storage/docs/encryption/customer-supplied-keys)
-    Structure is documented below.
+    Structure is [documented below](#nested_customer_encryption).
+
+* `retention` - (Optional) The [object retention](http://cloud.google.com/storage/docs/object-lock) settings for the object. The retention settings allow an object to be retained until a provided date. Structure is [documented below](#nested_retention).
 
 * `event_based_hold` - (Optional) Whether an object is under [event-based hold](https://cloud.google.com/storage/docs/object-holds#hold-types). Event-based hold is a way to retain objects until an event occurs, which is signified by the hold's release (i.e. this value is set to false). After being released (set to false), such objects will be subject to bucket-level retention (if any).
 
@@ -88,6 +90,14 @@ One of the following is required:
 * `encryption_algorithm` - (Optional) Encryption algorithm. Default: AES256
 
 * `encryption_key` - (Required) Base64 encoded Customer-Supplied Encryption Key.
+
+<a name="nested_retention"></a>The `retention` block supports:
+
+* `mode` - (Required) The retention policy mode. Either `Locked` or `Unlocked`.
+
+* `retain_until_time` - (Required) The time to retain the object until in RFC 3339 format, for example 2012-11-15T16:19:00.094Z.
+
+<a name>
 
 ## Attributes Reference
 

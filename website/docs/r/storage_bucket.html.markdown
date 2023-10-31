@@ -120,6 +120,9 @@ The following arguments are supported:
 
 * `encryption` - (Optional) The bucket's encryption configuration. Structure is [documented below](#nested_encryption).
 
+* `enable_object_retention` - (Optional, Default: false) Enables [object retention](https://cloud.google.com/storage/docs/object-lock) on a storage bucket.
+
+
 * `requester_pays` - (Optional, Default: false) Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.
 
 * `uniform_bucket_level_access` - (Optional, Default: false) Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.
