@@ -56,6 +56,11 @@ var services = mapOf(
         "displayName" to "Assuredworkloads",
         "path" to "./google/services/assuredworkloads"
     ),
+    "backupdr" to mapOf(
+        "name" to "backupdr",
+        "displayName" to "Backupdr",
+        "path" to "./google/services/backupdr"
+    ),
     "beyondcorp" to mapOf(
         "name" to "beyondcorp",
         "displayName" to "Beyondcorp",
