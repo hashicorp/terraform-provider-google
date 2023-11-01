@@ -1,0 +1,6 @@
+```release-note:none
+note from rileykarson@: I've made the docs update an enhancement intentionally- since it'll make it clear that new functionality is available through the API, even if there was no code change in Terraform
+```
+```release-note:enhancement
+sql: update `google_sql_database_instance` to reflect that `data_cache_enabled` works for PostgresQL now, in addition to MYSQL
+```

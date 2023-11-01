@@ -317,8 +317,7 @@ The optional `settings.active_directory_config` subblock supports:
 
 The optional `settings.data_cache_config` subblock supports:
 
-* `data_cache_enabled` - (Optional) Whether data cache is enabled for the instance. Defaults to `false`
-    Can only be used with MYSQL.
+* `data_cache_enabled` - (Optional) Whether data cache is enabled for the instance. Defaults to `false`. Can be used with MYSQL and PostgreSQL only.
 
 The optional `settings.deny_maintenance_period` subblock supports:
 
