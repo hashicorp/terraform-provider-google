@@ -61,13 +61,20 @@ func testAccMonitoringUptimeCheckConfig_uptimeCheckConfigHttpExample(context map
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "tf-test-http-uptime-check%{random_suffix}"
   timeout      = "60s"
+  user_labels  = {
+    example-key = "example-value"
+  }
 
   http_check {
     path = "some-path"
     port = "8010"
     request_method = "POST"
-    content_type = "URL_ENCODED"
+    content_type = "USER_PROVIDED"
+    custom_content_type = "application/json"
     body = "Zm9vJTI1M0RiYXI="
+    ping_config {
+      pings_count = 1
+    }
   }
 
   monitored_resource {
@@ -253,6 +260,9 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
   tcp_check {
     port = 888
+    ping_config {
+      pings_count = 2
+    }
   }
 
   resource_group {
