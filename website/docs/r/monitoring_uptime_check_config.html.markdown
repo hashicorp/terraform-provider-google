@@ -39,13 +39,20 @@ values will be stored in the raw state as plain text: `http_check.auth_info.pass
 resource "google_monitoring_uptime_check_config" "http" {
   display_name = "http-uptime-check"
   timeout      = "60s"
+  user_labels  = {
+    example-key = "example-value"
+  }
 
   http_check {
     path = "some-path"
     port = "8010"
     request_method = "POST"
-    content_type = "URL_ENCODED"
+    content_type = "USER_PROVIDED"
+    custom_content_type = "application/json"
     body = "Zm9vJTI1M0RiYXI="
+    ping_config {
+      pings_count = 1
+    }
   }
 
   monitored_resource {
@@ -162,6 +169,9 @@ resource "google_monitoring_uptime_check_config" "tcp_group" {
 
   tcp_check {
     port = 888
+    ping_config {
+      pings_count = 2
+    }
   }
 
   resource_group {
@@ -260,6 +270,10 @@ The following arguments are supported:
   The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS.
   Possible values are: `STATIC_IP_CHECKERS`, `VPC_CHECKERS`.
 
+* `user_labels` -
+  (Optional)
+  User-supplied key/value data to be used for organizing and identifying the `UptimeCheckConfig` objects. The field can contain up to 64 entries. Each key and value is limited to 63 Unicode characters or 128 bytes, whichever is smaller. Labels and values can contain only lowercase letters, numerals, underscores, and dashes. Keys must begin with a letter.
+
 * `http_check` -
   (Optional)
   Contains information needed to make an HTTP or HTTPS check.
@@ -330,7 +344,11 @@ The following arguments are supported:
 * `content_type` -
   (Optional)
   The content type to use for the check.
-  Possible values are: `TYPE_UNSPECIFIED`, `URL_ENCODED`.
+  Possible values are: `TYPE_UNSPECIFIED`, `URL_ENCODED`, `USER_PROVIDED`.
+
+* `custom_content_type` -
+  (Optional)
+  A user provided content type header to use for the check. The invalid configurations outlined in the `content_type` field apply to custom_content_type`, as well as the following 1. `content_type` is `URL_ENCODED` and `custom_content_type` is set. 2. `content_type` is `USER_PROVIDED` and `custom_content_type` is not set.
 
 * `auth_info` -
   (Optional)
@@ -370,6 +388,11 @@ The following arguments are supported:
   If present, the check will only pass if the HTTP response status code is in this set of status codes. If empty, the HTTP status code will only pass if the HTTP status code is 200-299.
   Structure is [documented below](#nested_accepted_response_status_codes).
 
+* `ping_config` -
+  (Optional)
+  Contains information needed to add pings to an HTTP check.
+  Structure is [documented below](#nested_ping_config).
+
 
 <a name="nested_auth_info"></a>The `auth_info` block supports:
 
@@ -393,11 +416,29 @@ The following arguments are supported:
   A class of status codes to accept.
   Possible values are: `STATUS_CLASS_1XX`, `STATUS_CLASS_2XX`, `STATUS_CLASS_3XX`, `STATUS_CLASS_4XX`, `STATUS_CLASS_5XX`, `STATUS_CLASS_ANY`.
 
+<a name="nested_ping_config"></a>The `ping_config` block supports:
+
+* `pings_count` -
+  (Required)
+  Number of ICMP pings. A maximum of 3 ICMP pings is currently supported.
+
 <a name="nested_tcp_check"></a>The `tcp_check` block supports:
 
 * `port` -
   (Required)
   The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) to construct the full URL.
+
+* `ping_config` -
+  (Optional)
+  Contains information needed to add pings to a TCP check.
+  Structure is [documented below](#nested_ping_config).
+
+
+<a name="nested_ping_config"></a>The `ping_config` block supports:
+
+* `pings_count` -
+  (Required)
+  Number of ICMP pings. A maximum of 3 ICMP pings is currently supported.
 
 <a name="nested_resource_group"></a>The `resource_group` block supports:
 
