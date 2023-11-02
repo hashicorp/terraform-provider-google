@@ -16,15 +16,20 @@ Manages a folder-level logging bucket config. For more information see
 
 ```hcl
 resource "google_folder" "default" {
-	display_name = "some-folder-name"
-	parent       = "organizations/123456789"
+  display_name = "some-folder-name"
+  parent       = "organizations/123456789"
 }
 
 resource "google_logging_folder_bucket_config" "basic" {
-	folder    = google_folder.default.name
-	location  = "global"
-	retention_days = 30
-	bucket_id = "_Default"
+  folder         = google_folder.default.name
+  location       = "global"
+  retention_days = 30
+  bucket_id      = "_Default"
+  
+  index_configs   = {
+    file_path   = "jsonPayload.request.status"
+    type        = "INDEX_TYPE_STRING"
+  }
 }
 ```
 
@@ -41,6 +46,15 @@ The following arguments are supported:
 * `description` - (Optional) Describes this bucket.
 
 * `retention_days` - (Optional) Logs will be retained by default for this amount of time, after which they will automatically be deleted. The minimum retention period is 1 day. If this value is set to zero at bucket creation time, the default time of 30 days will be used. Bucket retention can not be increased on buckets outside of projects.
+
+* `index_configs` - (Optional) A list of indexed fields and related configuration data. Structure is [documented below](#nested_index_configs).
+
+<a name="nested_index_configs"></a>The `index_configs` block supports:
+
+* `field_path` - The LogEntry field path to index.
+  Note that some paths are automatically indexed, and other paths are not eligible for indexing. See [indexing documentation]( https://cloud.google.com/logging/docs/view/advanced-queries#indexed-fields) for details.
+
+* `type` - The type of data in this index. Allowed types include `INDEX_TYPE_UNSPECIFIED`, `INDEX_TYPE_STRING` and `INDEX_TYPE_INTEGER`.
 
 ## Attributes Reference
 

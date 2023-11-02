@@ -1,0 +1,6 @@
+```release-note:enhancement
+logging: added `index_configs` field to `logging_bucket_config` resource
+```
+```release-note:enhancement
+logging: added `index_configs` field to `logging_project_bucket_config` resource
+```
