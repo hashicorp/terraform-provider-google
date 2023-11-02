@@ -86,6 +86,9 @@ resource "google_container_azure_cluster" "primary" {
     admin_users {
       username = "mmv2@google.com"
     }
+    admin_groups {
+      group = "group@domain.com"
+    }
   }
 
   azure_region = "westus2"
@@ -140,6 +143,9 @@ resource "google_container_azure_cluster" "primary" {
   authorization {
     admin_users {
       username = "mmv2@google.com"
+    }
+    admin_groups {
+      group = "group@domain.com"
     }
   }
 

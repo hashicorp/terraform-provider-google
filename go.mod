@@ -3,7 +3,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/bigtable v1.19.0
-	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.52.0
+	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.55.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dnaeon/go-vcr v1.0.1

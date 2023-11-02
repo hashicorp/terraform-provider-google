@@ -134,6 +134,9 @@ resource "google_container_aws_cluster" "primary" {
     admin_users {
       username = "%{service_acct}"
     }
+    admin_groups {
+      group = "group@domain.com"
+    }
   }
 
   aws_region = "%{aws_region}"
@@ -223,6 +226,9 @@ resource "google_container_aws_cluster" "primary" {
   authorization {
     admin_users {
       username = "%{service_acct}"
+    }
+    admin_groups {
+      group = "group@domain.com"
     }
   }
 

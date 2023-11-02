@@ -1,0 +1,12 @@
+```release-note:enhancement
+assuredworkloads: added `enable_sovereign_controls`, `partner`, `partner_permissions`, `violation_notifications_enabled`, and several other output-only fields to `google_assured_workloads_workloads`
+```
+```release-note:enhancement
+containeraws: added `admin_groups` to `google_container_aws_cluster`
+```
+```release-note:enhancement
+containerazure: added `admin_groups` to `google_container_azure_cluster`
+```
+```release-note:enhancement
+gkehub: added `metrics_gcp_service_account_email` to `google_gke_hub_feature_membership`
+```

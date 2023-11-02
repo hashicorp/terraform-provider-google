@@ -37,6 +37,9 @@ resource "google_container_aws_cluster" "primary" {
     admin_users {
       username = "my@service-account.com"
     }
+    admin_groups {
+      group = "group@domain.com"
+    }
   }
 
   aws_region = "my-aws-region"
@@ -340,6 +343,10 @@ The following arguments are supported:
 
 The `authorization` block supports:
     
+* `admin_groups` -
+  (Optional)
+  Groups of users that can perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the groups. Up to ten admin groups can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+    
 * `admin_users` -
   (Required)
   Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
@@ -484,6 +491,12 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   
 
 
+The `admin_groups` block supports:
+    
+* `group` -
+  (Required)
+  The name of the group, e.g. `my-group@domain.com`.
+    
 The `binary_authorization` block supports:
     
 * `evaluation_mode` -
@@ -512,7 +525,7 @@ The `main_volume` block supports:
     
 * `throughput` -
   (Optional)
-  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.
+  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3. If volume type is gp3 and throughput is not specified, the throughput will defaults to 125.
     
 * `volume_type` -
   (Optional)
@@ -544,7 +557,7 @@ The `root_volume` block supports:
     
 * `throughput` -
   (Optional)
-  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.
+  Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3. If volume type is gp3 and throughput is not specified, the throughput will defaults to 125.
     
 * `volume_type` -
   (Optional)

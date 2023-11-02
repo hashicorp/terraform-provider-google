@@ -227,6 +227,13 @@ func ContainerAzureClusterAuthorizationSchema() *schema.Resource {
 				Description: "Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAzureClusterAuthorizationAdminUsersSchema(),
 			},
+
+			"admin_groups": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Groups of users that can perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the groups. Up to ten admin groups can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
+				Elem:        ContainerAzureClusterAuthorizationAdminGroupsSchema(),
+			},
 		},
 	}
 }
@@ -238,6 +245,18 @@ func ContainerAzureClusterAuthorizationAdminUsersSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the user, e.g. `my-gcp-id@gmail.com`.",
+			},
+		},
+	}
+}
+
+func ContainerAzureClusterAuthorizationAdminGroupsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"group": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the group, e.g. `my-group@domain.com`.",
 			},
 		},
 	}
@@ -824,7 +843,8 @@ func expandContainerAzureClusterAuthorization(o interface{}) *containerazure.Clu
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &containerazure.ClusterAuthorization{
-		AdminUsers: expandContainerAzureClusterAuthorizationAdminUsersArray(obj["admin_users"]),
+		AdminUsers:  expandContainerAzureClusterAuthorizationAdminUsersArray(obj["admin_users"]),
+		AdminGroups: expandContainerAzureClusterAuthorizationAdminGroupsArray(obj["admin_groups"]),
 	}
 }
 
@@ -833,7 +853,8 @@ func flattenContainerAzureClusterAuthorization(obj *containerazure.ClusterAuthor
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"admin_users": flattenContainerAzureClusterAuthorizationAdminUsersArray(obj.AdminUsers),
+		"admin_users":  flattenContainerAzureClusterAuthorizationAdminUsersArray(obj.AdminUsers),
+		"admin_groups": flattenContainerAzureClusterAuthorizationAdminGroupsArray(obj.AdminGroups),
 	}
 
 	return []interface{}{transformed}
@@ -889,6 +910,61 @@ func flattenContainerAzureClusterAuthorizationAdminUsers(obj *containerazure.Clu
 	}
 	transformed := map[string]interface{}{
 		"username": obj.Username,
+	}
+
+	return transformed
+
+}
+func expandContainerAzureClusterAuthorizationAdminGroupsArray(o interface{}) []containerazure.ClusterAuthorizationAdminGroups {
+	if o == nil {
+		return make([]containerazure.ClusterAuthorizationAdminGroups, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]containerazure.ClusterAuthorizationAdminGroups, 0)
+	}
+
+	items := make([]containerazure.ClusterAuthorizationAdminGroups, 0, len(objs))
+	for _, item := range objs {
+		i := expandContainerAzureClusterAuthorizationAdminGroups(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandContainerAzureClusterAuthorizationAdminGroups(o interface{}) *containerazure.ClusterAuthorizationAdminGroups {
+	if o == nil {
+		return containerazure.EmptyClusterAuthorizationAdminGroups
+	}
+
+	obj := o.(map[string]interface{})
+	return &containerazure.ClusterAuthorizationAdminGroups{
+		Group: dcl.String(obj["group"].(string)),
+	}
+}
+
+func flattenContainerAzureClusterAuthorizationAdminGroupsArray(objs []containerazure.ClusterAuthorizationAdminGroups) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenContainerAzureClusterAuthorizationAdminGroups(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenContainerAzureClusterAuthorizationAdminGroups(obj *containerazure.ClusterAuthorizationAdminGroups) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"group": obj.Group,
 	}
 
 	return transformed

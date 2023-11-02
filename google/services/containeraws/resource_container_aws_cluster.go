@@ -209,6 +209,13 @@ func ContainerAwsClusterAuthorizationSchema() *schema.Resource {
 				Description: "Users to perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
 				Elem:        ContainerAwsClusterAuthorizationAdminUsersSchema(),
 			},
+
+			"admin_groups": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Groups of users that can perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the groups. Up to ten admin groups can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles",
+				Elem:        ContainerAwsClusterAuthorizationAdminGroupsSchema(),
+			},
 		},
 	}
 }
@@ -220,6 +227,18 @@ func ContainerAwsClusterAuthorizationAdminUsersSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the user, e.g. `my-gcp-id@gmail.com`.",
+			},
+		},
+	}
+}
+
+func ContainerAwsClusterAuthorizationAdminGroupsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"group": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the group, e.g. `my-group@domain.com`.",
 			},
 		},
 	}
@@ -407,7 +426,7 @@ func ContainerAwsClusterControlPlaneMainVolumeSchema() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.",
+				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3. If volume type is gp3 and throughput is not specified, the throughput will defaults to 125.",
 			},
 
 			"volume_type": {
@@ -467,7 +486,7 @@ func ContainerAwsClusterControlPlaneRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.",
+				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3. If volume type is gp3 and throughput is not specified, the throughput will defaults to 125.",
 			},
 
 			"volume_type": {
@@ -880,7 +899,8 @@ func expandContainerAwsClusterAuthorization(o interface{}) *containeraws.Cluster
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &containeraws.ClusterAuthorization{
-		AdminUsers: expandContainerAwsClusterAuthorizationAdminUsersArray(obj["admin_users"]),
+		AdminUsers:  expandContainerAwsClusterAuthorizationAdminUsersArray(obj["admin_users"]),
+		AdminGroups: expandContainerAwsClusterAuthorizationAdminGroupsArray(obj["admin_groups"]),
 	}
 }
 
@@ -889,7 +909,8 @@ func flattenContainerAwsClusterAuthorization(obj *containeraws.ClusterAuthorizat
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"admin_users": flattenContainerAwsClusterAuthorizationAdminUsersArray(obj.AdminUsers),
+		"admin_users":  flattenContainerAwsClusterAuthorizationAdminUsersArray(obj.AdminUsers),
+		"admin_groups": flattenContainerAwsClusterAuthorizationAdminGroupsArray(obj.AdminGroups),
 	}
 
 	return []interface{}{transformed}
@@ -945,6 +966,61 @@ func flattenContainerAwsClusterAuthorizationAdminUsers(obj *containeraws.Cluster
 	}
 	transformed := map[string]interface{}{
 		"username": obj.Username,
+	}
+
+	return transformed
+
+}
+func expandContainerAwsClusterAuthorizationAdminGroupsArray(o interface{}) []containeraws.ClusterAuthorizationAdminGroups {
+	if o == nil {
+		return make([]containeraws.ClusterAuthorizationAdminGroups, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]containeraws.ClusterAuthorizationAdminGroups, 0)
+	}
+
+	items := make([]containeraws.ClusterAuthorizationAdminGroups, 0, len(objs))
+	for _, item := range objs {
+		i := expandContainerAwsClusterAuthorizationAdminGroups(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandContainerAwsClusterAuthorizationAdminGroups(o interface{}) *containeraws.ClusterAuthorizationAdminGroups {
+	if o == nil {
+		return containeraws.EmptyClusterAuthorizationAdminGroups
+	}
+
+	obj := o.(map[string]interface{})
+	return &containeraws.ClusterAuthorizationAdminGroups{
+		Group: dcl.String(obj["group"].(string)),
+	}
+}
+
+func flattenContainerAwsClusterAuthorizationAdminGroupsArray(objs []containeraws.ClusterAuthorizationAdminGroups) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenContainerAwsClusterAuthorizationAdminGroups(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenContainerAwsClusterAuthorizationAdminGroups(obj *containeraws.ClusterAuthorizationAdminGroups) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"group": obj.Group,
 	}
 
 	return transformed
