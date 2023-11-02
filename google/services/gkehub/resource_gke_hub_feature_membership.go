@@ -171,6 +171,13 @@ func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource 
 				Elem:        GkeHubFeatureMembershipConfigmanagementConfigSyncGitSchema(),
 			},
 
+			"metrics_gcp_service_account_email": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      "The Email of the Google Cloud Service Account (GSA) used for exporting Config Sync metrics to Cloud Monitoring. The GSA should have the Monitoring Metric Writer(roles/monitoring.metricWriter) IAM role. The Kubernetes ServiceAccount `default` in the namespace `config-management-monitoring` should be bound to the GSA.",
+			},
+
 			"oci": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -713,10 +720,11 @@ func expandGkeHubFeatureMembershipConfigmanagementConfigSync(o interface{}) *gke
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipConfigmanagementConfigSync{
-		Git:          expandGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj["git"]),
-		Oci:          expandGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj["oci"]),
-		PreventDrift: dcl.Bool(obj["prevent_drift"].(bool)),
-		SourceFormat: dcl.String(obj["source_format"].(string)),
+		Git:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj["git"]),
+		MetricsGcpServiceAccountEmail: dcl.String(obj["metrics_gcp_service_account_email"].(string)),
+		Oci:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj["oci"]),
+		PreventDrift:                  dcl.Bool(obj["prevent_drift"].(bool)),
+		SourceFormat:                  dcl.String(obj["source_format"].(string)),
 	}
 }
 
@@ -725,10 +733,11 @@ func flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj *gkehub.Featur
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"git":           flattenGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj.Git),
-		"oci":           flattenGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj.Oci),
-		"prevent_drift": obj.PreventDrift,
-		"source_format": obj.SourceFormat,
+		"git":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj.Git),
+		"metrics_gcp_service_account_email": obj.MetricsGcpServiceAccountEmail,
+		"oci":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj.Oci),
+		"prevent_drift":                     obj.PreventDrift,
+		"source_format":                     obj.SourceFormat,
 	}
 
 	return []interface{}{transformed}

@@ -370,7 +370,7 @@ func ContainerAwsNodePoolConfigRootVolumeSchema() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Optional:    true,
-				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3.",
+				Description: "Optional. The throughput to provision for the volume, in MiB/s. Only valid if the volume type is GP3. If volume type is gp3 and throughput is not specified, the throughput will defaults to 125.",
 			},
 
 			"volume_type": {

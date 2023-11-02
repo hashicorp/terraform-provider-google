@@ -67,12 +67,147 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 				Description:      "The parent of the resource.",
 			},
 
+			"dry_run_spec": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Dry-run policy. Audit-only policy, can be used to monitor how the policy would have impacted the existing and future resources if it's enforced.",
+				MaxItems:    1,
+				Elem:        OrgPolicyPolicyDryRunSpecSchema(),
+			},
+
 			"spec": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Basic information about the Organization Policy.",
 				MaxItems:    1,
 				Elem:        OrgPolicyPolicySpecSchema(),
+			},
+		},
+	}
+}
+
+func OrgPolicyPolicyDryRunSpecSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"inherit_from_parent": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines the inheritance behavior for this policy. If `inherit_from_parent` is true, policy rules set higher up in the hierarchy (up to the closest root) are inherited and present in the effective policy. If it is false, then no rules are inherited, and this policy becomes the new root for evaluation. This field can be set only for policies which configure list constraints.",
+			},
+
+			"reset": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Ignores policies set above this resource and restores the `constraint_default` enforcement behavior of the specific constraint at this resource. This field can be set in policies for either list or boolean constraints. If set, `rules` must be empty and `inherit_from_parent` must be set to false.",
+			},
+
+			"rules": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "In policies for boolean constraints, the following requirements apply: - There must be one and only one policy rule where condition is unset. - Boolean policy rules with conditions must set `enforced` to the opposite of the policy rule without a condition. - During policy evaluation, policy rules with conditions that are true for a target resource take precedence.",
+				Elem:        OrgPolicyPolicyDryRunSpecRulesSchema(),
+			},
+
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "An opaque tag indicating the current version of the policy, used for concurrency control. This field is ignored if used in a `CreatePolicy` request. When the policy` is returned from either a `GetPolicy` or a `ListPolicies` request, this `etag` indicates the version of the current policy to use when executing a read-modify-write loop. When the policy is returned from a `GetEffectivePolicy` request, the `etag` will be unset.",
+			},
+
+			"update_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Output only. The time stamp this was previously updated. This represents the last time a call to `CreatePolicy` or `UpdatePolicy` was made for that policy.",
+			},
+		},
+	}
+}
+
+func OrgPolicyPolicyDryRunSpecRulesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allow_all": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Setting this to true means that all values are allowed. This field can be set only in policies for list constraints.",
+			},
+
+			"condition": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A condition which determines whether this rule is used in the evaluation of the policy. When set, the `expression` field in the `Expr' must include from 1 to 10 subexpressions, joined by the \"||\" or \"&&\" operators. Each subexpression must be of the form \"resource.matchTag('/tag_key_short_name, 'tag_value_short_name')\". or \"resource.matchTagId('tagKeys/key_id', 'tagValues/value_id')\". where key_name and value_name are the resource names for Label Keys and Values. These names are available from the Tag Manager Service. An example expression is: \"resource.matchTag('123456789/environment, 'prod')\". or \"resource.matchTagId('tagKeys/123', 'tagValues/456')\".",
+				MaxItems:    1,
+				Elem:        OrgPolicyPolicyDryRunSpecRulesConditionSchema(),
+			},
+
+			"deny_all": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Setting this to true means that all values are denied. This field can be set only in policies for list constraints.",
+			},
+
+			"enforce": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "If `true`, then the policy is enforced. If `false`, then any configuration is acceptable. This field can be set only in policies for boolean constraints.",
+			},
+
+			"values": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "List of values to be used for this policy rule. This field can be set only in policies for list constraints.",
+				MaxItems:    1,
+				Elem:        OrgPolicyPolicyDryRunSpecRulesValuesSchema(),
+			},
+		},
+	}
+}
+
+func OrgPolicyPolicyDryRunSpecRulesConditionSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. Description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.",
+			},
+
+			"expression": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Textual representation of an expression in Common Expression Language syntax.",
+			},
+
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. String indicating the location of the expression for error reporting, e.g. a file name and a position in the file.",
+			},
+
+			"title": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. Title for the expression, i.e. a short string describing its purpose. This can be used e.g. in UIs which allow to enter the expression.",
+			},
+		},
+	}
+}
+
+func OrgPolicyPolicyDryRunSpecRulesValuesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"allowed_values": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "List of values allowed at this resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"denied_values": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "List of values denied at this resource.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -209,9 +344,10 @@ func resourceOrgPolicyPolicyCreate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*transport_tpg.Config)
 
 	obj := &orgpolicy.Policy{
-		Name:   dcl.String(d.Get("name").(string)),
-		Parent: dcl.String(d.Get("parent").(string)),
-		Spec:   expandOrgPolicyPolicySpec(d.Get("spec")),
+		Name:       dcl.String(d.Get("name").(string)),
+		Parent:     dcl.String(d.Get("parent").(string)),
+		DryRunSpec: expandOrgPolicyPolicyDryRunSpec(d.Get("dry_run_spec")),
+		Spec:       expandOrgPolicyPolicySpec(d.Get("spec")),
 	}
 
 	id, err := obj.ID()
@@ -255,9 +391,10 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*transport_tpg.Config)
 
 	obj := &orgpolicy.Policy{
-		Name:   dcl.String(d.Get("name").(string)),
-		Parent: dcl.String(d.Get("parent").(string)),
-		Spec:   expandOrgPolicyPolicySpec(d.Get("spec")),
+		Name:       dcl.String(d.Get("name").(string)),
+		Parent:     dcl.String(d.Get("parent").(string)),
+		DryRunSpec: expandOrgPolicyPolicyDryRunSpec(d.Get("dry_run_spec")),
+		Spec:       expandOrgPolicyPolicySpec(d.Get("spec")),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -288,6 +425,9 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 	if err = d.Set("parent", res.Parent); err != nil {
 		return fmt.Errorf("error setting parent in state: %s", err)
 	}
+	if err = d.Set("dry_run_spec", flattenOrgPolicyPolicyDryRunSpec(res.DryRunSpec)); err != nil {
+		return fmt.Errorf("error setting dry_run_spec in state: %s", err)
+	}
 	if err = d.Set("spec", flattenOrgPolicyPolicySpec(res.Spec)); err != nil {
 		return fmt.Errorf("error setting spec in state: %s", err)
 	}
@@ -298,9 +438,10 @@ func resourceOrgPolicyPolicyUpdate(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*transport_tpg.Config)
 
 	obj := &orgpolicy.Policy{
-		Name:   dcl.String(d.Get("name").(string)),
-		Parent: dcl.String(d.Get("parent").(string)),
-		Spec:   expandOrgPolicyPolicySpec(d.Get("spec")),
+		Name:       dcl.String(d.Get("name").(string)),
+		Parent:     dcl.String(d.Get("parent").(string)),
+		DryRunSpec: expandOrgPolicyPolicyDryRunSpec(d.Get("dry_run_spec")),
+		Spec:       expandOrgPolicyPolicySpec(d.Get("spec")),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -339,9 +480,10 @@ func resourceOrgPolicyPolicyDelete(d *schema.ResourceData, meta interface{}) err
 	config := meta.(*transport_tpg.Config)
 
 	obj := &orgpolicy.Policy{
-		Name:   dcl.String(d.Get("name").(string)),
-		Parent: dcl.String(d.Get("parent").(string)),
-		Spec:   expandOrgPolicyPolicySpec(d.Get("spec")),
+		Name:       dcl.String(d.Get("name").(string)),
+		Parent:     dcl.String(d.Get("parent").(string)),
+		DryRunSpec: expandOrgPolicyPolicyDryRunSpec(d.Get("dry_run_spec")),
+		Spec:       expandOrgPolicyPolicySpec(d.Get("spec")),
 	}
 
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())
@@ -377,6 +519,161 @@ func resourceOrgPolicyPolicyImport(d *schema.ResourceData, meta interface{}) ([]
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func expandOrgPolicyPolicyDryRunSpec(o interface{}) *orgpolicy.PolicyDryRunSpec {
+	if o == nil {
+		return orgpolicy.EmptyPolicyDryRunSpec
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return orgpolicy.EmptyPolicyDryRunSpec
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &orgpolicy.PolicyDryRunSpec{
+		InheritFromParent: dcl.Bool(obj["inherit_from_parent"].(bool)),
+		Reset:             dcl.Bool(obj["reset"].(bool)),
+		Rules:             expandOrgPolicyPolicyDryRunSpecRulesArray(obj["rules"]),
+	}
+}
+
+func flattenOrgPolicyPolicyDryRunSpec(obj *orgpolicy.PolicyDryRunSpec) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"inherit_from_parent": obj.InheritFromParent,
+		"reset":               obj.Reset,
+		"rules":               flattenOrgPolicyPolicyDryRunSpecRulesArray(obj.Rules),
+		"etag":                obj.Etag,
+		"update_time":         obj.UpdateTime,
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandOrgPolicyPolicyDryRunSpecRulesArray(o interface{}) []orgpolicy.PolicyDryRunSpecRules {
+	if o == nil {
+		return make([]orgpolicy.PolicyDryRunSpecRules, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]orgpolicy.PolicyDryRunSpecRules, 0)
+	}
+
+	items := make([]orgpolicy.PolicyDryRunSpecRules, 0, len(objs))
+	for _, item := range objs {
+		i := expandOrgPolicyPolicyDryRunSpecRules(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandOrgPolicyPolicyDryRunSpecRules(o interface{}) *orgpolicy.PolicyDryRunSpecRules {
+	if o == nil {
+		return orgpolicy.EmptyPolicyDryRunSpecRules
+	}
+
+	obj := o.(map[string]interface{})
+	return &orgpolicy.PolicyDryRunSpecRules{
+		AllowAll:  tpgdclresource.ExpandEnumBool(obj["allow_all"].(string)),
+		Condition: expandOrgPolicyPolicyDryRunSpecRulesCondition(obj["condition"]),
+		DenyAll:   tpgdclresource.ExpandEnumBool(obj["deny_all"].(string)),
+		Enforce:   tpgdclresource.ExpandEnumBool(obj["enforce"].(string)),
+		Values:    expandOrgPolicyPolicyDryRunSpecRulesValues(obj["values"]),
+	}
+}
+
+func flattenOrgPolicyPolicyDryRunSpecRulesArray(objs []orgpolicy.PolicyDryRunSpecRules) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenOrgPolicyPolicyDryRunSpecRules(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenOrgPolicyPolicyDryRunSpecRules(obj *orgpolicy.PolicyDryRunSpecRules) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allow_all": tpgdclresource.FlattenEnumBool(obj.AllowAll),
+		"condition": flattenOrgPolicyPolicyDryRunSpecRulesCondition(obj.Condition),
+		"deny_all":  tpgdclresource.FlattenEnumBool(obj.DenyAll),
+		"enforce":   tpgdclresource.FlattenEnumBool(obj.Enforce),
+		"values":    flattenOrgPolicyPolicyDryRunSpecRulesValues(obj.Values),
+	}
+
+	return transformed
+
+}
+
+func expandOrgPolicyPolicyDryRunSpecRulesCondition(o interface{}) *orgpolicy.PolicyDryRunSpecRulesCondition {
+	if o == nil {
+		return orgpolicy.EmptyPolicyDryRunSpecRulesCondition
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return orgpolicy.EmptyPolicyDryRunSpecRulesCondition
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &orgpolicy.PolicyDryRunSpecRulesCondition{
+		Description: dcl.String(obj["description"].(string)),
+		Expression:  dcl.String(obj["expression"].(string)),
+		Location:    dcl.String(obj["location"].(string)),
+		Title:       dcl.String(obj["title"].(string)),
+	}
+}
+
+func flattenOrgPolicyPolicyDryRunSpecRulesCondition(obj *orgpolicy.PolicyDryRunSpecRulesCondition) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"description": obj.Description,
+		"expression":  obj.Expression,
+		"location":    obj.Location,
+		"title":       obj.Title,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandOrgPolicyPolicyDryRunSpecRulesValues(o interface{}) *orgpolicy.PolicyDryRunSpecRulesValues {
+	if o == nil {
+		return orgpolicy.EmptyPolicyDryRunSpecRulesValues
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return orgpolicy.EmptyPolicyDryRunSpecRulesValues
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &orgpolicy.PolicyDryRunSpecRulesValues{
+		AllowedValues: tpgdclresource.ExpandStringArray(obj["allowed_values"]),
+		DeniedValues:  tpgdclresource.ExpandStringArray(obj["denied_values"]),
+	}
+}
+
+func flattenOrgPolicyPolicyDryRunSpecRulesValues(obj *orgpolicy.PolicyDryRunSpecRulesValues) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"allowed_values": obj.AllowedValues,
+		"denied_values":  obj.DeniedValues,
+	}
+
+	return []interface{}{transformed}
+
 }
 
 func expandOrgPolicyPolicySpec(o interface{}) *orgpolicy.PolicySpec {

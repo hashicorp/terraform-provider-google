@@ -109,6 +109,11 @@ resource "google_assured_workloads_workload" "primary" {
   provisioned_resources_parent = google_folder.folder1.name
   organization = "%{org_id}"
   location = "us-central1"
+  resource_settings {
+    resource_type = "CONSUMER_FOLDER"
+    display_name = "folder-display-name"
+  }
+  violation_notifications_enabled = true
 }
 
 resource "google_folder" "folder1" {
@@ -130,6 +135,11 @@ resource "google_assured_workloads_workload" "primary" {
   provisioned_resources_parent = google_folder.folder1.name
   organization = "%{org_id}"
   location = "us-central1"
+  resource_settings {
+    resource_type = "CONSUMER_FOLDER"
+    display_name = "folder-display-name"
+  }
+  violation_notifications_enabled = true
 }
 
 resource "google_folder" "folder1" {
@@ -180,14 +190,18 @@ func testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t *testing.T) func(s *t
 			}
 
 			obj := &assuredworkloads.Workload{
-				BillingAccount:             dcl.String(rs.Primary.Attributes["billing_account"]),
-				ComplianceRegime:           assuredworkloads.WorkloadComplianceRegimeEnumRef(rs.Primary.Attributes["compliance_regime"]),
-				DisplayName:                dcl.String(rs.Primary.Attributes["display_name"]),
-				Location:                   dcl.String(rs.Primary.Attributes["location"]),
-				Organization:               dcl.String(rs.Primary.Attributes["organization"]),
-				ProvisionedResourcesParent: dcl.String(rs.Primary.Attributes["provisioned_resources_parent"]),
-				CreateTime:                 dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
-				Name:                       dcl.StringOrNil(rs.Primary.Attributes["name"]),
+				ComplianceRegime:              assuredworkloads.WorkloadComplianceRegimeEnumRef(rs.Primary.Attributes["compliance_regime"]),
+				DisplayName:                   dcl.String(rs.Primary.Attributes["display_name"]),
+				Location:                      dcl.String(rs.Primary.Attributes["location"]),
+				Organization:                  dcl.String(rs.Primary.Attributes["organization"]),
+				BillingAccount:                dcl.String(rs.Primary.Attributes["billing_account"]),
+				EnableSovereignControls:       dcl.Bool(rs.Primary.Attributes["enable_sovereign_controls"] == "true"),
+				Partner:                       assuredworkloads.WorkloadPartnerEnumRef(rs.Primary.Attributes["partner"]),
+				ProvisionedResourcesParent:    dcl.String(rs.Primary.Attributes["provisioned_resources_parent"]),
+				ViolationNotificationsEnabled: dcl.Bool(rs.Primary.Attributes["violation_notifications_enabled"] == "true"),
+				CreateTime:                    dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
+				KajEnrollmentState:            assuredworkloads.WorkloadKajEnrollmentStateEnumRef(rs.Primary.Attributes["kaj_enrollment_state"]),
+				Name:                          dcl.StringOrNil(rs.Primary.Attributes["name"]),
 			}
 
 			client := transport_tpg.NewDCLAssuredWorkloadsClient(config, config.UserAgent, billingProject, 0)

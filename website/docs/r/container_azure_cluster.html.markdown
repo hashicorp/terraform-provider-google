@@ -37,6 +37,9 @@ resource "google_container_azure_cluster" "primary" {
     admin_users {
       username = "mmv2@google.com"
     }
+    admin_groups {
+      group = "group@domain.com"
+    }
   }
 
   azure_region = "westus2"
@@ -183,6 +186,10 @@ The following arguments are supported:
 
 The `authorization` block supports:
     
+* `admin_groups` -
+  (Optional)
+  Groups of users that can perform operations as a cluster admin. A managed ClusterRoleBinding will be created to grant the `cluster-admin` ClusterRole to the groups. Up to ten admin groups can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+    
 * `admin_users` -
   (Required)
   Users that can perform operations as a cluster admin. A new ClusterRoleBinding will be created to grant the cluster-admin ClusterRole to the users. Up to ten admin users can be provided. For more info on RBAC, see https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
@@ -295,6 +302,12 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   
 
 
+The `admin_groups` block supports:
+    
+* `group` -
+  (Required)
+  The name of the group, e.g. `my-group@domain.com`.
+    
 The `azure_services_authentication` block supports:
     
 * `application_id` -
