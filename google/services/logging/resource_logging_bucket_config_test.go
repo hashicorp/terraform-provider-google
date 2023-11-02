@@ -525,3 +525,129 @@ func getLoggingBucketConfigs(context map[string]interface{}) map[string]string {
 	}
 
 }
+
+func TestAccLoggingBucketConfigOrganization_indexConfigs(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBucketConfigOrganization_indexConfigs(context, "INDEX_TYPE_STRING", "INDEX_TYPE_STRING"),
+			},
+			{
+				ResourceName:            "google_logging_organization_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization"},
+			},
+			{
+				Config: testAccLoggingBucketConfigOrganization_indexConfigs(context, "INDEX_TYPE_STRING", "INDEX_TYPE_INTEGER"),
+			},
+			{
+				ResourceName:            "google_logging_organization_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"organization"},
+			},
+		},
+	})
+}
+
+func testAccLoggingBucketConfigOrganization_indexConfigs(context map[string]interface{}, urlIndexType, statusIndexType string) string {
+	return fmt.Sprintf(acctest.Nprintf(`
+data "google_organization" "default" {
+	organization = "%{org_id}"
+}
+
+resource "google_logging_organization_bucket_config" "basic" {
+	organization    = data.google_organization.default.organization
+	location  = "global"
+	retention_days = 30
+	description = "retention test 30 days"
+	bucket_id = "_Default"
+
+	index_configs {
+		field_path 	= "jsonPayload.request.url"
+		type		= "%s"
+	}
+
+	index_configs {
+		field_path 	= "jsonPayload.response.status"
+		type		= "%s"
+	}
+}
+`, context), urlIndexType, statusIndexType)
+}
+
+func TestAccLoggingBucketConfigProject_indexConfigs(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":    "tf-test-" + acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"bucket_id":       "tf-test-bucket-" + acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBucketConfigProject_indexConfigs(context, "INDEX_TYPE_STRING", "INDEX_TYPE_STRING"),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccLoggingBucketConfigProject_indexConfigs(context, "INDEX_TYPE_STRING", "INDEX_TYPE_INTEGER"),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+		},
+	})
+}
+
+func testAccLoggingBucketConfigProject_indexConfigs(context map[string]interface{}, urlIndexType, statusIndexType string) string {
+	return fmt.Sprintf(acctest.Nprintf(`
+
+resource "google_project" "default" {
+	project_id      = "%{project_name}"
+	name            = "%{project_name}"
+	org_id          = "%{org_id}"
+	billing_account = "%{billing_account}"
+}
+
+resource "google_logging_project_bucket_config" "basic" {
+	project        	= google_project.default.name
+	location       	= "us-east1"
+	retention_days 	= 30
+	description    	= "retention test 30 days"
+	bucket_id      	= "%{bucket_id}"
+
+	index_configs {
+		field_path 	= "jsonPayload.request.url"
+		type		= "%s"
+	}
+
+	index_configs {
+		field_path 	= "jsonPayload.response.status"
+		type		= "%s"
+	}
+}
+`, context), urlIndexType, statusIndexType)
+}

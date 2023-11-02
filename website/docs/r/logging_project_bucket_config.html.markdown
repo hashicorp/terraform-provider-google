@@ -93,6 +93,22 @@ resource "google_logging_project_bucket_config" "example-project-bucket-cmek-set
 }
 ```
 
+Create logging bucket with index configs
+
+```hcl
+resource "google_logging_project_bucket_config" "example-project-bucket-index-configs" {
+  project          = "project_id"
+  location         = "global"
+  retention_days   = 30
+  bucket_id        = "custom-bucket"
+
+  index_configs   = {
+    file_path   = "jsonPayload.request.status"
+    type        = "INDEX_TYPE_STRING"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -113,6 +129,7 @@ The following arguments are supported:
 
 * `cmek_settings` - (Optional) The CMEK settings of the log bucket. If present, new log entries written to this log bucket are encrypted using the CMEK key provided in this configuration. If a log bucket has CMEK settings, the CMEK settings cannot be disabled later by updating the log bucket. Changing the KMS key is allowed. Structure is [documented below](#nested_cmek_settings).
 
+* `index_configs` - (Optional) A list of indexed fields and related configuration data. Structure is [documented below](#nested_index_configs).
 
 <a name="nested_cmek_settings"></a>The `cmek_settings` block supports:
 
@@ -135,6 +152,13 @@ This is a read-only field used to convey the specific configured CryptoKeyVersio
 * `service_account_id` - The service account associated with a project for which CMEK will apply.
 Before enabling CMEK for a logging bucket, you must first assign the cloudkms.cryptoKeyEncrypterDecrypter role to the service account associated with the project for which CMEK will apply. Use [v2.getCmekSettings](https://cloud.google.com/logging/docs/reference/v2/rest/v2/TopLevel/getCmekSettings#google.logging.v2.ConfigServiceV2.GetCmekSettings) to obtain the service account ID.
 See [Enabling CMEK for Logging Buckets](https://cloud.google.com/logging/docs/routing/managed-encryption-storage) for more information.
+
+<a name="nested_index_configs"></a>The `index_configs` block supports:
+
+* `field_path` - The LogEntry field path to index.
+Note that some paths are automatically indexed, and other paths are not eligible for indexing. See [indexing documentation]( https://cloud.google.com/logging/docs/view/advanced-queries#indexed-fields) for details.
+
+* `type` - The type of data in this index. Allowed types include `INDEX_TYPE_UNSPECIFIED`, `INDEX_TYPE_STRING` and `INDEX_TYPE_INTEGER`.
 
 ## Attributes Reference
 
