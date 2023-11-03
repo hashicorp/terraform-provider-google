@@ -157,7 +157,8 @@ The following arguments are supported:
   For instance, it allows any attached subscription to seek to a timestamp
   that is up to messageRetentionDuration in the past. If this field is not
   set, message retention is controlled by settings on individual subscriptions.
-  Cannot be more than 31 days or less than 10 minutes.
+  The rotation period has the format of a decimal number, followed by the
+  letter `s` (seconds). Cannot be more than 31 days or less than 10 minutes.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

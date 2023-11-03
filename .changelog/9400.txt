@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: clarified the expected format for the `message_retention_duration`
+```
