@@ -1,3 +1,0 @@
-```release-note:enhancement
-sql: added `ssl_mode` field to `google_sql_database_instance` resource
-```
