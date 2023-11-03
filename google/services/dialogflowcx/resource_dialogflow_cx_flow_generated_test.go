@@ -30,6 +30,98 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func TestAccDialogflowCXFlow_dialogflowcxFlowBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXFlowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXFlow_dialogflowcxFlowBasicExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_flow.basic_flow",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXFlow_dialogflowcxFlowBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name               = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location                   = "global"
+  default_language_code      = "en"
+  supported_language_codes   = ["fr", "de", "es"]
+  time_zone                  = "America/New_York"
+  description                = "Example description."
+  avatar_uri                 = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_flow" "basic_flow" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  description  = "Test Flow"
+
+  nlu_settings {
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  event_handlers {
+    event = "custom-event"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["I didn't get that. Can you say it again?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["Sorry, could you say that again?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["One more time?"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccDialogflowCXFlow_dialogflowcxFlowFullExample(t *testing.T) {
 	t.Parallel()
 
@@ -339,6 +431,112 @@ resource "google_dialogflow_cx_flow" "basic_flow" {
     }
   }
 } 
+`, context)
+}
+
+func TestAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXFlowDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_flow.default_start_flow",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXFlow_dialogflowcxFlowDefaultStartFlowExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location              = "global"
+  default_language_code = "en"
+  time_zone             = "America/New_York"
+}
+
+resource "google_dialogflow_cx_intent" "default_welcome_intent" {
+  parent                    = google_dialogflow_cx_agent.agent.id
+  is_default_welcome_intent = true
+  display_name              = "Default Welcome Intent"
+  priority                  = 1
+  training_phrases {
+    parts {
+      text = "Hello"
+    }
+    repeat_count = 1
+  }
+}
+
+
+resource "google_dialogflow_cx_flow" "default_start_flow" {
+  parent                = google_dialogflow_cx_agent.agent.id
+  is_default_start_flow = true
+  display_name          = "Default Start Flow"
+  description           = "A start flow created along with the agent"
+
+  nlu_settings {
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  transition_routes {
+    intent = google_dialogflow_cx_intent.default_welcome_intent.id
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["Response to default welcome intent."]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "custom-event"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["This is a default flow."]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["We've updated the default flow no-match response!"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["We've updated the default flow no-input response!"]
+        }
+      }
+    }
+  }
+}
 `, context)
 }
 

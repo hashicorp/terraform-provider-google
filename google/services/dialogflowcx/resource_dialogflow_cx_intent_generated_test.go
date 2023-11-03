@@ -107,6 +107,107 @@ resource "google_dialogflow_cx_intent" "basic_intent" {
 `, context)
 }
 
+func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXIntentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_intent.default_negative_intent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXIntent_dialogflowcxIntentDefaultNegativeIntentExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location              = "global"
+  default_language_code = "en"
+  time_zone             = "America/New_York"
+}
+
+
+resource "google_dialogflow_cx_intent" "default_negative_intent" {
+  parent                     = google_dialogflow_cx_agent.agent.id
+  is_default_negative_intent = true
+  display_name               = "Default Negative Intent"
+  priority                   = 1
+  is_fallback                = true
+  training_phrases {
+     parts {
+         text = "Never match this phrase"
+     }
+     repeat_count = 1
+  }
+}
+`, context)
+}
+
+func TestAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDialogflowCXIntentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_cx_intent.default_welcome_intent",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXIntent_dialogflowcxIntentDefaultWelcomeIntentExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location              = "global"
+  default_language_code = "en"
+  time_zone             = "America/New_York"
+}
+
+
+resource "google_dialogflow_cx_intent" "default_welcome_intent" {
+  parent                    = google_dialogflow_cx_agent.agent.id
+  is_default_welcome_intent = true
+  display_name              = "Default Welcome Intent"
+  priority                  = 1
+  training_phrases {
+     parts {
+         text = "Hello"
+     }
+     repeat_count = 1
+  }
+}
+`, context)
+}
+
 func testAccCheckDialogflowCXIntentDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

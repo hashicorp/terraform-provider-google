@@ -29,6 +29,78 @@ To get more information about Flow, see:
     * [Official Documentation](https://cloud.google.com/dialogflow/cx/docs)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dialogflowcx_flow_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dialogflowcx Flow Basic
+
+
+```hcl
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name               = "dialogflowcx-agent"
+  location                   = "global"
+  default_language_code      = "en"
+  supported_language_codes   = ["fr", "de", "es"]
+  time_zone                  = "America/New_York"
+  description                = "Example description."
+  avatar_uri                 = "https://cloud.google.com/_static/images/cloud/icons/favicons/onecloud/super_cloud.png"
+  enable_stackdriver_logging = true
+  enable_spell_correction    = true
+  speech_to_text_settings {
+    enable_speech_adaptation = true
+  }
+}
+
+
+resource "google_dialogflow_cx_flow" "basic_flow" {
+  parent       = google_dialogflow_cx_agent.agent.id
+  display_name = "MyFlow"
+  description  = "Test Flow"
+
+  nlu_settings {
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  event_handlers {
+    event = "custom-event"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["I didn't get that. Can you say it again?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["Sorry, could you say that again?"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      return_partial_responses = false
+      messages {
+        text {
+          text = ["One more time?"]
+        }
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dialogflowcx_flow_full&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -388,6 +460,11 @@ The following arguments are supported:
   Flow.transition_routes.trigger_fulfillment.messages
   Flow.transition_routes.trigger_fulfillment.conditional_cases
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
+
+* `is_default_start_flow` - (Optional) Marks this as the [Default Start Flow](https://cloud.google.com/dialogflow/cx/docs/concept/flow#start) for an agent. When you create an agent, the Default Start Flow is created automatically.
+The Default Start Flow cannot be deleted; deleting the `google_dialogflow_cx_flow` resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple `google_dialogflow_cx_flow` resources linked to the same agent with `is_default_start_flow = true` because they will compete to control a single Default Start Flow resource in GCP.
 
 
 <a name="nested_transition_routes"></a>The `transition_routes` block supports:

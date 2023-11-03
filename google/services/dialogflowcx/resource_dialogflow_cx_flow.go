@@ -687,6 +687,15 @@ You may set this, for example:
 				Description: `The unique identifier of the flow.
 Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.`,
 			},
+			"is_default_start_flow": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Marks this as the [Default Start Flow](https://cloud.google.com/dialogflow/cx/docs/concept/flow#start) for an agent. When you create an agent, the Default Start Flow is created automatically.
+The Default Start Flow cannot be deleted; deleting the 'google_dialogflow_cx_flow' resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple 'google_dialogflow_cx_flow' resources linked to the same agent with 'is_default_start_flow = true' because they will compete to control a single Default Start Flow resource in GCP.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -776,6 +785,34 @@ func resourceDialogflowCXFlowCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+
+	// if it's a default object Dialogflow creates for you, "Update" instead of "Create"
+	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
+	isDefaultStartFlow, _ := d.Get("is_default_start_flow").(bool)
+	isDefaultWelcomeIntent, _ := d.Get("is_default_welcome_intent").(bool)
+	isDefaultNegativeIntent, _ := d.Get("is_default_negative_intent").(bool)
+	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
+		// hardcode the default object ID:
+		var defaultObjName string
+		if isDefaultStartFlow || isDefaultWelcomeIntent {
+			defaultObjName = "00000000-0000-0000-0000-000000000000"
+		}
+		if isDefaultNegativeIntent {
+			defaultObjName = "00000000-0000-0000-0000-000000000001"
+		}
+
+		// Store the ID
+		d.Set("name", defaultObjName)
+		id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/flows/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+
+		// and defer to the Update method:
+		log.Printf("[DEBUG] Updating default DialogflowCXFlow")
+		return resourceDialogflowCXFlowUpdate(d, meta)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -847,6 +884,8 @@ func resourceDialogflowCXFlowRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXFlow %q", d.Id()))
 	}
+
+	// Explicitly set virtual fields to default values if unset
 
 	if err := d.Set("name", flattenDialogflowCXFlowName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Flow: %s", err)
@@ -1047,6 +1086,17 @@ func resourceDialogflowCXFlowDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+
+	// if it's a default object Dialogflow creates for you, skip deletion
+	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
+	isDefaultStartFlow, _ := d.Get("is_default_start_flow").(bool)
+	isDefaultWelcomeIntent, _ := d.Get("is_default_welcome_intent").(bool)
+	isDefaultNegativeIntent, _ := d.Get("is_default_negative_intent").(bool)
+	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
+		// we can't delete these resources so do nothing
+		log.Printf("[DEBUG] Not deleting default DialogflowCXFlow")
+		return nil
+	}
 	log.Printf("[DEBUG] Deleting Flow %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -1088,6 +1138,11 @@ func resourceDialogflowCXFlowImport(d *schema.ResourceData, meta interface{}) ([
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Set is_default_start_flow if the resource is actually the Default Start Flow
+	if d.Get("name").(string) == "00000000-0000-0000-0000-000000000000" {
+		d.Set("is_default_start_flow", true)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

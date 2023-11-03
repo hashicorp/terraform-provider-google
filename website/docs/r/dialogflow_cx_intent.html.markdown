@@ -119,6 +119,7 @@ The following arguments are supported:
   (Optional)
   Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation.
   Adding training phrases to fallback intent is useful in the case of requests that are mistakenly matched, since training phrases assigned to fallback intents act as negative examples that triggers no-match event.
+  To manage the fallback intent, set `is_default_negative_intent = true`
 
 * `labels` -
   (Optional)
@@ -143,6 +144,16 @@ The following arguments are supported:
   The language of the following fields in intent:
   Intent.training_phrases.parts.text
   If not specified, the agent's default language is used. Many languages are supported. Note: languages must be enabled in the agent before they can be used.
+
+* `is_default_welcome_intent` - (Optional) Marks this as the [Default Welcome Intent](https://cloud.google.com/dialogflow/cx/docs/concept/intent#welcome) for an agent. When you create an agent, a Default Welcome Intent is created automatically.
+The Default Welcome Intent cannot be deleted; deleting the `google_dialogflow_cx_intent` resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple `google_dialogflow_cx_intent` resources linked to the same agent with `is_default_welcome_intent = true` because they will compete to control a single Default Welcome Intent resource in GCP.
+
+* `is_default_negative_intent` - (Optional) Marks this as the [Default Negative Intent](https://cloud.google.com/dialogflow/cx/docs/concept/intent#negative) for an agent. When you create an agent, a Default Negative Intent is created automatically.
+The Default Negative Intent cannot be deleted; deleting the `google_dialogflow_cx_intent` resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple `google_dialogflow_cx_intent` resources linked to the same agent with `is_default_negative_intent = true` because they will compete to control a single Default Negative Intent resource in GCP.
 
 
 <a name="nested_training_phrases"></a>The `training_phrases` block supports:

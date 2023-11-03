@@ -352,3 +352,203 @@ func testAccDialogflowCXFlow_full(context map[string]interface{}) string {
   }
 `, context)
 }
+
+func TestAccDialogflowCXFlow_defaultStartFlow(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				// Note: this isn't actually a "create" test; it creates a resource in the TF state, but is actually importing the default object GCP has created, then updating it.
+				Config: testAccDialogflowCXFlow_defaultStartFlow_create(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dialogflow_cx_flow.default_start_flow", "name", "00000000-0000-0000-0000-000000000000"),
+					resource.TestCheckResourceAttrPair(
+						"google_dialogflow_cx_flow.default_start_flow", "id",
+						"google_dialogflow_cx_agent.agent", "start_flow",
+					),
+				),
+			},
+			{
+				ResourceName:      "google_dialogflow_cx_flow.default_start_flow",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// This is testing updating the default object without having to create it in the TF state first.
+				Config: testAccDialogflowCXFlow_defaultStartFlow_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_dialogflow_cx_flow.default_start_flow", "name", "00000000-0000-0000-0000-000000000000"),
+					resource.TestCheckResourceAttrPair(
+						"google_dialogflow_cx_flow.default_start_flow", "id",
+						"google_dialogflow_cx_agent.agent", "start_flow",
+					),
+				),
+			},
+			{
+				ResourceName:      "google_dialogflow_cx_flow.default_start_flow",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDialogflowCXFlow_defaultStartFlow_create(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location              = "global"
+  default_language_code = "en"
+  time_zone             = "America/New_York"
+}
+
+resource "google_dialogflow_cx_intent" "default_welcome_intent" {
+  parent                    = google_dialogflow_cx_agent.agent.id
+  is_default_welcome_intent = true
+  display_name              = "Default Welcome Intent"
+  priority                  = 1
+  training_phrases {
+    parts {
+      text = "Hello"
+    }
+    repeat_count = 1
+  }
+}
+
+
+resource "google_dialogflow_cx_flow" "default_start_flow" {
+  parent                = google_dialogflow_cx_agent.agent.id
+  is_default_start_flow = true
+  display_name          = "Default Start Flow"
+  description           = "A start flow created along with the agent"
+
+  nlu_settings {
+    classification_threshold = 0.3
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  transition_routes {
+    intent = google_dialogflow_cx_intent.default_welcome_intent.id
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["Response to default welcome intent."]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "custom-event"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["Handle a custom event!"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["This is the flow no-match response."]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["This is the flow no-input response."]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDialogflowCXFlow_defaultStartFlow_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dialogflow_cx_agent" "agent" {
+  display_name          = "tf-test-dialogflowcx-agent%{random_suffix}"
+  location              = "global"
+  default_language_code = "en"
+  time_zone             = "America/New_York"
+}
+
+resource "google_dialogflow_cx_intent" "default_welcome_intent" {
+  parent                    = google_dialogflow_cx_agent.agent.id
+  is_default_welcome_intent = true
+  display_name              = "Default Welcome Intent"
+  priority                  = 1
+  training_phrases {
+    parts {
+      text = "Hello"
+    }
+    repeat_count = 1
+  }
+}
+
+
+resource "google_dialogflow_cx_flow" "default_start_flow" {
+  parent                = google_dialogflow_cx_agent.agent.id
+  is_default_start_flow = true
+  display_name          = "Default Start Flow"
+  description           = "A start flow created along with the agent"
+
+  nlu_settings {
+    classification_threshold = 0.5
+    model_type               = "MODEL_TYPE_STANDARD"
+  }
+
+  transition_routes {
+    intent = google_dialogflow_cx_intent.default_welcome_intent.id
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["We can update the default welcome intent response!"]
+        }
+      }
+    }
+  }
+
+  // delete the custom-event handler to show we can
+
+  event_handlers {
+    event = "sys.no-match-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["We an also update the no-match response!"]
+        }
+      }
+    }
+  }
+
+  event_handlers {
+    event = "sys.no-input-default"
+    trigger_fulfillment {
+      messages {
+        text {
+          text = ["The no-input response has been updated too!"]
+        }
+      }
+    }
+  }
+}
+`, context)
+}
