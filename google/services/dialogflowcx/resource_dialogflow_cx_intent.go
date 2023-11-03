@@ -71,7 +71,8 @@ func ResourceDialogflowCXIntent() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: `Indicates whether this is a fallback intent. Currently only default fallback intent is allowed in the agent, which is added upon agent creation.
-Adding training phrases to fallback intent is useful in the case of requests that are mistakenly matched, since training phrases assigned to fallback intents act as negative examples that triggers no-match event.`,
+Adding training phrases to fallback intent is useful in the case of requests that are mistakenly matched, since training phrases assigned to fallback intents act as negative examples that triggers no-match event.
+To manage the fallback intent, set 'is_default_negative_intent = true'`,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -201,6 +202,24 @@ Format: projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/intents/
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"is_default_welcome_intent": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Marks this as the [Default Welcome Intent](https://cloud.google.com/dialogflow/cx/docs/concept/intent#welcome) for an agent. When you create an agent, a Default Welcome Intent is created automatically.
+The Default Welcome Intent cannot be deleted; deleting the 'google_dialogflow_cx_intent' resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple 'google_dialogflow_cx_intent' resources linked to the same agent with 'is_default_welcome_intent = true' because they will compete to control a single Default Welcome Intent resource in GCP.`,
+			},
+			"is_default_negative_intent": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Marks this as the [Default Negative Intent](https://cloud.google.com/dialogflow/cx/docs/concept/intent#negative) for an agent. When you create an agent, a Default Negative Intent is created automatically.
+The Default Negative Intent cannot be deleted; deleting the 'google_dialogflow_cx_intent' resource does nothing to the underlying GCP resources.
+
+~> Avoid having multiple 'google_dialogflow_cx_intent' resources linked to the same agent with 'is_default_negative_intent = true' because they will compete to control a single Default Negative Intent resource in GCP.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -290,6 +309,34 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+
+	// if it's a default object Dialogflow creates for you, "Update" instead of "Create"
+	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
+	isDefaultStartFlow, _ := d.Get("is_default_start_flow").(bool)
+	isDefaultWelcomeIntent, _ := d.Get("is_default_welcome_intent").(bool)
+	isDefaultNegativeIntent, _ := d.Get("is_default_negative_intent").(bool)
+	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
+		// hardcode the default object ID:
+		var defaultObjName string
+		if isDefaultStartFlow || isDefaultWelcomeIntent {
+			defaultObjName = "00000000-0000-0000-0000-000000000000"
+		}
+		if isDefaultNegativeIntent {
+			defaultObjName = "00000000-0000-0000-0000-000000000001"
+		}
+
+		// Store the ID
+		d.Set("name", defaultObjName)
+		id, err := tpgresource.ReplaceVars(d, config, "{{parent}}/intents/{{name}}")
+		if err != nil {
+			return fmt.Errorf("Error constructing id: %s", err)
+		}
+		d.SetId(id)
+
+		// and defer to the Update method:
+		log.Printf("[DEBUG] Updating default DialogflowCXIntent")
+		return resourceDialogflowCXIntentUpdate(d, meta)
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -361,6 +408,8 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXIntent %q", d.Id()))
 	}
+
+	// Explicitly set virtual fields to default values if unset
 
 	if err := d.Set("name", flattenDialogflowCXIntentName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Intent: %s", err)
@@ -567,6 +616,17 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	url = strings.Replace(url, "-dialogflow", fmt.Sprintf("%s-dialogflow", location), 1)
+
+	// if it's a default object Dialogflow creates for you, skip deletion
+	// Note: below we try to access fields that aren't present in the resource, because this custom code is reused across multiple Dialogflow resources that contain different fields. When the field isn't present, we deliberately ignore the error and the boolean is false.
+	isDefaultStartFlow, _ := d.Get("is_default_start_flow").(bool)
+	isDefaultWelcomeIntent, _ := d.Get("is_default_welcome_intent").(bool)
+	isDefaultNegativeIntent, _ := d.Get("is_default_negative_intent").(bool)
+	if isDefaultStartFlow || isDefaultWelcomeIntent || isDefaultNegativeIntent {
+		// we can't delete these resources so do nothing
+		log.Printf("[DEBUG] Not deleting default DialogflowCXIntent")
+		return nil
+	}
 	log.Printf("[DEBUG] Deleting Intent %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -608,6 +668,14 @@ func resourceDialogflowCXIntentImport(d *schema.ResourceData, meta interface{}) 
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Set is_default_X if the resource is actually a Default Intent
+	if d.Get("name").(string) == "00000000-0000-0000-0000-000000000000" {
+		d.Set("is_default_welcome_intent", true)
+	}
+	if d.Get("name").(string) == "00000000-0000-0000-0000-000000000001" {
+		d.Set("is_default_negative_intent", true)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
