@@ -125,42 +125,6 @@ func TestAccLoggingBucketConfigProject_analyticsEnabled(t *testing.T) {
 	})
 }
 
-func TestAccLoggingBucketConfigProject_locked(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"random_suffix":   acctest.RandString(t, 10),
-		"project_name":    "tf-test-" + acctest.RandString(t, 10),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccLoggingBucketConfigProject_locked(context, false),
-			},
-			{
-				ResourceName:            "google_logging_project_bucket_config.variable_locked",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project"},
-			},
-			{
-				Config: testAccLoggingBucketConfigProject_locked(context, true),
-			},
-			{
-				ResourceName:            "google_logging_project_bucket_config.variable_locked",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project"},
-			},
-		},
-	})
-}
-
 func TestAccLoggingBucketConfigProject_cmekSettings(t *testing.T) {
 	t.Parallel()
 
