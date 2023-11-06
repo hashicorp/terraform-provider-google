@@ -859,8 +859,8 @@ The default value is 1.0.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
-This field is applicable only when the load_balancing_scheme is set
-to INTERNAL_SELF_MANAGED.`,
+Applicable backend service types can be a global backend service with the
+loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
