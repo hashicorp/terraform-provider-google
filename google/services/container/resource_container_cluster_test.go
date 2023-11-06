@@ -3114,7 +3114,7 @@ func TestAccContainerCluster_errorNoClusterCreated(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerCluster_withInvalidLocation("wonderland"),
-				ExpectError: regexp.MustCompile(`Permission denied on 'locations/wonderland' \(or it may not exist\).`),
+				ExpectError: regexp.MustCompile(`Location "wonderland" does not exist.`),
 			},
 		},
 	})
