@@ -136,6 +136,38 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+## Example Usage - Enable Fleet Default Member Config Service Mesh
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  fleetDefaultMemberConfig {
+    mesh {
+      management = "MANAGEMENT_AUTOMATIC"
+    }
+  }
+}
+```
+## Example Usage - Enable Fleet Default Member Config Configmanagement
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleetDefaultMemberConfig {
+    configmanagement {
+      config_sync {
+        git {
+          sync_repo = "https://github.com/hashicorp/terraform"
+        }
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -164,6 +196,11 @@ The following arguments are supported:
   (Optional)
   Optional. Hub-wide Feature configuration. If this Feature does not support any Hub-wide configuration, this field may be unused.
   Structure is [documented below](#nested_spec).
+
+* `fleet_default_member_config` -
+  (Optional)
+  Optional. Fleet Default Membership Configuration.
+  Structure is [documented below](#nested_fleet_default_member_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -222,6 +259,111 @@ The following arguments are supported:
   (Optional)
   Specified if fleet logging feature is enabled.
   Possible values are: `MODE_UNSPECIFIED`, `COPY`, `MOVE`.
+
+<a name="nested_fleet_default_member_config"></a>The `fleet_default_member_config` block supports:
+
+* `mesh` -
+  (Optional)
+  Service Mesh spec
+  Structure is [documented below](#nested_mesh).
+
+* `configmanagement` -
+  (Optional)
+  Config Management spec
+  Structure is [documented below](#nested_configmanagement).
+
+
+<a name="nested_mesh"></a>The `mesh` block supports:
+
+* `management` -
+  (Required)
+  Whether to automatically manage Service Mesh
+  Possible values are: `MANAGEMENT_UNSPECIFIED`, `MANAGEMENT_AUTOMATIC`, `MANAGEMENT_MANUAL`.
+
+<a name="nested_configmanagement"></a>The `configmanagement` block supports:
+
+* `config_sync` -
+  (Optional)
+  ConfigSync configuration for the cluster
+  Structure is [documented below](#nested_config_sync).
+
+
+<a name="nested_config_sync"></a>The `config_sync` block supports:
+
+* `source_format` -
+  (Optional)
+  Specifies whether the Config Sync Repo is in hierarchical or unstructured mode
+
+* `git` -
+  (Optional)
+  Git repo configuration for the cluster
+  Structure is [documented below](#nested_git).
+
+* `oci` -
+  (Optional)
+  OCI repo configuration for the cluster
+  Structure is [documented below](#nested_oci).
+
+
+<a name="nested_git"></a>The `git` block supports:
+
+* `sync_repo` -
+  (Optional)
+  The URL of the Git repository to use as the source of truth
+
+* `sync_branch` -
+  (Optional)
+  The branch of the repository to sync from. Default: master
+
+* `policy_dir` -
+  (Optional)
+  The path within the Git repository that represents the top level of the repo to sync
+
+* `sync_rev` -
+  (Optional)
+  Git revision (tag or hash) to check out. Default HEAD
+
+* `secret_type` -
+  (Required)
+  Type of secret configured for access to the Git repo
+
+* `https_proxy` -
+  (Optional)
+  URL for the HTTPS Proxy to be used when communicating with the Git repo
+
+* `gcp_service_account_email` -
+  (Optional)
+  The Google Cloud Service Account Email used for auth when secretType is gcpServiceAccount
+
+* `sync_wait_secs` -
+  (Optional)
+  Period in seconds between consecutive syncs. Default: 15
+
+<a name="nested_oci"></a>The `oci` block supports:
+
+* `sync_repo` -
+  (Optional)
+  The OCI image repository URL for the package to sync from
+
+* `policy_dir` -
+  (Optional)
+  The absolute path of the directory that contains the local resources. Default: the root directory of the image
+
+* `secret_type` -
+  (Required)
+  Type of secret configured for access to the Git repo
+
+* `gcp_service_account_email` -
+  (Optional)
+  The Google Cloud Service Account Email used for auth when secretType is gcpServiceAccount
+
+* `sync_wait_secs` -
+  (Optional)
+  Period in seconds between consecutive syncs. Default: 15
+
+* `version` -
+  (Optional)
+  Version of ACM installed
 
 ## Attributes Reference
 

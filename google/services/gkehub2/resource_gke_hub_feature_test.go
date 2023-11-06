@@ -289,6 +289,163 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_FleetDefaultMemberConfigServiceMesh(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMesh(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMesh(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  fleet_default_member_config {
+    mesh {
+      management = "MANAGEMENT_AUTOMATIC"
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  fleet_default_member_config {
+    mesh {
+      management = "MANAGEMENT_MANUAL"
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func TestAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      config_sync {
+        source_format = "hierarchy"
+        git {
+          sync_repo = "https://github.com/GoogleCloudPlatform/magic-modules"
+          sync_branch = "master"
+          policy_dir = "."
+          sync_rev = "HEAD"
+          secret_type = "none"
+          sync_wait_secs = "15"
+        }
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      config_sync {
+        source_format = "unstructured"
+        oci {
+          sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
+          policy_dir = "/acm/nonprod-root/"
+          secret_type = "gcpserviceaccount"
+          sync_wait_secs = "15"
+          gcp_service_account_email = "gke-cluster@gke-foo-nonprod.iam.gserviceaccount.com"
+        }
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
 func TestAccGKEHubFeature_gkehubFeatureMcsd(t *testing.T) {
 	// VCR fails to handle batched project services
 	acctest.SkipIfVcr(t)
@@ -395,6 +552,11 @@ resource "google_project_service" "container" {
   project = google_project.project.project_id
   service = "container.googleapis.com"
   disable_on_destroy = false
+}
+
+resource "google_project_service" "anthos" {
+  project = google_project.project.project_id
+  service = "anthos.googleapis.com"
 }
 
 resource "google_project_service" "gkehub" {
