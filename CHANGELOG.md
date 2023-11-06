@@ -1,7 +1,7 @@
 ## 5.5.0 (Unreleased)
 
 FEATURES:
-* **New Data Source:** google_bigquery_dataset ([#16368](https://github.com/hashicorp/terraform-provider-google/pull/16368))
+* **New Data Source:** `google_bigquery_dataset` ([#16368](https://github.com/hashicorp/terraform-provider-google/pull/16368))
 
 IMPROVEMENTS:
 * alloydb: added `SECONDARY` as an option for `instance_type` field in `google_alloydb_instance` resource, to support creation of secondary instance inside a secondary cluster. ([#16398](https://github.com/hashicorp/terraform-provider-google/pull/16398))
@@ -14,7 +14,7 @@ IMPROVEMENTS:
 * storage: added `retention` field to `google_storage_bucket_object` resource ([#16412](https://github.com/hashicorp/terraform-provider-google/pull/16412))
 
 BUG FIXES:
-* firestore: fixed issue with creation of multiple `google_firestore_field` resources ([#16372](https://github.com/hashicorp/terraform-provider-google/pull/16372))
+* firestore: fixed an issue with creation of multiple `google_firestore_field` resources ([#16372](https://github.com/hashicorp/terraform-provider-google/pull/16372))
 
 ## 5.4.0 (Oct 30, 2023)
 
