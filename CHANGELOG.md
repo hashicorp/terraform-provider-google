@@ -1,4 +1,22 @@
-## 5.5.0 (Unreleased)
+## 5.6.0 (Unreleased)
+
+## 5.5.0 (Nov 06, 2023)
+
+FEATURES:
+* **New Data Source:** `google_bigquery_dataset` ([#16368](https://github.com/hashicorp/terraform-provider-google/pull/16368))
+
+IMPROVEMENTS:
+* alloydb: added `SECONDARY` as an option for `instance_type` field in `google_alloydb_instance` resource, to support creation of secondary instance inside a secondary cluster. ([#16398](https://github.com/hashicorp/terraform-provider-google/pull/16398))
+* alloydb: added `deletion_policy` field to `google_alloydb_cluster` resource, to allow force-destroying instances along with their cluster. This is necessary to delete secondary instances, which cannot be deleted otherwise. ([#16398](https://github.com/hashicorp/terraform-provider-google/pull/16398))
+* alloydb: added support to promote `google_alloydb_cluster` resources from secondary to primary ([#16413](https://github.com/hashicorp/terraform-provider-google/pull/16413))
+* alloydb: increased default timeout on `google_alloydb_instance` to 120m from 40m ([#16398](https://github.com/hashicorp/terraform-provider-google/pull/16398))
+* dataproc: added `instance_flexibility_policy` field ro `google_dataproc_cluster` resource ([#16417](https://github.com/hashicorp/terraform-provider-google/pull/16417))
+* monitoring: added `subject` field to `google_monitoring_alert_policy` resource ([#16414](https://github.com/hashicorp/terraform-provider-google/pull/16414))
+* storage: added `enable_object_retention` field to `google_storage_bucket` resource ([#16412](https://github.com/hashicorp/terraform-provider-google/pull/16412))
+* storage: added `retention` field to `google_storage_bucket_object` resource ([#16412](https://github.com/hashicorp/terraform-provider-google/pull/16412))
+
+BUG FIXES:
+* firestore: fixed an issue with creation of multiple `google_firestore_field` resources ([#16372](https://github.com/hashicorp/terraform-provider-google/pull/16372))
 
 ## 5.4.0 (Oct 30, 2023)
 
