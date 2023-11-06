@@ -841,7 +841,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Description: `User-defined labels for this environment. The labels map can contain no more than 64 entries. Entries of the labels map are UTF8 strings that comply with the following restrictions: Label keys must be between 1 and 63 characters long and must conform to the following regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63 characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No more than 64 labels can be associated with a given environment. Both keys and values must be <= 128 bytes in size.
-				
+
 				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 			},
@@ -858,6 +858,24 @@ func ResourceComposerEnvironment() *schema.Resource {
 				Computed:    true,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"storage_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `Configuration options for storage used by Composer environment.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bucket": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Optional. Name of an existing Cloud Storage bucket to be used by the environment.`,
+						},
+					},
+				},
 			},
 		},
 		UseJSONNumber: true,
@@ -881,10 +899,16 @@ func resourceComposerEnvironmentCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	transformedStorageConfig, err := expandComposerStorageConfig(d.Get("storage_config"), d, config)
+	if err != nil {
+		return err
+	}
+
 	env := &composer.Environment{
-		Name:   envName.ResourceName(),
-		Labels: tpgresource.ExpandEffectiveLabels(d),
-		Config: transformedConfig,
+		Name:          envName.ResourceName(),
+		Labels:        tpgresource.ExpandEffectiveLabels(d),
+		Config:        transformedConfig,
+		StorageConfig: transformedStorageConfig,
 	}
 
 	// Some fields cannot be specified during create and must be updated post-creation.
@@ -969,6 +993,9 @@ func resourceComposerEnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("effective_labels", res.Labels); err != nil {
 		return fmt.Errorf("Error setting Environment effective_labels: %s", err)
+	}
+	if err := d.Set("storage_config", flattenComposerStorageConfig(res.StorageConfig)); err != nil {
+		return fmt.Errorf("Error setting Storage: %s", err)
 	}
 	return nil
 }
@@ -1277,6 +1304,17 @@ func resourceComposerEnvironmentImport(d *schema.ResourceData, meta interface{})
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenComposerStorageConfig(storageConfig *composer.StorageConfig) interface{} {
+	if storageConfig == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["bucket"] = storageConfig.Bucket
+
+	return []interface{}{transformed}
 }
 
 func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interface{} {
@@ -2045,7 +2083,22 @@ func expandComposerEnvironmentIPAllocationPolicy(v interface{}, d *schema.Resour
 		transformed.ServicesSecondaryRangeName = v.(string)
 	}
 	return transformed, nil
+}
 
+func expandComposerStorageConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.StorageConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.StorageConfig{}
+
+	if v, ok := original["bucket"]; ok {
+		transformed.Bucket = v.(string)
+	}
+
+	return transformed, nil
 }
 
 func expandComposerEnvironmentServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (string, error) {

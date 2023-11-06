@@ -21,6 +21,7 @@ import (
 
 const testComposerEnvironmentPrefix = "tf-test-composer-env"
 const testComposerNetworkPrefix = "tf-test-composer-net"
+const testComposerBucketPrefix = "tf-test-composer-bucket"
 
 func allComposerServiceAgents() []string {
 	return []string{
@@ -1077,6 +1078,84 @@ func testAccComposerEnvironmentDestroyProducer(t *testing.T) func(s *terraform.S
 
 		return nil
 	}
+}
+
+// Checks environment creation with custom bucket
+func TestAccComposerEnvironment_customBucket(t *testing.T) {
+	t.Parallel()
+
+	bucketName := fmt.Sprintf("%s-%d", testComposerBucketPrefix, acctest.RandInt(t))
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
+	subnetwork := network + "-1"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO: Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
+func testAccComposerEnvironment_customBucket(bucketName, envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "test" {
+  name   = "%s"
+  location = "us-central1"
+  force_destroy = true
+}
+
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-central1"
+  config {
+    node_config {
+      network        = google_compute_network.test.self_link
+      subnetwork     = google_compute_subnetwork.test.self_link
+      ip_allocation_policy {
+        cluster_ipv4_cidr_block = "10.0.0.0/16"
+      }
+    }
+    software_config {
+      image_version = "composer-2.4.2-airflow-2"
+    }
+  }
+  storage_config {
+		bucket = google_storage_bucket.test.name
+	}
+}
+
+// use a separate network to avoid conflicts with other tests running in parallel
+// that use the default network/subnet
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.self_link
+}
+`, bucketName, envName, network, subnetwork)
 }
 
 func testAccComposerEnvironment_basic(name, network, subnetwork string) string {
