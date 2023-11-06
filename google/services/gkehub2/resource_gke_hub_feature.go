@@ -61,6 +61,147 @@ func ResourceGKEHub2Feature() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location for the resource`,
 			},
+			"fleet_default_member_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. Fleet Default Membership Configuration.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"configmanagement": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Config Management spec`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_sync": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `ConfigSync configuration for the cluster`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"git": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Git repo configuration for the cluster`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"secret_type": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Type of secret configured for access to the Git repo`,
+															},
+															"gcp_service_account_email": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The Google Cloud Service Account Email used for auth when secretType is gcpServiceAccount`,
+															},
+															"https_proxy": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `URL for the HTTPS Proxy to be used when communicating with the Git repo`,
+															},
+															"policy_dir": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The path within the Git repository that represents the top level of the repo to sync`,
+															},
+															"sync_branch": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The branch of the repository to sync from. Default: master`,
+															},
+															"sync_repo": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The URL of the Git repository to use as the source of truth`,
+															},
+															"sync_rev": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Git revision (tag or hash) to check out. Default HEAD`,
+															},
+															"sync_wait_secs": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Period in seconds between consecutive syncs. Default: 15`,
+															},
+														},
+													},
+												},
+												"oci": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `OCI repo configuration for the cluster`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"secret_type": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Type of secret configured for access to the Git repo`,
+															},
+															"gcp_service_account_email": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The Google Cloud Service Account Email used for auth when secretType is gcpServiceAccount`,
+															},
+															"policy_dir": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The absolute path of the directory that contains the local resources. Default: the root directory of the image`,
+															},
+															"sync_repo": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `The OCI image repository URL for the package to sync from`,
+															},
+															"sync_wait_secs": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Period in seconds between consecutive syncs. Default: 15`,
+															},
+															"version": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Version of ACM installed`,
+															},
+														},
+													},
+												},
+												"source_format": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `Specifies whether the Config Sync Repo is in hierarchical or unstructured mode`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"mesh": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Service Mesh spec`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"management": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"MANAGEMENT_UNSPECIFIED", "MANAGEMENT_AUTOMATIC", "MANAGEMENT_MANUAL"}),
+										Description:  `Whether to automatically manage Service Mesh Possible values: ["MANAGEMENT_UNSPECIFIED", "MANAGEMENT_AUTOMATIC", "MANAGEMENT_MANUAL"]`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -259,6 +400,12 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(specProp)) && (ok || !reflect.DeepEqual(v, specProp)) {
 		obj["spec"] = specProp
 	}
+	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(fleetDefaultMemberConfigProp)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
+	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -383,6 +530,9 @@ func resourceGKEHub2FeatureRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("spec", flattenGKEHub2FeatureSpec(res["spec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Feature: %s", err)
 	}
+	if err := d.Set("fleet_default_member_config", flattenGKEHub2FeatureFleetDefaultMemberConfig(res["fleetDefaultMemberConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Feature: %s", err)
+	}
 	if err := d.Set("state", flattenGKEHub2FeatureState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Feature: %s", err)
 	}
@@ -427,6 +577,12 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("spec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specProp)) {
 		obj["spec"] = specProp
 	}
+	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
+	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -445,6 +601,10 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("spec") {
 		updateMask = append(updateMask, "spec")
+	}
+
+	if d.HasChange("fleet_default_member_config") {
+		updateMask = append(updateMask, "fleetDefaultMemberConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -699,6 +859,178 @@ func flattenGKEHub2FeatureSpecFleetobservabilityLoggingConfigFleetScopeLogsConfi
 	return v
 }
 
+func flattenGKEHub2FeatureFleetDefaultMemberConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mesh"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigMesh(original["mesh"], d, config)
+	transformed["configmanagement"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(original["configmanagement"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigMesh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["management"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigMeshManagement(original["management"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigMeshManagement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["config_sync"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(original["configSync"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_format"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(original["sourceFormat"], d, config)
+	transformed["git"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
+	transformed["oci"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOci(original["oci"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sync_repo"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRepo(original["syncRepo"], d, config)
+	transformed["sync_branch"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncBranch(original["syncBranch"], d, config)
+	transformed["policy_dir"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitPolicyDir(original["policyDir"], d, config)
+	transformed["sync_rev"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRev(original["syncRev"], d, config)
+	transformed["secret_type"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSecretType(original["secretType"], d, config)
+	transformed["https_proxy"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitHttpsProxy(original["httpsProxy"], d, config)
+	transformed["gcp_service_account_email"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitGcpServiceAccountEmail(original["gcpServiceAccountEmail"], d, config)
+	transformed["sync_wait_secs"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncWaitSecs(original["syncWaitSecs"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRepo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncBranch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitPolicyDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRev(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSecretType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitHttpsProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitGcpServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncWaitSecs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOci(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sync_repo"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncRepo(original["syncRepo"], d, config)
+	transformed["policy_dir"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciPolicyDir(original["policyDir"], d, config)
+	transformed["secret_type"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSecretType(original["secretType"], d, config)
+	transformed["gcp_service_account_email"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciGcpServiceAccountEmail(original["gcpServiceAccountEmail"], d, config)
+	transformed["sync_wait_secs"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncWaitSecs(original["syncWaitSecs"], d, config)
+	transformed["version"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(original["version"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncRepo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciPolicyDir(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSecretType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciGcpServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncWaitSecs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGKEHub2FeatureState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -909,6 +1241,289 @@ func expandGKEHub2FeatureSpecFleetobservabilityLoggingConfigFleetScopeLogsConfig
 }
 
 func expandGKEHub2FeatureSpecFleetobservabilityLoggingConfigFleetScopeLogsConfigMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMesh, err := expandGKEHub2FeatureFleetDefaultMemberConfigMesh(original["mesh"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMesh); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mesh"] = transformedMesh
+	}
+
+	transformedConfigmanagement, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(original["configmanagement"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConfigmanagement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["configmanagement"] = transformedConfigmanagement
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigMesh(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedManagement, err := expandGKEHub2FeatureFleetDefaultMemberConfigMeshManagement(original["management"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedManagement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["management"] = transformedManagement
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigMeshManagement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedConfigSync, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(original["config_sync"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConfigSync); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["configSync"] = transformedConfigSync
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceFormat, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(original["source_format"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceFormat); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceFormat"] = transformedSourceFormat
+	}
+
+	transformedGit, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["git"] = transformedGit
+	}
+
+	transformedOci, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOci(original["oci"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOci); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oci"] = transformedOci
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSyncRepo, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRepo(original["sync_repo"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncRepo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncRepo"] = transformedSyncRepo
+	}
+
+	transformedSyncBranch, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncBranch(original["sync_branch"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncBranch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncBranch"] = transformedSyncBranch
+	}
+
+	transformedPolicyDir, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitPolicyDir(original["policy_dir"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicyDir); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policyDir"] = transformedPolicyDir
+	}
+
+	transformedSyncRev, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRev(original["sync_rev"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncRev); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncRev"] = transformedSyncRev
+	}
+
+	transformedSecretType, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSecretType(original["secret_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretType"] = transformedSecretType
+	}
+
+	transformedHttpsProxy, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitHttpsProxy(original["https_proxy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpsProxy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["httpsProxy"] = transformedHttpsProxy
+	}
+
+	transformedGcpServiceAccountEmail, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitGcpServiceAccountEmail(original["gcp_service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcpServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcpServiceAccountEmail"] = transformedGcpServiceAccountEmail
+	}
+
+	transformedSyncWaitSecs, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncWaitSecs(original["sync_wait_secs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncWaitSecs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncWaitSecs"] = transformedSyncWaitSecs
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRepo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncBranch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitPolicyDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncRev(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSecretType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitHttpsProxy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitGcpServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGitSyncWaitSecs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOci(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSyncRepo, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncRepo(original["sync_repo"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncRepo); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncRepo"] = transformedSyncRepo
+	}
+
+	transformedPolicyDir, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciPolicyDir(original["policy_dir"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicyDir); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policyDir"] = transformedPolicyDir
+	}
+
+	transformedSecretType, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSecretType(original["secret_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecretType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secretType"] = transformedSecretType
+	}
+
+	transformedGcpServiceAccountEmail, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciGcpServiceAccountEmail(original["gcp_service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcpServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcpServiceAccountEmail"] = transformedGcpServiceAccountEmail
+	}
+
+	transformedSyncWaitSecs, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncWaitSecs(original["sync_wait_secs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSyncWaitSecs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["syncWaitSecs"] = transformedSyncWaitSecs
+	}
+
+	transformedVersion, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncRepo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciPolicyDir(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSecretType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciGcpServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSyncWaitSecs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
