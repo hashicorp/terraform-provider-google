@@ -116,6 +116,7 @@ type FrameworkProviderConfig struct {
 	IAMWorkforcePoolBasePath         string
 	IapBasePath                      string
 	IdentityPlatformBasePath         string
+	IntegrationConnectorsBasePath    string
 	KMSBasePath                      string
 	LoggingBasePath                  string
 	LookerBasePath                   string
@@ -255,6 +256,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.IAMWorkforcePoolBasePath = data.IAMWorkforcePoolCustomEndpoint.ValueString()
 	p.IapBasePath = data.IapCustomEndpoint.ValueString()
 	p.IdentityPlatformBasePath = data.IdentityPlatformCustomEndpoint.ValueString()
+	p.IntegrationConnectorsBasePath = data.IntegrationConnectorsCustomEndpoint.ValueString()
 	p.KMSBasePath = data.KMSCustomEndpoint.ValueString()
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
 	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
@@ -935,6 +937,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.IdentityPlatformBasePathKey])
 		if customEndpoint != nil {
 			data.IdentityPlatformCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.IntegrationConnectorsCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_INTEGRATION_CONNECTORS_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.IntegrationConnectorsBasePathKey])
+		if customEndpoint != nil {
+			data.IntegrationConnectorsCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.KMSCustomEndpoint.IsNull() {

@@ -416,6 +416,11 @@ var services = mapOf(
         "displayName" to "Identityplatform",
         "path" to "./google/services/identityplatform"
     ),
+    "integrationconnectors" to mapOf(
+        "name" to "integrationconnectors",
+        "displayName" to "Integrationconnectors",
+        "path" to "./google/services/integrationconnectors"
+    ),
     "kms" to mapOf(
         "name" to "kms",
         "displayName" to "Kms",
