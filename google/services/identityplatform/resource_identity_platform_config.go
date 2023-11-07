@@ -125,6 +125,47 @@ func ResourceIdentityPlatformConfig() *schema.Resource {
 					},
 				},
 			},
+			"client": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Options related to how clients making requests on behalf of a project should be configured.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"permissions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configuration related to restricting a user's ability to affect their account.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled_user_deletion": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, end users cannot delete their account on the associated project through any of our API methods`,
+									},
+									"disabled_user_signup": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, end users cannot sign up for a new account on the associated project through any of our API methods`,
+									},
+								},
+							},
+						},
+						"api_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `API key that can be used when making requests for this project.`,
+							Sensitive:   true,
+						},
+						"firebase_subdomain": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Firebase subdomain.`,
+						},
+					},
+				},
+			},
 			"quota": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -450,6 +491,9 @@ func resourceIdentityPlatformConfigRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("sms_region_config", flattenIdentityPlatformConfigSmsRegionConfig(res["smsRegionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("client", flattenIdentityPlatformConfigClient(res["client"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 
 	return nil
 }
@@ -506,6 +550,12 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("sms_region_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, smsRegionConfigProp)) {
 		obj["smsRegionConfig"] = smsRegionConfigProp
 	}
+	clientProp, err := expandIdentityPlatformConfigClient(d.Get("client"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, clientProp)) {
+		obj["client"] = clientProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IdentityPlatformBasePath}}projects/{{project}}/config")
 	if err != nil {
@@ -537,6 +587,10 @@ func resourceIdentityPlatformConfigUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("sms_region_config") {
 		updateMask = append(updateMask, "smsRegionConfig")
+	}
+
+	if d.HasChange("client") {
+		updateMask = append(updateMask, "client")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -938,6 +992,54 @@ func flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnly(v interface{}, d 
 	return []interface{}{transformed}
 }
 func flattenIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigClient(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["permissions"] =
+		flattenIdentityPlatformConfigClientPermissions(original["permissions"], d, config)
+	transformed["api_key"] =
+		flattenIdentityPlatformConfigClientApiKey(original["apiKey"], d, config)
+	transformed["firebase_subdomain"] =
+		flattenIdentityPlatformConfigClientFirebaseSubdomain(original["firebaseSubdomain"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigClientPermissions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["disabled_user_signup"] =
+		flattenIdentityPlatformConfigClientPermissionsDisabledUserSignup(original["disabledUserSignup"], d, config)
+	transformed["disabled_user_deletion"] =
+		flattenIdentityPlatformConfigClientPermissionsDisabledUserDeletion(original["disabledUserDeletion"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIdentityPlatformConfigClientPermissionsDisabledUserSignup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigClientPermissionsDisabledUserDeletion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigClientApiKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIdentityPlatformConfigClientFirebaseSubdomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1409,5 +1511,80 @@ func expandIdentityPlatformConfigSmsRegionConfigAllowlistOnly(v interface{}, d t
 }
 
 func expandIdentityPlatformConfigSmsRegionConfigAllowlistOnlyAllowedRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigClient(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPermissions, err := expandIdentityPlatformConfigClientPermissions(original["permissions"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPermissions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["permissions"] = transformedPermissions
+	}
+
+	transformedApiKey, err := expandIdentityPlatformConfigClientApiKey(original["api_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedApiKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["apiKey"] = transformedApiKey
+	}
+
+	transformedFirebaseSubdomain, err := expandIdentityPlatformConfigClientFirebaseSubdomain(original["firebase_subdomain"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFirebaseSubdomain); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["firebaseSubdomain"] = transformedFirebaseSubdomain
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigClientPermissions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDisabledUserSignup, err := expandIdentityPlatformConfigClientPermissionsDisabledUserSignup(original["disabled_user_signup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisabledUserSignup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disabledUserSignup"] = transformedDisabledUserSignup
+	}
+
+	transformedDisabledUserDeletion, err := expandIdentityPlatformConfigClientPermissionsDisabledUserDeletion(original["disabled_user_deletion"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDisabledUserDeletion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["disabledUserDeletion"] = transformedDisabledUserDeletion
+	}
+
+	return transformed, nil
+}
+
+func expandIdentityPlatformConfigClientPermissionsDisabledUserSignup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigClientPermissionsDisabledUserDeletion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigClientApiKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformConfigClientFirebaseSubdomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
