@@ -98,6 +98,14 @@ var (
 		}
 		return false
 	})
+
+	suppressDiffForPreRegisteredFleet = schema.SchemaDiffSuppressFunc(func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+		if v, _ := d.Get("fleet.0.pre_registered").(bool); v {
+			log.Printf("[DEBUG] fleet suppress pre_registered: %v\n", v)
+			return true
+		}
+		return false
+	})
 )
 
 // This uses the node pool nodeConfig schema but sets
@@ -745,6 +753,7 @@ func ResourceContainerCluster() *schema.Resource {
 						"evaluation_mode": {
 							Type:          schema.TypeString,
 							Optional:      true,
+							Computed:      true,
 							ValidateFunc:  validation.StringInSlice([]string{"DISABLED", "PROJECT_SINGLETON_POLICY_ENFORCE"}, false),
 							Description:   "Mode of operation for Binary Authorization policy evaluation.",
 							ConflictsWith: []string{"binary_authorization.0.enabled"},
@@ -1829,6 +1838,32 @@ func ResourceContainerCluster() *schema.Resource {
 					},
 				},
 			},
+			"fleet": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				MaxItems:         1,
+				Description:      `Fleet configuration of the cluster.`,
+				DiffSuppressFunc: suppressDiffForPreRegisteredFleet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"project": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The Fleet host project of the cluster.`,
+						},
+						"membership": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Full resource name of the registered fleet membership of the cluster.`,
+						},
+						"pre_registered": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the cluster has been registered via the fleet API.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2101,6 +2136,10 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("monitoring_config"); ok {
 		cluster.MonitoringConfig = expandMonitoringConfig(v)
+	}
+
+	if v, ok := d.GetOk("fleet"); ok {
+		cluster.Fleet = expandFleet(v)
 	}
 
 	if err := validateNodePoolAutoConfig(cluster); err != nil {
@@ -2538,6 +2577,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	if err := d.Set("gateway_api_config", flattenGatewayApiConfig(cluster.NetworkConfig.GatewayApiConfig)); err != nil {
+		return err
+	}
+	if err := d.Set("fleet", flattenFleet(cluster.Fleet)); err != nil {
 		return err
 	}
 	if err := d.Set("enable_k8s_beta_apis", flattenEnableK8sBetaApis(cluster.EnableK8sBetaApis)); err != nil {
@@ -3607,6 +3649,30 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("fleet") {
+		// Because GKE uses a non-RESTful update function, when removing the
+		// feature you need to specify a fairly full request body or it fails:
+		// "update": {"desiredFleet": {"project": ""}}
+		req := &container.UpdateClusterRequest{}
+		if v, ok := d.GetOk("fleet"); !ok {
+			req.Update = &container.ClusterUpdate{
+				DesiredFleet: &container.Fleet{
+					Project: "",
+				},
+			}
+		} else {
+			req.Update = &container.ClusterUpdate{
+				DesiredFleet: expandFleet(v),
+			}
+		}
+		updateF := updateFunc(req, "updating GKE cluster fleet config")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+		log.Printf("[INFO] GKE cluster %s fleet config has been updated", d.Id())
+	}
+
 	if d.HasChange("enable_k8s_beta_apis") {
 		log.Print("[INFO] Enable Kubernetes Beta APIs")
 		if v, ok := d.GetOk("enable_k8s_beta_apis"); ok {
@@ -4626,6 +4692,18 @@ func expandGatewayApiConfig(configured interface{}) *container.GatewayAPIConfig 
 	}
 }
 
+func expandFleet(configured interface{}) *container.Fleet {
+	l := configured.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil
+	}
+
+	config := l[0].(map[string]interface{})
+	return &container.Fleet{
+		Project: config["project"].(string),
+	}
+}
+
 func expandEnableK8sBetaApis(configured interface{}, enabledAPIs []string) *container.K8sBetaAPIConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
@@ -5379,6 +5457,19 @@ func flattenGatewayApiConfig(c *container.GatewayAPIConfig) []map[string]interfa
 	return []map[string]interface{}{
 		{
 			"channel": c.Channel,
+		},
+	}
+}
+
+func flattenFleet(c *container.Fleet) []map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"project":        c.Project,
+			"membership":     c.Membership,
+			"pre_registered": c.PreRegistered,
 		},
 	}
 }

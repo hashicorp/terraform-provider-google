@@ -3577,6 +3577,70 @@ func TestAccContainerCluster_withSecurityPostureConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withFleetConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	projectID := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withFleetConfig(clusterName, projectID),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config:      testAccContainerCluster_withFleetConfig(clusterName, "random-project"),
+				ExpectError: regexp.MustCompile(`changing existing fleet host project is not supported`),
+			},
+			{
+				Config: testAccContainerCluster_DisableFleet(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withFleetConfig(name, projectID string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  fleet {
+	project = "%s"
+  }
+
+  deletion_protection = false
+}
+`, name, projectID)
+}
+
+func testAccContainerCluster_DisableFleet(resource_name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+}
+`, resource_name)
+}
+
 func testAccContainerCluster_SetSecurityPostureToStandard(resource_name, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
 resource "google_container_cluster" "with_security_posture_config" {

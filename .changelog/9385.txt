@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `fleet` field to `google_container_cluster` resource
+```
+```release-note:enhancement
+container: marked `binary_authorization.evaluation_mode` field as computed and optional in `google_container_cluster` resource
+```
