@@ -91,6 +91,7 @@ type ProviderModel struct {
 	IAMWorkforcePoolCustomEndpoint         types.String `tfsdk:"iam_workforce_pool_custom_endpoint"`
 	IapCustomEndpoint                      types.String `tfsdk:"iap_custom_endpoint"`
 	IdentityPlatformCustomEndpoint         types.String `tfsdk:"identity_platform_custom_endpoint"`
+	IntegrationConnectorsCustomEndpoint    types.String `tfsdk:"integration_connectors_custom_endpoint"`
 	KMSCustomEndpoint                      types.String `tfsdk:"kms_custom_endpoint"`
 	LoggingCustomEndpoint                  types.String `tfsdk:"logging_custom_endpoint"`
 	LookerCustomEndpoint                   types.String `tfsdk:"looker_custom_endpoint"`

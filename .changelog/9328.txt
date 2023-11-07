@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_integration_connectors_connection`
+
+```
