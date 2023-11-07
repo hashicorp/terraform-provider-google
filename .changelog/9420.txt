@@ -1,0 +1,3 @@
+```release-note:bug
+assuredworkloads: made the `violation_notifications_enabled` field on the `google_assured_workloads_workload` resource default to values returned from the API when unset in a users configuration
+```
