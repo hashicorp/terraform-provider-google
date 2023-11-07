@@ -120,6 +120,57 @@ resource "google_compute_subnetwork" "default" {
   network       = google_compute_network.default.name
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_cluster_custom_domain&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Cluster Custom Domain
+
+
+```hcl
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster-custom-domain"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+
+  private_cluster_config {
+    enable_private_endpoint = true
+  }
+
+  domain_config {
+    domain = "workstations.example.com"
+  }
+
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster-custom-domain"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider = google-beta
+  name          = "workstation-cluster-custom-domain"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+```
 
 ## Argument Reference
 
@@ -165,6 +216,11 @@ The following arguments are supported:
   Configuration for private cluster.
   Structure is [documented below](#nested_private_cluster_config).
 
+* `domain_config` -
+  (Optional)
+  Configuration options for a custom domain.
+  Structure is [documented below](#nested_domain_config).
+
 * `location` -
   (Optional)
   The location where the workstation cluster should reside.
@@ -195,6 +251,12 @@ The following arguments are supported:
   (Optional)
   Additional project IDs that are allowed to attach to the workstation cluster's service attachment.
   By default, the workstation cluster's project and the VPC host project (if different) are allowed.
+
+<a name="nested_domain_config"></a>The `domain_config` block supports:
+
+* `domain` -
+  (Required)
+  Domain used by Workstations for HTTP ingress.
 
 ## Attributes Reference
 
