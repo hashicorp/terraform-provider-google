@@ -903,6 +903,7 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},

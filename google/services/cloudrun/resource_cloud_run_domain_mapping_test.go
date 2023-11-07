@@ -111,3 +111,35 @@ resource "google_cloud_run_domain_mapping" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunDomainMapping_migration(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"namespace":     envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "4.84.0", // a version that doesn't separate user defined labels and system labels
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy: testAccCheckCloudRunDomainMappingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context),
+				ExternalProviders: oldVersion,
+			},
+			{
+				Config:                   testAccCloudRunDomainMapping_cloudRunDomainMappingUpdated2(context),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+			},
+		},
+	})
+}

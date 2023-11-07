@@ -207,6 +207,7 @@ https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-c
 						"terraform_labels": {
 							Type:     schema.TypeMap,
 							Computed: true,
+							ForceNew: true,
 							Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 							Elem: &schema.Schema{Type: schema.TypeString},

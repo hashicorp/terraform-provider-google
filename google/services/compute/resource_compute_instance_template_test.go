@@ -1091,6 +1091,109 @@ func TestAccComputeInstanceTemplate_sourceImageEncryptionKey(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_migration(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplateUpdate compute.InstanceTemplate
+
+	suffix := acctest.RandString(t, 10)
+	oldVersion := map[string]resource.ExternalProvider{
+		"google": {
+			VersionConstraint: "4.84.0", // a version that doesn't separate user defined labels and system labels
+			Source:            "registry.terraform.io/hashicorp/google",
+		},
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy: testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:            testAccComputeInstanceTemplate_basic(suffix),
+				ExternalProviders: oldVersion,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+				),
+			},
+			{
+				Config:                   testAccComputeInstanceTemplate_basic(suffix),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplateUpdate),
+					testAccCheckComputeInstanceTemplateNotRecreated(&instanceTemplate, &instanceTemplateUpdate),
+					testAccCheckComputeInstanceTemplateTag(&instanceTemplateUpdate, "foo"),
+					testAccCheckComputeInstanceTemplateMetadata(&instanceTemplateUpdate, "foo", "bar"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplateUpdate, "my_label", "foobar"),
+					testAccCheckComputeInstanceTemplateLacksShieldedVmConfig(&instanceTemplateUpdate),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceTemplate_withLabels(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	var instanceTemplateUpdate compute.InstanceTemplate
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_withProviderDefaultLabels(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "my_label", "foobar"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "env", "test"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplate, "default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "labels.my_label", "foobar"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "labels.env", "test"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.my_label", "foobar"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.env", "test"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.default_key1", "default_value1"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccComputeInstanceTemplate_moveLabelToProvderDefaultLabels(suffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(
+						t, "google_compute_instance_template.foobar", &instanceTemplateUpdate),
+					testAccCheckComputeInstanceTemplateNotRecreated(&instanceTemplate, &instanceTemplateUpdate),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplateUpdate, "my_label", "foobar"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplateUpdate, "env", "test"),
+					testAccCheckComputeInstanceTemplateContainsLabel(&instanceTemplateUpdate, "default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "labels.my_label", "foobar"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.my_label", "foobar"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.env", "test"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "terraform_labels.default_key1", "default_value1"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1496,8 +1599,118 @@ func testAccCheckComputeInstanceTemplateHasDiskResourcePolicy(instanceTemplate *
 	}
 }
 
+func testAccCheckComputeInstanceTemplateNotRecreated(instanceTemplate *compute.InstanceTemplate, instanceTemplateUpdate *compute.InstanceTemplate) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceTemplate.Id != instanceTemplateUpdate.Id {
+			return fmt.Errorf("The resource has been recreated: expected %d, got %d", instanceTemplate.Id, instanceTemplateUpdate.Id)
+		}
+
+		return nil
+	}
+}
+
 func testAccComputeInstanceTemplate_basic(suffix string) string {
 	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_withProviderDefaultLabels(suffix string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    preemptible       = false
+    automatic_restart = true
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
+	env = "test"
+  }
+}
+`, suffix)
+}
+
+func testAccComputeInstanceTemplate_moveLabelToProvderDefaultLabels(suffix string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+    env = "test"
+  }
+}
+
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
