@@ -76,6 +76,89 @@ data "google_project" "project" {}
 `, context)
 }
 
+func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPscExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_index_endpoint.index_endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "public_endpoint_enabled", "region", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPscExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+
+  private_service_connect_config {
+    enable_private_service_connect = true
+    project_allowlist = [
+        data.google_project.project.number,
+    ]
+  }
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
+func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithFalsePscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIIndexEndpointDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithFalsePscExample(context),
+			},
+		},
+	})
+}
+
+func testAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithFalsePscExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+
+  private_service_connect_config {
+    enable_private_service_connect = false
+  }
+}
+`, context)
+}
+
 func TestAccVertexAIIndexEndpoint_vertexAiIndexEndpointWithPublicEndpointExample(t *testing.T) {
 	t.Parallel()
 

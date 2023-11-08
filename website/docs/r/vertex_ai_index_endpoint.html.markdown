@@ -64,6 +64,33 @@ resource "google_compute_network" "vertex_network" {
 data "google_project" "project" {}
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_index_endpoint_with_psc&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Index Endpoint With Psc
+
+
+```hcl
+resource "google_vertex_ai_index_endpoint" "index_endpoint" {
+  display_name = "sample-endpoint"
+  description  = "A sample vertex endpoint"
+  region       = "us-central1"
+  labels       = {
+    label-one = "value-one"
+  }
+
+  private_service_connect_config {
+    enable_private_service_connect = true
+    project_allowlist = [
+        data.google_project.project.number,
+    ]
+  }
+}
+
+data "google_project" "project" {}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_index_endpoint_with_public_endpoint&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -114,6 +141,11 @@ The following arguments are supported:
   [Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`.
   Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
 
+* `private_service_connect_config` -
+  (Optional)
+  Optional. Configuration for private service connect. `network` and `privateServiceConnectConfig` are mutually exclusive.
+  Structure is [documented below](#nested_private_service_connect_config).
+
 * `public_endpoint_enabled` -
   (Optional)
   If true, the deployed index will be accessible through public endpoint.
@@ -125,6 +157,16 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+
+* `enable_private_service_connect` -
+  (Required)
+  If set to true, the IndexEndpoint is created without private service access.
+
+* `project_allowlist` -
+  (Optional)
+  A list of Projects from which the forwarding rule will target the service attachment.
 
 ## Attributes Reference
 
