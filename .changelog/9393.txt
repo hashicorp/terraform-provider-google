@@ -1,0 +1,3 @@
+```release-note:none
+clouddeploy: promoted fields `postdeploy` and `predeploy` in `serial_pipeline.stages.strategy` to GA for resource `google_clouddeploy_delivery_pipeline`
+```

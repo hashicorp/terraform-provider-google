@@ -269,11 +269,11 @@ The `phase_configs` block supports:
     
 * `postdeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.
+  Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.
     
 * `predeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.
+  Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.
     
 * `profiles` -
   (Optional)
@@ -383,11 +383,11 @@ The `canary_deployment` block supports:
     
 * `postdeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the postdeploy job of the last phase. If this is not configured, postdeploy job will not be present.
+  Optional. Configuration for the postdeploy job of the last phase. If this is not configured, postdeploy job will not be present.
     
 * `predeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the predeploy job of the first phase. If this is not configured, predeploy job will not be present.
+  Optional. Configuration for the predeploy job of the first phase. If this is not configured, predeploy job will not be present.
     
 * `verify` -
   (Optional)
@@ -485,11 +485,11 @@ The `standard` block supports:
     
 * `postdeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the postdeploy job. If this is not configured, postdeploy job will not be present.
+  Optional. Configuration for the postdeploy job. If this is not configured, postdeploy job will not be present.
     
 * `predeploy` -
   (Optional)
-  (Beta only) Optional. Configuration for the predeploy job. If this is not configured, predeploy job will not be present.
+  Optional. Configuration for the predeploy job. If this is not configured, predeploy job will not be present.
     
 * `verify` -
   (Optional)
