@@ -50,62 +50,8 @@ resource "google_workflows_workflow" "example" {
   labels = {
     env = "test"
   }
-  source_contents = <<-EOF
-  # This is a sample workflow. You can replace it with your source code.
-  #
-  # This workflow does the following:
-  # - reads current time and date information from an external API and stores
-  #   the response in currentTime variable
-  # - retrieves a list of Wikipedia articles related to the day of the week
-  #   from currentTime
-  # - returns the list of articles as an output of the workflow
-  #
-  # Note: In Terraform you need to escape the $$ or it will cause errors.
-
-  - getCurrentTime:
-      call: http.get
-      args:
-          url: https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam
-      result: currentTime
-  - readWikipedia:
-      call: http.get
-      args:
-          url: https://en.wikipedia.org/w/api.php
-          query:
-              action: opensearch
-              search: $${currentTime.body.dayOfWeek}
-      result: wikiResult
-  - returnOutput:
-      return: $${wikiResult.body[1]}
-EOF
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workflow_beta&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Workflow Beta
-
-
-```hcl
-resource "google_service_account" "test_account" {
-  provider     = google-beta
-  account_id   = "my-account"
-  display_name = "Test Service Account"
-}
-
-resource "google_workflows_workflow" "example_beta" {
-  provider      = google-beta
-  name          = "workflow_beta"
-  region        = "us-central1"
-  description   = "Magic"
-  service_account = google_service_account.test_account.id
-  labels = {
-    env = "test"
-  }
   user_env_vars = {
-    foo = "BAR"
+    url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
@@ -122,7 +68,7 @@ resource "google_workflows_workflow" "example_beta" {
   - getCurrentTime:
       call: http.get
       args:
-          url: https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam
+          url: $${sys.get_env("url")}
       result: currentTime
   - readWikipedia:
       call: http.get
@@ -182,7 +128,7 @@ The following arguments are supported:
   Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}
 
 * `user_env_vars` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 40KiB. Keys cannot be empty strings and cannot start with “GOOGLE” or “WORKFLOWS".
 
 * `region` -

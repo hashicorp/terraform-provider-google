@@ -64,6 +64,9 @@ resource "google_workflows_workflow" "example" {
   labels = {
     env = "test"
   }
+  user_env_vars = {
+    url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
+  }
   source_contents = <<-EOF
   # This is a sample workflow. You can replace it with your source code.
   #
@@ -79,7 +82,7 @@ resource "google_workflows_workflow" "example" {
   - getCurrentTime:
       call: http.get
       args:
-          url: https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam
+          url: $${sys.get_env("url")}
       result: currentTime
   - readWikipedia:
       call: http.get
