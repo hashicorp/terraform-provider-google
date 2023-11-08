@@ -49,7 +49,7 @@ func TestAccSpannerInstance_noNodeCountSpecified(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccSpannerInstance_noNodeCountSpecified(idName),
-				ExpectError: regexp.MustCompile("one of `num_nodes,processing_units` must be specified"),
+				ExpectError: regexp.MustCompile(".*one of `autoscaling_config,num_nodes,processing_units`\nmust be specified.*"),
 			},
 		},
 	})
@@ -144,6 +144,67 @@ func TestAccSpannerInstance_virtualUpdate(t *testing.T) {
 	})
 }
 
+func TestAccSpannerInstance_basicWithAutoscalingUsingProcessingUnitConfig(t *testing.T) {
+	t.Parallel()
+
+	displayName := fmt.Sprintf("spanner-test-%s-dname", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_basicWithAutoscalerConfigUsingProcessingUnitsAsConfigs(displayName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:      "google_spanner_instance.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccSpannerInstance_basicWithAutoscalingUsingProcessingUnitConfigUpdate(t *testing.T) {
+	t.Parallel()
+
+	displayName := fmt.Sprintf("spanner-test-%s-dname", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_basicWithAutoscalerConfigUsingProcessingUnitsAsConfigsUpdate(displayName, 1000, 2000, 65, 95),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccSpannerInstance_basicWithAutoscalerConfigUsingProcessingUnitsAsConfigsUpdate(displayName, 2000, 3000, 75, 90),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_spanner_instance.basic", "state"),
+				),
+			},
+			{
+				ResourceName:            "google_spanner_instance.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func testAccSpannerInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_spanner_instance" "basic" {
@@ -204,4 +265,44 @@ resource "google_spanner_instance" "basic" {
   force_destroy    = "%s"
 }
 `, name, name, virtual)
+}
+
+func testAccSpannerInstance_basicWithAutoscalerConfigUsingProcessingUnitsAsConfigs(name string) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units            = 2000
+      min_processing_units            = 1000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 65
+      storage_utilization_percent           = 95
+    }
+  }
+}
+`, name, name)
+}
+
+func testAccSpannerInstance_basicWithAutoscalerConfigUsingProcessingUnitsAsConfigsUpdate(name string, minProcessingUnits, maxProcessingUnits, cupUtilizationPercent, storageUtilizationPercent int) string {
+	return fmt.Sprintf(`
+resource "google_spanner_instance" "basic" {
+  name         = "%s"
+  config       = "regional-us-central1"
+  display_name = "%s"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units            = %v
+      min_processing_units            = %v
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = %v
+      storage_utilization_percent           = %v
+    }
+  }
+}
+`, name, name, maxProcessingUnits, minProcessingUnits, cupUtilizationPercent, storageUtilizationPercent)
 }
