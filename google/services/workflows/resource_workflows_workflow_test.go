@@ -41,6 +41,9 @@ resource "google_workflows_workflow" "example" {
   name          = "%s"
   region        = "us-central1"
   description   = "Magic"
+  user_env_vars = {
+    url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
+  }
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
@@ -55,7 +58,7 @@ resource "google_workflows_workflow" "example" {
   - getCurrentTime:
       call: http.get
       args:
-          url: https://us-central1-workflowsample.cloudfunctions.net/datetime
+          url: $${sys.get_env("url")}
       result: CurrentDateTime
   - readWikipedia:
       call: http.get
@@ -78,6 +81,9 @@ resource "google_workflows_workflow" "example" {
   name          = "%s"
   region        = "us-central1"
   description   = "Magic"
+  user_env_vars = {
+    url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
+  }
   source_contents = <<-EOF
   # This is a sample workflow, feel free to replace it with your source code
   #
@@ -92,7 +98,7 @@ resource "google_workflows_workflow" "example" {
   - getCurrentTime:
       call: http.get
       args:
-          url: https://us-central1-workflowsample.cloudfunctions.net/datetime
+          url: $${sys.get_env("url")}
       result: CurrentDateTime
   - readWikipedia:
       call: http.get

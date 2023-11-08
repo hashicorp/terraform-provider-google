@@ -1,0 +1,3 @@
+```release-note: new-resource
+workflows: promoted `user_env_vars` to GA on resource `google_workflows_workflow`
+```
