@@ -296,10 +296,52 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployme
 				Elem:        &schema.Schema{Type: schema.TypeInt},
 			},
 
+			"postdeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the postdeploy job of the last phase. If this is not configured, postdeploy job will not be present.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploySchema(),
+			},
+
+			"predeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the predeploy job of the first phase. If this is not configured, predeploy job will not be present.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploySchema(),
+			},
+
 			"verify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether to run verify tests after each percentage deployment.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -333,6 +375,22 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDe
 				Description: "Required. The ID to assign to the `Rollout` phase. This value must consist of lower-case letters, numbers, and hyphens, start with a letter and end with a letter or a number, and have a max length of 63 characters. In other words, it must match the following regex: `^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$`.",
 			},
 
+			"postdeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the postdeploy job of this phase. If this is not configured, postdeploy job will not be present for this phase.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploySchema(),
+			},
+
+			"predeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the predeploy job of this phase. If this is not configured, predeploy job will not be present for this phase.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploySchema(),
+			},
+
 			"profiles": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -344,6 +402,32 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDe
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether to run verify tests after the deployment.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -462,10 +546,52 @@ func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryRuntimeConfigK
 func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"postdeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the postdeploy job. If this is not configured, postdeploy job will not be present.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploySchema(),
+			},
+
+			"predeploy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Configuration for the predeploy job. If this is not configured, predeploy job will not be present.",
+				MaxItems:    1,
+				Elem:        ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploySchema(),
+			},
+
 			"verify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether to verify a deployment.",
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the postdeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+}
+
+func ClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"actions": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. A sequence of skaffold custom actions to invoke during execution of the predeploy job.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -1032,6 +1158,8 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDe
 	obj := objArr[0].(map[string]interface{})
 	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeployment{
 		Percentages: tpgdclresource.ExpandIntegerArray(obj["percentages"]),
+		Postdeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj["postdeploy"]),
+		Predeploy:   expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj["predeploy"]),
 		Verify:      dcl.Bool(obj["verify"].(bool)),
 	}
 }
@@ -1042,7 +1170,61 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryD
 	}
 	transformed := map[string]interface{}{
 		"percentages": obj.Percentages,
+		"postdeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj.Postdeploy),
+		"predeploy":   flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj.Predeploy),
 		"verify":      obj.Verify,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPostdeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCanaryDeploymentPredeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
 	}
 
 	return []interface{}{transformed}
@@ -1102,6 +1284,8 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCa
 	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigs{
 		Percentage: dcl.Int64(int64(obj["percentage"].(int))),
 		PhaseId:    dcl.String(obj["phase_id"].(string)),
+		Postdeploy: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj["postdeploy"]),
+		Predeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj["predeploy"]),
 		Profiles:   tpgdclresource.ExpandStringArray(obj["profiles"]),
 		Verify:     dcl.Bool(obj["verify"].(bool)),
 	}
@@ -1128,11 +1312,65 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomC
 	transformed := map[string]interface{}{
 		"percentage": obj.Percentage,
 		"phase_id":   obj.PhaseId,
+		"postdeploy": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj.Postdeploy),
+		"predeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj.Predeploy),
 		"profiles":   obj.Profiles,
 		"verify":     obj.Verify,
 	}
 
 	return transformed
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPostdeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyCanaryCustomCanaryDeploymentPhaseConfigsPredeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
+	}
+
+	return []interface{}{transformed}
 
 }
 
@@ -1290,7 +1528,9 @@ func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(o int
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandard{
-		Verify: dcl.Bool(obj["verify"].(bool)),
+		Postdeploy: expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj["postdeploy"]),
+		Predeploy:  expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj["predeploy"]),
+		Verify:     dcl.Bool(obj["verify"].(bool)),
 	}
 }
 
@@ -1299,7 +1539,61 @@ func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandard(obj 
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"verify": obj.Verify,
+		"postdeploy": flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj.Postdeploy),
+		"predeploy":  flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj.Predeploy),
+		"verify":     obj.Verify,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPostdeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(o interface{}) *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy {
+	if o == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return clouddeploy.EmptyDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy{
+		Actions: tpgdclresource.ExpandStringArray(obj["actions"]),
+	}
+}
+
+func flattenClouddeployDeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy(obj *clouddeploy.DeliveryPipelineSerialPipelineStagesStrategyStandardPredeploy) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"actions": obj.Actions,
 	}
 
 	return []interface{}{transformed}
