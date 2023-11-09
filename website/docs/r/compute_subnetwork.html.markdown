@@ -339,6 +339,10 @@ The following arguments are supported:
   cannot enable direct path.
   Possible values are: `EXTERNAL`, `INTERNAL`.
 
+* `external_ipv6_prefix` -
+  (Optional)
+  The range of external IPv6 addresses that are owned by this subnetwork.
+
 * `allow_subnet_cidr_routes_overlap` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Typically packets destined to IPs within the subnetwork range that do not match
@@ -422,9 +426,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `internal_ipv6_prefix` -
   The internal IPv6 address range that is assigned to this subnetwork.
-
-* `external_ipv6_prefix` -
-  The range of external IPv6 addresses that are owned by this subnetwork.
 * `self_link` - The URI of the created resource.
 
 
