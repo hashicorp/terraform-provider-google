@@ -1,0 +1,3 @@
+```release-note:bug
+Do not store the ssl_mode field locally if it has never been used.
+```

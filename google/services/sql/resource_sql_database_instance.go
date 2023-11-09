@@ -437,7 +437,7 @@ is set to true. Defaults to ZONAL.`,
 										Type:         schema.TypeBool,
 										Optional:     true,
 										AtLeastOneOf: ipConfigurationKeys,
-										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode.`,
+										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode if it has been set too.`,
 									},
 									"private_network": {
 										Type:             schema.TypeString,
@@ -1616,7 +1616,7 @@ func resourceSqlDatabaseInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("instance_type", instance.InstanceType); err != nil {
 		return fmt.Errorf("Error setting instance_type: %s", err)
 	}
-	if err := d.Set("settings", flattenSettings(instance.Settings)); err != nil {
+	if err := d.Set("settings", flattenSettings(instance.Settings, d)); err != nil {
 		log.Printf("[WARN] Failed to set SQL Database Instance Settings")
 	}
 
@@ -2012,7 +2012,7 @@ func resourceSqlDatabaseInstanceImport(d *schema.ResourceData, meta interface{})
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
+func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[string]interface{} {
 	data := map[string]interface{}{
 		"version":                     settings.SettingsVersion,
 		"tier":                        settings.Tier,
@@ -2051,7 +2051,7 @@ func flattenSettings(settings *sqladmin.Settings) []map[string]interface{} {
 	}
 
 	if settings.IpConfiguration != nil {
-		data["ip_configuration"] = flattenIpConfiguration(settings.IpConfiguration)
+		data["ip_configuration"] = flattenIpConfiguration(settings.IpConfiguration, d)
 	}
 
 	if settings.LocationPreference != nil {
@@ -2191,14 +2191,13 @@ func flattenDatabaseFlags(databaseFlags []*sqladmin.DatabaseFlags) []map[string]
 	return flags
 }
 
-func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface{} {
+func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema.ResourceData) interface{} {
 	data := map[string]interface{}{
 		"ipv4_enabled":       ipConfiguration.Ipv4Enabled,
 		"private_network":    ipConfiguration.PrivateNetwork,
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
 		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
-		"ssl_mode": ipConfiguration.SslMode,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
@@ -2207,6 +2206,11 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration) interface
 
 	if ipConfiguration.PscConfig != nil {
 		data["psc_config"] = flattenPscConfigs(ipConfiguration.PscConfig)
+	}
+
+	// We store the ssl_mode value only if the customer already uses `ssl_mode`.
+	if _, ok := d.GetOk("settings.0.ip_configuration.0.ssl_mode"); ok {
+		data["ssl_mode"] = ipConfiguration.SslMode
 	}
 
 	return []map[string]interface{}{data}
