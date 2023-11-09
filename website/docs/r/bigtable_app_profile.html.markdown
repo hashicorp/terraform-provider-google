@@ -54,7 +54,7 @@ resource "google_bigtable_instance" "instance" {
     zone         = "us-central1-c"
     num_nodes    = 3
     storage_type = "HDD"
-  }  
+  }
 
   deletion_protection  = "true"
 }
@@ -147,6 +147,44 @@ resource "google_bigtable_app_profile" "ap" {
   ignore_warnings               = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigtable_app_profile_priority&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigtable App Profile Priority
+
+
+```hcl
+resource "google_bigtable_instance" "instance" {
+  name = "bt-instance"
+  cluster {
+    cluster_id   = "cluster-1"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+
+  deletion_protection  = "true"
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "bt-profile"
+
+  // Requests will be routed to the following cluster.
+  single_cluster_routing {
+    cluster_id                 = "cluster-1"
+    allow_transactional_writes = true
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_LOW"
+  }
+
+  ignore_warnings = true
+}
+```
 
 ## Argument Reference
 
@@ -176,6 +214,11 @@ The following arguments are supported:
   Use a single-cluster routing policy.
   Structure is [documented below](#nested_single_cluster_routing).
 
+* `standard_isolation` -
+  (Optional)
+  The standard options used for isolating this app profile's traffic from other use cases.
+  Structure is [documented below](#nested_standard_isolation).
+
 * `instance` -
   (Optional)
   The name of the instance to create the app profile within.
@@ -198,6 +241,13 @@ The following arguments are supported:
   (Optional)
   If true, CheckAndMutateRow and ReadModifyWriteRow requests are allowed by this app profile.
   It is unsafe to send these requests to the same table/row/column in multiple clusters.
+
+<a name="nested_standard_isolation"></a>The `standard_isolation` block supports:
+
+* `priority` -
+  (Required)
+  The priority of requests sent using this app profile.
+  Possible values are: `PRIORITY_LOW`, `PRIORITY_MEDIUM`, `PRIORITY_HIGH`.
 
 ## Attributes Reference
 

@@ -40,6 +40,15 @@ func TestAccBigtableAppProfile_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"ignore_warnings"},
 			},
+			{
+				Config: testAccBigtableAppProfile_updatePriority(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
 		},
 	})
 }
@@ -224,6 +233,53 @@ resource "google_bigtable_app_profile" "ap" {
   single_cluster_routing {
     cluster_id                 = %q
     allow_transactional_writes = false
+  }
+
+  ignore_warnings               = true
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func testAccBigtableAppProfile_updatePriority(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+
+  cluster {
+    cluster_id   = "%s2"
+    zone         = "us-central1-a"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+
+  cluster {
+    cluster_id   = "%s3"
+    zone         = "us-central1-c"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.id
+  app_profile_id = "test"
+  description    = "add a description"
+
+  single_cluster_routing {
+    cluster_id                 = %q
+    allow_transactional_writes = false
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_MEDIUM"
   }
 
   ignore_warnings               = true
