@@ -1794,7 +1794,6 @@ func ResourceContainerCluster() *schema.Resource {
 				Type:             schema.TypeList,
 				Optional:         true,
 				MaxItems:         1,
-				ForceNew:         true,
 				DiffSuppressFunc: suppressDiffForAutopilot,
 				Description:      `Configuration for Cloud DNS for Kubernetes Engine.`,
 				Elem: &schema.Resource{
@@ -1808,7 +1807,6 @@ func ResourceContainerCluster() *schema.Resource {
 						},
 						"cluster_dns_scope": {
 							Type:         schema.TypeString,
-							Default:      "DNS_SCOPE_UNSPECIFIED",
 							ValidateFunc: validation.StringInSlice([]string{"DNS_SCOPE_UNSPECIFIED", "CLUSTER_SCOPE", "VPC_SCOPE"}, false),
 							Description:  `The scope of access to cluster DNS records.`,
 							Optional:     true,
@@ -2700,6 +2698,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's cluster-wide autoscaling has been updated", d.Id())
+	}
+
+	if d.HasChange("dns_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredDnsConfig: expandDnsConfig(d.Get("dns_config")),
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster DNSConfig")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's DNSConfig has been updated", d.Id())
 	}
 
 	if d.HasChange("allow_net_admin") {
@@ -4669,7 +4683,7 @@ func expandResourceUsageExportConfig(configured interface{}) *container.Resource
 func expandDnsConfig(configured interface{}) *container.DNSConfig {
 	l := configured.([]interface{})
 	if len(l) == 0 || l[0] == nil {
-		return nil
+		return &container.DNSConfig{}
 	}
 
 	config := l[0].(map[string]interface{})
