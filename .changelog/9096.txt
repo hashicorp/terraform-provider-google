@@ -1,0 +1,3 @@
+```release-note:bug
+compute: changed `external_ipv6_prefix` field on `google_compute_subnetwork` resource to not be output only
+```
