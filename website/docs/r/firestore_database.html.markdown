@@ -70,37 +70,14 @@ resource "google_firestore_database" "database" {
 
 
 ```hcl
-resource "google_project" "project" {
-  project_id      = "my-project"
-  name            = "my-project"
-  org_id          = "123456789"
-  billing_account = "000000-0000000-0000000-000000"
-}
-
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [google_project.project]
-
-  create_duration = "60s"
-}
-
-resource "google_project_service" "firestore" {
-  project = google_project.project.project_id
-  service = "firestore.googleapis.com"
-
-  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
-  depends_on = [time_sleep.wait_60_seconds]
-}
-
 resource "google_firestore_database" "database" {
-  project                           = google_project.project.project_id
-  name                              = "my-database"
+  project                           = "my-project-name"
+  name                              = "example-database-id"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
   concurrency_mode                  = "OPTIMISTIC"
   app_engine_integration_mode       = "DISABLED"
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
-
-  depends_on = [google_project_service.firestore]
 }
 ```
 ## Example Usage - Firestore Default Database In Datastore Mode
@@ -140,36 +117,14 @@ resource "google_firestore_database" "datastore_mode_database" {
 
 
 ```hcl
-resource "google_project" "project" {
-  project_id      = "my-project"
-  name            = "my-project"
-  org_id          = "123456789"
-  billing_account = "000000-0000000-0000000-000000"
-}
-
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [google_project.project]
-  create_duration = "60s"
-}
-
-resource "google_project_service" "firestore" {
-  project = google_project.project.project_id
-  service = "firestore.googleapis.com"
-
-  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
-  depends_on = [time_sleep.wait_60_seconds]
-}
-
-resource "google_firestore_database" "database" {
-  project                           = google_project.project.project_id
-  name                              = "datastore-mode-database"
+resource "google_firestore_database" "datastore_mode_database" {
+  project                           = "my-project-name"
+  name                              = "example-database-id"
   location_id                       = "nam5"
   type                              = "DATASTORE_MODE"
   concurrency_mode                  = "OPTIMISTIC"
   app_engine_integration_mode       = "DISABLED"
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
-
-  depends_on = [google_project_service.firestore]
 }
 ```
 ## Example Usage - Firestore Database With Delete Protection
@@ -177,8 +132,8 @@ resource "google_firestore_database" "database" {
 
 ```hcl
 resource "google_firestore_database" "database" {
-  project                           = google_project.project.project_id
-  name                              = "my-database"
+  project                           = "my-project-name"
+  name                              = "example-database-id"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
 
@@ -186,8 +141,6 @@ resource "google_firestore_database" "database" {
   # To delete the database, first set this field to `DELETE_PROTECTION_DISABLED`, apply the changes.
   # Then delete the database resource and apply the changes again.
   delete_protection_state           = "DELETE_PROTECTION_ENABLED"
-
-  depends_on = [google_project_service.firestore]
 }
 ```
 
