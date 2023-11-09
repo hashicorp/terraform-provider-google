@@ -3,6 +3,7 @@
 package compute
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -35,7 +37,7 @@ func ResourceComputeAttachedDisk() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
-			tpgresource.DefaultProviderZone,
+			computeAttachedDiskDefaultProviderZone,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -259,6 +261,22 @@ func FindDiskByName(disks []*compute.AttachedDisk, id string) *compute.AttachedD
 		if tpgresource.CompareSelfLinkOrResourceName("", disk.Source, id, nil) {
 			return disk
 		}
+	}
+
+	return nil
+}
+
+func computeAttachedDiskDefaultProviderZone(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	if diff.GetRawConfig().GetAttr("instance") == cty.UnknownVal(cty.String) {
+		return nil
+	}
+	config := meta.(*transport_tpg.Config)
+	zv, err := tpgresource.ParseZonalFieldValueDiff("instances", diff.Get("instance").(string), "project", "zone", diff, config, false)
+	if err != nil {
+		return err
+	}
+	if err := diff.SetNew("zone", zv.Zone); err != nil {
+		return fmt.Errorf("Failed to retrieve zone: %s", err)
 	}
 
 	return nil

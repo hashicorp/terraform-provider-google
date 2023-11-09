@@ -122,6 +122,37 @@ func TestAccComputeAttachedDisk_count(t *testing.T) {
 
 }
 
+func TestAccComputeAttachedDisk_zoneless(t *testing.T) {
+	t.Setenv("GOOGLE_ZONE", "")
+
+	diskName := fmt.Sprintf("tf-test-disk-%d", acctest.RandInt(t))
+	instanceName := fmt.Sprintf("tf-test-inst-%d", acctest.RandInt(t))
+	importID := fmt.Sprintf("%s/us-central1-a/%s/%s", envvar.GetTestProjectFromEnv(), instanceName, diskName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		// Check destroy isn't a good test here, see comment on testCheckAttachedDiskIsNowDetached
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAttachedDiskResource(diskName, instanceName) + testAttachedDiskResourceAttachment(),
+			},
+			{
+				ResourceName:      "google_compute_attached_disk.test",
+				ImportStateId:     importID,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAttachedDiskResource(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckAttachedDiskIsNowDetached(t, instanceName, diskName),
+				),
+			},
+		},
+	})
+}
+
 // testCheckAttachedDiskIsNowDetached queries a compute instance and iterates through the attached
 // disks to confirm that a specific disk is no longer attached to the instance
 //

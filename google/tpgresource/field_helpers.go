@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -202,6 +203,61 @@ func ParseZonalFieldValue(resourceType, fieldValue, projectSchemaField, zoneSche
 	}
 
 	project, err := GetProjectFromSchema(projectSchemaField, d, config)
+	if err != nil {
+		return nil, err
+	}
+
+	r = regexp.MustCompile(fmt.Sprintf(ZonalPartialLinkBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &ZonalFieldValue{
+			Project:      project,
+			Zone:         parts[1],
+			Name:         parts[2],
+			ResourceType: resourceType,
+		}, nil
+	}
+
+	if len(zoneSchemaField) == 0 {
+		return nil, fmt.Errorf("Invalid field format. Got '%s', expected format '%s'", fieldValue, fmt.Sprintf(GlobalLinkTemplate, "{project}", resourceType, "{name}"))
+	}
+
+	zone, ok := d.GetOk(zoneSchemaField)
+	if !ok {
+		zone = config.Zone
+		if zone == "" {
+			return nil, fmt.Errorf("A zone must be specified")
+		}
+	}
+
+	return &ZonalFieldValue{
+		Project:      project,
+		Zone:         zone.(string),
+		Name:         GetResourceNameFromSelfLink(fieldValue),
+		ResourceType: resourceType,
+	}, nil
+}
+
+// Parses a zonal field supporting 5 different formats:
+// - https://www.googleapis.com/compute/ANY_VERSION/projects/{my_project}/zones/{zone}/{resource_type}/{resource_name}
+// - projects/{my_project}/zones/{zone}/{resource_type}/{resource_name}
+// - zones/{zone}/{resource_type}/{resource_name}
+// - resource_name
+// - "" (empty string). RelativeLink() returns empty if isEmptyValid is true.
+//
+// If the project is not specified, it first tries to get the project from the `projectSchemaField` and then fallback on the default project.
+// If the zone is not specified, it takes the value of `zoneSchemaField`.
+func ParseZonalFieldValueDiff(resourceType, fieldValue, projectSchemaField, zoneSchemaField string, d *schema.ResourceDiff, config *transport_tpg.Config, isEmptyValid bool) (*ZonalFieldValue, error) {
+	r := regexp.MustCompile(fmt.Sprintf(ZonalLinkBasePattern, resourceType))
+	if parts := r.FindStringSubmatch(fieldValue); parts != nil {
+		return &ZonalFieldValue{
+			Project:      parts[1],
+			Zone:         parts[2],
+			Name:         parts[3],
+			ResourceType: resourceType,
+		}, nil
+	}
+
+	project, err := GetProjectFromDiff(d, config)
 	if err != nil {
 		return nil, err
 	}
