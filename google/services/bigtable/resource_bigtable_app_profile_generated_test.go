@@ -78,7 +78,7 @@ resource "google_bigtable_instance" "instance" {
     zone         = "us-central1-c"
     num_nodes    = 3
     storage_type = "HDD"
-  }  
+  }
 
   deletion_protection  = "%{deletion_protection}"
 }
@@ -213,6 +213,66 @@ resource "google_bigtable_app_profile" "ap" {
   multi_cluster_routing_cluster_ids = ["cluster-1", "cluster-2"]
 
   ignore_warnings               = true
+}
+`, context)
+}
+
+func TestAccBigtableAppProfile_bigtableAppProfilePriorityExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableAppProfile_bigtableAppProfilePriorityExample(context),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
+			},
+		},
+	})
+}
+
+func testAccBigtableAppProfile_bigtableAppProfilePriorityExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "tf-test-bt-instance%{random_suffix}"
+  cluster {
+    cluster_id   = "cluster-1"
+    zone         = "us-central1-b"
+    num_nodes    = 3
+    storage_type = "HDD"
+  }
+
+  deletion_protection  = "%{deletion_protection}"
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.name
+  app_profile_id = "tf-test-bt-profile%{random_suffix}"
+
+  // Requests will be routed to the following cluster.
+  single_cluster_routing {
+    cluster_id                 = "cluster-1"
+    allow_transactional_writes = true
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_LOW"
+  }
+
+  ignore_warnings = true
 }
 `, context)
 }
