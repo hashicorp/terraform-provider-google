@@ -34,10 +34,6 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/identity-platform/docs)
 
-~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `client.api_key`.
-[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
-
 ## Example Usage - Identity Platform Config Basic
 
 
@@ -147,11 +143,6 @@ The following arguments are supported:
   (Optional)
   Configures the regions where users are allowed to send verification SMS for the project or tenant. This is based on the calling code of the destination phone number.
   Structure is [documented below](#nested_sms_region_config).
-
-* `client` -
-  (Optional)
-  Options related to how clients making requests on behalf of a project should be configured.
-  Structure is [documented below](#nested_client).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -319,33 +310,6 @@ The following arguments are supported:
 * `allowed_regions` -
   (Optional)
   Two letter unicode region codes to allow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
-
-<a name="nested_client"></a>The `client` block supports:
-
-* `permissions` -
-  (Optional)
-  Configuration related to restricting a user's ability to affect their account.
-  Structure is [documented below](#nested_permissions).
-
-* `api_key` -
-  (Output)
-  API key that can be used when making requests for this project.
-  **Note**: This property is sensitive and will not be displayed in the plan.
-
-* `firebase_subdomain` -
-  (Output)
-  Firebase subdomain.
-
-
-<a name="nested_permissions"></a>The `permissions` block supports:
-
-* `disabled_user_signup` -
-  (Optional)
-  When true, end users cannot sign up for a new account on the associated project through any of our API methods
-
-* `disabled_user_deletion` -
-  (Optional)
-  When true, end users cannot delete their account on the associated project through any of our API methods
 
 ## Attributes Reference
 
