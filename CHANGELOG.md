@@ -1,15 +1,8 @@
 ## 5.6.0 (Unreleased)
-UNKNOWN CHANGELOG TYPE:
-* Add connection resource of Integration Connectors. ([#16468](https://github.com/hashicorp/terraform-provider-google/pull/16468))
-* Update 5.5.0 CHANGELOG.md in main branch ([#16453](https://github.com/hashicorp/terraform-provider-google/pull/16453))
-* Update CHANGELOG.md ([#16405](https://github.com/hashicorp/terraform-provider-google/pull/16405))
-
 FEATURES:
-* **New Data Source:** `google_backup_dr_management_server` (beta) ([#16423](https://github.com/hashicorp/terraform-provider-google/pull/16423))
-* **New Resource:** `google_compute_instance_settings` ([#16472](https://github.com/hashicorp/terraform-provider-google/pull/16472))
+* **New Resource:** ``google_integration_connectors_connection` ([#16468](https://github.com/hashicorp/terraform-provider-google/pull/16468))
 
 IMPROVEMENTS:
-* `google_identity_platform_config`: Add Client config and Permissions ([#16467](https://github.com/hashicorp/terraform-provider-google/pull/16467))
 * assuredworkloads: added `enable_sovereign_controls`, `partner`, `partner_permissions`, `violation_notifications_enabled`, and several other output-only fields to `google_assured_workloads_workloads` ([#16433](https://github.com/hashicorp/terraform-provider-google/pull/16433))
 * composer: added `storage_config` to `google_composer_environment` ([#16455](https://github.com/hashicorp/terraform-provider-google/pull/16455))
 * container: added `fleet` field to `google_container_cluster` resource ([#16466](https://github.com/hashicorp/terraform-provider-google/pull/16466))
@@ -31,10 +24,8 @@ IMPROVEMENTS:
 * workstations: add `domain_config` field to resource `google_workstations_workstation_cluster` (beta) ([#16464](https://github.com/hashicorp/terraform-provider-google/pull/16464))
 
 BUG FIXES:
-* Deleted a broken test. ([#16444](https://github.com/hashicorp/terraform-provider-google/pull/16444))
 * assuredworkloads: made the `violation_notifications_enabled` field on the `google_assured_workloads_workload` resource default to values returned from the API when unset in a users configuration ([#16465](https://github.com/hashicorp/terraform-provider-google/pull/16465))
 * provider: made `terraform_labels` immutable in immutable resources to not block the upgrade. This will create a Terraform plan that recreates the resource on `4.X` -> `5.6.0` upgrade for affected resources. A mitigation to backfill the values during the upgrade is planned, and will release resource-by-resource. ([#16469](https://github.com/hashicorp/terraform-provider-google/pull/16469))
-* pubsub: clarified the expected format for the `message_retention_duration` ([#16440](https://github.com/hashicorp/terraform-provider-google/pull/16440))
 
 ## 5.5.0 (Nov 06, 2023)
 
