@@ -1,0 +1,3 @@
+```release-note:none
+Improve documentation for `google_monitoring_uptime_check_config`
+```
