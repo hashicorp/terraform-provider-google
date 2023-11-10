@@ -83,7 +83,6 @@ resource "google_edgecontainer_cluster" "cluster" {
     local {
       node_location = "us-central1-edge-den25349"
       node_count = 1
-      machine_filter = "den25349-01"
       shared_deployment_policy = "ALLOWED"
     }
   }
@@ -94,7 +93,6 @@ resource "google_edgecontainer_node_pool" "default" {
   cluster = google_edgecontainer_cluster.cluster.name
   location = "us-central1"
   node_location = "us-central1-edge-den25349"
-  machine_filter = "den25349-02"
   node_count = 1
 }
 
