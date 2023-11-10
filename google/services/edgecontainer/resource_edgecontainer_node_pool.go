@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -376,12 +377,6 @@ func resourceEdgecontainerNodePoolUpdate(d *schema.ResourceData, meta interface{
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	nodeLocationProp, err := expandEdgecontainerNodePoolNodeLocation(d.Get("node_location"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("node_location"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeLocationProp)) {
-		obj["nodeLocation"] = nodeLocationProp
-	}
 	nodeCountProp, err := expandEdgecontainerNodePoolNodeCount(d.Get("node_count"), d, config)
 	if err != nil {
 		return err
@@ -419,34 +414,64 @@ func resourceEdgecontainerNodePoolUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Updating NodePool %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("node_count") {
+		updateMask = append(updateMask, "nodeCount")
+	}
+
+	if d.HasChange("machine_filter") {
+		updateMask = append(updateMask, "machineFilter")
+	}
+
+	if d.HasChange("local_disk_encryption") {
+		updateMask = append(updateMask, "localDiskEncryption")
+	}
+
+	if d.HasChange("node_config") {
+		updateMask = append(updateMask, "nodeConfig")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating NodePool %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating NodePool %q: %#v", d.Id(), res)
-	}
+		if err != nil {
+			return fmt.Errorf("Error updating NodePool %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating NodePool %q: %#v", d.Id(), res)
+		}
 
-	err = EdgecontainerOperationWaitTime(
-		config, res, project, "Updating NodePool", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+		err = EdgecontainerOperationWaitTime(
+			config, res, project, "Updating NodePool", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceEdgecontainerNodePoolRead(d, meta)

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -850,23 +851,11 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	fleetProp, err := expandEdgecontainerClusterFleet(d.Get("fleet"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("fleet"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fleetProp)) {
-		obj["fleet"] = fleetProp
-	}
 	networkingProp, err := expandEdgecontainerClusterNetworking(d.Get("networking"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("networking"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkingProp)) {
 		obj["networking"] = networkingProp
-	}
-	authorizationProp, err := expandEdgecontainerClusterAuthorization(d.Get("authorization"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("authorization"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, authorizationProp)) {
-		obj["authorization"] = authorizationProp
 	}
 	defaultMaxPodsPerNodeProp, err := expandEdgecontainerClusterDefaultMaxPodsPerNode(d.Get("default_max_pods_per_node"), d, config)
 	if err != nil {
@@ -923,34 +912,80 @@ func resourceEdgecontainerClusterUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating Cluster %q: %#v", d.Id(), obj)
+	updateMask := []string{}
+
+	if d.HasChange("networking") {
+		updateMask = append(updateMask, "networking")
+	}
+
+	if d.HasChange("default_max_pods_per_node") {
+		updateMask = append(updateMask, "defaultMaxPodsPerNode")
+	}
+
+	if d.HasChange("maintenance_policy") {
+		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("control_plane") {
+		updateMask = append(updateMask, "controlPlane")
+	}
+
+	if d.HasChange("system_addons_config") {
+		updateMask = append(updateMask, "systemAddonsConfig")
+	}
+
+	if d.HasChange("external_load_balancer_ipv4_address_pools") {
+		updateMask = append(updateMask, "externalLoadBalancerIpv4AddressPools")
+	}
+
+	if d.HasChange("control_plane_encryption") {
+		updateMask = append(updateMask, "controlPlaneEncryption")
+	}
+
+	if d.HasChange("release_channel") {
+		updateMask = append(updateMask, "releaseChannel")
+	}
+
+	if d.HasChange("effective_labels") {
+		updateMask = append(updateMask, "labels")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-	})
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
 
-	if err != nil {
-		return fmt.Errorf("Error updating Cluster %q: %s", d.Id(), err)
-	} else {
-		log.Printf("[DEBUG] Finished updating Cluster %q: %#v", d.Id(), res)
-	}
+		if err != nil {
+			return fmt.Errorf("Error updating Cluster %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Cluster %q: %#v", d.Id(), res)
+		}
 
-	err = EdgecontainerOperationWaitTime(
-		config, res, project, "Updating Cluster", userAgent,
-		d.Timeout(schema.TimeoutUpdate))
+		err = EdgecontainerOperationWaitTime(
+			config, res, project, "Updating Cluster", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	d.Partial(true)
 
