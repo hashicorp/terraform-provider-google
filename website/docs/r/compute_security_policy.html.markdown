@@ -183,26 +183,26 @@ The following arguments are supported:
 * `recaptcha_options_config` - (Optional) [reCAPTCHA Configuration Options](https://cloud.google.com/armor/docs/configure-security-policies?hl=en#use_a_manual_challenge_to_distinguish_between_human_or_automated_clients). Structure is [documented below](#nested_recaptcha_options_config).
 
 * `type` - The type indicates the intended use of the security policy. This field can be set only at resource creation time.
-  * CLOUD_ARMOR - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services.
+  * `CLOUD_ARMOR` - Cloud Armor backend security policies can be configured to filter incoming HTTP requests targeting backend services.
     They filter requests before they hit the origin servers.
-  * CLOUD_ARMOR_EDGE - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services
+  * `CLOUD_ARMOR_EDGE` - Cloud Armor edge security policies can be configured to filter incoming HTTP requests targeting backend services
     (including Cloud CDN-enabled) as well as backend buckets (Cloud Storage).
     They filter requests before the request is served from Google's cache.
-  * CLOUD_ARMOR_INTERNAL_SERVICE - Cloud Armor internal service policies can be configured to filter HTTP requests targeting services 
+  * `CLOUD_ARMOR_INTERNAL_SERVICE` - Cloud Armor internal service policies can be configured to filter HTTP requests targeting services
     managed by Traffic Director in a service mesh. They filter requests before the request is served from the application.
 
 <a name="nested_advanced_options_config"></a>The `advanced_options_config` block supports:
 
 * `json_parsing` - Whether or not to JSON parse the payload body. Defaults to `DISABLED`.
-  * DISABLED - Don't parse JSON payloads in POST bodies.
-  * STANDARD - Parse JSON payloads in POST bodies.
+  * `DISABLED` - Don't parse JSON payloads in POST bodies.
+  * `STANDARD` - Parse JSON payloads in POST bodies.
 
 * `json_custom_config` - Custom configuration to apply the JSON parsing. Only applicable when
     `json_parsing` is set to `STANDARD`. Structure is [documented below](#nested_json_custom_config).
 
 * `log_level` - Log level to use. Defaults to `NORMAL`.
-  * NORMAL - Normal log level.
-  * VERBOSE - Verbose log level.
+  * `NORMAL` - Normal log level.
+  * `VERBOSE` - Verbose log level.
 
 * `user_ip_request_headers` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) An optional list of case-insensitive request header names to use for resolving the callers client IP address.
 
@@ -216,11 +216,11 @@ The following arguments are supported:
 <a name="nested_rule"></a>The `rule` block supports:
 
 * `action` - (Required) Action to take when `match` matches the request. Valid values:
-    * allow: allow access to target.
-    * deny(): deny access to target, returns the HTTP response code specified (valid values are 403, 404, and 502).
-    * rate_based_ban: limit client traffic to the configured threshold and ban the client if the traffic exceeds the threshold. Configure parameters for this action in RateLimitOptions. Requires rateLimitOptions to be set.
-    * redirect: redirect to a different target. This can either be an internal reCAPTCHA redirect, or an external URL-based redirect via a 302 response. Parameters for this action can be configured via redirectOptions.
-    * throttle: limit client traffic to the configured threshold. Configure parameters for this action in rateLimitOptions. Requires rateLimitOptions to be set for this.
+    * `allow`: allow access to target.
+    * `deny()`: deny access to target, returns the HTTP response code specified (valid values are 403, 404, and 502).
+    * `rate_based_ban`: limit client traffic to the configured threshold and ban the client if the traffic exceeds the threshold. Configure parameters for this action in [`rate_limit_options`](#nested_rate_limit_options). Requires [`rate_limit_options`](#nested_rate_limit_options) to be set.
+    * `redirect`: redirect to a different target. This can either be an internal reCAPTCHA redirect, or an external URL-based redirect via a 302 response. Parameters for this action can be configured via [`redirect_options`](#nested_redirect_options).
+    * `throttle`: limit client traffic to the configured threshold. Configure parameters for this action in [`rate_limit_options`](#nested_rate_limit_options). Requires [`rate_limit_options`](#nested_rate_limit_options) to be set for this.
 
 * `priority` - (Required) An unique positive integer indicating the priority of evaluation for a rule.
     Rules are evaluated from highest priority (lowest numerically) to lowest priority (highest numerically) in order.
@@ -228,7 +228,7 @@ The following arguments are supported:
 * `match` - (Required) A match condition that incoming traffic is evaluated against.
     If it evaluates to true, the corresponding `action` is enforced. Structure is [documented below](#nested_match).
 
-* `preconfigured_waf_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect. Structure is [documented below](#nested_preconfigured_waf_config).
+* `preconfigured_waf_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Preconfigured WAF configuration to be applied for the rule. If the rule does not evaluate preconfigured WAF rules, i.e., if `evaluatePreconfiguredWaf()` is not used, this field will have no effect. Structure is [documented below](#nested_preconfigured_waf_config).
 
 * `description` - (Optional) An optional description of this rule. Max size is 64.
 
@@ -236,10 +236,10 @@ The following arguments are supported:
     Stackdriver logs for requests that trigger a preview action are annotated as such.
 
 * `rate_limit_options` - (Optional)
-    Must be specified if the `action` is "rate_based_ban" or "throttle". Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
+    Must be specified if the `action` is `rate_based_ban` or `throttle`. Cannot be specified for other actions. Structure is [documented below](#nested_rate_limit_options).
 
 * `redirect_options` - (Optional)
-    Can be specified if the `action` is "redirect". Cannot be specified for other actions. Structure is [documented below](#nested_redirect_options).
+    Can be specified if the `action` is `redirect`. Cannot be specified for other actions. Structure is [documented below](#nested_redirect_options).
 
 * `header_action` - (Optional)
     Additional actions that are performed on headers. Structure is [documented below](#nested_header_action).
@@ -252,16 +252,17 @@ The following arguments are supported:
 
 * `versioned_expr` - (Optional) Predefined rule expression. If this field is specified, `config` must also be specified.
     Available options:
-    * SRC_IPS_V1: Must specify the corresponding `src_ip_ranges` field in `config`.
+
+    * `SRC_IPS_V1`: Must specify the corresponding `src_ip_ranges` field in `config`.
 
 * `expr` - (Optional) User defined CEVAL expression. A CEVAL expression is used to specify match criteria
-    such as origin.ip, source.region_code and contents in the request header.
+    such as `origin.ip`, `source.region_code` and `contents` in the request header.
     Structure is [documented below](#nested_expr).
 
 <a name="nested_config"></a>The `config` block supports:
 
 * `src_ip_ranges` - (Required) Set of IP addresses or ranges (IPV4 or IPV6) in CIDR notation
-    to match against inbound traffic. There is a limit of 10 IP ranges per rule. A value of '\*' matches all IPs
+    to match against inbound traffic. There is a limit of 10 IP ranges per rule. A value of `*` matches all IPs
     (can be used to override the default behavior).
 
 <a name="nested_expr"></a>The `expr` block supports:
@@ -291,62 +292,68 @@ The following arguments are supported:
 
 * `operator` - (Required) You can specify an exact match or a partial match by using a field operator and a field value.
 
-  * EQUALS: The operator matches if the field value equals the specified value.
-  * STARTS_WITH: The operator matches if the field value starts with the specified value.
-  * ENDS_WITH: The operator matches if the field value ends with the specified value.
-  * CONTAINS: The operator matches if the field value contains the specified value.
-  * EQUALS_ANY: The operator matches if the field value is any value.
+  * `EQUALS`: The operator matches if the field value equals the specified value.
+  * `STARTS_WITH`: The operator matches if the field value starts with the specified value.
+  * `ENDS_WITH`: The operator matches if the field value ends with the specified value.
+  * `CONTAINS`: The operator matches if the field value contains the specified value.
+  * `EQUALS_ANY`: The operator matches if the field value is any value.
 
 * `value` - (Optional) A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
-    The field value must be given if the field `operator` is not "EQUALS_ANY", and cannot be given if the field `operator` is "EQUALS_ANY".
+    The field value must be given if the field `operator` is not `EQUALS_ANY`, and cannot be given if the field `operator` is `EQUALS_ANY`.
 
 <a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
 
-* `conform_action` - (Required) Action to take for requests that are under the configured rate limit threshold. Valid option is "allow" only.
+* `conform_action` - (Required) Action to take for requests that are under the configured rate limit threshold. Valid option is `allow` only.
 
 * `exceed_action` - (Required) When a request is denied, returns the HTTP response code specified.
-    Valid options are "deny()" where valid values for status are 403, 404, 429, and 502.
+    Valid options are `deny()` where valid values for status are 403, 404, 429, and 502.
 
 * `rate_limit_threshold` - (Required) Threshold at which to begin ratelimiting. Structure is [documented below](#nested_threshold).
 
-* `ban_duration_sec` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
+* `ban_duration_sec` - (Optional) Can only be specified if the `action` for the rule is `rate_based_ban`.
     If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
 
-* `ban_threshold` - (Optional) Can only be specified if the `action` for the rule is "rate_based_ban".
-    If specified, the key will be banned for the configured 'ban_duration_sec' when the number of requests that exceed the 'rate_limit_threshold' also
-    exceed this 'ban_threshold'. Structure is [documented below](#nested_threshold).
+* `ban_threshold` - (Optional) Can only be specified if the `action` for the rule is `rate_based_ban`.
+    If specified, the key will be banned for the configured `ban_duration_sec` when the number of requests that exceed the `rate_limit_threshold` also
+    exceed this `ban_threshold`. Structure is [documented below](#nested_threshold).
 
-* `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on. If not specified, defaults to "ALL".
+* `enforce_on_key` - (Optional) Determines the key to enforce the rate_limit_threshold on. If not specified, defaults to `ALL`.
 
-    * ALL: A single rate limit threshold is applied to all the requests matching this rule.
-    * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
-    * HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
-    * XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key type defaults to ALL.
-    * HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
-    * HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes
-    * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
-    * REGION_CODE: The country/region from which the request originates.
+  * `ALL`: A single rate limit threshold is applied to all the requests matching this rule.
+  * `IP`: The source IP address of the request is the key. Each IP has this limit enforced separately.
+  * `HTTP_HEADER`: The value of the HTTP header whose name is configured under `enforce_on_key_name`. The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to `ALL`.
+  * `XFF_IP`: The first IP address (i.e. the originating client IP address) specified in the list of IPs under `X-Forwarded-For` HTTP header. If no such header is present or the value is not a valid IP, the key type defaults to `ALL`.
+  * `HTTP_COOKIE`: The value of the HTTP cookie whose name is configured under `enforce_on_key_name`. The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to `ALL`.
+  * `HTTP_PATH`: The URL path of the HTTP request. The key value is truncated to the first 128 bytes
+  * `SNI`: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to `ALL` on a HTTP session.
+  * `REGION_CODE`: The country/region from which the request originates.
 
-* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types: HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
+* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types:
 
-* `enforce_on_key_configs` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) If specified, any combination of values of enforce_on_key_type/enforce_on_key_name is treated as the key on which ratelimit threshold/action is enforced. You can specify up to 3 enforce_on_key_configs. If `enforce_on_key_configs` is specified, enforce_on_key must be set to an empty string. Structure is [documented below](#nested_enforce_on_key_configs).
+  * `HTTP_HEADER` -- Name of the HTTP header whose value is taken as the key value.
+  * `HTTP_COOKIE` -- Name of the HTTP cookie whose value is taken as the key value.
+
+* `enforce_on_key_configs` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) If specified, any combination of values of enforce_on_key_type/enforce_on_key_name is treated as the key on which rate limit threshold/action is enforced. You can specify up to 3 enforce_on_key_configs. If `enforce_on_key_configs` is specified, `enforce_on_key` must be set to an empty string. Structure is [documented below](#nested_enforce_on_key_configs).
 
   **Note:** To avoid the conflict between `enforce_on_key` and `enforce_on_key_configs`, the field [`enforce_on_key`](#enforce_on_key) needs to be set to an empty string.
 
 <a name="nested_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
 
-* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types: HTTP_HEADER: Name of the HTTP header whose value is taken as the key value. HTTP_COOKIE: Name of the HTTP cookie whose value is taken as the key value.
+* `enforce_on_key_name` - (Optional) Rate limit key name applicable only for the following key types:
 
-* `enforce_on_key_type` - (Optional) Determines the key to enforce the rate_limit_threshold on. If not specified, defaults to "ALL".
+  * `HTTP_HEADER` -- Name of the HTTP header whose value is taken as the key value.
+  * `HTTP_COOKIE` -- Name of the HTTP cookie whose value is taken as the key value.
 
-    * ALL: A single rate limit threshold is applied to all the requests matching this rule.
-    * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
-    * HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
-    * XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key type defaults to ALL.
-    * HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
-    * HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes
-    * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
-    * REGION_CODE: The country/region from which the request originates.
+* `enforce_on_key_type` - (Optional) Determines the key to enforce the `rate_limit_threshold` on. If not specified, defaults to `ALL`.
+
+    * `ALL`: A single rate limit threshold is applied to all the requests matching this rule.
+    * `IP`: The source IP address of the request is the key. Each IP has this limit enforced separately.
+    * `HTTP_HEADER`: The value of the HTTP header whose name is configured on `enforce_on_key_name`. The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to `ALL`.
+    * `XFF_IP`: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key type defaults to `ALL`.
+    * `HTTP_COOKIE`: The value of the HTTP cookie whose name is configured under `enforce_on_key_name`. The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to `ALL`.
+    * `HTTP_PATH`: The URL path of the HTTP request. The key value is truncated to the first 128 bytes
+    * `SNI`: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to `ALL` on a HTTP session.
+    * `REGION_CODE`: The country/region from which the request originates.
 
 * `exceed_redirect_options` - (Optional) Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. Structure is [documented below](#nested_exceed_redirect_options).
 
@@ -360,16 +367,16 @@ The following arguments are supported:
 
 * `type` - (Required) Type of the redirect action.
 
-* `target` - (Optional) Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.
+* `target` - (Optional) Target for the redirect action. This is required if the type is `EXTERNAL_302` and cannot be specified for `GOOGLE_RECAPTCHA`.
 
 <a name="nested_redirect_options"></a>The `redirect_options` block supports:
 
 * `type` - (Required) Type of redirect action.
 
-    * EXTERNAL_302: Redirect to an external address, configured in 'target'.
-    * GOOGLE_RECAPTCHA: Redirect to Google reCAPTCHA.
+  * `EXTERNAL_302`: Redirect to an external address, configured in `target`.
+  * `GOOGLE_RECAPTCHA`: Redirect to Google reCAPTCHA.
 
-* `target` - (Optional) External redirection target when "EXTERNAL_302" is set in 'type'.
+* `target` - (Optional) External redirection target when `EXTERNAL_302` is set in `type`.
 
 <a name="nested_header_action"></a> The `header_action` block supports:
 
@@ -391,7 +398,10 @@ The following arguments are supported:
 
 * `enable` - (Optional) If set to true, enables CAAP for L7 DDoS detection.
 
-* `rule_visibility` - (Optional) Rule visibility can be one of the following: STANDARD - opaque rules. (default) PREMIUM - transparent rules.
+* `rule_visibility` - (Optional) Rule visibility can be one of the following:
+
+  * `STANDARD` - opaque rules. (default)
+  * `PREMIUM` - transparent rules.
 
 <a name="nested_auto_deploy_config"></a>The `auto_deploy_config` block supports:
 
@@ -405,7 +415,7 @@ The following arguments are supported:
 
 <a name="nested_recaptcha_options_config"></a>The `recaptcha_options_config` block supports:
 
-* `redirect_site_key` - (Required) A field to supply a reCAPTCHA site key to be used for all the rules using the redirect action with the type of GOOGLE_RECAPTCHA under the security policy. The specified site key needs to be created from the reCAPTCHA API. The user is responsible for the validity of the specified site key. If not specified, a Google-managed site key is used.
+* `redirect_site_key` - (Required) A field to supply a reCAPTCHA site key to be used for all the rules using the redirect action with the type of `GOOGLE_RECAPTCHA` under the security policy. The specified site key needs to be created from the reCAPTCHA API. The user is responsible for the validity of the specified site key. If not specified, a Google-managed site key is used.
 
 ## Attributes Reference
 
