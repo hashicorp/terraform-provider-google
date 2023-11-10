@@ -66,7 +66,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"timeout": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). Accepted formats https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration`,
+				Description: `The maximum amount of time to wait for the request to complete (must be between 1 and 60 seconds). [See the accepted formats]( https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration)`,
 			},
 			"checker_type": {
 				Type:         schema.TypeString,
@@ -74,7 +74,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"STATIC_IP_CHECKERS", "VPC_CHECKERS", ""}),
-				Description:  `The checker type to use for the check. If the monitored resource type is servicedirectory_service, checkerType must be set to VPC_CHECKERS. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
+				Description:  `The checker type to use for the check. If the monitored resource type is 'servicedirectory_service', 'checker_type' must be set to 'VPC_CHECKERS'. Possible values: ["STATIC_IP_CHECKERS", "VPC_CHECKERS"]`,
 			},
 			"content_matchers": {
 				Type:        schema.TypeList,
@@ -171,7 +171,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"body": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: `The request body associated with the HTTP POST request. If contentType is URL_ENCODED, the body passed in must be URL-encoded. Users can provide a Content-Length header via the headers field or the API will do so. If the requestMethod is GET and body is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. "foo=bar" in URL-encoded form is "foo%3Dbar" and in base64 encoding is "Zm9vJTI1M0RiYXI=".`,
+							Description: `The request body associated with the HTTP POST request. If 'content_type' is 'URL_ENCODED', the body passed in must be URL-encoded. Users can provide a 'Content-Length' header via the 'headers' field or the API will do so. If the 'request_method' is 'GET' and 'body' is not empty, the API will return an error. The maximum byte size is 1 megabyte. Note - As with all bytes fields JSON representations are base64 encoded. e.g. 'foo=bar' in URL-encoded form is 'foo%3Dbar' and in base64 encoding is 'Zm9vJTI1M0RiYXI='.`,
 						},
 						"content_type": {
 							Type:         schema.TypeString,
@@ -188,21 +188,21 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeMap,
 							Computed:     true,
 							Optional:     true,
-							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described at https://www.w3.org/Protocols/rfc2616/rfc2616.txt (page 31). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
+							Description:  `The list of headers to send as part of the uptime check request. If two headers have the same key and different values, they should be entered as a single header, with the value being a comma-separated list of all the desired values as described in [RFC 2616 (page 31)](https://www.w3.org/Protocols/rfc2616/rfc2616.txt). Entering two separate headers with the same key in a Create call will cause the first to be overwritten by the second. The maximum number of headers allowed is 100.`,
 							Elem:         &schema.Schema{Type: schema.TypeString},
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"mask_headers": {
 							Type:         schema.TypeBool,
 							Optional:     true,
-							Description:  `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if mask_headers is set to True then the headers will be obscured with ******.`,
+							Description:  `Boolean specifying whether to encrypt the header information. Encryption should be specified for any headers related to authentication that you do not wish to be seen when retrieving the configuration. The server will be responsible for encrypting the headers. On Get/List calls, if 'mask_headers' is set to 'true' then the headers will be obscured with '******'.`,
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"path": {
 							Type:             schema.TypeString,
 							Optional:         true,
 							DiffSuppressFunc: resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress,
-							Description:      `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with "/", a "/" will be prepended automatically. Optional (defaults to "/").`,
+							Description:      `The path to the page to run the check against. Will be combined with the host (specified within the MonitoredResource) and port to construct the full URL. If the provided path does not begin with '/', a '/' will be prepended automatically. Optional (defaults to '/').`,
 							Default:          "/",
 							AtLeastOneOf:     []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
@@ -225,7 +225,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Type:         schema.TypeInt,
 							Computed:     true,
 							Optional:     true,
-							Description:  `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
+							Description:  `The port to the page to run the check against. Will be combined with 'host' (specified within the ['monitored_resource'](#nested_monitored_resource)) and path to construct the full URL. Optional (defaults to 80 without SSL, or 443 with SSL).`,
 							AtLeastOneOf: []string{"http_check.0.auth_info", "http_check.0.port", "http_check.0.headers", "http_check.0.path", "http_check.0.use_ssl", "http_check.0.mask_headers"},
 						},
 						"request_method": {
@@ -233,7 +233,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
-							Description:  `The HTTP request method to use for the check. If set to METHOD_UNSPECIFIED then requestMethod defaults to GET. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
+							Description:  `The HTTP request method to use for the check. If set to 'METHOD_UNSPECIFIED' then 'request_method' defaults to 'GET'. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
 							Default:      "GET",
 						},
 						"use_ssl": {
@@ -245,31 +245,41 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"validate_ssl": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: `Boolean specifying whether to include SSL certificate validation as a part of the Uptime check. Only applies to checks where monitoredResource is set to uptime_url. If useSsl is false, setting validateSsl to true has no effect.`,
+							Description: `Boolean specifying whether to include SSL certificate validation as a part of the Uptime check. Only applies to checks where 'monitored_resource' is set to 'uptime_url'. If 'use_ssl' is 'false', setting 'validate_ssl' to 'true' has no effect.`,
 						},
 					},
 				},
 			},
 			"monitored_resource": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The monitored resource (https://cloud.google.com/monitoring/api/resources) associated with the configuration. The following monitored resource types are supported for uptime checks:  uptime_url  gce_instance  gae_app  aws_ec2_instance aws_elb_load_balancer  k8s_service  servicedirectory_service`,
-				MaxItems:    1,
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `The [monitored resource]
+(https://cloud.google.com/monitoring/api/resources) associated with the
+configuration. The following monitored resource types are supported for
+uptime checks:
+* 'aws_ec2_instance'
+* 'aws_elb_load_balancer'
+* 'gae_app
+* 'gce_instance'
+* 'k8s_service'
+* 'servicedirectory_service'
+* 'uptime_url'`,
+				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"labels": {
 							Type:        schema.TypeMap,
 							Required:    true,
 							ForceNew:    true,
-							Description: `Values for all of the labels listed in the associated monitored resource descriptor. For example, Compute Engine VM instances use the labels "project_id", "instance_id", and "zone".`,
+							Description: `Values for all of the labels listed in the associated monitored resource descriptor. For example, Compute Engine VM instances use the labels 'project_id', 'instance_id', and 'zone'.`,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Required:    true,
 							ForceNew:    true,
-							Description: `The monitored resource type. This field must match the type field of a MonitoredResourceDescriptor (https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.monitoredResourceDescriptors#MonitoredResourceDescriptor) object. For example, the type of a Compute Engine VM instance is gce_instance. For a list of types, see Monitoring resource types (https://cloud.google.com/monitoring/api/resources) and Logging resource types (https://cloud.google.com/logging/docs/api/v2/resource-list).`,
+							Description: `The monitored resource type. This field must match the type field of a ['MonitoredResourceDescriptor'](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.monitoredResourceDescriptors#MonitoredResourceDescriptor) object. For example, the type of a Compute Engine VM instance is 'gce_instance'. For a list of types, see [Monitoring resource types](https://cloud.google.com/monitoring/api/resources) and [Logging resource types](https://cloud.google.com/logging/docs/api/v2/resource-list).`,
 						},
 					},
 				},
@@ -357,7 +367,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"port": {
 							Type:        schema.TypeInt,
 							Required:    true,
-							Description: `The port to the page to run the check against. Will be combined with host (specified within the MonitoredResource) to construct the full URL.`,
+							Description: `The port to the page to run the check against. Will be combined with host (specified within the 'monitored_resource') to construct the full URL.`,
 						},
 						"ping_config": {
 							Type:        schema.TypeList,
@@ -386,7 +396,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `A unique resource name for this UptimeCheckConfig. The format is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].`,
+				Description: `A unique resource name for this UptimeCheckConfig. The format is 'projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID]'.`,
 			},
 			"uptime_check_id": {
 				Type:        schema.TypeString,
