@@ -171,12 +171,7 @@ resource "google_project_service" "identitytoolkit" {
 
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
-  client {
-    permissions {
-      disabled_user_deletion = false
-      disabled_user_signup   = true
-    }
-  }
+  
   depends_on = [
     google_project_service.identitytoolkit
   ]
