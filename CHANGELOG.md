@@ -20,7 +20,7 @@ IMPROVEMENTS:
 * spanner: added `autoscaling_config` field to  `google_spanner_instance` ([#16473](https://github.com/hashicorp/terraform-provider-google/pull/16473))
 * sql: added `ssl_mode` field to `google_sql_database_instance` resource ([#16394](https://github.com/hashicorp/terraform-provider-google/pull/16394))
 * vertexai: added `private_service_connect_config` to `google_vertex_ai_index_endpoint` ([#16471](https://github.com/hashicorp/terraform-provider-google/pull/16471))
-* workstations: add `domain_config` field to resource `google_workstations_workstation_cluster` (beta) ([#16464](https://github.com/hashicorp/terraform-provider-google/pull/16464))
+* workstations: added `domain_config` field to resource `google_workstations_workstation_cluster` (beta) ([#16464](https://github.com/hashicorp/terraform-provider-google/pull/16464))
 
 BUG FIXES:
 * assuredworkloads: made the `violation_notifications_enabled` field on the `google_assured_workloads_workload` resource default to values returned from the API when unset in a users configuration ([#16465](https://github.com/hashicorp/terraform-provider-google/pull/16465))
