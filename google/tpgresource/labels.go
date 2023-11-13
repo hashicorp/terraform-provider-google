@@ -198,3 +198,19 @@ func LabelsStateUpgrade(rawState map[string]interface{}, labesPrefix string) (ma
 
 	return rawState, nil
 }
+
+// Upgrade the field "terraform_labels" in the state to have the value of filed "labels"
+// when it is not set but "labels" field is set in the state
+func TerraformLabelsStateUpgrade(rawState map[string]interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	log.Printf("[DEBUG] Attributes before migration terraform_labels: %#v", rawState["terraform_labels"])
+
+	if rawState["terraform_labels"] == nil && rawState["labels"] != nil {
+		rawState["terraform_labels"] = rawState["labels"]
+	}
+
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	log.Printf("[DEBUG] Attributes after migration terraform_labels: %#v", rawState["terraform_labels"])
+
+	return rawState, nil
+}
