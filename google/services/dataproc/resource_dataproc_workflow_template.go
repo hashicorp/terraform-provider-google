@@ -53,6 +53,14 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 			tpgresource.SetLabelsDiff,
 		),
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceDataprocWorkflowTemplateResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceDataprocWorkflowTemplateUpgradeV0,
+				Version: 0,
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"jobs": {
