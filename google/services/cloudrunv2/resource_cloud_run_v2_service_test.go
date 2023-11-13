@@ -668,3 +668,81 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceCustomAudienceUpdate(t *testing.T) {
+	t.Parallel()
+
+	serviceName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithCustomAudience(serviceName, "test"),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithCustomAudience(serviceName, "test_update"),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithoutCustomAudience(serviceName),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudRunServiceUpdateWithoutCustomAudience(serviceName string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name         = "%s"
+  location     = "us-central1"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+    }
+  }
+}
+`, serviceName)
+}
+
+func testAccCloudRunV2Service_cloudRunServiceUpdateWithCustomAudience(serviceName string, customAudience string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name             = "%s"
+  location         = "us-central1"
+  custom_audiences = ["%s"]
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+    }
+  }
+}
+`, serviceName, customAudience)
+}
