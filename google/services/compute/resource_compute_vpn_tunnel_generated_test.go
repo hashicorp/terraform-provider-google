@@ -69,6 +69,10 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
     google_compute_forwarding_rule.fr_udp500,
     google_compute_forwarding_rule.fr_udp4500,
   ]
+
+  labels = {
+    foo = "bar"
+  }
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
