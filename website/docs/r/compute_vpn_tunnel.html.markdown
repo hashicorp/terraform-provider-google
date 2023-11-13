@@ -54,6 +54,10 @@ resource "google_compute_vpn_tunnel" "tunnel1" {
     google_compute_forwarding_rule.fr_udp500,
     google_compute_forwarding_rule.fr_udp4500,
   ]
+
+  labels = {
+    foo = "bar"
+  }
 }
 
 resource "google_compute_vpn_gateway" "target_gateway" {
@@ -99,92 +103,6 @@ resource "google_compute_route" "route1" {
   priority   = 1000
 
   next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vpn_tunnel_beta&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Vpn Tunnel Beta
-
-
-```hcl
-resource "google_compute_vpn_tunnel" "tunnel1" {
-  provider      = google-beta
-  name          = "tunnel-1"
-  peer_ip       = "15.0.0.120"
-  shared_secret = "a secret message"
-
-  target_vpn_gateway = google_compute_vpn_gateway.target_gateway.id
-
-  depends_on = [
-    google_compute_forwarding_rule.fr_esp,
-    google_compute_forwarding_rule.fr_udp500,
-    google_compute_forwarding_rule.fr_udp4500,
-  ]
-
-  labels = {
-    foo = "bar"
-  }
-}
-
-resource "google_compute_vpn_gateway" "target_gateway" {
-  provider = google-beta
-  name     = "vpn-1"
-  network  = google_compute_network.network1.id
-}
-
-resource "google_compute_network" "network1" {
-  provider = google-beta
-  name     = "network-1"
-}
-
-resource "google_compute_address" "vpn_static_ip" {
-  provider = google-beta
-  name     = "vpn-static-ip"
-}
-
-resource "google_compute_forwarding_rule" "fr_esp" {
-  provider    = google-beta
-  name        = "fr-esp"
-  ip_protocol = "ESP"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
-}
-
-resource "google_compute_forwarding_rule" "fr_udp500" {
-  provider    = google-beta
-  name        = "fr-udp500"
-  ip_protocol = "UDP"
-  port_range  = "500"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
-}
-
-resource "google_compute_forwarding_rule" "fr_udp4500" {
-  provider    = google-beta
-  name        = "fr-udp4500"
-  ip_protocol = "UDP"
-  port_range  = "4500"
-  ip_address  = google_compute_address.vpn_static_ip.address
-  target      = google_compute_vpn_gateway.target_gateway.id
-}
-
-resource "google_compute_route" "route1" {
-  provider   = google-beta
-  name       = "route1"
-  network    = google_compute_network.network1.name
-  dest_range = "15.0.0.0/24"
-  priority   = 1000
-
-  next_hop_vpn_tunnel = google_compute_vpn_tunnel.tunnel1.id
-}
-
-provider "google-beta" {
-  region = "us-central1"
-  zone   = "us-central1-a"
-  
 }
 ```
 
@@ -276,7 +194,7 @@ The following arguments are supported:
   Only IPv4 is supported.
 
 * `labels` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Labels to apply to this VpnTunnel.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
@@ -313,12 +231,10 @@ In addition to the arguments listed above, the following computed attributes are
   Detailed status message for the VPN tunnel.
 
 * `terraform_labels` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
 
 * `effective_labels` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 * `self_link` - The URI of the created resource.
 
