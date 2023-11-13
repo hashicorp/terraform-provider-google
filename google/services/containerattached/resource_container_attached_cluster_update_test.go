@@ -96,6 +96,12 @@ resource "google_container_attached_cluster" "primary" {
   binary_authorization {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
+  proxy_config {
+    kubernetes_secret {
+      name = "proxy-config"
+      namespace = "default"
+    }
+  }
 }
 `, context)
 }
@@ -137,6 +143,12 @@ resource "google_container_attached_cluster" "primary" {
   }
   binary_authorization {
     evaluation_mode = "DISABLED"
+  }
+  proxy_config {
+    kubernetes_secret {
+      name = "new-proxy-config"
+      namespace = "custom-ns"
+    }
   }
   lifecycle {
     prevent_destroy = true
@@ -184,6 +196,12 @@ resource "google_container_attached_cluster" "primary" {
   }
   binary_authorization {
     evaluation_mode = "DISABLED"
+  }
+  proxy_config {
+    kubernetes_secret {
+      name = "new-proxy-config"
+      namespace = "custom-ns"
+    }
   }
 }
 `, context)
