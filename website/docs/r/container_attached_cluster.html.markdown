@@ -112,6 +112,12 @@ resource "google_container_attached_cluster" "primary" {
   binary_authorization {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
+  proxy_config {
+    kubernetes_secret {
+      name = "proxy-config"
+      namespace = "default"
+    }
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -252,6 +258,11 @@ The following arguments are supported:
   Binary Authorization configuration.
   Structure is [documented below](#nested_binary_authorization).
 
+* `proxy_config` -
+  (Optional)
+  Support for proxy configuration.
+  Structure is [documented below](#nested_proxy_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -310,6 +321,24 @@ The following arguments are supported:
   (Optional)
   Configure Binary Authorization evaluation mode.
   Possible values are: `DISABLED`, `PROJECT_SINGLETON_POLICY_ENFORCE`.
+
+<a name="nested_proxy_config"></a>The `proxy_config` block supports:
+
+* `kubernetes_secret` -
+  (Optional)
+  The Kubernetes Secret resource that contains the HTTP(S) proxy configuration.
+  Structure is [documented below](#nested_kubernetes_secret).
+
+
+<a name="nested_kubernetes_secret"></a>The `kubernetes_secret` block supports:
+
+* `name` -
+  (Required)
+  Name of the kubernetes secret containing the proxy config.
+
+* `namespace` -
+  (Required)
+  Namespace of the kubernetes secret containing the proxy config.
 
 ## Attributes Reference
 
