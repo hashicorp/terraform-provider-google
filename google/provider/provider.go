@@ -1729,7 +1729,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
-	transport_tpg.HandleDCLCustomEndpointDefaults(d)
 
 	config := transport_tpg.Config{
 		Project:             d.Get("project").(string),
@@ -1818,6 +1817,12 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 			transport_tpg.DefaultBasePaths[key] = strings.ReplaceAll(basePath, "googleapis.com", config.UniverseDomain)
 		}
 	}
+
+	err = transport_tpg.SetEndpointDefaults(d)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	transport_tpg.HandleDCLCustomEndpointDefaults(d)
 
 	// Given that impersonate_service_account is a secondary auth method, it has
 	// no conflicts to worry about. We pull the env var in a DefaultFunc.

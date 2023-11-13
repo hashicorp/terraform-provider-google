@@ -600,7 +600,10 @@ func HandleSDKDefaults(d *schema.ResourceData) error {
 			"CLOUDSDK_CORE_REQUEST_REASON",
 		}, nil))
 	}
+	return nil
+}
 
+func SetEndpointDefaults(d *schema.ResourceData) error {
 	// Generated Products
 	if d.Get("access_approval_custom_endpoint") == "" {
 		d.Set("access_approval_custom_endpoint", MultiEnvDefault([]string{
