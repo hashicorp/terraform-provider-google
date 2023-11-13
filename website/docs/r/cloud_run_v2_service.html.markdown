@@ -881,7 +881,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_binary_authorization).
 
 * `custom_audiences` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   One or more custom audiences that you want this service to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
   For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
 
