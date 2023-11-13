@@ -157,10 +157,11 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 		Filter:          d.Get("filter").(string),
 		Disabled:        d.Get("disabled").(bool),
 		Description:     d.Get("description").(string),
-		ForceSendFields: []string{"Destination", "Filter", "Disabled"},
+		Exclusions:      expandLoggingSinkExclusions(d.Get("exclusions")),
+		ForceSendFields: []string{"Destination", "Filter", "Disabled", "Exclusions"},
 	}
 
-	updateFields := []string{}
+	updateFields := []string{"exclusions"}
 	if d.HasChange("destination") {
 		updateFields = append(updateFields, "destination")
 	}
@@ -172,10 +173,6 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 	}
 	if d.HasChange("disabled") {
 		updateFields = append(updateFields, "disabled")
-	}
-	if d.HasChange("exclusions") {
-		sink.Exclusions = expandLoggingSinkExclusions(d.Get("exclusions"))
-		updateFields = append(updateFields, "exclusions")
 	}
 	if d.HasChange("bigquery_options") {
 		sink.BigqueryOptions = expandLoggingSinkBigqueryOptions(d.Get("bigquery_options"))

@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: `google_logging_project_sink` now will aqcuire and update the resource that already exists at the desired location. These buckets cannot be removed so deleting this resource will remove the bucket config from your terraform state but will leave the logging bucket unchanged.   
+```

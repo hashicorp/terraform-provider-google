@@ -35,6 +35,28 @@ func TestAccLoggingProjectSink_basic(t *testing.T) {
 	})
 }
 
+func TestAccLoggingProjectSink_default(t *testing.T) {
+	t.Parallel()
+
+	sinkName := "_Default"
+	bucketName := "tf-test-sink-bucket-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingProjectSink_basic(sinkName, envvar.GetTestProjectFromEnv(), bucketName),
+			},
+			{
+				ResourceName:      "google_logging_project_sink.basic",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccLoggingProjectSink_described(t *testing.T) {
 	t.Parallel()
 
@@ -515,7 +537,10 @@ resource "google_logging_project_sink" "custom_writer" {
   unique_writer_identity = true
   custom_writer_identity = "serviceAccount:${google_service_account.test-account1.email}"
 
-  depends_on = [google_logging_project_bucket_config.destination-bucket]
+  depends_on = [
+	google_logging_project_bucket_config.destination-bucket,
+	google_service_account_iam_member.loggingsa-customsa-binding,
+	]
 }
 `, project, project, org, billingId, serviceAccount, envvar.GetTestProjectFromEnv(), name, envvar.GetTestProjectFromEnv())
 }
@@ -569,7 +594,10 @@ resource "google_logging_project_sink" "custom_writer" {
   unique_writer_identity = true
   custom_writer_identity = "serviceAccount:${google_service_account.test-account2.email}"
 
-  depends_on = [google_logging_project_bucket_config.destination-bucket]
+  depends_on = [
+	google_logging_project_bucket_config.destination-bucket,
+	google_service_account_iam_member.loggingsa-customsa-binding,
+	]
 }
 `, project, project, org, billingId, serviceAccount, envvar.GetTestProjectFromEnv(), name, envvar.GetTestProjectFromEnv())
 }

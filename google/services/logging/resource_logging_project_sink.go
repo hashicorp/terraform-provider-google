@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -19,7 +20,7 @@ const nonUniqueWriterAccount = "serviceAccount:cloud-logs@system.gserviceaccount
 
 func ResourceLoggingProjectSink() *schema.Resource {
 	schm := &schema.Resource{
-		Create:        resourceLoggingProjectSinkCreate,
+		Create:        resourceLoggingProjectSinkAcquireOrCreate,
 		Read:          resourceLoggingProjectSinkRead,
 		Delete:        resourceLoggingProjectSinkDelete,
 		Update:        resourceLoggingProjectSinkUpdate,
@@ -51,7 +52,7 @@ func ResourceLoggingProjectSink() *schema.Resource {
 	return schm
 }
 
-func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceLoggingProjectSinkAcquireOrCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -67,25 +68,32 @@ func resourceLoggingProjectSinkCreate(d *schema.ResourceData, meta interface{}) 
 	uniqueWriterIdentity := d.Get("unique_writer_identity").(bool)
 	customWriterIdentity := d.Get("custom_writer_identity").(string)
 
-	projectSinkCreateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink)
+	log.Printf("[DEBUG] Fetching logging sink config: %#v", id)
 
-	// if custom-sa is specified, use it to write log and it requires uniqueWriterIdentity to be set as well
-	// otherwise set the uniqueWriter identity
-	if customWriterIdentity != "" {
-		projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity).CustomWriterIdentity(customWriterIdentity)
-	} else {
-		projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity)
+	res, _ := config.NewLoggingClient(userAgent).Projects.Sinks.Get(id.canonicalId()).Do()
+	if res == nil {
+		projectSinkCreateRequest := config.NewLoggingClient(userAgent).Projects.Sinks.Create(id.parent(), sink)
+
+		// if custom-sa is specified, use it to write log and it requires uniqueWriterIdentity to be set as well
+		// otherwise set the uniqueWriter identity
+		if customWriterIdentity != "" {
+			projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity).CustomWriterIdentity(customWriterIdentity)
+		} else {
+			projectSinkCreateRequest = projectSinkCreateRequest.UniqueWriterIdentity(uniqueWriterIdentity)
+		}
+
+		_, err = projectSinkCreateRequest.Do()
+
+		if err != nil {
+			return err
+		}
+
+		d.SetId(id.canonicalId())
+		return resourceLoggingProjectSinkRead(d, meta)
 	}
-
-	_, err = projectSinkCreateRequest.Do()
-
-	if err != nil {
-		return err
-	}
-
 	d.SetId(id.canonicalId())
 
-	return resourceLoggingProjectSinkRead(d, meta)
+	return resourceLoggingProjectSinkUpdate(d, meta)
 }
 
 // if bigquery_options is set unique_writer_identity must be true
@@ -177,6 +185,14 @@ func resourceLoggingProjectSinkUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLoggingProjectSinkDelete(d *schema.ResourceData, meta interface{}) error {
+	name := d.Get("name")
+	for _, restrictedName := range []string{"_Required", "_Default"} {
+		if name == restrictedName {
+			log.Print("[WARN] Default logging sinks cannot be deleted.")
+			return nil
+		}
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
