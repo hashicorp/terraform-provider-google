@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: made `data_source_google_project_service` no longer return an error when service is not enabled
+```
