@@ -18,6 +18,7 @@
 package datastream
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -79,6 +80,15 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceDatastreamPrivateConnectionResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceDatastreamPrivateConnectionUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
@@ -577,4 +587,120 @@ func expandDatastreamPrivateConnectionEffectiveLabels(v interface{}, d tpgresour
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceDatastreamPrivateConnectionResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"display_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Display name.`,
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The name of the location this private connection is located in.`,
+			},
+			"private_connection_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The private connectivity identifier.`,
+			},
+			"vpc_peering_config": {
+				Type:     schema.TypeList,
+				Required: true,
+				ForceNew: true,
+				Description: `The VPC Peering configuration is used to create VPC peering
+between Datastream and the consumer's VPC.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `A free subnet for peering. (CIDR of /29)`,
+						},
+						"vpc": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `Fully qualified name of the VPC that Datastream will peer to.
+Format: projects/{project}/global/{networks}/{name}`,
+						},
+					},
+				},
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Labels.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"error": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The PrivateConnection error in case of failure.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"details": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Description: `A list of messages that carry the error details.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"message": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `A message containing more information about the error that occurred.`,
+						},
+					},
+				},
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The resource's name.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the PrivateConnection.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				ForceNew: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceDatastreamPrivateConnectionUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	return tpgresource.TerraformLabelsStateUpgrade(rawState)
 }

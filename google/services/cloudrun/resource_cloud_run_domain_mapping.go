@@ -1249,6 +1249,7 @@ func ResourceCloudRunDomainMappingUpgradeV0(_ context.Context, rawState map[stri
 			rawMetadata := rawMetadatas[0].(map[string]interface{})
 
 			rawLabels := rawMetadata["labels"]
+			rawTerraformLabels := rawMetadata["terraform_labels"]
 			if rawLabels != nil {
 				labels := make(map[string]interface{})
 				effectiveLabels := make(map[string]interface{})
@@ -1263,6 +1264,10 @@ func ResourceCloudRunDomainMappingUpgradeV0(_ context.Context, rawState map[stri
 
 				rawMetadata["labels"] = labels
 				rawMetadata["effective_labels"] = effectiveLabels
+
+				if rawTerraformLabels == nil {
+					rawMetadata["terraform_labels"] = labels
+				}
 			}
 
 			upgradeAnnotations(rawMetadata)

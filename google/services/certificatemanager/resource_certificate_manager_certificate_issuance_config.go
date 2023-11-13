@@ -18,6 +18,7 @@
 package certificatemanager
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -46,6 +47,15 @@ func ResourceCertificateManagerCertificateIssuanceConfig() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceCertificateManagerCertificateIssuanceConfigResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceCertificateManagerCertificateIssuanceConfigUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
@@ -592,4 +602,137 @@ func expandCertificateManagerCertificateIssuanceConfigEffectiveLabels(v interfac
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceCertificateManagerCertificateIssuanceConfigResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"certificate_authority_config": {
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The CA that issues the workload certificate. It includes the CA address, type, authentication to CA service, etc.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"certificate_authority_service_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Defines a CertificateAuthorityServiceConfig.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"ca_pool": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: tpgresource.CompareResourceNames,
+										Description: `A CA pool resource used to issue a certificate.
+The CA pool string has a relative resource path following the form
+"projects/{project}/locations/{location}/caPools/{caPool}".`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"key_algorithm": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"RSA_2048", "ECDSA_P256"}),
+				Description:  `Key algorithm to use when generating the private key. Possible values: ["RSA_2048", "ECDSA_P256"]`,
+			},
+			"lifetime": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `Lifetime of issued certificates. A duration in seconds with up to nine fractional digits, ending with 's'.
+Example: "1814400s". Valid values are from 21 days (1814400s) to 30 days (2592000s)`,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `A user-defined name of the certificate issuance config.
+CertificateIssuanceConfig names must be unique globally.`,
+			},
+			"rotation_window_percentage": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: true,
+				Description: `It specifies the percentage of elapsed time of the certificate lifetime to wait before renewing the certificate.
+Must be a number between 1-99, inclusive.
+You must set the rotation window percentage in relation to the certificate lifetime so that certificate renewal occurs at least 7 days after
+the certificate has been issued and at least 7 days before it expires.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `One or more paragraphs of text description of a CertificateIssuanceConfig.`,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `'Set of label tags associated with the CertificateIssuanceConfig resource.
+ An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Certificate Manager location. If not specified, "global" is used.`,
+				Default:     "global",
+			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The creation timestamp of a CertificateIssuanceConfig. Timestamp is in RFC3339 UTC "Zulu" format,
+accurate to nanoseconds with up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				ForceNew: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"update_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The last update timestamp of a CertificateIssuanceConfig. Timestamp is in RFC3339 UTC "Zulu" format,
+accurate to nanoseconds with up to nine fractional digits.
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceCertificateManagerCertificateIssuanceConfigUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	return tpgresource.TerraformLabelsStateUpgrade(rawState)
 }

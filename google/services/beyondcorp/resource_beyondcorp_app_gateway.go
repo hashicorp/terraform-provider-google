@@ -18,6 +18,7 @@
 package beyondcorp
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -46,6 +47,15 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceBeyondcorpAppGatewayResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceBeyondcorpAppGatewayUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
@@ -505,4 +515,111 @@ func expandBeyondcorpAppGatewayEffectiveLabels(v interface{}, d tpgresource.Terr
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceBeyondcorpAppGatewayResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `ID of the AppGateway.`,
+			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `An arbitrary user-provided name for the AppGateway.`,
+			},
+			"host_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"HOST_TYPE_UNSPECIFIED", "GCP_REGIONAL_MIG", ""}),
+				Description:  `The type of hosting used by the AppGateway. Default value: "HOST_TYPE_UNSPECIFIED" Possible values: ["HOST_TYPE_UNSPECIFIED", "GCP_REGIONAL_MIG"]`,
+				Default:      "HOST_TYPE_UNSPECIFIED",
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Description: `Resource labels to represent user provided metadata.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of the AppGateway.`,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "TCP_PROXY", ""}),
+				Description:  `The type of network connectivity used by the AppGateway. Default value: "TYPE_UNSPECIFIED" Possible values: ["TYPE_UNSPECIFIED", "TCP_PROXY"]`,
+				Default:      "TYPE_UNSPECIFIED",
+			},
+			"allocated_connections": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `A list of connections allocated for the Gateway.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ingress_port": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The ingress port of an allocated connection.`,
+						},
+						"psc_uri": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `The PSC uri of an allocated connection.`,
+						},
+					},
+				},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Represents the different states of a AppGateway.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				ForceNew: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"uri": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Server-defined URI for this resource.`,
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+		UseJSONNumber: true,
+	}
+}
+
+func ResourceBeyondcorpAppGatewayUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	return tpgresource.TerraformLabelsStateUpgrade(rawState)
 }
