@@ -1,0 +1,3 @@
+```release-note:none
+kms: added link for `lifecycle` argument to documentation for `google_kms_crypto_key`
+```

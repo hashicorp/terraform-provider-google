@@ -32,7 +32,8 @@ To get more information about Database, see:
 (and run `terraform apply` to write the field to state) in order to destroy an instance.
 It is recommended to not set this field (or set it to true) until you're ready to destroy.
 On older versions, it is strongly recommended to set `lifecycle { prevent_destroy = true }`
-on databases in order to prevent accidental data loss. See [Terraform docs](https://www.terraform.io/docs/configuration/resources.html#prevent_destroy)
+on databases in order to prevent accidental data loss. See
+[Terraform docs](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#prevent_destroy)
 for more information on lifecycle parameters.
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
