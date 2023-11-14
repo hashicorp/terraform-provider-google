@@ -88,6 +88,8 @@ resource "google_memcache_instance" "test" {
       "max-item-size" = "8388608"
     }
   }
+
+  memcache_version = "MEMCACHE_1_6_15"
 }
 
 data "google_compute_network" "memcache_network" {
