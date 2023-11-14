@@ -470,6 +470,51 @@ resource "google_data_loss_prevention_job_trigger" "with_trigger_id" {
   }
 }
 ```
+## Example Usage - Dlp Job Trigger Multiple Actions
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "basic" {
+	parent = "projects/my-project-name"
+	description = "Description"
+	display_name = "Displayname"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset"
+					}
+				}
+			}
+		}
+
+		actions {
+			pub_sub {
+				topic = "projects/project/topics/topic-name"
+			}
+		}
+		
+		storage_config {
+			cloud_storage_options {
+				file_set {
+					url = "gs://mybucket/directory/"
+				}
+			}
+		}
+	}
+}
+```
 
 ## Argument Reference
 
@@ -555,7 +600,7 @@ The following arguments are supported:
 
 * `actions` -
   (Optional)
-  A task to execute on the completion of a job.
+  Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html).
   Structure is [documented below](#nested_actions).
 
 
