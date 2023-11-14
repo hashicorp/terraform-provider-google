@@ -14,9 +14,9 @@ import (
 func TestAccDataprocJobIamBinding(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + acctest.RandString(t, 10)
-	job := "tf-dataproc-iam-job-" + acctest.RandString(t, 10)
-	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	cluster := "tf-test-iam-" + acctest.RandString(t, 10)
+	job := "tf-test-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-dpiam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
@@ -57,9 +57,9 @@ func TestAccDataprocJobIamBinding(t *testing.T) {
 func TestAccDataprocJobIamMember(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + acctest.RandString(t, 10)
-	job := "tf-dataproc-iam-jobid-" + acctest.RandString(t, 10)
-	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	cluster := "tf-test-iam-" + acctest.RandString(t, 10)
+	job := "tf-test-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-dpiam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
@@ -94,9 +94,9 @@ func TestAccDataprocJobIamMember(t *testing.T) {
 func TestAccDataprocJobIamPolicy(t *testing.T) {
 	t.Parallel()
 
-	cluster := "tf-dataproc-iam-cluster" + acctest.RandString(t, 10)
-	job := "tf-dataproc-iam-jobid-" + acctest.RandString(t, 10)
-	account := "tf-dataproc-iam-" + acctest.RandString(t, 10)
+	cluster := "tf-test-iam-" + acctest.RandString(t, 10)
+	job := "tf-test-iam-" + acctest.RandString(t, 10)
+	account := "tf-test-dpiam-" + acctest.RandString(t, 10)
 	role := "roles/editor"
 
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")

@@ -178,7 +178,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(t 
 func testAccDataprocMetastoreService_dataprocMetastoreServiceTelemetryExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "telemetry" {
-  service_id = "telemetry%{random_suffix}"
+  service_id = "tf-test-ms-telemetry%{random_suffix}"
   location   = "us-central1"
   port       = 9080
   tier       = "DEVELOPER"
@@ -222,7 +222,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(t *tes
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2" {
-  service_id = "dpms2%{random_suffix}"
+  service_id = "tf-test-ms-dpms2%{random_suffix}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -268,7 +268,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorE
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
-  service_id = "dpms2sf%{random_suffix}"
+  service_id = "tf-test-ms-dpms2sf%{random_suffix}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -314,7 +314,7 @@ func TestAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorL
 func testAccDataprocMetastoreService_dataprocMetastoreServiceDpms2ScalingFactorLt1Example(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
-  service_id = "dpms2sflt1%{random_suffix}"
+  service_id = "tf-test-ms-dpms2sflt1%{random_suffix}"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
