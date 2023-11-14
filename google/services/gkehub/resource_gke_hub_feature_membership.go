@@ -83,6 +83,13 @@ func ResourceGkeHubFeatureMembership() *schema.Resource {
 				Elem:        GkeHubFeatureMembershipConfigmanagementSchema(),
 			},
 
+			"membership_location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The location of the membership",
+			},
+
 			"mesh": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -108,8 +115,9 @@ func GkeHubFeatureMembershipConfigmanagementSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"binauthz": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
-				Description: "Binauthz configuration for the cluster.",
+				Description: "**DEPRECATED** Binauthz configuration for the cluster. This field will be ignored and should not be set.",
 				MaxItems:    1,
 				Elem:        GkeHubFeatureMembershipConfigmanagementBinauthzSchema(),
 			},
@@ -417,12 +425,13 @@ func resourceGkeHubFeatureMembershipCreate(d *schema.ResourceData, meta interfac
 	}
 
 	obj := &gkehub.FeatureMembership{
-		Feature:          dcl.String(d.Get("feature").(string)),
-		Location:         dcl.String(d.Get("location").(string)),
-		Membership:       dcl.String(d.Get("membership").(string)),
-		Configmanagement: expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
-		Mesh:             expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
-		Project:          dcl.String(project),
+		Feature:            dcl.String(d.Get("feature").(string)),
+		Location:           dcl.String(d.Get("location").(string)),
+		Membership:         dcl.String(d.Get("membership").(string)),
+		Configmanagement:   expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
+		MembershipLocation: dcl.String(d.Get("membership_location").(string)),
+		Mesh:               expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
+		Project:            dcl.String(project),
 	}
 	lockName, err := tpgresource.ReplaceVarsForId(d, config, "{{project}}/{{location}}/{{feature}}")
 	if err != nil {
@@ -476,12 +485,13 @@ func resourceGkeHubFeatureMembershipRead(d *schema.ResourceData, meta interface{
 	}
 
 	obj := &gkehub.FeatureMembership{
-		Feature:          dcl.String(d.Get("feature").(string)),
-		Location:         dcl.String(d.Get("location").(string)),
-		Membership:       dcl.String(d.Get("membership").(string)),
-		Configmanagement: expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
-		Mesh:             expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
-		Project:          dcl.String(project),
+		Feature:            dcl.String(d.Get("feature").(string)),
+		Location:           dcl.String(d.Get("location").(string)),
+		Membership:         dcl.String(d.Get("membership").(string)),
+		Configmanagement:   expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
+		MembershipLocation: dcl.String(d.Get("membership_location").(string)),
+		Mesh:               expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
+		Project:            dcl.String(project),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -518,6 +528,9 @@ func resourceGkeHubFeatureMembershipRead(d *schema.ResourceData, meta interface{
 	if err = d.Set("configmanagement", flattenGkeHubFeatureMembershipConfigmanagement(res.Configmanagement)); err != nil {
 		return fmt.Errorf("error setting configmanagement in state: %s", err)
 	}
+	if err = d.Set("membership_location", res.MembershipLocation); err != nil {
+		return fmt.Errorf("error setting membership_location in state: %s", err)
+	}
 	if err = d.Set("mesh", flattenGkeHubFeatureMembershipMesh(res.Mesh)); err != nil {
 		return fmt.Errorf("error setting mesh in state: %s", err)
 	}
@@ -535,12 +548,13 @@ func resourceGkeHubFeatureMembershipUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	obj := &gkehub.FeatureMembership{
-		Feature:          dcl.String(d.Get("feature").(string)),
-		Location:         dcl.String(d.Get("location").(string)),
-		Membership:       dcl.String(d.Get("membership").(string)),
-		Configmanagement: expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
-		Mesh:             expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
-		Project:          dcl.String(project),
+		Feature:            dcl.String(d.Get("feature").(string)),
+		Location:           dcl.String(d.Get("location").(string)),
+		Membership:         dcl.String(d.Get("membership").(string)),
+		Configmanagement:   expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
+		MembershipLocation: dcl.String(d.Get("membership_location").(string)),
+		Mesh:               expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
+		Project:            dcl.String(project),
 	}
 	lockName, err := tpgresource.ReplaceVarsForId(d, config, "{{project}}/{{location}}/{{feature}}")
 	if err != nil {
@@ -590,12 +604,13 @@ func resourceGkeHubFeatureMembershipDelete(d *schema.ResourceData, meta interfac
 	}
 
 	obj := &gkehub.FeatureMembership{
-		Feature:          dcl.String(d.Get("feature").(string)),
-		Location:         dcl.String(d.Get("location").(string)),
-		Membership:       dcl.String(d.Get("membership").(string)),
-		Configmanagement: expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
-		Mesh:             expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
-		Project:          dcl.String(project),
+		Feature:            dcl.String(d.Get("feature").(string)),
+		Location:           dcl.String(d.Get("location").(string)),
+		Membership:         dcl.String(d.Get("membership").(string)),
+		Configmanagement:   expandGkeHubFeatureMembershipConfigmanagement(d.Get("configmanagement")),
+		MembershipLocation: dcl.String(d.Get("membership_location").(string)),
+		Mesh:               expandGkeHubFeatureMembershipMesh(d.Get("mesh")),
+		Project:            dcl.String(project),
 	}
 	lockName, err := tpgresource.ReplaceVarsForId(d, config, "{{project}}/{{location}}/{{feature}}")
 	if err != nil {
@@ -686,11 +701,11 @@ func flattenGkeHubFeatureMembershipConfigmanagement(obj *gkehub.FeatureMembershi
 
 func expandGkeHubFeatureMembershipConfigmanagementBinauthz(o interface{}) *gkehub.FeatureMembershipConfigmanagementBinauthz {
 	if o == nil {
-		return gkehub.EmptyFeatureMembershipConfigmanagementBinauthz
+		return nil
 	}
 	objArr := o.([]interface{})
 	if len(objArr) == 0 || objArr[0] == nil {
-		return gkehub.EmptyFeatureMembershipConfigmanagementBinauthz
+		return nil
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipConfigmanagementBinauthz{
