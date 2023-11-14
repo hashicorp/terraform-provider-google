@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkehub: added support for `membership_location` to `google_gke_hub_feature_membership`
+```
+```release-note:deprecation
+gkehub: deprecated `config_management.binauthz` in `google_gke_hub_feature_membership`
+```
