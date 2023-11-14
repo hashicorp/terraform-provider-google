@@ -130,7 +130,7 @@ resource "google_dataproc_metastore_service" "default" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "dpms2" {
-  service_id = "dpms2"
+  service_id = "ms-dpms2"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
@@ -156,7 +156,7 @@ resource "google_dataproc_metastore_service" "dpms2" {
 
 ```hcl
 resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
-  service_id = "dpms2sf"
+  service_id = "ms-dpms2sf"
   location   = "us-central1"
 
   # DPMS 2 requires SPANNER database type, and does not require
