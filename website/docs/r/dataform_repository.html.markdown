@@ -46,7 +46,7 @@ resource "google_sourcerepo_repository" "git_repository" {
 
 resource "google_secret_manager_secret" "secret" {
   provider = google-beta
-  secret_id = "secret"
+  secret_id = "my-secret"
 
   replication {
     auto {}
@@ -93,7 +93,7 @@ resource "google_sourcerepo_repository" "git_repository" {
 
 resource "google_secret_manager_secret" "secret" {
   provider = google-beta
-  secret_id = "secret"
+  secret_id = "my-secret"
 
   replication {
     auto {}
