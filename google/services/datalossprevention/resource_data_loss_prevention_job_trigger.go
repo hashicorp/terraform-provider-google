@@ -496,7 +496,7 @@ be based on the time of the execution of the last run of the JobTrigger.`,
 						"actions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A task to execute on the completion of a job.`,
+							Description: `Configuration block for the actions to execute on the completion of a job. Can be specified multiple times, but only one for each type. Each action block supports fields documented below. This argument is processed in [attribute-as-blocks mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html).`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"deidentify": {
