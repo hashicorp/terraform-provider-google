@@ -237,10 +237,10 @@ resolution and up to nine fractional digits.`,
 			"memcache_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"MEMCACHE_1_5", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"MEMCACHE_1_5", "MEMCACHE_1_6_15", ""}),
 				Description: `The major version of Memcached software. If not provided, latest supported version will be used.
 Currently the latest supported major version is MEMCACHE_1_5. The minor version will be automatically
-determined by our system based on the latest supported minor version. Default value: "MEMCACHE_1_5" Possible values: ["MEMCACHE_1_5"]`,
+determined by our system based on the latest supported minor version. Default value: "MEMCACHE_1_5" Possible values: ["MEMCACHE_1_5", "MEMCACHE_1_6_15"]`,
 				Default: "MEMCACHE_1_5",
 			},
 			"region": {
@@ -613,12 +613,6 @@ func resourceMemcacheInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("node_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nodeCountProp)) {
 		obj["nodeCount"] = nodeCountProp
 	}
-	memcacheVersionProp, err := expandMemcacheInstanceMemcacheVersion(d.Get("memcache_version"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("memcache_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, memcacheVersionProp)) {
-		obj["memcacheVersion"] = memcacheVersionProp
-	}
 	maintenancePolicyProp, err := expandMemcacheInstanceMaintenancePolicy(d.Get("maintenance_policy"), d, config)
 	if err != nil {
 		return err
@@ -646,10 +640,6 @@ func resourceMemcacheInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("node_count") {
 		updateMask = append(updateMask, "nodeCount")
-	}
-
-	if d.HasChange("memcache_version") {
-		updateMask = append(updateMask, "memcacheVersion")
 	}
 
 	if d.HasChange("maintenance_policy") {
@@ -697,6 +687,52 @@ func resourceMemcacheInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 			return err
 		}
 	}
+	d.Partial(true)
+
+	if d.HasChange("memcache_version") {
+		obj := make(map[string]interface{})
+
+		memcacheVersionProp, err := expandMemcacheInstanceMemcacheVersion(d.Get("memcache_version"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("memcache_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, memcacheVersionProp)) {
+			obj["memcacheVersion"] = memcacheVersionProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{MemcacheBasePath}}projects/{{project}}/locations/{{region}}/instances/{{name}}:upgrade")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
+		}
+
+		err = MemcacheOperationWaitTime(
+			config, res, project, "Updating Instance", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	d.Partial(false)
 
 	return resourceMemcacheInstanceRead(d, meta)
 }
