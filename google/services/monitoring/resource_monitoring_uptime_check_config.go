@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -847,7 +848,12 @@ func resourceMonitoringUptimeCheckConfigDelete(d *schema.ResourceData, meta inte
 		Timeout:              d.Timeout(schema.TimeoutDelete),
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
 	})
+
 	if err != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(err, 400) {
+			err := fmt.Errorf("%w - please ensure all associated Alert Policies are deleted.", err)
+			return errwrap.Wrapf("Error when reading or editing UptimeCheckConfig: {{err}}", err)
+		}
 		return transport_tpg.HandleNotFoundError(err, d, "UptimeCheckConfig")
 	}
 
