@@ -59,8 +59,8 @@ fun Google(environment: String, projDescription: String, manualVcsRoot: Absolute
         // Adding this allows custom builds to use alternative branches. E.g. testing release branches in the downstreams
 
         params {
+            // Controls the VCS root, and allows custom builds to point at different branches
             param("BRANCH_NAME", branchRef)
-            
             // Not used, but making `environment` a param makes the value visible to non-admins in TeamCity
             param("ENVIRONMENT", environment)
         }
