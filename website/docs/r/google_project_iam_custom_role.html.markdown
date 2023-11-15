@@ -41,7 +41,7 @@ The following arguments are supported:
 
 * `permissions` (Required) The names of the permissions this role grants when bound in an IAM policy. At least one permission must be specified.
 
-* `project` - (Optional) The project that the service account will be created in.
+* `project` - (Optional) The project that the custom role will be created in.
     Defaults to the provider project configuration.
 
 * `stage` - (Optional) The current launch stage of the role.
