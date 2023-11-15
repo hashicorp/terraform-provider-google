@@ -117,6 +117,24 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         location = "gs://bucket/path/to/somewhere/"
         paths = ["path"]
       }
+
+      npm_packages {
+        package_path = "package.json"
+        repository   = "https://us-west1-npm.pkg.dev/myProject/quickstart-nodejs-repo"
+      }
+
+      python_packages {
+        paths      = ["dist/*"]
+        repository = "https://us-west1-python.pkg.dev/myProject/quickstart-python-repo"
+      }
+
+      maven_artifacts {
+        repository  = "https://us-west1-maven.pkg.dev/myProject/quickstart-java-repo"
+        path        = "/workspace/my-app/target/my-app-1.0.SNAPSHOT.jar"
+        artifact_id = "my-app"
+        group_id    = "com.mycompany.app"
+        version     = "1.0"
+      }
     }
     options {
       source_provenance_hash = ["MD5"]
@@ -1490,6 +1508,27 @@ The following arguments are supported:
   If any objects fail to be pushed, the build is marked FAILURE.
   Structure is [documented below](#nested_objects).
 
+* `maven_artifacts` -
+  (Optional)
+  A Maven artifact to upload to Artifact Registry upon successful completion of all build steps.
+  The location and generation of the uploaded objects will be stored in the Build resource's results field.
+  If any objects fail to be pushed, the build is marked FAILURE.
+  Structure is [documented below](#nested_maven_artifacts).
+
+* `python_packages` -
+  (Optional)
+  Python package to upload to Artifact Registry upon successful completion of all build steps. A package can encapsulate multiple objects to be uploaded to a single repository.
+  The location and generation of the uploaded objects will be stored in the Build resource's results field.
+  If any objects fail to be pushed, the build is marked FAILURE.
+  Structure is [documented below](#nested_python_packages).
+
+* `npm_packages` -
+  (Optional)
+  Npm package to upload to Artifact Registry upon successful completion of all build steps.
+  The location and generation of the uploaded objects will be stored in the Build resource's results field.
+  If any objects fail to be pushed, the build is marked FAILURE.
+  Structure is [documented below](#nested_npm_packages).
+
 
 <a name="nested_objects"></a>The `objects` block supports:
 
@@ -1522,6 +1561,51 @@ The following arguments are supported:
   End of time span.
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
   nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
+
+<a name="nested_maven_artifacts"></a>The `maven_artifacts` block supports:
+
+* `repository` -
+  (Optional)
+  Artifact Registry repository, in the form "https://$REGION-maven.pkg.dev/$PROJECT/$REPOSITORY"
+  Artifact in the workspace specified by path will be uploaded to Artifact Registry with this location as a prefix.
+
+* `path` -
+  (Optional)
+  Path to an artifact in the build's workspace to be uploaded to Artifact Registry. This can be either an absolute path, e.g. /workspace/my-app/target/my-app-1.0.SNAPSHOT.jar or a relative path from /workspace, e.g. my-app/target/my-app-1.0.SNAPSHOT.jar.
+
+* `artifact_id` -
+  (Optional)
+  Maven artifactId value used when uploading the artifact to Artifact Registry.
+
+* `group_id` -
+  (Optional)
+  Maven groupId value used when uploading the artifact to Artifact Registry.
+
+* `version` -
+  (Optional)
+  Maven version value used when uploading the artifact to Artifact Registry.
+
+<a name="nested_python_packages"></a>The `python_packages` block supports:
+
+* `repository` -
+  (Optional)
+  Artifact Registry repository, in the form "https://$REGION-python.pkg.dev/$PROJECT/$REPOSITORY"
+  Files in the workspace matching any path pattern will be uploaded to Artifact Registry with this location as a prefix.
+
+* `paths` -
+  (Optional)
+  Path globs used to match files in the build's workspace. For Python/ Twine, this is usually dist/*, and sometimes additionally an .asc file.
+
+<a name="nested_npm_packages"></a>The `npm_packages` block supports:
+
+* `repository` -
+  (Optional)
+  Artifact Registry repository, in the form "https://$REGION-npm.pkg.dev/$PROJECT/$REPOSITORY"
+  Npm package in the workspace specified by path will be zipped and uploaded to Artifact Registry with this location as a prefix.
+
+* `package_path` -
+  (Optional)
+  Path to the package.json. e.g. workspace/path/to/package
 
 <a name="nested_options"></a>The `options` block supports:
 

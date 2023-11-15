@@ -155,6 +155,24 @@ resource "google_cloudbuild_trigger" "build-trigger" {
         location = "gs://bucket/path/to/somewhere/"
         paths = ["path"]
       }
+
+      npm_packages {
+        package_path = "package.json"
+        repository   = "https://us-west1-npm.pkg.dev/myProject/quickstart-nodejs-repo"
+      }
+
+      python_packages {
+        paths      = ["dist/*"]
+        repository = "https://us-west1-python.pkg.dev/myProject/quickstart-python-repo"
+      }
+
+      maven_artifacts {
+        repository  = "https://us-west1-maven.pkg.dev/myProject/quickstart-java-repo"
+        path        = "/workspace/my-app/target/my-app-1.0.SNAPSHOT.jar"
+        artifact_id = "my-app"
+        group_id    = "com.mycompany.app"
+        version     = "1.0"
+      }
     }
     options {
       source_provenance_hash = ["MD5"]
