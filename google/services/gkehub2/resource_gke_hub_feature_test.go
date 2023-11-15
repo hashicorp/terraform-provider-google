@@ -446,6 +446,169 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "update_time"},
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdateSetEmpty(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_ENABLED"
+        exemptable_namespaces = ["foo"]
+        policy_content {
+          bundles {
+            bundle = "policy-essentials-v2022"
+            exempted_namespaces = ["foo", "bar"]
+          }
+        }
+        audit_interval_seconds = 30
+        referential_rules_enabled = true
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.poco]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_SUSPENDED"
+        policy_content {
+          bundles {
+            bundle = "pci-dss-v3.2.1"
+            exempted_namespaces = ["baz", "bar"]
+          }
+          bundles {
+            bundle = "nist-sp-800-190"
+            exempted_namespaces = []
+          }
+          template_library {
+            installation = "ALL"
+          }
+        }
+        constraint_violation_limit = 50
+        referential_rules_enabled = true
+        log_denies_enabled = true
+        mutation_enabled = true
+        deployment_configs {
+          component = "admission"
+          replica_count = 2
+          pod_affinity = "ANTI_AFFINITY"
+        }
+        deployment_configs {
+          component = "audit"
+          container_resources {
+            limits {
+              memory = "1Gi"
+              cpu = "1.5"
+            }
+            requests {
+              memory = "500Mi"
+              cpu = "150m"
+            }
+          }
+          pod_toleration {
+            key = "key1"
+            operator = "Equal"
+            value = "value1"
+            effect = "NoSchedule"
+          }
+        }
+        monitoring {
+          backends = [
+            "PROMETHEUS"
+          ]
+        }
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.poco]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdateSetEmpty(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_ENABLED"
+        policy_content {}
+        constraint_violation_limit = 50
+        referential_rules_enabled = true
+        log_denies_enabled = true
+        mutation_enabled = true
+        deployment_configs {
+          component = "admission"
+        }
+        monitoring {}
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.poco]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
 func TestAccGKEHubFeature_gkehubFeatureMcsd(t *testing.T) {
 	// VCR fails to handle batched project services
 	acctest.SkipIfVcr(t)
@@ -535,6 +698,11 @@ resource "google_project_service" "mci" {
 resource "google_project_service" "acm" {
   project = google_project.project.project_id
   service = "anthosconfigmanagement.googleapis.com"
+}
+
+resource "google_project_service" "poco" {
+  project = google_project.project.project_id
+  service = "anthospolicycontroller.googleapis.com"
 }
 
 resource "google_project_service" "mcsd" {

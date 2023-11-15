@@ -168,6 +168,121 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+## Example Usage - Enable Fleet Default Member Config Policycontroller
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_ENABLED"
+        exemptable_namespaces = ["foo"]
+        policy_content {
+          bundles {
+            bundle = "policy-essentials-v2022"
+            exempted_namespaces = ["foo", "bar"]
+          }
+          template_library {
+            installation = "ALL"
+          }
+        }
+        audit_interval_seconds = 30
+        referential_rules_enabled = true
+      }
+    }
+  }
+}
+```
+## Example Usage - Enable Fleet Default Member Config Policycontroller Update
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_SUSPENDED"
+        policy_content {
+          bundles {
+            bundle = "pci-dss-v3.2.1"
+            exempted_namespaces = ["baz", "bar"]
+          }
+          bundles {
+            bundle = "nist-sp-800-190"
+            exempted_namespaces = []
+          }
+          template_library {
+            installation = "ALL"
+          }
+        }
+        constraint_violation_limit = 50
+        referential_rules_enabled = true
+        log_denies_enabled = true
+        mutation_enabled = true
+        deployment_configs {
+          component = "admission"
+          replica_count = 2
+          pod_affinity = "ANTI_AFFINITY"
+        }
+        deployment_configs {
+          component = "audit"
+          container_resources {
+            limits {
+              memory = "1Gi"
+              cpu = "1.5"
+            }
+            requests {
+              memory = "500Mi"
+              cpu = "150m"
+            }
+          }
+          pod_toleration {
+            key = "key1"
+            operator = "Equal"
+            value = "value1"
+            effect = "NoSchedule"
+          }
+        }
+        monitoring {
+          backends = [
+            "PROMETHEUS"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+## Example Usage - Enable Fleet Default Member Config Policycontroller Set Empty
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+  fleet_default_member_config {
+    policycontroller {
+      policy_controller_hub_config {
+        install_spec = "INSTALL_SPEC_ENABLED"
+        policy_content {}
+        constraint_violation_limit = 50
+        referential_rules_enabled = true
+        log_denies_enabled = true
+        mutation_enabled = true
+        deployment_configs {
+          component = "admission"
+        }
+        monitoring {}
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -272,6 +387,11 @@ The following arguments are supported:
   Config Management spec
   Structure is [documented below](#nested_configmanagement).
 
+* `policycontroller` -
+  (Optional)
+  Policy Controller spec
+  Structure is [documented below](#nested_policycontroller).
+
 
 <a name="nested_mesh"></a>The `mesh` block supports:
 
@@ -364,6 +484,175 @@ The following arguments are supported:
 * `version` -
   (Optional)
   Version of ACM installed
+
+<a name="nested_policycontroller"></a>The `policycontroller` block supports:
+
+* `version` -
+  (Optional)
+  Configures the version of Policy Controller
+
+* `policy_controller_hub_config` -
+  (Required)
+  Configuration of Policy Controller
+  Structure is [documented below](#nested_policy_controller_hub_config).
+
+
+<a name="nested_policy_controller_hub_config"></a>The `policy_controller_hub_config` block supports:
+
+* `install_spec` -
+  (Required)
+  Configures the mode of the Policy Controller installation
+  Possible values are: `INSTALL_SPEC_UNSPECIFIED`, `INSTALL_SPEC_NOT_INSTALLED`, `INSTALL_SPEC_ENABLED`, `INSTALL_SPEC_SUSPENDED`, `INSTALL_SPEC_DETACHED`.
+
+* `audit_interval_seconds` -
+  (Optional)
+  Interval for Policy Controller Audit scans (in seconds). When set to 0, this disables audit functionality altogether.
+
+* `exemptable_namespaces` -
+  (Optional)
+  The set of namespaces that are excluded from Policy Controller checks. Namespaces do not need to currently exist on the cluster.
+
+* `log_denies_enabled` -
+  (Optional)
+  Logs all denies and dry run failures.
+
+* `mutation_enabled` -
+  (Optional)
+  Enables the ability to mutate resources using Policy Controller.
+
+* `referential_rules_enabled` -
+  (Optional)
+  Enables the ability to use Constraint Templates that reference to objects other than the object currently being evaluated.
+
+* `monitoring` -
+  (Optional)
+  Monitoring specifies the configuration of monitoring Policy Controller.
+  Structure is [documented below](#nested_monitoring).
+
+* `constraint_violation_limit` -
+  (Optional)
+  The maximum number of audit violations to be stored in a constraint. If not set, the internal default of 20 will be used.
+
+* `deployment_configs` -
+  (Optional)
+  Map of deployment configs to deployments ("admission", "audit", "mutation").
+  Structure is [documented below](#nested_deployment_configs).
+
+* `policy_content` -
+  (Optional)
+  Specifies the desired policy content on the cluster.
+  Structure is [documented below](#nested_policy_content).
+
+
+<a name="nested_monitoring"></a>The `monitoring` block supports:
+
+* `backends` -
+  (Optional)
+  Specifies the list of backends Policy Controller will export to. An empty list would effectively disable metrics export.
+  Each value may be one of: `MONITORING_BACKEND_UNSPECIFIED`, `PROMETHEUS`, `CLOUD_MONITORING`.
+
+<a name="nested_deployment_configs"></a>The `deployment_configs` block supports:
+
+* `component` - (Required) The identifier for this object. Format specified above.
+
+* `replica_count` -
+  (Optional)
+  Pod replica count.
+
+* `container_resources` -
+  (Optional)
+  Container resource requirements.
+  Structure is [documented below](#nested_container_resources).
+
+* `pod_affinity` -
+  (Optional)
+  Pod affinity configuration.
+  Possible values are: `AFFINITY_UNSPECIFIED`, `NO_AFFINITY`, `ANTI_AFFINITY`.
+
+* `pod_toleration` -
+  (Optional)
+  Pod tolerations of node taints.
+  Structure is [documented below](#nested_pod_toleration).
+
+
+<a name="nested_container_resources"></a>The `container_resources` block supports:
+
+* `limits` -
+  (Optional)
+  Limits describes the maximum amount of compute resources allowed for use by the running container.
+  Structure is [documented below](#nested_limits).
+
+* `requests` -
+  (Optional)
+  Requests describes the amount of compute resources reserved for the container by the kube-scheduler.
+  Structure is [documented below](#nested_requests).
+
+
+<a name="nested_limits"></a>The `limits` block supports:
+
+* `memory` -
+  (Optional)
+  Memory requirement expressed in Kubernetes resource units.
+
+* `cpu` -
+  (Optional)
+  CPU requirement expressed in Kubernetes resource units.
+
+<a name="nested_requests"></a>The `requests` block supports:
+
+* `memory` -
+  (Optional)
+  Memory requirement expressed in Kubernetes resource units.
+
+* `cpu` -
+  (Optional)
+  CPU requirement expressed in Kubernetes resource units.
+
+<a name="nested_pod_toleration"></a>The `pod_toleration` block supports:
+
+* `key` -
+  (Optional)
+  Matches a taint key (not necessarily unique).
+
+* `operator` -
+  (Optional)
+  Matches a taint operator.
+
+* `value` -
+  (Optional)
+  Matches a taint value.
+
+* `effect` -
+  (Optional)
+  Matches a taint effect.
+
+<a name="nested_policy_content"></a>The `policy_content` block supports:
+
+* `template_library` -
+  (Optional)
+  Configures the installation of the Template Library.
+  Structure is [documented below](#nested_template_library).
+
+* `bundles` -
+  (Optional)
+  Configures which bundles to install and their corresponding install specs.
+  Structure is [documented below](#nested_bundles).
+
+
+<a name="nested_template_library"></a>The `template_library` block supports:
+
+* `installation` -
+  (Optional)
+  Configures the manner in which the template library is installed on the cluster.
+  Possible values are: `INSTALATION_UNSPECIFIED`, `NOT_INSTALLED`, `ALL`.
+
+<a name="nested_bundles"></a>The `bundles` block supports:
+
+* `bundle` - (Required) The identifier for this object. Format specified above.
+
+* `exempted_namespaces` -
+  (Optional)
+  The set of namespaces to be exempted from the bundle.
 
 ## Attributes Reference
 
