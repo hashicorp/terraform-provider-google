@@ -199,6 +199,246 @@ func ResourceGKEHub2Feature() *schema.Resource {
 								},
 							},
 						},
+						"policycontroller": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Policy Controller spec`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"policy_controller_hub_config": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Configuration of Policy Controller`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"install_spec": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"INSTALL_SPEC_UNSPECIFIED", "INSTALL_SPEC_NOT_INSTALLED", "INSTALL_SPEC_ENABLED", "INSTALL_SPEC_SUSPENDED", "INSTALL_SPEC_DETACHED"}),
+													Description:  `Configures the mode of the Policy Controller installation Possible values: ["INSTALL_SPEC_UNSPECIFIED", "INSTALL_SPEC_NOT_INSTALLED", "INSTALL_SPEC_ENABLED", "INSTALL_SPEC_SUSPENDED", "INSTALL_SPEC_DETACHED"]`,
+												},
+												"audit_interval_seconds": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Interval for Policy Controller Audit scans (in seconds). When set to 0, this disables audit functionality altogether.`,
+												},
+												"constraint_violation_limit": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `The maximum number of audit violations to be stored in a constraint. If not set, the internal default of 20 will be used.`,
+												},
+												"deployment_configs": {
+													Type:        schema.TypeSet,
+													Computed:    true,
+													Optional:    true,
+													Description: `Map of deployment configs to deployments ("admission", "audit", "mutation").`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"component": {
+																Type:     schema.TypeString,
+																Required: true,
+															},
+															"container_resources": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Container resource requirements.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"limits": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Limits describes the maximum amount of compute resources allowed for use by the running container.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"cpu": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `CPU requirement expressed in Kubernetes resource units.`,
+																					},
+																					"memory": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Memory requirement expressed in Kubernetes resource units.`,
+																					},
+																				},
+																			},
+																		},
+																		"requests": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `Requests describes the amount of compute resources reserved for the container by the kube-scheduler.`,
+																			MaxItems:    1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"cpu": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `CPU requirement expressed in Kubernetes resource units.`,
+																					},
+																					"memory": {
+																						Type:        schema.TypeString,
+																						Optional:    true,
+																						Description: `Memory requirement expressed in Kubernetes resource units.`,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"pod_affinity": {
+																Type:         schema.TypeString,
+																Computed:     true,
+																Optional:     true,
+																ValidateFunc: verify.ValidateEnum([]string{"AFFINITY_UNSPECIFIED", "NO_AFFINITY", "ANTI_AFFINITY", ""}),
+																Description:  `Pod affinity configuration. Possible values: ["AFFINITY_UNSPECIFIED", "NO_AFFINITY", "ANTI_AFFINITY"]`,
+															},
+															"pod_toleration": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Pod tolerations of node taints.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"effect": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Matches a taint effect.`,
+																		},
+																		"key": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Matches a taint key (not necessarily unique).`,
+																		},
+																		"operator": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Matches a taint operator.`,
+																		},
+																		"value": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Matches a taint value.`,
+																		},
+																	},
+																},
+															},
+															"replica_count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Optional:    true,
+																Description: `Pod replica count.`,
+															},
+														},
+													},
+												},
+												"exemptable_namespaces": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `The set of namespaces that are excluded from Policy Controller checks. Namespaces do not need to currently exist on the cluster.`,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"log_denies_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Logs all denies and dry run failures.`,
+												},
+												"monitoring": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Optional:    true,
+													Description: `Monitoring specifies the configuration of monitoring Policy Controller.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"backends": {
+																Type:        schema.TypeList,
+																Computed:    true,
+																Optional:    true,
+																Description: `Specifies the list of backends Policy Controller will export to. An empty list would effectively disable metrics export. Possible values: ["MONITORING_BACKEND_UNSPECIFIED", "PROMETHEUS", "CLOUD_MONITORING"]`,
+																Elem: &schema.Schema{
+																	Type:         schema.TypeString,
+																	ValidateFunc: verify.ValidateEnum([]string{"MONITORING_BACKEND_UNSPECIFIED", "PROMETHEUS", "CLOUD_MONITORING"}),
+																},
+															},
+														},
+													},
+												},
+												"mutation_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Enables the ability to mutate resources using Policy Controller.`,
+												},
+												"policy_content": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Specifies the desired policy content on the cluster.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"bundles": {
+																Type:        schema.TypeSet,
+																Optional:    true,
+																Description: `Configures which bundles to install and their corresponding install specs.`,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"bundle": {
+																			Type:     schema.TypeString,
+																			Required: true,
+																		},
+																		"exempted_namespaces": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: `The set of namespaces to be exempted from the bundle.`,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																		},
+																	},
+																},
+															},
+															"template_library": {
+																Type:        schema.TypeList,
+																Computed:    true,
+																Optional:    true,
+																Description: `Configures the installation of the Template Library.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"installation": {
+																			Type:         schema.TypeString,
+																			Optional:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"INSTALATION_UNSPECIFIED", "NOT_INSTALLED", "ALL", ""}),
+																			Description:  `Configures the manner in which the template library is installed on the cluster. Possible values: ["INSTALATION_UNSPECIFIED", "NOT_INSTALLED", "ALL"]`,
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+												"referential_rules_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Enables the ability to use Constraint Templates that reference to objects other than the object currently being evaluated.`,
+												},
+											},
+										},
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Optional:    true,
+										Description: `Configures the version of Policy Controller`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -872,6 +1112,8 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfig(v interface{}, d *schema.Reso
 		flattenGKEHub2FeatureFleetDefaultMemberConfigMesh(original["mesh"], d, config)
 	transformed["configmanagement"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(original["configmanagement"], d, config)
+	transformed["policycontroller"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontroller(original["policycontroller"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureFleetDefaultMemberConfigMesh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1028,6 +1270,315 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciS
 }
 
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontroller(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["version"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerVersion(original["version"], d, config)
+	transformed["policy_controller_hub_config"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfig(original["policyControllerHubConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["install_spec"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigInstallSpec(original["installSpec"], d, config)
+	transformed["audit_interval_seconds"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigAuditIntervalSeconds(original["auditIntervalSeconds"], d, config)
+	transformed["exemptable_namespaces"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigExemptableNamespaces(original["exemptableNamespaces"], d, config)
+	transformed["log_denies_enabled"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigLogDeniesEnabled(original["logDeniesEnabled"], d, config)
+	transformed["mutation_enabled"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMutationEnabled(original["mutationEnabled"], d, config)
+	transformed["referential_rules_enabled"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigReferentialRulesEnabled(original["referentialRulesEnabled"], d, config)
+	transformed["monitoring"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoring(original["monitoring"], d, config)
+	transformed["constraint_violation_limit"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigConstraintViolationLimit(original["constraintViolationLimit"], d, config)
+	transformed["deployment_configs"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(original["deploymentConfigs"], d, config)
+	transformed["policy_content"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContent(original["policyContent"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigInstallSpec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigAuditIntervalSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigExemptableNamespaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigLogDeniesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMutationEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigReferentialRulesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["backends"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoringBackends(original["backends"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoringBackends(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigConstraintViolationLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"component":           k,
+			"replica_count":       flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsReplicaCount(original["replicaCount"], d, config),
+			"container_resources": flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(original["containerResources"], d, config),
+			"pod_affinity":        flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodAffinity(original["podAffinity"], d, config),
+			"pod_toleration":      flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodToleration(original["podTolerations"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsReplicaCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["limits"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(original["limits"], d, config)
+	transformed["requests"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(original["requests"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["memory"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsMemory(original["memory"], d, config)
+	transformed["cpu"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsCpu(original["cpu"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsMemory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsCpu(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["memory"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsMemory(original["memory"], d, config)
+	transformed["cpu"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsCpu(original["cpu"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsMemory(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsCpu(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodAffinity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodToleration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"key":      flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationKey(original["key"], d, config),
+			"operator": flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationOperator(original["operator"], d, config),
+			"value":    flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationValue(original["value"], d, config),
+			"effect":   flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationEffect(original["effect"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationOperator(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationEffect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["template_library"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(original["templateLibrary"], d, config)
+	transformed["bundles"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(original["bundles"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["installation"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibraryInstallation(original["installation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibraryInstallation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"bundle":              k,
+			"exempted_namespaces": flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesExemptedNamespaces(original["exemptedNamespaces"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesExemptedNamespaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1265,6 +1816,13 @@ func expandGKEHub2FeatureFleetDefaultMemberConfig(v interface{}, d tpgresource.T
 		return nil, err
 	} else if val := reflect.ValueOf(transformedConfigmanagement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["configmanagement"] = transformedConfigmanagement
+	}
+
+	transformedPolicycontroller, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontroller(original["policycontroller"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicycontroller); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policycontroller"] = transformedPolicycontroller
 	}
 
 	return transformed, nil
@@ -1524,6 +2082,454 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciSy
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncOciVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontroller(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVersion, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	transformedPolicyControllerHubConfig, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfig(original["policy_controller_hub_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicyControllerHubConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policyControllerHubConfig"] = transformedPolicyControllerHubConfig
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstallSpec, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigInstallSpec(original["install_spec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstallSpec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["installSpec"] = transformedInstallSpec
+	}
+
+	transformedAuditIntervalSeconds, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigAuditIntervalSeconds(original["audit_interval_seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAuditIntervalSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["auditIntervalSeconds"] = transformedAuditIntervalSeconds
+	}
+
+	transformedExemptableNamespaces, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigExemptableNamespaces(original["exemptable_namespaces"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExemptableNamespaces); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exemptableNamespaces"] = transformedExemptableNamespaces
+	}
+
+	transformedLogDeniesEnabled, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigLogDeniesEnabled(original["log_denies_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLogDeniesEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["logDeniesEnabled"] = transformedLogDeniesEnabled
+	}
+
+	transformedMutationEnabled, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMutationEnabled(original["mutation_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMutationEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mutationEnabled"] = transformedMutationEnabled
+	}
+
+	transformedReferentialRulesEnabled, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigReferentialRulesEnabled(original["referential_rules_enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReferentialRulesEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["referentialRulesEnabled"] = transformedReferentialRulesEnabled
+	}
+
+	transformedMonitoring, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoring(original["monitoring"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMonitoring); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["monitoring"] = transformedMonitoring
+	}
+
+	transformedConstraintViolationLimit, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigConstraintViolationLimit(original["constraint_violation_limit"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConstraintViolationLimit); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["constraintViolationLimit"] = transformedConstraintViolationLimit
+	}
+
+	transformedDeploymentConfigs, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(original["deployment_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDeploymentConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["deploymentConfigs"] = transformedDeploymentConfigs
+	}
+
+	transformedPolicyContent, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContent(original["policy_content"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicyContent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policyContent"] = transformedPolicyContent
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigInstallSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigAuditIntervalSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigExemptableNamespaces(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigLogDeniesEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMutationEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigReferentialRulesEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoring(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBackends, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoringBackends(original["backends"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBackends); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["backends"] = transformedBackends
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigMonitoringBackends(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigConstraintViolationLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedReplicaCount, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsReplicaCount(original["replica_count"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedReplicaCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["replicaCount"] = transformedReplicaCount
+		}
+
+		transformedContainerResources, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(original["container_resources"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedContainerResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["containerResources"] = transformedContainerResources
+		}
+
+		transformedPodAffinity, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodAffinity(original["pod_affinity"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPodAffinity); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["podAffinity"] = transformedPodAffinity
+		}
+
+		transformedPodToleration, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodToleration(original["pod_toleration"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPodToleration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["podTolerations"] = transformedPodToleration
+		}
+
+		transformedComponent, err := tpgresource.ExpandString(original["component"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedComponent] = transformed
+	}
+	return m, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsReplicaCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLimits, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(original["limits"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedLimits); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["limits"] = transformedLimits
+	}
+
+	transformedRequests, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(original["requests"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRequests); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["requests"] = transformedRequests
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMemory, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsMemory(original["memory"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMemory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["memory"] = transformedMemory
+	}
+
+	transformedCpu, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsCpu(original["cpu"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCpu); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cpu"] = transformedCpu
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsMemory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsCpu(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMemory, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsMemory(original["memory"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMemory); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["memory"] = transformedMemory
+	}
+
+	transformedCpu, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsCpu(original["cpu"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCpu); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["cpu"] = transformedCpu
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsMemory(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsCpu(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodToleration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedKey, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationKey(original["key"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["key"] = transformedKey
+		}
+
+		transformedOperator, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationOperator(original["operator"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOperator); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["operator"] = transformedOperator
+		}
+
+		transformedValue, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationValue(original["value"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["value"] = transformedValue
+		}
+
+		transformedEffect, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationEffect(original["effect"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEffect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["effect"] = transformedEffect
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationOperator(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationEffect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTemplateLibrary, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(original["template_library"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTemplateLibrary); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["templateLibrary"] = transformedTemplateLibrary
+	}
+
+	transformedBundles, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(original["bundles"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBundles); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bundles"] = transformedBundles
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedInstallation, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibraryInstallation(original["installation"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedInstallation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["installation"] = transformedInstallation
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibraryInstallation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedExemptedNamespaces, err := expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesExemptedNamespaces(original["exempted_namespaces"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExemptedNamespaces); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["exemptedNamespaces"] = transformedExemptedNamespaces
+		}
+
+		transformedBundle, err := tpgresource.ExpandString(original["bundle"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedBundle] = transformed
+	}
+	return m, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesExemptedNamespaces(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
