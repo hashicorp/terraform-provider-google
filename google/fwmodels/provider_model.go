@@ -96,6 +96,7 @@ type ProviderModel struct {
 	LoggingCustomEndpoint                  types.String `tfsdk:"logging_custom_endpoint"`
 	LookerCustomEndpoint                   types.String `tfsdk:"looker_custom_endpoint"`
 	MemcacheCustomEndpoint                 types.String `tfsdk:"memcache_custom_endpoint"`
+	MigrationCenterCustomEndpoint          types.String `tfsdk:"migration_center_custom_endpoint"`
 	MLEngineCustomEndpoint                 types.String `tfsdk:"ml_engine_custom_endpoint"`
 	MonitoringCustomEndpoint               types.String `tfsdk:"monitoring_custom_endpoint"`
 	NetworkConnectivityCustomEndpoint      types.String `tfsdk:"network_connectivity_custom_endpoint"`

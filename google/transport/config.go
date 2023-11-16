@@ -255,6 +255,7 @@ type Config struct {
 	LoggingBasePath                  string
 	LookerBasePath                   string
 	MemcacheBasePath                 string
+	MigrationCenterBasePath          string
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
 	NetworkConnectivityBasePath      string
@@ -377,6 +378,7 @@ const KMSBasePathKey = "KMS"
 const LoggingBasePathKey = "Logging"
 const LookerBasePathKey = "Looker"
 const MemcacheBasePathKey = "Memcache"
+const MigrationCenterBasePathKey = "MigrationCenter"
 const MLEngineBasePathKey = "MLEngine"
 const MonitoringBasePathKey = "Monitoring"
 const NetworkConnectivityBasePathKey = "NetworkConnectivity"
@@ -493,6 +495,7 @@ var DefaultBasePaths = map[string]string{
 	LoggingBasePathKey:                  "https://logging.googleapis.com/v2/",
 	LookerBasePathKey:                   "https://looker.googleapis.com/v1/",
 	MemcacheBasePathKey:                 "https://memcache.googleapis.com/v1/",
+	MigrationCenterBasePathKey:          "https://migrationcenter.googleapis.com/v1/",
 	MLEngineBasePathKey:                 "https://ml.googleapis.com/v1/",
 	MonitoringBasePathKey:               "https://monitoring.googleapis.com/",
 	NetworkConnectivityBasePathKey:      "https://networkconnectivity.googleapis.com/v1/",
@@ -954,6 +957,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("memcache_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_MEMCACHE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[MemcacheBasePathKey]))
+	}
+	if d.Get("migration_center_custom_endpoint") == "" {
+		d.Set("migration_center_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_MIGRATION_CENTER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[MigrationCenterBasePathKey]))
 	}
 	if d.Get("ml_engine_custom_endpoint") == "" {
 		d.Set("ml_engine_custom_endpoint", MultiEnvDefault([]string{
@@ -2040,6 +2048,7 @@ func ConfigureBasePaths(c *Config) {
 	c.LoggingBasePath = DefaultBasePaths[LoggingBasePathKey]
 	c.LookerBasePath = DefaultBasePaths[LookerBasePathKey]
 	c.MemcacheBasePath = DefaultBasePaths[MemcacheBasePathKey]
+	c.MigrationCenterBasePath = DefaultBasePaths[MigrationCenterBasePathKey]
 	c.MLEngineBasePath = DefaultBasePaths[MLEngineBasePathKey]
 	c.MonitoringBasePath = DefaultBasePaths[MonitoringBasePathKey]
 	c.NetworkConnectivityBasePath = DefaultBasePaths[NetworkConnectivityBasePathKey]
