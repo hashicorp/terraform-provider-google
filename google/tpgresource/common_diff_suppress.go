@@ -180,25 +180,48 @@ func TimestampDiffSuppress(format string) schema.SchemaDiffSuppressFunc {
 	}
 }
 
-// suppress diff when saved is Ipv4 and Ipv6 format while new is required a reference
-// this happens for an internal ip for Private Services Connect
+// Suppresses diff for IPv4 and IPv6 different formats.
+// It also suppresses diffs if an IP is changing to a reference.
 func InternalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
-	olds := strings.Split(old, "/")
-	news := strings.Split(new, "/")
+	addr_equality := false
+	netmask_equality := false
 
-	if len(olds) == 2 {
-		if len(news) == 2 {
-			return bytes.Equal(net.ParseIP(olds[0]), net.ParseIP(news[0])) && olds[1] == news[1]
+	addr_netmask_old := strings.Split(old, "/")
+	addr_netmask_new := strings.Split(new, "/")
+
+	// Check if old or new are IPs (with or without netmask)
+	var addr_old net.IP
+	if net.ParseIP(addr_netmask_old[0]) == nil {
+		addr_old = net.ParseIP(old)
+	} else {
+		addr_old = net.ParseIP(addr_netmask_old[0])
+	}
+	var addr_new net.IP
+	if net.ParseIP(addr_netmask_new[0]) == nil {
+		addr_new = net.ParseIP(new)
+	} else {
+		addr_new = net.ParseIP(addr_netmask_new[0])
+	}
+
+	if addr_old != nil {
+		if addr_new == nil {
+			// old is an IP and new is a reference
+			addr_equality = true
 		} else {
-			return (net.ParseIP(olds[0]) != nil) && (net.ParseIP(new) == nil)
+			// old and new are IP addresses
+			addr_equality = bytes.Equal(addr_old, addr_new)
 		}
 	}
 
-	if (net.ParseIP(old) != nil) && (net.ParseIP(new) != nil) {
-		return bytes.Equal(net.ParseIP(old), net.ParseIP(new))
+	// If old and new both have a netmask compare them, otherwise suppress
+	// This is not technically correct but prevents the permadiff described in https://github.com/hashicorp/terraform-provider-google/issues/16400
+	if (len(addr_netmask_old)) == 2 && (len(addr_netmask_new) == 2) {
+		netmask_equality = addr_netmask_old[1] == addr_netmask_new[1]
+	} else {
+		netmask_equality = true
 	}
 
-	return (net.ParseIP(old) != nil) && (net.ParseIP(new) == nil)
+	return addr_equality && netmask_equality
 }
 
 // Suppress diffs for duration format. ex "60.0s" and "60s" same

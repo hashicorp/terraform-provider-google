@@ -1,0 +1,3 @@
+```release-note:bug
+Fix (and simplify) InternalIpDiffSuppress function to suppress drifts for IPv6 with and without netmask.
+```
