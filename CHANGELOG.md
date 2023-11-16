@@ -1,4 +1,59 @@
-## 5.6.0 (Unreleased)
+## 5.7.0 (Unreleased)
+
+DEPRECATIONS:
+* gkehub: deprecated `config_management.binauthz` in `google_gke_hub_feature_membership` ([#16536](https://github.com/hashicorp/terraform-provider-google/pull/16536))
+
+IMPROVEMENTS:
+* bigtable: added `standard_isolation` and `standard_isolation.priority` fields to `google_bigtable_app_profile` resource ([#16485](https://github.com/hashicorp/terraform-provider-google/pull/16485))
+* cloudrunv2: promoted `custom_audiences` field to GA on `google_cloud_run_v2_service` resource ([#16510](https://github.com/hashicorp/terraform-provider-google/pull/16510))
+* compute: promoted `labels` field to GA on `google_compute_vpn_tunnel` resource ([#16508](https://github.com/hashicorp/terraform-provider-google/pull/16508))
+* containerattached: added `proxy_config` field to `google_container_attached_cluster` resource ([#16524](https://github.com/hashicorp/terraform-provider-google/pull/16524))
+* gkehub: added `membership_location` field to `google_gke_hub_feature_membership` resource ([#16536](https://github.com/hashicorp/terraform-provider-google/pull/16536))
+* logging: made the change to aqcuire and update the `google_logging_project_sink` resource that already exists at the desired location. These logging buckets cannot be removed so deleting this resource will remove the bucket config from your terraform state but will leave the logging bucket unchanged. ([#16513](https://github.com/hashicorp/terraform-provider-google/pull/16513))
+* memcache: added `MEMCACHE_1_6_15` as a possible value for `memcache_version` in `google_memcache_instance` resource ([#16531](https://github.com/hashicorp/terraform-provider-google/pull/16531))
+* monitoring: added error message to delete Alert Policies first on 400 response when deleting `google_monitoring_uptime_check_config` resource ([#16535](https://github.com/hashicorp/terraform-provider-google/pull/16535))
+* spanner: added `autoscaling_config` field to `google_spanner_instance` resource ([#16473](https://github.com/hashicorp/terraform-provider-google/pull/16473))
+* workflows: promoted `user_env_vars` field to GA on `google_workflows_workflow` resource ([#16477](https://github.com/hashicorp/terraform-provider-google/pull/16477))
+
+BUG FIXES:
+* edgecontaienr: fixed update method of `google_edgecontainer_cluster` resource ([#16490](https://github.com/hashicorp/terraform-provider-google/pull/16490))
+* sql: `ssl_mode` field is not stored in terraform state if it has never been used in `google_sql_database_instance` resource ([#16486](https://github.com/hashicorp/terraform-provider-google/pull/16486))
+* compute: changed `external_ipv6_prefix` field to not be output only in `google_compute_subnetwork` resource ([#16480](https://github.com/hashicorp/terraform-provider-google/pull/16480))
+* compute: fixed issue where `google_compute_attached_disk` would produce an error for certain zone configs ([#16484](https://github.com/hashicorp/terraform-provider-google/pull/16484))
+* provider: fixed an issue where universe domains would not overwrite API endpoints ([#16521](https://github.com/hashicorp/terraform-provider-google/pull/16521))
+* resourcemanager: made `data_source_google_project_service` no longer return an error when the service is not enabled ([#16525](https://github.com/hashicorp/terraform-provider-google/pull/16525))
+
+NOTES:
+* dataproc: backfilled `terraform_labels` field for resource `google_dataproc_workflow_template`, so resource recreation won't happen during provider upgrade from `4.x` to `5.7` ([#16517](https://github.com/hashicorp/terraform-provider-google/pull/16517))
+* * provider: backfilled `terraform_labels` field for some immutable resources, so resource recreation won't happen during provider upgrade from `4.X` to `5.7` ([#16518](https://github.com/hashicorp/terraform-provider-google/pull/16518))
+
+## 5.6.0 (Nov 13, 2023)
+
+FEATURES:
+* **New Resource:** `google_integration_connectors_connection` ([#16468](https://github.com/hashicorp/terraform-provider-google/pull/16468))
+
+IMPROVEMENTS:
+* assuredworkloads: added `enable_sovereign_controls`, `partner`, `partner_permissions`, `violation_notifications_enabled`, and several other output-only fields to `google_assured_workloads_workloads` ([#16433](https://github.com/hashicorp/terraform-provider-google/pull/16433))
+* composer: added `storage_config` to `google_composer_environment` ([#16455](https://github.com/hashicorp/terraform-provider-google/pull/16455))
+* container: added `fleet` field to `google_container_cluster` resource ([#16466](https://github.com/hashicorp/terraform-provider-google/pull/16466))
+* containeraws: added `admin_groups` to `google_container_aws_cluster` ([#16433](https://github.com/hashicorp/terraform-provider-google/pull/16433))
+* containerazure: added `admin_groups` to `google_container_azure_cluster` ([#16433](https://github.com/hashicorp/terraform-provider-google/pull/16433))
+* dataproc: added support for `instance_flexibility_policy` in `google_dataproc_cluster` ([#16417](https://github.com/hashicorp/terraform-provider-google/pull/16417))
+* dialogflowcx: added `is_default_start_flow` field to `google_dialogflow_cx_flow` resource to allow management of default flow resources via Terraform ([#16441](https://github.com/hashicorp/terraform-provider-google/pull/16441))
+* dialogflowcx: added `is_default_welcome_intent` and `is_default_negative_intent` fields to `google_dialogflow_cx_intent` resource to allow management of default intent resources via Terraform ([#16441](https://github.com/hashicorp/terraform-provider-google/pull/16441))
+* gkehub: added `fleet_default_member_config` field to `google_gke_hub_feature` resource ([#16457](https://github.com/hashicorp/terraform-provider-google/pull/16457))
+* gkehub: added `metrics_gcp_service_account_email` to `google_gke_hub_feature_membership` ([#16433](https://github.com/hashicorp/terraform-provider-google/pull/16433))
+* logging: added `index_configs` field to `logging_bucket_config` resource ([#16437](https://github.com/hashicorp/terraform-provider-google/pull/16437))
+* logging: added `index_configs` field to `logging_project_bucket_config` resource ([#16437](https://github.com/hashicorp/terraform-provider-google/pull/16437))
+* monitoring: added `pings_count`, `user_labels`, and `custom_content_type` fields to `google_monitoring_uptime_check_config` resource ([#16420](https://github.com/hashicorp/terraform-provider-google/pull/16420))
+* spanner: added `autoscaling_config` field to  `google_spanner_instance` ([#16473](https://github.com/hashicorp/terraform-provider-google/pull/16473))
+* sql: added `ssl_mode` field to `google_sql_database_instance` resource ([#16394](https://github.com/hashicorp/terraform-provider-google/pull/16394))
+* vertexai: added `private_service_connect_config` to `google_vertex_ai_index_endpoint` ([#16471](https://github.com/hashicorp/terraform-provider-google/pull/16471))
+* workstations: added `domain_config` field to resource `google_workstations_workstation_cluster` (beta) ([#16464](https://github.com/hashicorp/terraform-provider-google/pull/16464))
+
+BUG FIXES:
+* assuredworkloads: made the `violation_notifications_enabled` field on the `google_assured_workloads_workload` resource default to values returned from the API when unset in a users configuration ([#16465](https://github.com/hashicorp/terraform-provider-google/pull/16465))
+* provider: made `terraform_labels` immutable in immutable resources to not block the upgrade. This will create a Terraform plan that recreates the resource on `4.X` -> `5.6.0` upgrade for affected resources. A mitigation to backfill the values during the upgrade is planned, and will release resource-by-resource. ([#16469](https://github.com/hashicorp/terraform-provider-google/pull/16469))
 
 ## 5.5.0 (Nov 06, 2023)
 
