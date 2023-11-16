@@ -292,55 +292,95 @@ func TestInternalIpDiffSuppress(t *testing.T) {
 		Old, New           string
 		ExpectDiffSuppress bool
 	}{
-		"same1 ipv6s": {
+		"suppress - same long and short ipv6 IPs without netmask": {
 			Old:                "2600:1900:4020:31cd:8000:0:0:0",
 			New:                "2600:1900:4020:31cd:8000::",
 			ExpectDiffSuppress: true,
 		},
-		"same2 ipv6s": {
+		"suppress - long and short ipv6 IPs with netmask": {
 			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
 			New:                "2600:1900:4020:31cd:8000::/96",
 			ExpectDiffSuppress: true,
 		},
-		"same3 ipv6s": {
+		"suppress - long ipv6 IP with netmask and short ipv6 IP without netmask": {
 			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
-			New:                "https://www.googleapis.com/compute/v1/projects/myproject/regions/us-central1/addresses/myaddress",
+			New:                "2600:1900:4020:31cd:8000::",
 			ExpectDiffSuppress: true,
 		},
-		"different1 ipv6s": {
+		"suppress - long ipv6 IP without netmask and short ipv6 IP with netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000::/96",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP with netmask and reference": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP without netmask and reference": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: true,
+		},
+		"do not suppress - ipv6 IPs different netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8000:0:0:0/95",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - reference and ipv6 IP with netmask": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - ipv6 IPs - 1": {
 			Old:                "2600:1900:4020:31cd:8000:0:0:0",
 			New:                "2600:1900:4020:31cd:8001::",
 			ExpectDiffSuppress: false,
 		},
-		"different2 ipv6s": {
+		"do not suppress - ipv6 IPs - 2": {
 			Old:                "2600:1900:4020:31cd:8000:0:0:0",
 			New:                "2600:1900:4020:31cd:8000:0:0:8000",
 			ExpectDiffSuppress: false,
 		},
-		"different3 ipv6s": {
-			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
-			New:                "2600:1900:4020:31cd:8001::/96",
-			ExpectDiffSuppress: false,
-		},
-		"different ipv4s": {
-			Old:                "1.2.3.4",
-			New:                "1.2.3.5",
-			ExpectDiffSuppress: false,
-		},
-		"same ipv4s": {
+		"suppress - ipv4 IPs": {
 			Old:                "1.2.3.4",
 			New:                "1.2.3.4",
 			ExpectDiffSuppress: true,
 		},
-		"ipv4 vs id": {
+		"suppress - ipv4 IP without netmask and ipv4 IP with netmask": {
 			Old:                "1.2.3.4",
-			New:                "google_compute_address.my_ipv4_addr.address",
+			New:                "1.2.3.4/24",
 			ExpectDiffSuppress: true,
 		},
-		"ipv6 vs id": {
-			Old:                "2600:1900:4020:31cd:8000:0:0:0",
-			New:                "google_compute_address.my_ipv6_addr.address",
+		"suppress - ipv4 IP without netmask and reference": {
+			Old:                "1.2.3.4",
+			New:                "projects/project_id/regions/region/addresses/address-name",
 			ExpectDiffSuppress: true,
+		},
+		"do not suppress - reference and ipv4 IP without netmask": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "1.2.3.4",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - different ipv4 IPs": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.5",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - ipv4 IPs different netmask": {
+			Old:                "1.2.3.4/24",
+			New:                "1.2.3.5/25",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - different references": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "projects/project_id/regions/region/addresses/address-name-1",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - same references": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: false,
 		},
 	}
 
