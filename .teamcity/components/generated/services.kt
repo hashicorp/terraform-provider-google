@@ -441,6 +441,11 @@ var services = mapOf(
         "displayName" to "Memcache",
         "path" to "./google/services/memcache"
     ),
+    "migrationcenter" to mapOf(
+        "name" to "migrationcenter",
+        "displayName" to "Migrationcenter",
+        "path" to "./google/services/migrationcenter"
+    ),
     "mlengine" to mapOf(
         "name" to "mlengine",
         "displayName" to "Mlengine",

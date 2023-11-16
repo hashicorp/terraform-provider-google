@@ -121,6 +121,7 @@ type FrameworkProviderConfig struct {
 	LoggingBasePath                  string
 	LookerBasePath                   string
 	MemcacheBasePath                 string
+	MigrationCenterBasePath          string
 	MLEngineBasePath                 string
 	MonitoringBasePath               string
 	NetworkConnectivityBasePath      string
@@ -261,6 +262,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.LoggingBasePath = data.LoggingCustomEndpoint.ValueString()
 	p.LookerBasePath = data.LookerCustomEndpoint.ValueString()
 	p.MemcacheBasePath = data.MemcacheCustomEndpoint.ValueString()
+	p.MigrationCenterBasePath = data.MigrationCenterCustomEndpoint.ValueString()
 	p.MLEngineBasePath = data.MLEngineCustomEndpoint.ValueString()
 	p.MonitoringBasePath = data.MonitoringCustomEndpoint.ValueString()
 	p.NetworkConnectivityBasePath = data.NetworkConnectivityCustomEndpoint.ValueString()
@@ -977,6 +979,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.MemcacheBasePathKey])
 		if customEndpoint != nil {
 			data.MemcacheCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.MigrationCenterCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_MIGRATION_CENTER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.MigrationCenterBasePathKey])
+		if customEndpoint != nil {
+			data.MigrationCenterCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.MLEngineCustomEndpoint.IsNull() {
