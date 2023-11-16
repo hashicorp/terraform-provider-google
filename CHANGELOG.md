@@ -16,13 +16,13 @@ IMPROVEMENTS:
 * workflows: promoted `user_env_vars` field to GA on `google_workflows_workflow` resource ([#16477](https://github.com/hashicorp/terraform-provider-google/pull/16477))
 
 BUG FIXES:
-* edgecontaienr: fixed update method of `google_edgecontainer_cluster` resource ([#16490](https://github.com/hashicorp/terraform-provider-google/pull/16490))
-* sql: `ssl_mode` field is not stored in terraform state if it has never been used in `google_sql_database_instance` resource ([#16486](https://github.com/hashicorp/terraform-provider-google/pull/16486))
 * compute: changed `external_ipv6_prefix` field to not be output only in `google_compute_subnetwork` resource ([#16480](https://github.com/hashicorp/terraform-provider-google/pull/16480))
 * compute: fixed issue where `google_compute_attached_disk` would produce an error for certain zone configs ([#16484](https://github.com/hashicorp/terraform-provider-google/pull/16484))
+* edgecontainer: fixed update method of `google_edgecontainer_cluster` resource ([#16490](https://github.com/hashicorp/terraform-provider-google/pull/16490))
 * provider: fixed an issue where universe domains would not overwrite API endpoints ([#16521](https://github.com/hashicorp/terraform-provider-google/pull/16521))
 * resourcemanager: made `data_source_google_project_service` no longer return an error when the service is not enabled ([#16525](https://github.com/hashicorp/terraform-provider-google/pull/16525))
-
+* sql: `ssl_mode` field is not stored in terraform state if it has never been used in `google_sql_database_instance` resource ([#16486](https://github.com/hashicorp/terraform-provider-google/pull/16486))
+  
 NOTES:
 * dataproc: backfilled `terraform_labels` field for resource `google_dataproc_workflow_template`, so resource recreation won't happen during provider upgrade from `4.x` to `5.7` ([#16517](https://github.com/hashicorp/terraform-provider-google/pull/16517))
 * * provider: backfilled `terraform_labels` field for some immutable resources, so resource recreation won't happen during provider upgrade from `4.X` to `5.7` ([#16518](https://github.com/hashicorp/terraform-provider-google/pull/16518))
