@@ -1,0 +1,3 @@
+```release-note:new-resource
+vertexai: Added IAM resources for google_vertex_ai_endpoint (beta)
+```
