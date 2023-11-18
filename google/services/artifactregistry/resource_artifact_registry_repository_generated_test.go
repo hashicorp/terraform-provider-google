@@ -342,6 +342,75 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "tf-test-example-custom-remote-secret%{random_suffix}" {
+  secret_id = "tf-test-example-secret%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "tf-test-example-custom-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-custom-remote-secret%{random_suffix}.id
+  secret_data = "tf-test-remote-password%{random_suffix}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.tf-test-example-custom-remote-secret%{random_suffix}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-example-custom-remote%{random_suffix}"
+  description   = "example remote docker repository with credentials%{random_suffix}"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "docker hub with custom credentials"
+    docker_repository {
+      public_repository = "DOCKER_HUB"
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "tf-test-remote-username%{random_suffix}"
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-custom-remote-secret%{random_suffix}_version.name
+      }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckArtifactRegistryRepositoryDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
