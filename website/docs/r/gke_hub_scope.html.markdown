@@ -33,7 +33,7 @@ To get more information about Scope, see:
 
 ```hcl
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "my-scope"
   labels = {
       keyb = "valueb"
       keya = "valuea"
