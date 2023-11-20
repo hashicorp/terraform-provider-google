@@ -149,7 +149,7 @@ values must be case-insensitively unique within this set. Currently,
 enum values can only be added to the list of allowed values. Deletion
 and renaming of enum values are not supported.
 Can have up to 500 allowed values.`,
-													Elem: datacatalogTagTemplateFieldsFieldsTypeEnumTypeAllowedValuesSchema(),
+													Elem: datacatalogTagTemplateFieldsFieldTypeEnumTypeAllowedValuesSchema(),
 													// Default schema.HashSchema is used.
 												},
 											},
@@ -241,7 +241,7 @@ Multiple fields can have the same order, and field orders within a tag do not ha
 	}
 }
 
-func datacatalogTagTemplateFieldsFieldsTypeEnumTypeAllowedValuesSchema() *schema.Resource {
+func datacatalogTagTemplateFieldsFieldTypeEnumTypeAllowedValuesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"display_name": {
@@ -737,7 +737,7 @@ func flattenDataCatalogTagTemplateFieldsTypeEnumTypeAllowedValues(v interface{},
 		return v
 	}
 	l := v.([]interface{})
-	transformed := schema.NewSet(schema.HashResource(datacatalogTagTemplateFieldsFieldsTypeEnumTypeAllowedValuesSchema()), []interface{}{})
+	transformed := schema.NewSet(schema.HashResource(datacatalogTagTemplateFieldsFieldTypeEnumTypeAllowedValuesSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
