@@ -60,7 +60,7 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 func testAccGKEHub2Scope_gkehubScopeBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"

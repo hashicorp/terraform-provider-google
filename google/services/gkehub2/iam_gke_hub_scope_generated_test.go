@@ -45,7 +45,7 @@ func TestAccGKEHub2ScopeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-scope%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -55,7 +55,7 @@ func TestAccGKEHub2ScopeIamBindingGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_binding.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-scope%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -82,7 +82,7 @@ func TestAccGKEHub2ScopeIamMemberGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_member.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-scope%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s roles/viewer user:admin@hashicorptest.com", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -109,7 +109,7 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-scope%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -118,7 +118,7 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 			},
 			{
 				ResourceName:      "google_gke_hub_scope_iam_policy.foo",
-				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-scope%s", context["random_suffix"])),
+				ImportStateId:     fmt.Sprintf("projects/%s/locations/global/scopes/%s", envvar.GetTestProjectFromEnv(), fmt.Sprintf("tf-test-my-scope%s", context["random_suffix"])),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -129,7 +129,7 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 func testAccGKEHub2ScopeIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -149,7 +149,7 @@ resource "google_gke_hub_scope_iam_member" "foo" {
 func testAccGKEHub2ScopeIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -183,7 +183,7 @@ data "google_gke_hub_scope_iam_policy" "foo" {
 func testAccGKEHub2ScopeIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -205,7 +205,7 @@ resource "google_gke_hub_scope_iam_policy" "foo" {
 func testAccGKEHub2ScopeIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -225,7 +225,7 @@ resource "google_gke_hub_scope_iam_binding" "foo" {
 func testAccGKEHub2ScopeIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_gke_hub_scope" "scope" {
-  scope_id = "tf-test-scope%{random_suffix}"
+  scope_id = "tf-test-my-scope%{random_suffix}"
   labels = {
       keyb = "valueb"
       keya = "valuea"
