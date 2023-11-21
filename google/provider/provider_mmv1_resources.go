@@ -78,6 +78,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/migrationcenter"
 	"github.com/hashicorp/terraform-provider-google/google/services/mlengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/monitoring"
+	"github.com/hashicorp/terraform-provider-google/google/services/netapp"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkconnectivity"
 	"github.com/hashicorp/terraform-provider-google/google/services/networkmanagement"
 	"github.com/hashicorp/terraform-provider-google/google/services/networksecurity"
@@ -353,9 +354,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 340
+// Generated resources: 341
 // Generated IAM resources: 213
-// Total generated resources: 553
+// Total generated resources: 554
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -786,6 +787,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_monitoring_custom_service":                               monitoring.ResourceMonitoringService(),
 	"google_monitoring_slo":                                          monitoring.ResourceMonitoringSlo(),
 	"google_monitoring_uptime_check_config":                          monitoring.ResourceMonitoringUptimeCheckConfig(),
+	"google_netapp_storage_pool":                                     netapp.ResourceNetappstoragePool(),
 	"google_network_connectivity_policy_based_route":                 networkconnectivity.ResourceNetworkConnectivityPolicyBasedRoute(),
 	"google_network_connectivity_service_connection_policy":          networkconnectivity.ResourceNetworkConnectivityServiceConnectionPolicy(),
 	"google_network_management_connectivity_test":                    networkmanagement.ResourceNetworkManagementConnectivityTest(),
