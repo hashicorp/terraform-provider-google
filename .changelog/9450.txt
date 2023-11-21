@@ -1,0 +1,9 @@
+```release-note:enhancement
+firestore: enabled database deletion upon destroy for `google_firestore_database`
+```
+```release-note:enhancement
+firestore: added virtual field `deletion_policy` to `google_firestore_database`
+```
+```release-note:bug
+firestore: prevent destruction if both `deletion_policy` is `DELETE` and `delete_protection_state` is `DELETE_PROTECTION_ENABLED`
+```

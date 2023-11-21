@@ -38,32 +38,13 @@ To get more information about Database, see:
 
 
 ```hcl
-resource "google_project" "project" {
-  project_id = "my-project"
-  name       = "my-project"
-  org_id     = "123456789"
-}
-
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [google_project.project]
-
-  create_duration = "60s"
-}
-
-resource "google_project_service" "firestore" {
-  project = google_project.project.project_id
-  service = "firestore.googleapis.com"
-  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
-  depends_on = [time_sleep.wait_60_seconds]
-}
-
 resource "google_firestore_database" "database" {
-  project     = google_project.project.project_id
-  name        = "(default)"
-  location_id = "nam5"
-  type        = "FIRESTORE_NATIVE"
-
-  depends_on = [google_project_service.firestore]
+  project                 = "my-project-name"
+  name                    = "(default)"
+  location_id             = "nam5"
+  type                    = "FIRESTORE_NATIVE"
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
 }
 ```
 ## Example Usage - Firestore Database
@@ -78,39 +59,21 @@ resource "google_firestore_database" "database" {
   concurrency_mode                  = "OPTIMISTIC"
   app_engine_integration_mode       = "DISABLED"
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
 }
 ```
 ## Example Usage - Firestore Default Database In Datastore Mode
 
 
 ```hcl
-resource "google_project" "project" {
-	project_id = "tf-test%{random_suffix}"
-	name       = "tf-test%{random_suffix}"
-	org_id     = "123456789"
-}
-
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [google_project.project]
-  create_duration = "60s"
-}
-
-resource "google_project_service" "firestore" {
-  project = google_project.project.project_id
-  service = "firestore.googleapis.com"
-  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
-  depends_on = [time_sleep.wait_60_seconds]
-}
-
 resource "google_firestore_database" "datastore_mode_database" {
-    project = google_project.project.project_id
-
-    name = "(default)"
-
-    location_id = "nam5"
-    type        = "DATASTORE_MODE"
-
-    depends_on = [google_project_service.firestore]
+  project                 = "my-project-name"
+  name                    = "(default)"
+  location_id             = "nam5"
+  type                    = "DATASTORE_MODE"
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
 }
 ```
 ## Example Usage - Firestore Database In Datastore Mode
@@ -125,22 +88,8 @@ resource "google_firestore_database" "datastore_mode_database" {
   concurrency_mode                  = "OPTIMISTIC"
   app_engine_integration_mode       = "DISABLED"
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
-}
-```
-## Example Usage - Firestore Database With Delete Protection
-
-
-```hcl
-resource "google_firestore_database" "database" {
-  project                           = "my-project-name"
-  name                              = "example-database-id"
-  location_id                       = "nam5"
-  type                              = "FIRESTORE_NATIVE"
-
-  # Prevents accidental deletion of the database.
-  # To delete the database, first set this field to `DELETE_PROTECTION_DISABLED`, apply the changes.
-  # Then delete the database resource and apply the changes again.
   delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
 }
 ```
 
@@ -197,10 +146,19 @@ The following arguments are supported:
 * `delete_protection_state` -
   (Optional)
   State of delete protection for the database.
+  When delete protection is enabled, this database cannot be deleted.
+  The default value is `DELETE_PROTECTION_STATE_UNSPECIFIED`, which is currently equivalent to `DELETE_PROTECTION_DISABLED`.
+  **Note:** Additionally, to delete this database using `terraform destroy`, `deletion_policy` must be set to `DELETE`.
   Possible values are: `DELETE_PROTECTION_STATE_UNSPECIFIED`, `DELETE_PROTECTION_ENABLED`, `DELETE_PROTECTION_DISABLED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) Deletion behavior for this database.
+If the deletion policy is `ABANDON`, the database will be removed from Terraform state but not deleted from Google Cloud upon destruction.
+If the deletion policy is `DELETE`, the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
+The default value is `ABANDON`.
+See also `delete_protection`.
 
 
 ## Attributes Reference
