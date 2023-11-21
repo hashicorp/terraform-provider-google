@@ -47,13 +47,19 @@ resource "google_iam_workforce_pool" "example" {
 
 ```hcl
 resource "google_iam_workforce_pool" "example" {
-  workforce_pool_id = "example-pool"
-  parent            = "organizations/123456789"
-  location          = "global"
-  display_name      = "Display name"
-  description       = "A sample workforce pool."
-  disabled          = false
-  session_duration  = "7200s"
+  workforce_pool_id   = "example-pool"
+  parent              = "organizations/123456789"
+  location            = "global"
+  display_name        = "Display name"
+  description         = "A sample workforce pool."
+  disabled            = false
+  session_duration    = "7200s"
+  access_restrictions {
+    allowed_services {
+      domain = "backstory.chronicle.security"
+    }
+    disable_programmatic_signin = false
+  }
 }
 ```
 
@@ -101,6 +107,33 @@ The following arguments are supported:
   If `sessionDuration` is not configured, minted credentials have a default duration of one hour (3600s).
   A duration in seconds with up to nine fractional digits, ending with '`s`'. Example: "`3.5s`".
 
+* `access_restrictions` -
+  (Optional)
+  Configure access restrictions on the workforce pool users. This is an optional field. If specified web
+  sign-in can be restricted to given set of services or programmatic sign-in can be disabled for pool users.
+  Structure is [documented below](#nested_access_restrictions).
+
+
+<a name="nested_access_restrictions"></a>The `access_restrictions` block supports:
+
+* `allowed_services` -
+  (Optional)
+  Services allowed for web sign-in with the workforce pool.
+  If not set by default there are no restrictions.
+  Structure is [documented below](#nested_allowed_services).
+
+* `disable_programmatic_signin` -
+  (Optional)
+  Disable programmatic sign-in by disabling token issue via the Security Token API endpoint.
+  See [Security Token Service API](https://cloud.google.com/iam/docs/reference/sts/rest).
+
+
+<a name="nested_allowed_services"></a>The `allowed_services` block supports:
+
+* `domain` -
+  (Optional)
+  Domain name of the service.
+  Example: console.cloud.google
 
 ## Attributes Reference
 

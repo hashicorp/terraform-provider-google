@@ -31,7 +31,7 @@ func TestAccIAMWorkforcePoolWorkforcePool_full(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIAMWorkforcePoolWorkforcePool_update(context),
+				Config: testAccIAMWorkforcePoolWorkforcePool_full_update(context),
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool.my_pool",
@@ -64,7 +64,7 @@ func TestAccIAMWorkforcePoolWorkforcePool_minimal(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccIAMWorkforcePoolWorkforcePool_update(context),
+				Config: testAccIAMWorkforcePoolWorkforcePool_minimal_update(context),
 			},
 			{
 				ResourceName:      "google_iam_workforce_pool.my_pool",
@@ -78,13 +78,19 @@ func TestAccIAMWorkforcePoolWorkforcePool_minimal(t *testing.T) {
 func testAccIAMWorkforcePoolWorkforcePool_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
-  workforce_pool_id = "my-pool-%{random_suffix}"
-  parent            = "organizations/%{org_id}"
-  location          = "global"
-  display_name      = "Display name"
-  description       = "A sample workforce pool."
-  disabled          = false
-  session_duration  = "7200s"
+  workforce_pool_id   = "my-pool-%{random_suffix}"
+  parent              = "organizations/%{org_id}"
+  location            = "global"
+  display_name        = "Display name"
+  description         = "A sample workforce pool."
+  disabled            = false
+  session_duration    = "7200s"
+  access_restrictions {
+    allowed_services {
+      domain = "backstory.chronicle.security"
+    }
+    disable_programmatic_signin = false
+  }
 }
 `, context)
 }
@@ -99,7 +105,27 @@ resource "google_iam_workforce_pool" "my_pool" {
 `, context)
 }
 
-func testAccIAMWorkforcePoolWorkforcePool_update(context map[string]interface{}) string {
+func testAccIAMWorkforcePoolWorkforcePool_full_update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "my_pool" {
+  workforce_pool_id = "my-pool-%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+  display_name      = "New display name"
+  description       = "A sample workforce pool with updated description."
+  disabled          = true
+  session_duration  = "3600s"
+  access_restrictions {
+    allowed_services {
+      domain = "backstory.chronicle.security"
+    }
+    disable_programmatic_signin = false
+  }
+}
+`, context)
+}
+
+func testAccIAMWorkforcePoolWorkforcePool_minimal_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_iam_workforce_pool" "my_pool" {
   workforce_pool_id = "my-pool-%{random_suffix}"
