@@ -308,6 +308,37 @@ cannot have overlapping 'portRange's.
 
 @pattern: \d+(?:-\d+)?`,
 			},
+			"service_directory_registrations": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Service Directory resources to register this forwarding rule with.
+
+Currently, only supports a single Service Directory resource.`,
+				MinItems: 0,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"namespace": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Service Directory namespace to register the forwarding rule under.`,
+						},
+						"service_directory_region": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `[Optional] Service Directory region to register this global forwarding rule under.
+Default to "us-central1". Only used for PSC for Google APIs. All PSC for
+Google APIs Forwarding Rules on the same network should use the same Service
+Directory region.`,
+						},
+					},
+				},
+			},
 			"source_ip_ranges": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -459,6 +490,12 @@ func resourceComputeGlobalForwardingRuleCreate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
+	}
+	serviceDirectoryRegistrationsProp, err := expandComputeGlobalForwardingRuleServiceDirectoryRegistrations(d.Get("service_directory_registrations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_directory_registrations"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceDirectoryRegistrationsProp)) && (ok || !reflect.DeepEqual(v, serviceDirectoryRegistrationsProp)) {
+		obj["serviceDirectoryRegistrations"] = serviceDirectoryRegistrationsProp
 	}
 	sourceIpRangesProp, err := expandComputeGlobalForwardingRuleSourceIpRanges(d.Get("source_ip_ranges"), d, config)
 	if err != nil {
@@ -679,6 +716,9 @@ func resourceComputeGlobalForwardingRuleRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("target", flattenComputeGlobalForwardingRuleTarget(res["target"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
+	}
+	if err := d.Set("service_directory_registrations", flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(res["serviceDirectoryRegistrations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalForwardingRule: %s", err)
 	}
 	if err := d.Set("source_ip_ranges", flattenComputeGlobalForwardingRuleSourceIpRanges(res["sourceIpRanges"], d, config)); err != nil {
@@ -1013,6 +1053,33 @@ func flattenComputeGlobalForwardingRuleTarget(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenComputeGlobalForwardingRuleServiceDirectoryRegistrations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"namespace":                flattenComputeGlobalForwardingRuleServiceDirectoryRegistrationsNamespace(original["namespace"], d, config),
+			"service_directory_region": flattenComputeGlobalForwardingRuleServiceDirectoryRegistrationsServiceDirectoryRegion(original["serviceDirectoryRegion"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeGlobalForwardingRuleServiceDirectoryRegistrationsNamespace(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeGlobalForwardingRuleServiceDirectoryRegistrationsServiceDirectoryRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeGlobalForwardingRuleSourceIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1159,6 +1226,43 @@ func expandComputeGlobalForwardingRuleSubnetwork(v interface{}, d tpgresource.Te
 }
 
 func expandComputeGlobalForwardingRuleTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleServiceDirectoryRegistrations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedNamespace, err := expandComputeGlobalForwardingRuleServiceDirectoryRegistrationsNamespace(original["namespace"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNamespace); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["namespace"] = transformedNamespace
+		}
+
+		transformedServiceDirectoryRegion, err := expandComputeGlobalForwardingRuleServiceDirectoryRegistrationsServiceDirectoryRegion(original["service_directory_region"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceDirectoryRegion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["serviceDirectoryRegion"] = transformedServiceDirectoryRegion
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeGlobalForwardingRuleServiceDirectoryRegistrationsNamespace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalForwardingRuleServiceDirectoryRegistrationsServiceDirectoryRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

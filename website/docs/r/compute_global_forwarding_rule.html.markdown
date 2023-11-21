@@ -1135,6 +1135,10 @@ resource "google_compute_global_forwarding_rule" "default" {
   network       = google_compute_network.network.id
   ip_address    = google_compute_global_address.default.id
   load_balancing_scheme = ""
+  service_directory_registrations {
+    namespace                 = "sd-namespace"
+    service_directory_region  = "europe-west3"
+  }
 }
 ```
 ## Example Usage - Private Service Connect Google Apis No Automate Dns
@@ -1348,6 +1352,12 @@ The following arguments are supported:
   However, a subnetwork must be specified if the network is in custom subnet
   mode or when creating external forwarding rule with IPv6.
 
+* `service_directory_registrations` -
+  (Optional)
+  Service Directory resources to register this forwarding rule with.
+  Currently, only supports a single Service Directory resource.
+  Structure is [documented below](#nested_service_directory_registrations).
+
 * `source_ip_ranges` -
   (Optional)
   If not empty, this Forwarding Rule will only forward the traffic when the source IP address matches one of the IP addresses or CIDR ranges set here. Note that a Forwarding Rule can only have up to 64 source IP ranges, and this field can only be used with a regional Forwarding Rule whose scheme is EXTERNAL. Each sourceIpRange entry should be either an IP address (for example, 1.2.3.4) or a CIDR range (for example, 1.2.3.0/24).
@@ -1395,6 +1405,19 @@ The following arguments are supported:
   (Required)
   The value that the label must match. The value has a maximum
   length of 1024 characters.
+
+<a name="nested_service_directory_registrations"></a>The `service_directory_registrations` block supports:
+
+* `namespace` -
+  (Optional)
+  Service Directory namespace to register the forwarding rule under.
+
+* `service_directory_region` -
+  (Optional)
+  [Optional] Service Directory region to register this global forwarding rule under.
+  Default to "us-central1". Only used for PSC for Google APIs. All PSC for
+  Google APIs Forwarding Rules on the same network should use the same Service
+  Directory region.
 
 ## Attributes Reference
 
