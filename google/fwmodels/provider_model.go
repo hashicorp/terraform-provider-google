@@ -127,6 +127,7 @@ type ProviderModel struct {
 	TagsCustomEndpoint                     types.String `tfsdk:"tags_custom_endpoint"`
 	TPUCustomEndpoint                      types.String `tfsdk:"tpu_custom_endpoint"`
 	VertexAICustomEndpoint                 types.String `tfsdk:"vertex_ai_custom_endpoint"`
+	VmwareengineCustomEndpoint             types.String `tfsdk:"vmwareengine_custom_endpoint"`
 	VPCAccessCustomEndpoint                types.String `tfsdk:"vpc_access_custom_endpoint"`
 	WorkflowsCustomEndpoint                types.String `tfsdk:"workflows_custom_endpoint"`
 

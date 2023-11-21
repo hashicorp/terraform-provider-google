@@ -152,6 +152,7 @@ type FrameworkProviderConfig struct {
 	TagsBasePath                     string
 	TPUBasePath                      string
 	VertexAIBasePath                 string
+	VmwareengineBasePath             string
 	VPCAccessBasePath                string
 	WorkflowsBasePath                string
 }
@@ -294,6 +295,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.TagsBasePath = data.TagsCustomEndpoint.ValueString()
 	p.TPUBasePath = data.TPUCustomEndpoint.ValueString()
 	p.VertexAIBasePath = data.VertexAICustomEndpoint.ValueString()
+	p.VmwareengineBasePath = data.VmwareengineCustomEndpoint.ValueString()
 	p.VPCAccessBasePath = data.VPCAccessCustomEndpoint.ValueString()
 	p.WorkflowsBasePath = data.WorkflowsCustomEndpoint.ValueString()
 
@@ -1229,6 +1231,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.VertexAIBasePathKey])
 		if customEndpoint != nil {
 			data.VertexAICustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.VmwareengineCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_VMWAREENGINE_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.VmwareengineBasePathKey])
+		if customEndpoint != nil {
+			data.VmwareengineCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.VPCAccessCustomEndpoint.IsNull() {

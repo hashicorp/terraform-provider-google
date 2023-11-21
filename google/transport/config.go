@@ -286,6 +286,7 @@ type Config struct {
 	TagsBasePath                     string
 	TPUBasePath                      string
 	VertexAIBasePath                 string
+	VmwareengineBasePath             string
 	VPCAccessBasePath                string
 	WorkflowsBasePath                string
 
@@ -410,6 +411,7 @@ const StorageTransferBasePathKey = "StorageTransfer"
 const TagsBasePathKey = "Tags"
 const TPUBasePathKey = "TPU"
 const VertexAIBasePathKey = "VertexAI"
+const VmwareengineBasePathKey = "Vmwareengine"
 const VPCAccessBasePathKey = "VPCAccess"
 const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
@@ -528,6 +530,7 @@ var DefaultBasePaths = map[string]string{
 	TagsBasePathKey:                     "https://cloudresourcemanager.googleapis.com/v3/",
 	TPUBasePathKey:                      "https://tpu.googleapis.com/v1/",
 	VertexAIBasePathKey:                 "https://{{region}}-aiplatform.googleapis.com/v1/",
+	VmwareengineBasePathKey:             "https://vmwareengine.googleapis.com/v1/",
 	VPCAccessBasePathKey:                "https://vpcaccess.googleapis.com/v1/",
 	WorkflowsBasePathKey:                "https://workflows.googleapis.com/v1/",
 	CloudBillingBasePathKey:             "https://cloudbilling.googleapis.com/v1/",
@@ -1115,6 +1118,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("vertex_ai_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_VERTEX_AI_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[VertexAIBasePathKey]))
+	}
+	if d.Get("vmwareengine_custom_endpoint") == "" {
+		d.Set("vmwareengine_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_VMWAREENGINE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[VmwareengineBasePathKey]))
 	}
 	if d.Get("vpc_access_custom_endpoint") == "" {
 		d.Set("vpc_access_custom_endpoint", MultiEnvDefault([]string{
@@ -2087,6 +2095,7 @@ func ConfigureBasePaths(c *Config) {
 	c.TagsBasePath = DefaultBasePaths[TagsBasePathKey]
 	c.TPUBasePath = DefaultBasePaths[TPUBasePathKey]
 	c.VertexAIBasePath = DefaultBasePaths[VertexAIBasePathKey]
+	c.VmwareengineBasePath = DefaultBasePaths[VmwareengineBasePathKey]
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]
 	c.WorkflowsBasePath = DefaultBasePaths[WorkflowsBasePathKey]
 

@@ -1,0 +1,6 @@
+```release-note:enhancement
+vmwareengine: added `STANDARD` type support to `google_vmwareengine_network` resource
+```
+```release-note:new-resource
+`google_vmwareengine_network` (ga)
+```
