@@ -500,6 +500,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"netapp_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"network_connectivity_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -918,6 +923,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.MigrationCenterBasePath = d.Get("migration_center_custom_endpoint").(string)
 	config.MLEngineBasePath = d.Get("ml_engine_custom_endpoint").(string)
 	config.MonitoringBasePath = d.Get("monitoring_custom_endpoint").(string)
+	config.NetappBasePath = d.Get("netapp_custom_endpoint").(string)
 	config.NetworkConnectivityBasePath = d.Get("network_connectivity_custom_endpoint").(string)
 	config.NetworkManagementBasePath = d.Get("network_management_custom_endpoint").(string)
 	config.NetworkSecurityBasePath = d.Get("network_security_custom_endpoint").(string)
