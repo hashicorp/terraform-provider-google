@@ -21,13 +21,27 @@ description: |-
 
 Provides connectivity for VMware Engine private clouds.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Network, see:
 
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.vmwareEngineNetworks)
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vmware_engine_network_standard&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vmware Engine Network Standard
+
+
+```hcl
+resource "google_vmwareengine_network" "vmw-engine-network" {
+    name              = "standard-nw"
+    location          = "global" # Standard network needs to be global
+    type              = "STANDARD"
+    description       = "VMwareEngine standard network sample"
+}
+```
 ## Example Usage - Vmware Engine Network Legacy
 
 
@@ -75,7 +89,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   VMware Engine network type.
-  Possible values are: `LEGACY`.
+  Possible values are: `LEGACY`, `STANDARD`.
 
 * `location` -
   (Required)
