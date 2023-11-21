@@ -99,7 +99,10 @@ for information about how to choose. Possible values: ["FIRESTORE_NATIVE", "DATA
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED", ""}),
-				Description:  `State of delete protection for the database. Possible values: ["DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED"]`,
+				Description: `State of delete protection for the database.
+When delete protection is enabled, this database cannot be deleted.
+The default value is 'DELETE_PROTECTION_STATE_UNSPECIFIED', which is currently equivalent to 'DELETE_PROTECTION_DISABLED'.
+**Note:** Additionally, to delete this database using 'terraform destroy', 'deletion_policy' must be set to 'DELETE'. Possible values: ["DELETE_PROTECTION_STATE_UNSPECIFIED", "DELETE_PROTECTION_ENABLED", "DELETE_PROTECTION_DISABLED"]`,
 			},
 			"point_in_time_recovery_enablement": {
 				Type:         schema.TypeString,
@@ -156,6 +159,16 @@ This value may be empty in which case the appid to use for URL-encoded keys is t
 Any read or query can specify a readTime within this window, and will read the state of the database at that time.
 If the PITR feature is enabled, the retention period is 7 days. Otherwise, the retention period is 1 hour.
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
+			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ABANDON",
+				Description: `Deletion behavior for this database.
+If the deletion policy is 'ABANDON', the database will be removed from Terraform state but not deleted from Google Cloud upon destruction.
+If the deletion policy is 'DELETE', the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
+The default value is 'ABANDON'.
+See also 'delete_protection'.`,
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -329,6 +342,12 @@ func resourceFirestoreDatabaseRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirestoreDatabase %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Database: %s", err)
 	}
@@ -506,11 +525,54 @@ func resourceFirestoreDatabaseUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceFirestoreDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[WARNING] Firestore Database resources"+
-		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
-		" state, but will still be present on Google Cloud.", d.Id())
-	d.SetId("")
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
 
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Database: %s", err)
+	}
+	billingProject = project
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{FirestoreBasePath}}projects/{{project}}/databases/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	var obj map[string]interface{}
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy != "DELETE" {
+		log.Printf("[WARN] Firestore database %q deletion_policy is not set to 'DELETE', skipping deletion", d.Get("name").(string))
+		return nil
+	}
+	if deleteProtection := d.Get("delete_protection_state"); deleteProtection == "DELETE_PROTECTION_ENABLED" {
+		return fmt.Errorf("Cannot delete Firestore database %s: Delete Protection is enabled. Set delete_protection_state to DELETE_PROTECTION_DISABLED for this resource and run \"terraform apply\" before attempting to delete it.", d.Get("name").(string))
+	}
+	log.Printf("[DEBUG] Deleting Database %q", d.Id())
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutDelete),
+	})
+	if err != nil {
+		return transport_tpg.HandleNotFoundError(err, d, "Database")
+	}
+
+	log.Printf("[DEBUG] Finished deleting Database %q: %#v", d.Id(), res)
 	return nil
 }
 
@@ -530,6 +592,11 @@ func resourceFirestoreDatabaseImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "ABANDON"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
