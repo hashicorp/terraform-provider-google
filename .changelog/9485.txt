@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added field `service_directory_registrations` to resource `google_compute_global_forwarding_rule` 
+```
