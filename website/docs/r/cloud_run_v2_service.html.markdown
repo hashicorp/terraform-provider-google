@@ -538,7 +538,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_startup_probe).
 
 * `depends_on` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Containers which should be started before this container. If specified the container will wait to start until all containers with the listed names are healthy.
 
 
