@@ -53,11 +53,11 @@ resource "google_datastream_connection_profile" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=datastream_connection_profile_bigquery_private_connection&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=datastream_connection_profile_postgresql_private_connection&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Datastream Connection Profile Bigquery Private Connection
+## Example Usage - Datastream Connection Profile Postgresql Private Connection
 
 
 ```hcl
@@ -80,12 +80,68 @@ resource "google_compute_network" "default" {
 	name = "my-network"
 }
 
+resource "google_sql_database_instance" "instance" {
+    name             = "my-instance"
+    database_version = "POSTGRES_14"
+    region           = "us-central1"
+    settings {
+        tier = "db-f1-micro"
+
+        ip_configuration {
+
+            // Datastream IPs will vary by region.
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+
+    deletion_protection  = "true"
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "random_password" "pwd" {
+    length = 16
+    special = false
+}
+
+resource "google_sql_user" "user" {
+    name = "user"
+    instance = google_sql_database_instance.instance.name
+    password = random_password.pwd.result
+}
+
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
 	connection_profile_id = "my-profile"
 
-	bigquery_profile {}
+	postgresql_profile {
+	    hostname = google_sql_database_instance.instance.public_ip_address
+      username = google_sql_user.user.name
+      password = google_sql_user.user.password
+      database = google_sql_database.db.name
+	}
 
 	private_connectivity {
 		private_connection = google_datastream_private_connection.private_connection.id

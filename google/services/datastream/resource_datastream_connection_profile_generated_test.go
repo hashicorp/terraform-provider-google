@@ -70,20 +70,26 @@ resource "google_datastream_connection_profile" "default" {
 `, context)
 }
 
-func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(t *testing.T) {
+func TestAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPrivateConnectionExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDatastreamConnectionProfileDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckDatastreamConnectionProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context),
+				Config: testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPrivateConnectionExample(context),
 			},
 			{
 				ResourceName:            "google_datastream_connection_profile.default",
@@ -95,7 +101,7 @@ func TestAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPriva
 	})
 }
 
-func testAccDatastreamConnectionProfile_datastreamConnectionProfileBigqueryPrivateConnectionExample(context map[string]interface{}) string {
+func testAccDatastreamConnectionProfile_datastreamConnectionProfilePostgresqlPrivateConnectionExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_datastream_private_connection" "private_connection" {
 	display_name          = "Connection profile"
@@ -116,12 +122,68 @@ resource "google_compute_network" "default" {
 	name = "tf-test-my-network%{random_suffix}"
 }
 
+resource "google_sql_database_instance" "instance" {
+    name             = "tf-test-my-instance%{random_suffix}"
+    database_version = "POSTGRES_14"
+    region           = "us-central1"
+    settings {
+        tier = "db-f1-micro"
+
+        ip_configuration {
+
+            // Datastream IPs will vary by region.
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+
+    deletion_protection  = "%{deletion_protection}"
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "random_password" "pwd" {
+    length = 16
+    special = false
+}
+
+resource "google_sql_user" "user" {
+    name = "user"
+    instance = google_sql_database_instance.instance.name
+    password = random_password.pwd.result
+}
+
 resource "google_datastream_connection_profile" "default" {
 	display_name          = "Connection profile"
 	location              = "us-central1"
 	connection_profile_id = "tf-test-my-profile%{random_suffix}"
 
-	bigquery_profile {}
+	postgresql_profile {
+	    hostname = google_sql_database_instance.instance.public_ip_address
+      username = google_sql_user.user.name
+      password = google_sql_user.user.password
+      database = google_sql_database.db.name
+	}
 
 	private_connectivity {
 		private_connection = google_datastream_private_connection.private_connection.id
