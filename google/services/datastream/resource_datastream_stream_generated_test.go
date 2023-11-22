@@ -366,6 +366,9 @@ resource "google_datastream_stream" "default" {
                             ordinal_position = 0
                         }
                     }
+                    mysql_tables {
+                        table = "includedTable_2"
+                    }
                 }
             }
             exclude_objects {
