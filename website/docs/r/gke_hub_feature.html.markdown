@@ -143,7 +143,7 @@ resource "google_gke_hub_feature" "feature" {
 resource "google_gke_hub_feature" "feature" {
   name = "servicemesh"
   location = "global"
-  fleetDefaultMemberConfig {
+  fleet_default_member_config {
     mesh {
       management = "MANAGEMENT_AUTOMATIC"
     }
@@ -157,7 +157,7 @@ resource "google_gke_hub_feature" "feature" {
 resource "google_gke_hub_feature" "feature" {
   name = "configmanagement"
   location = "global"
-  fleetDefaultMemberConfig {
+  fleet_default_member_config {
     configmanagement {
       config_sync {
         git {
