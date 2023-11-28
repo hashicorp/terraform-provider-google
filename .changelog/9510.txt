@@ -1,0 +1,3 @@
+```release-note:enhancement
+vmwareengine: promoted `google_vmwareengine_private_cloud` resource to GA
+```
