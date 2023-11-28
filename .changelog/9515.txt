@@ -1,0 +1,3 @@
+```release-note:bug
+firestore: retried resource creation for error 409 with the text "Aborted due to cross-transaction contention" in `google_firestore_index `
+```
