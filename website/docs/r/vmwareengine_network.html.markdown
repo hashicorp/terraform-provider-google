@@ -47,7 +47,6 @@ resource "google_vmwareengine_network" "vmw-engine-network" {
 
 ```hcl
 resource "google_vmwareengine_network" "vmw-engine-network" {
-  provider    = google-beta
   project     = google_project_service.acceptance.project
   name        = "us-west1-default" #Legacy network IDs are in the format: {region-id}-default
   location    = "us-west1"
@@ -57,7 +56,6 @@ resource "google_vmwareengine_network" "vmw-engine-network" {
 
 resource "google_project_service" "acceptance" {
   project  = google_project.acceptance.project_id
-  provider = google-beta
   service  = "vmwareengine.googleapis.com"
 
   # Needed for CI tests for permissions to propagate, should not be needed for actual usage
@@ -68,7 +66,6 @@ resource "google_project_service" "acceptance" {
 # so creating new project for isolation in CI.
 resource "google_project" "acceptance" {
   name            = "vmw-proj"
-  provider        = google-beta
   project_id      = "vmw-proj"
   org_id          = "123456789"
   billing_account = "000000-0000000-0000000-000000"

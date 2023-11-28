@@ -8,9 +8,6 @@ description: |-
 
 Use this data source to get details about a private cloud resource.
 
-~> **Warning:** This data source is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
-
 To get more information about private cloud, see:
 * [API documentation](https://cloud.google.com/vmware-engine/docs/reference/rest/v1/projects.locations.privateClouds)
 
@@ -18,7 +15,6 @@ To get more information about private cloud, see:
 
 ```hcl
 data "google_vmwareengine_private_cloud" "my_pc" {
-  provider = google-beta
   name     = "my-pc"
   location = "us-central1-a"
 }
