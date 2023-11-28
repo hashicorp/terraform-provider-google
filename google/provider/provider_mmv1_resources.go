@@ -258,6 +258,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_redis_instance":                               redis.DataSourceGoogleRedisInstance(),
 	"google_vertex_ai_index":                              vertexai.DataSourceVertexAIIndex(),
 	"google_vmwareengine_network":                         vmwareengine.DataSourceVmwareengineNetwork(),
+	"google_vmwareengine_network_peering":                 vmwareengine.DataSourceVmwareengineNetworkPeering(),
 	"google_vmwareengine_private_cloud":                   vmwareengine.DataSourceVmwareenginePrivateCloud(),
 
 	// ####### END handwritten datasources ###########
@@ -358,9 +359,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 343
+// Generated resources: 344
 // Generated IAM resources: 213
-// Total generated resources: 556
+// Total generated resources: 557
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -897,6 +898,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_vertex_ai_index_endpoint":                                vertexai.ResourceVertexAIIndexEndpoint(),
 	"google_vertex_ai_tensorboard":                                   vertexai.ResourceVertexAITensorboard(),
 	"google_vmwareengine_network":                                    vmwareengine.ResourceVmwareengineNetwork(),
+	"google_vmwareengine_network_peering":                            vmwareengine.ResourceVmwareengineNetworkPeering(),
 	"google_vmwareengine_private_cloud":                              vmwareengine.ResourceVmwareenginePrivateCloud(),
 	"google_vpc_access_connector":                                    vpcaccess.ResourceVPCAccessConnector(),
 	"google_workflows_workflow":                                      workflows.ResourceWorkflowsWorkflow(),
