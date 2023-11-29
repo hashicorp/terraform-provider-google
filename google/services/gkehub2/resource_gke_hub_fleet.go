@@ -29,6 +29,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceGKEHub2Fleet() *schema.Resource {
@@ -53,6 +54,38 @@ func ResourceGKEHub2Fleet() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"default_cluster_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The default cluster configurations to apply across the fleet.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"security_posture_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Enable/Disable Security Posture features for the cluster.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "BASIC", "ENTERPRISE", ""}),
+										Description:  `Sets which mode to use for Security Posture features. Possible values: ["DISABLED", "BASIC", "ENTERPRISE"]`,
+									},
+									"vulnerability_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"VULNERABILITY_DISABLED", "VULNERABILITY_BASIC", "VULNERABILITY_ENTERPRISE", ""}),
+										Description:  `Sets which mode to use for vulnerability scanning. Possible values: ["VULNERABILITY_DISABLED", "VULNERABILITY_BASIC", "VULNERABILITY_ENTERPRISE"]`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -119,6 +152,12 @@ func resourceGKEHub2FleetCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	defaultClusterConfigProp, err := expandGKEHub2FleetDefaultClusterConfig(d.Get("default_cluster_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_cluster_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(defaultClusterConfigProp)) && (ok || !reflect.DeepEqual(v, defaultClusterConfigProp)) {
+		obj["defaultClusterConfig"] = defaultClusterConfigProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/fleets")
@@ -233,6 +272,9 @@ func resourceGKEHub2FleetRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("state", flattenGKEHub2FleetState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Fleet: %s", err)
 	}
+	if err := d.Set("default_cluster_config", flattenGKEHub2FleetDefaultClusterConfig(res["defaultClusterConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Fleet: %s", err)
+	}
 
 	return nil
 }
@@ -259,6 +301,12 @@ func resourceGKEHub2FleetUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	defaultClusterConfigProp, err := expandGKEHub2FleetDefaultClusterConfig(d.Get("default_cluster_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("default_cluster_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, defaultClusterConfigProp)) {
+		obj["defaultClusterConfig"] = defaultClusterConfigProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/global/fleets/default")
 	if err != nil {
@@ -270,6 +318,10 @@ func resourceGKEHub2FleetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("default_cluster_config") {
+		updateMask = append(updateMask, "defaultClusterConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -422,6 +474,95 @@ func flattenGKEHub2FleetStateCode(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenGKEHub2FleetDefaultClusterConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["security_posture_config"] =
+		flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(original["securityPostureConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["mode"] =
+		flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfigMode(original["mode"], d, config)
+	transformed["vulnerability_mode"] =
+		flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMode(original["vulnerabilityMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfigMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandGKEHub2FleetDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSecurityPostureConfig, err := expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(original["security_posture_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecurityPostureConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["securityPostureConfig"] = transformedSecurityPostureConfig
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMode, err := expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfigMode(original["mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["mode"] = transformedMode
+	}
+
+	transformedVulnerabilityMode, err := expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMode(original["vulnerability_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVulnerabilityMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vulnerabilityMode"] = transformedVulnerabilityMode
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfigMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfigVulnerabilityMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
