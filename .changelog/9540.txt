@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `queued_provisioning` field to `google_container_node_pool` resource
+```
