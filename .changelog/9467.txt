@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: update required fields in `timespan_config` config block for `data_loss_prevention_job_trigger` resource
+```

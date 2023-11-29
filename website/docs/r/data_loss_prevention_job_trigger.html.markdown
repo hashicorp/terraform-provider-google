@@ -515,6 +515,47 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 	}
 }
 ```
+## Example Usage - Dlp Job Trigger Cloud Storage Optional Timespan Autopopulation
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "basic" {
+	parent = "projects/my-project-name"
+	description = "Description"
+	display_name = "Displayname"
+
+	triggers {
+		schedule {
+			recurrence_period_duration = "86400s"
+		}
+	}
+
+	inspect_job {
+		inspect_template_name = "fake"
+		actions {
+			save_findings {
+				output_config {
+					table {
+						project_id = "project"
+						dataset_id = "dataset"
+					}
+				}
+			}
+		}
+		storage_config {
+			timespan_config {
+        		enable_auto_population_of_timespan_config = true
+      		}
+
+			cloud_storage_options {
+				file_set {
+					url = "gs://mybucket/directory/"
+				}
+			}
+		}
+	}
+}
+```
 
 ## Argument Reference
 
@@ -1099,7 +1140,7 @@ The following arguments are supported:
 
 * `timespan_config` -
   (Optional)
-  Information on where to inspect
+  Configuration of the timespan of the items to include in scanning
   Structure is [documented below](#nested_timespan_config).
 
 * `datastore_options` -
@@ -1127,21 +1168,22 @@ The following arguments are supported:
 
 * `start_time` -
   (Optional)
-  Exclude files or rows older than this value.
+  Exclude files, tables, or rows older than this value. If not set, no lower time limit is applied.
 
 * `end_time` -
   (Optional)
-  Exclude files or rows newer than this value. If set to zero, no upper time limit is applied.
+  Exclude files, tables, or rows newer than this value. If not set, no upper time limit is applied.
 
 * `enable_auto_population_of_timespan_config` -
   (Optional)
   When the job is started by a JobTrigger we will automatically figure out a valid startTime to avoid
   scanning files that have not been modified since the last time the JobTrigger executed. This will
-  be based on the time of the execution of the last run of the JobTrigger.
+  be based on the time of the execution of the last run of the JobTrigger or the timespan endTime
+  used in the last run of the JobTrigger.
 
 * `timestamp_field` -
-  (Required)
-  Information on where to inspect
+  (Optional)
+  Specification of the field containing the timestamp of scanned items.
   Structure is [documented below](#nested_timestamp_field).
 
 

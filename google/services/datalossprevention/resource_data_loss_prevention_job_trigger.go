@@ -442,14 +442,37 @@ the specific row it came from. No more than 3 may be provided.`,
 									"timespan_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Information on where to inspect`,
+										Description: `Configuration of the timespan of the items to include in scanning`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"enable_auto_population_of_timespan_config": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `When the job is started by a JobTrigger we will automatically figure out a valid startTime to avoid
+scanning files that have not been modified since the last time the JobTrigger executed. This will
+be based on the time of the execution of the last run of the JobTrigger or the timespan endTime
+used in the last run of the JobTrigger.`,
+													ConflictsWith: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time"},
+													AtLeastOneOf:  []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time", "inspect_job.0.storage_config.0.timespan_config.0.enable_auto_population_of_timespan_config"},
+												},
+												"end_time": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Exclude files, tables, or rows newer than this value. If not set, no upper time limit is applied.`,
+													AtLeastOneOf: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time", "inspect_job.0.storage_config.0.timespan_config.0.enable_auto_population_of_timespan_config"},
+												},
+												"start_time": {
+													Type:          schema.TypeString,
+													Optional:      true,
+													Description:   `Exclude files, tables, or rows older than this value. If not set, no lower time limit is applied.`,
+													ConflictsWith: []string{"inspect_job.0.storage_config.0.timespan_config.0.enable_auto_population_of_timespan_config"},
+													AtLeastOneOf:  []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time", "inspect_job.0.storage_config.0.timespan_config.0.enable_auto_population_of_timespan_config"},
+												},
 												"timestamp_field": {
 													Type:        schema.TypeList,
-													Required:    true,
-													Description: `Information on where to inspect`,
+													Optional:    true,
+													Description: `Specification of the field containing the timestamp of scanned items.`,
 													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -467,25 +490,6 @@ timestamp property does not exist or its value is empty or invalid.`,
 															},
 														},
 													},
-												},
-												"enable_auto_population_of_timespan_config": {
-													Type:     schema.TypeBool,
-													Optional: true,
-													Description: `When the job is started by a JobTrigger we will automatically figure out a valid startTime to avoid
-scanning files that have not been modified since the last time the JobTrigger executed. This will
-be based on the time of the execution of the last run of the JobTrigger.`,
-												},
-												"end_time": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `Exclude files or rows newer than this value. If set to zero, no upper time limit is applied.`,
-													AtLeastOneOf: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time"},
-												},
-												"start_time": {
-													Type:         schema.TypeString,
-													Optional:     true,
-													Description:  `Exclude files or rows older than this value.`,
-													AtLeastOneOf: []string{"inspect_job.0.storage_config.0.timespan_config.0.start_time", "inspect_job.0.storage_config.0.timespan_config.0.end_time"},
 												},
 											},
 										},
