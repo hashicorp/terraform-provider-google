@@ -172,6 +172,9 @@ cluster.
 * `placement_policy` - (Optional) Specifies a custom placement policy for the
   nodes.
 
+* `queued_provisioning` - (Optional, Beta) Specifies node pool-level settings of queued provisioning.
+    Structure is [documented below](#nested_queued_provisioning).
+
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
 
 * `min_node_count` - (Optional) Minimum number of nodes per zone in the NodePool.
@@ -274,6 +277,10 @@ cluster.
   If not found, InvalidArgument error is returned.
 
 * `tpu_topology` - (Optional) The [TPU placement topology](https://cloud.google.com/tpu/docs/types-topologies#tpu_topologies) for pod slice node pool.
+
+<a name="nested_queued_provisioning"></a> The `queued_provisioning` block supports:
+
+* `enabled` (Required) - Makes nodes obtainable through the [ProvisioningRequest API](https://cloud.google.com/kubernetes-engine/docs/how-to/provisioningrequest) exclusively.
 
 ## Attributes Reference
 
