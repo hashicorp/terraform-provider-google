@@ -34,6 +34,12 @@ To get more information about Fleet, see:
 ```hcl
 resource "google_gke_hub_fleet" "default" {
   display_name = "my production fleet"
+  default_cluster_config {
+    security_posture_config {
+      mode = "DISABLED"
+      vulnerability_mode = "VULNERABILITY_DISABLED"
+    }
+  }
 }
 ```
 
@@ -51,9 +57,34 @@ The following arguments are supported:
   A user-assigned display name of the Fleet. When present, it must be between 4 to 30 characters.
   Allowed characters are: lowercase and uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
 
+* `default_cluster_config` -
+  (Optional)
+  The default cluster configurations to apply across the fleet.
+  Structure is [documented below](#nested_default_cluster_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_default_cluster_config"></a>The `default_cluster_config` block supports:
+
+* `security_posture_config` -
+  (Optional)
+  Enable/Disable Security Posture features for the cluster.
+  Structure is [documented below](#nested_security_posture_config).
+
+
+<a name="nested_security_posture_config"></a>The `security_posture_config` block supports:
+
+* `mode` -
+  (Optional)
+  Sets which mode to use for Security Posture features.
+  Possible values are: `DISABLED`, `BASIC`, `ENTERPRISE`.
+
+* `vulnerability_mode` -
+  (Optional)
+  Sets which mode to use for vulnerability scanning.
+  Possible values are: `VULNERABILITY_DISABLED`, `VULNERABILITY_BASIC`, `VULNERABILITY_ENTERPRISE`.
 
 ## Attributes Reference
 

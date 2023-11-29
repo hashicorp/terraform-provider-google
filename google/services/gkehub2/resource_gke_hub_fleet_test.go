@@ -58,7 +58,12 @@ func testAccGKEHub2Fleet_basic(context map[string]interface{}) string {
 resource "google_gke_hub_fleet" "default" {
   project = google_project.project.project_id
   display_name = "my production fleet"
-
+  default_cluster_config { 
+	security_posture_config {
+		mode = "DISABLED"
+		vulnerability_mode = "VULNERABILITY_DISABLED"
+	}
+  }
   depends_on = [time_sleep.wait_for_gkehub_enablement]
 }
 `, context)
@@ -69,7 +74,12 @@ func testAccGKEHub2Fleet_update(context map[string]interface{}) string {
 resource "google_gke_hub_fleet" "default" {
   project = google_project.project.project_id
   display_name = "my staging fleet"
-
+  default_cluster_config {
+	security_posture_config {
+		mode = "BASIC"
+		vulnerability_mode = "VULNERABILITY_BASIC"
+	}
+  }
   depends_on = [time_sleep.wait_for_gkehub_enablement]
 }
 `, context)
@@ -87,6 +97,12 @@ resource "google_project" "project" {
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
   service = "gkehub.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "anthos" {
+  project = google_project.project.project_id
+  service = "anthos.googleapis.com"
   disable_on_destroy = false
 }
 
