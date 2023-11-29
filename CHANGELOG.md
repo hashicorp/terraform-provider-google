@@ -17,7 +17,6 @@ IMPROVEMENTS:
 * firestore: enabled database deletion upon destroy for `google_firestore_database` ([#6664](https://github.com/hashicorp/terraform-provider-google-beta/pull/6664))
 * gkehub2: added `policycontroller` field to `fleet_default_member_config` in `google_gke_hub_feature` ([#6649](https://github.com/hashicorp/terraform-provider-google-beta/pull/6649))
 * iam: added `allowed_services`, `disable_programmatic_signin` fields to `google_iam_workforce_pool` resource ([#6666](https://github.com/hashicorp/terraform-provider-google-beta/pull/6666))
-* sql: added support for IAM GROUP authentication in the `type` field of `google_sql_user` ([#6674](https://github.com/hashicorp/terraform-provider-google-beta/pull/6674))
 * vmwareengine: added `STANDARD` type support to `google_vmwareengine_network` resource ([#6669](https://github.com/hashicorp/terraform-provider-google-beta/pull/6669))
 * vmwareengine: promoted `google_vmwareengine_private_cloud` resource to GA ([#6673](https://github.com/hashicorp/terraform-provider-google-beta/pull/6673))
 
