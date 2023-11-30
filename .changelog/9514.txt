@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_vmwareengine_network_policy`
+```
+```release-note:new-datasource
+`google_vmwareengine_network_policy`
+```
