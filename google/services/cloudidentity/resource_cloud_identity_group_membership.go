@@ -138,6 +138,27 @@ func cloudidentityGroupMembershipRolesSchema() *schema.Resource {
 				ValidateFunc: verify.ValidateEnum([]string{"OWNER", "MANAGER", "MEMBER"}),
 				Description:  `The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER. Possible values: ["OWNER", "MANAGER", "MEMBER"]`,
 			},
+			"expiry_detail": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The MembershipRole expiry details, only supported for MEMBER role.
+Other roles cannot be accompanied with MEMBER role having expiry.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"expire_time": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The time at which the MembershipRole will expire.
+
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+resolution and up to nine fractional digits.
+
+Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -286,20 +307,6 @@ func resourceCloudIdentityGroupMembershipUpdate(d *schema.ResourceData, meta int
 	d.Partial(true)
 
 	if d.HasChange("roles") {
-		obj := make(map[string]interface{})
-
-		rolesProp, err := expandCloudIdentityGroupMembershipRoles(d.Get("roles"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("roles"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rolesProp)) {
-			obj["roles"] = rolesProp
-		}
-
-		obj, err = resourceCloudIdentityGroupMembershipUpdateEncoder(d, meta, obj)
-		if err != nil {
-			return err
-		}
-
 		url, err := tpgresource.ReplaceVars(d, config, "{{CloudIdentityBasePath}}{{name}}:modifyMembershipRoles")
 		if err != nil {
 			return err
@@ -310,21 +317,106 @@ func resourceCloudIdentityGroupMembershipUpdate(d *schema.ResourceData, meta int
 			billingProject = bp
 		}
 
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
+		// Return object for modifyMembershipRoles (we build request object from scratch, without using `obj`)
+		b, a := d.GetChange("roles")
+		before := b.(*schema.Set)
+		after := a.(*schema.Set)
+
+		ignoreUpdateR := make(map[string]struct{})
+		addRoleList := after.Difference(before).List()
+		removeRoleList := before.Difference(after).List()
+
+		var updateRolesParams []map[string]interface{}
+		for _, addR := range addRoleList {
+			ar := addR.(map[string]interface{})["name"].(string)
+			ae := addR.(map[string]interface{})["expiry_detail"].([]interface{})
+			for _, removeR := range removeRoleList {
+				if ar == removeR.(map[string]interface{})["name"].(string) {
+					ignoreUpdateR[ar] = struct{}{}
+					var updateR map[string]interface{}
+					if len(ae) == 0 {
+						updateR = map[string]interface{}{"name": ar}
+					} else {
+						updateR = map[string]interface{}{"name": ar, "expiry_detail": ae[0]}
+					}
+					updateP := map[string]interface{}{"field_mask": "expiryDetail.expire_time", "membership_role": updateR}
+					updateRolesParams = append(updateRolesParams, updateP)
+				}
+			}
 		}
 
+		var addRoles []map[string]interface{}
+		for _, r := range addRoleList {
+			name := r.(map[string]interface{})["name"].(string)
+			if _, ignore := ignoreUpdateR[name]; ignore {
+				continue
+			}
+			expiryDetail := r.(map[string]interface{})["expiry_detail"].([]interface{})
+			if len(expiryDetail) == 0 {
+				addRoles = append(addRoles, map[string]interface{}{"name": name})
+			} else {
+				addRoles = append(addRoles, map[string]interface{}{"name": name, "expiry_detail": expiryDetail[0]})
+			}
+		}
+		var removeRoles []string
+		for _, r := range removeRoleList {
+			name := r.(map[string]interface{})["name"].(string)
+			if _, ignore := ignoreUpdateR[name]; ignore {
+				continue
+			}
+			removeRoles = append(removeRoles, name)
+		}
+
+		// ref: https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships/modifyMembershipRoles#request-body
+		// Only single operation per request is allowed.
+		if len(removeRoles) > 0 {
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+				Body:      map[string]interface{}{"removeRoles": removeRoles},
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
+			if err != nil {
+				return fmt.Errorf("Error removing GroupMembership %q: %s", d.Id(), err)
+			} else {
+				log.Printf("[DEBUG] Finished removing GroupMembership %q: %#v", d.Id(), res)
+			}
+		}
+		if len(updateRolesParams) > 0 {
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+				Body:      map[string]interface{}{"updateRolesParams": updateRolesParams},
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
+			if err != nil {
+				return fmt.Errorf("Error updating GroupMembership %q: %s", d.Id(), err)
+			} else {
+				log.Printf("[DEBUG] Finished updating GroupMembership %q: %#v", d.Id(), res)
+			}
+		}
+		if len(addRoles) > 0 {
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "POST",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: userAgent,
+				Body:      map[string]interface{}{"addRoles": addRoles},
+				Timeout:   d.Timeout(schema.TimeoutUpdate),
+			})
+			if err != nil {
+				return fmt.Errorf("Error adding GroupMembership %q: %s", d.Id(), err)
+			} else {
+				log.Printf("[DEBUG] Finished adding GroupMembership %q: %#v", d.Id(), res)
+			}
+		}
 	}
 
 	d.Partial(false)
@@ -443,12 +535,30 @@ func flattenCloudIdentityGroupMembershipRoles(v interface{}, d *schema.ResourceD
 			continue
 		}
 		transformed.Add(map[string]interface{}{
-			"name": flattenCloudIdentityGroupMembershipRolesName(original["name"], d, config),
+			"name":          flattenCloudIdentityGroupMembershipRolesName(original["name"], d, config),
+			"expiry_detail": flattenCloudIdentityGroupMembershipRolesExpiryDetail(original["expiryDetail"], d, config),
 		})
 	}
 	return transformed
 }
 func flattenCloudIdentityGroupMembershipRolesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudIdentityGroupMembershipRolesExpiryDetail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["expire_time"] =
+		flattenCloudIdentityGroupMembershipRolesExpiryDetailExpireTime(original["expireTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudIdentityGroupMembershipRolesExpiryDetailExpireTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -508,6 +618,13 @@ func expandCloudIdentityGroupMembershipRoles(v interface{}, d tpgresource.Terraf
 			transformed["name"] = transformedName
 		}
 
+		transformedExpiryDetail, err := expandCloudIdentityGroupMembershipRolesExpiryDetail(original["expiry_detail"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExpiryDetail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["expiryDetail"] = transformedExpiryDetail
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -517,17 +634,25 @@ func expandCloudIdentityGroupMembershipRolesName(v interface{}, d tpgresource.Te
 	return v, nil
 }
 
-func resourceCloudIdentityGroupMembershipUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// Return object for modifyMembershipRoles (we build request object from scratch, without using `obj`)
-	b, a := d.GetChange("roles")
-	before := b.(*schema.Set)
-	after := a.(*schema.Set)
-	// ref: https://cloud.google.com/identity/docs/reference/rest/v1/groups.memberships/modifyMembershipRoles#request-body
-	addRoles := after.Difference(before).List()
-	var removeRoles []string
-	for _, r := range before.Difference(after).List() {
-		removeRoles = append(removeRoles, r.(map[string]interface{})["name"].(string))
+func expandCloudIdentityGroupMembershipRolesExpiryDetail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
 	}
-	req := map[string]interface{}{"addRoles": addRoles, "removeRoles": removeRoles}
-	return req, nil
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExpireTime, err := expandCloudIdentityGroupMembershipRolesExpiryDetailExpireTime(original["expire_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExpireTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["expireTime"] = transformedExpireTime
+	}
+
+	return transformed, nil
+}
+
+func expandCloudIdentityGroupMembershipRolesExpiryDetailExpireTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }

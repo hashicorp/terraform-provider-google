@@ -74,7 +74,7 @@ resource "google_cloud_identity_group_membership" "cloud_identity_group_membersh
   }
 
   roles {
-  	name = "MEMBER"
+    name = "MEMBER"
   }
 }
 ```
@@ -135,6 +135,22 @@ The following arguments are supported:
   (Required)
   The name of the MembershipRole. Must be one of OWNER, MANAGER, MEMBER.
   Possible values are: `OWNER`, `MANAGER`, `MEMBER`.
+
+* `expiry_detail` -
+  (Optional)
+  The MembershipRole expiry details, only supported for MEMBER role.
+  Other roles cannot be accompanied with MEMBER role having expiry.
+  Structure is [documented below](#nested_expiry_detail).
+
+
+<a name="nested_expiry_detail"></a>The `expiry_detail` block supports:
+
+* `expire_time` -
+  (Required)
+  The time at which the MembershipRole will expire.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+  Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 - - -
 
