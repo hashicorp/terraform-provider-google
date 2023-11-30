@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudidentity: added `expiry_detail` field to `google_cloud_identity_group_membership` resource
+```
