@@ -1,0 +1,3 @@
+```release-note:bug
+Allow updating DNSConfig in-place
+```

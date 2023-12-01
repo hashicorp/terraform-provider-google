@@ -1794,7 +1794,6 @@ func ResourceContainerCluster() *schema.Resource {
 				Type:             schema.TypeList,
 				Optional:         true,
 				MaxItems:         1,
-				ForceNew:         true,
 				DiffSuppressFunc: suppressDiffForAutopilot,
 				Description:      `Configuration for Cloud DNS for Kubernetes Engine.`,
 				Elem: &schema.Resource{
@@ -2700,6 +2699,22 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s's cluster-wide autoscaling has been updated", d.Id())
+	}
+
+	if d.HasChange("dns_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredDnsConfig: expandDnsConfig(d.Get("dns_config")),
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster DNSConfig")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s's DNSConfig has been updated", d.Id())
 	}
 
 	if d.HasChange("allow_net_admin") {
