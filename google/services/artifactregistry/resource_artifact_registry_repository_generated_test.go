@@ -182,10 +182,17 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(
 
 func testAccArtifactRegistryRepository_artifactRegistryRepositoryVirtualExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_artifact_registry_repository" "my-repo-upstream" {
+resource "google_artifact_registry_repository" "my-repo-upstream-1" {
   location      = "us-central1"
-  repository_id = "tf-test-my-repository-upstream%{random_suffix}"
-  description   = "example docker repository (upstream source)%{random_suffix}"
+  repository_id = "tf-test-my-repository-upstream%{random_suffix}-1"
+  description   = "example docker repository (upstream source)%{random_suffix} 1"
+  format        = "DOCKER"
+}
+
+resource "google_artifact_registry_repository" "my-repo-upstream-2" {
+  location      = "us-central1"
+  repository_id = "tf-test-my-repository-upstream%{random_suffix}-2"
+  description   = "example docker repository (upstream source)%{random_suffix} 2"
   format        = "DOCKER"
 }
 
@@ -198,9 +205,14 @@ resource "google_artifact_registry_repository" "my-repo" {
   mode          = "VIRTUAL_REPOSITORY"
   virtual_repository_config {
     upstream_policies {
-      id          = "tf-test-my-repository-upstream%{random_suffix}"
-      repository  = google_artifact_registry_repository.my-repo-upstream.id
-      priority    = 1
+      id          = "tf-test-my-repository-upstream%{random_suffix}-1"
+      repository  = google_artifact_registry_repository.my-repo-upstream-1.id
+      priority    = 20
+    }
+    upstream_policies {
+      id          = "tf-test-my-repository-upstream%{random_suffix}-2"
+      repository  = google_artifact_registry_repository.my-repo-upstream-2.id
+      priority    = 10
     }
   }
 }
