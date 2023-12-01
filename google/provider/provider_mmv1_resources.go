@@ -362,9 +362,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 346
+// Generated resources: 347
 // Generated IAM resources: 216
-// Total generated resources: 562
+// Total generated resources: 563
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -854,6 +854,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_secure_source_manager_instance_iam_binding":              tpgiamresource.ResourceIamBinding(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_member":               tpgiamresource.ResourceIamMember(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_policy":               tpgiamresource.ResourceIamPolicy(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
+	"google_scc_event_threat_detection_custom_module":                securitycenter.ResourceSecurityCenterEventThreatDetectionCustomModule(),
 	"google_scc_folder_custom_module":                                securitycenter.ResourceSecurityCenterFolderCustomModule(),
 	"google_scc_mute_config":                                         securitycenter.ResourceSecurityCenterMuteConfig(),
 	"google_scc_notification_config":                                 securitycenter.ResourceSecurityCenterNotificationConfig(),
