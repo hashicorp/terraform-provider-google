@@ -714,6 +714,14 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"autoscaling_profile": {
+							Type:             schema.TypeString,
+							Default:          "BALANCED",
+							Optional:         true,
+							DiffSuppressFunc: suppressDiffForAutopilot,
+							ValidateFunc:     validation.StringInSlice([]string{"BALANCED", "OPTIMIZE_UTILIZATION"}, false),
+							Description:      `Configuration options for the Autoscaling profile feature, which lets you choose whether the cluster autoscaler should optimize for resource utilization or resource availability when deciding to remove nodes from a cluster. Can be BALANCED or OPTIMIZE_UTILIZATION. Defaults to BALANCED.`,
+						},
 					},
 				},
 			},
@@ -4180,6 +4188,7 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 	return &container.ClusterAutoscaling{
 		EnableNodeAutoprovisioning:       config["enabled"].(bool),
 		ResourceLimits:                   resourceLimits,
+		AutoscalingProfile:               config["autoscaling_profile"].(string),
 		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
 	}
 }
@@ -5287,6 +5296,7 @@ func flattenClusterAutoscaling(a *container.ClusterAutoscaling) []map[string]int
 	} else {
 		r["enabled"] = false
 	}
+	r["autoscaling_profile"] = a.AutoscalingProfile
 
 	return []map[string]interface{}{r}
 }

@@ -1,0 +1,3 @@
+```release-note:enhancement 
+container: promoted GKE Autoscaling Profiles to GA in the `cluster_autoscaling` block in `google_container_cluster`
+```
