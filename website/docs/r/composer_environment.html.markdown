@@ -302,7 +302,6 @@ The following arguments are supported:
   The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config).
 
 * `web_server_network_access_control` -
-  (Optional, Cloud Composer 1 only)
   The network-level access control policy for the Airflow web server.
   If unspecified, no network-level access restrictions are applied.
 
