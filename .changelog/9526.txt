@@ -1,0 +1,9 @@
+```release-note:new-datasource
+`google_logging_organization_settings`
+```
+```release-note:new-datasource
+`google_logging_folder_settings`
+```
+```release-note:new-datasource
+`google_logging_project_settings`
+```
