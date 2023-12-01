@@ -3486,10 +3486,19 @@ func TestAccContainerCluster_withDNSConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_withDNSConfig(clusterName, "CLOUD_DNS", domainName, "VPC_SCOPE", networkName, subnetworkName),
 			},
 			{
-				ResourceName:            "google_container_cluster.with_dns_config",
+				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
@@ -7314,9 +7323,9 @@ resource "google_container_cluster" "with_autopilot" {
 
 func testAccContainerCluster_withDNSConfig(clusterName, clusterDns, clusterDnsDomain, clusterDnsScope, networkName, subnetworkName string) string {
 	return fmt.Sprintf(`
-resource "google_container_cluster" "with_dns_config" {
-  name               = "%s"
-  location           = "us-central1-f"
+resource "google_container_cluster" "primary" {
+	name               = "%s"
+	location           = "us-central1-a"
   initial_node_count = 1
   dns_config {
     cluster_dns 	   = "%s"
