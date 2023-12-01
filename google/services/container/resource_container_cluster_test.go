@@ -2864,6 +2864,62 @@ func TestAccContainerCluster_withSoleTenantGroup(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAutoscalingProfile(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutoscalingProfile(clusterName, "BALANCED", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.autoscaling_with_profile",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutoscalingProfile(clusterName, "OPTIMIZE_UTILIZATION", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.autoscaling_with_profile",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withInvalidAutoscalingProfile(t *testing.T) {
+	// This is essentially a unit test, no interactions
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+	clusterName := fmt.Sprintf("cluster-test-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withAutoscalingProfile(clusterName, "AS_CHEAP_AS_POSSIBLE", networkName, subnetworkName),
+				ExpectError: regexp.MustCompile(`expected cluster_autoscaling\.0\.autoscaling_profile to be one of \[BALANCED OPTIMIZE_UTILIZATION\], got AS_CHEAP_AS_POSSIBLE`),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_nodeAutoprovisioningDefaultsDiskSizeGb(t *testing.T) {
 	t.Parallel()
 
@@ -5559,6 +5615,25 @@ resource "google_container_cluster" "with_node_pool" {
   subnetwork    = "%s"
 }
 `, cluster, nodePool, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutoscalingProfile(cluster, autoscalingProfile, networkName, subnetworkName string) string {
+	config := fmt.Sprintf(`
+resource "google_container_cluster" "autoscaling_with_profile" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  cluster_autoscaling {
+    enabled             = false
+    autoscaling_profile = "%s"
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, cluster, autoscalingProfile, networkName, subnetworkName)
+	return config
 }
 
 func testAccContainerCluster_autoprovisioning(cluster, networkName, subnetworkName string, autoprovisioning, withNetworkTag bool) string {
