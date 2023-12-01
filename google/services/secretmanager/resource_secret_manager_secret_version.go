@@ -34,21 +34,11 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-
-	_, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
-	if err != nil {
-		return err
-	}
-
-	return resourceSecretManagerSecretVersionRead(d, meta)
-}
-
 func ResourceSecretManagerSecretVersion() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecretManagerSecretVersionCreate,
 		Read:   resourceSecretManagerSecretVersionRead,
+		Update: resourceSecretManagerSecretVersionUpdate,
 		Delete: resourceSecretManagerSecretVersionDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -57,10 +47,9 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
-
-		Update: resourceSecretManagerSecretVersionUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"secret_data": {
@@ -292,6 +281,16 @@ func resourceSecretManagerSecretVersionRead(d *schema.ResourceData, meta interfa
 	}
 
 	return nil
+}
+
+func resourceSecretManagerSecretVersionUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	_, err := expandSecretManagerSecretVersionEnabled(d.Get("enabled"), d, config)
+	if err != nil {
+		return err
+	}
+
+	return resourceSecretManagerSecretVersionRead(d, meta)
 }
 
 func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta interface{}) error {
