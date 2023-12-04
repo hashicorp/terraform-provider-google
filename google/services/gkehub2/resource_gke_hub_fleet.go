@@ -61,6 +61,38 @@ func ResourceGKEHub2Fleet() *schema.Resource {
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"binary_authorization_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Enable/Disable binary authorization features for the cluster.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"evaluation_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "POLICY_BINDINGS", ""}),
+										Description:  `Mode of operation for binauthz policy evaluation. Possible values: ["DISABLED", "POLICY_BINDINGS"]`,
+									},
+									"policy_bindings": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Binauthz policies that apply to this cluster.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `The relative resource name of the binauthz platform policy to audit. GKE
+platform policies have the following format:
+'projects/{project_number}/platforms/gke/policies/{policy_id}'.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"security_posture_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -71,8 +103,8 @@ func ResourceGKEHub2Fleet() *schema.Resource {
 									"mode": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "BASIC", "ENTERPRISE", ""}),
-										Description:  `Sets which mode to use for Security Posture features. Possible values: ["DISABLED", "BASIC", "ENTERPRISE"]`,
+										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "BASIC", ""}),
+										Description:  `Sets which mode to use for Security Posture features. Possible values: ["DISABLED", "BASIC"]`,
 									},
 									"vulnerability_mode": {
 										Type:         schema.TypeString,
@@ -483,10 +515,53 @@ func flattenGKEHub2FleetDefaultClusterConfig(v interface{}, d *schema.ResourceDa
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["binary_authorization_config"] =
+		flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(original["binaryAuthorizationConfig"], d, config)
 	transformed["security_posture_config"] =
 		flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(original["securityPostureConfig"], d, config)
 	return []interface{}{transformed}
 }
+func flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["evaluation_mode"] =
+		flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigEvaluationMode(original["evaluationMode"], d, config)
+	transformed["policy_bindings"] =
+		flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindings(original["policyBindings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigEvaluationMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"name": flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindingsName(original["name"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindingsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -523,6 +598,13 @@ func expandGKEHub2FleetDefaultClusterConfig(v interface{}, d tpgresource.Terrafo
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedBinaryAuthorizationConfig, err := expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(original["binary_authorization_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBinaryAuthorizationConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["binaryAuthorizationConfig"] = transformedBinaryAuthorizationConfig
+	}
+
 	transformedSecurityPostureConfig, err := expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(original["security_posture_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -531,6 +613,62 @@ func expandGKEHub2FleetDefaultClusterConfig(v interface{}, d tpgresource.Terrafo
 	}
 
 	return transformed, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEvaluationMode, err := expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigEvaluationMode(original["evaluation_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEvaluationMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["evaluationMode"] = transformedEvaluationMode
+	}
+
+	transformedPolicyBindings, err := expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindings(original["policy_bindings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicyBindings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policyBindings"] = transformedPolicyBindings
+	}
+
+	return transformed, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigEvaluationMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedName, err := expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindingsName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGKEHub2FleetDefaultClusterConfigBinaryAuthorizationConfigPolicyBindingsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandGKEHub2FleetDefaultClusterConfigSecurityPostureConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -68,18 +68,44 @@ The following arguments are supported:
 
 <a name="nested_default_cluster_config"></a>The `default_cluster_config` block supports:
 
+* `binary_authorization_config` -
+  (Optional)
+  Enable/Disable binary authorization features for the cluster.
+  Structure is [documented below](#nested_binary_authorization_config).
+
 * `security_posture_config` -
   (Optional)
   Enable/Disable Security Posture features for the cluster.
   Structure is [documented below](#nested_security_posture_config).
 
 
+<a name="nested_binary_authorization_config"></a>The `binary_authorization_config` block supports:
+
+* `evaluation_mode` -
+  (Optional)
+  Mode of operation for binauthz policy evaluation.
+  Possible values are: `DISABLED`, `POLICY_BINDINGS`.
+
+* `policy_bindings` -
+  (Optional)
+  Binauthz policies that apply to this cluster.
+  Structure is [documented below](#nested_policy_bindings).
+
+
+<a name="nested_policy_bindings"></a>The `policy_bindings` block supports:
+
+* `name` -
+  (Optional)
+  The relative resource name of the binauthz platform policy to audit. GKE
+  platform policies have the following format:
+  `projects/{project_number}/platforms/gke/policies/{policy_id}`.
+
 <a name="nested_security_posture_config"></a>The `security_posture_config` block supports:
 
 * `mode` -
   (Optional)
   Sets which mode to use for Security Posture features.
-  Possible values are: `DISABLED`, `BASIC`, `ENTERPRISE`.
+  Possible values are: `DISABLED`, `BASIC`.
 
 * `vulnerability_mode` -
   (Optional)
