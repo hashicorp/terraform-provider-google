@@ -8,17 +8,17 @@ FEATURES:
 * **New Resource:** `google_vmwareengine_network_peering` ([#16616](https://github.com/hashicorp/terraform-provider-google/pull/16616))
 
 IMPROVEMENTS:
-* artifactregistry: added `remote_repository_config.upstream_credentials` field to `google_artifact_registry_repository` resource ([#6658](https://github.com/hashicorp/terraform-provider-google-beta/pull/6658))
-* cloudbuild: added fields `build.artifacts.maven_artifacts`, `build.artifacts.npm_packages `, and `build.artifacts.python_packages ` to resource `google_cloudbuild_trigger` ([#6650](https://github.com/hashicorp/terraform-provider-google-beta/pull/6650)
+* artifactregistry: added `remote_repository_config.upstream_credentials` field to `google_artifact_registry_repository` resource ([#16562](https://github.com/hashicorp/terraform-provider-google/pull/16562))
+* cloudbuild: added fields `build.artifacts.maven_artifacts`, `build.artifacts.npm_packages `, and `build.artifacts.python_packages ` to resource `google_cloudbuild_trigger` ([#16543](https://github.com/hashicorp/terraform-provider-google/pull/16543))
 * cloudrunv2: promoted field `depends_on` in `google_cloud_run_v2_service` to GA ([#16577](https://github.com/hashicorp/terraform-provider-google/pull/16577))
-* composer: added `database_config.zone` field in `google_composer_environment` ([#6653](https://github.com/hashicorp/terraform-provider-google-beta/pull/6653))
-* compute: added field `service_directory_registrations` to resource `google_compute_global_forwarding_rule` ([#6667](https://github.com/hashicorp/terraform-provider-google-beta/pull/6667))
-* firestore: added virtual field `deletion_policy` to `google_firestore_database` ([#6664](https://github.com/hashicorp/terraform-provider-google-beta/pull/6664))
-* firestore: enabled database deletion upon destroy for `google_firestore_database` ([#6664](https://github.com/hashicorp/terraform-provider-google-beta/pull/6664))
-* gkehub2: added `policycontroller` field to `fleet_default_member_config` in `google_gke_hub_feature` ([#6649](https://github.com/hashicorp/terraform-provider-google-beta/pull/6649))
-* iam: added `allowed_services`, `disable_programmatic_signin` fields to `google_iam_workforce_pool` resource ([#6666](https://github.com/hashicorp/terraform-provider-google-beta/pull/6666))
-* vmwareengine: added `STANDARD` type support to `google_vmwareengine_network` resource ([#6669](https://github.com/hashicorp/terraform-provider-google-beta/pull/6669))
-* vmwareengine: promoted `google_vmwareengine_private_cloud` resource to GA ([#6673](https://github.com/hashicorp/terraform-provider-google-beta/pull/6673))
+* composer: added `database_config.zone` field in `google_composer_environment` ([#16551](https://github.com/hashicorp/terraform-provider-google/pull/16551))
+* compute: added field `service_directory_registrations` to resource `google_compute_global_forwarding_rule` ([#16581](https://github.com/hashicorp/terraform-provider-google/pull/16581))
+* firestore: added virtual field `deletion_policy` to `google_firestore_database` ([#16576](https://github.com/hashicorp/terraform-provider-google/pull/16576))
+* firestore: enabled database deletion upon destroy for `google_firestore_database` ([#16576](https://github.com/hashicorp/terraform-provider-google/pull/16576))
+* gkehub2: added `policycontroller` field to `fleet_default_member_config` in `google_gke_hub_feature` ([#16542](https://github.com/hashicorp/terraform-provider-google/pull/16542))
+* iam: added `allowed_services`, `disable_programmatic_signin` fields to `google_iam_workforce_pool` resource ([#16580](https://github.com/hashicorp/terraform-provider-google/pull/16580))
+* vmwareengine: added `STANDARD` type support to `google_vmwareengine_network` resource ([#16583](https://github.com/hashicorp/terraform-provider-google/pull/16583))
+* vmwareengine: promoted `google_vmwareengine_private_cloud` resource to GA ([#16613](https://github.com/hashicorp/terraform-provider-google/pull/16613))
 
 BUG FIXES:
 * compute: fixed a permadiff caused by issues with ipv6 diff suppression in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#6652](https://github.com/hashicorp/terraform-provider-google-beta/pull/6652))
