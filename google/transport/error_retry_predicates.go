@@ -333,10 +333,14 @@ func FirestoreField409RetryUnderlyingDataChanged(err error) (bool, string) {
 }
 
 // relevant for firestore in datastore mode
-func FirestoreIndex409CrossTransactionContetion(err error) (bool, string) {
-	if gerr, ok := err.(*googleapi.Error); ok {
-		if gerr.Code == 409 && strings.Contains(gerr.Body, "Aborted due to cross-transaction contention") {
+func FirestoreIndex409Retry(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 {
+		if strings.Contains(gerr.Body, "Aborted due to cross-transaction contention") {
 			return true, "aborted due to cross-transaction contention - retrying"
+		}
+
+		if strings.Contains(gerr.Body, "Please retry, underlying data changed") {
+			return true, "underlying data changed - retrying"
 		}
 	}
 	return false, ""
