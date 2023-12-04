@@ -32,6 +32,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				Config: testPrivateCloudUpdateConfig(context, "description1", 3),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_private_cloud.ds", "google_vmwareengine_private_cloud.vmw-engine-pc", map[string]struct{}{}),
+					testAccCheckGoogleVmwareengineNsxCredentialsMeta("data.google_vmwareengine_nsx_credentials.nsx-ds"),
 				),
 			},
 			{
@@ -92,7 +93,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
   }
 }
 
-data "google_vmwareengine_private_cloud" ds {
+data "google_vmwareengine_private_cloud" "ds" {
 	location = "%{region}-a"
 	name = "tf-test-sample-pc%{random_suffix}"
 	depends_on = [
@@ -100,7 +101,30 @@ data "google_vmwareengine_private_cloud" ds {
   ]
 }
 
+# NSX Credentials is a child datasource of PC and is included in the PC test due to the high deployment time involved in the Creation and deletion of a PC
+data "google_vmwareengine_nsx_credentials" "nsx-ds" {
+	parent =  google_vmwareengine_private_cloud.vmw-engine-pc
+}
+
 `, context)
+}
+
+func testAccCheckGoogleVmwareengineNsxCredentialsMeta(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Can't find nsx credentials data source: %s", n)
+		}
+		_, ok = rs.Primary.Attributes["username"]
+		if !ok {
+			return fmt.Errorf("can't find 'username' attribute in data source: %s", n)
+		}
+		_, ok = rs.Primary.Attributes["password"]
+		if !ok {
+			return fmt.Errorf("can't find 'password' attribute in data source: %s", n)
+		}
+		return nil
+	}
 }
 
 func testAccCheckVmwareenginePrivateCloudDestroyProducer(t *testing.T) func(s *terraform.State) error {
