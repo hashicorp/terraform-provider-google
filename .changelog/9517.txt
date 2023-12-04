@@ -1,0 +1,3 @@
+```release-note:enhancement
+google_cloud_sql_instance: documented `dns_name` and `psc_service_attachment_link` attributes.
+```
