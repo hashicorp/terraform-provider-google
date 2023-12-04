@@ -189,7 +189,18 @@ func TestFirestoreIndex409_crossTransactionContetion(t *testing.T) {
 		Code: 409,
 		Body: "Aborted due to cross-transaction contention",
 	}
-	isRetryable, _ := FirestoreIndex409CrossTransactionContetion(&err)
+	isRetryable, _ := FirestoreIndex409Retry(&err)
+	if !isRetryable {
+		t.Errorf("Error not detected as retryable")
+	}
+}
+
+func TestFirestoreIndex409_retryUnderlyingDataChanged(t *testing.T) {
+	err := googleapi.Error{
+		Code: 409,
+		Body: "Please retry, underlying data changed",
+	}
+	isRetryable, _ := FirestoreIndex409Retry(&err)
 	if !isRetryable {
 		t.Errorf("Error not detected as retryable")
 	}

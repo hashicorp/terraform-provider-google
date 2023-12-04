@@ -157,7 +157,7 @@ func testAccCheckFirestoreIndexDestroyProducer(t *testing.T) func(s *terraform.S
 				Project:              billingProject,
 				RawURL:               url,
 				UserAgent:            config.UserAgent,
-				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.FirestoreIndex409CrossTransactionContetion},
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.FirestoreIndex409Retry},
 			})
 			if err == nil {
 				return fmt.Errorf("FirestoreIndex still exists at %s", url)
