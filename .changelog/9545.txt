@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkehub: added `binary_authorization_config` to `google_gke_hub_fleet`
+```

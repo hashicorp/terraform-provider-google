@@ -49,6 +49,14 @@ func TestAccGKEHub2Fleet_gkehubFleetBasicExample_update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHub2Fleet_removedDefaultClusterConfig(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_fleet.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -59,6 +67,9 @@ resource "google_gke_hub_fleet" "default" {
   project = google_project.project.project_id
   display_name = "my production fleet"
   default_cluster_config { 
+	binary_authorization_config {
+		evaluation_mode = "DISABLED"
+	}
 	security_posture_config {
 		mode = "DISABLED"
 		vulnerability_mode = "VULNERABILITY_DISABLED"
@@ -73,13 +84,30 @@ func testAccGKEHub2Fleet_update(context map[string]interface{}) string {
 	return gkeHubFleetProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_fleet" "default" {
   project = google_project.project.project_id
-  display_name = "my staging fleet"
+  display_name = "my updated fleet"
   default_cluster_config {
+	binary_authorization_config {
+		evaluation_mode = "POLICY_BINDINGS"
+		policy_bindings {
+			name = "projects/${google_project.project.project_id}/platforms/gke/policies/policy_id"
+		}
+	}
 	security_posture_config {
 		mode = "BASIC"
 		vulnerability_mode = "VULNERABILITY_BASIC"
 	}
   }
+  depends_on = [time_sleep.wait_for_gkehub_enablement]
+}
+`, context)
+}
+
+func testAccGKEHub2Fleet_removedDefaultClusterConfig(context map[string]interface{}) string {
+	return gkeHubFleetProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_fleet" "default" {
+  project = google_project.project.project_id
+  display_name = "my updated fleet"
+
   depends_on = [time_sleep.wait_for_gkehub_enablement]
 }
 `, context)
