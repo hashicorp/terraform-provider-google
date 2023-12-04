@@ -21,9 +21,9 @@ IMPROVEMENTS:
 * vmwareengine: promoted `google_vmwareengine_private_cloud` resource to GA ([#16613](https://github.com/hashicorp/terraform-provider-google/pull/16613))
 
 BUG FIXES:
-* compute: fixed a permadiff caused by issues with ipv6 diff suppression in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#6652](https://github.com/hashicorp/terraform-provider-google-beta/pull/6652))
-* firestore: fixed an issue where `google_firestore_database` could be deleted when `delete_protection_state` was `DELETE_PROTECTION_ENABLED` ([#6664](https://github.com/hashicorp/terraform-provider-google-beta/pull/6664))
-* firestore: made resource creation retry for 409 errors with the text "Aborted due to cross-transaction contention" in `google_firestore_index ` ([#6677](https://github.com/hashicorp/terraform-provider-google-beta/pull/6677))
+* compute: fixed a permadiff caused by issues with ipv6 diff suppression in `google_compute_forwarding_rule` and `google_compute_global_forwarding_rule` ([#16550](https://github.com/hashicorp/terraform-provider-google/pull/16550))
+* firestore: fixed an issue where `google_firestore_database` could be deleted when `delete_protection_state` was `DELETE_PROTECTION_ENABLED` ([#16576](https://github.com/hashicorp/terraform-provider-google/pull/16576))
+* firestore: made resource creation retry for 409 errors with the text "Aborted due to cross-transaction contention" in `google_firestore_index ` ([#16618](https://github.com/hashicorp/terraform-provider-google/pull/16618))
 
 ## 5.7.0 (Nov 20, 2023)
 
