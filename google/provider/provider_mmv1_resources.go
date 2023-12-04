@@ -264,6 +264,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_vmwareengine_network":                         vmwareengine.DataSourceVmwareengineNetwork(),
 	"google_vmwareengine_network_peering":                 vmwareengine.DataSourceVmwareengineNetworkPeering(),
 	"google_vmwareengine_network_policy":                  vmwareengine.DataSourceVmwareengineNetworkPolicy(),
+	"google_vmwareengine_nsx_credentials":                 vmwareengine.DataSourceVmwareengineNsxCredentials(),
 	"google_vmwareengine_private_cloud":                   vmwareengine.DataSourceVmwareenginePrivateCloud(),
 
 	// ####### END handwritten datasources ###########
