@@ -1,11 +1,11 @@
 ## 5.8.0 (Unreleased)
 
 FEATURES:
-* **New Data Source:** `google_vmwareengine_network_peering` ([#6675](https://github.com/hashicorp/terraform-provider-google-beta/pull/6675))
-* **New Resource:** `google_migration_center_group` ([#6651](https://github.com/hashicorp/terraform-provider-google-beta/pull/6651))
-* **New Resource:** `google_netapp_storage_pool` ([#6663](https://github.com/hashicorp/terraform-provider-google-beta/pull/6663))
+* **New Data Source:** `google_vmwareengine_network_peering` ([#16616](https://github.com/hashicorp/terraform-provider-google/pull/16616))
+* **New Resource:** `google_migration_center_group` ([#16549](https://github.com/hashicorp/terraform-provider-google/pull/16549))
+* **New Resource:** `google_netapp_storage_pool` ([#16573](https://github.com/hashicorp/terraform-provider-google/pull/16573))
 * **New Resource:** `google_vmwareengine_network` (ga) ([#16583](https://github.com/hashicorp/terraform-provider-google/pull/16583))
-* **New Resource:** `google_vmwareengine_network_peering` ([#6675](https://github.com/hashicorp/terraform-provider-google-beta/pull/6675))
+* **New Data Source:** `google_vmwareengine_network_peering` ([#16616](https://github.com/hashicorp/terraform-provider-google/pull/16616))
 
 IMPROVEMENTS:
 * artifactregistry: added `remote_repository_config.upstream_credentials` field to `google_artifact_registry_repository` resource ([#6658](https://github.com/hashicorp/terraform-provider-google-beta/pull/6658))
