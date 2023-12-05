@@ -235,6 +235,49 @@ resource "google_bigquery_connection" "connection" {
    }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_spark&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Spark
+
+
+```hcl
+resource "google_bigquery_connection" "connection" {
+   connection_id = "my-connection"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   spark {
+      spark_history_server_config {
+         dataproc_cluster = google_dataproc_cluster.basic.id
+      }
+   }
+}
+
+resource "google_dataproc_cluster" "basic" {
+   name   = "my-connection"
+   region = "us-central1"
+
+   cluster_config {
+     # Keep the costs down with smallest config we can get away with
+     software_config {
+       override_properties = {
+         "dataproc:dataproc.allow.zero.workers" = "true"
+       }
+     }
+ 
+     master_config {
+       num_instances = 1
+       machine_type  = "e2-standard-2"
+       disk_config {
+         boot_disk_size_gb = 35
+       }
+     }
+   }   
+ }
+```
 
 ## Argument Reference
 
@@ -291,6 +334,11 @@ The following arguments are supported:
   (Optional)
   Container for connection properties for delegation of access to GCP resources.
   Structure is [documented below](#nested_cloud_resource).
+
+* `spark` -
+  (Optional)
+  Container for connection properties to execute stored procedures for Apache Spark. resources.
+  Structure is [documented below](#nested_spark).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -413,6 +461,35 @@ The following arguments are supported:
 * `service_account_id` -
   (Output)
   The account ID of the service created for the purpose of this connection.
+
+<a name="nested_spark"></a>The `spark` block supports:
+
+* `service_account_id` -
+  (Output)
+  The account ID of the service created for the purpose of this connection.
+
+* `metastore_service_config` -
+  (Optional)
+  Dataproc Metastore Service configuration for the connection.
+  Structure is [documented below](#nested_metastore_service_config).
+
+* `spark_history_server_config` -
+  (Optional)
+  Spark History Server configuration for the connection.
+  Structure is [documented below](#nested_spark_history_server_config).
+
+
+<a name="nested_metastore_service_config"></a>The `metastore_service_config` block supports:
+
+* `metastore_service` -
+  (Optional)
+  Resource name of an existing Dataproc Metastore service in the form of projects/[projectId]/locations/[region]/services/[serviceId].
+
+<a name="nested_spark_history_server_config"></a>The `spark_history_server_config` block supports:
+
+* `dataproc_cluster` -
+  (Optional)
+  Resource name of an existing Dataproc Cluster to act as a Spark History Server for the connection if the form of projects/[projectId]/regions/[region]/clusters/[cluster_name].
 
 ## Attributes Reference
 
