@@ -405,6 +405,69 @@ resource "google_bigquery_connection" "connection" {
 `, context)
 }
 
+func TestAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryConnectionConnectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_connection.connection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryConnectionConnection_bigqueryConnectionSparkExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_connection" "connection" {
+   connection_id = "tf-test-my-connection%{random_suffix}"
+   location      = "US"
+   friendly_name = "👋"
+   description   = "a riveting description"
+   spark {
+      spark_history_server_config {
+         dataproc_cluster = google_dataproc_cluster.basic.id
+      }
+   }
+}
+
+resource "google_dataproc_cluster" "basic" {
+   name   = "tf-test-my-connection%{random_suffix}"
+   region = "us-central1"
+
+   cluster_config {
+     # Keep the costs down with smallest config we can get away with
+     software_config {
+       override_properties = {
+         "dataproc:dataproc.allow.zero.workers" = "true"
+       }
+     }
+ 
+     master_config {
+       num_instances = 1
+       machine_type  = "e2-standard-2"
+       disk_config {
+         boot_disk_size_gb = 35
+       }
+     }
+   }   
+ }
+`, context)
+}
+
 func testAccCheckBigqueryConnectionConnectionDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -83,7 +83,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"azure": {
 				Type:        schema.TypeList,
@@ -129,7 +129,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"cloud_resource": {
 				Type:        schema.TypeList,
@@ -145,7 +145,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"cloud_spanner": {
 				Type:        schema.TypeList,
@@ -190,7 +190,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"cloud_sql": {
 				Type:        schema.TypeList,
@@ -243,7 +243,7 @@ func ResourceBigqueryConnectionConnection() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource"},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"connection_id": {
 				Type:        schema.TypeString,
@@ -273,6 +273,52 @@ Examples: US, EU, asia-northeast1, us-central1, europe-west1.
 Spanner Connections same as spanner region
 AWS allowed regions are aws-us-east-1
 Azure allowed regions are azure-eastus2`,
+			},
+			"spark": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Container for connection properties to execute stored procedures for Apache Spark. resources.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"metastore_service_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Dataproc Metastore Service configuration for the connection.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"metastore_service": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Resource name of an existing Dataproc Metastore service in the form of projects/[projectId]/locations/[region]/services/[serviceId].`,
+									},
+								},
+							},
+						},
+						"spark_history_server_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Spark History Server configuration for the connection.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dataproc_cluster": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Resource name of an existing Dataproc Cluster to act as a Spark History Server for the connection if the form of projects/[projectId]/regions/[region]/clusters/[cluster_name].`,
+									},
+								},
+							},
+						},
+						"service_account_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The account ID of the service created for the purpose of this connection.`,
+						},
+					},
+				},
+				ExactlyOneOf: []string{"cloud_sql", "aws", "azure", "cloud_spanner", "cloud_resource", "spark"},
 			},
 			"has_credential": {
 				Type:        schema.TypeBool,
@@ -351,6 +397,12 @@ func resourceBigqueryConnectionConnectionCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("cloud_resource"); ok || !reflect.DeepEqual(v, cloudResourceProp) {
 		obj["cloudResource"] = cloudResourceProp
+	}
+	sparkProp, err := expandBigqueryConnectionConnectionSpark(d.Get("spark"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("spark"); ok || !reflect.DeepEqual(v, sparkProp) {
+		obj["spark"] = sparkProp
 	}
 
 	obj, err = resourceBigqueryConnectionConnectionEncoder(d, meta, obj)
@@ -490,6 +542,9 @@ func resourceBigqueryConnectionConnectionRead(d *schema.ResourceData, meta inter
 	if err := d.Set("cloud_resource", flattenBigqueryConnectionConnectionCloudResource(res["cloudResource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Connection: %s", err)
 	}
+	if err := d.Set("spark", flattenBigqueryConnectionConnectionSpark(res["spark"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Connection: %s", err)
+	}
 
 	return nil
 }
@@ -552,6 +607,12 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 	} else if v, ok := d.GetOkExists("cloud_resource"); ok || !reflect.DeepEqual(v, cloudResourceProp) {
 		obj["cloudResource"] = cloudResourceProp
 	}
+	sparkProp, err := expandBigqueryConnectionConnectionSpark(d.Get("spark"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("spark"); ok || !reflect.DeepEqual(v, sparkProp) {
+		obj["spark"] = sparkProp
+	}
 
 	obj, err = resourceBigqueryConnectionConnectionEncoder(d, meta, obj)
 	if err != nil {
@@ -593,6 +654,10 @@ func resourceBigqueryConnectionConnectionUpdate(d *schema.ResourceData, meta int
 
 	if d.HasChange("cloud_resource") {
 		updateMask = append(updateMask, "cloudResource")
+	}
+
+	if d.HasChange("spark") {
+		updateMask = append(updateMask, "spark")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -924,6 +989,61 @@ func flattenBigqueryConnectionConnectionCloudResource(v interface{}, d *schema.R
 	return []interface{}{transformed}
 }
 func flattenBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSpark(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_id"] =
+		flattenBigqueryConnectionConnectionSparkServiceAccountId(original["serviceAccountId"], d, config)
+	transformed["metastore_service_config"] =
+		flattenBigqueryConnectionConnectionSparkMetastoreServiceConfig(original["metastoreServiceConfig"], d, config)
+	transformed["spark_history_server_config"] =
+		flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfig(original["sparkHistoryServerConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionSparkServiceAccountId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSparkMetastoreServiceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["metastore_service"] =
+		flattenBigqueryConnectionConnectionSparkMetastoreServiceConfigMetastoreService(original["metastoreService"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionSparkMetastoreServiceConfigMetastoreService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dataproc_cluster"] =
+		flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocCluster(original["dataprocCluster"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocCluster(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1276,6 +1396,89 @@ func expandBigqueryConnectionConnectionCloudResource(v interface{}, d tpgresourc
 }
 
 func expandBigqueryConnectionConnectionCloudResourceServiceAccountId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSpark(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountId, err := expandBigqueryConnectionConnectionSparkServiceAccountId(original["service_account_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountId"] = transformedServiceAccountId
+	}
+
+	transformedMetastoreServiceConfig, err := expandBigqueryConnectionConnectionSparkMetastoreServiceConfig(original["metastore_service_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMetastoreServiceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["metastoreServiceConfig"] = transformedMetastoreServiceConfig
+	}
+
+	transformedSparkHistoryServerConfig, err := expandBigqueryConnectionConnectionSparkSparkHistoryServerConfig(original["spark_history_server_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSparkHistoryServerConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sparkHistoryServerConfig"] = transformedSparkHistoryServerConfig
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionSparkServiceAccountId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSparkMetastoreServiceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMetastoreService, err := expandBigqueryConnectionConnectionSparkMetastoreServiceConfigMetastoreService(original["metastore_service"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMetastoreService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["metastoreService"] = transformedMetastoreService
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionSparkMetastoreServiceConfigMetastoreService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryConnectionConnectionSparkSparkHistoryServerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDataprocCluster, err := expandBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocCluster(original["dataproc_cluster"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataprocCluster); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataprocCluster"] = transformedDataprocCluster
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryConnectionConnectionSparkSparkHistoryServerConfigDataprocCluster(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
