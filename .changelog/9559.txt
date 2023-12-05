@@ -1,0 +1,3 @@
+```release-note:none
+Migrating resource from auto-generated to handwritten section
+```
