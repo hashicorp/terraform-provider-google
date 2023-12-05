@@ -147,6 +147,8 @@ The following arguments are supported:
 
 * `age` - (Optional) Minimum age of an object in days to satisfy this condition.
 
+* `no_age` - (Optional) While set `true`, `age` value will be omitted. **Note** Required to set `true` when `age` is unset in the config file.  
+
 * `created_before` - (Optional) A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied when an object is created before midnight of the specified date in UTC.
 
 * `with_state` - (Optional) Match to live and/or archived objects. Unversioned buckets have only live objects. Supported values include: `"LIVE"`, `"ARCHIVED"`, `"ANY"`.

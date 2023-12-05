@@ -218,6 +218,11 @@ func ResourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										Description: `Creation date of an object in RFC 3339 (e.g. 2017-06-13) to satisfy this condition.`,
 									},
+									"no_age": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `While set true, age value will be omitted.Required to set true when age is unset in the config file.`,
+									},
 									"with_state": {
 										Type:         schema.TypeString,
 										Computed:     true,
@@ -1207,7 +1212,7 @@ func flattenBucketAutoclass(bucketAutoclass *storage.BucketAutoclass) []map[stri
 	return autoclassList
 }
 
-func flattenBucketLifecycle(lifecycle *storage.BucketLifecycle) []map[string]interface{} {
+func flattenBucketLifecycle(d *schema.ResourceData, lifecycle *storage.BucketLifecycle) []map[string]interface{} {
 	if lifecycle == nil || lifecycle.Rule == nil {
 		return []map[string]interface{}{}
 	}
@@ -1217,7 +1222,7 @@ func flattenBucketLifecycle(lifecycle *storage.BucketLifecycle) []map[string]int
 	for _, rule := range lifecycle.Rule {
 		rules = append(rules, map[string]interface{}{
 			"action":    schema.NewSet(resourceGCSBucketLifecycleRuleActionHash, []interface{}{flattenBucketLifecycleRuleAction(rule.Action)}),
-			"condition": schema.NewSet(resourceGCSBucketLifecycleRuleConditionHash, []interface{}{flattenBucketLifecycleRuleCondition(rule.Condition)}),
+			"condition": schema.NewSet(resourceGCSBucketLifecycleRuleConditionHash, []interface{}{flattenBucketLifecycleRuleCondition(d, rule.Condition)}),
 		})
 	}
 
@@ -1231,7 +1236,7 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 	}
 }
 
-func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
+func flattenBucketLifecycleRuleCondition(d *schema.ResourceData, condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
 		"created_before":             condition.CreatedBefore,
 		"matches_storage_class":      tpgresource.ConvertStringArrToInterface(condition.MatchesStorageClass),
@@ -1255,6 +1260,12 @@ func flattenBucketLifecycleRuleCondition(condition *storage.BucketLifecycleRuleC
 			ruleCondition["with_state"] = "ARCHIVED"
 		}
 	}
+	// setting no_age value from state config since it is terraform only variable and not getting value from backend.
+	if v, ok := d.GetOk("lifecycle_rule.0.condition"); ok {
+		state_condition := v.(*schema.Set).List()[0].(map[string]interface{})
+		ruleCondition["no_age"] = state_condition["no_age"].(bool)
+	}
+
 	return ruleCondition
 }
 
@@ -1402,11 +1413,14 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	condition := conditions[0].(map[string]interface{})
 	transformed := &storage.BucketLifecycleRuleCondition{}
-
-	if v, ok := condition["age"]; ok {
-		age := int64(v.(int))
-		transformed.Age = &age
-		transformed.ForceSendFields = append(transformed.ForceSendFields, "Age")
+	// Setting high precedence of no_age over age when both used together.
+	// Only sets age value when no_age is not present or no_age is present and has false value
+	if v, ok := condition["no_age"]; !ok || !(v.(bool)) {
+		if v, ok := condition["age"]; ok {
+			age := int64(v.(int))
+			transformed.Age = &age
+			transformed.ForceSendFields = append(transformed.ForceSendFields, "Age")
+		}
 	}
 
 	if v, ok := condition["created_before"]; ok {
@@ -1507,8 +1521,12 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	if v, ok := m["age"]; ok {
-		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	if v, ok := m["no_age"]; ok && v.(bool) {
+		buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
+	} else {
+		if v, ok := m["age"]; ok {
+			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+		}
 	}
 
 	if v, ok := m["days_since_custom_time"]; ok {
@@ -1651,7 +1669,9 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	if err := d.Set("autoclass", flattenBucketAutoclass(res.Autoclass)); err != nil {
 		return fmt.Errorf("Error setting autoclass: %s", err)
 	}
-	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(res.Lifecycle)); err != nil {
+	// lifecycle_rule contains terraform only variable no_age.
+	// Passing config("d") to flattener function to set no_age separately.
+	if err := d.Set("lifecycle_rule", flattenBucketLifecycle(d, res.Lifecycle)); err != nil {
 		return fmt.Errorf("Error setting lifecycle_rule: %s", err)
 	}
 	if err := tpgresource.SetLabels(res.Labels, d, "labels"); err != nil {
