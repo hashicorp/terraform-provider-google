@@ -28,6 +28,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user3"),
 				),
 			},
 			{
@@ -36,6 +37,7 @@ func TestAccSqlUser_mysql(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user1"),
 					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user2"),
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user3"),
 				),
 			},
 			{
@@ -313,6 +315,15 @@ resource "google_sql_user" "user2" {
   instance = google_sql_database_instance.instance.name
   host     = "gmail.com"
   password = "hunter2"
+  type = "CLOUD_IAM_USER"
+}
+
+resource "google_sql_user" "user3" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  host     = "gmail.com"
+  password = "hunter3"
+  type = "CLOUD_IAM_GROUP"
 }
 `, instance, password)
 }
