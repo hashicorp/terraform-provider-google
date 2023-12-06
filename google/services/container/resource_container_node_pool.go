@@ -388,6 +388,21 @@ var schemaNodePool = map[string]*schema.Schema{
 						},
 					},
 				},
+				"network_performance_config": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    1,
+					Description: `Network bandwidth tier configuration.`,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"total_egress_bandwidth_tier": {
+								Type:        schema.TypeString,
+								Required:    true,
+								Description: `Specifies the total network bandwidth tier for the NodePool.`,
+							},
+						},
+					},
+				},
 			},
 		},
 	},
@@ -1118,6 +1133,17 @@ func flattenNodeNetworkConfig(c *container.NodeNetworkConfig, d *schema.Resource
 			"pod_range":                     c.PodRange,
 			"enable_private_nodes":          c.EnablePrivateNodes,
 			"pod_cidr_overprovision_config": flattenPodCidrOverprovisionConfig(c.PodCidrOverprovisionConfig),
+			"network_performance_config":    flattenNodeNetworkPerformanceConfig(c.NetworkPerformanceConfig),
+		})
+	}
+	return result
+}
+
+func flattenNodeNetworkPerformanceConfig(c *container.NetworkPerformanceConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"total_egress_bandwidth_tier": c.TotalEgressBandwidthTier,
 		})
 	}
 	return result
@@ -1152,6 +1178,14 @@ func expandNodeNetworkConfig(v interface{}) *container.NodeNetworkConfig {
 	}
 
 	nnc.PodCidrOverprovisionConfig = expandPodCidrOverprovisionConfig(networkNodeConfig["pod_cidr_overprovision_config"])
+
+	if v, ok := networkNodeConfig["network_performance_config"]; ok && len(v.([]interface{})) > 0 {
+		nnc.NetworkPerformanceConfig = &container.NetworkPerformanceConfig{}
+		network_performance_config := v.([]interface{})[0].(map[string]interface{})
+		if total_egress_bandwidth_tier, ok := network_performance_config["total_egress_bandwidth_tier"]; ok {
+			nnc.NetworkPerformanceConfig.TotalEgressBandwidthTier = total_egress_bandwidth_tier.(string)
+		}
+	}
 
 	return nnc
 }
@@ -1809,7 +1843,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 	}
 
 	if d.HasChange(prefix + "network_config") {
-		if d.HasChange(prefix + "network_config.0.enable_private_nodes") {
+		if d.HasChange(prefix+"network_config.0.enable_private_nodes") || d.HasChange(prefix+"network_config.0.network_performance_config") {
 			req := &container.UpdateNodePoolRequest{
 				NodePoolId:        name,
 				NodeNetworkConfig: expandNodeNetworkConfig(d.Get(prefix + "network_config")),
@@ -1829,7 +1863,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
-					"updating GKE node pool workload_metadata_config", userAgent,
+					"updating GKE node pool network_config", userAgent,
 					timeout)
 			}
 
@@ -1837,7 +1871,7 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				return err
 			}
 
-			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
+			log.Printf("[INFO] Updated network_config for node pool %s", name)
 		}
 	}
 

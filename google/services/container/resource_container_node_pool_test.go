@@ -549,10 +549,12 @@ func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withNetworkConfig(cluster, np, network),
+				Config: testAccContainerNodePool_withNetworkConfig(cluster, np, network, "TIER_1"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_container_node_pool.with_pco_disabled", "network_config.0.pod_cidr_overprovision_config.0.disabled", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tier1_net", "network_config.0.network_performance_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tier1_net", "network_config.0.network_performance_config.0.total_egress_bandwidth_tier", "TIER_1"),
 				),
 			},
 			{
@@ -566,6 +568,14 @@ func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"network_config.0.create_pod_range"},
+			},
+			// edit the updateable network config
+			{
+				Config: testAccContainerNodePool_withNetworkConfig(cluster, np, network, "TIER_UNSPECIFIED"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tier1_net", "network_config.0.network_performance_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_tier1_net", "network_config.0.network_performance_config.0.total_egress_bandwidth_tier", "TIER_UNSPECIFIED"),
+				),
 			},
 		},
 	})
@@ -2729,7 +2739,7 @@ resource "google_container_node_pool" "np" {
 `, cluster, networkName, subnetworkName, np, mode)
 }
 
-func testAccContainerNodePool_withNetworkConfig(cluster, np, network string) string {
+func testAccContainerNodePool_withNetworkConfig(cluster, np, network, netTier string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
   name                    = "%s"
@@ -2806,7 +2816,7 @@ resource "google_container_node_pool" "with_auto_pod_cidr" {
   node_count = 1
   network_config {
 	create_pod_range    = true
-    pod_range           = "auto-pod-range"
+	pod_range           = "auto-pod-range"
 	pod_ipv4_cidr_block = "10.2.0.0/20"
   }
   node_config {
@@ -2822,7 +2832,7 @@ resource "google_container_node_pool" "with_pco_disabled" {
   cluster            = google_container_cluster.cluster.name
   node_count = 1
   network_config {
-        pod_cidr_overprovision_config {
+	pod_cidr_overprovision_config {
 		disabled = true
 	}
   }
@@ -2833,7 +2843,31 @@ resource "google_container_node_pool" "with_pco_disabled" {
   }
 }
 
-`, network, cluster, np, np, np)
+resource "google_container_node_pool" "with_tier1_net" {
+  name               = "%s-tier1"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  node_locations = [
+	"us-central1-a",
+  ]
+  network_config {
+	network_performance_config {
+		total_egress_bandwidth_tier = "%s"
+	}
+  }
+  node_config {
+	machine_type = "n2-standard-32"
+	gvnic {
+		enabled = true
+	}
+	oauth_scopes = [
+		"https://www.googleapis.com/auth/cloud-platform",
+	]
+  }
+}
+
+`, network, cluster, np, np, np, np, netTier)
 }
 
 func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {
