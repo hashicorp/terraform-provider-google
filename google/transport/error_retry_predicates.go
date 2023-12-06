@@ -523,3 +523,14 @@ func IsForbiddenIamServiceAccountRetryableError(opType string) RetryErrorPredica
 		return false, ""
 	}
 }
+
+// Retry the creation of `google_vmwareengine_external_address` resource if the network policy's
+// External IP field is not active yet.
+func ExternalIpServiceNotActive(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 400 && strings.Contains(gerr.Body, "External IP address network service is not active in the provided network policy") {
+			return true, "Waiting for external ip service to be enabled"
+		}
+	}
+	return false, ""
+}
