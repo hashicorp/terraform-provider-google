@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `external_dataset_reference` field to `google_bigquery_dataset` resource (beta)
+```
