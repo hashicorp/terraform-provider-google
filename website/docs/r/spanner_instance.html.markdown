@@ -67,6 +67,33 @@ resource "google_spanner_instance" "example" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_instance_with_autoscaling&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Spanner Instance With Autoscaling
+
+
+```hcl
+resource "google_spanner_instance" "example" {
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units            = 3000
+      min_processing_units            = 2000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 75
+      storage_utilization_percent           = 90
+    }
+  }
+  labels = {
+    "foo" = "bar"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=spanner_instance_multi_regional&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>

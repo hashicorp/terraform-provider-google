@@ -108,6 +108,54 @@ resource "google_spanner_instance" "example" {
 `, context)
 }
 
+func TestAccSpannerInstance_spannerInstanceWithAutoscalingExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSpannerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSpannerInstance_spannerInstanceWithAutoscalingExample(context),
+			},
+			{
+				ResourceName:            "google_spanner_instance.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"config", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccSpannerInstance_spannerInstanceWithAutoscalingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_spanner_instance" "example" {
+  config       = "regional-us-central1"
+  display_name = "Test Spanner Instance"
+  autoscaling_config {
+    autoscaling_limits {
+      max_processing_units            = 3000
+      min_processing_units            = 2000
+    }
+    autoscaling_targets {
+      high_priority_cpu_utilization_percent = 75
+      storage_utilization_percent           = 90
+    }
+  }
+  labels = {
+    "foo" = "bar"
+  }
+}
+`, context)
+}
+
 func TestAccSpannerInstance_spannerInstanceMultiRegionalExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
