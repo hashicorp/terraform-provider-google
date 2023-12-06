@@ -261,6 +261,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_vpc_access_connector":                         vpcaccess.DataSourceVPCAccessConnector(),
 	"google_redis_instance":                               redis.DataSourceGoogleRedisInstance(),
 	"google_vertex_ai_index":                              vertexai.DataSourceVertexAIIndex(),
+	"google_vmwareengine_external_address":                vmwareengine.DataSourceVmwareengineExternalAddress(),
 	"google_vmwareengine_network":                         vmwareengine.DataSourceVmwareengineNetwork(),
 	"google_vmwareengine_network_peering":                 vmwareengine.DataSourceVmwareengineNetworkPeering(),
 	"google_vmwareengine_network_policy":                  vmwareengine.DataSourceVmwareengineNetworkPolicy(),
@@ -366,9 +367,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 346
+// Generated resources: 347
 // Generated IAM resources: 216
-// Total generated resources: 562
+// Total generated resources: 563
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -908,6 +909,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_vertex_ai_index":                                         vertexai.ResourceVertexAIIndex(),
 	"google_vertex_ai_index_endpoint":                                vertexai.ResourceVertexAIIndexEndpoint(),
 	"google_vertex_ai_tensorboard":                                   vertexai.ResourceVertexAITensorboard(),
+	"google_vmwareengine_external_address":                           vmwareengine.ResourceVmwareengineExternalAddress(),
 	"google_vmwareengine_network":                                    vmwareengine.ResourceVmwareengineNetwork(),
 	"google_vmwareengine_network_peering":                            vmwareengine.ResourceVmwareengineNetworkPeering(),
 	"google_vmwareengine_network_policy":                             vmwareengine.ResourceVmwareengineNetworkPolicy(),
