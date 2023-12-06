@@ -203,6 +203,23 @@ resource "google_bigquery_dataset" "private" {
   }
 }
 ```
+## Example Usage - Bigquery Dataset External Reference Aws Docs
+
+
+```hcl
+resource "google_bigquery_dataset" "dataset" {
+  provider                    = google-beta
+  dataset_id                  = "example_dataset"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "aws-us-east-1"
+
+  external_dataset_reference {
+    external_source = "aws-glue://arn:aws:glue:us-east-1:999999999999:database/database"
+    connection      = "projects/project/locations/aws-us-east-1/connections/connection"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -263,6 +280,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A user-friendly description of the dataset
+
+* `external_dataset_reference` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Information about the external metadata storage where the dataset is defined.
+  Structure is [documented below](#nested_external_dataset_reference).
 
 * `friendly_name` -
   (Optional)
@@ -448,6 +470,17 @@ destroying the resource will fail if tables are present.
   The ID of the routine. The ID must contain only letters (a-z,
   A-Z), numbers (0-9), or underscores (_). The maximum length
   is 256 characters.
+
+<a name="nested_external_dataset_reference"></a>The `external_dataset_reference` block supports:
+
+* `external_source` -
+  (Required)
+  External source that backs this dataset.
+
+* `connection` -
+  (Required)
+  The connection id that is used to access the externalSource.
+  Format: projects/{projectId}/locations/{locationId}/connections/{connectionId}
 
 <a name="nested_default_encryption_configuration"></a>The `default_encryption_configuration` block supports:
 
