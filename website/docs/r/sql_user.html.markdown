@@ -72,24 +72,6 @@ resource "google_sql_user" "iam_service_account_user" {
   instance = google_sql_database_instance.main.name
   type     = "CLOUD_IAM_SERVICE_ACCOUNT"
 }
-
-resource "google_sql_user" "iam_group" {
-  name     = "group1@example.com"
-  instance = google_sql_database_instance.main.name
-  type     = "CLOUD_IAM_GROUP"
-}
-
-resource "google_sql_user" "iam_group_user" {
-  name     = "group_user1@example.com"
-  instance = google_sql_database_instance.main.name
-  type     = "CLOUD_IAM_GROUP_USER"
-}
-
-resource "google_sql_user" "iam_group_service_account_user" {
-  name     = "my-service-account@example.iam.gserviceaccount.com"
-  instance = google_sql_database_instance.main.name
-  type     = "CLOUD_IAM_GROUP_SERVICE_ACCOUNT"
-}
 ```
 
 ## Argument Reference
@@ -109,8 +91,7 @@ The following arguments are supported:
 
 * `type` - (Optional) The user type. It determines the method to authenticate the
     user during login. The default is the database's built-in user type. Flags
-    include "BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT", 
-    "CLOUD_IAM_GROUP", "CLOUD_IAM_GROUP_USER" or "CLOUD_IAM_GROUP_SERVICE_ACCOUNT".
+    include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".
 
 * `deletion_policy` - (Optional) The deletion policy for the user.
     Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
