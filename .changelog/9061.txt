@@ -1,0 +1,3 @@
+```release-note:enhancement
+workloadidentity: added `saml` block to `google_iam_workload_identity_pool_provider` resource
+```
