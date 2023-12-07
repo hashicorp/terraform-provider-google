@@ -171,6 +171,67 @@ func TestAccComputePerInstanceConfig_statefulIps(t *testing.T) {
 	})
 }
 
+func TestAccComputePerInstanceConfig_removeInstanceOnDestroy(t *testing.T) {
+	t.Parallel()
+
+	igmName := fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"igm_name":      igmName,
+		"config_name":   fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"config_name2":  fmt.Sprintf("instance-%s", acctest.RandString(t, 10)),
+		"network":       fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10)),
+		"subnetwork":    fmt.Sprintf("tf-test-igm-%s", acctest.RandString(t, 10)),
+		"address1":      fmt.Sprintf("tf-test-igm-address%s", acctest.RandString(t, 10)),
+		"address2":      fmt.Sprintf("tf-test-igm-address%s", acctest.RandString(t, 10)),
+	}
+	igmId := fmt.Sprintf("projects/%s/zones/%s/instanceGroupManagers/%s",
+		envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), igmName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputePerInstanceConfig_removeInstanceOnDestroyBefore(context),
+			},
+			{
+				ResourceName:            "google_compute_per_instance_config.config_one",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_instance_on_destroy", "zone"},
+			},
+			{
+				ResourceName:            "google_compute_per_instance_config.config_two",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_instance_on_destroy", "zone"},
+			},
+			{
+				Config: testAccComputePerInstanceConfig_removeInstanceOnDestroyAfter(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputePerInstanceConfigDestroyed(t, igmId, context["config_name"].(string)),
+					testAccCheckComputePerInstanceConfigInstanceDestroyed(t, igmId, context["config_name"].(string)),
+				),
+			},
+			{
+				ResourceName:            "google_compute_per_instance_config.config_two",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_instance_on_destroy", "zone"},
+			},
+			{
+				// delete all configs
+				Config: testAccComputePerInstanceConfig_igm(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputePerInstanceConfigDestroyed(t, igmId, context["config_name2"].(string)),
+					testAccCheckComputePerInstanceConfigInstanceDestroyed(t, igmId, context["config_name2"].(string)),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputePerInstanceConfig_statefulBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_per_instance_config" "default" {
@@ -341,6 +402,109 @@ resource "google_compute_instance_group_manager" "igm" {
 `, context)
 }
 
+func testAccComputePerInstanceConfig_removeInstanceOnDestroyBefore(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name = "%{network}"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_address" "static_internal_ip" {
+  name         = "%{address1}"
+  address_type = "INTERNAL"
+}
+
+resource "google_compute_address" "static_external_ip" {
+  name         = "%{address2}"
+  address_type = "EXTERNAL"
+}
+
+resource "google_compute_per_instance_config" "config_one" {
+  instance_group_manager = google_compute_instance_group_manager.igm.name
+  name = "%{config_name}"
+  remove_instance_on_destroy = true
+  preserved_state {
+    metadata = {
+      asdf = "config-one"
+    }
+    disk {
+      device_name = "my-stateful-disk1"
+      source      = google_compute_disk.disk.id
+    }
+
+    disk {
+      device_name = "my-stateful-disk2"
+      source      = google_compute_disk.disk1.id
+    }
+    internal_ip {
+      ip_address {
+        address = google_compute_address.static_internal_ip.self_link
+      }
+      auto_delete    = "NEVER"
+      interface_name = "nic0"
+    }
+    external_ip {
+      ip_address {
+        address = google_compute_address.static_external_ip.self_link
+      }
+      auto_delete    = "NEVER"
+      interface_name = "nic0"
+    }
+  }
+}
+
+resource "google_compute_disk" "disk" {
+  name  = "test-disk-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-8-jessie-v20170523"
+  physical_block_size_bytes = 4096
+}
+
+resource "google_compute_disk" "disk1" {
+  name  = "test-disk2-%{random_suffix}"
+  type  = "pd-ssd"
+  zone  = google_compute_instance_group_manager.igm.zone
+  image = "debian-cloud/debian-11"
+  physical_block_size_bytes = 4096
+}
+
+resource "google_compute_per_instance_config" "config_two" {
+	zone = google_compute_instance_group_manager.igm.zone
+	instance_group_manager = google_compute_instance_group_manager.igm.name
+	name = "%{config_name2}"
+	remove_instance_on_destroy = true
+	preserved_state {
+		metadata = {
+			asdf = "config-two"
+		}
+	}
+}
+`, context) + testAccComputePerInstanceConfig_igm(context)
+}
+
+func testAccComputePerInstanceConfig_removeInstanceOnDestroyAfter(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_per_instance_config" "config_two" {
+	zone = google_compute_instance_group_manager.igm.zone
+	instance_group_manager = google_compute_instance_group_manager.igm.name
+	name = "%{config_name2}"
+	remove_instance_on_destroy = true
+	preserved_state {
+		metadata = {
+			asdf = "config-two"
+		}
+	}
+}
+`, context) + testAccComputePerInstanceConfig_igm(context)
+}
+
 func testAccComputePerInstanceConfig_statefulIpsBasic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "default" {
@@ -353,17 +517,17 @@ resource "google_compute_subnetwork" "default" {
   region        = "us-central1"
   network       = google_compute_network.default.id
 }
-	
+
 resource "google_compute_address" "static_internal_ip" {
   name         = "%{address1}"
   address_type = "INTERNAL"
 }
-	
+
 resource "google_compute_address" "static_external_ip" {
   name         = "%{address2}"
   address_type = "EXTERNAL"
 }
-	  
+
 resource "google_compute_per_instance_config" "default" {
   instance_group_manager = google_compute_instance_group_manager.igm.name
   name = "%{config_name}"
@@ -405,7 +569,7 @@ resource "google_compute_disk" "disk" {
   image = "debian-8-jessie-v20170523"
   physical_block_size_bytes = 4096
 }
-  
+
 resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
@@ -428,17 +592,17 @@ resource "google_compute_subnetwork" "default" {
   region        = "us-central1"
   network       = google_compute_network.default.id
 }
-	
+
 resource "google_compute_address" "static_internal_ip" {
   name         = "%{address1}"
   address_type = "INTERNAL"
 }
-	
+
 resource "google_compute_address" "static_external_ip" {
   name         = "%{address2}"
   address_type = "EXTERNAL"
 }
-	  
+
 resource "google_compute_per_instance_config" "default" {
   instance_group_manager = google_compute_instance_group_manager.igm.name
   name = "%{config_name}"
@@ -480,7 +644,7 @@ resource "google_compute_disk" "disk" {
   image = "debian-8-jessie-v20170523"
   physical_block_size_bytes = 4096
 }
-  
+
 resource "google_compute_disk" "disk1" {
   name  = "test-disk2-%{random_suffix}"
   type  = "pd-ssd"
@@ -504,6 +668,48 @@ func testAccCheckComputePerInstanceConfigDestroyed(t *testing.T, igmId, configNa
 
 		return nil
 	}
+}
+
+// Checks that the instance with the given name was destroyed.
+func testAccCheckComputePerInstanceConfigInstanceDestroyed(t *testing.T, igmId, configName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		foundNames, err := testAccComputePerInstanceConfigListInstances(t, igmId)
+		if err != nil {
+			return fmt.Errorf("unable to confirm instance with name %s was destroyed: %v", configName, err)
+		}
+		if _, ok := foundNames[configName]; ok {
+			return fmt.Errorf("instance with name %s still exists", configName)
+		}
+
+		return nil
+	}
+}
+
+func testAccComputePerInstanceConfigListInstances(t *testing.T, igmId string) (map[string]struct{}, error) {
+	config := acctest.GoogleProviderConfig(t)
+
+	url := fmt.Sprintf("%s%s/listManagedInstances", config.ComputeBasePath, igmId)
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		RawURL:    url,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	v, ok := res["managedInstances"]
+	if !ok || v == nil {
+		return nil, nil
+	}
+	items := v.([]interface{})
+	instances := make(map[string]struct{})
+	for _, item := range items {
+		instance := item.(map[string]interface{})
+		instances[fmt.Sprintf("%v", instance["name"])] = struct{}{}
+	}
+	return instances, nil
 }
 
 func testAccComputePerInstanceConfigListNames(t *testing.T, igmId string) (map[string]struct{}, error) {

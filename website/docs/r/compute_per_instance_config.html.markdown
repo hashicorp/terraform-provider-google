@@ -146,6 +146,9 @@ Default is `REPLACE`. Possible values are:
 * REFRESH
 * NONE
 
+* `remove_instance_on_destroy` - (Optional) When true, deleting this config will immediately remove the underlying instance.
+When false, deleting this config will use the behavior as determined by remove_instance_on_destroy.
+
 * `remove_instance_state_on_destroy` - (Optional) When true, deleting this config will immediately remove any specified state from the underlying instance.
 When false, deleting this config will *not* immediately remove any state from the underlying instance.
 State will be removed on the next instance recreation or update.

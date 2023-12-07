@@ -49,6 +49,58 @@ func resourceComputePerInstanceConfigPollRead(d *schema.ResourceData, meta inter
 	}
 }
 
+// Deleting a PerInstanceConfig & the underlying instance needs both regular operation polling AND custom polling for deletion which is why this is not generated
+func resourceComputePerInstanceConfigInstancePollRead(d *schema.ResourceData, meta interface{}, instanceName string) transport_tpg.PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{instance_group_manager}}/listManagedInstances")
+		if err != nil {
+			return nil, err
+		}
+
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"filter": fmt.Sprintf("name=%q", instanceName)})
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return res, err
+		}
+
+		value, ok := res["managedInstances"]
+		if !ok || value == nil {
+			return nil, nil
+		}
+
+		managedInstances, ok := value.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("expected list for value managedInstances. Actual value: %v", value)
+		}
+
+		if len(managedInstances) == 1 {
+			return managedInstances[0].(map[string]interface{}), nil
+		}
+
+		return nil, nil
+	}
+}
+
 // RegionPerInstanceConfig needs both regular operation polling AND custom polling for deletion which is why this is not generated
 func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta interface{}) transport_tpg.PollReadFunc {
 	return func() (map[string]interface{}, error) {
@@ -84,6 +136,58 @@ func resourceComputeRegionPerInstanceConfigPollRead(d *schema.ResourceData, meta
 
 		// Returns nil res if nested object is not found
 		return res, nil
+	}
+}
+
+// Deleting a RegionPerInstanceConfig & the underlying instance needs both regular operation polling AND custom polling for deletion which is why this is not generated
+func resourceComputeRegionPerInstanceConfigInstancePollRead(d *schema.ResourceData, meta interface{}, instanceName string) transport_tpg.PollReadFunc {
+	return func() (map[string]interface{}, error) {
+		config := meta.(*transport_tpg.Config)
+		userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+		if err != nil {
+			return nil, err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/listManagedInstances")
+		if err != nil {
+			return nil, err
+		}
+
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"filter": fmt.Sprintf("name=%q", instanceName)})
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := tpgresource.GetProject(d, config)
+		if err != nil {
+			return nil, err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return res, err
+		}
+
+		value, ok := res["managedInstances"]
+		if !ok || value == nil {
+			return nil, nil
+		}
+
+		managedInstances, ok := value.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("expected list for value managedInstances. Actual value: %v", value)
+		}
+
+		if len(managedInstances) == 1 {
+			return managedInstances[0].(map[string]interface{}), nil
+		}
+
+		return nil, nil
 	}
 }
 
@@ -168,4 +272,23 @@ func PollCheckInstanceConfigDeleted(resp map[string]interface{}, respErr error) 
 		return transport_tpg.PendingStatusPollResult("Still deleting")
 	}
 	return transport_tpg.ErrorPollResult(fmt.Errorf("Expected PerInstanceConfig to be deleting but status is: %s", status))
+}
+
+func PollCheckInstanceConfigInstanceDeleted(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+	if respErr != nil {
+		return transport_tpg.ErrorPollResult(respErr)
+	}
+
+	// Nested object 404 appears as nil response
+	if resp == nil {
+		// Instance no longer exists
+		return transport_tpg.SuccessPollResult()
+	}
+
+	// Read status
+	status := resp["currentAction"].(string)
+	if status == "DELETING" {
+		return transport_tpg.PendingStatusPollResult("Still deleting")
+	}
+	return transport_tpg.ErrorPollResult(fmt.Errorf("Expected PerInstanceConfig instance to be deleting but status is: %s", status))
 }

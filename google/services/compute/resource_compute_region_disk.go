@@ -18,6 +18,7 @@
 package compute
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -847,7 +848,8 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 			err = ComputeOperationWaitTime(config, op, call.project,
 				fmt.Sprintf("Detaching disk from %s/%s/%s", call.project, call.zone, call.instance), userAgent, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
-				if opErr, ok := err.(ComputeOperationError); ok && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
+				var opErr ComputeOperationError
+				if errors.As(err, &opErr) && len(opErr.Errors) == 1 && opErr.Errors[0].Code == "RESOURCE_NOT_FOUND" {
 					log.Printf("[WARN] instance %q was deleted while awaiting detach", call.instance)
 					continue
 				}
