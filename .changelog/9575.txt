@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: changed `machineType`/`diskType`/`diskSizeGb` to `ForceNew: false` on `NodePool`
+```

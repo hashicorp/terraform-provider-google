@@ -1295,6 +1295,39 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			}
 		}
 
+		if d.HasChange("node_config.0.disk_size_gb") ||
+			d.HasChange("node_config.0.disk_type") ||
+			d.HasChange("node_config.0.machine_type") {
+			req := &container.UpdateNodePoolRequest{
+				Name:        name,
+				DiskSizeGb:  int64(d.Get("node_config.0.disk_size_gb").(int)),
+				DiskType:    d.Get("node_config.0.disk_type").(string),
+				MachineType: d.Get("node_config.0.machine_type").(string),
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool disk_size_gb/disk_type/machine_type", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] Updated disk disk_size_gb/disk_type/machine_type for Node Pool %s", d.Id())
+		}
+
 		if d.HasChange(prefix + "node_config.0.taint") {
 			req := &container.UpdateNodePoolRequest{
 				Name: name,

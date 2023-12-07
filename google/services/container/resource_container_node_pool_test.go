@@ -281,6 +281,42 @@ func TestAccContainerNodePool_withTaintsUpdate(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withMachineAndDiskUpdate(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_basic(cluster, nodePool, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withMachineAndDiskUpdate(cluster, nodePool, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#", "node_config.0.taint"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withReservationAffinity(t *testing.T) {
 	t.Parallel()
 
@@ -2436,6 +2472,38 @@ resource "google_container_node_pool" "np" {
   }
 
 
+}
+`, cluster, networkName, subnetworkName, np)
+}
+
+func testAccContainerNodePool_withMachineAndDiskUpdate(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  alias                 = "user-project-override"
+  user_project_override = true
+}
+resource "google_container_cluster" "cluster" {
+  provider           = google.user-project-override
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  provider           = google.user-project-override
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+
+  node_config {
+	machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
+    disk_size_gb    = 15
+    disk_type       = "pd-ssd"
+  }
 }
 `, cluster, networkName, subnetworkName, np)
 }
