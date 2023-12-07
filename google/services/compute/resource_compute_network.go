@@ -141,6 +141,11 @@ subnetworks of this network, across regions. Possible values: ["REGIONAL", "GLOB
 				Description: `The gateway address for default routing out of the network. This value
 is selected by GCP.`,
 			},
+			"numeric_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique identifier for the resource. This identifier is defined by the server.`,
+			},
 			"delete_default_routes_on_create": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -218,6 +223,11 @@ func resourceComputeNetworkCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("network_firewall_policy_enforcement_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkFirewallPolicyEnforcementOrderProp)) && (ok || !reflect.DeepEqual(v, networkFirewallPolicyEnforcementOrderProp)) {
 		obj["networkFirewallPolicyEnforcementOrder"] = networkFirewallPolicyEnforcementOrderProp
+	}
+
+	obj, err = resourceComputeNetworkEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks")
@@ -342,6 +352,18 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeNetwork %q", d.Id()))
 	}
 
+	res, err = resourceComputeNetworkDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ComputeNetwork because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("delete_default_routes_on_create"); !ok {
 		if err := d.Set("delete_default_routes_on_create", false); err != nil {
@@ -359,6 +381,9 @@ func resourceComputeNetworkRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("name", flattenComputeNetworkName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Network: %s", err)
+	}
+	if err := d.Set("numeric_id", flattenComputeNetworkNumericId(res["numericId"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Network: %s", err)
 	}
 	if err := d.Set("auto_create_subnetworks", flattenComputeNetworkAutoCreateSubnetworks(res["autoCreateSubnetworks"], d, config)); err != nil {
@@ -429,6 +454,11 @@ func resourceComputeNetworkUpdate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		} else if v, ok := d.GetOkExists("network_firewall_policy_enforcement_order"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkFirewallPolicyEnforcementOrderProp)) {
 			obj["networkFirewallPolicyEnforcementOrder"] = networkFirewallPolicyEnforcementOrderProp
+		}
+
+		obj, err = resourceComputeNetworkUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/networks/{{name}}")
@@ -559,6 +589,10 @@ func flattenComputeNetworkName(v interface{}, d *schema.ResourceData, config *tr
 	return v
 }
 
+func flattenComputeNetworkNumericId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeNetworkAutoCreateSubnetworks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -651,4 +685,19 @@ func expandComputeNetworkInternalIpv6Range(v interface{}, d tpgresource.Terrafor
 
 func expandComputeNetworkNetworkFirewallPolicyEnforcementOrder(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceComputeNetworkEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "numeric_id") // Field doesn't exist in the API
+	return obj, nil
+}
+
+func resourceComputeNetworkUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	delete(obj, "numeric_id") // Field doesn't exist in the API
+	return obj, nil
+}
+
+func resourceComputeNetworkDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	res["numericId"] = res["id"] // stores unique id into numericId attribute before it's changed to path format
+	return res, nil
 }

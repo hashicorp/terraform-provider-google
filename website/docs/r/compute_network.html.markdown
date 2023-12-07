@@ -148,6 +148,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `gateway_ipv4` -
   The gateway address for default routing out of the network. This value
   is selected by GCP.
+
+* `numeric_id` -
+  The unique identifier for the resource. This identifier is defined by the server.
 * `self_link` - The URI of the created resource.
 
 
