@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataform: added `display_name`, `labels` and `npmrc_environment_variables_secret_version` fields to `google_dataform_repository` resource 
+```

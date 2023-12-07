@@ -63,6 +63,12 @@ resource "google_secret_manager_secret_version" "secret_version" {
 resource "google_dataform_repository" "dataform_respository" {
   provider = google-beta
   name = "dataform_repository"
+  display_name = "dataform_repository"
+  npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
+
+  labels = {
+    label_foo1 = "label-bar1"
+  }
 
   git_remote_settings {
       url = google_sourcerepo_repository.git_repository.url
@@ -157,6 +163,22 @@ The following arguments are supported:
   (Optional)
   The service account to run workflow invocations under.
 
+* `npmrc_environment_variables_secret_version` -
+  (Optional)
+  Optional. The name of the Secret Manager secret version to be used to interpolate variables into the .npmrc file for package installation operations. Must be in the format projects/*/secrets/*/versions/*. The file itself must be in a JSON format.
+
+* `display_name` -
+  (Optional)
+  Optional. The repository's user-friendly name.
+
+* `labels` -
+  (Optional)
+  Optional. Repository user labels.
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `region` -
   (Optional)
   A reference to the region
@@ -218,6 +240,13 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{region}}/repositories/{{name}}`
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 ## Timeouts
