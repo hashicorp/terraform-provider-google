@@ -63,6 +63,12 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: `The location for the Instance.`,
 			},
+			"kms_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Customer-managed encryption key name, in the format projects/*/locations/*/keyRings/*/cryptoKeys/*.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -73,6 +79,39 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"private_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Private settings for private instance.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ca_pool": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `CA pool resource, resource must in the format of 'projects/{project}/locations/{location}/caPools/{ca_pool}'.`,
+						},
+						"is_private": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							ForceNew:    true,
+							Description: `'Indicate if it's private instance.'`,
+						},
+						"http_service_attachment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Service Attachment for HTTP, resource is in the format of 'projects/{project}/regions/{region}/serviceAttachments/{service_attachment}'.`,
+						},
+						"ssh_service_attachment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Service Attachment for SSH, resource is in the format of 'projects/{project}/regions/{region}/serviceAttachments/{service_attachment}'.`,
+						},
+					},
+				},
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -86,6 +125,35 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"host_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `A list of hostnames for this instance.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"api": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `API hostname.`,
+						},
+						"git_http": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Git HTTP hostname.`,
+						},
+						"git_ssh": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Git SSH hostname.`,
+						},
+						"html": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `HTML hostname.`,
+						},
+					},
+				},
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -95,6 +163,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The current state of the Instance.`,
+			},
+			"state_note": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Provides information about the current instance state.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -128,6 +201,18 @@ func resourceSecureSourceManagerInstanceCreate(d *schema.ResourceData, meta inte
 	}
 
 	obj := make(map[string]interface{})
+	kmsKeyProp, err := expandSecureSourceManagerInstanceKmsKey(d.Get("kms_key"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("kms_key"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyProp)) && (ok || !reflect.DeepEqual(v, kmsKeyProp)) {
+		obj["kmsKey"] = kmsKeyProp
+	}
+	privateConfigProp, err := expandSecureSourceManagerInstancePrivateConfig(d.Get("private_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("private_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(privateConfigProp)) && (ok || !reflect.DeepEqual(v, privateConfigProp)) {
+		obj["privateConfig"] = privateConfigProp
+	}
 	labelsProp, err := expandSecureSourceManagerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -242,6 +327,18 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("state", flattenSecureSourceManagerInstanceState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("host_config", flattenSecureSourceManagerInstanceHostConfig(res["hostConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("state_note", flattenSecureSourceManagerInstanceStateNote(res["stateNote"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("kms_key", flattenSecureSourceManagerInstanceKmsKey(res["kmsKey"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("private_config", flattenSecureSourceManagerInstancePrivateConfig(res["privateConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenSecureSourceManagerInstanceTerraformLabels(res["labels"], d, config)); err != nil {
@@ -359,6 +456,84 @@ func flattenSecureSourceManagerInstanceState(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenSecureSourceManagerInstanceHostConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["html"] =
+		flattenSecureSourceManagerInstanceHostConfigHtml(original["html"], d, config)
+	transformed["api"] =
+		flattenSecureSourceManagerInstanceHostConfigApi(original["api"], d, config)
+	transformed["git_http"] =
+		flattenSecureSourceManagerInstanceHostConfigGitHttp(original["gitHttp"], d, config)
+	transformed["git_ssh"] =
+		flattenSecureSourceManagerInstanceHostConfigGitSsh(original["gitSsh"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecureSourceManagerInstanceHostConfigHtml(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstanceHostConfigApi(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstanceHostConfigGitHttp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstanceHostConfigGitSsh(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstanceStateNote(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstanceKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstancePrivateConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["is_private"] =
+		flattenSecureSourceManagerInstancePrivateConfigIsPrivate(original["isPrivate"], d, config)
+	transformed["ca_pool"] =
+		flattenSecureSourceManagerInstancePrivateConfigCaPool(original["caPool"], d, config)
+	transformed["http_service_attachment"] =
+		flattenSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(original["httpServiceAttachment"], d, config)
+	transformed["ssh_service_attachment"] =
+		flattenSecureSourceManagerInstancePrivateConfigSshServiceAttachment(original["sshServiceAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenSecureSourceManagerInstancePrivateConfigIsPrivate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstancePrivateConfigCaPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSecureSourceManagerInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -376,6 +551,66 @@ func flattenSecureSourceManagerInstanceTerraformLabels(v interface{}, d *schema.
 
 func flattenSecureSourceManagerInstanceEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandSecureSourceManagerInstanceKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIsPrivate, err := expandSecureSourceManagerInstancePrivateConfigIsPrivate(original["is_private"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIsPrivate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["isPrivate"] = transformedIsPrivate
+	}
+
+	transformedCaPool, err := expandSecureSourceManagerInstancePrivateConfigCaPool(original["ca_pool"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCaPool); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["caPool"] = transformedCaPool
+	}
+
+	transformedHttpServiceAttachment, err := expandSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(original["http_service_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpServiceAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["httpServiceAttachment"] = transformedHttpServiceAttachment
+	}
+
+	transformedSshServiceAttachment, err := expandSecureSourceManagerInstancePrivateConfigSshServiceAttachment(original["ssh_service_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSshServiceAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sshServiceAttachment"] = transformedSshServiceAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfigIsPrivate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfigCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfigHttpServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecureSourceManagerInstancePrivateConfigSshServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandSecureSourceManagerInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
