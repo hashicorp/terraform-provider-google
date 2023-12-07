@@ -24,8 +24,9 @@ Instances are deployed to an available Google Cloud region and are accessible vi
 
 To get more information about Instance, see:
 
+* [API documentation](https://cloud.google.com/secure-source-manager/docs/reference/rest/v1/projects.locations.instances)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/secure-source-manager/overview/overview)
+    * [Official Documentation](https://cloud.google.com/secure-source-manager/docs/create-instance)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secure_source_manager_instance_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
