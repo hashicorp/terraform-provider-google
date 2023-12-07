@@ -33,6 +33,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_private_cloud.ds", "google_vmwareengine_private_cloud.vmw-engine-pc", map[string]struct{}{}),
 					testAccCheckGoogleVmwareengineNsxCredentialsMeta("data.google_vmwareengine_nsx_credentials.nsx-ds"),
+					testAccCheckGoogleVmwareengineVcenterCredentialsMeta("data.google_vmwareengine_vcenter_credentials.vcenter-ds"),
 				),
 			},
 			{
@@ -101,9 +102,12 @@ data "google_vmwareengine_private_cloud" "ds" {
   ]
 }
 
-# NSX Credentials is a child datasource of PC and is included in the PC test due to the high deployment time involved in the Creation and deletion of a PC
+# NSX and Vcenter Credentials are child datasources of PC and are included in the PC test due to the high deployment time involved in the Creation and deletion of a PC
 data "google_vmwareengine_nsx_credentials" "nsx-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc
+
+data "google_vmwareengine_vcenter_credentials" "vcenter-ds" {
+	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }
 
 `, context)
@@ -114,6 +118,24 @@ func testAccCheckGoogleVmwareengineNsxCredentialsMeta(n string) resource.TestChe
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
 			return fmt.Errorf("Can't find nsx credentials data source: %s", n)
+		}
+		_, ok = rs.Primary.Attributes["username"]
+		if !ok {
+			return fmt.Errorf("can't find 'username' attribute in data source: %s", n)
+		}
+		_, ok = rs.Primary.Attributes["password"]
+		if !ok {
+			return fmt.Errorf("can't find 'password' attribute in data source: %s", n)
+		}
+		return nil
+	}
+}
+
+func testAccCheckGoogleVmwareengineVcenterCredentialsMeta(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Can't find vcenter credentials data source: %s", n)
 		}
 		_, ok = rs.Primary.Attributes["username"]
 		if !ok {
