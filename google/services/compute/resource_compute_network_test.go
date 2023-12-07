@@ -5,6 +5,8 @@ package compute_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -98,6 +100,34 @@ func TestAccComputeNetwork_routingModeAndUpdate(t *testing.T) {
 					testAccCheckComputeNetworkHasRoutingMode(
 						t, "google_compute_network.acc_network_routing_mode", &network, "REGIONAL"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccComputeNetwork_numericId(t *testing.T) {
+	t.Parallel()
+	suffixName := acctest.RandString(t, 10)
+	networkName := fmt.Sprintf("tf-test-network-basic-%s", suffixName)
+	projectId := envvar.GetTestProjectFromEnv()
+	networkId := fmt.Sprintf("projects/%v/global/networks/%v", projectId, networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeNetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeNetwork_basic(suffixName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("google_compute_network.bar", "numeric_id", regexp.MustCompile("^\\d{1,}$")),
+					resource.TestCheckResourceAttr("google_compute_network.bar", "id", networkId),
+				),
+			},
+			{
+				ResourceName:      "google_compute_network.bar",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
