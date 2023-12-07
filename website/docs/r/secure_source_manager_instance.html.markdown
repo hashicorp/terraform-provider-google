@@ -44,6 +44,128 @@ resource "google_secure_source_manager_instance" "default" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secure_source_manager_instance_cmek&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Instance Cmek
+
+
+```hcl
+resource "google_kms_key_ring" "key_ring" {
+  name     = "my-keyring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "my-key"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
+  ]
+}
+
+resource "google_secure_source_manager_instance" "default" {
+    location = "us-central1"
+    instance_id = "my-instance"
+    kms_key = google_kms_crypto_key.crypto_key.id
+}
+
+data "google_project" "project" {}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=secure_source_manager_instance_private&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Secure Source Manager Instance Private
+
+
+```hcl
+resource "google_privateca_ca_pool" "ca_pool" {
+  name     = "ca-pool"
+  location = "us-central1"
+  tier     = "ENTERPRISE"
+  publishing_options {
+    publish_ca_cert = true
+    publish_crl     = true
+  }
+}
+
+resource "google_privateca_certificate_authority" "root_ca" {
+  pool                     = google_privateca_ca_pool.ca_pool.name
+  certificate_authority_id = "root-ca"
+  location                 = "us-central1"
+  config {
+    subject_config {
+      subject {
+        organization = "google"
+        common_name = "my-certificate-authority"
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable deletion protections for easier test cleanup purposes
+  deletion_protection = false
+  ignore_active_certificates_on_deletion = true
+  skip_grace_period = true
+}
+
+resource "google_privateca_ca_pool_iam_binding" "ca_pool_binding" {
+  ca_pool = google_privateca_ca_pool.ca_pool.id
+  role = "roles/privateca.certificateRequester"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-sourcemanager.iam.gserviceaccount.com"
+  ]
+}
+
+resource "google_secure_source_manager_instance" "default" {
+  instance_id = "my-instance"
+  location = "us-central1"
+  private_config {
+    is_private = true
+    ca_pool = google_privateca_ca_pool.ca_pool.id
+  }
+  depends_on = [
+    google_privateca_certificate_authority.root_ca,
+    time_sleep.wait_60_seconds
+  ]
+}
+
+# ca pool IAM permissions can take time to propagate
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_privateca_ca_pool_iam_binding.ca_pool_binding]
+
+  create_duration = "60s"
+}
+
+data "google_project" "project" {}
+```
 
 ## Argument Reference
 
@@ -69,9 +191,36 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `kms_key` -
+  (Optional)
+  Customer-managed encryption key name, in the format projects/*/locations/*/keyRings/*/cryptoKeys/*.
+
+* `private_config` -
+  (Optional)
+  Private settings for private instance.
+  Structure is [documented below](#nested_private_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_private_config"></a>The `private_config` block supports:
+
+* `is_private` -
+  (Required)
+  'Indicate if it's private instance.'
+
+* `ca_pool` -
+  (Required)
+  CA pool resource, resource must in the format of `projects/{project}/locations/{location}/caPools/{ca_pool}`.
+
+* `http_service_attachment` -
+  (Output)
+  Service Attachment for HTTP, resource is in the format of `projects/{project}/regions/{region}/serviceAttachments/{service_attachment}`.
+
+* `ssh_service_attachment` -
+  (Output)
+  Service Attachment for SSH, resource is in the format of `projects/{project}/regions/{region}/serviceAttachments/{service_attachment}`.
 
 ## Attributes Reference
 
@@ -91,6 +240,13 @@ In addition to the arguments listed above, the following computed attributes are
 * `state` -
   The current state of the Instance.
 
+* `host_config` -
+  A list of hostnames for this instance.
+  Structure is [documented below](#nested_host_config).
+
+* `state_note` -
+  Provides information about the current instance state.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -98,6 +254,24 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+
+<a name="nested_host_config"></a>The `host_config` block contains:
+
+* `html` -
+  (Output)
+  HTML hostname.
+
+* `api` -
+  (Output)
+  API hostname.
+
+* `git_http` -
+  (Output)
+  Git HTTP hostname.
+
+* `git_ssh` -
+  (Output)
+  Git SSH hostname.
 
 ## Timeouts
 
