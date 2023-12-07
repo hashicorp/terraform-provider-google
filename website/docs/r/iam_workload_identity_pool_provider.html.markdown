@@ -140,6 +140,61 @@ EOT
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=iam_workload_identity_pool_provider_saml_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Provider Saml Basic
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "example-pool"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "example-prvdr"
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.arn"
+    "attribute.aws_account" = "assertion.account"
+    "attribute.environment" = "assertion.arn.contains(\":instance-profile/Production\") ? \"prod\" : \"test\""
+  }
+  saml {
+    idp_metadata_xml = file("test-fixtures/metadata.xml")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=iam_workload_identity_pool_provider_saml_full&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Provider Saml Full
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "example-pool"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "example-prvdr"
+  display_name                       = "Name of provider"
+  description                        = "SAML 2.0 identity pool provider for automated test"
+  disabled                           = true
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.arn"
+    "attribute.aws_account" = "assertion.account"
+    "attribute.environment" = "assertion.arn.contains(\":instance-profile/Production\") ? \"prod\" : \"test\""
+  }
+  saml {
+    idp_metadata_xml = file("test-fixtures/metadata.xml")
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=iam_workload_identity_pool_provider_oidc_upload_key&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -285,13 +340,18 @@ The following arguments are supported:
 
 * `aws` -
   (Optional)
-  An Amazon Web Services identity provider. Not compatible with the property oidc.
+  An Amazon Web Services identity provider. Not compatible with the property oidc or saml.
   Structure is [documented below](#nested_aws).
 
 * `oidc` -
   (Optional)
-  An OpenId Connect 1.0 identity provider. Not compatible with the property aws.
+  An OpenId Connect 1.0 identity provider. Not compatible with the property aws or saml.
   Structure is [documented below](#nested_oidc).
+
+* `saml` -
+  (Optional)
+  An SAML 2.0 identity provider. Not compatible with the property oidc or aws.
+  Structure is [documented below](#nested_saml).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -348,6 +408,12 @@ The following arguments are supported:
     ]
   }
   ```
+
+<a name="nested_saml"></a>The `saml` block supports:
+
+* `idp_metadata_xml` -
+  (Required)
+  SAML Identity provider configuration metadata xml doc.
 
 ## Attributes Reference
 
