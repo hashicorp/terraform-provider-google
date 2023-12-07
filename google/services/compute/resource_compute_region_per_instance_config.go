@@ -192,6 +192,13 @@ Default is 'REPLACE'. Possible values are:
 * REFRESH
 * NONE`,
 			},
+			"remove_instance_on_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: `When true, deleting this config will immediately remove the underlying instance.
+When false, deleting this config will use the behavior as determined by remove_instance_on_destroy.`,
+			},
 			"remove_instance_state_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -393,6 +400,11 @@ func resourceComputeRegionPerInstanceConfigRead(d *schema.ResourceData, meta int
 			return fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
 		}
 	}
+	if _, ok := d.GetOkExists("remove_instance_on_destroy"); !ok {
+		if err := d.Set("remove_instance_on_destroy", false); err != nil {
+			return fmt.Errorf("Error setting remove_instance_on_destroy: %s", err)
+		}
+	}
 	if _, ok := d.GetOkExists("remove_instance_state_on_destroy"); !ok {
 		if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
 			return fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)
@@ -567,14 +579,31 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 	transport_tpg.MutexStore.Lock(lockName)
 	defer transport_tpg.MutexStore.Unlock(lockName)
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/deletePerInstanceConfigs")
+	var url string
+	if d.Get("remove_instance_on_destroy").(bool) {
+		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/deleteInstances")
+	} else {
+		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/instanceGroupManagers/{{region_instance_group_manager}}/deletePerInstanceConfigs")
+	}
 	if err != nil {
 		return err
 	}
 
 	var obj map[string]interface{}
-	obj = map[string]interface{}{
-		"names": [1]string{d.Get("name").(string)},
+	if d.Get("remove_instance_on_destroy").(bool) {
+		// Instance name in deleteInstances request must include zone
+		instanceName, err := findInstanceName(d, config)
+		if err != nil {
+			return err
+		}
+
+		obj = map[string]interface{}{
+			"instances": [1]string{instanceName},
+		}
+	} else {
+		obj = map[string]interface{}{
+			"names": [1]string{d.Get("name").(string)},
+		}
 	}
 	log.Printf("[DEBUG] Deleting RegionPerInstanceConfig %q", d.Id())
 
@@ -599,8 +628,13 @@ func resourceComputeRegionPerInstanceConfigDelete(d *schema.ResourceData, meta i
 		return err
 	}
 
-	// Potentially delete the state managed by this config
-	if d.Get("remove_instance_state_on_destroy").(bool) {
+	if d.Get("remove_instance_on_destroy").(bool) {
+		err = transport_tpg.PollingWaitTime(resourceComputeRegionPerInstanceConfigInstancePollRead(d, meta, d.Get("name").(string)), PollCheckInstanceConfigInstanceDeleted, "Deleting RegionPerInstanceConfig", d.Timeout(schema.TimeoutDelete), 1)
+		if err != nil {
+			return fmt.Errorf("Error waiting for instance delete on RegionPerInstanceConfig %q: %s", d.Id(), err)
+		}
+	} else if d.Get("remove_instance_state_on_destroy").(bool) {
+		// Potentially delete the state managed by this config
 		// Instance name in applyUpdatesToInstances request must include zone
 		instanceName, err := findInstanceName(d, config)
 		if err != nil {
@@ -674,6 +708,9 @@ func resourceComputeRegionPerInstanceConfigImport(d *schema.ResourceData, meta i
 	}
 	if err := d.Set("most_disruptive_allowed_action", "REPLACE"); err != nil {
 		return nil, fmt.Errorf("Error setting most_disruptive_allowed_action: %s", err)
+	}
+	if err := d.Set("remove_instance_on_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting remove_instance_on_destroy: %s", err)
 	}
 	if err := d.Set("remove_instance_state_on_destroy", false); err != nil {
 		return nil, fmt.Errorf("Error setting remove_instance_state_on_destroy: %s", err)

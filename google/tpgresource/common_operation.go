@@ -153,7 +153,7 @@ func OperationWait(w Waiter, activity string, timeout time.Duration, pollInterva
 	}
 	opRaw, err := c.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for %s: %s", activity, err)
+		return fmt.Errorf("Error waiting for %s: %w", activity, err)
 	}
 
 	err = w.SetOp(opRaw)

@@ -1,0 +1,6 @@
+```release-note:bug
+compute: added `remove_instance_on_destroy` option to `google_compute_per_instance_config` resource
+```
+```release-note:bug
+compute: added `remove_instance_on_destroy` option to `google_compute_region_per_instance_config` resource
+```
