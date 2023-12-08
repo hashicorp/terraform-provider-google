@@ -224,6 +224,14 @@ func ContainerAzureNodePoolConfigSchema() *schema.Resource {
 				Elem:        ContainerAzureNodePoolConfigSshConfigSchema(),
 			},
 
+			"labels": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The initial labels assigned to nodes of this node pool. An object containing a list of \"key\": value pairs. Example: { \"name\": \"wrench\", \"mass\": \"1.3kg\", \"count\": \"3\" }.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
 			"proxy_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -658,6 +666,7 @@ func expandContainerAzureNodePoolConfig(o interface{}) *containerazure.NodePoolC
 	obj := objArr[0].(map[string]interface{})
 	return &containerazure.NodePoolConfig{
 		SshConfig:   expandContainerAzureNodePoolConfigSshConfig(obj["ssh_config"]),
+		Labels:      tpgresource.CheckStringMap(obj["labels"]),
 		ProxyConfig: expandContainerAzureNodePoolConfigProxyConfig(obj["proxy_config"]),
 		RootVolume:  expandContainerAzureNodePoolConfigRootVolume(obj["root_volume"]),
 		Tags:        tpgresource.CheckStringMap(obj["tags"]),
@@ -671,6 +680,7 @@ func flattenContainerAzureNodePoolConfig(obj *containerazure.NodePoolConfig) int
 	}
 	transformed := map[string]interface{}{
 		"ssh_config":   flattenContainerAzureNodePoolConfigSshConfig(obj.SshConfig),
+		"labels":       obj.Labels,
 		"proxy_config": flattenContainerAzureNodePoolConfigProxyConfig(obj.ProxyConfig),
 		"root_volume":  flattenContainerAzureNodePoolConfigRootVolume(obj.RootVolume),
 		"tags":         obj.Tags,

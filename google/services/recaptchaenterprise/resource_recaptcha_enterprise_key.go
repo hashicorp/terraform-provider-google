@@ -105,6 +105,15 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 				Elem:        RecaptchaEnterpriseKeyTestingOptionsSchema(),
 			},
 
+			"waf_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Settings specific to keys that can be used for WAF (Web Application Firewall).",
+				MaxItems:    1,
+				Elem:        RecaptchaEnterpriseKeyWafSettingsSchema(),
+			},
+
 			"web_settings": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -201,6 +210,26 @@ func RecaptchaEnterpriseKeyTestingOptionsSchema() *schema.Resource {
 	}
 }
 
+func RecaptchaEnterpriseKeyWafSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"waf_feature": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Supported WAF features. For more information, see https://cloud.google.com/recaptcha-enterprise/docs/usecase#comparison_of_features. Possible values: CHALLENGE_PAGE, SESSION_TOKEN, ACTION_TOKEN, EXPRESS",
+			},
+
+			"waf_service": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The WAF service that uses this key. Possible values: CA, FASTLY",
+			},
+		},
+	}
+}
+
 func RecaptchaEnterpriseKeyWebSettingsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -254,6 +283,7 @@ func resourceRecaptchaEnterpriseKeyCreate(d *schema.ResourceData, meta interface
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
 	}
 
@@ -319,6 +349,7 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
 		Name:            dcl.StringOrNil(d.Get("name").(string)),
 	}
@@ -363,6 +394,9 @@ func resourceRecaptchaEnterpriseKeyRead(d *schema.ResourceData, meta interface{}
 	if err = d.Set("testing_options", flattenRecaptchaEnterpriseKeyTestingOptions(res.TestingOptions)); err != nil {
 		return fmt.Errorf("error setting testing_options in state: %s", err)
 	}
+	if err = d.Set("waf_settings", flattenRecaptchaEnterpriseKeyWafSettings(res.WafSettings)); err != nil {
+		return fmt.Errorf("error setting waf_settings in state: %s", err)
+	}
 	if err = d.Set("web_settings", flattenRecaptchaEnterpriseKeyWebSettings(res.WebSettings)); err != nil {
 		return fmt.Errorf("error setting web_settings in state: %s", err)
 	}
@@ -395,6 +429,7 @@ func resourceRecaptchaEnterpriseKeyUpdate(d *schema.ResourceData, meta interface
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
 		Name:            dcl.StringOrNil(d.Get("name").(string)),
 	}
@@ -445,6 +480,7 @@ func resourceRecaptchaEnterpriseKeyDelete(d *schema.ResourceData, meta interface
 		IosSettings:     expandRecaptchaEnterpriseKeyIosSettings(d.Get("ios_settings")),
 		Project:         dcl.String(project),
 		TestingOptions:  expandRecaptchaEnterpriseKeyTestingOptions(d.Get("testing_options")),
+		WafSettings:     expandRecaptchaEnterpriseKeyWafSettings(d.Get("waf_settings")),
 		WebSettings:     expandRecaptchaEnterpriseKeyWebSettings(d.Get("web_settings")),
 		Name:            dcl.StringOrNil(d.Get("name").(string)),
 	}
@@ -573,6 +609,34 @@ func flattenRecaptchaEnterpriseKeyTestingOptions(obj *recaptchaenterprise.KeyTes
 	transformed := map[string]interface{}{
 		"testing_challenge": obj.TestingChallenge,
 		"testing_score":     obj.TestingScore,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandRecaptchaEnterpriseKeyWafSettings(o interface{}) *recaptchaenterprise.KeyWafSettings {
+	if o == nil {
+		return recaptchaenterprise.EmptyKeyWafSettings
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return recaptchaenterprise.EmptyKeyWafSettings
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &recaptchaenterprise.KeyWafSettings{
+		WafFeature: recaptchaenterprise.KeyWafSettingsWafFeatureEnumRef(obj["waf_feature"].(string)),
+		WafService: recaptchaenterprise.KeyWafSettingsWafServiceEnumRef(obj["waf_service"].(string)),
+	}
+}
+
+func flattenRecaptchaEnterpriseKeyWafSettings(obj *recaptchaenterprise.KeyWafSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"waf_feature": obj.WafFeature,
+		"waf_service": obj.WafService,
 	}
 
 	return []interface{}{transformed}
