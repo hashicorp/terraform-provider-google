@@ -40,7 +40,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				ResourceName:            "google_vmwareengine_private_cloud.vmw-engine-pc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time"},
 			},
 			{
 				Config: testPrivateCloudUpdateConfig(context, "description2", 4), // Expand PC
@@ -49,7 +49,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				ResourceName:            "google_vmwareengine_private_cloud.vmw-engine-pc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time"},
 			},
 			{
 				Config: testPrivateCloudUpdateConfig(context, "description2", 3), // Shrink PC
@@ -58,7 +58,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				ResourceName:            "google_vmwareengine_private_cloud.vmw-engine-pc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time"},
 			},
 		},
 	})
