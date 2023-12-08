@@ -471,6 +471,12 @@ func ResourceStorageBucket() *schema.Resource {
 				},
 				Description: `The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty.`,
 			},
+			"rpo": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the RPO setting of bucket. If set 'ASYNC_TURBO', The Turbo Replication will be enabled for the dual-region bucket. Value 'DEFAULT' will set RPO setting to default. Turbo Replication is only for buckets in dual-regions.See the docs for more details.`,
+			},
 			"public_access_prevention": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -601,6 +607,10 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	if v, ok := d.GetOk("custom_placement_config"); ok {
 		sb.CustomPlacementConfig = expandBucketCustomPlacementConfig(v.([]interface{}))
+	}
+
+	if v, ok := d.GetOk("rpo"); ok {
+		sb.Rpo = v.(string)
 	}
 
 	var res *storage.Bucket
@@ -764,6 +774,14 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("uniform_bucket_level_access") || d.HasChange("public_access_prevention") {
 		sb.IamConfiguration = expandIamConfiguration(d)
+	}
+
+	if d.HasChange("rpo") {
+		if v, ok := d.GetOk("rpo"); ok {
+			sb.Rpo = v.(string)
+		} else {
+			sb.NullFields = append(sb.NullFields, "Rpo")
+		}
 	}
 
 	res, err := config.NewStorageClient(userAgent).Buckets.Patch(d.Get("name").(string), sb).Do()
@@ -1692,7 +1710,13 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	if err := d.Set("custom_placement_config", flattenBucketCustomPlacementConfig(res.CustomPlacementConfig)); err != nil {
 		return fmt.Errorf("Error setting custom_placement_config: %s", err)
 	}
-
+	// Needs to hide rpo field for single-region buckets.
+	// Check the Rpo field from API response to determine whether bucket is in single region config or not.
+	if res.Rpo != "" {
+		if err := d.Set("rpo", res.Rpo); err != nil {
+			return fmt.Errorf("Error setting RPO setting : %s", err)
+		}
+	}
 	if res.IamConfiguration != nil && res.IamConfiguration.UniformBucketLevelAccess != nil {
 		if err := d.Set("uniform_bucket_level_access", res.IamConfiguration.UniformBucketLevelAccess.Enabled); err != nil {
 			return fmt.Errorf("Error setting uniform_bucket_level_access: %s", err)
