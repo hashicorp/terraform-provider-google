@@ -21,8 +21,6 @@ description: |-
 
 A cluster in a private cloud.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Cluster, see:
 
@@ -33,7 +31,6 @@ To get more information about Cluster, see:
 
 ```hcl
 resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
-  provider = google-beta
   name     = "ext-cluster"
   parent   = google_vmwareengine_private_cloud.cluster-pc.id
   node_type_configs {
@@ -43,7 +40,6 @@ resource "google_vmwareengine_cluster" "vmw-engine-ext-cluster" {
 }
 
 resource "google_vmwareengine_private_cloud" "cluster-pc" {
-  provider    = google-beta
   location    = "us-west1-a"
   name        = "sample-pc"
   description = "Sample test PC."
@@ -62,10 +58,9 @@ resource "google_vmwareengine_private_cloud" "cluster-pc" {
 }
 
 resource "google_vmwareengine_network" "cluster-nw" {
-  provider    = google-beta
-  name        = "us-west1-default"
-  location    = "us-west1"
-  type        = "LEGACY"
+  name        = "pc-nw"
+  type        = "STANDARD"
+  location    = "global"
   description = "PC network description."
 }
 ```
@@ -74,7 +69,6 @@ resource "google_vmwareengine_network" "cluster-nw" {
 
 ```hcl
 resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
-  provider = google-beta
   name     = "ext-cluster"
   parent   = google_vmwareengine_private_cloud.cluster-pc.id
   node_type_configs {
@@ -85,7 +79,6 @@ resource "google_vmwareengine_cluster" "vmw-ext-cluster" {
 }
 
 resource "google_vmwareengine_private_cloud" "cluster-pc" {
-  provider    = google-beta
   location    = "us-west1-a"
   name        = "sample-pc"
   description = "Sample test PC."
@@ -105,10 +98,9 @@ resource "google_vmwareengine_private_cloud" "cluster-pc" {
 }
 
 resource "google_vmwareengine_network" "cluster-nw" {
-  provider    = google-beta
-  name        = "us-west1-default"
-  location    = "us-west1"
-  type        = "LEGACY"
+  name        = "pc-nw"
+  type        = "STANDARD"
+  location    = "global"
   description = "PC network description."
 }
 ```
