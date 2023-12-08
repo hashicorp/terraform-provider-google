@@ -151,7 +151,7 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 	context := map[string]interface{}{
 		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-1", acctest.AddressWithPrefixLength(20)),
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-1", acctest.AddressWithPrefixLength(20)),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-1", acctest.ServiceNetworkWithPrefixLength(20)),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
