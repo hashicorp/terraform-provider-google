@@ -14,7 +14,6 @@ IMPROVEMENTS:
 * bigqueryconnection: added `spark` support to `google_bigquery_connection` resource ([#16677](https://github.com/hashicorp/terraform-provider-google/pull/16677))
 * cloudidentity: added `expiry_detail` field to `google_cloud_identity_group_membership` resource ([#16643](https://github.com/hashicorp/terraform-provider-google/pull/16643))
 * container: promoted `autoscaling_profile` to GA in the `cluster_autoscaling` block in `google_container_cluster` resource ([#16653](https://github.com/hashicorp/terraform-provider-google/pull/16653))
-* dlp: updated required fields in `timespan_config` config block for `data_loss_prevention_job_trigger` resource ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
 * gkehub: added `default_cluster_config` field to `google_gke_hub_fleet` resource  ([#16630](https://github.com/hashicorp/terraform-provider-google/pull/16630))
 * gkehub: added `binary_authorization_config` field to `google_gke_hub_fleet` resource ([#16674](https://github.com/hashicorp/terraform-provider-google/pull/16674))
 * sql: added support for in-place updates to the `edition` field in `google_sql_database_instance` resource ([#16629](https://github.com/hashicorp/terraform-provider-google/pull/16629))
@@ -22,6 +21,8 @@ IMPROVEMENTS:
 BUG FIXES:
 * artifactregistry: fixed permadiff due to unsorted `virtual_repository_config` array in `google_artifact_registry_repository` ([#16646](https://github.com/hashicorp/terraform-provider-google/pull/16646))
 * container: made `dns_config` field updatable on `google_container_cluster` resource ([#16652](https://github.com/hashicorp/terraform-provider-google/pull/16652))
+* dlp: added conflicting field validation in the `storage_config.timespan_config` block in `data_loss_prevention_job_trigger` resource ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
+* dlp: updated the `storage_config.timespan_config.timestamp_field` field in `data_loss_prevention_job_trigger` to be optional ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
 * firestore: retried resource creation for error 409 with the text "Aborted due to cross-transaction contention" in `google_firestore_index` resource ([#16618](https://github.com/hashicorp/terraform-provider-google/pull/16618))
 * firestore: retried resource creation for error 409 with the text "Please retry, underlying data changed" in `google_firestore_index` resource ([#16670](https://github.com/hashicorp/terraform-provider-google/pull/16670))
 * storage: fixed unexpected `lifecycle_rule` conditions being added for `google_storage_bucket` ([#16683](https://github.com/hashicorp/terraform-provider-google/pull/16683))
