@@ -102,6 +102,10 @@ resource "google_container_azure_node_pool" "primary" {
       owner = "mmv2"
     }
 
+    labels = {
+      key_one = "label_one"
+    }
+
     vm_size = "Standard_DS2_v2"
   }
 
@@ -182,6 +186,10 @@ The `config` block supports:
 * `image_type` -
   (Optional)
   (Beta only) The OS image type to use on node pool instances.
+    
+* `labels` -
+  (Optional)
+  Optional. The initial labels assigned to nodes of this node pool. An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
     
 * `proxy_config` -
   (Optional)

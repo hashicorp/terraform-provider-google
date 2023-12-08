@@ -126,6 +126,31 @@ func TestAccRecaptchaEnterpriseKey_MinimalKey(t *testing.T) {
 		},
 	})
 }
+func TestAccRecaptchaEnterpriseKey_WafKey(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRecaptchaEnterpriseKeyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRecaptchaEnterpriseKey_WafKey(context),
+			},
+			{
+				ResourceName:            "google_recaptcha_enterprise_key.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
 func TestAccRecaptchaEnterpriseKey_WebKey(t *testing.T) {
 	t.Parallel()
 
@@ -307,6 +332,38 @@ resource "google_recaptcha_enterprise_key" "primary" {
   }
 
   labels = {}
+}
+
+
+`, context)
+}
+
+func testAccRecaptchaEnterpriseKey_WafKey(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "%{project_name}"
+
+  testing_options {
+    testing_challenge = "NOCAPTCHA"
+    testing_score     = 0.5
+  }
+
+  waf_settings {
+    waf_feature = "CHALLENGE_PAGE"
+    waf_service = "CA"
+  }
+
+  web_settings {
+    integration_type              = "INVISIBLE"
+    allow_all_domains             = true
+    allowed_domains               = []
+    challenge_security_preference = "USABILITY"
+  }
+
+  labels = {
+    label-one = "value-one"
+  }
 }
 
 

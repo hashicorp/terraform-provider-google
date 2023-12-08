@@ -1,0 +1,9 @@
+```release-note:enhancement
+orgpolicy: added `dry_run_spec` to `google_org_policy_policy` (beta)
+```
+```release-note:enhancement
+containerazure: added `config.labels` to `google_container_azure_node_pool`
+```
+```release-note:enhancement
+recaptchaenterprise: added `waf_settings` to `google_recaptcha_enterprise_key`
+```

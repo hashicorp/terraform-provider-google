@@ -87,6 +87,37 @@ resource "google_recaptcha_enterprise_key" "primary" {
 
 
 ```
+## Example Usage - waf_key
+A basic test of recaptcha enterprise key that includes WAF settings
+```hcl
+resource "google_recaptcha_enterprise_key" "primary" {
+  display_name = "display-name-one"
+  project      = "my-project-name"
+
+  testing_options {
+    testing_challenge = "NOCAPTCHA"
+    testing_score     = 0.5
+  }
+
+  waf_settings {
+    waf_feature = "CHALLENGE_PAGE"
+    waf_service = "CA"
+  }
+
+  web_settings {
+    integration_type              = "INVISIBLE"
+    allow_all_domains             = true
+    allowed_domains               = []
+    challenge_security_preference = "USABILITY"
+  }
+
+  labels = {
+    label-one = "value-one"
+  }
+}
+
+
+```
 ## Example Usage - web_key
 A basic test of recaptcha enterprise key that can be used by websites
 ```hcl
@@ -174,6 +205,10 @@ Please refer to the field `effective_labels` for all of the labels present on th
   (Optional)
   Options for user acceptance testing.
   
+* `waf_settings` -
+  (Optional)
+  Settings specific to keys that can be used for WAF (Web Application Firewall).
+  
 * `web_settings` -
   (Optional)
   Settings for keys that can be used by websites.
@@ -209,6 +244,16 @@ The `testing_options` block supports:
 * `testing_score` -
   (Optional)
   All assessments for this Key will return this score. Must be between 0 (likely not legitimate) and 1 (likely legitimate) inclusive.
+    
+The `waf_settings` block supports:
+    
+* `waf_feature` -
+  (Required)
+  Supported WAF features. For more information, see https://cloud.google.com/recaptcha-enterprise/docs/usecase#comparison_of_features. Possible values: CHALLENGE_PAGE, SESSION_TOKEN, ACTION_TOKEN, EXPRESS
+    
+* `waf_service` -
+  (Required)
+  The WAF service that uses this key. Possible values: CA, FASTLY
     
 The `web_settings` block supports:
     
