@@ -104,8 +104,8 @@ data "google_vmwareengine_private_cloud" "ds" {
 
 # NSX and Vcenter Credentials are child datasources of PC and are included in the PC test due to the high deployment time involved in the Creation and deletion of a PC
 data "google_vmwareengine_nsx_credentials" "nsx-ds" {
-	parent =  google_vmwareengine_private_cloud.vmw-engine-pc
-
+	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
+}
 data "google_vmwareengine_vcenter_credentials" "vcenter-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }
