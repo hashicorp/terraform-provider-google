@@ -18,7 +18,6 @@ IMPROVEMENTS:
 * dlp: update required fields in `timespan_config` config block for `data_loss_prevention_job_trigger` resource ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
 * gkehub: added `default_cluster_config` to `google_gke_hub_fleet` resource  ([#16630](https://github.com/hashicorp/terraform-provider-google/pull/16630))
 * gkehub: added `binary_authorization_config` to `google_gke_hub_fleet` resource ([#16674](https://github.com/hashicorp/terraform-provider-google/pull/16674))
-REVERTED : * sql: added support for IAM GROUP authentication in the `type` field of `google_sql_user` ([#16681](https://github.com/hashicorp/terraform-provider-google/pull/16681))
 * sql: added support for in-place updates to the `edition` field in `google_sql_database_instance` ([#16629](https://github.com/hashicorp/terraform-provider-google/pull/16629))
 
 BUG FIXES:
