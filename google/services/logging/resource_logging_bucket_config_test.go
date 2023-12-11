@@ -345,22 +345,18 @@ resource "google_kms_crypto_key" "key2" {
 	key_ring        = google_kms_key_ring.keyring.id
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key_binding1" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_member1" {
 	crypto_key_id = google_kms_crypto_key.key1.id
 	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 	
-	members = [
-		"serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}",
-	]
+	member = "serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}"
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key_binding2" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_member2" {
 	crypto_key_id = google_kms_crypto_key.key2.id
 	role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 	
-	members = [
-		"serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}",
-	]
+	member = "serviceAccount:${data.google_logging_project_cmek_settings.cmek_settings.service_account_id}"
 }
 `, context), keyRingName, cryptoKeyName, cryptoKeyNameUpdate)
 }
@@ -380,7 +376,7 @@ resource "google_logging_project_bucket_config" "basic" {
 		kms_key_name = google_kms_crypto_key.key1.id
 	}
 
-	depends_on   = [google_kms_crypto_key_iam_binding.crypto_key_binding1]
+	depends_on   = [google_kms_crypto_key_iam_member.crypto_key_member1]
 }
 `, testAccLoggingBucketConfigProject_preCmekSettings(context, keyRingName, cryptoKeyName, cryptoKeyNameUpdate), bucketId)
 }
@@ -400,7 +396,7 @@ resource "google_logging_project_bucket_config" "basic" {
 		kms_key_name = google_kms_crypto_key.key2.id
 	}
 
-	depends_on   = [google_kms_crypto_key_iam_binding.crypto_key_binding2]
+	depends_on   = [google_kms_crypto_key_iam_member.crypto_key_member2]
 }
 `, testAccLoggingBucketConfigProject_preCmekSettings(context, keyRingName, cryptoKeyName, cryptoKeyNameUpdate), bucketId)
 }

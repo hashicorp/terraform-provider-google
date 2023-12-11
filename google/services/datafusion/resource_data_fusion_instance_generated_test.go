@@ -175,7 +175,7 @@ resource "google_data_fusion_instance" "cmek" {
     key_reference = google_kms_crypto_key.crypto_key.id
   }
 
-  depends_on = [google_kms_crypto_key_iam_binding.crypto_key_binding]
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key_member]
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
@@ -188,13 +188,11 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_member" {
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datafusion.iam.gserviceaccount.com"
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-datafusion.iam.gserviceaccount.com"
 }
 
 data "google_project" "project" {}
