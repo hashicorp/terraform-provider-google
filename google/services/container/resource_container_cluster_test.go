@@ -3122,15 +3122,35 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 // taints it, having Terraform clean it up during the next apply. This test
 // name is now inexact, but is being preserved to maintain the test history.
 func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
+	acctest.SkipIfVcr(t) // skipped because the timeout step doesn't record operation GET interactions
 	t.Parallel()
 
-	prefix := acctest.RandString(t, 10)
-	clusterName := fmt.Sprintf("tf-test-cluster-%s", prefix)
-	clusterNameError := fmt.Sprintf("tf-test-cluster-err-%s", prefix)
+	suffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", suffix)
+	clusterNameError := fmt.Sprintf("tf-test-cluster-err-%s", suffix)
+	clusterNameErrorWithTimeout := fmt.Sprintf("tf-test-cluster-timeout-%s", suffix)
 	containerNetName := fmt.Sprintf("tf-test-container-net-%s", acctest.RandString(t, 10))
 
 	initConfig := testAccContainerCluster_withInitialCIDR(containerNetName, clusterName)
 	overlapConfig := testAccContainerCluster_withCIDROverlap(initConfig, clusterNameError)
+	overlapConfigWithTimeout := testAccContainerCluster_withCIDROverlapWithTimeout(initConfig, clusterNameErrorWithTimeout, "40s")
+
+	checkTaintApplied := func(st *terraform.State) error {
+		// Return an error if there is no tainted (i.e. marked for deletion) cluster.
+		ms := st.RootModule()
+		errCluster, ok := ms.Resources["google_container_cluster.cidr_error_overlap"]
+		if !ok {
+			var resourceNames []string
+			for rn := range ms.Resources {
+				resourceNames = append(resourceNames, rn)
+			}
+			return fmt.Errorf("could not find google_container_cluster.cidr_error_overlap in resources: %v", resourceNames)
+		}
+		if !errCluster.Primary.Tainted {
+			return fmt.Errorf("cluster with ID %s should be tainted, but is not", errCluster.Primary.ID)
+		}
+		return nil
+	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -3147,14 +3167,28 @@ func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
+				// First attempt to create the overlapping cluster with no timeout, this should fail and taint the resource.
 				Config:      overlapConfig,
 				ExpectError: regexp.MustCompile("Error waiting for creating GKE cluster"),
 			},
-			// If tainted cluster won't be deleted, this step will return an error
 			{
+				// Check that the tainted resource is in the config.
 				Config:             overlapConfig,
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: true,
+				Check:              checkTaintApplied,
+			},
+			{
+				// Next attempt to create the overlapping cluster with a 40s timeout. This will fail with a different error.
+				Config:      overlapConfigWithTimeout,
+				ExpectError: regexp.MustCompile("timeout while waiting for state to become 'DONE'"),
+			},
+			{
+				// Check that the tainted resource is in the config.
+				Config:             overlapConfig,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				Check:              checkTaintApplied,
 			},
 		},
 	})
@@ -4828,7 +4862,6 @@ func TestAccContainerCluster_withEnablePrivateEndpointToggle(t *testing.T) {
 }
 
 func testAccContainerCluster_withEnablePrivateEndpoint(clusterName, flag, networkName, subnetworkName string) string {
-
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "uscentral1a" {
   location = "us-central1-a"
@@ -6976,7 +7009,7 @@ resource "google_container_cluster" "cidr_error_preempt" {
 
 func testAccContainerCluster_withCIDROverlap(initConfig, secondCluster string) string {
 	return fmt.Sprintf(`
-  %s
+%s
 
 resource "google_container_cluster" "cidr_error_overlap" {
   name     = "%s"
@@ -6995,6 +7028,32 @@ resource "google_container_cluster" "cidr_error_overlap" {
   deletion_protection = false
 }
 `, initConfig, secondCluster)
+}
+
+func testAccContainerCluster_withCIDROverlapWithTimeout(initConfig, secondCluster, createTimeout string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_container_cluster" "cidr_error_overlap" {
+  name     = "%s"
+  location = "us-central1-a"
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+
+  initial_node_count = 1
+
+  networking_mode = "VPC_NATIVE"
+  ip_allocation_policy {
+    cluster_ipv4_cidr_block  = "10.0.0.0/16"
+    services_ipv4_cidr_block = "10.1.0.0/16"
+  }
+  deletion_protection = false
+  timeouts {
+    create = "%s"
+  }
+}
+`, initConfig, secondCluster, createTimeout)
 }
 
 func testAccContainerCluster_withInvalidLocation(location string) string {
