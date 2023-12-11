@@ -15,7 +15,7 @@ FEATURES:
 IMPROVEMENTS:
 * bigqueryconnection: added `spark` support to `google_bigquery_connection` resource ([#16677](https://github.com/hashicorp/terraform-provider-google/pull/16677))
 * cloudidentity: added `expiry_detail` field to `google_cloud_identity_group_membership` resource ([#16643](https://github.com/hashicorp/terraform-provider-google/pull/16643))
-* container: promoted `autoscaling_profile` to GA in the `cluster_autoscaling` block in `google_container_cluster` resource ([#16653](https://github.com/hashicorp/terraform-provider-google/pull/16653))
+* container: added `autoscaling_profile` field in the `cluster_autoscaling` block in `google_container_cluster` resource ([#16653](https://github.com/hashicorp/terraform-provider-google/pull/16653))
 * gkehub: added `default_cluster_config` field to `google_gke_hub_fleet` resource  ([#16630](https://github.com/hashicorp/terraform-provider-google/pull/16630))
 * gkehub: added `binary_authorization_config` field to `google_gke_hub_fleet` resource ([#16674](https://github.com/hashicorp/terraform-provider-google/pull/16674))
 * sql: added support for in-place updates to the `edition` field in `google_sql_database_instance` resource ([#16629](https://github.com/hashicorp/terraform-provider-google/pull/16629))
