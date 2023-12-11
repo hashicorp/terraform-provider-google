@@ -613,65 +613,6 @@ func BootstrapServicePerimeterProjects(t *testing.T, desiredProjects int) []*clo
 	return projects
 }
 
-func RemoveContainerServiceAgentRoleFromContainerEngineRobot(t *testing.T, project *cloudresourcemanager.Project) {
-	config := BootstrapConfig(t)
-	if config == nil {
-		return
-	}
-
-	client := config.NewResourceManagerClient(config.UserAgent)
-	containerEngineRobot := fmt.Sprintf("serviceAccount:service-%d@container-engine-robot.iam.gserviceaccount.com", project.ProjectNumber)
-	getPolicyRequest := &cloudresourcemanager.GetIamPolicyRequest{}
-	policy, err := client.Projects.GetIamPolicy(project.ProjectId, getPolicyRequest).Do()
-	if err != nil {
-		t.Fatalf("error getting project iam policy: %v", err)
-	}
-	roleFound := false
-	changed := false
-	for _, binding := range policy.Bindings {
-		if binding.Role == "roles/container.serviceAgent" {
-			memberFound := false
-			for i, member := range binding.Members {
-				if member == containerEngineRobot {
-					binding.Members[i] = binding.Members[len(binding.Members)-1]
-					memberFound = true
-				}
-			}
-			if memberFound {
-				binding.Members = binding.Members[:len(binding.Members)-1]
-				changed = true
-			}
-		} else if binding.Role == "roles/editor" {
-			memberFound := false
-			for _, member := range binding.Members {
-				if member == containerEngineRobot {
-					memberFound = true
-					break
-				}
-			}
-			if !memberFound {
-				binding.Members = append(binding.Members, containerEngineRobot)
-				changed = true
-			}
-			roleFound = true
-		}
-	}
-	if !roleFound {
-		policy.Bindings = append(policy.Bindings, &cloudresourcemanager.Binding{
-			Members: []string{containerEngineRobot},
-			Role:    "roles/editor",
-		})
-		changed = true
-	}
-	if changed {
-		setPolicyRequest := &cloudresourcemanager.SetIamPolicyRequest{Policy: policy}
-		policy, err = client.Projects.SetIamPolicy(project.ProjectId, setPolicyRequest).Do()
-		if err != nil {
-			t.Fatalf("error setting project iam policy: %v", err)
-		}
-	}
-}
-
 // BootstrapProject will create or get a project named
 // "<projectIDPrefix><projectIDSuffix>" that will persist across test runs,
 // where projectIDSuffix is based off of getTestProjectFromEnv(). The reason
