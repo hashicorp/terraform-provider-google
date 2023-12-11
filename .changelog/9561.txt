@@ -1,0 +1,3 @@
+```release-note:bug
+logging: value change of `unique_writer_identity` on `google_logging_project_sink` does not trigger diff on dependent's usages of `writer_identity`
+```
