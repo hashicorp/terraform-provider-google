@@ -863,6 +863,13 @@ The following arguments are supported:
   can contain only lowercase letters, numerals, underscores, and dashes. Keys
   must begin with a letter.
 
+* `severity` -
+  (Optional)
+  The severity of an alert policy indicates how important incidents generated
+  by that policy are. The severity level will be displayed on the Incident
+  detail page and in notifications.
+  Possible values are: `CRITICAL`, `ERROR`, `WARNING`.
+
 * `documentation` -
   (Optional)
   Documentation that is included with notifications and incidents related

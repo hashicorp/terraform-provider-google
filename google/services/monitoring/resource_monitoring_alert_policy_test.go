@@ -50,7 +50,7 @@ func testAccMonitoringAlertPolicy_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, "ALIGN_RATE", filter, "WARNING"),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -67,8 +67,10 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 	conditionName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	filter1 := `metric.type=\"compute.googleapis.com/instance/disk/write_bytes_count\" AND resource.type=\"gce_instance\"`
 	aligner1 := "ALIGN_RATE"
+	severity1 := "WARNING"
 	filter2 := `metric.type=\"compute.googleapis.com/instance/cpu/utilization\" AND resource.type=\"gce_instance\"`
 	aligner2 := "ALIGN_MAX"
+	severity2 := "ERROR"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -76,7 +78,7 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 		CheckDestroy:             testAccCheckAlertPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner1, filter1, severity1),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -84,7 +86,7 @@ func testAccMonitoringAlertPolicy_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2),
+				Config: testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner2, filter2, severity2),
 			},
 			{
 				ResourceName:      "google_monitoring_alert_policy.basic",
@@ -235,7 +237,7 @@ func testAccMonitoringAlertPolicy_promql(t *testing.T) {
 	})
 }
 
-func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter string) string {
+func testAccMonitoringAlertPolicy_basicCfg(alertName, conditionName, aligner, filter, severity string) string {
 	return fmt.Sprintf(`
 resource "google_monitoring_alert_policy" "basic" {
   display_name = "%s"
@@ -257,8 +259,10 @@ resource "google_monitoring_alert_policy" "basic" {
       threshold_value = "0.5"
     }
   }
+
+  severity = "%s"
 }
-`, alertName, conditionName, aligner, filter)
+`, alertName, conditionName, aligner, filter, severity)
 }
 
 func testAccMonitoringAlertPolicy_fullCfg(alertName, conditionName1, conditionName2 string) string {
@@ -321,6 +325,8 @@ resource "google_monitoring_alert_policy" "full" {
     }
   }
 
+  severity     = "WARNING"
+
   documentation {
     content   = "test content"
     mime_type = "text/markdown"
@@ -349,6 +355,8 @@ resource "google_monitoring_alert_policy" "mql" {
       }
     }
   }
+
+  severity     = "WARNING"
 
   documentation {
     content   = "test content"
@@ -383,6 +391,8 @@ resource "google_monitoring_alert_policy" "log" {
     }
     auto_close = "2000s"
   }
+
+  severity     = "WARNING"
 
   documentation {
     content   = "test content"
@@ -442,6 +452,8 @@ resource "google_monitoring_alert_policy" "promql" {
       rule_group      = "abc"
     }
   }
+
+  severity     = "WARNING"
 
   documentation {
     content   = "test content"
