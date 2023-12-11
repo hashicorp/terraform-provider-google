@@ -655,6 +655,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"workbench_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"workflows_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -964,6 +969,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.VertexAIBasePath = d.Get("vertex_ai_custom_endpoint").(string)
 	config.VmwareengineBasePath = d.Get("vmwareengine_custom_endpoint").(string)
 	config.VPCAccessBasePath = d.Get("vpc_access_custom_endpoint").(string)
+	config.WorkbenchBasePath = d.Get("workbench_custom_endpoint").(string)
 	config.WorkflowsBasePath = d.Get("workflows_custom_endpoint").(string)
 
 	// Handwritten Products / Versioned / Atypical Entries

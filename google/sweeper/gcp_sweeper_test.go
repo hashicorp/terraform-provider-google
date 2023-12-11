@@ -111,6 +111,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/workflows"
 
 	// Manually add the services for DCL resource and handwritten resource sweepers if they are not in the above list

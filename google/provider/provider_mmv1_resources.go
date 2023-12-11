@@ -108,6 +108,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 	"github.com/hashicorp/terraform-provider-google/google/services/vmwareengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/vpcaccess"
+	"github.com/hashicorp/terraform-provider-google/google/services/workbench"
 	"github.com/hashicorp/terraform-provider-google/google/services/workflows"
 
 	"github.com/hashicorp/terraform-provider-google/google/services/composer"
@@ -343,6 +344,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_storage_bucket_iam_policy":                       tpgiamresource.DataSourceIamPolicy(storage.StorageBucketIamSchema, storage.StorageBucketIamUpdaterProducer),
 	"google_tags_tag_key_iam_policy":                         tpgiamresource.DataSourceIamPolicy(tags.TagsTagKeyIamSchema, tags.TagsTagKeyIamUpdaterProducer),
 	"google_tags_tag_value_iam_policy":                       tpgiamresource.DataSourceIamPolicy(tags.TagsTagValueIamSchema, tags.TagsTagValueIamUpdaterProducer),
+	"google_workbench_instance_iam_policy":                   tpgiamresource.DataSourceIamPolicy(workbench.WorkbenchInstanceIamSchema, workbench.WorkbenchInstanceIamUpdaterProducer),
 	// ####### END generated IAM datasources ###########
 }
 
@@ -371,9 +373,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 349
-// Generated IAM resources: 216
-// Total generated resources: 565
+// Generated resources: 350
+// Generated IAM resources: 219
+// Total generated resources: 569
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -921,6 +923,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_vmwareengine_private_cloud":                              vmwareengine.ResourceVmwareenginePrivateCloud(),
 	"google_vmwareengine_subnet":                                     vmwareengine.ResourceVmwareengineSubnet(),
 	"google_vpc_access_connector":                                    vpcaccess.ResourceVPCAccessConnector(),
+	"google_workbench_instance":                                      workbench.ResourceWorkbenchInstance(),
+	"google_workbench_instance_iam_binding":                          tpgiamresource.ResourceIamBinding(workbench.WorkbenchInstanceIamSchema, workbench.WorkbenchInstanceIamUpdaterProducer, workbench.WorkbenchInstanceIdParseFunc),
+	"google_workbench_instance_iam_member":                           tpgiamresource.ResourceIamMember(workbench.WorkbenchInstanceIamSchema, workbench.WorkbenchInstanceIamUpdaterProducer, workbench.WorkbenchInstanceIdParseFunc),
+	"google_workbench_instance_iam_policy":                           tpgiamresource.ResourceIamPolicy(workbench.WorkbenchInstanceIamSchema, workbench.WorkbenchInstanceIamUpdaterProducer, workbench.WorkbenchInstanceIdParseFunc),
 	"google_workflows_workflow":                                      workflows.ResourceWorkflowsWorkflow(),
 }
 

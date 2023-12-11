@@ -289,6 +289,7 @@ type Config struct {
 	VertexAIBasePath                 string
 	VmwareengineBasePath             string
 	VPCAccessBasePath                string
+	WorkbenchBasePath                string
 	WorkflowsBasePath                string
 
 	CloudBillingBasePath      string
@@ -415,6 +416,7 @@ const TPUBasePathKey = "TPU"
 const VertexAIBasePathKey = "VertexAI"
 const VmwareengineBasePathKey = "Vmwareengine"
 const VPCAccessBasePathKey = "VPCAccess"
+const WorkbenchBasePathKey = "Workbench"
 const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
 const ComposerBasePathKey = "Composer"
@@ -535,6 +537,7 @@ var DefaultBasePaths = map[string]string{
 	VertexAIBasePathKey:                 "https://{{region}}-aiplatform.googleapis.com/v1/",
 	VmwareengineBasePathKey:             "https://vmwareengine.googleapis.com/v1/",
 	VPCAccessBasePathKey:                "https://vpcaccess.googleapis.com/v1/",
+	WorkbenchBasePathKey:                "https://notebooks.googleapis.com/v2/",
 	WorkflowsBasePathKey:                "https://workflows.googleapis.com/v1/",
 	CloudBillingBasePathKey:             "https://cloudbilling.googleapis.com/v1/",
 	ComposerBasePathKey:                 "https://composer.googleapis.com/v1/",
@@ -1136,6 +1139,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("vpc_access_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_VPC_ACCESS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[VPCAccessBasePathKey]))
+	}
+	if d.Get("workbench_custom_endpoint") == "" {
+		d.Set("workbench_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_WORKBENCH_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[WorkbenchBasePathKey]))
 	}
 	if d.Get("workflows_custom_endpoint") == "" {
 		d.Set("workflows_custom_endpoint", MultiEnvDefault([]string{
@@ -2106,6 +2114,7 @@ func ConfigureBasePaths(c *Config) {
 	c.VertexAIBasePath = DefaultBasePaths[VertexAIBasePathKey]
 	c.VmwareengineBasePath = DefaultBasePaths[VmwareengineBasePathKey]
 	c.VPCAccessBasePath = DefaultBasePaths[VPCAccessBasePathKey]
+	c.WorkbenchBasePath = DefaultBasePaths[WorkbenchBasePathKey]
 	c.WorkflowsBasePath = DefaultBasePaths[WorkflowsBasePathKey]
 
 	// Handwritten Products / Versioned / Atypical Entries

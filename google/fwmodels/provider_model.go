@@ -130,6 +130,7 @@ type ProviderModel struct {
 	VertexAICustomEndpoint                 types.String `tfsdk:"vertex_ai_custom_endpoint"`
 	VmwareengineCustomEndpoint             types.String `tfsdk:"vmwareengine_custom_endpoint"`
 	VPCAccessCustomEndpoint                types.String `tfsdk:"vpc_access_custom_endpoint"`
+	WorkbenchCustomEndpoint                types.String `tfsdk:"workbench_custom_endpoint"`
 	WorkflowsCustomEndpoint                types.String `tfsdk:"workflows_custom_endpoint"`
 
 	// Handwritten Products / Versioned / Atypical Entries
