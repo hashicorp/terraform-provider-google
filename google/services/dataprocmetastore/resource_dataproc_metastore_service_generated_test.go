@@ -80,6 +80,7 @@ resource "google_dataproc_metastore_service" "default" {
 }
 
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -123,7 +124,10 @@ resource "google_dataproc_metastore_service" "default" {
     version = "3.1.2"
   }
 
-  depends_on = [google_kms_crypto_key_iam_binding.crypto_key_binding]
+  depends_on = [
+    google_kms_crypto_key_iam_member.crypto_key_member_1,
+    google_kms_crypto_key_iam_member.crypto_key_member_2,
+  ]
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
@@ -138,14 +142,18 @@ resource "google_kms_key_ring" "key_ring" {
   location = "us-central1"
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_member_1" {
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-metastore.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-metastore.iam.gserviceaccount.com"
+}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
 }
 `, context)
 }

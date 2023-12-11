@@ -3716,13 +3716,11 @@ resource "google_kms_crypto_key" "key" {
   key_ring = google_kms_key_ring.keyring.id
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = google_kms_crypto_key.key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-  "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
 }
 
 resource "google_sql_database_instance" "master" {
@@ -3775,13 +3773,11 @@ resource "google_kms_crypto_key" "key" {
   key_ring = google_kms_key_ring.keyring.id
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
   crypto_key_id = google_kms_crypto_key.key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
 }
 
 resource "google_sql_database_instance" "master" {
@@ -3814,13 +3810,11 @@ resource "google_kms_crypto_key" "key-rep" {
   key_ring = google_kms_key_ring.keyring-rep.id
 }
 
-resource "google_kms_crypto_key_iam_binding" "crypto_key_rep" {
+resource "google_kms_crypto_key_iam_member" "crypto_key_rep" {
   crypto_key_id = google_kms_crypto_key.key-rep.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloud-sql.iam.gserviceaccount.com"
 }
 
 resource "google_sql_database_instance" "replica" {

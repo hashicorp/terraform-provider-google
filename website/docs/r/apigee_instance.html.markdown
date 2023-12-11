@@ -185,13 +185,11 @@ resource "google_project_service_identity" "apigee_sa" {
   service  = google_project_service.apigee.service
 }
 
-resource "google_kms_crypto_key_iam_binding" "apigee_sa_keyuser" {
+resource "google_kms_crypto_key_iam_member" "apigee_sa_keyuser" {
   crypto_key_id = google_kms_crypto_key.apigee_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = [
-    "serviceAccount:${google_project_service_identity.apigee_sa.email}",
-  ]
+  member = "serviceAccount:${google_project_service_identity.apigee_sa.email}"
 }
 
 resource "google_apigee_organization" "apigee_org" {
@@ -204,7 +202,7 @@ resource "google_apigee_organization" "apigee_org" {
 
   depends_on = [
     google_service_networking_connection.apigee_vpc_connection,
-    google_kms_crypto_key_iam_binding.apigee_sa_keyuser,
+    google_kms_crypto_key_iam_member.apigee_sa_keyuser,
   ]
 }
 
