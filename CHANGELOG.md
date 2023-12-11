@@ -1,4 +1,32 @@
-## 5.9.0 (Unreleased)
+## 5.10.0 (Unreleased)
+
+## 5.9.0 (Dec 11, 2023)
+
+FEATURES:
+* **New Data Source:** `google_logging_folder_settings` ([#16658](https://github.com/hashicorp/terraform-provider-google/pull/16658))
+* **New Data Source:** `google_logging_organization_settings` ([#16658](https://github.com/hashicorp/terraform-provider-google/pull/16658))
+* **New Data Source:** `google_logging_project_settings` ([#16658](https://github.com/hashicorp/terraform-provider-google/pull/16658))
+* **New Data Source:** `google_vmwareengine_network_policy` ([#16639](https://github.com/hashicorp/terraform-provider-google/pull/16639))
+* **New Data Source:** `google_vmwareengine_nsx_credentials` ([#16669](https://github.com/hashicorp/terraform-provider-google/pull/16669))
+* **New Resource:** `google_scc_event_threat_detection_custom_module` ([#16649](https://github.com/hashicorp/terraform-provider-google/pull/16649))
+* **New Resource:** `google_secure_source_manager_instance` ([#16637](https://github.com/hashicorp/terraform-provider-google/pull/16637))
+* **New Resource:** `google_vmwareengine_network_policy` ([#16639](https://github.com/hashicorp/terraform-provider-google/pull/16639))
+
+IMPROVEMENTS:
+* bigqueryconnection: added `spark` support to `google_bigquery_connection` resource ([#16677](https://github.com/hashicorp/terraform-provider-google/pull/16677))
+* cloudidentity: added `expiry_detail` field to `google_cloud_identity_group_membership` resource ([#16643](https://github.com/hashicorp/terraform-provider-google/pull/16643))
+* container: added `autoscaling_profile` field in the `cluster_autoscaling` block in `google_container_cluster` resource ([#16653](https://github.com/hashicorp/terraform-provider-google/pull/16653))
+* gkehub: added `default_cluster_config` field to `google_gke_hub_fleet` resource  ([#16630](https://github.com/hashicorp/terraform-provider-google/pull/16630))
+* gkehub: added `binary_authorization_config` field to `google_gke_hub_fleet` resource ([#16674](https://github.com/hashicorp/terraform-provider-google/pull/16674))
+* sql: added support for in-place updates to the `edition` field in `google_sql_database_instance` resource ([#16629](https://github.com/hashicorp/terraform-provider-google/pull/16629))
+
+BUG FIXES:
+* artifactregistry: fixed permadiff due to unsorted `virtual_repository_config` array in `google_artifact_registry_repository` ([#16646](https://github.com/hashicorp/terraform-provider-google/pull/16646))
+* container: made `dns_config` field updatable on `google_container_cluster` resource ([#16652](https://github.com/hashicorp/terraform-provider-google/pull/16652))
+* dlp: added conflicting field validation in the `storage_config.timespan_config` block in `data_loss_prevention_job_trigger` resource ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
+* dlp: updated the `storage_config.timespan_config.timestamp_field` field in `data_loss_prevention_job_trigger` to be optional ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
+* firestore: added retries during creation of `google_firestore_index` resources to address retryable 409 code API errors ("Please retry, underlying data changed", and "Aborted due to cross-transaction contention") ([#16618](https://github.com/hashicorp/terraform-provider-google/pull/16618), [#16670](https://github.com/hashicorp/terraform-provider-google/pull/16670))
+* storage: fixed unexpected `lifecycle_rule` conditions being added for `google_storage_bucket` ([#16683](https://github.com/hashicorp/terraform-provider-google/pull/16683))
 
 ## 5.8.0 (Dec 4, 2023)
 
