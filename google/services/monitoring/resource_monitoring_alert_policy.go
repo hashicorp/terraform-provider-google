@@ -960,6 +960,14 @@ entries in this field is
 					Type: schema.TypeString,
 				},
 			},
+			"severity": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"CRITICAL", "ERROR", "WARNING", ""}),
+				Description: `The severity of an alert policy indicates how important incidents generated
+by that policy are. The severity level will be displayed on the Incident
+detail page and in notifications. Possible values: ["CRITICAL", "ERROR", "WARNING"]`,
+			},
 			"user_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -1057,6 +1065,12 @@ func resourceMonitoringAlertPolicyCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("user_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(userLabelsProp)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
 		obj["userLabels"] = userLabelsProp
+	}
+	severityProp, err := expandMonitoringAlertPolicySeverity(d.Get("severity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("severity"); !tpgresource.IsEmptyValue(reflect.ValueOf(severityProp)) && (ok || !reflect.DeepEqual(v, severityProp)) {
+		obj["severity"] = severityProp
 	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
@@ -1208,6 +1222,9 @@ func resourceMonitoringAlertPolicyRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("user_labels", flattenMonitoringAlertPolicyUserLabels(res["userLabels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
+	if err := d.Set("severity", flattenMonitoringAlertPolicySeverity(res["severity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AlertPolicy: %s", err)
+	}
 	if err := d.Set("documentation", flattenMonitoringAlertPolicyDocumentation(res["documentation"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AlertPolicy: %s", err)
 	}
@@ -1273,6 +1290,12 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("user_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, userLabelsProp)) {
 		obj["userLabels"] = userLabelsProp
 	}
+	severityProp, err := expandMonitoringAlertPolicySeverity(d.Get("severity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("severity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, severityProp)) {
+		obj["severity"] = severityProp
+	}
 	documentationProp, err := expandMonitoringAlertPolicyDocumentation(d.Get("documentation"), d, config)
 	if err != nil {
 		return err
@@ -1321,6 +1344,10 @@ func resourceMonitoringAlertPolicyUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("user_labels") {
 		updateMask = append(updateMask, "userLabels")
+	}
+
+	if d.HasChange("severity") {
+		updateMask = append(updateMask, "severity")
 	}
 
 	if d.HasChange("documentation") {
@@ -1989,6 +2016,10 @@ func flattenMonitoringAlertPolicyAlertStrategyNotificationChannelStrategyRenotif
 }
 
 func flattenMonitoringAlertPolicyUserLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringAlertPolicySeverity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2849,6 +2880,10 @@ func expandMonitoringAlertPolicyUserLabels(v interface{}, d tpgresource.Terrafor
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandMonitoringAlertPolicySeverity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandMonitoringAlertPolicyDocumentation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
