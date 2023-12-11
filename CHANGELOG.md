@@ -23,8 +23,7 @@ BUG FIXES:
 * container: made `dns_config` field updatable on `google_container_cluster` resource ([#16652](https://github.com/hashicorp/terraform-provider-google/pull/16652))
 * dlp: added conflicting field validation in the `storage_config.timespan_config` block in `data_loss_prevention_job_trigger` resource ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
 * dlp: updated the `storage_config.timespan_config.timestamp_field` field in `data_loss_prevention_job_trigger` to be optional ([#16628](https://github.com/hashicorp/terraform-provider-google/pull/16628))
-* firestore: retried resource creation for error 409 with the text "Aborted due to cross-transaction contention" in `google_firestore_index` resource ([#16618](https://github.com/hashicorp/terraform-provider-google/pull/16618))
-* firestore: retried resource creation for error 409 with the text "Please retry, underlying data changed" in `google_firestore_index` resource ([#16670](https://github.com/hashicorp/terraform-provider-google/pull/16670))
+* firestore: added retries during creation of `google_firestore_index` resources to address retryable 409 code API errors ("Please retry, underlying data changed", and "Aborted due to cross-transaction contention") ([#16618](https://github.com/hashicorp/terraform-provider-google/pull/16618), [#16670](https://github.com/hashicorp/terraform-provider-google/pull/16670))
 * storage: fixed unexpected `lifecycle_rule` conditions being added for `google_storage_bucket` ([#16683](https://github.com/hashicorp/terraform-provider-google/pull/16683))
 
 ## 5.8.0 (Dec 4, 2023)
