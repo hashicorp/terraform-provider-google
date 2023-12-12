@@ -77,7 +77,7 @@ func TestAccDataSourceGoogleCloudRunV2Job_bindIAMPermission(t *testing.T) {
 
 	project := envvar.GetTestProjectFromEnv()
 
-	name := fmt.Sprintf("tf-test-cloud-run-v2-job-%d", acctest.RandInt(t))
+	name := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 	location := "us-central1"
 	id := fmt.Sprintf("projects/%s/locations/%s/jobs/%s", project, location, name)
 
@@ -124,18 +124,16 @@ data "google_cloud_run_v2_job" "hello" {
 }
 
 resource "google_service_account" "foo" {
-  account_id   = "foo-service-account"
-  display_name = "foo-service-account"
+  account_id   = "%s"
+  display_name = "Service account for google_cloud_run_v2_job data source acceptance test "
 }
 
-resource "google_cloud_run_v2_job_iam_binding" "foo_run_invoker" {
+resource "google_cloud_run_v2_job_iam_member" "foo_run_invoker" {
   name     = data.google_cloud_run_v2_job.hello.name
   location = data.google_cloud_run_v2_job.hello.location
 
   role     = "roles/run.invoker"
-  members = [
-    "serviceAccount:${google_service_account.foo.email}",
-  ]
+  member = "serviceAccount:${google_service_account.foo.email}"
 }
-`, name, location)
+`, name, location, name)
 }
