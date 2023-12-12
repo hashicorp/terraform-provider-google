@@ -163,6 +163,14 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 				Optional:    true,
 				Description: `User-provided description for this private cloud.`,
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "TIME_LIMITED", ""}),
+				Description:  `Initial type of the private cloud. Default value: "STANDARD" Possible values: ["STANDARD", "TIME_LIMITED"]`,
+				Default:      "STANDARD",
+			},
 			"hcx": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -299,6 +307,12 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("management_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(managementClusterProp)) && (ok || !reflect.DeepEqual(v, managementClusterProp)) {
 		obj["managementCluster"] = managementClusterProp
+	}
+	typeProp, err := expandVmwareenginePrivateCloudType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds?privateCloudId={{name}}")
@@ -1056,6 +1070,10 @@ func expandVmwareenginePrivateCloudManagementClusterNodeTypeConfigsNodeCount(v i
 }
 
 func expandVmwareenginePrivateCloudManagementClusterNodeTypeConfigsCustomCoreCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareenginePrivateCloudType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

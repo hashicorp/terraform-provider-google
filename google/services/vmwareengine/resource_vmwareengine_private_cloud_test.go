@@ -29,7 +29,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 		CheckDestroy:             testAccCheckVmwareenginePrivateCloudDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testPrivateCloudUpdateConfig(context, "description1", 3),
+				Config: testPrivateCloudUpdateConfig(context, "description1", 1),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_private_cloud.ds", "google_vmwareengine_private_cloud.vmw-engine-pc", map[string]struct{}{}),
 					testAccCheckGoogleVmwareengineNsxCredentialsMeta("data.google_vmwareengine_nsx_credentials.nsx-ds"),
@@ -80,6 +80,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
   location = "%{region}-a"
   name = "tf-test-sample-pc%{random_suffix}"
   description = "%{description}"
+  type = "TIME_LIMITED"
   network_config {
     management_cidr = "192.168.30.0/24"
     vmware_engine_network = google_vmwareengine_network.default-nw.id
@@ -106,6 +107,7 @@ data "google_vmwareengine_private_cloud" "ds" {
 data "google_vmwareengine_nsx_credentials" "nsx-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }
+
 data "google_vmwareengine_vcenter_credentials" "vcenter-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }

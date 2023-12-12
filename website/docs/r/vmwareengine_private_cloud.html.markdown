@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud VMware Engine"
 description: |-
-  / Represents a private cloud resource.
+  Represents a private cloud resource.
 ---
 
 # google\_vmwareengine\_private\_cloud
 
-/ Represents a private cloud resource. Private clouds are zonal resources.
+Represents a private cloud resource. Private clouds are zonal resources.
 
 
 To get more information about PrivateCloud, see:
@@ -63,6 +63,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
   location    = "us-west1-a"
   name        = "sample-pc"
   description = "Sample test PC."
+  type        = "TIME_LIMITED"
   network_config {
     management_cidr       = "192.168.30.0/24"
     vmware_engine_network = google_vmwareengine_network.pc-nw.id
@@ -72,7 +73,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
     cluster_id = "sample-mgmt-cluster"
     node_type_configs {
       node_type_id = "standard-72"
-      node_count   = 3
+      node_count   = 1
       custom_core_count = 32
     }
   }
@@ -83,6 +84,7 @@ resource "google_vmwareengine_network" "pc-nw" {
   location    = "global"
   type        = "STANDARD"
   description = "PC network description."
+}
 ```
 
 ## Argument Reference
@@ -178,6 +180,12 @@ The following arguments are supported:
 * `description` -
   (Optional)
   User-provided description for this private cloud.
+
+* `type` -
+  (Optional)
+  Initial type of the private cloud.
+  Default value is `STANDARD`.
+  Possible values are: `STANDARD`, `TIME_LIMITED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
