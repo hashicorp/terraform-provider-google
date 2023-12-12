@@ -402,6 +402,10 @@ The following arguments are supported:
 
 <a name="nested_configmanagement"></a>The `configmanagement` block supports:
 
+* `version` -
+  (Optional)
+  Version of ACM installed
+
 * `config_sync` -
   (Optional)
   ConfigSync configuration for the cluster
@@ -480,10 +484,6 @@ The following arguments are supported:
 * `sync_wait_secs` -
   (Optional)
   Period in seconds between consecutive syncs. Default: 15
-
-* `version` -
-  (Optional)
-  Version of ACM installed
 
 <a name="nested_policycontroller"></a>The `policycontroller` block supports:
 
