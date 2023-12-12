@@ -168,6 +168,9 @@ resource "google_notebooks_runtime" "runtime_container" {
       }
     }
   }
+  labels = {
+    k = "val"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -199,6 +202,9 @@ resource "google_notebooks_runtime" "runtime_container" {
         }
       }
     }
+  }
+  labels = {
+    k = "val"
   }
 }
 ```
@@ -234,6 +240,18 @@ The following arguments are supported:
   (Optional)
   The config settings for software inside the runtime.
   Structure is [documented below](#nested_software_config).
+
+* `labels` -
+  (Optional)
+  The labels to associate with this runtime. Label **keys** must
+  contain 1 to 63 characters, and must conform to [RFC 1035]
+  (https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be
+  empty, but, if present, must contain 1 to 63 characters, and must
+  conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No
+  more than 32 labels can be associated with a cluster.
+
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -637,6 +655,13 @@ In addition to the arguments listed above, the following computed attributes are
   Contains Runtime daemon metrics such as Service status and JupyterLab
   status
   Structure is [documented below](#nested_metrics).
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
 
 <a name="nested_metrics"></a>The `metrics` block contains:
