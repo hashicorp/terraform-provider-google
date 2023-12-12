@@ -159,22 +159,44 @@ the instance.`,
 							Type:     schema.TypeList,
 							Optional: true,
 							Description: `Defines scale in controls to reduce the risk of response latency
-and outages due to abrupt scale-in events`,
+and outages due to abrupt scale-in events. Users can define the minimum and
+maximum compute capacity allocated to the instance, and the autoscaler will
+only scale within that range. Users can either use nodes or processing
+units to specify the limits, but should use the same unit to set both the
+min_limit and max_limit.`,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"max_nodes": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Specifies maximum number of nodes allocated to the instance. If set, this number
+should be greater than or equal to min_nodes.`,
+										ExactlyOneOf: []string{},
+										RequiredWith: []string{},
+									},
 									"max_processing_units": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `Specifies maximum number of processing units allocated to the instance.
 If set, this number should be multiples of 1000 and be greater than or equal to
 min_processing_units.`,
+										ExactlyOneOf: []string{},
+									},
+									"min_nodes": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Specifies number of nodes allocated to the instance. If set, this number
+should be greater than or equal to 1.`,
+										ExactlyOneOf: []string{},
+										RequiredWith: []string{},
 									},
 									"min_processing_units": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Description: `Specifies minimum number of processing units allocated to the instance.
 If set, this number should be multiples of 1000.`,
+										ExactlyOneOf: []string{},
 									},
 								},
 							},
@@ -792,6 +814,10 @@ func flattenSpannerInstanceAutoscalingConfigAutoscalingLimits(v interface{}, d *
 		flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMinProcessingUnits(original["minProcessingUnits"], d, config)
 	transformed["max_processing_units"] =
 		flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxProcessingUnits(original["maxProcessingUnits"], d, config)
+	transformed["min_nodes"] =
+		flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMinNodes(original["minNodes"], d, config)
+	transformed["max_nodes"] =
+		flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxNodes(original["maxNodes"], d, config)
 	return []interface{}{transformed}
 }
 func flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMinProcessingUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -812,6 +838,40 @@ func flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMinProcessingUnits(
 }
 
 func flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxProcessingUnits(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMinNodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxNodes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -975,6 +1035,20 @@ func expandSpannerInstanceAutoscalingConfigAutoscalingLimits(v interface{}, d tp
 		transformed["maxProcessingUnits"] = transformedMaxProcessingUnits
 	}
 
+	transformedMinNodes, err := expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMinNodes(original["min_nodes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinNodes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minNodes"] = transformedMinNodes
+	}
+
+	transformedMaxNodes, err := expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxNodes(original["max_nodes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxNodes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxNodes"] = transformedMaxNodes
+	}
+
 	return transformed, nil
 }
 
@@ -983,6 +1057,14 @@ func expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMinProcessingUnits(v
 }
 
 func expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxProcessingUnits(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMinNodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSpannerInstanceAutoscalingConfigAutoscalingLimitsMaxNodes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1076,6 +1158,12 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	}
 	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_processing_units") {
 		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minProcessingUnits")
+	}
+	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_nodes") {
+		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxNodes")
+	}
+	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_nodes") {
+		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minNodes")
 	}
 	if d.HasChange("autoscaling_config.0.autoscaling_targets.0.high_priority_cpu_utilization_percent") {
 		updateMask = append(updateMask, "autoscalingConfig.autoscalingTargets.highPriorityCpuUtilizationPercent")

@@ -80,8 +80,11 @@ resource "google_spanner_instance" "example" {
   display_name = "Test Spanner Instance"
   autoscaling_config {
     autoscaling_limits {
-      max_processing_units            = 3000
-      min_processing_units            = 2000
+      // Define the minimum and maximum compute capacity allocated to the instance
+      // Either use nodes or processing units to specify the limits,
+      // but should use the same unit to set both the min_limit and max_limit.
+      max_processing_units            = 3000 // OR max_nodes  = 3
+      min_processing_units            = 2000 // OR min_nodes = 2
     }
     autoscaling_targets {
       high_priority_cpu_utilization_percent = 75
@@ -181,7 +184,11 @@ This must be set to true if you created a backup manually in the console.
 * `autoscaling_limits` -
   (Optional)
   Defines scale in controls to reduce the risk of response latency
-  and outages due to abrupt scale-in events
+  and outages due to abrupt scale-in events. Users can define the minimum and
+  maximum compute capacity allocated to the instance, and the autoscaler will
+  only scale within that range. Users can either use nodes or processing
+  units to specify the limits, but should use the same unit to set both the
+  min_limit and max_limit.
   Structure is [documented below](#nested_autoscaling_limits).
 
 * `autoscaling_targets` -
@@ -203,6 +210,16 @@ This must be set to true if you created a backup manually in the console.
   Specifies maximum number of processing units allocated to the instance.
   If set, this number should be multiples of 1000 and be greater than or equal to
   min_processing_units.
+
+* `min_nodes` -
+  (Optional)
+  Specifies number of nodes allocated to the instance. If set, this number
+  should be greater than or equal to 1.
+
+* `max_nodes` -
+  (Optional)
+  Specifies maximum number of nodes allocated to the instance. If set, this number
+  should be greater than or equal to min_nodes.
 
 <a name="nested_autoscaling_targets"></a>The `autoscaling_targets` block supports:
 
