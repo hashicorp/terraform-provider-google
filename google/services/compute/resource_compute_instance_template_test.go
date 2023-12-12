@@ -3332,6 +3332,10 @@ resource "google_compute_snapshot" "snapshot" {
     kms_key_self_link       = data.google_kms_crypto_key.key.id
     kms_key_service_account = google_service_account.test.email
   }
+
+  depends_on = [
+    google_kms_crypto_key_iam_member.crypto_key
+  ]
 }
 
 resource "google_compute_instance_template" "template" {
@@ -3351,6 +3355,10 @@ resource "google_compute_instance_template" "template" {
   network_interface {
     network = "default"
   }
+
+  depends_on = [
+    google_kms_crypto_key_iam_member.crypto_key
+  ]
 }
 `, context)
 }
@@ -3414,6 +3422,10 @@ resource "google_compute_instance_template" "template" {
   network_interface {
     network = "default"
   }
+
+  depends_on = [
+    google_kms_crypto_key_iam_member.crypto_key
+  ]
 }
 `, context)
 }
