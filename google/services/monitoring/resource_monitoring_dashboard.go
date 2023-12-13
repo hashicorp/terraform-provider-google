@@ -33,7 +33,7 @@ func removeComputedKeys(old map[string]interface{}, new map[string]interface{}) 
 
 		if reflect.ValueOf(v).Kind() == reflect.Slice {
 			for i, j := range v.([]interface{}) {
-				if reflect.ValueOf(j).Kind() == reflect.Map {
+				if reflect.ValueOf(j).Kind() == reflect.Map && len(new[k].([]interface{})) > i {
 					old[k].([]interface{})[i] = removeComputedKeys(j.(map[string]interface{}), new[k].([]interface{})[i].(map[string]interface{}))
 				}
 			}
