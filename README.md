@@ -17,7 +17,7 @@ This is the `google` provider, containing generally available features. To use p
 
 ## Provider Usage
 
-Please see [instructions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference) on how to configure the Google Provider.
+Please see [instructions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference) on how to configure the Google provider.
 
 ### Upgrading the provider
 
