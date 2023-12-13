@@ -1,0 +1,3 @@
+```release-note:bug
+monitoring: fixed the index out of range crash in `dashboard_json` perma-diffs for the resource `google_monitoring_dashboard`
+```
