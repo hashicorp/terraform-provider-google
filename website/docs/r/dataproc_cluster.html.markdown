@@ -381,6 +381,9 @@ resource "google_dataproc_cluster" "accelerated_cluster" {
 * `dataproc_metric_config` (Optional) The Compute Engine accelerator (GPU) configuration for these instances. Can be specified multiple times.
    Structure [defined below](#nested_dataproc_metric_config).
 
+* `auxiliary_node_groups` (Optional) A Dataproc NodeGroup resource is a group of Dataproc cluster nodes that execute an assigned role. 
+   Structure [defined below](#nested_auxiliary_node_groups).
+
 * `metastore_config` (Optional) The config setting for metastore service with the cluster.
    Structure [defined below](#nested_metastore_config).
 - - -
@@ -825,6 +828,76 @@ dataproc_metric_config {
   * `metric_source` - (Required) A source for the collection of Dataproc OSS metrics (see [available OSS metrics](https://cloud.google.com//dataproc/docs/guides/monitoring#available_oss_metrics)).
 
   * `metric_overrides` - (Optional) One or more [available OSS metrics] (https://cloud.google.com/dataproc/docs/guides/monitoring#available_oss_metrics) to collect for the metric course.
+
+- - -
+
+<a name="nested_auxiliary_node_groups"></a>The `auxiliary_node_groups` block supports:
+
+```hcl
+auxiliary_node_groups{
+  node_group {
+    roles = ["DRIVER"]
+    node_group_config{
+      num_instances=2
+      machine_type="n1-standard-2"
+      min_cpu_platform = "AMD Rome"
+      disk_config {
+        boot_disk_size_gb = 35
+        boot_disk_type = "pd-standard"
+        num_local_ssds = 1
+      }
+      accelerators {
+        accelerator_count = 1
+        accelerator_type  = "nvidia-tesla-t4"
+      }
+    }
+  }
+}
+```
+
+
+* `node_group` - (Required) Node group configuration.
+
+  * `roles` - (Required) Node group roles. 
+     One of `"DRIVER"`.
+
+  * `name` - (Optional) The Node group resource name.
+
+  * `node_group_config` - (Optional) The node group instance group configuration.
+
+    * `num_instances`- (Optional, Computed) Specifies the number of master nodes to create.
+       Please set a number greater than 0. Node Group must have at least 1 instance.
+   
+    * `machine_type` - (Optional, Computed) The name of a Google Compute Engine machine type
+       to create for the node group. If not specified, GCP will default to a predetermined 
+       computed value (currently `n1-standard-4`).
+       
+    * `min_cpu_platform` - (Optional, Computed) The name of a minimum generation of CPU family
+       for the node group. If not specified, GCP will default to a predetermined computed value
+       for each zone. See [the guide](https://cloud.google.com/compute/docs/instances/specify-min-cpu-platform)
+       for details about which CPU families are available (and defaulted) for each zone.
+       
+    * `disk_config` (Optional) Disk Config
+    
+      * `boot_disk_type` - (Optional) The disk type of the primary disk attached to each node.
+         One of `"pd-ssd"` or `"pd-standard"`. Defaults to `"pd-standard"`.
+      
+      * `boot_disk_size_gb` - (Optional, Computed) Size of the primary disk attached to each node, specified
+         in GB. The primary disk contains the boot volume and system libraries, and the
+         smallest allowed disk size is 10GB. GCP will default to a predetermined
+         computed value if not set (currently 500GB). Note: If SSDs are not
+         attached, it also contains the HDFS data blocks and Hadoop working directories.
+         
+      * `num_local_ssds` - (Optional) The amount of local SSD disks that will be attached to each master cluster node. 
+         Defaults to 0.
+
+    * `accelerators` (Optional) The Compute Engine accelerator (GPU) configuration for these instances. Can be specified 
+       multiple times.
+       
+      * `accelerator_type` - (Required) The short name of the accelerator type to expose to this instance. For example, `nvidia-tesla-k80`.
+      
+      * `accelerator_count` - (Required) The number of the accelerator cards of this type exposed to this instance. Often restricted to one of `1`, `2`, `4`, or `8`.
+
 
 - - -
 
