@@ -63,7 +63,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   ack_deadline_seconds = 20
 
@@ -115,7 +115,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   labels = {
     foo = "bar"
@@ -176,7 +176,7 @@ resource "google_pubsub_topic" "example_dead_letter" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   dead_letter_policy {
     dead_letter_topic = google_pubsub_topic.example_dead_letter.id
@@ -219,7 +219,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   bigquery_config {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
@@ -305,7 +305,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
     bucket = google_storage_bucket.example.name
@@ -372,7 +372,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "tf-test-example-subscription%{random_suffix}"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
     bucket = google_storage_bucket.example.name
