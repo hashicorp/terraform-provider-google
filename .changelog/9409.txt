@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_logging_folder_settings`
+```
+```release-note:new-resource
+`google_logging_organization_settings`
+```
