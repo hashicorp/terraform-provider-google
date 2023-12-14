@@ -902,40 +902,18 @@ func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettings(v interface{},
 		return nil
 	}
 	original := v.(map[string]interface{})
+	// ignore access_token, which is always returned as REDACTED
+	delete(original, "access_token")
 	if len(original) == 0 {
 		return nil
 	}
 	transformed := make(map[string]interface{})
-	transformed["display_name"] =
-		flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsDisplayName(original["displayName"], d, config)
-	transformed["repository_uri"] =
-		flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsRepositoryUri(original["repositoryUri"], d, config)
-	transformed["tracking_branch"] =
-		flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsTrackingBranch(original["trackingBranch"], d, config)
-	transformed["access_token"] =
-		flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsAccessToken(original["accessToken"], d, config)
-	transformed["branches"] =
-		flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsBranches(original["branches"], d, config)
+	transformed["display_name"] = original["displayName"]
+	transformed["repository_uri"] = original["repositoryUri"]
+	transformed["tracking_branch"] = original["trackingBranch"]
+	transformed["access_token"] = d.Get("git_integration_settings.0.github_settings.0.access_token")
+	transformed["branches"] = original["branches"]
 	return []interface{}{transformed}
-}
-func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsRepositoryUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsTrackingBranch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsAccessToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("git_integration_settings.0.github_settings.0.access_token")
-}
-
-func flattenDialogflowCXAgentGitIntegrationSettingsGithubSettingsBranches(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenDialogflowCXAgentTextToSpeechSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
