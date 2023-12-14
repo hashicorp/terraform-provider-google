@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: added `auxiliary_node_groups` field to `google_dataproc_cluster` resource
+```
