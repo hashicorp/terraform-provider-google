@@ -48,7 +48,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   ack_deadline_seconds = 20
 
@@ -80,7 +80,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   labels = {
     foo = "bar"
@@ -102,21 +102,6 @@ resource "google_pubsub_subscription" "example" {
   enable_message_ordering    = false
 }
 ```
-## Example Usage - Pubsub Subscription Different Project
-
-
-```hcl
-resource "google_pubsub_topic" "example" {
-  project = "topic-project"
-  name    = "example-topic"
-}
-
-resource "google_pubsub_subscription" "example" {
-  project = "subscription-project"
-  name    = "example-subscription"
-  topic   = google_pubsub_topic.example.name
-}
-```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_dead_letter&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -136,7 +121,7 @@ resource "google_pubsub_topic" "example_dead_letter" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   dead_letter_policy {
     dead_letter_topic = google_pubsub_topic.example_dead_letter.id
@@ -159,7 +144,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   bigquery_config {
     table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
@@ -225,7 +210,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
     bucket = google_storage_bucket.example.name
@@ -272,7 +257,7 @@ resource "google_pubsub_topic" "example" {
 
 resource "google_pubsub_subscription" "example" {
   name  = "example-subscription"
-  topic = google_pubsub_topic.example.name
+  topic = google_pubsub_topic.example.id
 
   cloud_storage_config {
     bucket = google_storage_bucket.example.name
@@ -314,7 +299,9 @@ The following arguments are supported:
 
 * `topic` -
   (Required)
-  A reference to a Topic resource.
+  A reference to a Topic resource, of the form projects/{project}/topics/{{name}}
+  (as in the id property of a google_pubsub_topic), or just a topic name if
+  the topic is in the same project as the subscription.
 
 
 - - -
