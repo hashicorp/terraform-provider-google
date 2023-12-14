@@ -136,12 +136,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 
 resource "google_cloud_run_v2_job_iam_member" "foo" {
@@ -166,12 +160,6 @@ resource "google_cloud_run_v2_job" "default" {
         image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
   }
 }
 
@@ -213,12 +201,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 
 data "google_iam_policy" "foo" {
@@ -246,12 +228,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 
 resource "google_cloud_run_v2_job_iam_binding" "foo" {
@@ -276,12 +252,6 @@ resource "google_cloud_run_v2_job" "default" {
         image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
   }
 }
 

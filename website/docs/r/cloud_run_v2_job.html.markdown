@@ -48,12 +48,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -135,12 +129,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 
 data "google_project" "project" {
@@ -200,12 +188,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 
 resource "google_vpc_access_connector" "connector" {
@@ -257,12 +239,6 @@ resource "google_cloud_run_v2_job" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
-  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -300,12 +276,6 @@ resource "google_cloud_run_v2_job" "default" {
         }
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
   }
 
   depends_on = [
@@ -367,12 +337,6 @@ resource "google_cloud_run_v2_job" "default" {
 	}
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      launch_stage,
-    ]
   }
 }
 ```
