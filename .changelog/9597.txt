@@ -1,0 +1,3 @@
+```release-note:bug
+dialogflowcx: fixed a permadiff in the `git_integration_settings` field of `google_diagflow_cx_agent`
+```
