@@ -29,7 +29,7 @@ IMPROVEMENTS:
 * workloadidentity: added `saml` block to `google_iam_workload_identity_pool_provider` resource ([#16710](https://github.com/hashicorp/terraform-provider-google/pull/16710))
 
 BUG FIXES:
-* logging: value change of `unique_writer_identity` on `google_logging_project_sink` does not trigger diff on dependent's usages of `writer_identity` ([#16776](https://github.com/hashicorp/terraform-provider-google/pull/16776))
+* logging: fixed an issue where value change of `unique_writer_identity` on `google_logging_project_sink` does not trigger diff on dependent's usages of `writer_identity`  ([#16776](https://github.com/hashicorp/terraform-provider-google/pull/16776))
 
 ## 5.9.0 (Dec 11, 2023)
 
