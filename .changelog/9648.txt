@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkehub2: added field `version` under `configmanagement` in `google_gke_hub_feature` resource
+```
+```release-note:deprecation
+gkehub2: deprecated field `configmanagement.config_sync.oci.version` in `google_gke_hub_feature` resource
+```

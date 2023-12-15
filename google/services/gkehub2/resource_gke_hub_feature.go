@@ -167,6 +167,7 @@ func ResourceGKEHub2Feature() *schema.Resource {
 															"version": {
 																Type:        schema.TypeString,
 																Optional:    true,
+																Deprecated:  "The `configmanagement.config_sync.oci.version` field is deprecated and will be removed in a future major release. Please use `configmanagement.version` field to specify the version of ACM installed instead.",
 																Description: `Version of ACM installed`,
 															},
 														},
@@ -179,6 +180,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 												},
 											},
 										},
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Version of ACM installed`,
 									},
 								},
 							},
@@ -1142,10 +1148,16 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(v interface{}
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["version"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementVersion(original["version"], d, config)
 	transformed["config_sync"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(original["configSync"], d, config)
 	return []interface{}{transformed}
 }
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1860,6 +1872,13 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(v interface{},
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedVersion, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
 	transformedConfigSync, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(original["config_sync"], d, config)
 	if err != nil {
 		return nil, err
@@ -1868,6 +1887,10 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagement(v interface{},
 	}
 
 	return transformed, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
