@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `workload_alts_config` field to `google_container_cluster` resource (beta)
+```
