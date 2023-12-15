@@ -1,0 +1,3 @@
+```release-note:bug
+container: added check that node_version and min_master_version are the same on create, when running terraform plan
+```
