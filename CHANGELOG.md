@@ -16,7 +16,7 @@ IMPROVEMENTS:
 * compute: added `remove_instance_on_destroy` option to `google_compute_per_instance_config` resource ([#16729](https://github.com/hashicorp/terraform-provider-google/pull/16729))
 * compute: added `remove_instance_on_destroy` option to `google_compute_region_per_instance_config` resource ([#16729](https://github.com/hashicorp/terraform-provider-google/pull/16729))
 * container: added `network_performance_config` field to `google_container_node_pool` resource to support GKE tier 1 networking ([#16688](https://github.com/hashicorp/terraform-provider-google/pull/16688))
-* container: added support for in-place update for `machineType`/`diskType`/`diskSizeGb` to `google_container_node_pool` resource ([#16724](https://github.com/hashicorp/terraform-provider-google/pull/16724))
+* container: added support for in-place update for `machine_type`/`disk_type`/`disk_size_gb` in `google_container_node_pool` resource ([#16724](https://github.com/hashicorp/terraform-provider-google/pull/16724))
 * containerazure: added `config.labels` to `google_container_azure_node_pool` ([#16754](https://github.com/hashicorp/terraform-provider-google/pull/16754))
 * dataform: added `display_name`, `labels` and `npmrc_environment_variables_secret_version` fields to `google_dataform_repository` resource ([#16733](https://github.com/hashicorp/terraform-provider-google/pull/16733))
 * monitoring: added `severity` field to `google_monitoring_alert_policy` resource ([#16775](https://github.com/hashicorp/terraform-provider-google/pull/16775))
