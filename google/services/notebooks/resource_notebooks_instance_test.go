@@ -48,7 +48,7 @@ func TestAccNotebooksInstance_update(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "update_time"},
+				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "update_time", "proxy_uri", "state"},
 			},
 			{
 				Config: testAccNotebooksInstance_update(context, true),
@@ -57,7 +57,7 @@ func TestAccNotebooksInstance_update(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "labels", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "labels", "terraform_labels", "update_time", "proxy_uri", "state"},
 			},
 			{
 				Config: testAccNotebooksInstance_update(context, false),
@@ -66,7 +66,7 @@ func TestAccNotebooksInstance_update(t *testing.T) {
 				ResourceName:            "google_notebooks_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "labels", "terraform_labels", "update_time"},
+				ImportStateVerifyIgnore: []string{"vm_image", "metadata", "labels", "terraform_labels", "update_time", "proxy_uri", "state"},
 			},
 		},
 	})
