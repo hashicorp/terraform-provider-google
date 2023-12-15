@@ -1514,8 +1514,10 @@ func flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg *composer.P
 	if envCfg.NetworkingConfig != nil {
 		transformed["connection_type"] = envCfg.NetworkingConfig.ConnectionType
 	}
-	transformed["enable_private_endpoint"] = envCfg.PrivateClusterConfig.EnablePrivateEndpoint
-	transformed["master_ipv4_cidr_block"] = envCfg.PrivateClusterConfig.MasterIpv4CidrBlock
+	if envCfg.PrivateClusterConfig != nil {
+		transformed["enable_private_endpoint"] = envCfg.PrivateClusterConfig.EnablePrivateEndpoint
+		transformed["master_ipv4_cidr_block"] = envCfg.PrivateClusterConfig.MasterIpv4CidrBlock
+	}
 	transformed["cloud_sql_ipv4_cidr_block"] = envCfg.CloudSqlIpv4CidrBlock
 	transformed["web_server_ipv4_cidr_block"] = envCfg.WebServerIpv4CidrBlock
 	transformed["cloud_composer_network_ipv4_cidr_block"] = envCfg.CloudComposerNetworkIpv4CidrBlock
