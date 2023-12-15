@@ -381,6 +381,9 @@ Enable/Disable Security Posture API features for the cluster. Structure is [docu
 * `fleet` - (Optional)
 Fleet configuration for the cluster. Structure is [documented below](#nested_fleet).
 
+* `workload_alts_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration for [direct-path (via ALTS) with workload identity.](https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1beta1/projects.locations.clusters#workloadaltsconfig). Structure is [documented below](#nested_workload_alts_config).
+
 <a name="nested_default_snat_status"></a>The `default_snat_status` block supports
 
 *  `disabled` - (Required) Whether the cluster disables default in-node sNAT rules. In-node sNAT rules will be disabled when defaultSnatStatus is disabled.When disabled is set to false, default IP masquerade rules will be applied to the nodes to prevent sNAT on cluster internal traffic
@@ -1295,6 +1298,9 @@ linux_node_config {
 
 * `project` - (Optional) The name of the Fleet host project where this cluster will be registered.
 
+<a name="nested_workload_alts_config"></a>The `workload_alts_config` block supports:
+
+* `enable_alts` - (Required) Whether the alts handshaker should be enabled or not for direct-path. Requires Workload Identity ([workloadPool]((#nested_workload_identity_config)) must be non-empty).
 
 ## Attributes Reference
 
