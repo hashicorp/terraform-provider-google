@@ -3545,6 +3545,25 @@ func TestAccContainerCluster_withEnableKubernetesBetaAPIsOnExistingCluster(t *te
 	})
 }
 
+func TestAccContainerCluster_withIncompatibleMasterVersionNodeVersion(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccContainerCluster_withIncompatibleMasterVersionNodeVersion(clusterName),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`Resource argument node_version`),
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withIPv4Error(t *testing.T) {
 	t.Parallel()
 
@@ -3737,6 +3756,20 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 `, resource_name)
+}
+
+func testAccContainerCluster_withIncompatibleMasterVersionNodeVersion(name string) string {
+	return fmt.Sprintf(`
+	resource "google_container_cluster" "gke_cluster" {
+		name = "%s"
+		location = "us-central1"
+	
+		min_master_version = "1.10.9-gke.5"
+		node_version = "1.10.6-gke.11"
+		initial_node_count = 1
+		
+	}
+	`, name)
 }
 
 func testAccContainerCluster_SetSecurityPostureToStandard(resource_name, networkName, subnetworkName string) string {
