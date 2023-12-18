@@ -120,6 +120,42 @@ resource "google_dataproc_metastore_service" "default" {
   }
 }
 ```
+## Example Usage - Dataproc Metastore Service Private Service Connect Custom Routes
+
+
+```hcl
+resource "google_compute_network" "net" {
+  provider                = google-beta
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  provider                 = google-beta
+  name                     = "my-subnetwork"
+  region                   = "us-central1"
+  network                  = google_compute_network.net.id
+  ip_cidr_range            = "10.0.0.0/22"
+  private_ip_google_access = true
+}
+
+resource "google_dataproc_metastore_service" "default" {
+  provider   = google-beta
+  service_id = "metastore-srv"
+  location   = "us-central1"
+
+  hive_metastore_config {
+    version = "3.1.2"
+  }
+
+  network_config {
+    consumers {
+      subnetwork            = google_compute_subnetwork.subnet.id
+    }
+    custom_routes_enabled = true
+  }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dataproc_metastore_service_dpms2&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -249,7 +285,7 @@ The following arguments are supported:
   Possible values are: `CANARY`, `STABLE`.
 
 * `metadata_integration` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The setting that defines how metastore metadata should be integrated with external services and systems.
   Structure is [documented below](#nested_metadata_integration).
 
@@ -299,7 +335,7 @@ The following arguments are supported:
 <a name="nested_hive_metastore_config"></a>The `hive_metastore_config` block supports:
 
 * `endpoint_protocol` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The protocol to use for the metastore service endpoint. If unspecified, defaults to `THRIFT`.
   Default value is `THRIFT`.
   Possible values are: `THRIFT`, `GRPC`.
@@ -319,7 +355,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_kerberos_config).
 
 * `auxiliary_versions` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A mapping of Hive metastore version to the auxiliary version configuration.
   When specified, a secondary Hive metastore service is created along with the primary service.
   All auxiliary versions must be less than the service's primary version.
@@ -370,6 +406,10 @@ The following arguments are supported:
   (Required)
   The consumer-side network configuration for the Dataproc Metastore instance.
   Structure is [documented below](#nested_consumers).
+
+* `custom_routes_enabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enables custom routes to be imported and exported for the Dataproc Metastore service's peered VPC network.
 
 
 <a name="nested_consumers"></a>The `consumers` block supports:

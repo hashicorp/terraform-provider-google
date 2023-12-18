@@ -1,0 +1,6 @@
+```release-note:enhancement
+metastore: added `endpoint_protocol`, `metadata_integration`, and `auxiliary_versions` to google_dataproc_metastore_service (GA only)
+```
+```release-note:enhancement
+metastore: added `consumers.custom_routes_enabled` to google_dataproc_metastore_service (beta only)
+```
