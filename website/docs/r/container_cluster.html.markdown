@@ -345,6 +345,8 @@ subnetwork in which the cluster's instances are launched.
     [Google IAM Service Account](https://cloud.google.com/iam/docs/service-accounts#user-managed_service_accounts).
     Structure is [documented below](#nested_workload_identity_config).
 
+* `identity_service_config` - (Optional). Structure is [documented below](#nested_identity_service_config).
+
 * `enable_intranode_visibility` - (Optional)
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
@@ -425,8 +427,6 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
 
 * `istio_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)).
     Structure is [documented below](#nested_istio_config).
-
-* `identity_service_config` - (Optional). Structure is [documented below](#nested_identity_service_config).
 
 * `dns_cache_config` - (Optional).
     The status of the NodeLocal DNSCache addon. It is disabled by default.
