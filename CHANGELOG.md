@@ -1,4 +1,37 @@
-## 5.10.0 (Unreleased)
+## 5.11.0 (Unreleased)
+
+## 5.10.0 (Dec 18, 2023)
+
+FEATURES:
+* **New Data Source:** `google_compute_region_disk` ([#16732](https://github.com/hashicorp/terraform-provider-google/pull/16732))
+* **New Data Source:** `google_vmwareengine_external_address` ([#16698](https://github.com/hashicorp/terraform-provider-google/pull/16698))
+* **New Data Source:** `google_vmwareengine_subnet` ([#16700](https://github.com/hashicorp/terraform-provider-google/pull/16700))
+* **New Data Source:** `google_vmwareengine_vcenter_credentials` ([#16709](https://github.com/hashicorp/terraform-provider-google/pull/16709))
+* **New Resource:** `google_vmwareengine_cluster` ([#16757](https://github.com/hashicorp/terraform-provider-google/pull/16757))
+* **New Resource:** `google_vmwareengine_external_address` ([#16698](https://github.com/hashicorp/terraform-provider-google/pull/16698))
+* **New Resource:** `google_vmwareengine_subnet` ([#16700](https://github.com/hashicorp/terraform-provider-google/pull/16700))
+* **New Resource:** `google_workbench_instance` ([#16773](https://github.com/hashicorp/terraform-provider-google/pull/16773))
+* **New Resource:** `google_workbench_instance_iam_*` ([#16773](https://github.com/hashicorp/terraform-provider-google/pull/16773))
+
+IMPROVEMENTS:
+* compute: added `numeric_id` field to `google_compute_network` resource ([#16712](https://github.com/hashicorp/terraform-provider-google/pull/16712))
+* compute: added `remove_instance_on_destroy` option to `google_compute_per_instance_config` resource ([#16729](https://github.com/hashicorp/terraform-provider-google/pull/16729))
+* compute: added `remove_instance_on_destroy` option to `google_compute_region_per_instance_config` resource ([#16729](https://github.com/hashicorp/terraform-provider-google/pull/16729))
+* container: added `network_performance_config` field to `google_container_node_pool` resource to support GKE tier 1 networking ([#16688](https://github.com/hashicorp/terraform-provider-google/pull/16688))
+* container: added support for in-place update for `machine_type`/`disk_type`/`disk_size_gb` in `google_container_node_pool` resource ([#16724](https://github.com/hashicorp/terraform-provider-google/pull/16724))
+* containerazure: added `config.labels` to `google_container_azure_node_pool` ([#16754](https://github.com/hashicorp/terraform-provider-google/pull/16754))
+* dataform: added `display_name`, `labels` and `npmrc_environment_variables_secret_version` fields to `google_dataform_repository` resource ([#16733](https://github.com/hashicorp/terraform-provider-google/pull/16733))
+* monitoring: added `severity` field to `google_monitoring_alert_policy` resource ([#16775](https://github.com/hashicorp/terraform-provider-google/pull/16775))
+* notebooks: added support for `labels` to `google_notebooks_runtime` ([#16783](https://github.com/hashicorp/terraform-provider-google/pull/16783))
+* recaptchaenterprise: added `waf_settings` to `google_recaptcha_enterprise_key` ([#16754](https://github.com/hashicorp/terraform-provider-google/pull/16754))
+* securesourcemanager: added `host_config`, `state_note`, `kms_key`, and `private_config` fields to `google_secure_source_manager_instance` resource ([#16731](https://github.com/hashicorp/terraform-provider-google/pull/16731))
+* spanner: added `autoscaling_config.max_nodes` and `autoscaling_config.min_nodes` to `google_spanner_instance` ([#16786](https://github.com/hashicorp/terraform-provider-google/pull/16786))
+* storage: added `rpo` field to `google_storage_bucket` resource ([#16756](https://github.com/hashicorp/terraform-provider-google/pull/16756))
+* vmwareengine: added `type` field to `google_vmwareengine_private_cloud` resource ([#16781](https://github.com/hashicorp/terraform-provider-google/pull/16781))
+* workloadidentity: added `saml` block to `google_iam_workload_identity_pool_provider` resource ([#16710](https://github.com/hashicorp/terraform-provider-google/pull/16710))
+
+BUG FIXES:
+* logging: fixed an issue where value change of `unique_writer_identity` on `google_logging_project_sink` does not trigger diff on dependent's usages of `writer_identity`  ([#16776](https://github.com/hashicorp/terraform-provider-google/pull/16776))
 
 ## 5.9.0 (Dec 11, 2023)
 
