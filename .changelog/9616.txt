@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_integration_connectors_endpoint_attachment`
+```
