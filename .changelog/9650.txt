@@ -1,0 +1,3 @@
+```release-note:note
+Modified docs about log sinks destinations to include project sinks.
+```
