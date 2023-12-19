@@ -659,11 +659,10 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features?featureId={{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features?featureId={{name}}")
 	if err != nil {
 		return err
 	}
-	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Creating new Feature: %#v", obj)
 	billingProject := ""
@@ -693,18 +692,17 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
-	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	// Use the resource in the operation response to populate
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = GKEHub2OperationWaitTimeWithResponse(
-		config, res, &opRes, project, "Creating Feature", userAgent,
+		config, res, &opRes, tpgresource.GetResourceNameFromSelfLink(project), "Creating Feature", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
@@ -714,11 +712,10 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// This may have caused the ID to update - update it if so.
-	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
+	id, err = tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
-	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	log.Printf("[DEBUG] Finished creating Feature %q: %#v", d.Id(), res)
@@ -733,11 +730,10 @@ func resourceGKEHub2FeatureRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
-	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	billingProject := ""
 
@@ -836,11 +832,10 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
-	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	log.Printf("[DEBUG] Updating Feature %q: %#v", d.Id(), obj)
 	updateMask := []string{}
@@ -887,7 +882,7 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		err = GKEHub2OperationWaitTime(
-			config, res, project, "Updating Feature", userAgent,
+			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating Feature", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -913,11 +908,10 @@ func resourceGKEHub2FeatureDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 	billingProject = strings.TrimPrefix(project, "projects/")
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
+	url, err := tpgresource.ReplaceVarsForId(d, config, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return err
 	}
-	url = strings.ReplaceAll(url, "projects/projects/", "projects/")
 
 	var obj map[string]interface{}
 	log.Printf("[DEBUG] Deleting Feature %q", d.Id())
@@ -941,7 +935,7 @@ func resourceGKEHub2FeatureDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	err = GKEHub2OperationWaitTime(
-		config, res, project, "Deleting Feature", userAgent,
+		config, res, tpgresource.GetResourceNameFromSelfLink(project), "Deleting Feature", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
@@ -963,11 +957,10 @@ func resourceGKEHub2FeatureImport(d *schema.ResourceData, meta interface{}) ([]*
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
+	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/locations/{{location}}/features/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
-	id = strings.ReplaceAll(id, "projects/projects/", "projects/")
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil

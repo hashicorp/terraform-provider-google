@@ -185,6 +185,7 @@ func resourceAppEngineFirewallRulePollRead(d *schema.ResourceData, meta interfac
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{AppEngineBasePath}}apps/{{project}}/firewall/ingressRules/{{priority}}")
+
 		if err != nil {
 			return nil, err
 		}

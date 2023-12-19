@@ -165,6 +165,7 @@ func resourcePubsubSchemaPollRead(d *schema.ResourceData, meta interface{}) tran
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{PubsubBasePath}}projects/{{project}}/schemas/{{name}}")
+
 		if err != nil {
 			return nil, err
 		}

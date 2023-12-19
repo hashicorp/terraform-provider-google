@@ -187,6 +187,7 @@ func resourceIapBrandPollRead(d *schema.ResourceData, meta interface{}) transpor
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{IapBasePath}}{{name}}")
+
 		if err != nil {
 			return nil, err
 		}

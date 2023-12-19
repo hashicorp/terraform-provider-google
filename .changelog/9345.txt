@@ -1,0 +1,3 @@
+```release-note:note
+change from DCL to MMv1 for `google_network_firewall_policy` and `google_region_network_firewall_policy` (no note?)
+```

@@ -381,6 +381,7 @@ func resourceDataLossPreventionStoredInfoTypePollRead(d *schema.ResourceData, me
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{DataLossPreventionBasePath}}{{parent}}/storedInfoTypes/{{name}}")
+
 		if err != nil {
 			return nil, err
 		}
