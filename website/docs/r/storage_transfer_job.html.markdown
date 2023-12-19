@@ -112,6 +112,8 @@ resource "google_storage_transfer_job" "s3-bucket-nightly-backup" {
 
 The following arguments are supported:
 
+* `name` - (Optional) The name of the Transfer Job. This name must start with "transferJobs/" prefix and end with a letter or a number, and should be no more than 128 characters ( `transferJobs/^(?!OPI)[A-Za-z0-9-._~]*[A-Za-z0-9]$` ). For transfers involving PosixFilesystem, this name must start with transferJobs/OPI specifically ( `transferJobs/OPI^[A-Za-z0-9-._~]*[A-Za-z0-9]$` ). For all other transfer types, this name must not start with transferJobs/OPI. Default the provider will assign a random unique name with `transferJobs/{{name}}` format, where `name` is a numeric value.
+
 * `description` - (Required) Unique description to identify the Transfer Job.
 
 * `transfer_spec` - (Required) Transfer specification. Structure [documented below](#nested_transfer_spec).

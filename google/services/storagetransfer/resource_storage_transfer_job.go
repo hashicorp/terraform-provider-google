@@ -71,6 +71,7 @@ func ResourceStorageTransferJob() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: `The name of the Transfer Job.`,
 			},
@@ -596,6 +597,7 @@ func resourceStorageTransferJobCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	transferJob := &storagetransfer.TransferJob{
+		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		ProjectId:          project,
 		Status:             d.Get("status").(string),
