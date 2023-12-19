@@ -669,21 +669,21 @@ resource "google_cloudbuildv2_connection" "primary" {
 
   gitlab_config {
     authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-api-token/versions/latest"
+      user_token_secret_version = "projects/407304063574/secrets/gle-private-api/versions/1"
     }
 
     read_authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-read-token/versions/latest"
+      user_token_secret_version = "projects/407304063574/secrets/gle-private-read-token/versions/1"
     }
 
     webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
-    host_uri                      = "https://gle-test.proctor-staging-test.com"
+    host_uri                      = "https://gle-us.gle-us-private.com"
 
     service_directory_config {
-      service = "projects/proctor-gitlab-enterprise/locations/us-west1/namespaces/gle-uw-1/services/private-smoketest"
+      service = "projects/407304063574/locations/us-west1/namespaces/private-conn/services/gitlab-private"
     }
 
-    ssl_ca = "-----BEGIN CERTIFICATE-----\nMIIDajCCAlKgAwIBAgIUedXFQAw0eUDTe6gmPKVyRvBlDi8wDQYJKoZIhvcNAQEL\nBQAwVjELMAkGA1UEBhMCVVMxGzAZBgNVBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEq\nMCgGA1UEAwwhZ2xlLXRlc3QucHJvY3Rvci1zdGFnaW5nLXRlc3QuY29tMB4XDTIy\nMDcyNTE3Mzg0MFoXDTIzMDcyNTE3Mzg0MFowVjELMAkGA1UEBhMCVVMxGzAZBgNV\nBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEqMCgGA1UEAwwhZ2xlLXRlc3QucHJvY3Rv\nci1zdGFnaW5nLXRlc3QuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\nAQEAr7H0J4nZBL0ed3duVDbOdlnqJuLHZVBWIOp0DBVWPzdx+4eDCi86czxzXmVG\nuZXSpvg3az4QHGWs2HwlBCDk6tp2QT6F1gR6TE8S2yp+04BDhtg1DUopWY+f+Xi7\ni1tXQG7OTDByez3V6MR0t0bVv/LOJlvOngWbJ32qZqfbj5W8MACR/3u7KBjGs/bm\nrbDMga3YOOIa+DVLdLCwzc7kFlM9W7sezkUM/FhhellaxLu4i5O86sywJYMEo7VG\nj3FUS3XiDyKW68xOpE4svW7LiZEAnnLSsPdELO2bzhR/md84Jjvm99i6yP0StrMB\n+X2EwPYmTLMktdJyMUn/vhFYzQIDAQABozAwLjAsBgNVHREEJTAjgiFnbGUtdGVz\ndC5wcm9jdG9yLXN0YWdpbmctdGVzdC5jb20wDQYJKoZIhvcNAQELBQADggEBAJ+6\nH7WI9+hqrT4zpyc/CpH6VuviYezo1qd4/6M496dKlrHd11+xAXkBRZ4FFyoDFMgz\nO7YihNTBuONwiv21YN3OV9xoTExGx/IIkHNaueL2ZPkbVcJWQEWtEITp9Mo0qDIj\nkKjEQ5A+I4T4CiQ/OAhqtN8gR8ZUKGRJw+s2sE+yCIvRfoeJ4YU7NfUL1vSXxKfy\nHz3awR7t5qnCsvcShZtmiZ4xsc6o/tKqL5nAwNk1M6rPMY/+/PY70juLf1GNNDoZ\nA2Co+g6uI/FwAFAO5ZYKRLlstgNcPXerNdxXhpRZKMxGj8WfQ3z0Eu4cGtTUmDz5\npTam4bqToj22/MN2IhA=\n-----END CERTIFICATE-----\n"
+    ssl_ca = "-----BEGIN CERTIFICATE-----\nMIIDcTCCAlmgAwIBAgIUbxJ3jxaRf5IPcUiQWRPRqpLL4s4wDQYJKoZIhvcNAQEL\nBQAwTjELMAkGA1UEBhMCVVMxGzAZBgNVBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEi\nMCAGA1UEAwwZZ2xlLXVzLmdsZS11cy1wcml2YXRlLmNvbTAeFw0yMzEwMjAxNjQ3\nNDJaFw0yNDEwMTkxNjQ3NDJaME4xCzAJBgNVBAYTAlVTMRswGQYDVQQKDBJHb29n\nbGUgQ2xvdWQgQnVpbGQxIjAgBgNVBAMMGWdsZS11cy5nbGUtdXMtcHJpdmF0ZS5j\nb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDRE84wKcuzc+beQ323\nIsNVVOF1+WZ975LvXpIt8Mw1bcYeYUcvgBXSXAByHGMtef8OBb9BUvLOVZdT3Xow\nCUbhCiK3zQy29pCn0rsneIvzGUXQgQRXK/Zap1N/hif4E7CIgjuvCN0Mn6BfDV/H\nXFm6EV3YUJrRPBr1rZik7doaYYwaJshCSTBtZxXZdvsG/OBuAXbJ9GB0B62EiTBz\n5g6yRdATut+PbgfzaWlPsgL3TTH+HPNCMO+ULnFupfZwRCtV+dJng76QYGs8fmFo\ntiWeElcsU8W7aqmjOkKRWcFsHpxPNXp8GG+jsZrVAnMOR3QeRLvowysSQD99IrGH\nAhwlAgMBAAGjRzBFMCQGA1UdEQQdMBuCGWdsZS11cy5nbGUtdXMtcHJpdmF0ZS5j\nb20wHQYDVR0OBBYEFKCIp5BruT4fpeDFQ2bKgdUvpfbWMA0GCSqGSIb3DQEBCwUA\nA4IBAQAQ4pUQmmd7eNIu9MQGna9lHYRFL0/G3mrK6Dcfm2As9qdcRw3dph8/iute\nxKDdBsnt6jDHrsjN0Na7Eq0040oBJrxG/NtqGX0zHNdpAT61bQ6j9reAT+KOrHys\nDJXH2lPuFW183AU7mmvcbXTEwkKex1i+DNoEdGYUbBfnWWeuhGzFog+/f9mtjoHL\nplcmx0VWHBQ5KO9Aq4OR/86DSg5QRPk76W9k3cM2ShXMm3TmTBZ+taJFfjZo5jP+\n7PLt2z9grSvFSXh2jnMyAs2yP4c+WezOXZLijqROr378AGBaksQK0CP+CYjZRpn1\nvndr1njLbvSjIypwKgZROb4P6XVa\n-----END CERTIFICATE-----\n"
   }
 
   project     = "%{project_name}"
@@ -729,21 +729,21 @@ resource "google_cloudbuildv2_connection" "primary" {
 
   gitlab_config {
     authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-api-token/versions/latest"
+      user_token_secret_version = "projects/407304063574/secrets/gle-private-api/versions/1"
     }
 
     read_authorizer_credential {
-      user_token_secret_version = "projects/407304063574/secrets/gle-read-token/versions/latest"
+      user_token_secret_version = "projects/407304063574/secrets/gle-private-read-token/versions/1"
     }
 
     webhook_secret_secret_version = "projects/407304063574/secrets/gle-webhook-secret/versions/latest"
-    host_uri                      = "https://gle-test.proctor-staging-test.com"
+    host_uri                      = "https://gle-us.gle-us-private.com"
 
     service_directory_config {
-      service = "projects/proctor-gitlab-enterprise/locations/us-west1/namespaces/gle-uw-1/services/private-smoketest"
+      service = "projects/407304063574/locations/us-west1/namespaces/private-conn/services/gitlab-private"
     }
 
-    ssl_ca = "-----BEGIN CERTIFICATE-----\nMIIDajCCAlKgAwIBAgIUedXFQAw0eUDTe6gmPKVyRvBlDi8wDQYJKoZIhvcNAQEL\nBQAwVjELMAkGA1UEBhMCVVMxGzAZBgNVBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEq\nMCgGA1UEAwwhZ2xlLXRlc3QucHJvY3Rvci1zdGFnaW5nLXRlc3QuY29tMB4XDTIy\nMDcyNTE3Mzg0MFoXDTIzMDcyNTE3Mzg0MFowVjELMAkGA1UEBhMCVVMxGzAZBgNV\nBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEqMCgGA1UEAwwhZ2xlLXRlc3QucHJvY3Rv\nci1zdGFnaW5nLXRlc3QuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\nAQEAr7H0J4nZBL0ed3duVDbOdlnqJuLHZVBWIOp0DBVWPzdx+4eDCi86czxzXmVG\nuZXSpvg3az4QHGWs2HwlBCDk6tp2QT6F1gR6TE8S2yp+04BDhtg1DUopWY+f+Xi7\ni1tXQG7OTDByez3V6MR0t0bVv/LOJlvOngWbJ32qZqfbj5W8MACR/3u7KBjGs/bm\nrbDMga3YOOIa+DVLdLCwzc7kFlM9W7sezkUM/FhhellaxLu4i5O86sywJYMEo7VG\nj3FUS3XiDyKW68xOpE4svW7LiZEAnnLSsPdELO2bzhR/md84Jjvm99i6yP0StrMB\n+X2EwPYmTLMktdJyMUn/vhFYzQIDAQABozAwLjAsBgNVHREEJTAjgiFnbGUtdGVz\ndC5wcm9jdG9yLXN0YWdpbmctdGVzdC5jb20wDQYJKoZIhvcNAQELBQADggEBAJ+6\nH7WI9+hqrT4zpyc/CpH6VuviYezo1qd4/6M496dKlrHd11+xAXkBRZ4FFyoDFMgz\nO7YihNTBuONwiv21YN3OV9xoTExGx/IIkHNaueL2ZPkbVcJWQEWtEITp9Mo0qDIj\nkKjEQ5A+I4T4CiQ/OAhqtN8gR8ZUKGRJw+s2sE+yCIvRfoeJ4YU7NfUL1vSXxKfy\nHz3awR7t5qnCsvcShZtmiZ4xsc6o/tKqL5nAwNk1M6rPMY/+/PY70juLf1GNNDoZ\nA2Co+g6uI/FwAFAO5ZYKRLlstgNcPXerNdxXhpRZKMxGj8WfQ3z0Eu4cGtTUmDz5\npTam4bqToj22/MN2IhA=\n-----END CERTIFICATE-----\n"
+    ssl_ca = "-----BEGIN CERTIFICATE-----\nMIIDcTCCAlmgAwIBAgIUbxJ3jxaRf5IPcUiQWRPRqpLL4s4wDQYJKoZIhvcNAQEL\nBQAwTjELMAkGA1UEBhMCVVMxGzAZBgNVBAoMEkdvb2dsZSBDbG91ZCBCdWlsZDEi\nMCAGA1UEAwwZZ2xlLXVzLmdsZS11cy1wcml2YXRlLmNvbTAeFw0yMzEwMjAxNjQ3\nNDJaFw0yNDEwMTkxNjQ3NDJaME4xCzAJBgNVBAYTAlVTMRswGQYDVQQKDBJHb29n\nbGUgQ2xvdWQgQnVpbGQxIjAgBgNVBAMMGWdsZS11cy5nbGUtdXMtcHJpdmF0ZS5j\nb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDRE84wKcuzc+beQ323\nIsNVVOF1+WZ975LvXpIt8Mw1bcYeYUcvgBXSXAByHGMtef8OBb9BUvLOVZdT3Xow\nCUbhCiK3zQy29pCn0rsneIvzGUXQgQRXK/Zap1N/hif4E7CIgjuvCN0Mn6BfDV/H\nXFm6EV3YUJrRPBr1rZik7doaYYwaJshCSTBtZxXZdvsG/OBuAXbJ9GB0B62EiTBz\n5g6yRdATut+PbgfzaWlPsgL3TTH+HPNCMO+ULnFupfZwRCtV+dJng76QYGs8fmFo\ntiWeElcsU8W7aqmjOkKRWcFsHpxPNXp8GG+jsZrVAnMOR3QeRLvowysSQD99IrGH\nAhwlAgMBAAGjRzBFMCQGA1UdEQQdMBuCGWdsZS11cy5nbGUtdXMtcHJpdmF0ZS5j\nb20wHQYDVR0OBBYEFKCIp5BruT4fpeDFQ2bKgdUvpfbWMA0GCSqGSIb3DQEBCwUA\nA4IBAQAQ4pUQmmd7eNIu9MQGna9lHYRFL0/G3mrK6Dcfm2As9qdcRw3dph8/iute\nxKDdBsnt6jDHrsjN0Na7Eq0040oBJrxG/NtqGX0zHNdpAT61bQ6j9reAT+KOrHys\nDJXH2lPuFW183AU7mmvcbXTEwkKex1i+DNoEdGYUbBfnWWeuhGzFog+/f9mtjoHL\nplcmx0VWHBQ5KO9Aq4OR/86DSg5QRPk76W9k3cM2ShXMm3TmTBZ+taJFfjZo5jP+\n7PLt2z9grSvFSXh2jnMyAs2yP4c+WezOXZLijqROr378AGBaksQK0CP+CYjZRpn1\nvndr1njLbvSjIypwKgZROb4P6XVa\n-----END CERTIFICATE-----\n"
   }
 
   project     = "%{project_name}"
