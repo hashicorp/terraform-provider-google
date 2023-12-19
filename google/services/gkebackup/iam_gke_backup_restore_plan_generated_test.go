@@ -36,6 +36,8 @@ func TestAccGKEBackupRestorePlanIamBindingGenerated(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -74,6 +76,8 @@ func TestAccGKEBackupRestorePlanIamMemberGenerated(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -103,6 +107,8 @@ func TestAccGKEBackupRestorePlanIamPolicyGenerated(t *testing.T) {
 		"project":       envvar.GetTestProjectFromEnv(),
 
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -147,6 +153,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -201,6 +209,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -270,6 +280,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -326,6 +338,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -380,6 +394,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
