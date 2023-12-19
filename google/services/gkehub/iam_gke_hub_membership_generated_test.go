@@ -35,6 +35,9 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -72,6 +75,9 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -100,6 +106,9 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -132,10 +141,12 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 func testAccGKEHubMembershipIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -161,10 +172,12 @@ resource "google_gke_hub_membership_iam_member" "foo" {
 func testAccGKEHubMembershipIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -205,10 +218,12 @@ data "google_gke_hub_membership_iam_policy" "foo" {
 func testAccGKEHubMembershipIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -236,10 +251,12 @@ resource "google_gke_hub_membership_iam_policy" "foo" {
 func testAccGKEHubMembershipIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -265,10 +282,12 @@ resource "google_gke_hub_membership_iam_binding" "foo" {
 func testAccGKEHubMembershipIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_hub_membership" "membership" {

@@ -45,6 +45,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -91,6 +93,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -146,6 +150,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -196,6 +202,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -241,6 +249,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -313,6 +323,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {

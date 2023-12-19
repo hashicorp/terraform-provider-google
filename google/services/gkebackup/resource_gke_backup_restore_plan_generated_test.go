@@ -37,6 +37,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllNamespacesExample(t *tes
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -73,6 +75,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -110,6 +114,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRollbackNamespaceExample(t 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -146,6 +152,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -192,6 +200,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanProtectedApplicationExample
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -228,6 +238,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -269,6 +281,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanAllClusterResourcesExample(
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -305,6 +319,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -341,6 +357,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRenameNamespaceExample(t *t
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -377,6 +395,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {
@@ -440,6 +460,8 @@ func TestAccGKEBackupRestorePlan_gkebackupRestoreplanSecondTransformationExample
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -476,6 +498,8 @@ resource "google_container_cluster" "primary" {
     }
   }
   deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
 }
 
 resource "google_gke_backup_backup_plan" "basic" {

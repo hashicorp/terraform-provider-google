@@ -326,6 +326,8 @@ func TestAccGKEHubFeatureMembership_gkehubFeatureAcmAllFields(t *testing.T) {
 		"random_suffix":   acctest.RandString(t, 10),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -389,6 +391,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -452,6 +456,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -516,6 +522,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.mci, google_project_service.container, google_project_service.container, google_project_service.gkehub, google_project_service.acm]
 }
 
@@ -761,6 +769,8 @@ func TestAccGKEHubFeatureMembership_gkehubFeatureMesh(t *testing.T) {
 		"random_suffix":   acctest.RandString(t, 10),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -813,6 +823,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -863,6 +875,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -912,6 +926,8 @@ resource "google_container_cluster" "primary" {
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.gkehub]
 }
 
@@ -961,6 +977,8 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
   project = google_project.project.project_id
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -970,6 +988,8 @@ resource "google_container_cluster" "secondary" {
   initial_node_count = 1
   project = google_project.project.project_id
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -979,6 +999,8 @@ resource "google_container_cluster" "tertiary" {
   initial_node_count = 1
   project = google_project.project.project_id
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -989,6 +1011,8 @@ resource "google_container_cluster" "quarternary" {
   initial_node_count = 1
   project = google_project.project.project_id
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 
@@ -1051,6 +1075,8 @@ resource "google_container_cluster" "container_acmoci" {
   network = google_compute_network.testnetwork.self_link
   project = google_project.project.project_id
   deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
   depends_on = [google_project_service.container, google_project_service.container, google_project_service.gkehub]
 }
 

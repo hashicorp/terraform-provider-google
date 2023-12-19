@@ -33,10 +33,12 @@ To get more information about Membership, see:
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster"
+  name               = "basic-cluster"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -59,10 +61,12 @@ resource "google_gke_hub_membership" "membership" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster"
+  name               = "basic-cluster"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection  = "true"
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_hub_membership" "membership" {
@@ -83,13 +87,15 @@ resource "google_gke_hub_membership" "membership" {
 
 ```hcl
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster"
+  name               = "basic-cluster"
   location           = "us-central1-a"
   initial_node_count = 1
   workload_identity_config {
     workload_pool = "my-project-name.svc.id.goog"
   }
   deletion_protection  = "true"
+  network       = "default"
+  subnetwork    = "default"
 }
 
 resource "google_gke_hub_membership" "membership" {
