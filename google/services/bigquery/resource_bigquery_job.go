@@ -1093,6 +1093,7 @@ func resourceBigQueryJobPollRead(d *schema.ResourceData, meta interface{}) trans
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/jobs/{{job_id}}?location={{location}}")
+
 		if err != nil {
 			return nil, err
 		}

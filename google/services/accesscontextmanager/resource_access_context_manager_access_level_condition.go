@@ -351,6 +351,7 @@ func resourceAccessContextManagerAccessLevelConditionPollRead(d *schema.Resource
 		config := meta.(*transport_tpg.Config)
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{access_level}}")
+
 		if err != nil {
 			return nil, err
 		}
