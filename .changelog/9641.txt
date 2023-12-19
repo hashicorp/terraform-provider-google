@@ -1,0 +1,3 @@
+```release-note:enhancement
+storagetransfer: made `name` field to be optional in resource `google_storage_transfer_job` so it can be provided by the users
+```
