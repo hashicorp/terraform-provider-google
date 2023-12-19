@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Access Approval"
 description: |-
-  Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer content.
+  Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer's content.
 ---
 
 # google\_folder\_access\_approval\_settings
 
-Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer content.
+Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer's content.
 
 
 To get more information about FolderSettings, see:
