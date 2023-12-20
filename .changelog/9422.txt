@@ -1,0 +1,3 @@
+```release-note:none
+filestore: added support for the `"REGIONAL"` value to `tier` in `google_filestore_instance`
+```
