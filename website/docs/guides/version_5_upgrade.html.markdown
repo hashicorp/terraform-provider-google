@@ -636,7 +636,15 @@ resource "google_container_cluster" "primary" {
 
 ### `enable_binary_authorization` is now removed
 
-`enable_binary_authorization` has been removed in favor of `binary_authorization.enabled`.
+`enable_binary_authorization` has been removed in favor of `binary_authorization.evaluation_mode`.
+To enable Binary Authorization, set evaluation mode to "PROJECT_SINGLETON_POLICY_ENFORCE"
+as shown in the example below. To disable it, set evaluation mode to "DISABLED".
+
+```
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
+  }
+```
 
 ### Default value of `network_policy.provider` is now removed
 

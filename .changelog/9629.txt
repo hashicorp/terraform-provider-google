@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an issue in which migrating from the deprecated Binauthz enablement bool to the new evaluation mode enum inadvertently caused two cluster update events, instead of none.
+```
