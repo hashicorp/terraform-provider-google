@@ -85,6 +85,66 @@ resource "google_bigquery_dataset" "listing" {
 `, context)
 }
 
+func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_analytics_hub_listing.listing",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingRestrictedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "tf_test_my_data_exchange%{random_suffix}"
+  display_name     = "tf_test_my_data_exchange%{random_suffix}"
+  description      = "example data exchange%{random_suffix}"
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "tf_test_my_listing%{random_suffix}"
+  display_name     = "tf_test_my_listing%{random_suffix}"
+  description      = "example data exchange%{random_suffix}"
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+  }
+
+  restricted_export_config {
+    enabled               = true
+    restrict_query_result = true
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id                  = "tf_test_my_listing%{random_suffix}"
+  friendly_name               = "tf_test_my_listing%{random_suffix}"
+  description                 = "example data exchange%{random_suffix}"
+  location                    = "US"
+}
+`, context)
+}
+
 func testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

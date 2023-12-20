@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigqueryanalyticshub: added `restricted_export_config` field to `google_bigquery_analytics_hub_listing ` resource
+```
