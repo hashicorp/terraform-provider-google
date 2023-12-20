@@ -1,0 +1,3 @@
+```release-note:bug
+containerattached: fixed crash when updating a cluster to remove `admin_users` or `admin_groups`
+```
