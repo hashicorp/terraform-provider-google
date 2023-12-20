@@ -213,7 +213,7 @@ addresses reserved for this instance.`,
 				Required: true,
 				ForceNew: true,
 				Description: `The service tier of the instance.
-Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD, ZONAL and ENTERPRISE`,
+Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE`,
 			},
 			"description": {
 				Type:        schema.TypeString,
