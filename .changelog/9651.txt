@@ -1,0 +1,4 @@
+```release-note:enhancement
+Add output-only `primary` version attribute to `google_kms_crypto_key` resource
+
+```
