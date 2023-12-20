@@ -160,6 +160,26 @@ See the [algorithm reference](https://cloud.google.com/kms/docs/reference/rest/v
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"primary": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `A copy of the primary CryptoKeyVersion that will be used by cryptoKeys.encrypt when this CryptoKey is given in EncryptRequest.name.
+Keys with purpose ENCRYPT_DECRYPT may have a primary. For other keys, this field will be unset.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The resource name for this CryptoKeyVersion.`,
+						},
+						"state": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The current state of the CryptoKeyVersion.`,
+						},
+					},
+				},
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -311,6 +331,9 @@ func resourceKMSCryptoKeyRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("labels", flattenKMSCryptoKeyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading CryptoKey: %s", err)
+	}
+	if err := d.Set("primary", flattenKMSCryptoKeyPrimary(res["primary"], d, config)); err != nil {
 		return fmt.Errorf("Error reading CryptoKey: %s", err)
 	}
 	if err := d.Set("purpose", flattenKMSCryptoKeyPurpose(res["purpose"], d, config)); err != nil {
@@ -506,6 +529,29 @@ func flattenKMSCryptoKeyLabels(v interface{}, d *schema.ResourceData, config *tr
 	}
 
 	return transformed
+}
+
+func flattenKMSCryptoKeyPrimary(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenKMSCryptoKeyPrimaryName(original["name"], d, config)
+	transformed["state"] =
+		flattenKMSCryptoKeyPrimaryState(original["state"], d, config)
+	return []interface{}{transformed}
+}
+func flattenKMSCryptoKeyPrimaryName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenKMSCryptoKeyPrimaryState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenKMSCryptoKeyPurpose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
