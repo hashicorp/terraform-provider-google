@@ -63,6 +63,46 @@ resource "google_bigquery_dataset" "listing" {
   location                    = "US"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_analyticshub_listing_restricted&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Restricted
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "my_data_exchange"
+  display_name     = "my_data_exchange"
+  description      = "example data exchange"
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "my_listing"
+  display_name     = "my_listing"
+  description      = "example data exchange"
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+  }
+
+  restricted_export_config {
+    enabled               = true
+    restrict_query_result = true
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id                  = "my_listing"
+  friendly_name               = "my_listing"
+  description                 = "example data exchange"
+  location                    = "US"
+}
+```
 
 ## Argument Reference
 
@@ -134,6 +174,11 @@ The following arguments are supported:
   (Optional)
   Categories of the listing. Up to two categories are allowed.
 
+* `restricted_export_config` -
+  (Optional)
+  If set, restricted export configuration will be propagated and enforced on the linked dataset.
+  Structure is [documented below](#nested_restricted_export_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -157,6 +202,16 @@ The following arguments are supported:
 * `primary_contact` -
   (Optional)
   Email or URL of the listing publisher.
+
+<a name="nested_restricted_export_config"></a>The `restricted_export_config` block supports:
+
+* `enabled` -
+  (Optional)
+  If true, enable restricted export.
+
+* `restrict_query_result` -
+  (Optional)
+  If true, restrict export of query result derived from restricted linked dataset table.
 
 ## Attributes Reference
 
