@@ -74,6 +74,34 @@ resource "google_sql_user" "iam_service_account_user" {
 }
 ```
 
+Example using [Cloud SQL IAM Group authentication](https://cloud.google.com/sql/docs/mysql/iam-authentication#iam-group-auth).
+
+```hcl
+resource "random_id" "db_name_suffix" {
+  byte_length = 4
+}
+
+resource "google_sql_database_instance" "main" {
+  name             = "main-instance-${random_id.db_name_suffix.hex}"
+  database_version = "MYSQL_8_0"
+
+  settings {
+    tier = "db-f1-micro"
+
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+resource "google_sql_user" "iam_group_user" {
+  name     = "iam_group@example.com"
+  instance = google_sql_database_instance.main.name
+  type     = "CLOUD_IAM_GROUP"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -91,7 +119,7 @@ The following arguments are supported:
 
 * `type` - (Optional) The user type. It determines the method to authenticate the
     user during login. The default is the database's built-in user type. Flags
-    include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".
+    include "BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_GROUP" or "CLOUD_IAM_SERVICE_ACCOUNT".
 
 * `deletion_policy` - (Optional) The deletion policy for the user.
     Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful

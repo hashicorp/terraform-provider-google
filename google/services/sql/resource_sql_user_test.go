@@ -76,6 +76,34 @@ func TestAccSqlUser_iamUser(t *testing.T) {
 	})
 }
 
+func TestAccSqlUser_iamGroupUser(t *testing.T) {
+	// Multiple fine-grained resources
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_iamGroupUser(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				ResourceName:            "google_sql_user.user",
+				ImportStateId:           fmt.Sprintf("%s/%s/iam-group-auth-test-group@google.com", envvar.GetTestProjectFromEnv(), instance),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlUser_postgres(t *testing.T) {
 	t.Parallel()
 
@@ -506,4 +534,28 @@ resource "google_project_iam_member" "sa_user" {
   member  = "serviceAccount:${google_service_account.sa.email}"
 }
 `, instance, instance, instance, instance)
+}
+
+func testGoogleSqlUser_iamGroupUser(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+}
+
+resource "google_sql_user" "user" {
+  name     = "iam-group-auth-test-group@google.com"
+  instance = google_sql_database_instance.instance.name
+  type     = "CLOUD_IAM_GROUP"
+}
+`, instance)
 }

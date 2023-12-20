@@ -104,8 +104,8 @@ func ResourceSqlUser() *schema.Resource {
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("BUILT_IN"),
 				Description: `The user type. It determines the method to authenticate the user during login.
-                The default is the database's built-in user type. Flags include "BUILT_IN", "CLOUD_IAM_USER", or "CLOUD_IAM_SERVICE_ACCOUNT".`,
-				ValidateFunc: validation.StringInSlice([]string{"BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT", ""}, false),
+                The default is the database's built-in user type. Flags include "BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_GROUP" or "CLOUD_IAM_SERVICE_ACCOUNT".`,
+				ValidateFunc: validation.StringInSlice([]string{"BUILT_IN", "CLOUD_IAM_USER", "CLOUD_IAM_GROUP", "CLOUD_IAM_SERVICE_ACCOUNT", ""}, false),
 			},
 			"sql_server_user_details": {
 				Type:     schema.TypeList,
@@ -351,10 +351,9 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, currentUser := range users.Items {
-		if !strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") {
+		if !(strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") || currentUser.Type == "CLOUD_IAM_GROUP") {
 			name = strings.Split(name, "@")[0]
 		}
-
 		if currentUser.Name == name {
 			// Host can only be empty for postgres instances,
 			// so don't compare the host if the API host is empty.
