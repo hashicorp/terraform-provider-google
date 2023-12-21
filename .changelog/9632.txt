@@ -1,0 +1,9 @@
+```release-note:enhancement
+vertexai: added `force_destroy` field to `google_vertex_ai_feature_online_store` resource
+```
+```release-note:enhancement
+vertexai: added `optimized`, `dedicated_serving_endpoint` and `embedding_management` fields to `google_vertex_ai_feature_online_store` resource (beta)
+```
+```release-note:bug
+vertexai: changed `region` field from required to optional in `google_vertex_ai_feature_online_store` resource
+```
