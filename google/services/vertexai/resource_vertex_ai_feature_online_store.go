@@ -58,13 +58,7 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The resource name of the Feature Online Store.`,
-			},
-			"region": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The region of feature online store. eg us-central1`,
+				Description: `The resource name of the Feature Online Store. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.`,
 			},
 			"bigtable": {
 				Type:        schema.TypeList,
@@ -101,6 +95,7 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 						},
 					},
 				},
+				ExactlyOneOf: []string{"bigtable"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -110,6 +105,13 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The region of feature online store. eg us-central1`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -144,6 +146,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Computed:    true,
 				Description: `The timestamp of when the feature online store was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.`,
 			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `If set to true, any FeatureViews and Features for this FeatureOnlineStore will also be deleted.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -163,12 +171,6 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 	}
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandVertexAIFeatureOnlineStoreName(d.Get("name"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-		obj["name"] = nameProp
-	}
 	bigtableProp, err := expandVertexAIFeatureOnlineStoreBigtable(d.Get("bigtable"), d, config)
 	if err != nil {
 		return err
@@ -234,10 +236,6 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error waiting to create FeatureOnlineStore: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAIFeatureOnlineStoreName(opRes["name"], d, config)); err != nil {
-		return err
-	}
-
 	// This may have caused the ID to update - update it if so.
 	id, err = tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{region}}/featureOnlineStores/{{name}}")
 	if err != nil {
@@ -286,13 +284,16 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIFeatureOnlineStore %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
 
-	if err := d.Set("name", flattenVertexAIFeatureOnlineStoreName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
-	}
 	if err := d.Set("create_time", flattenVertexAIFeatureOnlineStoreCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
@@ -425,6 +426,13 @@ func resourceVertexAIFeatureOnlineStoreDelete(d *schema.ResourceData, meta inter
 	}
 
 	var obj map[string]interface{}
+
+	if v, ok := d.GetOk("force_destroy"); ok {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": fmt.Sprintf("%v", v)})
+		if err != nil {
+			return err
+		}
+	}
 	log.Printf("[DEBUG] Deleting FeatureOnlineStore %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -475,14 +483,12 @@ func resourceVertexAIFeatureOnlineStoreImport(d *schema.ResourceData, meta inter
 	}
 	d.SetId(id)
 
-	return []*schema.ResourceData{d}, nil
-}
-
-func flattenVertexAIFeatureOnlineStoreName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
 	}
-	return tpgresource.NameFromSelfLinkStateFunc(v)
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func flattenVertexAIFeatureOnlineStoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -610,10 +616,6 @@ func flattenVertexAIFeatureOnlineStoreTerraformLabels(v interface{}, d *schema.R
 
 func flattenVertexAIFeatureOnlineStoreEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func expandVertexAIFeatureOnlineStoreName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
 }
 
 func expandVertexAIFeatureOnlineStoreBigtable(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

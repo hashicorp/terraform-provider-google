@@ -49,7 +49,7 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *test
 				ResourceName:            "google_vertex_ai_feature_online_store.feature_online_store",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -57,20 +57,19 @@ func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(t *test
 
 func testAccVertexAIFeatureOnlineStore_vertexAiFeatureOnlineStoreExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource google_vertex_ai_feature_online_store "feature_online_store" {
-    name = "tf_test_example_feature_online_store%{random_suffix}"
-    region = "us-central1"
-    labels = {
-        label-one = "value-one"
+resource "google_vertex_ai_feature_online_store" "feature_online_store" {
+  name = "tf_test_example_feature_online_store%{random_suffix}"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 3
+      cpu_utilization_target = 50
     }
-
-    bigtable {
-        auto_scaling {
-            min_node_count = 1
-            max_node_count = 2
-            cpu_utilization_target = 60
-        }
-    }
+  }
 }
 `, context)
 }

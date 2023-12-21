@@ -29,7 +29,7 @@ func TestAccVertexAIFeatureOnlineStore_updated(t *testing.T) {
 				ResourceName:            "google_vertex_ai_feature_online_store.feature_online_store",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccVertexAIFeatureOnlineStore_updated(context),
@@ -38,7 +38,7 @@ func TestAccVertexAIFeatureOnlineStore_updated(t *testing.T) {
 				ResourceName:            "google_vertex_ai_feature_online_store.feature_online_store",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"etag", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -60,6 +60,7 @@ resource google_vertex_ai_feature_online_store "feature_online_store" {
             cpu_utilization_target = 60
         }
     }
+  force_destroy = true
 }
 `, context)
 }
@@ -80,6 +81,7 @@ resource google_vertex_ai_feature_online_store "feature_online_store" {
             max_node_count = 3
         }
     }
+  force_destroy = true
 }
 `, context)
 }

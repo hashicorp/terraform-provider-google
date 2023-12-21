@@ -25,6 +25,8 @@ Vertex AI Feature Online Store provides a centralized repository for serving ML 
 To get more information about FeatureOnlineStore, see:
 
 * [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores)
+* How-to Guides
+    * [Official Documentation](https://cloud.google.com/vertex-ai/docs)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_feature_online_store&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -35,20 +37,81 @@ To get more information about FeatureOnlineStore, see:
 
 
 ```hcl
-resource google_vertex_ai_feature_online_store "feature_online_store" {
-    name = "example_feature_online_store"
-    region = "us-central1"
-    labels = {
-        label-one = "value-one"
+resource "google_vertex_ai_feature_online_store" "feature_online_store" {
+  name = "example_feature_online_store"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 3
+      cpu_utilization_target = 50
     }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featureonlinestore_with_beta_fields_optimized&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Featureonlinestore With Beta Fields Optimized
 
-    bigtable {
-        auto_scaling {
-            min_node_count = 1
-            max_node_count = 2
-            cpu_utilization_target = 60
-        }
+
+```hcl
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  provider = google-beta
+  name     = "example_feature_online_store_optimized"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  optimized {}
+  dedicated_serving_endpoint {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.number]
     }
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featureonlinestore_with_beta_fields_bigtable&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Featureonlinestore With Beta Fields Bigtable
+
+
+```hcl
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  provider = google-beta
+  name     = "example_feature_online_store_beta_bigtable"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 2
+      cpu_utilization_target = 80
+    }
+  }
+  embedding_management {
+    enabled = true
+  }
+  force_destroy = true
+}
+
+data "google_project" "project" {
+  provider = google-beta
 }
 ```
 
@@ -59,11 +122,7 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The resource name of the Feature Online Store.
-
-* `region` -
-  (Required)
-  The region of feature online store. eg us-central1
+  The resource name of the Feature Online Store. This value may be up to 60 characters, and valid characters are [a-z0-9_]. The first character cannot be a number.
 
 
 - - -
@@ -80,9 +139,28 @@ The following arguments are supported:
   Settings for Cloud Bigtable instance that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore.
   Structure is [documented below](#nested_bigtable).
 
+* `optimized` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore
+
+* `dedicated_serving_endpoint` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The dedicated serving endpoint for this FeatureOnlineStore, which is different from common vertex service endpoint. Only need to set when you choose Optimized storage type or enable EmbeddingManagement. Will use public endpoint by default.
+  Structure is [documented below](#nested_dedicated_serving_endpoint).
+
+* `embedding_management` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The settings for embedding management in FeatureOnlineStore. Embedding management can only be used with BigTable.
+  Structure is [documented below](#nested_embedding_management).
+
+* `region` -
+  (Optional)
+  The region of feature online store. eg us-central1
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `force_destroy` - (Optional) If set to true, any FeatureViews and Features for this FeatureOnlineStore will also be deleted.
 
 <a name="nested_bigtable"></a>The `bigtable` block supports:
 
@@ -105,6 +183,38 @@ The following arguments are supported:
 * `cpu_utilization_target` -
   (Optional)
   A percentage of the cluster's CPU capacity. Can be from 10% to 80%. When a cluster's CPU utilization exceeds the target that you have set, Bigtable immediately adds nodes to the cluster. When CPU utilization is substantially lower than the target, Bigtable removes nodes. If not set will default to 50%.
+
+<a name="nested_dedicated_serving_endpoint"></a>The `dedicated_serving_endpoint` block supports:
+
+* `public_endpoint_domain_name` -
+  (Output)
+  Domain name to use for this FeatureOnlineStore
+
+* `service_attachment` -
+  (Output)
+  Name of the service attachment resource. Applicable only if private service connect is enabled and after FeatureViewSync is created.
+
+* `private_service_connect_config` -
+  (Optional)
+  Private service connect config.
+  Structure is [documented below](#nested_private_service_connect_config).
+
+
+<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+
+* `enable_private_service_connect` -
+  (Required)
+  If set to true, customers will use private service connection to send request. Otherwise, the connection will set to public endpoint.
+
+* `project_allowlist` -
+  (Optional)
+  A list of Projects from which the forwarding rule will target the service attachment.
+
+<a name="nested_embedding_management"></a>The `embedding_management` block supports:
+
+* `enabled` -
+  (Optional)
+  Enable embedding management.
 
 ## Attributes Reference
 
