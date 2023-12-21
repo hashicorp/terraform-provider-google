@@ -560,8 +560,6 @@ func TestAccComposerEnvironment_ComposerV2HighResilience(t *testing.T) {
 }
 
 func TestAccComposerEnvironment_UpdateComposerV2WithTriggerer(t *testing.T) {
-	// TODO: This test was seemingly working, but then started to re-run on every gcbrun https://github.com/hashicorp/terraform-provider-google/issues/14160
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
