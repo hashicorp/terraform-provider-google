@@ -280,9 +280,9 @@ The following arguments are supported:
 
 * `request_cookie` - (Optional) Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation. Structure is [documented below](#nested_field_params).
 
-* `request_uri` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
+* `request_uri` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
 
-* `request_query_param` - (Optional) Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation. When specifying this field, the query or fragment part should be excluded. Structure is [documented below](#nested_field_params).
+* `request_query_param` - (Optional) Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation. Note that the parameter can be in the query string or in the POST body. Structure is [documented below](#nested_field_params).
 
 * `target_rule_set` - (Required) Target WAF rule set to apply the preconfigured WAF exclusion.
 
