@@ -56,6 +56,16 @@ func TestAccServiceAccount_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Test creating a service account that already exists.
+			{
+				Config: testAccServiceAccountIgnoreCreateAlreadyExists(accountId, displayName, desc),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "project", project),
+					resource.TestCheckResourceAttr(
+						"google_service_account.acceptance", "member", "serviceAccount:"+expectedEmail),
+				),
+			},
 			// The second step updates the service account
 			{
 				Config: testAccServiceAccountBasic(accountId, displayName2, desc2),
@@ -164,6 +174,17 @@ resource "google_service_account" "acceptance" {
   account_id   = "%v"
   display_name = "%v"
   description  = "%v"
+}
+`, account, name, desc)
+}
+
+func testAccServiceAccountIgnoreCreateAlreadyExists(account, name, desc string) string {
+	return fmt.Sprintf(`
+resource "google_service_account" "acceptance" {
+  account_id   = "%v"
+  display_name = "%v"
+  description  = "%v"
+  ignore_create_already_exists = true
 }
 `, account, name, desc)
 }
