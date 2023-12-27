@@ -249,6 +249,22 @@ is desired, you will need to modify your state file manually using
 
 * `resource_manager_tags` - (Optional) A tag is a key-value pair that can be attached to a Google Cloud resource. You can use tags to conditionally allow or deny policies based on whether a resource has a specific tag. This value is not returned by the API. In Terraform, this value cannot be updated and changing it will recreate the resource.
 
+* `provisioned_iops` - (Optional) Indicates how many IOPS to provision for the disk.
+    This sets the number of I/O operations per second that the disk can handle.
+    Values must be between 10,000 and 120,000. For more details,see the 
+    [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).
+    Note: Updating currently is only supported for hyperdisk skus via disk update
+    api/gcloud without the need to delete and recreate the disk, hyperdisk allows
+    for an update of IOPS every 4 hours. To update your hyperdisk more frequently,
+    you'll need to manually delete and recreate it.
+
+* `provisioned_throughput` - (Optional) Indicates how much throughput to provision for the disk.
+    This sets the number of throughput mb per second that the disk can handle.
+    Values must be between 1 and 7,124. Note: Updating currently is only supported
+    for hyperdisk skus via disk update api/gcloud without the need to delete and
+    recreate the disk, hyperdisk allows for an update of throughput every 4 hours.
+    To update your hyperdisk more frequently, you'll need to manually delete and recreate it.
+
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.

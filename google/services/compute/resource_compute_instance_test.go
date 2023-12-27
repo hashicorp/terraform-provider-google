@@ -1782,6 +1782,29 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_hyperdiskBootDisk_provisioned_iops_throughput(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"instance_name":          fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"zone":                   "us-central1-a",
+		"provisioned_iops":       12000,
+		"provisioned_throughput": 200,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceHyperDiskBootDiskProvisionedIopsThroughput(context),
+			},
+			computeInstanceImportStep(context["zone"].(string), context["instance_name"].(string), []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_enableDisplay(t *testing.T) {
 	t.Parallel()
 
@@ -6305,6 +6328,37 @@ resource "google_compute_instance" "foobar" {
 
 }
 `, instance, enableConfidentialCompute)
+}
+
+func testAccComputeInstanceHyperDiskBootDiskProvisionedIopsThroughput(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+data "google_project" "project" {}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "h3-standard-88"
+  zone         = "%{zone}"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      provisioned_iops = %{provisioned_iops}
+      provisioned_throughput = %{provisioned_throughput}
+      type = "hyperdisk-balanced"
+      size = 100
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, context)
 }
 
 func testAccComputeInstance_enableDisplay(instance string) string {
