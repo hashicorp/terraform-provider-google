@@ -43,6 +43,8 @@ var (
 		"boot_disk.0.initialize_params.0.image",
 		"boot_disk.0.initialize_params.0.labels",
 		"boot_disk.0.initialize_params.0.resource_manager_tags",
+		"boot_disk.0.initialize_params.0.provisioned_iops",
+		"boot_disk.0.initialize_params.0.provisioned_throughput",
 	}
 
 	schedulingKeys = []string{
@@ -233,6 +235,26 @@ func ResourceComputeInstance() *schema.Resource {
 										AtLeastOneOf: initializeParamsKeys,
 										ForceNew:     true,
 										Description:  `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+									},
+
+									"provisioned_iops": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntBetween(10000, 120000),
+										Description:  `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000.`,
+									},
+
+									"provisioned_throughput": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.IntBetween(1, 7124),
+										Description:  `Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle. Values must be between 1 and 7,124.`,
 									},
 								},
 							},
@@ -2596,6 +2618,14 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			disk.InitializeParams.DiskSizeGb = int64(v.(int))
 		}
 
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.provisioned_iops"); ok {
+			disk.InitializeParams.ProvisionedIops = int64(v.(int))
+		}
+
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.provisioned_throughput"); ok {
+			disk.InitializeParams.ProvisionedThroughput = int64(v.(int))
+		}
+
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 			diskTypeName := v.(string)
 			diskType, err := readDiskType(config, d, diskTypeName)
@@ -2657,10 +2687,12 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			"type": tpgresource.GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
-			"image":                 diskDetails.SourceImage,
-			"size":                  diskDetails.SizeGb,
-			"labels":                diskDetails.Labels,
-			"resource_manager_tags": d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
+			"image":                  diskDetails.SourceImage,
+			"size":                   diskDetails.SizeGb,
+			"labels":                 diskDetails.Labels,
+			"resource_manager_tags":  d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
+			"provisioned_iops":       diskDetails.ProvisionedIops,
+			"provisioned_throughput": diskDetails.ProvisionedThroughput,
 		}}
 	}
 
