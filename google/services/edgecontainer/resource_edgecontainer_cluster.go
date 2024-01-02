@@ -44,9 +44,9 @@ func ResourceEdgecontainerCluster() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(480 * time.Minute),
+			Update: schema.DefaultTimeout(480 * time.Minute),
+			Delete: schema.DefaultTimeout(480 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
