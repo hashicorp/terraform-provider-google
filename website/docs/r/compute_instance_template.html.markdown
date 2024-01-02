@@ -351,6 +351,8 @@ The following arguments are supported:
 * `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
     Structure is [documented below](#nested_reservation_affinity).
 
+* `resource_manager_tags` - (Optional) A set of key/value resource manager tag pairs to bind to the instances. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
+
 * `scheduling` - (Optional) The scheduling strategy to use. More details about
     this configuration option are [detailed below](#nested_scheduling).
 
@@ -391,6 +393,8 @@ The following arguments are supported:
     sets the number of I/O operations per second that the disk can handle.
     Values must be between 10,000 and 120,000. For more details, see the
     [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).
+
+* `resource_manager_tags` - (Optional) A set of key/value resource manager tag pairs to bind to this disk. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
 
 * `source_image` - (Optional) The image from which to
     initialize this disk. This can be one of: the image's `self_link`,

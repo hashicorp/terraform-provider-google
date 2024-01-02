@@ -172,6 +172,15 @@ func ResourceComputeInstanceTemplate() *schema.Resource {
 							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
 						},
 
+						"resource_manager_tags": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+						},
+
 						"source_image": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -586,6 +595,18 @@ Google Cloud KMS.`,
 				ForceNew:    true,
 				Computed:    true,
 				Description: `An instance template is a global resource that is not bound to a zone or a region. However, you can still specify some regional resources in an instance template, which restricts the template to the region where that resource resides. For example, a custom subnetwork resource is tied to a specific region. Defaults to the region of the Provider if no value is given.`,
+			},
+
+			"resource_manager_tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Description: `A map of resource manager tags.
+				Resource manager tag keys and values have the same definition as resource manager tags.
+				Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
+				The field is ignored (both PUT & PATCH) when empty.`,
 			},
 
 			"scheduling": {
@@ -1124,7 +1145,9 @@ func buildDisks(d *schema.ResourceData, config *transport_tpg.Config) ([]*comput
 			if v, ok := d.GetOk(prefix + ".provisioned_iops"); ok {
 				disk.InitializeParams.ProvisionedIops = int64(v.(int))
 			}
-
+			if _, ok := d.GetOk(prefix + ".resource_manager_tags"); ok {
+				disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, prefix+".resource_manager_tags")
+			}
 			disk.InitializeParams.Labels = tpgresource.ExpandStringMap(d, prefix+".labels")
 
 			if v, ok := d.GetOk(prefix + ".source_image"); ok {
@@ -1287,6 +1310,10 @@ func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interfac
 		instanceProperties.Labels = tpgresource.ExpandEffectiveLabels(d)
 	}
 
+	if _, ok := d.GetOk("resource_manager_tags"); ok {
+		instanceProperties.ResourceManagerTags = tpgresource.ExpandStringMap(d, "resource_manager_tags")
+	}
+
 	var itName string
 	if v, ok := d.GetOk("name"); ok {
 		itName = v.(string)
@@ -1401,8 +1428,8 @@ func flattenDisk(disk *compute.AttachedDisk, configDisk map[string]any, defaultP
 		} else {
 			diskMap["disk_size_gb"] = disk.InitializeParams.DiskSizeGb
 		}
-
 		diskMap["resource_policies"] = disk.InitializeParams.ResourcePolicies
+		diskMap["resource_manager_tags"] = disk.InitializeParams.ResourceManagerTags
 	}
 
 	if disk.DiskEncryptionKey != nil {

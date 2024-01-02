@@ -155,6 +155,15 @@ func ResourceComputeRegionInstanceTemplate() *schema.Resource {
 							Description: `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000. For more details, see the [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).`,
 						},
 
+						"resource_manager_tags": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							ForceNew:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+						},
+
 						"source_image": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -563,6 +572,16 @@ Google Cloud KMS.`,
 				ForceNew:    true,
 				Computed:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
+			},
+
+			"resource_manager_tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Description: `A map of resource manager tags.
+				Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 			},
 
 			"scheduling": {
@@ -1000,6 +1019,10 @@ func resourceComputeRegionInstanceTemplateCreate(d *schema.ResourceData, meta in
 
 	if _, ok := d.GetOk("effective_labels"); ok {
 		instanceProperties.Labels = tpgresource.ExpandEffectiveLabels(d)
+	}
+
+	if _, ok := d.GetOk("resource_manager_tags"); ok {
+		instanceProperties.ResourceManagerTags = tpgresource.ExpandStringMap(d, "resource_manager_tags")
 	}
 
 	var itName string
