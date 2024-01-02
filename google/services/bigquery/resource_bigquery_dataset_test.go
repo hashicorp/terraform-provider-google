@@ -584,8 +584,8 @@ data "google_project" "project" {
   project_id = "%s"
 }
 
-resource "google_project_iam_member" "kms-project-binding" {
-  project = data.google_project.project.project_id
+resource "google_kms_crypto_key_iam_member" "kms-member" {
+  crypto_key_id = "%s"
   role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member  = "serviceAccount:bq-${data.google_project.project.number}@bigquery-encryption.iam.gserviceaccount.com"
 }
@@ -601,9 +601,9 @@ resource "google_bigquery_dataset" "test" {
     kms_key_name = "%s"
   }
 
-  project = google_project_iam_member.kms-project-binding.project
+  depends_on = [google_kms_crypto_key_iam_member.kms-member]
 }
-`, pid, datasetID, kmsKey)
+`, pid, kmsKey, datasetID, kmsKey)
 }
 
 func testAccBigQueryDatasetStorageBillingModel(datasetID string) string {
