@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `resource_manager_tags` and `disk.resource_manager_tags` for `google_compute_instance_template`
+```
+```release-note:enhancement
+compute: added `resource_manager_tags` and `disk.resource_manager_tags` for `google_compute_region_instance_template`
+```

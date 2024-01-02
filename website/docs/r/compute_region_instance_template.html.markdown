@@ -355,6 +355,8 @@ The following arguments are supported:
 * `region` - (Optional) The Region in which the resource belongs.
     If region is not provided, the provider region is used.
 
+* `resource_manager_tags` - (Optional) A set of key/value resource manager tag pairs to bind to the instance. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
+
 * `resource_policies` (Optional) -- A list of self_links of resource policies to attach to the instance. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.
 
 * `reservation_affinity` - (Optional) Specifies the reservations that this instance can consume from.
@@ -400,6 +402,8 @@ The following arguments are supported:
     sets the number of I/O operations per second that the disk can handle.
     Values must be between 10,000 and 120,000. For more details, see the
     [Extreme persistent disk documentation](https://cloud.google.com/compute/docs/disks/extreme-persistent-disk).
+
+* `resource_manager_tags` - (Optional) A set of key/value resource manager tag pairs to bind to this disk. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456.
 
 * `source_image` - (Optional) The image from which to
     initialize this disk. This can be one of: the image's `self_link`,
