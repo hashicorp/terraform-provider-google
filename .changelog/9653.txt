@@ -1,0 +1,3 @@
+```release-note:enhancement
+google_composer_environment: added support for creation and update for config.software_config.web_server_plugins_mode and config.workloads_config. dag_processor fields.
+```
