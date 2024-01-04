@@ -195,6 +195,18 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
         effect = "NO_SCHEDULE"
     }
     labels = {}
+    vsphere_config {
+      datastore = "test-datastore"
+      tags {
+        category = "test-category-1"
+        tag = "tag-1"
+      }
+      tags {
+        category = "test-category-2"
+        tag = "tag-2"
+      }
+      host_groups = ["host1", "host2"]
+    }
     enable_load_balancer = true
   }
   node_pool_autoscaling {

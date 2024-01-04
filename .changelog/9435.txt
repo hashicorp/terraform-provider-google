@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkeonprem: set `vsphere_config` field as mutable and add `host_groups` subfield in `google_gkeonprem_vmware_node_pool` resource 
+```
