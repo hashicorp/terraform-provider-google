@@ -267,6 +267,37 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_descriptionUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_description(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "description", "old_desc"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_descriptionUpdate(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "description", "new_desc"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_IP(t *testing.T) {
 	t.Parallel()
 
@@ -3461,6 +3492,58 @@ resource "google_compute_instance" "foobar" {
 
   metadata = {
     foo = "bar"
+  }
+}
+`, instance)
+}
+
+func testAccComputeInstance_description(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+  description  = "old_desc"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, instance)
+}
+
+func testAccComputeInstance_descriptionUpdate(instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+  description  = "new_desc"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
   }
 }
 `, instance)
