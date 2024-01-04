@@ -368,6 +368,25 @@ func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
 	})
 }
 
+func TestAccRegionInstanceGroupManager_APISideListRecordering(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"name": fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRegionInstanceGroupManagerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegionInstanceGroupManager_statefulUnordered(context),
+			},
+		},
+	})
+}
+
 func testAccCheckRegionInstanceGroupManagerDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1549,4 +1568,91 @@ resource "google_compute_region_instance_group_manager" "igm-basic" {
   }
 }
 `, network, template, igm)
+}
+
+func testAccRegionInstanceGroupManager_statefulUnordered(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "igm-basic" {
+  name = "%{name}"
+}
+
+resource "google_compute_instance_template" "igm-basic" {
+  name           = "%{name}"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+    device_name  = "stateful-disk"
+  }
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    device_name  = "stateful-disk2"
+  }
+  network_interface {
+    network = "default"
+  }
+  network_interface {
+    network = google_compute_network.igm-basic.self_link
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "igm-basic" {
+  description = "Terraform test instance group manager"
+  name        = "%{name}"
+
+  version {
+    instance_template = google_compute_instance_template.igm-basic.self_link
+    name              = "primary"
+  }
+
+  base_instance_name        = "tf-test-igm-basic"
+  region                    = "us-central1"
+  target_size               = 2
+  update_policy {
+    instance_redistribution_type = "NONE"
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "REPLACE"
+    max_surge_fixed              = 0
+    max_unavailable_fixed        = 6
+  }
+  stateful_disk {
+    device_name = "stateful-disk"
+    delete_rule = "NEVER"
+  }
+
+  // stateful_internal_ip blocks are intentionally out of lexical order (for interface_name)
+
+  stateful_internal_ip {
+    interface_name = "nic1"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+
+  stateful_internal_ip {
+    interface_name = "nic0"
+    delete_rule = "ON_PERMANENT_INSTANCE_DELETION"
+  }
+
+  // stateful_external_ip blocks are intentionally out of lexical order (for interface_name)
+
+  stateful_external_ip {
+    interface_name = "nic1"
+    delete_rule = "NEVER"
+  }
+
+  stateful_external_ip {
+    interface_name = "nic0"
+    delete_rule = "NEVER"
+  }
+
+}
+`, context)
 }
