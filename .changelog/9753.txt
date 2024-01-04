@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed issue where retry timeout wasn't being utilized during create of `google_storage_bucket`
+```
