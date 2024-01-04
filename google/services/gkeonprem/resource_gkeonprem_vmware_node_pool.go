@@ -141,29 +141,38 @@ and conflicts should be avoided.`,
 						},
 						"vsphere_config": {
 							Type:        schema.TypeList,
-							Computed:    true,
+							Optional:    true,
 							Description: `Specifies the vSphere config for node pool.`,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"datastore": {
 										Type:        schema.TypeString,
-										Computed:    true,
+										Optional:    true,
 										Description: `The name of the vCenter datastore. Inherited from the user cluster.`,
+									},
+									"host_groups": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Vsphere host groups to apply to all VMs in the node pool`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 									"tags": {
 										Type:        schema.TypeList,
-										Computed:    true,
+										Optional:    true,
 										Description: `Tags to apply to VMs.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"category": {
 													Type:        schema.TypeString,
-													Computed:    true,
+													Optional:    true,
 													Description: `The Vsphere tag category.`,
 												},
 												"tag": {
 													Type:        schema.TypeString,
-													Computed:    true,
+													Optional:    true,
 													Description: `The Vsphere tag name.`,
 												},
 											},
@@ -932,6 +941,8 @@ func flattenGkeonpremVmwareNodePoolConfigVsphereConfig(v interface{}, d *schema.
 		flattenGkeonpremVmwareNodePoolConfigVsphereConfigDatastore(original["datastore"], d, config)
 	transformed["tags"] =
 		flattenGkeonpremVmwareNodePoolConfigVsphereConfigTags(original["tags"], d, config)
+	transformed["host_groups"] =
+		flattenGkeonpremVmwareNodePoolConfigVsphereConfigHostGroups(original["hostGroups"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGkeonpremVmwareNodePoolConfigVsphereConfigDatastore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -962,6 +973,10 @@ func flattenGkeonpremVmwareNodePoolConfigVsphereConfigTagsCategory(v interface{}
 }
 
 func flattenGkeonpremVmwareNodePoolConfigVsphereConfigTagsTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareNodePoolConfigVsphereConfigHostGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1292,6 +1307,13 @@ func expandGkeonpremVmwareNodePoolConfigVsphereConfig(v interface{}, d tpgresour
 		transformed["tags"] = transformedTags
 	}
 
+	transformedHostGroups, err := expandGkeonpremVmwareNodePoolConfigVsphereConfigHostGroups(original["host_groups"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHostGroups); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hostGroups"] = transformedHostGroups
+	}
+
 	return transformed, nil
 }
 
@@ -1333,6 +1355,10 @@ func expandGkeonpremVmwareNodePoolConfigVsphereConfigTagsCategory(v interface{},
 }
 
 func expandGkeonpremVmwareNodePoolConfigVsphereConfigTagsTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareNodePoolConfigVsphereConfigHostGroups(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -106,6 +106,18 @@ func testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdateStart(context map[string
             value = "value"
         }
         labels = {}
+        vsphere_config {
+          datastore = "test-datastore"
+          tags {
+            category = "test-category-1"
+            tag = "tag-1"
+          }
+          tags {
+            category = "test-category-2"
+            tag = "tag-2"
+          }
+          host_groups = ["host1", "host2"]
+        }
         enable_load_balancer = true
     }
     node_pool_autoscaling {
@@ -179,6 +191,18 @@ func testAccGkeonpremVmwareNodePool_vmwareNodePoolUpdate(context map[string]inte
             value = "value-updated"
         }
         labels = {}
+        vsphere_config {
+          datastore = "test-datastore-update"
+          tags {
+            category = "test-category-3"
+            tag = "tag-3"
+          }
+          tags {
+            category = "test-category-4"
+            tag = "tag-4"
+          }
+          host_groups = ["host3", "host4"]
+        }
         enable_load_balancer = false
     }
     node_pool_autoscaling {

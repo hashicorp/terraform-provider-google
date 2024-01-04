@@ -140,6 +140,18 @@ resource "google_gkeonprem_vmware_node_pool" "nodepool-full" {
         effect = "NO_SCHEDULE"
     }
     labels = {}
+    vsphere_config {
+      datastore = "test-datastore"
+      tags {
+        category = "test-category-1"
+        tag = "tag-1"
+      }
+      tags {
+        category = "test-category-2"
+        tag = "tag-2"
+      }
+      host_groups = ["host1", "host2"]
+    }
     enable_load_balancer = true
   }
   node_pool_autoscaling {
@@ -214,7 +226,7 @@ The following arguments are supported:
   and conflicts should be avoided.
 
 * `vsphere_config` -
-  (Output)
+  (Optional)
   Specifies the vSphere config for node pool.
   Structure is [documented below](#nested_vsphere_config).
 
@@ -239,26 +251,30 @@ The following arguments are supported:
   Available taint effects.
   Possible values are: `EFFECT_UNSPECIFIED`, `NO_SCHEDULE`, `PREFER_NO_SCHEDULE`, `NO_EXECUTE`.
 
-<a name="nested_vsphere_config"></a>The `vsphere_config` block contains:
+<a name="nested_vsphere_config"></a>The `vsphere_config` block supports:
 
 * `datastore` -
-  (Output)
+  (Optional)
   The name of the vCenter datastore. Inherited from the user cluster.
 
 * `tags` -
-  (Output)
+  (Optional)
   Tags to apply to VMs.
   Structure is [documented below](#nested_tags).
 
+* `host_groups` -
+  (Optional)
+  Vsphere host groups to apply to all VMs in the node pool
 
-<a name="nested_tags"></a>The `tags` block contains:
+
+<a name="nested_tags"></a>The `tags` block supports:
 
 * `category` -
-  (Output)
+  (Optional)
   The Vsphere tag category.
 
 * `tag` -
-  (Output)
+  (Optional)
   The Vsphere tag name.
 
 - - -
