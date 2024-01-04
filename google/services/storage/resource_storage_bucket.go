@@ -624,6 +624,7 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 			res, err = insertCall.Do()
 			return err
 		},
+		Timeout: d.Timeout(schema.TimeoutCreate),
 	})
 
 	if err != nil {
