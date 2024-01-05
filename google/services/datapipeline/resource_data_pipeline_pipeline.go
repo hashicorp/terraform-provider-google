@@ -126,6 +126,7 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 			},
 			"scheduler_service_account_email": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Optional. A service account email to be used with the Cloud Scheduler job. If not specified, the default compute engine service account will be used.`,
