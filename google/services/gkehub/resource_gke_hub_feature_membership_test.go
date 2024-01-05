@@ -953,6 +953,112 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 `, context)
 }
 
+func TestAccGKEHubFeatureMembership_gkehubFeaturePolicyController(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeatureMembership_policycontrollerStart(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGkeHubFeatureMembershipPresent(t, fmt.Sprintf("tf-test-gkehub%s", context["random_suffix"]), "global", "policycontroller", fmt.Sprintf("tf-test1%s", context["random_suffix"])),
+				),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature_membership.feature_member",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeatureMembership_policycontrollerUpdateDefaultFields(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGkeHubFeatureMembershipPresent(t, fmt.Sprintf("tf-test-gkehub%s", context["random_suffix"]), "global", "policycontroller", fmt.Sprintf("tf-test1%s", context["random_suffix"])),
+				),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature_membership.feature_member",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeatureMembership_policycontrollerStart(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetup(context) + gkeHubClusterMembershipSetup(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  project = google_project.project.project_id
+  name = "policycontroller"
+  location = "global"
+  depends_on = [google_project_service.container, google_project_service.gkehub, google_project_service.poco]
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  project = google_project.project.project_id
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec = "INSTALL_SPEC_ENABLED"
+      exemptable_namespaces = ["foo"]
+      audit_interval_seconds = 30
+      referential_rules_enabled = true
+    }
+  }
+}
+`, context)
+}
+
+func testAccGKEHubFeatureMembership_policycontrollerUpdateDefaultFields(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetup(context) + gkeHubClusterMembershipSetup(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  project = google_project.project.project_id
+  name = "policycontroller"
+  location = "global"
+  depends_on = [google_project_service.container, google_project_service.gkehub, google_project_service.poco]
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  project = google_project.project.project_id
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec = "INSTALL_SPEC_SUSPENDED"
+      constraint_violation_limit = 50
+      referential_rules_enabled = true
+      log_denies_enabled = true
+      mutation_enabled = true
+      monitoring {
+        backends = [
+          "PROMETHEUS"
+        ]
+      }
+      policy_content {
+        template_library {
+          installation = "NOT_INSTALLED"
+        }
+      }
+    }
+    version = "1.17.0"
+  }
+}
+`, context)
+}
+
 func gkeHubClusterMembershipSetup(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
@@ -1115,6 +1221,11 @@ resource "google_project" "project" {
   billing_account = "%{billing_account}"
 }
 
+resource "google_project_service" "anthos" {
+  project = google_project.project.project_id
+  service = "anthos.googleapis.com"
+}
+
 resource "google_project_service" "mesh" {
   project = google_project.project.project_id
   service = "meshconfig.googleapis.com"
@@ -1128,6 +1239,11 @@ resource "google_project_service" "mci" {
 resource "google_project_service" "acm" {
   project = google_project.project.project_id
   service = "anthosconfigmanagement.googleapis.com"
+}
+
+resource "google_project_service" "poco" {
+  project = google_project.project.project_id
+  service = "anthospolicycontroller.googleapis.com"
 }
 
 resource "google_project_service" "mcsd" {

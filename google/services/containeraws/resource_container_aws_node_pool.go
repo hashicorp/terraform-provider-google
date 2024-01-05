@@ -141,6 +141,15 @@ func ResourceContainerAwsNodePool() *schema.Resource {
 				Description:      "The project for the resource",
 			},
 
+			"update_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. Update settings control the speed and disruption of the node pool update.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolUpdateSettingsSchema(),
+			},
+
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
@@ -450,6 +459,41 @@ func ContainerAwsNodePoolManagementSchema() *schema.Resource {
 	}
 }
 
+func ContainerAwsNodePoolUpdateSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"surge_settings": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. Settings for surge update.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolUpdateSettingsSurgeSettingsSchema(),
+			},
+		},
+	}
+}
+
+func ContainerAwsNodePoolUpdateSettingsSurgeSettingsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"max_surge": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. The maximum number of nodes that can be created beyond the current size of the node pool during the update process.",
+			},
+
+			"max_unavailable": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Optional:    true,
+				Description: "Optional. The maximum number of nodes that can be simultaneously unavailable during the update process. A node is considered unavailable if its status is not Ready.",
+			},
+		},
+	}
+}
+
 func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	project, err := tpgresource.GetProject(d, config)
@@ -469,6 +513,7 @@ func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
+		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
 	}
 
 	id, err := obj.ID()
@@ -527,6 +572,7 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
+		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -584,6 +630,9 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("project", res.Project); err != nil {
 		return fmt.Errorf("error setting project in state: %s", err)
 	}
+	if err = d.Set("update_settings", flattenContainerAwsNodePoolUpdateSettings(res.UpdateSettings)); err != nil {
+		return fmt.Errorf("error setting update_settings in state: %s", err)
+	}
 	if err = d.Set("annotations", flattenContainerAwsNodePoolAnnotations(res.Annotations, d)); err != nil {
 		return fmt.Errorf("error setting annotations in state: %s", err)
 	}
@@ -627,6 +676,7 @@ func resourceContainerAwsNodePoolUpdate(d *schema.ResourceData, meta interface{}
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
+		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -680,6 +730,7 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
+		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
 	}
 
 	log.Printf("[DEBUG] Deleting NodePool %q", d.Id())
@@ -1049,6 +1100,60 @@ func flattenContainerAwsNodePoolManagement(obj *containeraws.NodePoolManagement)
 	}
 	transformed := map[string]interface{}{
 		"auto_repair": obj.AutoRepair,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolUpdateSettings(o interface{}) *containeraws.NodePoolUpdateSettings {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolUpdateSettings{
+		SurgeSettings: expandContainerAwsNodePoolUpdateSettingsSurgeSettings(obj["surge_settings"]),
+	}
+}
+
+func flattenContainerAwsNodePoolUpdateSettings(obj *containeraws.NodePoolUpdateSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"surge_settings": flattenContainerAwsNodePoolUpdateSettingsSurgeSettings(obj.SurgeSettings),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolUpdateSettingsSurgeSettings(o interface{}) *containeraws.NodePoolUpdateSettingsSurgeSettings {
+	if o == nil {
+		return nil
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return nil
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolUpdateSettingsSurgeSettings{
+		MaxSurge:       dcl.Int64OrNil(int64(obj["max_surge"].(int))),
+		MaxUnavailable: dcl.Int64OrNil(int64(obj["max_unavailable"].(int))),
+	}
+}
+
+func flattenContainerAwsNodePoolUpdateSettingsSurgeSettings(obj *containeraws.NodePoolUpdateSettingsSurgeSettings) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"max_surge":       obj.MaxSurge,
+		"max_unavailable": obj.MaxUnavailable,
 	}
 
 	return []interface{}{transformed}

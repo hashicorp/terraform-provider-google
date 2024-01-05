@@ -327,6 +327,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `{{parent}}/policies/{{name}}`
 
+* `etag` -
+  Optional. An opaque tag indicating the current state of the policy, used for concurrency control. This 'etag' is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
+  
 ## Timeouts
 
 This resource provides the following

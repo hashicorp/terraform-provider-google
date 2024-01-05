@@ -643,7 +643,7 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   
 * `update_settings` -
   (Optional)
-  (Beta only) Optional. Update settings control the speed and disruption of the node pool update.
+  Optional. Update settings control the speed and disruption of the node pool update.
   
 
 

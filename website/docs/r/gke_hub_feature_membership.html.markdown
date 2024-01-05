@@ -184,6 +184,87 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 }
 ```
 
+## Example Usage - Policy Controller with minimal configuration
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec = "INSTALL_SPEC_ENABLED"
+    }
+  }
+}
+```
+
+## Example Usage - Policy Controller with custom configurations
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "policycontroller"
+  location = "global"
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec = "INSTALL_SPEC_SUSPENDED"
+      policy_content {
+        template_library {
+          installation = "NOT_INSTALLED"
+        }
+      }
+      constraint_violation_limit = 50
+      audit_interval_seconds = 120
+      referential_rules_enabled = true
+      log_denies_enabled = true
+      mutation_enabled = true
+    }
+    version = "1.17.0"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -197,6 +278,10 @@ The following arguments are supported:
 * `mesh` -
   (Optional)
   Service mesh specific spec. Structure is [documented below](#nested_mesh).
+
+* `policycontroller` -
+  (Optional)
+  Policy Controller-specific spec. Structure is [documented below](#nested_policycontroller).
   
 * `feature` -
   (Optional)
@@ -375,6 +460,71 @@ The following arguments are supported:
 * `management` -
   (Optional)
   Whether to automatically manage Service Mesh. Can either be `MANAGEMENT_AUTOMATIC` or `MANAGEMENT_MANUAL`.
+
+<a name="nested_policycontroller"></a>The `policycontroller` block supports:
+
+* `version` -
+  (Optional)
+  Version of Policy Controller to install. Defaults to the latest version.
+
+* `policy_controller_hub_config` -
+  Policy Controller configuration for the cluster. Structure is [documented below](#nested_policy_controller_hub_config).
+
+<a name="nested_policy_controller_hub_config"></a>The `policy_controller_hub_config` block supports:
+
+* `install_spec` -
+  (Optional)
+  Configures the mode of the Policy Controller installation. Must be one of `INSTALL_SPEC_NOT_INSTALLED`, `INSTALL_SPEC_ENABLED`, `INSTALL_SPEC_SUSPENDED` or `INSTALL_SPEC_DETACHED`.
+
+* `exemptable_namespaces` -
+  (Optional)
+  The set of namespaces that are excluded from Policy Controller checks. Namespaces do not need to currently exist on the cluster.
+
+* `referential_rules_enabled` -
+  (Optional)
+  Enables the ability to use Constraint Templates that reference to objects other than the object currently being evaluated.
+
+* `log_denies_enabled` -
+  (Optional)
+  Logs all denies and dry run failures.
+
+* `mutation_enabled` -
+  (Optional)
+  Enables mutation in policy controller. If true, mutation CRDs, webhook, and controller deployment will be deployed to the cluster.
+
+* `monitoring` -
+  (Optional)
+  Specifies the backends Policy Controller should export metrics to. Structure is [documented below](#nested_monitoring).
+
+* `audit_interval_seconds` -
+  (Optional)
+  Sets the interval for Policy Controller Audit Scans (in seconds). When set to 0, this disables audit functionality altogether.
+
+* `constraint_violation_limit` -
+  (Optional)
+  The maximum number of audit violations to be stored in a constraint. If not set, the  default of 20 will be used.
+
+* `policy_content` -
+  (Optional)
+  Specifies the desired policy content on the cluster. Structure is [documented below](#nested_policy_content).
+
+<a name="nested_monitoring"></a>The `monitoring` block supports:
+
+* `backends`
+  (Optional)
+  Specifies the list of backends Policy Controller will export to. Must be one of `CLOUD_MONITORING` or `PROMETHEUS`. Defaults to [`CLOUD_MONITORING`, `PROMETHEUS`]. Specifying an empty value `[]` disables metrics export.
+
+<a name="nested_policy_content"></a>The `policy_content` block supports:
+
+* `template_library`
+  (Optional)
+  Configures the installation of the Template Library. Structure is [documented below](#nested_template_library).
+
+<a name="nested_template_library"></a>The `template_library` block supports:
+
+* `installation`
+  (Optional)
+  Configures the manner in which the template library is installed on the cluster. Must be one of `ALL`, `NOT_INSTALLED` or `INSTALLATION_UNSPECIFIED`. Defaults to `ALL`.
 
 ## Attributes Reference
 
