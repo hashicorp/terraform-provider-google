@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_vmwareengine_external_access_rule`
+```
+```release-note:new-datasource
+`google_vmwareengine_external_access_rule`
+```
