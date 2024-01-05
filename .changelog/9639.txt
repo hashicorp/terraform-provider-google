@@ -1,0 +1,3 @@
+```release-note:bug
+datapipeline: fix a bug on `scheduler_service_account_email` where it causes a perma-diff and recreates the resource if it's not explicitly specified in `google_data_pipeline_pipeline` resource 
+```
