@@ -433,6 +433,7 @@ func testAccCheckOrgPolicyPolicyDestroyProducer(t *testing.T) func(s *terraform.
 			obj := &orgpolicy.Policy{
 				Name:   dcl.String(rs.Primary.Attributes["name"]),
 				Parent: dcl.String(rs.Primary.Attributes["parent"]),
+				Etag:   dcl.StringOrNil(rs.Primary.Attributes["etag"]),
 			}
 
 			client := transport_tpg.NewDCLOrgPolicyClient(config, config.UserAgent, billingProject, 0)

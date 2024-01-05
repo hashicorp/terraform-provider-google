@@ -82,6 +82,12 @@ func ResourceOrgPolicyPolicy() *schema.Resource {
 				MaxItems:    1,
 				Elem:        OrgPolicyPolicySpecSchema(),
 			},
+
+			"etag": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Optional. An opaque tag indicating the current state of the policy, used for concurrency control. This 'etag' is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.",
+			},
 		},
 	}
 }
@@ -430,6 +436,9 @@ func resourceOrgPolicyPolicyRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if err = d.Set("spec", flattenOrgPolicyPolicySpec(res.Spec)); err != nil {
 		return fmt.Errorf("error setting spec in state: %s", err)
+	}
+	if err = d.Set("etag", res.Etag); err != nil {
+		return fmt.Errorf("error setting etag in state: %s", err)
 	}
 
 	return nil
