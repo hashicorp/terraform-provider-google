@@ -2172,7 +2172,7 @@ data "google_compute_image" "my_image" {
 
 resource "google_compute_instance_template" "foobar" {
   name           = "tf-test-instance-template-%s"
-  machine_type   = "n2-standard-16"
+  machine_type   = "n2-standard-64"
   can_ip_forward = false
   disk {
     source_image = data.google_compute_image.my_image.name
