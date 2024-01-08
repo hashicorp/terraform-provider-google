@@ -779,7 +779,8 @@ is set to true. Defaults to ZONAL.`,
 				Optional: true,
 				MaxItems: 1,
 				// Returned from API on all replicas
-				Computed: true,
+				Computed:  true,
+				Sensitive: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ca_certificate": {
@@ -865,8 +866,9 @@ is set to true. Defaults to ZONAL.`,
 				Description: `The configuration for replication.`,
 			},
 			"server_ca_cert": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:      schema.TypeList,
+				Computed:  true,
+				Sensitive: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cert": {
