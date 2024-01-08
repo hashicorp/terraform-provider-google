@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iam/v1"
 )
 
@@ -84,6 +85,12 @@ func ResourceGoogleServiceAccount() *schema.Resource {
 				Computed:    true,
 				Description: `The Identity of the service account in the form 'serviceAccount:{email}'. This value is often used to refer to the service account in order to grant IAM permissions.`,
 			},
+			"create_ignore_already_exists": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    false,
+				Description: `If set to true, skip service account creation if a service account with the same email already exists.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -116,7 +123,15 @@ func resourceGoogleServiceAccountCreate(d *schema.ResourceData, meta interface{}
 
 	sa, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Create("projects/"+project, r).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating service account: %s", err)
+		gerr, ok := err.(*googleapi.Error)
+		alreadyExists := ok && gerr.Code == 409 && d.Get("create_ignore_already_exists").(bool)
+		if alreadyExists {
+			sa = &iam.ServiceAccount{
+				Name: fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, aid, project),
+			}
+		} else {
+			return fmt.Errorf("Error creating service account: %s", err)
+		}
 	}
 
 	d.SetId(sa.Name)
@@ -218,7 +233,11 @@ func resourceGoogleServiceAccountDelete(d *schema.ResourceData, meta interface{}
 	name := d.Id()
 	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Delete(name).Do()
 	if err != nil {
-		return err
+		gerr, ok := err.(*googleapi.Error)
+		notFound := ok && gerr.Code == 404
+		if !notFound {
+			return fmt.Errorf("Error deleting service account: %s", err)
+		}
 	}
 	d.SetId("")
 	return nil

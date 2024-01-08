@@ -51,6 +51,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project that the service account will be created in.
     Defaults to the provider project configuration.
 
+* `create_ignore_already_exists` - (Optional) If set to true, skip service account creation if a service account with the same email already exists.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
