@@ -200,6 +200,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_container_registry_repository":                containeranalysis.DataSourceGoogleContainerRepo(),
 	"google_dataproc_metastore_service":                   dataprocmetastore.DataSourceDataprocMetastoreService(),
 	"google_datastream_static_ips":                        datastream.DataSourceGoogleDatastreamStaticIps(),
+	"google_filestore_instance":                           filestore.DataSourceGoogleFilestoreInstance(),
 	"google_iam_policy":                                   resourcemanager.DataSourceGoogleIamPolicy(),
 	"google_iam_role":                                     resourcemanager.DataSourceGoogleIamRole(),
 	"google_iam_testable_permissions":                     resourcemanager.DataSourceGoogleIamTestablePermissions(),
