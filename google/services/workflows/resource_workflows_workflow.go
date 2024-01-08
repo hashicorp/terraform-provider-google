@@ -118,7 +118,7 @@ Modifying this field for an existing workflow results in a new workflow revision
 			"user_env_vars": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				Description: `User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 40KiB. Keys cannot be empty strings and cannot start with “GOOGLE” or “WORKFLOWS".`,
+				Description: `User-defined environment variables associated with this workflow revision. This map has a maximum length of 20. Each string can take up to 4KiB. Keys cannot be empty strings and cannot start with “GOOGLE” or “WORKFLOWS".`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"create_time": {
