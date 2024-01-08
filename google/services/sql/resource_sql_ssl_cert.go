@@ -58,6 +58,7 @@ func ResourceSqlSslCert() *schema.Resource {
 			"cert": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The actual certificate data for this client certificate.`,
 			},
 
@@ -89,6 +90,7 @@ func ResourceSqlSslCert() *schema.Resource {
 			"server_ca_cert": {
 				Type:        schema.TypeString,
 				Computed:    true,
+				Sensitive:   true,
 				Description: `The CA cert of the server this client cert was generated from.`,
 			},
 
