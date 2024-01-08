@@ -223,7 +223,6 @@ In addition to the arguments listed above, the following computed attributes are
   Hash of the shared secret.
 
 * `label_fingerprint` -
-  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   The fingerprint used for optimistic locking of this resource.  Used
   internally during updates.
 

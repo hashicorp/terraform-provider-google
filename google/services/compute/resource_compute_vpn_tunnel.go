@@ -316,6 +316,12 @@ This field must reference a 'google_compute_ha_vpn_gateway' resource.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"label_fingerprint": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The fingerprint used for optimistic locking of this resource.  Used
+internally during updates.`,
+			},
 			"shared_secret_hash": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -439,6 +445,12 @@ func resourceComputeVpnTunnelCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("remote_traffic_selector"); !tpgresource.IsEmptyValue(reflect.ValueOf(remoteTrafficSelectorProp)) && (ok || !reflect.DeepEqual(v, remoteTrafficSelectorProp)) {
 		obj["remoteTrafficSelector"] = remoteTrafficSelectorProp
+	}
+	labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	labelsProp, err := expandComputeVpnTunnelEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -663,6 +675,9 @@ func resourceComputeVpnTunnelRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("labels", flattenComputeVpnTunnelLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
+	if err := d.Set("label_fingerprint", flattenComputeVpnTunnelLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VpnTunnel: %s", err)
+	}
 	if err := d.Set("detailed_status", flattenComputeVpnTunnelDetailedStatus(res["detailedStatus"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VpnTunnel: %s", err)
 	}
@@ -699,9 +714,15 @@ func resourceComputeVpnTunnelUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
-	if d.HasChange("effective_labels") {
+	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
 		obj := make(map[string]interface{})
 
+		labelFingerprintProp, err := expandComputeVpnTunnelLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
 		labelsProp, err := expandComputeVpnTunnelEffectiveLabels(d.Get("effective_labels"), d, config)
 		if err != nil {
 			return err
@@ -960,6 +981,10 @@ func flattenComputeVpnTunnelLabels(v interface{}, d *schema.ResourceData, config
 	return transformed
 }
 
+func flattenComputeVpnTunnelLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeVpnTunnelDetailedStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1074,6 +1099,10 @@ func expandComputeVpnTunnelLocalTrafficSelector(v interface{}, d tpgresource.Ter
 
 func expandComputeVpnTunnelRemoteTrafficSelector(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
+	return v, nil
+}
+
+func expandComputeVpnTunnelLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
