@@ -1,4 +1,44 @@
-## 5.11.0 (Unreleased)
+## 5.12.0 (Unreleased)
+
+## 5.11.0 (Jan 08, 2024)
+
+NOTES:
+* compute: changed underlying actuation engine for `google_network_firewall_policy` and `google_region_network_firewall_policy`, there should be no user-facing impact ([#16837](https://github.com/hashicorp/terraform-provider-google/pull/16837))
+
+DEPRECATIONS:
+* gkehub2: deprecated field `configmanagement.config_sync.oci.version` in `google_gke_hub_feature` resource ([#16818](https://github.com/hashicorp/terraform-provider-google/pull/16818))
+
+FEATURES:
+* **New Data Source:** `google_compute_reservation` ([#16860](https://github.com/hashicorp/terraform-provider-google/pull/16860))
+* **New Resource:** `google_integration_connectors_endpoint_attachment` ([#16822](https://github.com/hashicorp/terraform-provider-google/pull/16822))
+* **New Resource:** `google_logging_folder_settings` ([#16800](https://github.com/hashicorp/terraform-provider-google/pull/16800))
+* **New Resource:** `google_logging_organization_settings` ([#16800](https://github.com/hashicorp/terraform-provider-google/pull/16800))
+* **New Resource:** `google_netapp_active_directory` ([#16844](https://github.com/hashicorp/terraform-provider-google/pull/16844))
+* **New Resource:** `google_vertex_ai_feature_online_store` ([#16840](https://github.com/hashicorp/terraform-provider-google/pull/16840))
+* **New Resource:** `google_vertexai_feature_group` ([#16842](https://github.com/hashicorp/terraform-provider-google/pull/16842))
+* **New Resource:** `google_netapp_backup_vault` ([#16876](https://github.com/hashicorp/terraform-provider-google/pull/16876))
+
+IMPROVEMENTS:
+* bigqueryanalyticshub: added `restricted_export_config` field to `google_bigquery_analytics_hub_listing ` resource ([#16850](https://github.com/hashicorp/terraform-provider-google/pull/16850))
+* composer: added support for `composer_internal_ipv4_cidr_block` field to `google_composer_environment` ([#16815](https://github.com/hashicorp/terraform-provider-google/pull/16815))
+* compute: added `provisioned_iops`and `provisioned_throughput` fields under `boot_disk.initialize_params` to `google_compute_instance` resource ([#16871](https://github.com/hashicorp/terraform-provider-google/pull/16871))
+* compute: added `resource_manager_tags` and `disk.resource_manager_tags` for `google_compute_instance_template` ([#16889](https://github.com/hashicorp/terraform-provider-google/pull/16889))
+* compute: added `resource_manager_tags` and `disk.resource_manager_tags` for `google_compute_region_instance_template` ([#16889](https://github.com/hashicorp/terraform-provider-google/pull/16889))
+* dataproc: added `auxiliary_node_groups` field to `google_dataproc_cluster` resource ([#16798](https://github.com/hashicorp/terraform-provider-google/pull/16798))
+* edgecontainer: increased default timeout on `google_edgecontainer_cluster`, `google_edgecontainer_node_pool` to 480m from 60m ([#16886](https://github.com/hashicorp/terraform-provider-google/pull/16886))
+* gkehub2: added field `version` under `configmanagement` in `google_gke_hub_feature` resource ([#16818](https://github.com/hashicorp/terraform-provider-google/pull/16818))
+* kms: added output-only field `primary` to `google_kms_crypto_key` ([#16845](https://github.com/hashicorp/terraform-provider-google/pull/16845))
+* metastore: added `endpoint_protocol`, `metadata_integration`, and `auxiliary_versions` to `google_dataproc_metastore_service` ([#16823](https://github.com/hashicorp/terraform-provider-google/pull/16823))
+* sql: added support for IAM GROUP authentication in the `type` field of `google_sql_user` ([#16853](https://github.com/hashicorp/terraform-provider-google/pull/16853))
+* storagetransfer: made `name` field settable on `google_storage_transfer_job` ([#16838](https://github.com/hashicorp/terraform-provider-google/pull/16838))
+
+BUG FIXES:
+* container: added check that `node_version` and `min_master_version` are the same on create of `google_container_cluster`, when running terraform plan ([#16817](https://github.com/hashicorp/terraform-provider-google/pull/16817))
+* container: fixed a bug where disabling PDCSI addon `gce_persistent_disk_csi_driver_config` during creation will result in permadiff in `google_container_cluster` resource ([#16794](https://github.com/hashicorp/terraform-provider-google/pull/16794))
+* container: fixed an issue in which migrating from the deprecated Binauthz enablement bool to the new evaluation mode enum inadvertently caused two cluster update events, instead of none. ([#16851](https://github.com/hashicorp/terraform-provider-google/pull/16851))
+* containerattached: fixed crash when updating a cluster to remove `admin_users` or `admin_groups` in `google_container_attached_cluster` ([#16852](https://github.com/hashicorp/terraform-provider-google/pull/16852))
+* dialogflowcx: fixed a permadiff in the `git_integration_settings` field of `google_diagflow_cx_agent` ([#16803](https://github.com/hashicorp/terraform-provider-google/pull/16803))
+* monitoring: fixed the index out of range crash in `dashboard_json` for the resource `google_monitoring_dashboard` ([#16792](https://github.com/hashicorp/terraform-provider-google/pull/16792))
 
 ## 5.10.0 (Dec 18, 2023)
 
