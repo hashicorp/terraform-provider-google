@@ -36,7 +36,7 @@ BUG FIXES:
 * container: fixed an issue in which migrating from the deprecated Binauthz enablement bool to the new evaluation mode enum inadvertently caused two cluster update events, instead of none. ([#16851](https://github.com/hashicorp/terraform-provider-google/pull/16851))
 * containerattached: fixed crash when updating a cluster to remove `admin_users` or `admin_groups` in `google_container_attached_cluster` ([#16852](https://github.com/hashicorp/terraform-provider-google/pull/16852))
 * dialogflowcx: fixed a permadiff in the `git_integration_settings` field of `google_diagflow_cx_agent` ([#16803](https://github.com/hashicorp/terraform-provider-google/pull/16803))
-* monitoring: fixed the index out of range crash in `dashboard_json` perma-diffs for the resource `google_monitoring_dashboard` ([#16792](https://github.com/hashicorp/terraform-provider-google/pull/16792))
+* monitoring: fixed the index out of range crash in `dashboard_json` for the resource `google_monitoring_dashboard` ([#16792](https://github.com/hashicorp/terraform-provider-google/pull/16792))
 
 ## 5.10.0 (Dec 18, 2023)
 
