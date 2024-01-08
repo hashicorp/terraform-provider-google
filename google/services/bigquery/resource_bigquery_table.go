@@ -2129,6 +2129,10 @@ func flattenEncryptionConfiguration(ec *bigquery.EncryptionConfiguration) []map[
 	re := regexp.MustCompile(`(projects/.*/locations/.*/keyRings/.*/cryptoKeys/.*)/cryptoKeyVersions/.*`)
 	paths := re.FindStringSubmatch(ec.KmsKeyName)
 
+	if len(ec.KmsKeyName) == 0 {
+		return nil
+	}
+
 	if len(paths) > 0 {
 		return []map[string]interface{}{
 			{
