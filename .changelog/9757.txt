@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: Fix permadiff of encryption_configuration in resource_bigquery_table when API returns an empty object
+```
