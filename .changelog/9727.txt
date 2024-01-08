@@ -1,0 +1,3 @@
+```release-note:note
+iam: introducde an optional resource argument to Google Cloud IAM Service Account. If `ignore_create_already_exists` is set to true, resource creation would succeed if response error is 409 ALREADY_EXISTS.
+```
