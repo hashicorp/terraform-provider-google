@@ -2,6 +2,7 @@
 
 NOTES:
 * compute: changed underlying actuation engine for `google_network_firewall_policy` and `google_region_network_firewall_policy`, there should be no user-facing impact ([#16837](https://github.com/hashicorp/terraform-provider-google/pull/16837))
+
 DEPRECATIONS:
 * gkehub2: deprecated field `configmanagement.config_sync.oci.version` in `google_gke_hub_feature` resource ([#16818](https://github.com/hashicorp/terraform-provider-google/pull/16818))
 
@@ -25,19 +26,17 @@ IMPROVEMENTS:
 * edgecontainer: increased default timeout on `google_edgecontainer_cluster`, `google_edgecontainer_node_pool` to 480m from 60m ([#16886](https://github.com/hashicorp/terraform-provider-google/pull/16886))
 * gkehub2: added field `version` under `configmanagement` in `google_gke_hub_feature` resource ([#16818](https://github.com/hashicorp/terraform-provider-google/pull/16818))
 * kms: added output-only field `primary` to `google_kms_crypto_key` ([#16845](https://github.com/hashicorp/terraform-provider-google/pull/16845))
-* metastore: added `endpoint_protocol`, `metadata_integration`, and `auxiliary_versions` to google_dataproc_metastore_service ([#16823](https://github.com/hashicorp/terraform-provider-google/pull/16823))
+* metastore: added `endpoint_protocol`, `metadata_integration`, and `auxiliary_versions` to `google_dataproc_metastore_service` ([#16823](https://github.com/hashicorp/terraform-provider-google/pull/16823))
 * sql: added support for IAM GROUP authentication in the `type` field of `google_sql_user` ([#16853](https://github.com/hashicorp/terraform-provider-google/pull/16853))
-* storagetransfer: made `name` field to be optional in resource `google_storage_transfer_job` so it can be provided by the users ([#16838](https://github.com/hashicorp/terraform-provider-google/pull/16838))
-* vertexai: added `force_destroy` field to `google_vertex_ai_feature_online_store` resource ([#16857](https://github.com/hashicorp/terraform-provider-google/pull/16857))
+* storagetransfer: made `name` field settable on `google_storage_transfer_job` ([#16838](https://github.com/hashicorp/terraform-provider-google/pull/16838))
 
 BUG FIXES:
-* container: added check that `node_version` and `min_master_version` are the same on create, when running terraform plan ([#16817](https://github.com/hashicorp/terraform-provider-google/pull/16817))
-* container: fixed a bug where disabling PDCSI addon `gce_persistent_disk_csi_driver_config ` during creation will result in permadiff in `google_container_cluster` resource ([#16794](https://github.com/hashicorp/terraform-provider-google/pull/16794))
+* container: added check that `node_version` and `min_master_version` are the same on create of `google_container_cluster`, when running terraform plan ([#16817](https://github.com/hashicorp/terraform-provider-google/pull/16817))
+* container: fixed a bug where disabling PDCSI addon `gce_persistent_disk_csi_driver_config` during creation will result in permadiff in `google_container_cluster` resource ([#16794](https://github.com/hashicorp/terraform-provider-google/pull/16794))
 * container: fixed an issue in which migrating from the deprecated Binauthz enablement bool to the new evaluation mode enum inadvertently caused two cluster update events, instead of none. ([#16851](https://github.com/hashicorp/terraform-provider-google/pull/16851))
 * containerattached: fixed crash when updating a cluster to remove `admin_users` or `admin_groups` in `google_container_attached_cluster` ([#16852](https://github.com/hashicorp/terraform-provider-google/pull/16852))
 * dialogflowcx: fixed a permadiff in the `git_integration_settings` field of `google_diagflow_cx_agent` ([#16803](https://github.com/hashicorp/terraform-provider-google/pull/16803))
 * monitoring: fixed the index out of range crash in `dashboard_json` perma-diffs for the resource `google_monitoring_dashboard` ([#16792](https://github.com/hashicorp/terraform-provider-google/pull/16792))
-* vertexai: changed `region` field from required to optional in `google_vertex_ai_feature_online_store` resource ([#16857](https://github.com/hashicorp/terraform-provider-google/pull/16857))
 
 ## 5.10.0 (Dec 18, 2023)
 
