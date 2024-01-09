@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed an issue where we would `wait_for_instances` before deleting on `google_*_compute_instance_manager`
+```

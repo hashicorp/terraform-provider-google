@@ -5,7 +5,6 @@ package compute
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -898,21 +897,6 @@ func resourceComputeInstanceGroupManagerUpdate(d *schema.ResourceData, meta inte
 
 func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
-
-	if d.Get("wait_for_instances").(bool) {
-		err := computeIGMWaitForInstanceStatus(d, meta)
-		if err != nil {
-			notFound, reErr := regexp.MatchString(`not found`, err.Error())
-			if reErr != nil {
-				return reErr
-			}
-			if notFound {
-				// manager was not found, we can exit gracefully
-				return nil
-			}
-			return err
-		}
-	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
