@@ -159,6 +159,10 @@ func predictServiceId(_ context.Context, d *schema.ResourceDiff, meta interface{
 	if !d.HasChange("openapi_config") && !d.HasChange("grpc_config") && !d.HasChange("protoc_output_base64") {
 		return nil
 	}
+	if !d.NewValueKnown("openapi_config") || !d.NewValueKnown("grpc_config") || !d.NewValueKnown("protoc_output_base64") {
+		d.SetNewComputed("config_id")
+		return nil
+	}
 	baseDate := time.Now().Format("2006-01-02")
 	oldConfigId := d.Get("config_id").(string)
 	if match, err := regexp.MatchString(`\d\d\d\d-\d\d-\d\dr\d*`, oldConfigId); !match || err != nil {
