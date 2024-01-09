@@ -66,6 +66,7 @@ resource "google_vmwareengine_network" "external-address-nw" {
 resource "google_vmwareengine_private_cloud" "external-address-pc" {
   location    = "%{region}-a"
   name        = "tf-test-sample-external-address-pc%{random_suffix}"
+  type        = "TIME_LIMITED"
   description = "Sample test PC."
   network_config {
     management_cidr       = "192.168.1.0/24"
@@ -76,7 +77,7 @@ resource "google_vmwareengine_private_cloud" "external-address-pc" {
     cluster_id = "tf-test-sample-external-address-cluster%{random_suffix}"
     node_type_configs {
       node_type_id = "standard-72"
-      node_count   = 3
+      node_count   = 1
     }
   }
 }
