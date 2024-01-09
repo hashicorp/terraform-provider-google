@@ -263,6 +263,12 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						t, "google_compute_instance.foobar", &instance)),
 			},
+			{
+				Config: testAccComputeInstance_resourceManagerTagsUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance)),
+			},
 		},
 	})
 }
@@ -3572,8 +3578,6 @@ resource "google_compute_instance" "foobar" {
   name           = "%{instance_name}"
   machine_type   = "e2-medium"
   zone           = "us-central1-a"
-  can_ip_forward = false
-  tags           = ["tag-key", "tag-value"]
 
   boot_disk {
     initialize_params {
@@ -3593,9 +3597,64 @@ resource "google_compute_instance" "foobar" {
   network_interface {
     network = "default"
   }
+}
+`, context)
+}
 
-  metadata = {
-    foo = "bar"
+func testAccComputeInstance_resourceManagerTagsUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_tags_tag_key" "key" {
+  parent = "projects/%{project}"
+  short_name = "foobarbaz%{random_suffix}"
+  description = "For foo/bar resources."
+}
+
+resource "google_tags_tag_value" "value" {
+  parent = "tagKeys/${google_tags_tag_key.key.name}"
+  short_name = "foo%{random_suffix}"
+  description = "For foo resources."
+}
+
+resource "google_tags_tag_key" "key_new" {
+  parent = "projects/%{project}"
+  short_name = "foobarbaznew%{random_suffix}"
+  description = "New key for foo/bar resources."
+}
+
+resource "google_tags_tag_value" "value_new" {
+  parent = "tagKeys/${google_tags_tag_key.key_new.name}"
+  short_name = "foonew%{random_suffix}"
+  description = "New value for foo resources."
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      resource_manager_tags = {
+        "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+      }
+    }
+  }
+
+  params {
+    resource_manager_tags = {
+      "tagKeys/${google_tags_tag_key.key.name}"     = "tagValues/${google_tags_tag_value.value.name}"
+      "tagKeys/${google_tags_tag_key.key_new.name}" = "tagValues/${google_tags_tag_value.value_new.name}"
+    }
+  }
+
+  network_interface {
+    network = "default"
   }
 }
 `, context)

@@ -232,8 +232,8 @@ func ResourceComputeInstance() *schema.Resource {
 									"resource_manager_tags": {
 										Type:         schema.TypeMap,
 										Optional:     true,
-										AtLeastOneOf: initializeParamsKeys,
 										ForceNew:     true,
+										AtLeastOneOf: initializeParamsKeys,
 										Description:  `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 									},
 
@@ -613,10 +613,8 @@ func ResourceComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_manager_tags": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							// This field is intentionally not updatable. The API overrides all existing tags on the field when updated.  See go/gce-tags-terraform-support for details.
-							ForceNew:    true,
+							Type:        schema.TypeMap,
+							Optional:    true,
 							Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 						},
 					},
@@ -1714,6 +1712,40 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		opErr := ComputeOperationWaitTime(config, op, project, "labels to update", userAgent, d.Timeout(schema.TimeoutUpdate))
 		if opErr != nil {
 			return opErr
+		}
+	}
+
+	if d.HasChange("params.0.resource_manager_tags") {
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				instance, err := config.NewComputeClient(userAgent).Instances.Get(project, zone, instance.Name).Do()
+				if err != nil {
+					return fmt.Errorf("Error retrieving instance: %s", err)
+				}
+
+				params, err := expandParams(d)
+				if err != nil {
+					return fmt.Errorf("Error updating params: %s", err)
+				}
+
+				instance.Params = params
+
+				op, err := config.NewComputeClient(userAgent).Instances.Update(project, zone, instance.Name, instance).Do()
+				if err != nil {
+					return fmt.Errorf("Error updating instance: %s", err)
+				}
+
+				opErr := ComputeOperationWaitTime(config, op, project, "resource_manager_tags, updating", userAgent, d.Timeout(schema.TimeoutUpdate))
+				if opErr != nil {
+					return opErr
+				}
+
+				return nil
+			},
+		})
+
+		if err != nil {
+			return err
 		}
 	}
 
