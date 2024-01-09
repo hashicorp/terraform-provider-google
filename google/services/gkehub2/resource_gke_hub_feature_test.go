@@ -448,6 +448,120 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
+func TestAccGKEHubFeature_Clusterupgrade(t *testing.T) {
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_Clusterupgrade(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "update_time"},
+			},
+			{
+				Config: testAccGKEHubFeature_ClusterupgradeUpdate(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"update_time"},
+			},
+		},
+	})
+}
+
+func testAccGKEHubFeature_Clusterupgrade(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "clusterupgrade"
+  location = "global"
+  spec {
+    clusterupgrade {
+      upstream_fleets = []
+      post_conditions {
+        soaking = "60s"
+      }
+    }
+  }
+  depends_on = [google_project_service.gkehub]
+  project = google_project.project.project_id
+}
+
+resource "google_gke_hub_feature" "feature_2" {
+  name = "clusterupgrade"
+  location = "global"
+  spec {
+    clusterupgrade {
+      upstream_fleets = []
+      post_conditions {
+        soaking = "60s"
+      }
+    }
+  }
+  depends_on = [google_project_service.gkehub_2]
+  project = google_project.project_2.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_ClusterupgradeUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "clusterupgrade"
+  location = "global"
+  spec {
+    clusterupgrade {
+      upstream_fleets = [google_project.project_2.number]
+      post_conditions {
+        soaking = "120s"
+      }
+      gke_upgrade_overrides {
+        upgrade {
+          name = "k8s_control_plane"
+          version = "1.22.1-gke.100"
+        }
+        post_conditions {
+          soaking = "240s"
+        }
+      }
+    }
+  }
+  project = google_project.project.project_id
+}
+
+resource "google_gke_hub_feature" "feature_2" {
+  name = "clusterupgrade"
+  location = "global"
+  spec {
+    clusterupgrade {
+      upstream_fleets = []
+      post_conditions {
+        soaking = "60s"
+      }
+    }
+  }
+  depends_on = [google_project_service.gkehub_2]
+  project = google_project.project_2.project_id
+}
+`, context)
+}
+
 func TestAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(t *testing.T) {
 	// VCR fails to handle batched project services
 	acctest.SkipIfVcr(t)
@@ -731,6 +845,31 @@ resource "google_project_service" "anthos" {
 
 resource "google_project_service" "gkehub" {
   project = google_project.project.project_id
+  service = "gkehub.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project" "project_2" {
+  name            = "tf-test-gkehub%{random_suffix}-2"
+  project_id      = "tf-test-gkehub%{random_suffix}-2"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_project_service" "compute_2" {
+  project = google_project.project_2.project_id
+  service = "compute.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "container_2" {
+  project = google_project.project_2.project_id
+  service = "container.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "gkehub_2" {
+  project = google_project.project_2.project_id
   service = "gkehub.googleapis.com"
   disable_on_destroy = false
 }
