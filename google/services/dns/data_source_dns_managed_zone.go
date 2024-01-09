@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/api/dns/v1"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -167,7 +168,7 @@ func (d *GoogleDnsManagedZoneDataSource) Read(ctx context.Context, req datasourc
 		}
 	}
 
-	tflog.Trace(ctx, "read dns record set data source")
+	tflog.Trace(ctx, "read dns managed zone data source")
 
 	data.DnsName = types.StringValue(clientResp.DnsName)
 	data.Description = types.StringValue(clientResp.Description)
@@ -181,4 +182,19 @@ func (d *GoogleDnsManagedZoneDataSource) Read(ctx context.Context, req datasourc
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func getDnsManagedZoneAttrs() map[string]attr.Type {
+	dnsManagedZoneAttrs := map[string]attr.Type{
+		"name":            types.StringType,
+		"project":         types.StringType,
+		"dns_name":        types.StringType,
+		"description":     types.StringType,
+		"managed_zone_id": types.Int64Type,
+		"name_servers":    types.ListType{}.WithElementType(types.StringType),
+		"visibility":      types.StringType,
+		"id":              types.StringType,
+	}
+
+	return dnsManagedZoneAttrs
 }
