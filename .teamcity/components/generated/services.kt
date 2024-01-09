@@ -141,6 +141,11 @@ var services = mapOf(
         "displayName" to "Clouddeploy",
         "path" to "./google/services/clouddeploy"
     ),
+    "clouddomains" to mapOf(
+        "name" to "clouddomains",
+        "displayName" to "Clouddomains",
+        "path" to "./google/services/clouddomains"
+    ),
     "cloudfunctions" to mapOf(
         "name" to "cloudfunctions",
         "displayName" to "Cloudfunctions",

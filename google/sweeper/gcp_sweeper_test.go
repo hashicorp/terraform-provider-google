@@ -30,6 +30,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudbuildv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/clouddeploy"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/clouddomains"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
