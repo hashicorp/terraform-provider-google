@@ -9,7 +9,7 @@ import Google
 import ClientConfiguration
 import jetbrains.buildServer.configs.kotlin.*
 
-version = "2023.05"
+version = "2023.11"
 
 // The code below pulls context parameters from the TeamCity project.
 // Context parameters aren't stored in VCS, and are managed manually.
