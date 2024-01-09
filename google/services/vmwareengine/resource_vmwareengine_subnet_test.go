@@ -10,7 +10,6 @@ import (
 )
 
 func TestAccVmwareengineSubnet_vmwareEngineUserDefinedSubnetUpdate(t *testing.T) {
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -60,6 +59,7 @@ resource "google_vmwareengine_network" "subnet-nw" {
 resource "google_vmwareengine_private_cloud" "subnet-pc" {
   location    = "%{region}-a"
   name        = "tf-test-subnet-pc%{random_suffix}"
+  type        = "TIME_LIMITED"
   description = "Sample test PC."
   network_config {
     management_cidr       = "192.168.0.0/24"
@@ -70,7 +70,7 @@ resource "google_vmwareengine_private_cloud" "subnet-pc" {
     cluster_id = "tf-test-mgmt-cluster%{random_suffix}"
     node_type_configs {
       node_type_id = "standard-72"
-      node_count   = 3
+      node_count   = 1
     }
   }
 }
