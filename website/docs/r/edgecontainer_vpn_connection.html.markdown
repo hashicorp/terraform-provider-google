@@ -211,16 +211,16 @@ This resource provides the following
 
 VpnConnection can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/{{location}}/vpnConnections`
-* `{{project}}/{{location}}`
-* `{{location}}`
+* `projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import VpnConnection using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/{{location}}/vpnConnections"
+  id = "projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}"
   to = google_edgecontainer_vpn_connection.default
 }
 ```
@@ -228,9 +228,9 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), VpnConnection can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_edgecontainer_vpn_connection.default projects/{{project}}/locations/{{location}}/vpnConnections
-$ terraform import google_edgecontainer_vpn_connection.default {{project}}/{{location}}
-$ terraform import google_edgecontainer_vpn_connection.default {{location}}
+$ terraform import google_edgecontainer_vpn_connection.default projects/{{project}}/locations/{{location}}/vpnConnections/{{name}}
+$ terraform import google_edgecontainer_vpn_connection.default {{project}}/{{location}}/{{name}}
+$ terraform import google_edgecontainer_vpn_connection.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides

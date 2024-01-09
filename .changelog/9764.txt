@@ -1,0 +1,3 @@
+```release-note:bug
+edgecontainer: fixed resource import on `google_edgecontainer_vpn_connection`
+```
