@@ -283,6 +283,23 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
+## Example Usage - Gkehub Feature Clusterupgrade
+
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "clusterupgrade"
+  location = "global"
+  spec {
+    clusterupgrade {
+      upstream_fleets = []
+      post_conditions {
+        soaking = "60s"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -333,6 +350,11 @@ The following arguments are supported:
   Fleet Observability feature spec.
   Structure is [documented below](#nested_fleetobservability).
 
+* `clusterupgrade` -
+  (Optional)
+  Clusterupgrade feature spec.
+  Structure is [documented below](#nested_clusterupgrade).
+
 
 <a name="nested_multiclusteringress"></a>The `multiclusteringress` block supports:
 
@@ -374,6 +396,58 @@ The following arguments are supported:
   (Optional)
   Specified if fleet logging feature is enabled.
   Possible values are: `MODE_UNSPECIFIED`, `COPY`, `MOVE`.
+
+<a name="nested_clusterupgrade"></a>The `clusterupgrade` block supports:
+
+* `upstream_fleets` -
+  (Required)
+  Specified if other fleet should be considered as a source of upgrades. Currently, at most one upstream fleet is allowed. The fleet name should be either fleet project number or id.
+
+* `post_conditions` -
+  (Required)
+  Post conditions to override for the specified upgrade.
+  Structure is [documented below](#nested_post_conditions).
+
+* `gke_upgrade_overrides` -
+  (Optional)
+  Configuration overrides for individual upgrades.
+  Structure is [documented below](#nested_gke_upgrade_overrides).
+
+
+<a name="nested_post_conditions"></a>The `post_conditions` block supports:
+
+* `soaking` -
+  (Required)
+  Amount of time to "soak" after a rollout has been finished before marking it COMPLETE. Cannot exceed 30 days.
+
+<a name="nested_gke_upgrade_overrides"></a>The `gke_upgrade_overrides` block supports:
+
+* `upgrade` -
+  (Required)
+  Which upgrade to override.
+  Structure is [documented below](#nested_upgrade).
+
+* `post_conditions` -
+  (Required)
+  Post conditions to override for the specified upgrade.
+  Structure is [documented below](#nested_post_conditions).
+
+
+<a name="nested_upgrade"></a>The `upgrade` block supports:
+
+* `name` -
+  (Required)
+  Name of the upgrade, e.g., "k8s_control_plane". It should be a valid upgrade name. It must not exceet 99 characters.
+
+* `version` -
+  (Required)
+  Version of the upgrade, e.g., "1.22.1-gke.100". It should be a valid version. It must not exceet 99 characters.
+
+<a name="nested_post_conditions"></a>The `post_conditions` block supports:
+
+* `soaking` -
+  (Required)
+  Amount of time to "soak" after a rollout has been finished before marking it COMPLETE. Cannot exceed 30 days.
 
 <a name="nested_fleet_default_member_config"></a>The `fleet_default_member_config` block supports:
 
