@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudasset"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuildv2"
+	"github.com/hashicorp/terraform-provider-google/google/services/clouddomains"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
@@ -376,9 +377,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 362
+// Generated resources: 363
 // Generated IAM resources: 219
-// Total generated resources: 581
+// Total generated resources: 582
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -487,6 +488,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloudbuildv2_connection_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_connection_iam_member":                      tpgiamresource.ResourceIamMember(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_connection_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
+	"google_clouddomains_registration":                               clouddomains.ResourceClouddomainsRegistration(),
 	"google_cloudfunctions_function_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 	"google_cloudfunctions_function_iam_member":                      tpgiamresource.ResourceIamMember(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 	"google_cloudfunctions_function_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),

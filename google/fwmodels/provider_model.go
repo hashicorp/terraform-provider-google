@@ -49,6 +49,7 @@ type ProviderModel struct {
 	CloudBuildCustomEndpoint               types.String `tfsdk:"cloud_build_custom_endpoint"`
 	Cloudbuildv2CustomEndpoint             types.String `tfsdk:"cloudbuildv2_custom_endpoint"`
 	ClouddeployCustomEndpoint              types.String `tfsdk:"clouddeploy_custom_endpoint"`
+	ClouddomainsCustomEndpoint             types.String `tfsdk:"clouddomains_custom_endpoint"`
 	CloudFunctionsCustomEndpoint           types.String `tfsdk:"cloud_functions_custom_endpoint"`
 	Cloudfunctions2CustomEndpoint          types.String `tfsdk:"cloudfunctions2_custom_endpoint"`
 	CloudIdentityCustomEndpoint            types.String `tfsdk:"cloud_identity_custom_endpoint"`
