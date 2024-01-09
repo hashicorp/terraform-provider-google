@@ -1,0 +1,3 @@
+```release-note:bug
+servicemanagement: fixed issue in `google_endpoints_service` where an inconsistent plan would be created when certain fields had computed values 
+```
