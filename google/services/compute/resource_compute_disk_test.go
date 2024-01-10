@@ -557,6 +557,45 @@ func TestAccComputeDisk_encryptionKMS(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_pdHyperDiskEnableConfidentialCompute(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"kms": acctest.BootstrapKMSKeyWithPurposeInLocationAndName(
+			t,
+			"ENCRYPT_DECRYPT",
+			"us-central1",
+			"tf-bootstrap-hyperdisk-key1").CryptoKey.Name, // regional KMS key
+		"disk_size":            64,
+		"confidential_compute": true,
+	}
+
+	var disk compute.Disk
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeDiskDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_pdHyperDiskEnableConfidentialCompute(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists(
+						t, "google_compute_disk.foobar", envvar.GetTestProjectFromEnv(), &disk),
+					testAccCheckEncryptionKey(
+						t, "google_compute_disk.foobar", &disk),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	t.Parallel()
 
