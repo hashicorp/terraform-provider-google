@@ -265,6 +265,9 @@ is desired, you will need to modify your state file manually using
     recreate the disk, hyperdisk allows for an update of throughput every 4 hours.
     To update your hyperdisk more frequently, you'll need to manually delete and recreate it.
 
+* `enable_confidential_compute` - (Optional) Whether this disk is using confidential compute mode.
+    Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true.
+
 <a name="nested_scratch_disk"></a>The `scratch_disk` block supports:
 
 * `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.

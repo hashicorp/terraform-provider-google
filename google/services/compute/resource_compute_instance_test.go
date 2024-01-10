@@ -1819,6 +1819,43 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_confidentialHyperDiskBootDisk(t *testing.T) {
+	t.Parallel()
+	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-hyperdisk-key1")
+
+	context_1 := map[string]interface{}{
+		"instance_name":        fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"confidential_compute": true,
+		"key_ring":             kms.KeyRing.Name,
+		"key_name":             kms.CryptoKey.Name,
+		"zone":                 "us-central1-a",
+	}
+
+	context_2 := map[string]interface{}{
+		"instance_name":        context_1["instance_name"],
+		"confidential_compute": false,
+		"key_ring":             context_1["key_ring"],
+		"key_name":             context_1["key_name"],
+		"zone":                 context_1["zone"],
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceConfidentialHyperDiskBootDisk(context_1),
+			},
+			computeInstanceImportStep(context_1["zone"].(string), context_1["instance_name"].(string), []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstanceConfidentialHyperDiskBootDisk(context_2),
+			},
+			computeInstanceImportStep(context_2["zone"].(string), context_2["instance_name"].(string), []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func TestAccComputeInstance_hyperdiskBootDisk_provisioned_iops_throughput(t *testing.T) {
 	t.Parallel()
 
@@ -6470,6 +6507,46 @@ resource "google_compute_instance" "foobar" {
 
 }
 `, instance, enableConfidentialCompute)
+}
+
+func testAccComputeInstanceConfidentialHyperDiskBootDisk(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+data "google_project" "project" {}
+
+resource "google_kms_crypto_key_iam_member" "crypto_key" {
+  crypto_key_id = "%{key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%{instance_name}"
+  machine_type = "h3-standard-88"
+  zone         = "%{zone}"
+
+  boot_disk {
+
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+      enable_confidential_compute = %{confidential_compute}
+      type  = "hyperdisk-balanced"
+    }
+
+    kms_key_self_link = "%{key_name}"
+  }
+
+  network_interface {
+    network = "default"
+  }
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
+
+}
+`, context)
 }
 
 func testAccComputeInstanceHyperDiskBootDiskProvisionedIopsThroughput(context map[string]interface{}) string {

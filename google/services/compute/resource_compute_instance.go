@@ -45,6 +45,7 @@ var (
 		"boot_disk.0.initialize_params.0.resource_manager_tags",
 		"boot_disk.0.initialize_params.0.provisioned_iops",
 		"boot_disk.0.initialize_params.0.provisioned_throughput",
+		"boot_disk.0.initialize_params.0.enable_confidential_compute",
 	}
 
 	schedulingKeys = []string{
@@ -255,6 +256,14 @@ func ResourceComputeInstance() *schema.Resource {
 										ForceNew:     true,
 										ValidateFunc: validation.IntBetween(1, 7124),
 										Description:  `Indicates how much throughput to provision for the disk. This sets the number of throughput mb per second that the disk can handle. Values must be between 1 and 7,124.`,
+									},
+
+									"enable_confidential_compute": {
+										Type:         schema.TypeBool,
+										Optional:     true,
+										AtLeastOneOf: initializeParamsKeys,
+										ForceNew:     true,
+										Description:  `A flag to enable confidential compute mode on boot disk`,
 									},
 								},
 							},
@@ -2686,6 +2695,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			disk.InitializeParams.ProvisionedThroughput = int64(v.(int))
 		}
 
+		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.enable_confidential_compute"); ok {
+			disk.InitializeParams.EnableConfidentialCompute = v.(bool)
+		}
+
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 			diskTypeName := v.(string)
 			diskType, err := readDiskType(config, d, diskTypeName)
@@ -2747,12 +2760,13 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			"type": tpgresource.GetResourceNameFromSelfLink(diskDetails.Type),
 			// If the config specifies a family name that doesn't match the image name, then
 			// the diff won't be properly suppressed. See DiffSuppressFunc for this field.
-			"image":                  diskDetails.SourceImage,
-			"size":                   diskDetails.SizeGb,
-			"labels":                 diskDetails.Labels,
-			"resource_manager_tags":  d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
-			"provisioned_iops":       diskDetails.ProvisionedIops,
-			"provisioned_throughput": diskDetails.ProvisionedThroughput,
+			"image":                       diskDetails.SourceImage,
+			"size":                        diskDetails.SizeGb,
+			"labels":                      diskDetails.Labels,
+			"resource_manager_tags":       d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
+			"provisioned_iops":            diskDetails.ProvisionedIops,
+			"provisioned_throughput":      diskDetails.ProvisionedThroughput,
+			"enable_confidential_compute": diskDetails.EnableConfidentialCompute,
 		}}
 	}
 

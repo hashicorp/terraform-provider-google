@@ -228,7 +228,7 @@ The following arguments are supported:
   to allow for updating the resource policy attached to the disk.
 
 * `enable_confidential_compute` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Whether this disk is using confidential compute mode.
   Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true
 

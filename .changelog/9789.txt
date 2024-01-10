@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: promoted `google_compute_disk.enable_confidential_compute` to GA
+```
+```release-note:enhancement
+compute: added `enable_confidential_compute` field to `google_compute_instance.boot_disk.initialize_params`
+```

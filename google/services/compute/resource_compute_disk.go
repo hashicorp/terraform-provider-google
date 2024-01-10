@@ -418,6 +418,14 @@ encryption key that protects this resource.`,
 					},
 				},
 			},
+			"enable_confidential_compute": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Whether this disk is using confidential compute mode.
+Note: Only supported on hyperdisk skus, disk_encryption_key is required when setting to true`,
+			},
 			"guest_os_features": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -798,6 +806,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("image"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceImageProp)) && (ok || !reflect.DeepEqual(v, sourceImageProp)) {
 		obj["sourceImage"] = sourceImageProp
 	}
+	enableConfidentialComputeProp, err := expandComputeDiskEnableConfidentialCompute(d.Get("enable_confidential_compute"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_confidential_compute"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableConfidentialComputeProp)) && (ok || !reflect.DeepEqual(v, enableConfidentialComputeProp)) {
+		obj["enableConfidentialCompute"] = enableConfidentialComputeProp
+	}
 	provisionedIopsProp, err := expandComputeDiskProvisionedIops(d.Get("provisioned_iops"), d, config)
 	if err != nil {
 		return err
@@ -1016,6 +1030,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("image", flattenComputeDiskImage(res["sourceImage"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("enable_confidential_compute", flattenComputeDiskEnableConfidentialCompute(res["enableConfidentialCompute"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("provisioned_iops", flattenComputeDiskProvisionedIops(res["provisionedIops"], d, config)); err != nil {
@@ -1518,6 +1535,10 @@ func flattenComputeDiskImage(v interface{}, d *schema.ResourceData, config *tran
 	return v
 }
 
+func flattenComputeDiskEnableConfidentialCompute(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeDiskProvisionedIops(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -1783,6 +1804,10 @@ func expandComputeDiskType(v interface{}, d tpgresource.TerraformResourceData, c
 }
 
 func expandComputeDiskImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeDiskEnableConfidentialCompute(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
