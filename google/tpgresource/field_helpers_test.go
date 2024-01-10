@@ -436,3 +436,86 @@ func TestParseProjectFieldValue(t *testing.T) {
 		}
 	}
 }
+
+func TestExtractFieldByPattern(t *testing.T) {
+	tests := []struct {
+		name             string
+		fieldValue       string
+		parentFieldValue string
+		pattern          string
+		expected         string
+		hasError         bool
+	}{
+		{
+			name:             "value-is-set",
+			fieldValue:       "my-region",
+			parentFieldValue: "",
+			pattern:          "",
+			expected:         "my-region",
+			hasError:         false,
+		},
+		{
+			name:             "use-regex",
+			fieldValue:       "",
+			parentFieldValue: "projects/my-project/regions/my-region/instances/my-instance",
+			pattern:          "projects/.*/regions/([a-z09A-Z_-]*)/",
+			expected:         "my-region",
+			hasError:         false,
+		},
+		{
+			name:             "no-mismatch",
+			fieldValue:       "my-region",
+			parentFieldValue: "projects/my-project/regions/my-region/instances/my-instance",
+			pattern:          "projects/.*/regions/([a-z09A-Z_-]*)/",
+			expected:         "my-region",
+			hasError:         false,
+		},
+		{
+			name:             "mismatch",
+			fieldValue:       "my-region",
+			parentFieldValue: "projects/my-project/regions/not-my-region/instances/my-instance",
+			pattern:          "projects/.*/regions/([a-z09A-Z_-]*)/",
+			expected:         "ignored",
+			hasError:         true,
+		},
+		{
+			name:             "no-values",
+			fieldValue:       "",
+			parentFieldValue: "",
+			pattern:          "projects/.*/regions/([a-z09A-Z_-]*)/",
+			expected:         "ignored",
+			hasError:         true,
+		},
+		{
+			name:             "all-short-form",
+			fieldValue:       "my-region",
+			parentFieldValue: "my-instance",
+			pattern:          "projects/.*/regions/([a-z09A-Z_-]*)/",
+			expected:         "my-region",
+			hasError:         false,
+		},
+		{
+			name:             "no-submatch",
+			fieldValue:       "my-region",
+			parentFieldValue: "projects/my-project/regions/my-region/instances/my-instance",
+			pattern:          "projects/.*/regions/[a-z09A-Z_-]*/",
+			expected:         "ignored",
+			hasError:         true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			val, err := ExtractFieldByPattern(tc.name, tc.fieldValue, tc.parentFieldValue, tc.pattern)
+			if err != nil && !tc.hasError {
+				t.Errorf("ValueOnRegexFromField(%v, %v, %v) got error %v", tc.fieldValue, tc.parentFieldValue, tc.pattern, err)
+			}
+
+			if !tc.hasError {
+				if val != tc.expected {
+					t.Errorf("expected %v, got %v", tc.expected, val)
+				}
+			}
+		})
+	}
+}
