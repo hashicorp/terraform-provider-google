@@ -1,0 +1,5 @@
+```release-note:enhancement
+
+AlloyDB: removed output label to `databaseVersion` field
+
+```

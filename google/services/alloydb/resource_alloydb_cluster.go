@@ -265,6 +265,12 @@ If not set, defaults to 14 days.`,
 					},
 				},
 			},
+			"database_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `The database engine major version. This is an optional field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.`,
+			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -478,11 +484,6 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 					},
 				},
 			},
-			"database_version": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.`,
-			},
 			"effective_annotations": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -626,6 +627,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(etagProp)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
+	}
+	databaseVersionProp, err := expandAlloydbClusterDatabaseVersion(d.Get("database_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(databaseVersionProp)) && (ok || !reflect.DeepEqual(v, databaseVersionProp)) {
+		obj["databaseVersion"] = databaseVersionProp
 	}
 	initialUserProp, err := expandAlloydbClusterInitialUser(d.Get("initial_user"), d, config)
 	if err != nil {
@@ -965,6 +972,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("etag"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, etagProp)) {
 		obj["etag"] = etagProp
 	}
+	databaseVersionProp, err := expandAlloydbClusterDatabaseVersion(d.Get("database_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("database_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, databaseVersionProp)) {
+		obj["databaseVersion"] = databaseVersionProp
+	}
 	initialUserProp, err := expandAlloydbClusterInitialUser(d.Get("initial_user"), d, config)
 	if err != nil {
 		return err
@@ -1034,6 +1047,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("etag") {
 		updateMask = append(updateMask, "etag")
+	}
+
+	if d.HasChange("database_version") {
+		updateMask = append(updateMask, "databaseVersion")
 	}
 
 	if d.HasChange("initial_user") {
@@ -1866,6 +1883,10 @@ func expandAlloydbClusterDisplayName(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandAlloydbClusterEtag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterDatabaseVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

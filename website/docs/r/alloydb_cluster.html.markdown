@@ -66,6 +66,7 @@ resource "google_alloydb_cluster" "full" {
   cluster_id   = "alloydb-cluster-full"
   location     = "us-central1"
   network      = google_compute_network.default.id
+  database_version = "POSTGRES_15"
 
   initial_user {
     user     = "alloydb-cluster-full"
@@ -302,6 +303,10 @@ The following arguments are supported:
 
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
+
+* `database_version` -
+  (Optional)
+  The database engine major version. This is an optional field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
 
 * `initial_user` -
   (Optional)
@@ -541,9 +546,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` -
   Output only. The current serving state of the cluster.
-
-* `database_version` -
-  The database engine major version. This is an output-only field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
 
 * `backup_source` -
   Cluster created from backup.
