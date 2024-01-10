@@ -102,6 +102,7 @@ resource "google_alloydb_cluster" "full" {
   cluster_id   = "tf-test-alloydb-cluster-full%{random_suffix}"
   location     = "us-central1"
   network      = google_compute_network.default.id
+  database_version = "POSTGRES_15"
 
   initial_user {
     user     = "tf-test-alloydb-cluster-full%{random_suffix}"
