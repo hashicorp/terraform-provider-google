@@ -75,6 +75,10 @@ resource "google_secure_source_manager_instance" "default" {
     location = "us-central1"
     instance_id = "my-instance"
     kms_key = google_kms_crypto_key.crypto_key.id
+
+    depends_on = [
+      google_kms_crypto_key_iam_member.crypto_key_binding
+    ]
 }
 
 data "google_project" "project" {}
