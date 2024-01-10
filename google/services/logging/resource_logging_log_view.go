@@ -385,12 +385,12 @@ func resourceLoggingLogViewEncoder(d *schema.ResourceData, meta interface{}, obj
 	// Extract any empty fields from the bucket field.
 	parent := d.Get("parent").(string)
 	bucket := d.Get("bucket").(string)
-	parent, err := ExtractFieldByPattern("parent", parent, bucket, "((projects|folders|organizations|billingAccounts)/[a-z0-9A-Z-]*)/locations/.*")
+	parent, err := tpgresource.ExtractFieldByPattern("parent", parent, bucket, "((projects|folders|organizations|billingAccounts)/[a-z0-9A-Z-]*)/locations/.*")
 	if err != nil {
 		return nil, fmt.Errorf("error extracting parent field: %s", err)
 	}
 	location := d.Get("location").(string)
-	location, err = ExtractFieldByPattern("location", location, bucket, "[a-zA-Z]*/[a-z0-9A-Z-]*/locations/([a-z0-9-]*)/buckets/.*")
+	location, err = tpgresource.ExtractFieldByPattern("location", location, bucket, "[a-zA-Z]*/[a-z0-9A-Z-]*/locations/([a-z0-9-]*)/buckets/.*")
 	if err != nil {
 		return nil, fmt.Errorf("error extracting location field: %s", err)
 	}
