@@ -1213,6 +1213,10 @@ func resourceComputeBackendBucketEncoder(d *schema.ResourceData, meta interface{
 		if _, ok := futureCdnPolicy["maxTtl"]; ok {
 			delete(futureCdnPolicy, "maxTtl")
 		}
+	case "FORCE_CACHE_ALL":
+		if _, ok := futureCdnPolicy["maxTtl"]; ok {
+			delete(futureCdnPolicy, "maxTtl")
+		}
 	}
 
 	return obj, nil

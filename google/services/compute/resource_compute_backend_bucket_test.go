@@ -176,6 +176,37 @@ func TestAccComputeBackendBucket_withCompressionMode(t *testing.T) {
 	})
 }
 
+func TestAccComputeBackendBucket_withCdnCacheMode_update(t *testing.T) {
+	t.Parallel()
+
+	backendName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	storageName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendBucket_caheModeCacheAllStatic_basic(backendName, storageName, 7200, 3600),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendBucket_caheModeForceCacheAll_update(backendName, storageName, 3600),
+			},
+			{
+				ResourceName:      "google_compute_backend_bucket.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeBackendBucket_basic(backendName, storageName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_backend_bucket" "foobar" {
@@ -345,4 +376,43 @@ resource "google_storage_bucket" "bucket" {
   location = "EU"
 }
 `, backendName, age, ttl, code, ttl, storageName)
+}
+
+func testAccComputeBackendBucket_caheModeCacheAllStatic_basic(backendName, storageName string, max_ttl, default_ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket.name
+  enable_cdn  = true
+  cdn_policy {
+	cache_mode                   = "CACHE_ALL_STATIC"
+	max_ttl                      = %d
+	default_ttl                  = %d
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, max_ttl, default_ttl, storageName)
+}
+
+func testAccComputeBackendBucket_caheModeForceCacheAll_update(backendName, storageName string, default_ttl int) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_bucket" "foobar" {
+  name        = "%s"
+  bucket_name = google_storage_bucket.bucket.name
+  enable_cdn  = true
+  cdn_policy {
+	cache_mode                   = "FORCE_CACHE_ALL"
+	default_ttl                  = %d
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "EU"
+}
+`, backendName, default_ttl, storageName)
 }

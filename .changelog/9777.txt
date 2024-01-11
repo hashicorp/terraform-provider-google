@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed the bug that `max_ttl` is sent in API calls even it is removed from configuration when changing cache_mode to FORCE_CACHE_ALL in `google_compute_backend_bucket`
+```
