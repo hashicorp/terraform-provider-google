@@ -474,6 +474,146 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 `, context)
 }
 
+func TestAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+
+  location     = "us-central1"
+  launch_stage = "BETA"
+
+  template {
+    execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
+
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      volume_mounts {
+        name       = "bucket"
+        mount_path = "/var/www"
+      }
+    }
+
+    volumes {
+      name = "bucket"
+      gcs {
+        bucket    = google_storage_bucket.default.name
+        read_only = false
+      }
+    }
+  }
+}
+
+resource "google_storage_bucket" "default" {
+    name     = "tf-test-cloudrun-service%{random_suffix}"
+    location = "US"
+}
+`, context)
+}
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceMountNfsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceMountNfsExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceMountNfsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+
+  location     = "us-central1"
+  ingress      = "INGRESS_TRAFFIC_ALL"
+  launch_stage = "BETA"
+
+  template {
+    execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello:latest"
+      volume_mounts {
+        name       = "nfs"
+        mount_path = "/mnt/nfs/filestore"
+      }
+    }
+    vpc_access {
+      network_interfaces {
+        network    = "default"
+        subnetwork = "default"
+      }
+    }
+
+    volumes {
+      name = "nfs"
+      nfs {
+        server    = google_filestore_instance.default.networks[0].ip_addresses[0]
+        path      = "/share1"
+        read_only = false
+      }
+    }
+  }
+}
+
+resource "google_filestore_instance" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1-b"
+  tier     = "BASIC_HDD"
+
+  file_shares {
+    capacity_gb = 1024
+    name        = "share1"
+  }
+
+  networks {
+    network = "default"
+    modes   = ["MODE_IPV4"]
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudRunV2ServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

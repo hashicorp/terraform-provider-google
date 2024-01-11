@@ -1,0 +1,5 @@
+```release-note:enhancement
+cloudrunv2: added `nfs` field to `google_cloud_run_v2_service.template.volumes`
+cloudrunv2: added `gcs` field to `google_cloud_run_v2_service.template.volumes`
+cloudrunv2: adding `tcpSocket` field to `google_cloud_run_v2.template.containers.liveness_probe`
+```
