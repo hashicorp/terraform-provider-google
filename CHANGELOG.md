@@ -10,9 +10,9 @@ FEATURES:
 * **New Resource:** `google_vmwareengine_external_access_rule` ([#16912](https://github.com/hashicorp/terraform-provider-google/pull/16912))
 
 IMPROVEMENTS:
+* compute: added `md5_authentication_key` field to `google_compute_router_peer` resource ([#16923](https://github.com/hashicorp/terraform-provider-google/pull/16923))
 * compute: added in-place update support to `params.resource_manager_tags` field in `google_compute_instance` resource ([#16942](https://github.com/hashicorp/terraform-provider-google/pull/16942))
 * compute: added in-place update support to `description` field in `google_compute_instance` resource ([#16900](https://github.com/hashicorp/terraform-provider-google/pull/16900))
-* compute: added `md5_authentication_key` field to `google_compute_router_peer` resource ([#16923](https://github.com/hashicorp/terraform-provider-google/pull/16923))
 * gkehub: added `policycontroller` field to `google_gke_hub_feature_membership` resource. Users can now configure a Policy Controller for individual memberships in the fleet. ([#16916](https://github.com/hashicorp/terraform-provider-google/pull/16916))
 * gkehub2: added `clusterupgrade` field to `google_gke_hub_feature` resource ([#16951](https://github.com/hashicorp/terraform-provider-google/pull/16951))
 * gkeonprem: added in-place update support to `vsphere_config` field and added `host_groups` field in `google_gkeonprem_vmware_node_pool` resource ([#16896](https://github.com/hashicorp/terraform-provider-google/pull/16896))
