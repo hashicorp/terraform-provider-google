@@ -3691,6 +3691,15 @@ func TestAccContainerCluster_withSecurityPostureConfig(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
+				Config: testAccContainerCluster_SetWorkloadVulnerabilityToEnterprise(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_security_posture_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_DisableALL(clusterName, networkName, subnetworkName),
 			},
 			{
@@ -3811,6 +3820,22 @@ resource "google_container_cluster" "with_security_posture_config" {
   initial_node_count = 1
   security_posture_config {
 	vulnerability_mode = "VULNERABILITY_BASIC"
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, resource_name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_SetWorkloadVulnerabilityToEnterprise(resource_name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_security_posture_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  security_posture_config {
+	vulnerability_mode = "VULNERABILITY_ENTERPRISE"
   }
   deletion_protection = false
   network    = "%s"
