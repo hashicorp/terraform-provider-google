@@ -65,7 +65,7 @@ resource "google_kms_key_ring" "keyring" {
 resource "google_kms_crypto_key" "crypto_key" {
   name            = "tf-test-crypto-name%{random_suffix}"
   key_ring        = google_kms_key_ring.keyring.id
-  # rotation_period = "100000s"
+  # rotation_period = "7776000s"
 }
 
 resource "google_netapp_kmsconfig" "kmsConfig" {
