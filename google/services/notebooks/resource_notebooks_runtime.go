@@ -904,6 +904,72 @@ func resourceNotebooksRuntimeUpdate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	// remove virtualMachine from updateMask
+	callSwitch := false
+	for i, field := range updateMask {
+		if field == "virtualMachine" {
+			callSwitch = true
+			updateMask = append(updateMask[:i], updateMask[i+1:]...)
+			break
+		}
+	}
+
+	if callSwitch {
+		// reconstruct url
+		url, err = tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}")
+		if err != nil {
+			return err
+		}
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
+
+		state := d.Get("state").(string)
+		if state == "INITIALIZING" {
+			time.Sleep(300 * time.Second)
+		}
+
+		switchURL, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/runtimes/{{name}}:switch")
+		if err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Switching Runtime: %q", d.Id())
+
+		switchObj := make(map[string]interface{})
+		machineType := d.Get("virtual_machine.0.virtual_machine_config.0.machine_type")
+		switchObj["machineType"] = machineType
+
+		acceleratorConfigInterface := make(map[string]interface{})
+		_, ok := d.GetOk("virtual_machine.0.virtual_machine_config.0.accelerator_config")
+		if ok {
+			acceleratorConfigInterface["coreCount"] = d.Get("virtual_machine.0.virtual_machine_config.0.accelerator_config.0.core_count")
+			acceleratorConfigInterface["type"] = d.Get("virtual_machine.0.virtual_machine_config.0.accelerator_config.0.type")
+		}
+		switchObj["acceleratorConfig"] = acceleratorConfigInterface
+
+		dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			RawURL:    switchURL,
+			UserAgent: userAgent,
+			Body:      switchObj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error switching Runtime: %s", err)
+		}
+
+		var opRes map[string]interface{}
+		err = NotebooksOperationWaitTimeWithResponse(
+			config, dRes, &opRes, project, "Switching runtime", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("Error switching runtime: %s", err)
+		}
+
+	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
