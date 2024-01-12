@@ -28,6 +28,10 @@ To get more information about Cluster, see:
 * How-to Guides
     * [AlloyDB](https://cloud.google.com/alloydb/docs/)
 
+~> **Note:** Users can promote a secondary cluster to a primary cluster with the help of `cluster_type`.
+To promote, users have to set the `cluster_type` property as `PRIMARY` and remove the `secondary_config` field from cluster configuration.
+[See Example](https://github.com/hashicorp/terraform-provider-google/pull/16413).
+
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `initial_user.password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
