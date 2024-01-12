@@ -71,6 +71,10 @@ resource "google_storage_insights_report_config" "config" {
       destination_path = "test-insights-reports"
     }
   }
+
+  depends_on = [
+    google_storage_bucket_iam_member.admin
+  ]
 }
 
 resource "google_storage_bucket" "report_bucket" {
