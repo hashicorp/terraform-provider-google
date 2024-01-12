@@ -205,7 +205,7 @@ The `rules` block supports:
     
 * `allow_all` -
   (Optional)
-  Setting this to true means that all values are allowed. This field can be set only in policies for list constraints.
+  Setting this to `"TRUE"` means that all values are allowed. This field can be set only in policies for list constraints.
     
 * `condition` -
   (Optional)
@@ -213,11 +213,11 @@ The `rules` block supports:
     
 * `deny_all` -
   (Optional)
-  Setting this to true means that all values are denied. This field can be set only in policies for list constraints.
+  Setting this to `"TRUE"` means that all values are denied. This field can be set only in policies for list constraints.
     
 * `enforce` -
   (Optional)
-  If `true`, then the policy is enforced. If `false`, then any configuration is acceptable. This field can be set only in policies for boolean constraints.
+  If `"TRUE"`, then the policy is enforced. If `"FALSE"`, then any configuration is acceptable. This field can be set only in policies for boolean constraints.
     
 * `values` -
   (Optional)
@@ -275,7 +275,7 @@ The `rules` block supports:
     
 * `allow_all` -
   (Optional)
-  Setting this to true means that all values are allowed. This field can be set only in Policies for list constraints.
+  Setting this to `"TRUE"` means that all values are allowed. This field can be set only in Policies for list constraints.
     
 * `condition` -
   (Optional)
@@ -283,11 +283,11 @@ The `rules` block supports:
     
 * `deny_all` -
   (Optional)
-  Setting this to true means that all values are denied. This field can be set only in Policies for list constraints.
+  Setting this to `"TRUE"` means that all values are denied. This field can be set only in Policies for list constraints.
     
 * `enforce` -
   (Optional)
-  If `true`, then the `Policy` is enforced. If `false`, then any configuration is acceptable. This field can be set only in Policies for boolean constraints.
+  If `"TRUE"`, then the `Policy` is enforced. If `"FALSE"`, then any configuration is acceptable. This field can be set only in Policies for boolean constraints.
     
 * `values` -
   (Optional)
