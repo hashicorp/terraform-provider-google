@@ -87,12 +87,16 @@ resource "google_notebooks_runtime" "runtime" {
   }
   virtual_machine {
     virtual_machine_config {
-     machine_type = "n1-standard-4"
+     machine_type = "n1-standard-8"
       data_disk {
         initialize_params {
           disk_size_gb = "100"
           disk_type = "PD_STANDARD"
         }
+      }
+      accelerator_config {
+        core_count = "1"
+        type = "NVIDIA_TESLA_V100"
       }
       reserved_ip_range = "192.168.255.0/24"
     }

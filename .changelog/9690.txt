@@ -1,0 +1,3 @@
+```release-note:enhancement
+notebooks: allowed `machine_type` and `accelerator_config` to be updatable on `google_notebooks_runtime`
+```
