@@ -1,0 +1,3 @@
+```release-note:none
+doc: updated documentation for `allow_all`, `deny_all` and `enforce` fields in `google_org_policy_policy` resource
+```
