@@ -234,6 +234,7 @@ type Config struct {
 	DeploymentManagerBasePath        string
 	DialogflowBasePath               string
 	DialogflowCXBasePath             string
+	DiscoveryEngineBasePath          string
 	DNSBasePath                      string
 	DocumentAIBasePath               string
 	DocumentAIWarehouseBasePath      string
@@ -363,6 +364,7 @@ const DatastreamBasePathKey = "Datastream"
 const DeploymentManagerBasePathKey = "DeploymentManager"
 const DialogflowBasePathKey = "Dialogflow"
 const DialogflowCXBasePathKey = "DialogflowCX"
+const DiscoveryEngineBasePathKey = "DiscoveryEngine"
 const DNSBasePathKey = "DNS"
 const DocumentAIBasePathKey = "DocumentAI"
 const DocumentAIWarehouseBasePathKey = "DocumentAIWarehouse"
@@ -486,6 +488,7 @@ var DefaultBasePaths = map[string]string{
 	DeploymentManagerBasePathKey:        "https://www.googleapis.com/deploymentmanager/v2/",
 	DialogflowBasePathKey:               "https://dialogflow.googleapis.com/v2/",
 	DialogflowCXBasePathKey:             "https://{{location}}-dialogflow.googleapis.com/v3/",
+	DiscoveryEngineBasePathKey:          "https://discoveryengine.googleapis.com/v1alpha/",
 	DNSBasePathKey:                      "https://dns.googleapis.com/dns/v1/",
 	DocumentAIBasePathKey:               "https://{{location}}-documentai.googleapis.com/v1/",
 	DocumentAIWarehouseBasePathKey:      "https://contentwarehouse.googleapis.com/v1/",
@@ -870,6 +873,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("dialogflow_cx_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DIALOGFLOW_CX_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DialogflowCXBasePathKey]))
+	}
+	if d.Get("discovery_engine_custom_endpoint") == "" {
+		d.Set("discovery_engine_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_DISCOVERY_ENGINE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[DiscoveryEngineBasePathKey]))
 	}
 	if d.Get("dns_custom_endpoint") == "" {
 		d.Set("dns_custom_endpoint", MultiEnvDefault([]string{
@@ -2075,6 +2083,7 @@ func ConfigureBasePaths(c *Config) {
 	c.DeploymentManagerBasePath = DefaultBasePaths[DeploymentManagerBasePathKey]
 	c.DialogflowBasePath = DefaultBasePaths[DialogflowBasePathKey]
 	c.DialogflowCXBasePath = DefaultBasePaths[DialogflowCXBasePathKey]
+	c.DiscoveryEngineBasePath = DefaultBasePaths[DiscoveryEngineBasePathKey]
 	c.DNSBasePath = DefaultBasePaths[DNSBasePathKey]
 	c.DocumentAIBasePath = DefaultBasePaths[DocumentAIBasePathKey]
 	c.DocumentAIWarehouseBasePath = DefaultBasePaths[DocumentAIWarehouseBasePathKey]
