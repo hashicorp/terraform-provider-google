@@ -1,0 +1,3 @@
+```release-note:note
+provider: updated google.golang.org/api from v0.154.0 to v0.156.0
+```
