@@ -1,0 +1,4 @@
+```release-note:enhancement
+provider: added support for in-place update for `labels` and `terraform_labels` fields in immutable resources
+
+```

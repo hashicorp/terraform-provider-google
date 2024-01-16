@@ -35,6 +35,7 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNetworkConnectivityPolicyBasedRouteCreate,
 		Read:   resourceNetworkConnectivityPolicyBasedRouteRead,
+		Update: resourceNetworkConnectivityPolicyBasedRouteUpdate,
 		Delete: resourceNetworkConnectivityPolicyBasedRouteDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -43,6 +44,7 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -130,7 +132,6 @@ func ResourceNetworkConnectivityPolicyBasedRoute() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `User-defined labels.
 
 
@@ -201,7 +202,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -451,6 +451,11 @@ func resourceNetworkConnectivityPolicyBasedRouteRead(d *schema.ResourceData, met
 	}
 
 	return nil
+}
+
+func resourceNetworkConnectivityPolicyBasedRouteUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceNetworkConnectivityPolicyBasedRouteRead(d, meta)
 }
 
 func resourceNetworkConnectivityPolicyBasedRouteDelete(d *schema.ResourceData, meta interface{}) error {

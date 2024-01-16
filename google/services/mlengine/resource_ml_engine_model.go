@@ -35,6 +35,7 @@ func ResourceMLEngineModel() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMLEngineModelCreate,
 		Read:   resourceMLEngineModelRead,
+		Update: resourceMLEngineModelUpdate,
 		Delete: resourceMLEngineModelDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -43,6 +44,7 @@ func ResourceMLEngineModel() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -94,7 +96,6 @@ prediction requests that do not specify a version.`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `One or more labels that you can add, to organize your models.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
@@ -134,7 +135,6 @@ Currently only one region per model is supported`,
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -314,6 +314,11 @@ func resourceMLEngineModelRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceMLEngineModelUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceMLEngineModelRead(d, meta)
 }
 
 func resourceMLEngineModelDelete(d *schema.ResourceData, meta interface{}) error {

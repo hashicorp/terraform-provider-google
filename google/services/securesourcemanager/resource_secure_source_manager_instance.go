@@ -34,6 +34,7 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceSecureSourceManagerInstanceCreate,
 		Read:   resourceSecureSourceManagerInstanceRead,
+		Update: resourceSecureSourceManagerInstanceUpdate,
 		Delete: resourceSecureSourceManagerInstanceDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,6 +43,7 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -72,7 +74,6 @@ func ResourceSecureSourceManagerInstance() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Labels as key value pairs.
 
 
@@ -172,7 +173,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -349,6 +349,11 @@ func resourceSecureSourceManagerInstanceRead(d *schema.ResourceData, meta interf
 	}
 
 	return nil
+}
+
+func resourceSecureSourceManagerInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceSecureSourceManagerInstanceRead(d, meta)
 }
 
 func resourceSecureSourceManagerInstanceDelete(d *schema.ResourceData, meta interface{}) error {

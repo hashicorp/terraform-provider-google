@@ -81,7 +81,6 @@ func ResourceEdgecontainerVpnConnection() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Labels associated with this resource.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.

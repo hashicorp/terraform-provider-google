@@ -73,7 +73,6 @@ func ResourceCertificateManagerTrustConfig() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Set of label tags associated with the trust config.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
