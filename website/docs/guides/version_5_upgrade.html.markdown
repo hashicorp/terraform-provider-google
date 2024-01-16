@@ -242,6 +242,22 @@ all of the labels present on the resource in GCP including the labels configured
 through Terraform, the system, and other clients, equivalent to
 `effective_labels` on the resource.
 
+### How to make Terraform Cloud's Drift Detection feature compatible with the new implementation of labels
+
+In <5.0.0, Drift Detection was possible for labels but would lead to some confusion for users due to GCP often adding labels to itself. This resulted in Drift Detection not being 100% correct of the time.
+
+In order to detect drift, it's recommended to use Terraform's `check` block to compare the number of labels in both `effective_labels` and `terraform_labels`. A mismatch would only happen if drift is present, the following code would run this check on applicable resources.
+ ```
+ check "google_storage_bucket" {
+  assert {
+    condition = length(google_storage_bucket.drift.effective_labels) == length(google_storage_bucket.drift.terraform_labels)
+    error_message = "Drift Detected"
+  }
+}
+ ```
+
+~> **Note:** This would reintroduce the original problem with Drift Detection where it's not 100% correct with labels. Users will need to determine if the change comes from GCP and update their Terraform configuration assuming it's a stable GCP created label.
+
 #### Resource annotations
 
 Annotations have been reworked similarly to `labels`, and `annotations` fields
