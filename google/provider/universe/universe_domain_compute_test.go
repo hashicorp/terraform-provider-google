@@ -4,6 +4,7 @@ package universe_test
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -44,6 +45,21 @@ func TestAccDefaultUniverseDomainDisk(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccUniverseDomain_basic_disk(universeDomain),
+			},
+		},
+	})
+}
+
+func TestAccDefaultUniverseDomain_doesNotMatchExplicit(t *testing.T) {
+	universeDomainFake := "fakedomain.test"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config:      testAccUniverseDomain_basic_disk(universeDomainFake),
+				ExpectError: regexp.MustCompile("supplied directly to Terraform with no matching universe domain in credentials"),
 			},
 		},
 	})
