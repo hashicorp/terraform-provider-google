@@ -573,6 +573,10 @@ The following arguments are supported:
   If the encryption key is revoked, the workstation session will automatically be stopped within 7 hours.
   Structure is [documented below](#nested_encryption_key).
 
+* `disable_tcp_connections` -
+  (Optional)
+  Disables support for plain TCP connections in the workstation. By default the service supports TCP connections via a websocket relay. Setting this option to true disables that relay, which prevents the usage of services that require plain tcp connections, such as ssh. When enabled, all communication must occur over https or wss.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
