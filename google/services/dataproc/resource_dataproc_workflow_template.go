@@ -39,6 +39,7 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDataprocWorkflowTemplateCreate,
 		Read:   resourceDataprocWorkflowTemplateRead,
+		Update: resourceDataprocWorkflowTemplateUpdate,
 		Delete: resourceDataprocWorkflowTemplateDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -47,6 +48,7 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 		CustomizeDiff: customdiff.All(
@@ -143,7 +145,6 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Optional. The labels to associate with this template. These labels will be propagated to all jobs and clusters created by the workflow instance. Label **keys** must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). Label **values** may be empty, but, if present, must contain 1 to 63 characters, and must conform to [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). No more than 32 labels can be associated with a template.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field `effective_labels` for all of the labels present on the resource.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -151,7 +152,6 @@ func ResourceDataprocWorkflowTemplate() *schema.Resource {
 			"terraform_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				ForceNew:    true,
 				Description: "The combination of labels configured directly on the resource and default labels configured on the provider.",
 			},
 
@@ -2242,6 +2242,11 @@ func resourceDataprocWorkflowTemplateRead(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+func resourceDataprocWorkflowTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+
+	return resourceDataprocWorkflowTemplateRead(d, meta)
 }
 
 func resourceDataprocWorkflowTemplateDelete(d *schema.ResourceData, meta interface{}) error {

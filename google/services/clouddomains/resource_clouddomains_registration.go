@@ -56,6 +56,7 @@ func ResourceClouddomainsRegistration() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceClouddomainsRegistrationCreate,
 		Read:   resourceClouddomainsRegistrationRead,
+		Update: resourceClouddomainsRegistrationUpdate,
 		Delete: resourceClouddomainsRegistrationDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -64,6 +65,7 @@ func ResourceClouddomainsRegistration() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -563,7 +565,6 @@ At least one of ipv4_address and ipv6_address must be set.`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Set of labels associated with the Registration.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
@@ -664,7 +665,6 @@ renewalMethod is automatically updated to preferredRenewalMethod in a few hours.
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -884,6 +884,11 @@ func resourceClouddomainsRegistrationRead(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceClouddomainsRegistrationUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceClouddomainsRegistrationRead(d, meta)
 }
 
 func resourceClouddomainsRegistrationDelete(d *schema.ResourceData, meta interface{}) error {

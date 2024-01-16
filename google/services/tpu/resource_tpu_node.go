@@ -149,7 +149,6 @@ is peered with another network that is using that CIDR block.`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Resource labels to represent user provided metadata.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.

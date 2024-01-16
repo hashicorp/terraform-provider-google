@@ -45,6 +45,7 @@ func ResourceBigQueryJob() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBigQueryJobCreate,
 		Read:   resourceBigQueryJobRead,
+		Update: resourceBigQueryJobUpdate,
 		Delete: resourceBigQueryJobDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -53,6 +54,7 @@ func ResourceBigQueryJob() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -327,7 +329,6 @@ or of the form 'projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `The labels associated with this job. You can use these to organize and group your jobs.
 
 
@@ -913,7 +914,6 @@ Creation, truncation and append actions occur as one atomic update upon job comp
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -1208,6 +1208,11 @@ func resourceBigQueryJobRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceBigQueryJobUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceBigQueryJobRead(d, meta)
 }
 
 func resourceBigQueryJobDelete(d *schema.ResourceData, meta interface{}) error {

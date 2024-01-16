@@ -36,6 +36,7 @@ func ResourceCertificateManagerCertificateIssuanceConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCertificateManagerCertificateIssuanceConfigCreate,
 		Read:   resourceCertificateManagerCertificateIssuanceConfigRead,
+		Update: resourceCertificateManagerCertificateIssuanceConfigUpdate,
 		Delete: resourceCertificateManagerCertificateIssuanceConfigDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,6 +45,7 @@ func ResourceCertificateManagerCertificateIssuanceConfig() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -132,7 +134,6 @@ the certificate has been issued and at least 7 days before it expires.`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `'Set of label tags associated with the CertificateIssuanceConfig resource.
  An object containing a list of "key": value pairs. Example: { "name": "wrench", "count": "3" }.
 
@@ -165,7 +166,6 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -359,6 +359,11 @@ func resourceCertificateManagerCertificateIssuanceConfigRead(d *schema.ResourceD
 	}
 
 	return nil
+}
+
+func resourceCertificateManagerCertificateIssuanceConfigUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceCertificateManagerCertificateIssuanceConfigRead(d, meta)
 }
 
 func resourceCertificateManagerCertificateIssuanceConfigDelete(d *schema.ResourceData, meta interface{}) error {

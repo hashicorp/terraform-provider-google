@@ -36,6 +36,7 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceBeyondcorpAppGatewayCreate,
 		Read:   resourceBeyondcorpAppGatewayRead,
+		Update: resourceBeyondcorpAppGatewayUpdate,
 		Delete: resourceBeyondcorpAppGatewayDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,6 +45,7 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -85,7 +87,6 @@ func ResourceBeyondcorpAppGateway() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Resource labels to represent user provided metadata.
 
 
@@ -141,7 +142,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -328,6 +328,11 @@ func resourceBeyondcorpAppGatewayRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	return nil
+}
+
+func resourceBeyondcorpAppGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceBeyondcorpAppGatewayRead(d, meta)
 }
 
 func resourceBeyondcorpAppGatewayDelete(d *schema.ResourceData, meta interface{}) error {

@@ -69,6 +69,7 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDatastreamPrivateConnectionCreate,
 		Read:   resourceDatastreamPrivateConnectionRead,
+		Update: resourceDatastreamPrivateConnectionUpdate,
 		Delete: resourceDatastreamPrivateConnectionDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -77,6 +78,7 @@ func ResourceDatastreamPrivateConnection() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -141,7 +143,6 @@ Format: projects/{project}/global/{networks}/{name}`,
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Description: `Labels.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
@@ -188,7 +189,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
-				ForceNew: true,
 				Description: `The combination of labels configured directly on the resource
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
@@ -369,6 +369,11 @@ func resourceDatastreamPrivateConnectionRead(d *schema.ResourceData, meta interf
 	}
 
 	return nil
+}
+
+func resourceDatastreamPrivateConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceDatastreamPrivateConnectionRead(d, meta)
 }
 
 func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta interface{}) error {
