@@ -334,6 +334,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_iap_web_region_backend_service_iam_policy":       tpgiamresource.DataSourceIamPolicy(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer),
 	"google_iap_web_type_app_engine_iam_policy":              tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer),
 	"google_iap_web_type_compute_iam_policy":                 tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeComputeIamSchema, iap.IapWebTypeComputeIamUpdaterProducer),
+	"google_network_security_address_group_iam_policy":       tpgiamresource.DataSourceIamPolicy(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer),
 	"google_notebooks_instance_iam_policy":                   tpgiamresource.DataSourceIamPolicy(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer),
 	"google_notebooks_runtime_iam_policy":                    tpgiamresource.DataSourceIamPolicy(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer),
 	"google_privateca_ca_pool_iam_policy":                    tpgiamresource.DataSourceIamPolicy(privateca.PrivatecaCaPoolIamSchema, privateca.PrivatecaCaPoolIamUpdaterProducer),
@@ -379,8 +380,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 367
-// Generated IAM resources: 219
-// Total generated resources: 586
+// Generated IAM resources: 222
+// Total generated resources: 589
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -830,6 +831,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_security_address_group":                          networksecurity.ResourceNetworkSecurityAddressGroup(),
 	"google_network_security_gateway_security_policy":                networksecurity.ResourceNetworkSecurityGatewaySecurityPolicy(),
 	"google_network_security_gateway_security_policy_rule":           networksecurity.ResourceNetworkSecurityGatewaySecurityPolicyRule(),
+	"google_network_security_address_group_iam_binding":              tpgiamresource.ResourceIamBinding(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
+	"google_network_security_address_group_iam_member":               tpgiamresource.ResourceIamMember(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
+	"google_network_security_address_group_iam_policy":               tpgiamresource.ResourceIamPolicy(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
 	"google_network_security_url_lists":                              networksecurity.ResourceNetworkSecurityUrlLists(),
 	"google_network_services_edge_cache_keyset":                      networkservices.ResourceNetworkServicesEdgeCacheKeyset(),
 	"google_network_services_edge_cache_origin":                      networkservices.ResourceNetworkServicesEdgeCacheOrigin(),
