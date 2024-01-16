@@ -12,6 +12,11 @@ var packages = mapOf(
         "displayName" to "Environment Variables",
         "path" to "./google/envvar"
     ),
+    "fwmodels" to mapOf(
+        "name" to "fwmodels",
+        "displayName" to "Framework Models",
+        "path" to "./google/fwmodels"
+    ),
     "fwprovider" to mapOf(
         "name" to "fwprovider",
         "displayName" to "Framework Provider",
