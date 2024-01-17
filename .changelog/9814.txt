@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: fixed error when adding `autoscaling_config` to an existing `google_spanner_instance`
+```
