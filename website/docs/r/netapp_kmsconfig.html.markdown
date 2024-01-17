@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Netapp"
+subcategory: "Google Cloud NetApp Volumes"
 description: |-
   NetApp Volumes always encrypts your data at rest using volume-specific keys.
 ---

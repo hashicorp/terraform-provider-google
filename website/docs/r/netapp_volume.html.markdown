@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Netapp"
+subcategory: "Google Cloud NetApp Volumes"
 description: |-
   A volume is a file system container in a storage pool that stores application, database, and user data.
 ---

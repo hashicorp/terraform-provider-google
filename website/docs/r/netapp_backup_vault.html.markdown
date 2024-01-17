@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Netapp"
+subcategory: "Google Cloud NetApp Volumes"
 description: |-
   A backup vault is the location where backups are stored.
 ---

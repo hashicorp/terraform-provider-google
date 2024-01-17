@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Netapp"
+subcategory: "Google Cloud NetApp Volumes"
 description: |-
   A backup policy is used to schedule backups at regular daily, weekly, or monthly intervals.
 ---
