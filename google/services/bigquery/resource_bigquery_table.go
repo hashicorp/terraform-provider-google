@@ -530,7 +530,7 @@ func ResourceBigQueryTable() *schema.Resource {
 							Default:      "NONE",
 							Description:  `The compression type of the data source. Valid values are "NONE" or "GZIP".`,
 						},
-						// Schema: Optional] The schema for the  data.
+						// Schema: [Optional] The schema for the data.
 						// Schema is required for CSV and JSON formats if autodetect is not on.
 						// Schema is disallowed for Google Cloud Bigtable, Cloud Datastore backups, Avro, Iceberg, ORC, and Parquet formats.
 						"schema": {
@@ -889,7 +889,7 @@ func ResourceBigQueryTable() *schema.Resource {
 							Type:        schema.TypeInt,
 							Default:     1800000,
 							Optional:    true,
-							Description: `Specifies maximum frequency at which this materialized view will be refreshed. The default is 1800000`,
+							Description: `Specifies maximum frequency at which this materialized view will be refreshed. The default is 1800000.`,
 						},
 
 						"allow_non_incremental_definition": {
@@ -1390,7 +1390,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 
 	if table.View != nil && table.Schema != nil {
 
-		log.Printf("[INFO] Removing schema from table definition because big query does not support setting schema on view creation")
+		log.Printf("[INFO] Removing schema from table definition because BigQuery does not support setting schema on view creation")
 		schemaBack := table.Schema
 		table.Schema = nil
 
@@ -1410,7 +1410,7 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 			return err
 		}
 
-		log.Printf("[INFO] BigQuery table %s has been update with schema", res.Id)
+		log.Printf("[INFO] BigQuery table %s has been updated with schema", res.Id)
 	} else {
 		log.Printf("[INFO] Creating BigQuery table: %s", table.TableReference.TableId)
 
