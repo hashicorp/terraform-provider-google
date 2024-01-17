@@ -2485,3 +2485,8 @@ func versionsEqual(old, new string) (bool, error) {
 	}
 	return o.Equal(n), nil
 }
+
+func isComposer3(d *schema.ResourceData, config *transport_tpg.Config) bool {
+	image_version := d.Get("config.0.software_config.0.image_version").(string)
+	return strings.Contains(image_version, "composer-3")
+}
