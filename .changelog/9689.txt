@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: added fields `enable_private_environment` and `enable_private_builds_only` to `google_composer_environment`
+```

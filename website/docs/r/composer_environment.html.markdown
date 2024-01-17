@@ -282,6 +282,15 @@ The following arguments are supported:
   (Optional)
   The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config).
 
+* `enable_private_environment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  If true, a private Composer environment will be created.
+
+* `enable_private_builds_only` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  If true, builds performed during operations that install Python packages have only private connectivity to Google services.
+  If false, the builds also have access to the internet.
+
 * `web_server_network_access_control` -
   The network-level access control policy for the Airflow web server.
   If unspecified, no network-level access restrictions are applied.
