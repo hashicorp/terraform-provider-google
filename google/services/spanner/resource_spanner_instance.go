@@ -1153,23 +1153,32 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	if d.HasChange("processing_units") {
 		updateMask = append(updateMask, "processingUnits")
 	}
-	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_processing_units") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxProcessingUnits")
-	}
-	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_processing_units") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minProcessingUnits")
-	}
-	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_nodes") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxNodes")
-	}
-	if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_nodes") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minNodes")
-	}
-	if d.HasChange("autoscaling_config.0.autoscaling_targets.0.high_priority_cpu_utilization_percent") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingTargets.highPriorityCpuUtilizationPercent")
-	}
-	if d.HasChange("autoscaling_config.0.autoscaling_targets.0.storage_utilization_percent") {
-		updateMask = append(updateMask, "autoscalingConfig.autoscalingTargets.storageUtilizationPercent")
+	if d.HasChange("autoscaling_config") {
+		old, new := d.GetChange("autoscaling_config")
+		oldSlice := old.([]interface{})
+		newSlice := new.([]interface{})
+		if len(oldSlice) == 0 || len(newSlice) == 0 {
+			updateMask = append(updateMask, "autoscalingConfig")
+		} else {
+			if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_processing_units") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxProcessingUnits")
+			}
+			if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_processing_units") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minProcessingUnits")
+			}
+			if d.HasChange("autoscaling_config.0.autoscaling_limits.0.max_nodes") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.maxNodes")
+			}
+			if d.HasChange("autoscaling_config.0.autoscaling_limits.0.min_nodes") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingLimits.minNodes")
+			}
+			if d.HasChange("autoscaling_config.0.autoscaling_targets.0.high_priority_cpu_utilization_percent") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingTargets.highPriorityCpuUtilizationPercent")
+			}
+			if d.HasChange("autoscaling_config.0.autoscaling_targets.0.storage_utilization_percent") {
+				updateMask = append(updateMask, "autoscalingConfig.autoscalingTargets.storageUtilizationPercent")
+			}
+		}
 	}
 	newObj["fieldMask"] = strings.Join(updateMask, ",")
 	return newObj, nil
