@@ -170,6 +170,187 @@ resource "google_bigquery_routine" "sproc" {
 `, context)
 }
 
+func TestAccBigQueryRoutine_bigQueryRoutinePysparkExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutinePysparkExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.pyspark",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigQueryRoutinePysparkExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "tf_test_connection_id%{random_suffix}"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "pyspark" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "PROCEDURE"
+  language        = "PYTHON"
+  definition_body = <<-EOS
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.appName("spark-bigquery-demo").getOrCreate()
+    
+    # Load data from BigQuery.
+    words = spark.read.format("bigquery") \
+      .option("table", "bigquery-public-data:samples.shakespeare") \
+      .load()
+    words.createOrReplaceTempView("words")
+    
+    # Perform word count.
+    word_count = words.select('word', 'word_count').groupBy('word').sum('word_count').withColumnRenamed("sum(word_count)", "sum_word_count")
+    word_count.show()
+    word_count.printSchema()
+    
+    # Saving the data to BigQuery
+    word_count.write.format("bigquery") \
+      .option("writeMethod", "direct") \
+      .save("wordcount_dataset.wordcount_output")
+  EOS
+  spark_options {
+    connection          = google_bigquery_connection.test.name
+    runtime_version     = "2.1"
+  }
+}
+`, context)
+}
+
+func TestAccBigQueryRoutine_bigQueryRoutinePysparkMainfileExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutinePysparkMainfileExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.pyspark_mainfile",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigQueryRoutinePysparkMainfileExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "tf_test_connection_id%{random_suffix}"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "pyspark_mainfile" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "PROCEDURE"
+  language        = "PYTHON"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test.name
+    runtime_version = "2.1"
+    main_file_uri   = "gs://test-bucket/main.py"
+    py_file_uris    = ["gs://test-bucket/lib.py"]
+    file_uris       = ["gs://test-bucket/distribute_in_executor.json"]
+    archive_uris    = ["gs://test-bucket/distribute_in_executor.tar.gz"]
+  }
+}
+`, context)
+}
+
+func TestAccBigQueryRoutine_bigQueryRoutineSparkJarExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutineSparkJarExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.spark_jar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigQueryRoutineSparkJarExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "tf_test_connection_id%{random_suffix}"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "spark_jar" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "PROCEDURE"
+  language        = "SCALA"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test.name
+    runtime_version = "2.1"
+    container_image = "gcr.io/my-project-id/my-spark-image:latest"
+    main_class      = "com.google.test.jar.MainClass"
+    jar_uris        = [ "gs://test-bucket/uberjar_spark_spark3.jar" ]
+    properties      = {
+      "spark.dataproc.scaling.version" : "2",
+      "spark.reducer.fetchMigratedShuffle.enabled" : "true",
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckBigQueryRoutineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
