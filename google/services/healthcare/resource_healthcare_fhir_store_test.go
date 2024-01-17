@@ -134,6 +134,7 @@ resource "google_healthcare_fhir_store" "default" {
   disable_resource_versioning   = false
   enable_history_import         = false
   version                       = "R4"
+
 }
 
 resource "google_healthcare_dataset" "dataset" {

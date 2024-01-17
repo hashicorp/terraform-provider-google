@@ -179,6 +179,7 @@ resource "google_healthcare_fhir_store" "default" {
   disable_referential_integrity = false
   disable_resource_versioning   = false
   enable_history_import         = false
+  enable_history_modifications  = false
 
   labels = {
     label1 = "labelvalue1"
@@ -268,6 +269,11 @@ The following arguments are supported:
   will fail with an error.
   ** Changing this property may recreate the FHIR store (removing all data) **
   ** This property can be changed manually in the Google Cloud Healthcare admin console without recreating the FHIR store **
+
+* `enable_history_modifications` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Whether to allow the ExecuteBundle API to accept history bundles, and directly insert and overwrite historical
+  resource versions into the FHIR store. If set to false, using history bundles fails with an error.
 
 * `labels` -
   (Optional)
