@@ -33,7 +33,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `folders` - A list of projects matching the provided filter. Structure is defined below.
+* `folders` - A list of folders matching the provided filter. Structure is defined below.
 
 The `folders` block supports:
 
