@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Netapp"
+subcategory: "Google Cloud NetApp Volumes"
 description: |-
   Storage pools act as containers for volumes.
 ---
