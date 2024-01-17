@@ -111,6 +111,130 @@ resource "google_bigquery_routine" "sproc" {
   ] })
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_pyspark&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Big Query Routine Pyspark
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "connection_id"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "pyspark" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "routine_id"
+  routine_type    = "PROCEDURE"
+  language        = "PYTHON"
+  definition_body = <<-EOS
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.appName("spark-bigquery-demo").getOrCreate()
+    
+    # Load data from BigQuery.
+    words = spark.read.format("bigquery") \
+      .option("table", "bigquery-public-data:samples.shakespeare") \
+      .load()
+    words.createOrReplaceTempView("words")
+    
+    # Perform word count.
+    word_count = words.select('word', 'word_count').groupBy('word').sum('word_count').withColumnRenamed("sum(word_count)", "sum_word_count")
+    word_count.show()
+    word_count.printSchema()
+    
+    # Saving the data to BigQuery
+    word_count.write.format("bigquery") \
+      .option("writeMethod", "direct") \
+      .save("wordcount_dataset.wordcount_output")
+  EOS
+  spark_options {
+    connection          = google_bigquery_connection.test.name
+    runtime_version     = "2.1"
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_pyspark_mainfile&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Big Query Routine Pyspark Mainfile
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "connection_id"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "pyspark_mainfile" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "routine_id"
+  routine_type    = "PROCEDURE"
+  language        = "PYTHON"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test.name
+    runtime_version = "2.1"
+    main_file_uri   = "gs://test-bucket/main.py"
+    py_file_uris    = ["gs://test-bucket/lib.py"]
+    file_uris       = ["gs://test-bucket/distribute_in_executor.json"]
+    archive_uris    = ["gs://test-bucket/distribute_in_executor.tar.gz"]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_spark_jar&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Big Query Routine Spark Jar
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "connection_id"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "spark_jar" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "routine_id"
+  routine_type    = "PROCEDURE"
+  language        = "SCALA"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test.name
+    runtime_version = "2.1"
+    container_image = "gcr.io/my-project-id/my-spark-image:latest"
+    main_class      = "com.google.test.jar.MainClass"
+    jar_uris        = [ "gs://test-bucket/uberjar_spark_spark3.jar" ]
+    properties      = {
+      "spark.dataproc.scaling.version" : "2",
+      "spark.reducer.fetchMigratedShuffle.enabled" : "true",
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -142,7 +266,7 @@ The following arguments are supported:
 * `language` -
   (Optional)
   The language of the routine.
-  Possible values are: `SQL`, `JAVASCRIPT`.
+  Possible values are: `SQL`, `JAVASCRIPT`, `PYTHON`, `JAVA`, `SCALA`.
 
 * `arguments` -
   (Optional)
@@ -182,6 +306,11 @@ The following arguments are supported:
   The determinism level of the JavaScript UDF if defined.
   Possible values are: `DETERMINISM_LEVEL_UNSPECIFIED`, `DETERMINISTIC`, `NOT_DETERMINISTIC`.
 
+* `spark_options` -
+  (Optional)
+  Optional. If language is one of "PYTHON", "JAVA", "SCALA", this field stores the options for spark stored procedure.
+  Structure is [documented below](#nested_spark_options).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -212,6 +341,54 @@ The following arguments are supported:
   or replaced STRUCT field type with RECORD field type, we currently cannot
   suppress the recurring diff this causes. As a workaround, we recommend using
   the schema as returned by the API.
+
+<a name="nested_spark_options"></a>The `spark_options` block supports:
+
+* `connection` -
+  (Optional)
+  Fully qualified name of the user-provided Spark connection object.
+  Format: "projects/{projectId}/locations/{locationId}/connections/{connectionId}"
+
+* `runtime_version` -
+  (Optional)
+  Runtime version. If not specified, the default runtime version is used.
+
+* `container_image` -
+  (Optional)
+  Custom container image for the runtime environment.
+
+* `properties` -
+  (Optional)
+  Configuration properties as a set of key/value pairs, which will be passed on to the Spark application.
+  For more information, see Apache Spark and the procedure option list.
+  An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+* `main_file_uri` -
+  (Optional)
+  The main file/jar URI of the Spark application.
+  Exactly one of the definitionBody field and the mainFileUri field must be set for Python.
+  Exactly one of mainClass and mainFileUri field should be set for Java/Scala language type.
+
+* `py_file_uris` -
+  (Optional)
+  Python files to be placed on the PYTHONPATH for PySpark application. Supported file types: .py, .egg, and .zip. For more information about Apache Spark, see Apache Spark.
+
+* `jar_uris` -
+  (Optional)
+  JARs to include on the driver and executor CLASSPATH. For more information about Apache Spark, see Apache Spark.
+
+* `file_uris` -
+  (Optional)
+  Files to be placed in the working directory of each executor. For more information about Apache Spark, see Apache Spark.
+
+* `archive_uris` -
+  (Optional)
+  Archive files to be extracted into the working directory of each executor. For more information about Apache Spark, see Apache Spark.
+
+* `main_class` -
+  (Optional)
+  The fully qualified name of a class in jarUris, for example, com.example.wordcount.
+  Exactly one of mainClass and main_jar_uri field should be set for Java/Scala language type.
 
 ## Attributes Reference
 

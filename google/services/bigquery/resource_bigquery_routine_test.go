@@ -82,3 +82,96 @@ resource "google_bigquery_routine" "sproc" {
 }
 `, dataset, routine)
 }
+
+func TestAccBigQueryRoutine_bigQueryRoutineSparkJar_Update(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutineSparkJar(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.spark_jar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccBigQueryRoutine_bigQueryRoutineSparkJar_Update(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.spark_jar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigQueryRoutineSparkJar(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "tf_test_connection_id%{random_suffix}"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "spark_jar" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "PROCEDURE"
+  language        = "SCALA"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test.name
+    runtime_version = "2.0"
+    main_class      = "com.google.test.jar.MainClass"
+    jar_uris        = [ "gs://test-bucket/testjar_spark_spark3.jar" ]
+  }
+}
+`, context)
+}
+
+func testAccBigQueryRoutine_bigQueryRoutineSparkJar_Update(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "test_updated" {
+  connection_id = "tf_test_connection_updated_id%{random_suffix}"
+  location      = "US"
+  spark { }
+}
+
+resource "google_bigquery_routine" "spark_jar" {
+  dataset_id      = google_bigquery_dataset.test.dataset_id
+  routine_id      = "tf_test_routine_id%{random_suffix}"
+  routine_type    = "PROCEDURE"
+  language        = "SCALA"
+  definition_body = ""
+  spark_options {
+    connection      = google_bigquery_connection.test_updated.name
+    runtime_version = "2.1"
+    container_image = "gcr.io/my-project-id/my-spark-image:latest"
+    main_class      = "com.google.test.jar.MainClassUpdated"
+    jar_uris        = [ "gs://test-bucket/uberjar_spark_spark3_updated.jar" ]
+    properties      = {
+      "spark.dataproc.scaling.version" : "2",
+      "spark.reducer.fetchMigratedShuffle.enabled" : "true",
+    }
+  }
+}
+`, context)
+}
