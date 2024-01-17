@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: support replica materialized view in resource_bigquery_table (beta)
+```
