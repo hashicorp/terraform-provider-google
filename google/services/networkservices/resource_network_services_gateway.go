@@ -195,6 +195,7 @@ limited to 1 port. Gateways of type 'OPEN_MESH' listen on 0.0.0.0 and support mu
 			},
 			"addresses": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				ForceNew: true,
 				Description: `Zero or one IPv4-address on which the Gateway will receive the traffic. When no address is provided,
