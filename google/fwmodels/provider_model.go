@@ -75,7 +75,6 @@ type ProviderModel struct {
 	DeploymentManagerCustomEndpoint        types.String `tfsdk:"deployment_manager_custom_endpoint"`
 	DialogflowCustomEndpoint               types.String `tfsdk:"dialogflow_custom_endpoint"`
 	DialogflowCXCustomEndpoint             types.String `tfsdk:"dialogflow_cx_custom_endpoint"`
-	DiscoveryEngineCustomEndpoint          types.String `tfsdk:"discovery_engine_custom_endpoint"`
 	DNSCustomEndpoint                      types.String `tfsdk:"dns_custom_endpoint"`
 	DocumentAICustomEndpoint               types.String `tfsdk:"document_ai_custom_endpoint"`
 	DocumentAIWarehouseCustomEndpoint      types.String `tfsdk:"document_ai_warehouse_custom_endpoint"`

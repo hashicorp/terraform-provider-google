@@ -56,7 +56,6 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/deploymentmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dialogflow"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dialogflowcx"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/dns"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/documentai"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/documentaiwarehouse"

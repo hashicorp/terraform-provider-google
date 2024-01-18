@@ -100,7 +100,6 @@ type FrameworkProviderConfig struct {
 	DeploymentManagerBasePath        string
 	DialogflowBasePath               string
 	DialogflowCXBasePath             string
-	DiscoveryEngineBasePath          string
 	DNSBasePath                      string
 	DocumentAIBasePath               string
 	DocumentAIWarehouseBasePath      string
@@ -248,7 +247,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DeploymentManagerBasePath = data.DeploymentManagerCustomEndpoint.ValueString()
 	p.DialogflowBasePath = data.DialogflowCustomEndpoint.ValueString()
 	p.DialogflowCXBasePath = data.DialogflowCXCustomEndpoint.ValueString()
-	p.DiscoveryEngineBasePath = data.DiscoveryEngineCustomEndpoint.ValueString()
 	p.DNSBasePath = data.DNSCustomEndpoint.ValueString()
 	p.DocumentAIBasePath = data.DocumentAICustomEndpoint.ValueString()
 	p.DocumentAIWarehouseBasePath = data.DocumentAIWarehouseCustomEndpoint.ValueString()
@@ -825,14 +823,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.DialogflowCXBasePathKey])
 		if customEndpoint != nil {
 			data.DialogflowCXCustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
-	if data.DiscoveryEngineCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_DISCOVERY_ENGINE_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.DiscoveryEngineBasePathKey])
-		if customEndpoint != nil {
-			data.DiscoveryEngineCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DNSCustomEndpoint.IsNull() {
