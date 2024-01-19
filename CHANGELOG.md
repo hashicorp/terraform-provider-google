@@ -11,7 +11,6 @@ FEATURES:
 * **New Resource:** `google_network_security_address_group_iam_*` ([#17013](https://github.com/hashicorp/terraform-provider-google/pull/17013))
 * **New Resource:** `google_network_security_security_profile` ([#17029](https://github.com/hashicorp/terraform-provider-google/pull/17029))
 * **New Resource:** `google_vertex_ai_feature_group_feature` ([#17015](https://github.com/hashicorp/terraform-provider-google/pull/17015))
-* **New Resource:** google_discovery_engine_data_store ([#16992](https://github.com/hashicorp/terraform-provider-google/pull/16992))
 
 IMPROVEMENTS:
 * alloydb: allowed the `database_version` as an input on `google_alloydb_cluster` ([#16967](https://github.com/hashicorp/terraform-provider-google/pull/16967))
