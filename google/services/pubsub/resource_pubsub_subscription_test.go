@@ -173,6 +173,41 @@ func TestAccPubsubSubscription_pushNoWrapperEmpty(t *testing.T) {
 	})
 }
 
+func TestAccPubsubSubscriptionBigQuery_update(t *testing.T) {
+	t.Parallel()
+
+	dataset := fmt.Sprintf("tftestdataset%s", acctest.RandString(t, 10))
+	table := fmt.Sprintf("tf-test-table-%s", acctest.RandString(t, 10))
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, false),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscriptionShort, true),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 // Context: hashicorp/terraform-provider-google#4993
 // This test makes a call to GET an subscription before it is actually created.
 // The PubSub API negative-caches responses so this tests we are
@@ -366,6 +401,59 @@ resource "google_pubsub_subscription" "foo" {
   enable_exactly_once_delivery = %t
 }
 `, topic, subscription, label, deadline, exactlyOnceDelivery)
+}
+
+func testAccPubsubSubscriptionBigQuery_basic(dataset, table, topic, subscription string, useTableSchema bool) string {
+	return fmt.Sprintf(`
+data "google_project" "project" { }
+
+resource "google_project_iam_member" "viewer" {
+	project = data.google_project.project.project_id
+	role   = "roles/bigquery.metadataViewer"
+	member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "editor" {
+	project = data.google_project.project.project_id
+	role   = "roles/bigquery.dataEditor"
+	member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+}
+
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name   = "%s"
+  topic  = google_pubsub_topic.foo.id
+
+	bigquery_config {
+		table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+	  use_table_schema = %t
+	}
+}
+`, dataset, table, topic, subscription, useTableSchema)
 }
 
 func testAccPubsubSubscription_topicOnly(topic string) string {

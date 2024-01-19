@@ -190,6 +190,67 @@ EOF
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_push_bq_table_schema&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Subscription Push Bq Table Schema
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "example-subscription"
+  topic = google_pubsub_topic.example.id
+
+  bigquery_config {
+    table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+    use_table_schema = true
+  }
+
+  depends_on = [google_project_iam_member.viewer, google_project_iam_member.editor]
+}
+
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "viewer" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.metadataViewer"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_project_iam_member" "editor" {
+  project = data.google_project.project.project_id
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "example_dataset"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "example_table"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+
+  schema = <<EOF
+[
+  {
+    "name": "data",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The data"
+  }
+]
+EOF
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_subscription_push_cloudstorage&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -435,6 +496,12 @@ The following arguments are supported:
 * `use_topic_schema` -
   (Optional)
   When true, use the topic's schema as the columns to write to in BigQuery, if it exists.
+  Only one of use_topic_schema and use_table_schema can be set.
+
+* `use_table_schema` -
+  (Optional)
+  When true, use the BigQuery table's schema as the columns to write to in BigQuery. Messages
+  must be published in JSON format. Only one of use_topic_schema and use_table_schema can be set.
 
 * `write_metadata` -
   (Optional)
@@ -443,8 +510,9 @@ The following arguments are supported:
 
 * `drop_unknown_fields` -
   (Optional)
-  When true and useTopicSchema is true, any fields that are a part of the topic schema that are not part of the BigQuery table schema are dropped when writing to BigQuery.
-  Otherwise, the schemas must be kept in sync and any messages with extra fields are not written and remain in the subscription's backlog.
+  When true and use_topic_schema or use_table_schema is true, any fields that are a part of the topic schema or message schema that
+  are not part of the BigQuery table schema are dropped when writing to BigQuery. Otherwise, the schemas must be kept in sync
+  and any messages with extra fields are not written and remain in the subscription's backlog.
 
 <a name="nested_cloud_storage_config"></a>The `cloud_storage_config` block supports:
 

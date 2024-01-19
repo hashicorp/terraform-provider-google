@@ -122,13 +122,23 @@ If all three are empty, then the subscriber will pull and ack messages using API
 						"drop_unknown_fields": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Description: `When true and useTopicSchema is true, any fields that are a part of the topic schema that are not part of the BigQuery table schema are dropped when writing to BigQuery.
-Otherwise, the schemas must be kept in sync and any messages with extra fields are not written and remain in the subscription's backlog.`,
+							Description: `When true and use_topic_schema or use_table_schema is true, any fields that are a part of the topic schema or message schema that
+are not part of the BigQuery table schema are dropped when writing to BigQuery. Otherwise, the schemas must be kept in sync
+and any messages with extra fields are not written and remain in the subscription's backlog.`,
+						},
+						"use_table_schema": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When true, use the BigQuery table's schema as the columns to write to in BigQuery. Messages
+must be published in JSON format. Only one of use_topic_schema and use_table_schema can be set.`,
+							ConflictsWith: []string{},
 						},
 						"use_topic_schema": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `When true, use the topic's schema as the columns to write to in BigQuery, if it exists.`,
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When true, use the topic's schema as the columns to write to in BigQuery, if it exists.
+Only one of use_topic_schema and use_table_schema can be set.`,
+							ConflictsWith: []string{},
 						},
 						"write_metadata": {
 							Type:     schema.TypeBool,
@@ -1059,6 +1069,8 @@ func flattenPubsubSubscriptionBigqueryConfig(v interface{}, d *schema.ResourceDa
 		flattenPubsubSubscriptionBigqueryConfigTable(original["table"], d, config)
 	transformed["use_topic_schema"] =
 		flattenPubsubSubscriptionBigqueryConfigUseTopicSchema(original["useTopicSchema"], d, config)
+	transformed["use_table_schema"] =
+		flattenPubsubSubscriptionBigqueryConfigUseTableSchema(original["useTableSchema"], d, config)
 	transformed["write_metadata"] =
 		flattenPubsubSubscriptionBigqueryConfigWriteMetadata(original["writeMetadata"], d, config)
 	transformed["drop_unknown_fields"] =
@@ -1070,6 +1082,10 @@ func flattenPubsubSubscriptionBigqueryConfigTable(v interface{}, d *schema.Resou
 }
 
 func flattenPubsubSubscriptionBigqueryConfigUseTopicSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigqueryConfigUseTableSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1405,6 +1421,13 @@ func expandPubsubSubscriptionBigqueryConfig(v interface{}, d tpgresource.Terrafo
 		transformed["useTopicSchema"] = transformedUseTopicSchema
 	}
 
+	transformedUseTableSchema, err := expandPubsubSubscriptionBigqueryConfigUseTableSchema(original["use_table_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTableSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTableSchema"] = transformedUseTableSchema
+	}
+
 	transformedWriteMetadata, err := expandPubsubSubscriptionBigqueryConfigWriteMetadata(original["write_metadata"], d, config)
 	if err != nil {
 		return nil, err
@@ -1427,6 +1450,10 @@ func expandPubsubSubscriptionBigqueryConfigTable(v interface{}, d tpgresource.Te
 }
 
 func expandPubsubSubscriptionBigqueryConfigUseTopicSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigUseTableSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
