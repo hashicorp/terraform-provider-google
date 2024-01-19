@@ -38,9 +38,10 @@ func TestAccWorkflowsWorkflow_Update(t *testing.T) {
 func testAccWorkflowsWorkflow_Update(name string) string {
 	return fmt.Sprintf(`
 resource "google_workflows_workflow" "example" {
-  name          = "%s"
-  region        = "us-central1"
-  description   = "Magic"
+  name           = "%s"
+  region         = "us-central1"
+  description    = "Magic"
+  call_log_level = "LOG_ERRORS_ONLY"
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }
@@ -78,9 +79,10 @@ EOF
 func testAccWorkflowsWorkflow_Updated(name string) string {
 	return fmt.Sprintf(`
 resource "google_workflows_workflow" "example" {
-  name          = "%s"
-  region        = "us-central1"
-  description   = "Magic"
+  name           = "%s"
+  region         = "us-central1"
+  description    = "Magic"
+  call_log_level = "LOG_ERRORS_ONLY"
   user_env_vars = {
     url = "https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam"
   }

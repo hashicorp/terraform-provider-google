@@ -61,6 +61,7 @@ resource "google_workflows_workflow" "example" {
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id
+  call_log_level = "LOG_ERRORS_ONLY"
   labels = {
     env = "test"
   }
