@@ -68,6 +68,7 @@ var (
 		"config.0.environment_size",
 		"config.0.master_authorized_networks_config",
 		"config.0.resilience_mode",
+		"config.0.data_retention_config",
 	}
 
 	recoveryConfigKeys = []string{
@@ -619,6 +620,34 @@ func ResourceComposerEnvironment() *schema.Resource {
 										Required:    true,
 										ForceNew:    false,
 										Description: `Maintenance window recurrence. Format is a subset of RFC-5545 (https://tools.ietf.org/html/rfc5545) 'RRULE'. The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'. Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.`,
+									},
+								},
+							},
+						},
+
+						"data_retention_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: composerConfigKeys,
+							MaxItems:     1,
+							Description:  `The configuration setting for Airflow data retention mechanism. This field is supported for Cloud Composer environments in versions composer-2.0.32-airflow-2.1.4. or newer`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"task_logs_retention_config": {
+										Type:        schema.TypeList,
+										Description: `Optional. The configuration setting for Task Logs.`,
+										Required:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"storage_mode": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringInSlice([]string{"CLOUD_LOGGING_ONLY", "CLOUD_LOGGING_AND_CLOUD_STORAGE"}, false),
+													Description:  `Whether logs in cloud logging only is enabled or not. This field is supported for Cloud Composer environments in versions composer-2.0.32-airflow-2.1.4 and newer.`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1178,7 +1207,22 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 				return err
 			}
 		}
-
+		if d.HasChange("config.0.data_retention_config.0.task_logs_retention_config.0.storage_mode") {
+			patchObj := &composer.Environment{
+				Config: &composer.EnvironmentConfig{
+					DataRetentionConfig: &composer.DataRetentionConfig{
+						TaskLogsRetentionConfig: &composer.TaskLogsRetentionConfig{},
+					},
+				},
+			}
+			if config != nil && config.DataRetentionConfig != nil && config.DataRetentionConfig.TaskLogsRetentionConfig != nil {
+				patchObj.Config.DataRetentionConfig.TaskLogsRetentionConfig.StorageMode = config.DataRetentionConfig.TaskLogsRetentionConfig.StorageMode
+			}
+			err = resourceComposerEnvironmentPatchField("config.DataRetentionConfig.TaskLogsRetentionConfig.StorageMode", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
 		if d.HasChange("config.0.recovery_config.0.scheduled_snapshots_config") {
 			patchObj := &composer.Environment{Config: &composer.EnvironmentConfig{}}
 			if config != nil {
@@ -1356,6 +1400,7 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["web_server_config"] = flattenComposerEnvironmentConfigWebServerConfig(envCfg.WebServerConfig)
 	transformed["encryption_config"] = flattenComposerEnvironmentConfigEncryptionConfig(envCfg.EncryptionConfig)
 	transformed["maintenance_window"] = flattenComposerEnvironmentConfigMaintenanceWindow(envCfg.MaintenanceWindow)
+	transformed["data_retention_config"] = flattenComposerEnvironmentConfigDataRetentionConfig(envCfg.DataRetentionConfig)
 	transformed["workloads_config"] = flattenComposerEnvironmentConfigWorkloadsConfig(envCfg.WorkloadsConfig)
 	transformed["recovery_config"] = flattenComposerEnvironmentConfigRecoveryConfig(envCfg.RecoveryConfig)
 	transformed["environment_size"] = envCfg.EnvironmentSize
@@ -1456,6 +1501,28 @@ func flattenComposerEnvironmentConfigMaintenanceWindow(maintenanceWindow *compos
 	transformed["start_time"] = maintenanceWindow.StartTime
 	transformed["end_time"] = maintenanceWindow.EndTime
 	transformed["recurrence"] = maintenanceWindow.Recurrence
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigDataRetentionConfig(dataRetentionConfig *composer.DataRetentionConfig) interface{} {
+	if dataRetentionConfig == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["task_logs_retention_config"] = flattenComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(dataRetentionConfig.TaskLogsRetentionConfig)
+
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(taskLogsRetentionConfig *composer.TaskLogsRetentionConfig) interface{} {
+	if taskLogsRetentionConfig == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["storage_mode"] = taskLogsRetentionConfig.StorageMode
 
 	return []interface{}{transformed}
 }
@@ -1687,6 +1754,13 @@ func expandComposerEnvironmentConfig(v interface{}, d *schema.ResourceData, conf
 		return nil, err
 	}
 	transformed.MaintenanceWindow = transformedMaintenanceWindow
+
+	transformedDataRetentionConfig, err := expandComposerEnvironmentConfigDataRetentionConfig(original["data_retention_config"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.DataRetentionConfig = transformedDataRetentionConfig
+
 	transformedWorkloadsConfig, err := expandComposerEnvironmentConfigWorkloadsConfig(original["workloads_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1849,6 +1923,42 @@ func expandComposerEnvironmentConfigMaintenanceWindow(v interface{}, d *schema.R
 
 	if v, ok := original["recurrence"]; ok {
 		transformed.Recurrence = v.(string)
+	}
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigDataRetentionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.DataRetentionConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.DataRetentionConfig{}
+
+	if taskLogsRetentionConfig, ok := original["task_logs_retention_config"]; ok {
+		transformedTaskLogsRetentionConfig, err := expandComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(taskLogsRetentionConfig, d, config)
+		if err != nil {
+			return nil, err
+		}
+		transformed.TaskLogsRetentionConfig = transformedTaskLogsRetentionConfig
+	}
+
+	return transformed, nil
+}
+
+func expandComposerEnvironmentConfigDataRetentionConfigTaskLogsRetentionConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.TaskLogsRetentionConfig, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := &composer.TaskLogsRetentionConfig{}
+
+	if v, ok := original["storage_mode"]; ok {
+		transformed.StorageMode = v.(string)
 	}
 
 	return transformed, nil
