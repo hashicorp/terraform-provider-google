@@ -1,0 +1,3 @@
+```release-note:bug
+eventarc: made the `destination.cloud_function` field on `google_eventarc_trigger` an output. Previously when users attempted to set this in their configuration it caused an API error.
+```
