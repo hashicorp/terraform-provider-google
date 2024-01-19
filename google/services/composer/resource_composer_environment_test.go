@@ -1753,6 +1753,11 @@ resource "google_composer_environment" "test" {
           zone = "us-east1-c"
       }
       environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+      data_retention_config {
+        task_logs_retention_config {
+          storage_mode = "CLOUD_LOGGING_ONLY"
+        }
+      }
       private_environment_config {
         enable_private_endpoint                 = true
         cloud_composer_network_ipv4_cidr_block   = "10.3.192.0/24"
@@ -2131,6 +2136,11 @@ resource "google_composer_environment" "test" {
 		}
       }
       environment_size = "ENVIRONMENT_SIZE_LARGE"
+      data_retention_config {
+        task_logs_retention_config {
+          storage_mode = "CLOUD_LOGGING_AND_CLOUD_STORAGE"
+        }
+      }
       private_environment_config {
         enable_private_endpoint                 = true
         cloud_composer_network_ipv4_cidr_block  = "10.3.192.0/24"
