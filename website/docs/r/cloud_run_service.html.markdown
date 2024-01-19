@@ -812,6 +812,11 @@ The following arguments are supported:
   Ephemeral storage which can be backed by real disks (HD, SSD), network storage or memory (i.e. tmpfs). For now only in memory (tmpfs) is supported. It is ephemeral in the sense that when the sandbox is taken down, the data is destroyed with it (it does not persist across sandbox runs).
   Structure is [documented below](#nested_empty_dir).
 
+* `csi` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A filesystem specified by the Container Storage Interface (CSI).
+  Structure is [documented below](#nested_csi).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -874,6 +879,25 @@ The following arguments are supported:
 * `size_limit` -
   (Optional)
   Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
+
+<a name="nested_csi"></a>The `csi` block supports:
+
+* `driver` -
+  (Required)
+  Unique name representing the type of file system to be created. Cloud Run supports the following values:
+    * gcsfuse.run.googleapis.com: Mount a Google Cloud Storage bucket using GCSFuse. This driver requires the
+      run.googleapis.com/execution-environment annotation to be set to "gen2" and
+      run.googleapis.com/launch-stage set to "BETA" or "ALPHA".
+
+* `read_only` -
+  (Optional)
+  If true, all mounts created from this volume will be read-only.
+
+* `volume_attributes` -
+  (Optional)
+  Driver-specific attributes. The following options are supported for available drivers:
+    * gcsfuse.run.googleapis.com
+      * bucketName: The name of the Cloud Storage Bucket that backs this volume. The Cloud Run Service identity must have access to this bucket.
 
 - - -
 

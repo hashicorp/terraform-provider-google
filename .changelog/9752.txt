@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrun: added `template.spec.volumes.csi` field to `google_cloud_run_service` to support mounting Cloud Storage buckets using GCSFuse (beta)
+```
