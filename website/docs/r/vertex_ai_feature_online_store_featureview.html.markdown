@@ -107,6 +107,123 @@ data "google_project" "project" {
   provider = google
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featureonlinestore_featureview_with_vector_search&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Featureonlinestore Featureview With Vector Search
+
+
+```hcl
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  provider = google-beta
+  name     = "example_feature_view_vector_search"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 2
+      cpu_utilization_target = 80
+    }
+  }
+  embedding_management {
+    enabled = true
+  }
+}
+
+resource "google_bigquery_dataset" "tf-test-dataset" {
+  provider      = google-beta
+  dataset_id    = "example_feature_view_vector_search"
+  friendly_name = "test"
+  description   = "This is a test description"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "tf-test-table" {
+  provider            = google-beta
+  deletion_protection = false
+  dataset_id          = google_bigquery_dataset.tf-test-dataset.dataset_id
+  table_id            = "example_feature_view_vector_search"
+  schema              = <<EOF
+[
+{
+  "name": "test_primary_id",
+  "mode": "NULLABLE",
+  "type": "STRING",
+  "description": "primary test id"
+},
+{
+  "name": "embedding",
+  "mode": "REPEATED",
+  "type": "FLOAT",
+  "description": "embedding column for primary_id column"
+},
+{
+  "name": "country",
+  "mode": "NULLABLE",
+  "type": "STRING",
+  "description": "country"
+},
+{
+  "name": "test_crowding_column",
+  "mode": "NULLABLE",
+  "type": "INTEGER",
+  "description": "test crowding column"
+},
+{
+  "name": "entity_id",
+  "mode": "NULLABLE",
+  "type": "STRING",
+  "description": "Test default entity_id"
+},
+{
+  "name": "test_entity_column",
+  "mode": "NULLABLE",
+  "type": "STRING",
+  "description": "test secondary entity column"
+},
+{
+  "name": "feature_timestamp",
+  "mode": "NULLABLE",
+  "type": "TIMESTAMP",
+  "description": "Default timestamp value"
+}
+]
+EOF
+}
+resource "google_vertex_ai_feature_online_store_featureview" "featureview_vector_search" {
+  provider             = google-beta
+  name                 = "example_feature_view_vector_search"
+  region               = "us-central1"
+  feature_online_store = google_vertex_ai_feature_online_store.featureonlinestore.name
+  sync_config {
+    cron = "0 0 * * *"
+  }
+  big_query_source {
+    uri               = "bq://${google_bigquery_table.tf-test-table.project}.${google_bigquery_table.tf-test-table.dataset_id}.${google_bigquery_table.tf-test-table.table_id}"
+    entity_id_columns = ["test_entity_column"]
+
+  }
+  vector_search_config {
+    embedding_column      = "embedding"
+    filter_columns        = ["country"]
+    crowding_column       = "test_crowding_column"
+    distance_measure_type = "DOT_PRODUCT_DISTANCE"
+    tree_ah_config {
+      leaf_node_embedding_count = "1000"
+    }
+    embedding_dimension = "2"
+  }
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -146,6 +263,11 @@ The following arguments are supported:
   Configures how data is supposed to be extracted from a BigQuery source to be loaded onto the FeatureOnlineStore.
   Structure is [documented below](#nested_big_query_source).
 
+* `vector_search_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration for vector search. It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
+  Structure is [documented below](#nested_vector_search_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -166,6 +288,46 @@ The following arguments are supported:
 * `entity_id_columns` -
   (Required)
   Columns to construct entityId / row keys. Start by supporting 1 only.
+
+<a name="nested_vector_search_config"></a>The `vector_search_config` block supports:
+
+* `embedding_column` -
+  (Required)
+  Column of embedding. This column contains the source data to create index for vector search.
+
+* `filter_columns` -
+  (Optional)
+  Columns of features that are used to filter vector search results.
+
+* `crowding_column` -
+  (Optional)
+  Column of crowding. This column contains crowding attribute which is a constraint on a neighbor list produced by nearest neighbor search requiring that no more than some value k' of the k neighbors returned have the same value of crowdingAttribute.
+
+* `distance_measure_type` -
+  (Optional)
+  The distance measure used in nearest neighbor search.
+  For details on allowed values, see the [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureOnlineStores.featureViews#DistanceMeasureType).
+  Possible values are: `SQUARED_L2_DISTANCE`, `COSINE_DISTANCE`, `DOT_PRODUCT_DISTANCE`.
+
+* `tree_ah_config` -
+  (Optional)
+  Configuration options for the tree-AH algorithm (Shallow tree + Asymmetric Hashing). Please refer to this paper for more details: https://arxiv.org/abs/1908.10396
+  Structure is [documented below](#nested_tree_ah_config).
+
+* `brute_force_config` -
+  (Optional)
+  Configuration options for using brute force search, which simply implements the standard linear search in the database for each query. It is primarily meant for benchmarking and to generate the ground truth for approximate search.
+
+* `embedding_dimension` -
+  (Optional)
+  The number of dimensions of the input embedding.
+
+
+<a name="nested_tree_ah_config"></a>The `tree_ah_config` block supports:
+
+* `leaf_node_embedding_count` -
+  (Optional)
+  Number of embeddings on each leaf node. The default value is 1000 if not set.
 
 ## Attributes Reference
 
