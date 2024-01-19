@@ -184,13 +184,6 @@ func ResourceEventarcTrigger() *schema.Resource {
 func EventarcTriggerDestinationSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"cloud_function": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      "[WARNING] Configuring a Cloud Function in Trigger is not supported as of today. The Cloud Function resource name. Format: projects/{project}/locations/{location}/functions/{function}",
-			},
-
 			"cloud_run_service": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -212,6 +205,12 @@ func EventarcTriggerDestinationSchema() *schema.Resource {
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      "The resource name of the Workflow whose Executions are triggered by the events. The Workflow resource should be deployed in the same project as the trigger. Format: `projects/{project}/locations/{location}/workflows/{workflow}`",
+			},
+
+			"cloud_function": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The Cloud Function resource name. Only Cloud Functions V2 is supported. Format projects/{project}/locations/{location}/functions/{function} This is a read-only field. [WARNING] Creating Cloud Functions V2 triggers is only supported via the Cloud Functions product. An error will be returned if the user sets this value.",
 			},
 		},
 	}
@@ -620,7 +619,6 @@ func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestinatio
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &eventarc.TriggerDestination{
-		CloudFunction:   dcl.String(obj["cloud_function"].(string)),
 		CloudRunService: expandEventarcTriggerDestinationCloudRunService(obj["cloud_run_service"]),
 		Gke:             expandEventarcTriggerDestinationGke(obj["gke"]),
 		Workflow:        dcl.String(obj["workflow"].(string)),
@@ -632,10 +630,10 @@ func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interfa
 		return nil
 	}
 	transformed := map[string]interface{}{
-		"cloud_function":    obj.CloudFunction,
 		"cloud_run_service": flattenEventarcTriggerDestinationCloudRunService(obj.CloudRunService),
 		"gke":               flattenEventarcTriggerDestinationGke(obj.Gke),
 		"workflow":          obj.Workflow,
+		"cloud_function":    obj.CloudFunction,
 	}
 
 	return []interface{}{transformed}
