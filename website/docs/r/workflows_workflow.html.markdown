@@ -47,6 +47,7 @@ resource "google_workflows_workflow" "example" {
   region        = "us-central1"
   description   = "Magic"
   service_account = google_service_account.test_account.id
+  call_log_level = "LOG_ERRORS_ONLY"
   labels = {
     env = "test"
   }
@@ -120,12 +121,19 @@ The following arguments are supported:
 
 * `source_contents` -
   (Optional)
-  Workflow code to be executed. The size limit is 32KB.
+  Workflow code to be executed. The size limit is 128KB.
 
 * `crypto_key_name` -
   (Optional)
   The KMS key used to encrypt workflow and execution data.
   Format: projects/{project}/locations/{location}/keyRings/{keyRing}/cryptoKeys/{cryptoKey}
+
+* `call_log_level` -
+  (Optional)
+  Describes the level of platform logging to apply to calls and call responses during
+  executions of this workflow. If both the workflow and the execution specify a logging level,
+  the execution level takes precedence.
+  Possible values are: `CALL_LOG_LEVEL_UNSPECIFIED`, `LOG_ALL_CALLS`, `LOG_ERRORS_ONLY`, `LOG_NONE`.
 
 * `user_env_vars` -
   (Optional)

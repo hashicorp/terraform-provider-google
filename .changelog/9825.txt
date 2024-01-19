@@ -1,0 +1,3 @@
+```release-note:enhancement
+workflows: add support for `call_log_level` to resource `google_workflows_workflow`
+```

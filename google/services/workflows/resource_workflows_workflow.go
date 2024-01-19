@@ -31,6 +31,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceWorkflowsWorkflow() *schema.Resource {
@@ -61,6 +62,14 @@ func ResourceWorkflowsWorkflow() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"call_log_level": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"CALL_LOG_LEVEL_UNSPECIFIED", "LOG_ALL_CALLS", "LOG_ERRORS_ONLY", "LOG_NONE", ""}),
+				Description: `Describes the level of platform logging to apply to calls and call responses during
+executions of this workflow. If both the workflow and the execution specify a logging level,
+the execution level takes precedence. Possible values: ["CALL_LOG_LEVEL_UNSPECIFIED", "LOG_ALL_CALLS", "LOG_ERRORS_ONLY", "LOG_NONE"]`,
+			},
 			"crypto_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -113,7 +122,7 @@ Modifying this field for an existing workflow results in a new workflow revision
 			"source_contents": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Workflow code to be executed. The size limit is 32KB.`,
+				Description: `Workflow code to be executed. The size limit is 128KB.`,
 			},
 			"user_env_vars": {
 				Type:        schema.TypeMap,
@@ -209,6 +218,12 @@ func resourceWorkflowsWorkflowCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(cryptoKeyNameProp)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
+	}
+	callLogLevelProp, err := expandWorkflowsWorkflowCallLogLevel(d.Get("call_log_level"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("call_log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(callLogLevelProp)) && (ok || !reflect.DeepEqual(v, callLogLevelProp)) {
+		obj["callLogLevel"] = callLogLevelProp
 	}
 	userEnvVarsProp, err := expandWorkflowsWorkflowUserEnvVars(d.Get("user_env_vars"), d, config)
 	if err != nil {
@@ -366,6 +381,9 @@ func resourceWorkflowsWorkflowRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("crypto_key_name", flattenWorkflowsWorkflowCryptoKeyName(res["cryptoKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
+	if err := d.Set("call_log_level", flattenWorkflowsWorkflowCallLogLevel(res["callLogLevel"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Workflow: %s", err)
+	}
 	if err := d.Set("user_env_vars", flattenWorkflowsWorkflowUserEnvVars(res["userEnvVars"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Workflow: %s", err)
 	}
@@ -419,6 +437,12 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("crypto_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, cryptoKeyNameProp)) {
 		obj["cryptoKeyName"] = cryptoKeyNameProp
 	}
+	callLogLevelProp, err := expandWorkflowsWorkflowCallLogLevel(d.Get("call_log_level"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("call_log_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, callLogLevelProp)) {
+		obj["callLogLevel"] = callLogLevelProp
+	}
 	userEnvVarsProp, err := expandWorkflowsWorkflowUserEnvVars(d.Get("user_env_vars"), d, config)
 	if err != nil {
 		return err
@@ -459,6 +483,10 @@ func resourceWorkflowsWorkflowUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("crypto_key_name") {
 		updateMask = append(updateMask, "cryptoKeyName")
+	}
+
+	if d.HasChange("call_log_level") {
+		updateMask = append(updateMask, "callLogLevel")
 	}
 
 	if d.HasChange("user_env_vars") {
@@ -617,6 +645,10 @@ func flattenWorkflowsWorkflowCryptoKeyName(v interface{}, d *schema.ResourceData
 	return v
 }
 
+func flattenWorkflowsWorkflowCallLogLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenWorkflowsWorkflowUserEnvVars(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -657,6 +689,10 @@ func expandWorkflowsWorkflowSourceContents(v interface{}, d tpgresource.Terrafor
 }
 
 func expandWorkflowsWorkflowCryptoKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkflowsWorkflowCallLogLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
