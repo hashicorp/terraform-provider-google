@@ -882,11 +882,11 @@ The following arguments are supported:
 <a name="nested_iap"></a>The `iap` block supports:
 
 * `oauth2_client_id` -
-  (Required)
+  (Optional)
   OAuth2 Client ID for IAP
 
 * `oauth2_client_secret` -
-  (Required)
+  (Optional)
   OAuth2 Client Secret for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -894,6 +894,10 @@ The following arguments are supported:
   (Output)
   OAuth2 Client Secret SHA-256 for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `enabled` -
+  (Optional)
+  Whether the serving infrastructure will authenticate and authorize all incoming requests.
 
 <a name="nested_locality_lb_policies"></a>The `locality_lb_policies` block supports:
 
