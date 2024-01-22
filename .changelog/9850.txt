@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed an issue when `docker_repository` is not specified in build_config section of the `google_cloudfunctions2_function`, the provider should not generate a diff during plan for the default value used by the API.
+```
