@@ -54,6 +54,7 @@ func TestAccLoggingBucketConfigProject_basic(t *testing.T) {
 		"project_name":    "tf-test-" + acctest.RandString(t, 10),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"bucket_id":       "tf-test-bucket-" + acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -99,12 +100,25 @@ func TestAccLoggingBucketConfigProject_analyticsEnabled(t *testing.T) {
 		"project_name":    "tf-test-" + acctest.RandString(t, 10),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"bucket_id":       "tf-test-bucket-" + acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingBucketConfigProject_basic(context, 30),
+			},
+			{
+				ResourceName:            "google_logging_project_bucket_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project"},
+			},
 			{
 				Config: testAccLoggingBucketConfigProject_analyticsEnabled(context, true),
 			},
@@ -267,7 +281,7 @@ resource "google_logging_project_bucket_config" "basic" {
 	location  = "global"
 	retention_days = %d
 	description = "retention test %d days"
-	bucket_id = "test-bucket"
+	bucket_id = "%{bucket_id}"
 }
 `, context), retention, retention)
 }
@@ -281,11 +295,22 @@ resource "google_project" "default" {
 	billing_account = "%{billing_account}"
 }
 
+// time_sleep would allow for permissions to be granted before creating log bucket
+resource "time_sleep" "wait_1_minute" {
+	create_duration = "1m"
+  
+	depends_on = [
+	  google_project.default,
+	]
+  }
+
 resource "google_logging_project_bucket_config" "basic" {
 	project    = google_project.default.name
 	location  = "global"
 	enable_analytics = %t
-	bucket_id = "test-bucket"
+	bucket_id = "%{bucket_id}"
+
+	depends_on = [time_sleep.wait_1_minute]
 }
 `, context), analytics)
 }
