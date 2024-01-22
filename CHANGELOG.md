@@ -1,7 +1,6 @@
 ## 5.13.0 (Unreleased)
 NOTES:
 * cloudbuildv2: `google_cloudbuildv2_repository` now uses mmv1 engine instead of DCL ([#16969](https://github.com/hashicorp/terraform-provider-google/pull/16969))
-* gkehub: updated beta api endpoint from v1beta1 to v1beta ([#16966](https://github.com/hashicorp/terraform-provider-google/pull/16966))
 * provider: updated google.golang.org/api from v0.154.0 to v0.156.0 ([#17003](https://github.com/hashicorp/terraform-provider-google/pull/17003))
 * provider: added support for in-place update for `labels` and `terraform_labels` fields in immutable resources ([#17016](https://github.com/hashicorp/terraform-provider-google/pull/17016))
 
