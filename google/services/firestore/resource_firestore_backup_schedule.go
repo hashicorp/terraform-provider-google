@@ -102,7 +102,7 @@ For a daily backup recurrence, set this to a value up to 7 days. If you set a we
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `The unique backup schedule identifier across all locations and databases for the given project. Format:
-'projects/{{project}}/databases/{{database}}/backupSchedules/{{backupSchedule}}`,
+'projects/{{project}}/databases/{{database}}/backupSchedules/{{backupSchedule}}'`,
 			},
 			"project": {
 				Type:     schema.TypeString,

@@ -35,8 +35,9 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -59,11 +60,21 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 
 func testAccFirestoreField_firestoreFieldBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-database-id%{random_suffix}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "basic" {
-  project = "%{project_id}"
-  database = "(default)"
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
   collection = "chatrooms_%{random_suffix}"
-  field = "basic"
+  field      = "basic"
 
   index_config {
     indexes {
@@ -82,8 +93,9 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -106,10 +118,21 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 
 func testAccFirestoreField_firestoreFieldTimestampExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-database-id%{random_suffix}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "timestamp" {
-  project = "%{project_id}"
-  collection = "chatrooms_%{random_suffix}"
-  field = "timestamp"
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
 
   # enables a TTL policy for the document based on the value of entries with this field
   ttl_config {}
@@ -124,8 +147,9 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -148,10 +172,21 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 
 func testAccFirestoreField_firestoreFieldMatchOverrideExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-database-id%{random_suffix}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "match_override" {
-  project = "%{project_id}"
+  project    = "%{project_id}"
+  database   = google_firestore_database.database.name
   collection = "chatrooms_%{random_suffix}"
-  field = "field_with_same_configuration_as_ancestor"
+  field      = "field_with_same_configuration_as_ancestor"
 
   index_config {
     indexes {

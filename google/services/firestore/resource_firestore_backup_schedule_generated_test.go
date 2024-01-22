@@ -35,8 +35,9 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -59,8 +60,19 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(t *testi
 
 func testAccFirestoreBackupSchedule_firestoreBackupScheduleDailyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-database-id%{random_suffix}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_backup_schedule" "daily-backup" {
-  project = "%{project_id}"
+  project  = "%{project_id}"
+  database = google_firestore_database.database.name
 
   retention = "604800s" // 7 days (maximum possible value for daily backups)
 
@@ -73,8 +85,9 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestFirestoreProjectFromEnv(t),
-		"random_suffix": acctest.RandString(t, 10),
+		"project_id":              envvar.GetTestProjectFromEnv(),
+		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
+		"random_suffix":           acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -97,9 +110,19 @@ func TestAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(t *test
 
 func testAccFirestoreBackupSchedule_firestoreBackupScheduleWeeklyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  name        = "tf-test-database-id%{random_suffix}"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "%{delete_protection_state}"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_backup_schedule" "weekly-backup" {
   project  = "%{project_id}"
-  database = "(default)"
+  database = google_firestore_database.database.name
 
   retention = "8467200s" // 14 weeks (maximum possible value for weekly backups)
 

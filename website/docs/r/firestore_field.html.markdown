@@ -39,11 +39,21 @@ chosen location.
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "basic" {
-  project = "my-project-name"
-  database = "(default)"
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
   collection = "chatrooms_%{random_suffix}"
-  field = "basic"
+  field      = "basic"
 
   index_config {
     indexes {
@@ -60,10 +70,21 @@ resource "google_firestore_field" "basic" {
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "timestamp" {
-  project = "my-project-name"
-  collection = "chatrooms_%{random_suffix}"
-  field = "timestamp"
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "chatrooms"
+  field      = "timestamp"
 
   # enables a TTL policy for the document based on the value of entries with this field
   ttl_config {}
@@ -76,10 +97,21 @@ resource "google_firestore_field" "timestamp" {
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_field" "match_override" {
-  project = "my-project-name"
+  project    = "my-project-name"
+  database   = google_firestore_database.database.name
   collection = "chatrooms_%{random_suffix}"
-  field = "field_with_same_configuration_as_ancestor"
+  field      = "field_with_same_configuration_as_ancestor"
 
   index_config {
     indexes {
