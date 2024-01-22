@@ -31,50 +31,6 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccFirestoreDatabase_firestoreDefaultDatabaseExample(t *testing.T) {
-	t.Parallel()
-
-	context := map[string]interface{}{
-		"project_id":              envvar.GetTestProjectFromEnv(),
-		"delete_protection_state": "DELETE_PROTECTION_DISABLED",
-		"random_suffix":           acctest.RandString(t, 10),
-	}
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-			"time":   {},
-		},
-		CheckDestroy: testAccCheckFirestoreDatabaseDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccFirestoreDatabase_firestoreDefaultDatabaseExample(context),
-			},
-			{
-				ResourceName:            "google_firestore_database.database",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"project", "etag", "deletion_policy"},
-			},
-		},
-	})
-}
-
-func testAccFirestoreDatabase_firestoreDefaultDatabaseExample(context map[string]interface{}) string {
-	return acctest.Nprintf(`
-resource "google_firestore_database" "database" {
-  project                 = "%{project_id}"
-  name                    = "(default)"
-  location_id             = "nam5"
-  type                    = "FIRESTORE_NATIVE"
-  delete_protection_state = "%{delete_protection_state}"
-  deletion_policy         = "DELETE"
-}
-`, context)
-}
-
 func TestAccFirestoreDatabase_firestoreDatabaseExample(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +62,7 @@ func testAccFirestoreDatabase_firestoreDatabaseExample(context map[string]interf
 	return acctest.Nprintf(`
 resource "google_firestore_database" "database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-example-database-id%{random_suffix}"
+  name                              = "tf-test-database-id%{random_suffix}"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -149,7 +105,7 @@ func testAccFirestoreDatabase_firestoreDatabaseInDatastoreModeExample(context ma
 	return acctest.Nprintf(`
 resource "google_firestore_database" "datastore_mode_database" {
   project                           = "%{project_id}"
-  name                              = "tf-test-example-database-id%{random_suffix}"
+  name                              = "tf-test-database-id%{random_suffix}"
   location_id                       = "nam5"
   type                              = "DATASTORE_MODE"
   concurrency_mode                  = "OPTIMISTIC"

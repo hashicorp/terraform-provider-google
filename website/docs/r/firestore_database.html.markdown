@@ -39,12 +39,10 @@ To get more information about Database, see:
 
 ```hcl
 resource "google_firestore_database" "database" {
-  project                 = "my-project-name"
-  name                    = "(default)"
-  location_id             = "nam5"
-  type                    = "FIRESTORE_NATIVE"
-  delete_protection_state = "DELETE_PROTECTION_ENABLED"
-  deletion_policy         = "DELETE"
+  project     = "my-project-name"
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
 }
 ```
 ## Example Usage - Firestore Database
@@ -53,7 +51,7 @@ resource "google_firestore_database" "database" {
 ```hcl
 resource "google_firestore_database" "database" {
   project                           = "my-project-name"
-  name                              = "example-database-id"
+  name                              = "database-id"
   location_id                       = "nam5"
   type                              = "FIRESTORE_NATIVE"
   concurrency_mode                  = "OPTIMISTIC"
@@ -68,12 +66,10 @@ resource "google_firestore_database" "database" {
 
 ```hcl
 resource "google_firestore_database" "datastore_mode_database" {
-  project                 = "my-project-name"
-  name                    = "(default)"
-  location_id             = "nam5"
-  type                    = "DATASTORE_MODE"
-  delete_protection_state = "DELETE_PROTECTION_ENABLED"
-  deletion_policy         = "DELETE"
+  project     = "my-project-name"
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "DATASTORE_MODE"
 }
 ```
 ## Example Usage - Firestore Database In Datastore Mode
@@ -82,7 +78,7 @@ resource "google_firestore_database" "datastore_mode_database" {
 ```hcl
 resource "google_firestore_database" "datastore_mode_database" {
   project                           = "my-project-name"
-  name                              = "example-database-id"
+  name                              = "database-id"
   location_id                       = "nam5"
   type                              = "DATASTORE_MODE"
   concurrency_mode                  = "OPTIMISTIC"

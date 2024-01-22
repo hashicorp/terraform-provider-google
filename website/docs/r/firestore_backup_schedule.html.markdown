@@ -39,8 +39,19 @@ with the database. The actual backups are not though.
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_backup_schedule" "daily-backup" {
-  project = "my-project-name"
+  project  = "my-project-name"
+  database = google_firestore_database.database.name
 
   retention = "604800s" // 7 days (maximum possible value for daily backups)
 
@@ -51,9 +62,19 @@ resource "google_firestore_backup_schedule" "daily-backup" {
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_ENABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_backup_schedule" "weekly-backup" {
   project  = "my-project-name"
-  database = "(default)"
+  database = google_firestore_database.database.name
 
   retention = "8467200s" // 14 weeks (maximum possible value for weekly backups)
 
@@ -110,7 +131,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `name` -
   The unique backup schedule identifier across all locations and databases for the given project. Format:
-  `projects/{{project}}/databases/{{database}}/backupSchedules/{{backupSchedule}}
+  `projects/{{project}}/databases/{{database}}/backupSchedules/{{backupSchedule}}`
 
 
 ## Timeouts
