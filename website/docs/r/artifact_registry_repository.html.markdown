@@ -221,7 +221,6 @@ resource "google_artifact_registry_repository" "my-repo" {
 
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
-  provider      = google-beta
   location      = "us-central1"
   repository_id = "my-repository"
   description   = "example docker repository with cleanup policies"
@@ -376,7 +375,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_virtual_repository_config).
 
 * `cleanup_policies` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Cleanup policies for this repository. Cleanup policies indicate when
   certain package versions can be automatically deleted.
   Map keys are policy IDs supplied by users during policy creation. They must
@@ -389,7 +388,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_remote_repository_config).
 
 * `cleanup_policy_dry_run` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   If true, the cleanup pipeline is prevented from deleting versions in this
   repository.
 
@@ -445,17 +444,17 @@ The following arguments are supported:
 * `id` - (Required) The identifier for this object. Format specified above.
 
 * `action` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Policy action.
   Possible values are: `DELETE`, `KEEP`.
 
 * `condition` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Policy condition for matching versions.
   Structure is [documented below](#nested_condition).
 
 * `most_recent_versions` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Policy condition for retaining a minimum number of versions. May only be
   specified with a Keep action.
   Structure is [documented below](#nested_most_recent_versions).
@@ -464,39 +463,39 @@ The following arguments are supported:
 <a name="nested_condition"></a>The `condition` block supports:
 
 * `tag_state` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions by tag status.
   Default value is `ANY`.
   Possible values are: `TAGGED`, `UNTAGGED`, `ANY`.
 
 * `tag_prefixes` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions by tag prefix. Applied on any prefix match.
 
 * `version_name_prefixes` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions by version name prefix. Applied on any prefix match.
 
 * `package_name_prefixes` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions by package prefix. Applied on any prefix match.
 
 * `older_than` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions older than a duration.
 
 * `newer_than` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions newer than a duration.
 
 <a name="nested_most_recent_versions"></a>The `most_recent_versions` block supports:
 
 * `package_name_prefixes` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Match versions by package prefix. Applied on any prefix match.
 
 * `keep_count` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Minimum number of versions to keep.
 
 <a name="nested_remote_repository_config"></a>The `remote_repository_config` block supports:
