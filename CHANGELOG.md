@@ -1,34 +1,29 @@
 ## 5.13.0 (Unreleased)
 NOTES:
-* cloudbuildv2: `google_cloudbuildv2_repository` now uses mmv1 engine instead of DCL ([#16969](https://github.com/hashicorp/terraform-provider-google/pull/16969))
-* provider: updated google.golang.org/api from v0.154.0 to v0.156.0 ([#17003](https://github.com/hashicorp/terraform-provider-google/pull/17003))
+* cloudbuildv2: changed underlying actuation engine for `google_cloudbuildv2_repository`, there should be no user-facing impact ([#16969](https://github.com/hashicorp/terraform-provider-google/pull/16969))
 * provider: added support for in-place update for `labels` and `terraform_labels` fields in immutable resources ([#17016](https://github.com/hashicorp/terraform-provider-google/pull/17016))
 
 FEATURES:
 * **New Resource:** `google_netapp_backup_policy` ([#16962](https://github.com/hashicorp/terraform-provider-google/pull/16962))
 * **New Resource:** `google_netapp_volume` ([#16990](https://github.com/hashicorp/terraform-provider-google/pull/16990))
 * **New Resource:** `google_network_security_address_group_iam_*` ([#17013](https://github.com/hashicorp/terraform-provider-google/pull/17013))
-* **New Resource:** `google_network_security_security_profile` ([#17029](https://github.com/hashicorp/terraform-provider-google/pull/17029))
 * **New Resource:** `google_vertex_ai_feature_group_feature` ([#17015](https://github.com/hashicorp/terraform-provider-google/pull/17015))
 
 IMPROVEMENTS:
-* alloydb: allowed the `database_version` as an input on `google_alloydb_cluster` ([#16967](https://github.com/hashicorp/terraform-provider-google/pull/16967))
+* alloydb: allowed `database_version` as an input on `google_alloydb_cluster` resource ([#16967](https://github.com/hashicorp/terraform-provider-google/pull/16967))
 * bigquery: added `spark_options` field to `google_bigquery_routine` resource ([#17028](https://github.com/hashicorp/terraform-provider-google/pull/17028))
-* cloudrunv2: added `nfs`, `gcs` fields to `google_cloud_run_v2_service.template.volumes`([#16972](https://github.com/hashicorp/terraform-provider-google/pull/16972))
-* cloudrunv2: added `tcpSocket` field to `google_cloud_run_v2.template.containers.liveness_probe` ([#16972](https://github.com/hashicorp/terraform-provider-google/pull/16972))
-* composer: added fields `enable_private_environment` and `enable_private_builds_only` to `google_composer_environment` ([#17034](https://github.com/hashicorp/terraform-provider-google/pull/17034))
+* cloudrunv2: added `nfs` and `gcs` fields to `google_cloud_run_v2_service.template.volumes` ([#16972](https://github.com/hashicorp/terraform-provider-google/pull/16972))
+* cloudrunv2: added `tcp_socket` field to `google_cloud_run_v2.template.containers.liveness_probe` ([#16972](https://github.com/hashicorp/terraform-provider-google/pull/16972))
 * compute: added `enable_confidential_compute` field to `google_compute_instance.boot_disk.initialize_params` ([#16968](https://github.com/hashicorp/terraform-provider-google/pull/16968))
-* compute: added `enable_confidential_compute` to `google_compute_disk`  ([#16968](https://github.com/hashicorp/terraform-provider-google/pull/16968))
-* gkehub2: added `clusterupgrade` to `google_gke_hub_feature` resource. ([#16951](https://github.com/hashicorp/terraform-provider-google/pull/16951))
-* healthcare: added `enable_history_modifications` field to `google_healthcare_fhir_store` resource (beta) ([#17019](https://github.com/hashicorp/terraform-provider-google/pull/17019))
-* notebooks: allowed `machine_type` and `accelerator_config` to be updatable on `google_notebooks_runtime` ([#16993](https://github.com/hashicorp/terraform-provider-google/pull/16993))
-* workstations: added `disable_tcp_connections` field to `google_workstations_workstation_config` resource ([#17017](https://github.com/hashicorp/terraform-provider-google/pull/17017))
+* compute: added `enable_confidential_compute` field to `google_compute_disk` resource ([#16968](https://github.com/hashicorp/terraform-provider-google/pull/16968))
+* gkehub2: added `clusterupgrade` to `google_gke_hub_feature` resource ([#16951](https://github.com/hashicorp/terraform-provider-google/pull/16951))
+* notebooks: allowed `machine_type` and `accelerator_config` to be updatable on `google_notebooks_runtime` resource ([#16993](https://github.com/hashicorp/terraform-provider-google/pull/16993))
 
 BUG FIXES:
-* compute: fixed the bug that `max_ttl` is sent in API calls even it is removed from configuration when changing cache_mode to FORCE_CACHE_ALL in `google_compute_backend_bucket` ([#16976](https://github.com/hashicorp/terraform-provider-google/pull/16976))
-* networkservices: fixed a perma-diff on `addresses` in `google_network_services_gateway` ([#17035](https://github.com/hashicorp/terraform-provider-google/pull/17035))
-* provider: fixed `universe_domain` behavior to correctly throw an error when explicitly configured `domain_universe` values did not match credentials assumed to be in the default universe ([#17014](https://github.com/hashicorp/terraform-provider-google/pull/17014))
-* spanner: fixed error when adding `autoscaling_config` to an existing `google_spanner_instance` ([#17033](https://github.com/hashicorp/terraform-provider-google/pull/17033))
+* compute: fixed the bug that `max_ttl` is sent in API calls even it is removed from configuration when changing cache_mode to FORCE_CACHE_ALL in `google_compute_backend_bucket` resource ([#16976](https://github.com/hashicorp/terraform-provider-google/pull/16976))
+* networkservices: fixed a perma-diff on `addresses` field in `google_network_services_gateway` resource ([#17035](https://github.com/hashicorp/terraform-provider-google/pull/17035))
+* provider: fixed `universe_domain` behavior to correctly throw an error when explicitly configured `universe_domain` values did not match credentials assumed to be in the default universe ([#17014](https://github.com/hashicorp/terraform-provider-google/pull/17014))
+* spanner: fixed error when adding `autoscaling_config` to an existing `google_spanner_instance` resource ([#17033](https://github.com/hashicorp/terraform-provider-google/pull/17033))
 
 
 ## 5.12.0 (Jan 16, 2024)
