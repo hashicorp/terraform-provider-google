@@ -78,6 +78,7 @@ from the given source.`,
 					Schema: map[string]*schema.Schema{
 						"docker_repository": {
 							Type:        schema.TypeString,
+							Computed:    true,
 							Optional:    true,
 							Description: `User managed repository created in Artifact Registry optionally with a customer managed encryption key.`,
 						},
