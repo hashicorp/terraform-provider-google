@@ -16,7 +16,7 @@ IMPROVEMENTS:
 * cloudrunv2: added `tcp_socket` field to `google_cloud_run_v2.template.containers.liveness_probe` ([#16972](https://github.com/hashicorp/terraform-provider-google/pull/16972))
 * compute: added `enable_confidential_compute` field to `google_compute_instance.boot_disk.initialize_params` ([#16968](https://github.com/hashicorp/terraform-provider-google/pull/16968))
 * compute: added `enable_confidential_compute` field to `google_compute_disk` resource ([#16968](https://github.com/hashicorp/terraform-provider-google/pull/16968))
-* gkehub2: added `clusterupgrade` to `google_gke_hub_feature` resource ([#16951](https://github.com/hashicorp/terraform-provider-google/pull/16951))
+* gkehub2: added `clusterupgrade` field to `google_gke_hub_feature` resource ([#16951](https://github.com/hashicorp/terraform-provider-google/pull/16951))
 * notebooks: allowed `machine_type` and `accelerator_config` to be updatable on `google_notebooks_runtime` resource ([#16993](https://github.com/hashicorp/terraform-provider-google/pull/16993))
 
 BUG FIXES:
