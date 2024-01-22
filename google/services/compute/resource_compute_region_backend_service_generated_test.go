@@ -77,6 +77,46 @@ resource "google_compute_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeRegionBackendService_regionBackendServiceExternalIapExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionBackendService_regionBackendServiceExternalIapExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "region", "iap.0.oauth2_client_secret"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionBackendService_regionBackendServiceExternalIapExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_backend_service" "default" {
+  name                  = "tf-test-tf-test-region-service-external%{random_suffix}"
+  region                = "us-central1"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+  iap {
+    oauth2_client_id     = "abc"
+    oauth2_client_secret = "xyz"
+  }
+}
+`, context)
+}
+
 func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample(t *testing.T) {
 	t.Parallel()
 
