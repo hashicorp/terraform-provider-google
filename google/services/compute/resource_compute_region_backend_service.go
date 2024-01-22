@@ -3673,8 +3673,6 @@ func resourceComputeRegionBackendServiceEncoder(d *schema.ResourceData, meta int
 	if iapVal == nil {
 		data := map[string]interface{}{}
 		data["enabled"] = false
-		data["oauth2ClientId"] = ""
-		data["oauth2ClientSecret"] = ""
 		obj["iap"] = data
 	} else {
 		iap := iapVal.(map[string]interface{})

@@ -70,6 +70,45 @@ resource "google_compute_http_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeBackendService_backendServiceExternalIapExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceExternalIapExample(context),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceExternalIapExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name                  = "tf-test-tf-test-backend-service-external%{random_suffix}"
+  protocol              = "HTTP"
+  load_balancing_scheme = "EXTERNAL"
+  iap {
+    oauth2_client_id     = "abc"
+    oauth2_client_secret = "xyz"
+  }
+}
+`, context)
+}
+
 func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T) {
 	t.Parallel()
 

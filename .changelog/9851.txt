@@ -1,0 +1,4 @@
+```release-note:bug
+compute: remove sending empty oauth2ClientId and oauth2ClientSecret string for null IAP message in google_compute_region_backend_service as it triggers resource validation
+
+```
