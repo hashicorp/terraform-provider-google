@@ -151,14 +151,6 @@ The following arguments are supported:
   (Optional)
   Description of the posture.
 
-* `annotations` -
-  (Optional)
-  Annotations is a key value map stored with a resource that
-  may be set by external tools to store and retrieve arbitrary metadata.
-
-  **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-  Please refer to the field `effective_annotations` for all of the annotations present on the resource.
-
 * `policy_sets` -
   (Optional)
   List of policy sets for the posture.
@@ -198,7 +190,7 @@ The following arguments are supported:
 
 * `constraint` -
   (Required)
-  Policy constraint definition.It can have the definition of one of following constraints: orgPolicyConstraint OrgPolicyConstraintCustom securityHealthAnalyticsModule securityHealthAnalyticsCustomModule
+  Policy constraint definition.It can have the definition of one of following constraints: orgPolicyConstraint orgPolicyConstraintCustom securityHealthAnalyticsModule securityHealthAnalyticsCustomModule
   Structure is [documented below](#nested_constraint).
 
 
@@ -562,9 +554,6 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `reconciling` -
   If set, there are currently changes in flight to the posture.
-
-* `effective_annotations` -
-  All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
 
 ## Timeouts

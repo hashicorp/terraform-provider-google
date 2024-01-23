@@ -51,7 +51,7 @@ func TestAccSecurityposturePosture_securityposturePostureBasicExample(t *testing
 				ResourceName:            "google_securityposture_posture.posture1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location", "posture_id", "annotations"},
+				ImportStateVerifyIgnore: []string{"parent", "location", "posture_id"},
 			},
 		},
 	})

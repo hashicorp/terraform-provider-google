@@ -380,9 +380,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 369
+// Generated resources: 370
 // Generated IAM resources: 222
-// Total generated resources: 591
+// Total generated resources: 592
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -898,6 +898,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_source_iam_member":                                   tpgiamresource.ResourceIamMember(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_scc_source_iam_policy":                                   tpgiamresource.ResourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_securityposture_posture":                                 securityposture.ResourceSecurityposturePosture(),
+	"google_securityposture_posture_deployment":                      securityposture.ResourceSecurityposturePostureDeployment(),
 	"google_endpoints_service_iam_binding":                           tpgiamresource.ResourceIamBinding(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
 	"google_endpoints_service_iam_member":                            tpgiamresource.ResourceIamMember(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
 	"google_endpoints_service_iam_policy":                            tpgiamresource.ResourceIamPolicy(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),

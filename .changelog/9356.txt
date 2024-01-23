@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_securityposture_posture_deployment`
+```
