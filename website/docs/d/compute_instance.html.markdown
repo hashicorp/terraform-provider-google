@@ -159,6 +159,8 @@ The following arguments are supported:
 
 * `alias_ip_range` - An array of alias IP ranges for this network interface. Structure [documented below](#nested_alias_ip_range).
 
+* `network_attachment` - [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) The URL of the network attachment to this interface.	
+
 <a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - The IP address that is be 1:1 mapped to the instance's
