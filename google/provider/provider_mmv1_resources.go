@@ -97,6 +97,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
+	"github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
 	"github.com/hashicorp/terraform-provider-google/google/services/sourcerepo"
 	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
@@ -378,9 +379,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 367
+// Generated resources: 368
 // Generated IAM resources: 222
-// Total generated resources: 589
+// Total generated resources: 590
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -894,6 +895,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_source_iam_binding":                                  tpgiamresource.ResourceIamBinding(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_scc_source_iam_member":                                   tpgiamresource.ResourceIamMember(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_scc_source_iam_policy":                                   tpgiamresource.ResourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
+	"google_securityposture_posture":                                 securityposture.ResourceSecurityposturePosture(),
 	"google_endpoints_service_iam_binding":                           tpgiamresource.ResourceIamBinding(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
 	"google_endpoints_service_iam_member":                            tpgiamresource.ResourceIamMember(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
 	"google_endpoints_service_iam_policy":                            tpgiamresource.ResourceIamPolicy(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
