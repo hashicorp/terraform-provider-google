@@ -35,7 +35,7 @@ import (
 
 // Compute revision_id for changes in posture fields.
 func revisionIdCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	if d.HasChanges("annotations", "description", "state", "policy_sets") {
+	if d.HasChanges("description", "state", "policy_sets") {
 		err := d.SetNewComputed("revision_id")
 		if err != nil {
 			return fmt.Errorf("Error re-setting revision_id: %s", err)
@@ -63,7 +63,6 @@ func ResourceSecurityposturePosture() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			revisionIdCustomizeDiff,
-			tpgresource.SetAnnotationsDiff,
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -91,17 +90,6 @@ func ResourceSecurityposturePosture() *schema.Resource {
 				ValidateFunc: verify.ValidateEnum([]string{"DEPRECATED", "DRAFT", "ACTIVE"}),
 				Description: `State of the posture. Update to state field should not be triggered along with
 with other field updates. Possible values: ["DEPRECATED", "DRAFT", "ACTIVE"]`,
-			},
-			"annotations": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Description: `Annotations is a key value map stored with a resource that
-may be set by external tools to store and retrieve arbitrary metadata.
-
-
-**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
-Please refer to the field 'effective_annotations' for all of the annotations present on the resource.`,
-				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -133,7 +121,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 									"constraint": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: `Policy constraint definition.It can have the definition of one of following constraints: orgPolicyConstraint OrgPolicyConstraintCustom securityHealthAnalyticsModule securityHealthAnalyticsCustomModule`,
+										Description: `Policy constraint definition.It can have the definition of one of following constraints: orgPolicyConstraint orgPolicyConstraintCustom securityHealthAnalyticsModule securityHealthAnalyticsCustomModule`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -615,12 +603,6 @@ returned by this custom module.`,
 				Computed:    true,
 				Description: `Time the Posture was created in UTC.`,
 			},
-			"effective_annotations": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Description: `All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-			},
 			"etag": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -682,12 +664,6 @@ func resourceSecurityposturePostureCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("policy_sets"); !tpgresource.IsEmptyValue(reflect.ValueOf(policySetsProp)) && (ok || !reflect.DeepEqual(v, policySetsProp)) {
 		obj["policySets"] = policySetsProp
-	}
-	annotationsProp, err := expandSecurityposturePostureEffectiveAnnotations(d.Get("effective_annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(annotationsProp)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecuritypostureBasePath}}{{parent}}/locations/{{location}}/postures?postureId={{posture_id}}")
@@ -789,16 +765,10 @@ func resourceSecurityposturePostureRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("etag", flattenSecurityposturePostureEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Posture: %s", err)
 	}
-	if err := d.Set("annotations", flattenSecurityposturePostureAnnotations(res["annotations"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Posture: %s", err)
-	}
 	if err := d.Set("reconciling", flattenSecurityposturePostureReconciling(res["reconciling"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Posture: %s", err)
 	}
 	if err := d.Set("policy_sets", flattenSecurityposturePosturePolicySets(res["policySets"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Posture: %s", err)
-	}
-	if err := d.Set("effective_annotations", flattenSecurityposturePostureEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Posture: %s", err)
 	}
 
@@ -839,12 +809,6 @@ func resourceSecurityposturePostureUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("policy_sets"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, policySetsProp)) {
 		obj["policySets"] = policySetsProp
 	}
-	annotationsProp, err := expandSecurityposturePostureEffectiveAnnotations(d.Get("effective_annotations"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("effective_annotations"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, annotationsProp)) {
-		obj["annotations"] = annotationsProp
-	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{SecuritypostureBasePath}}{{parent}}/locations/{{location}}/postures/{{posture_id}}?revisionId={{revision_id}}")
 	if err != nil {
@@ -868,10 +832,6 @@ func resourceSecurityposturePostureUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("policy_sets") {
 		updateMask = append(updateMask, "policySets")
-	}
-
-	if d.HasChange("effective_annotations") {
-		updateMask = append(updateMask, "annotations")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1006,21 +966,6 @@ func flattenSecurityposturePostureDescription(v interface{}, d *schema.ResourceD
 
 func flattenSecurityposturePostureEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenSecurityposturePostureAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-
-	transformed := make(map[string]interface{})
-	if l, ok := d.GetOkExists("annotations"); ok {
-		for k := range l.(map[string]interface{}) {
-			transformed[k] = v.(map[string]interface{})[k]
-		}
-	}
-
-	return transformed
 }
 
 func flattenSecurityposturePostureReconciling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1618,10 +1563,6 @@ func flattenSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnal
 }
 
 func flattenSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnalyticsCustomModuleConfigRecommendation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenSecurityposturePostureEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2595,15 +2536,4 @@ func expandSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnaly
 
 func expandSecurityposturePosturePolicySetsPoliciesConstraintSecurityHealthAnalyticsCustomModuleConfigRecommendation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
-}
-
-func expandSecurityposturePostureEffectiveAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
-	if v == nil {
-		return map[string]string{}, nil
-	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
 }
