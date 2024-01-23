@@ -573,6 +573,11 @@ The following arguments are supported:
   If the encryption key is revoked, the workstation session will automatically be stopped within 7 hours.
   Structure is [documented below](#nested_encryption_key).
 
+* `readiness_checks` -
+  (Optional)
+  Readiness checks to be performed on a workstation.
+  Structure is [documented below](#nested_readiness_checks).
+
 * `disable_tcp_connections` -
   (Optional)
   Disables support for plain TCP connections in the workstation. By default the service supports TCP connections via a websocket relay. Setting this option to true disables that relay, which prevents the usage of services that require plain tcp connections, such as ssh. When enabled, all communication must occur over https or wss.
@@ -742,6 +747,16 @@ The following arguments are supported:
 * `kms_key_service_account` -
   (Required)
   The service account to use with the specified KMS key.
+
+<a name="nested_readiness_checks"></a>The `readiness_checks` block supports:
+
+* `path` -
+  (Required)
+  Path to which the request should be sent.
+
+* `port` -
+  (Required)
+  Port to which the request should be sent.
 
 ## Attributes Reference
 
