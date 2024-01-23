@@ -588,7 +588,7 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(t *testing.T)
 				ImportStateVerifyIgnore: []string{"project", "update_time"},
 			},
 			{
-				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdate(context),
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerFull(context),
 			},
 			{
 				ResourceName:      "google_gke_hub_feature.feature",
@@ -596,7 +596,7 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(t *testing.T)
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdateSetEmpty(context),
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerMinimal(context),
 			},
 			{
 				ResourceName:      "google_gke_hub_feature.feature",
@@ -634,7 +634,7 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
-func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdate(context map[string]interface{}) string {
+func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerFull(context map[string]interface{}) string {
 	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "policycontroller"
@@ -698,7 +698,7 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
-func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerUpdateSetEmpty(context map[string]interface{}) string {
+func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerMinimal(context map[string]interface{}) string {
 	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "policycontroller"
