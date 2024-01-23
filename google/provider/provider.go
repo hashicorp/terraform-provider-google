@@ -380,6 +380,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"discovery_engine_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"dns_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -929,6 +934,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.DeploymentManagerBasePath = d.Get("deployment_manager_custom_endpoint").(string)
 	config.DialogflowBasePath = d.Get("dialogflow_custom_endpoint").(string)
 	config.DialogflowCXBasePath = d.Get("dialogflow_cx_custom_endpoint").(string)
+	config.DiscoveryEngineBasePath = d.Get("discovery_engine_custom_endpoint").(string)
 	config.DNSBasePath = d.Get("dns_custom_endpoint").(string)
 	config.DocumentAIBasePath = d.Get("document_ai_custom_endpoint").(string)
 	config.DocumentAIWarehouseBasePath = d.Get("document_ai_warehouse_custom_endpoint").(string)
