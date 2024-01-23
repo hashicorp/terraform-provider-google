@@ -100,6 +100,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sourcerepo"
