@@ -196,7 +196,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
-## Example Usage - Enable Fleet Default Member Config Policycontroller Update
+## Example Usage - Enable Fleet Default Member Config Policycontroller Full
 
 
 ```hcl
@@ -258,7 +258,7 @@ resource "google_gke_hub_feature" "feature" {
   }
 }
 ```
-## Example Usage - Enable Fleet Default Member Config Policycontroller Set Empty
+## Example Usage - Enable Fleet Default Member Config Policycontroller Minimal
 
 
 ```hcl
