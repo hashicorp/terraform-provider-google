@@ -25,6 +25,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/bigtable"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/billing"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/binaryauthorization"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/blockchainnodeengine"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudasset"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
