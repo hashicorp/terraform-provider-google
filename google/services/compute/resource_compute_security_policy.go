@@ -360,7 +360,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
-							ValidateFunc: validation.StringInSlice([]string{"DISABLED", "STANDARD"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"DISABLED", "STANDARD", "STANDARD_WITH_GRAPHQL"}, false),
 							Description:  `JSON body parsing. Supported values include: "DISABLED", "STANDARD".`,
 						},
 						"json_custom_config": {
