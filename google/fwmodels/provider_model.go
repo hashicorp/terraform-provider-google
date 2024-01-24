@@ -44,6 +44,7 @@ type ProviderModel struct {
 	BigtableCustomEndpoint                 types.String `tfsdk:"bigtable_custom_endpoint"`
 	BillingCustomEndpoint                  types.String `tfsdk:"billing_custom_endpoint"`
 	BinaryAuthorizationCustomEndpoint      types.String `tfsdk:"binary_authorization_custom_endpoint"`
+	BlockchainNodeEngineCustomEndpoint     types.String `tfsdk:"blockchain_node_engine_custom_endpoint"`
 	CertificateManagerCustomEndpoint       types.String `tfsdk:"certificate_manager_custom_endpoint"`
 	CloudAssetCustomEndpoint               types.String `tfsdk:"cloud_asset_custom_endpoint"`
 	CloudBuildCustomEndpoint               types.String `tfsdk:"cloud_build_custom_endpoint"`

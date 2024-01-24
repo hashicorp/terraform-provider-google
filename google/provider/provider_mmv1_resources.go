@@ -23,6 +23,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/bigtable"
 	"github.com/hashicorp/terraform-provider-google/google/services/billing"
 	"github.com/hashicorp/terraform-provider-google/google/services/binaryauthorization"
+	"github.com/hashicorp/terraform-provider-google/google/services/blockchainnodeengine"
 	"github.com/hashicorp/terraform-provider-google/google/services/certificatemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudasset"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
@@ -380,9 +381,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 370
+// Generated resources: 371
 // Generated IAM resources: 222
-// Total generated resources: 592
+// Total generated resources: 593
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -477,6 +478,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_binary_authorization_attestor_iam_member":                tpgiamresource.ResourceIamMember(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer, binaryauthorization.BinaryAuthorizationAttestorIdParseFunc),
 	"google_binary_authorization_attestor_iam_policy":                tpgiamresource.ResourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer, binaryauthorization.BinaryAuthorizationAttestorIdParseFunc),
 	"google_binary_authorization_policy":                             binaryauthorization.ResourceBinaryAuthorizationPolicy(),
+	"google_blockchain_node_engine_blockchain_nodes":                 blockchainnodeengine.ResourceBlockchainNodeEngineBlockchainNodes(),
 	"google_certificate_manager_certificate":                         certificatemanager.ResourceCertificateManagerCertificate(),
 	"google_certificate_manager_certificate_issuance_config":         certificatemanager.ResourceCertificateManagerCertificateIssuanceConfig(),
 	"google_certificate_manager_certificate_map":                     certificatemanager.ResourceCertificateManagerCertificateMap(),

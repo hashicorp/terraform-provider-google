@@ -203,6 +203,7 @@ type Config struct {
 	BigtableBasePath                 string
 	BillingBasePath                  string
 	BinaryAuthorizationBasePath      string
+	BlockchainNodeEngineBasePath     string
 	CertificateManagerBasePath       string
 	CloudAssetBasePath               string
 	CloudBuildBasePath               string
@@ -334,6 +335,7 @@ const BigqueryReservationBasePathKey = "BigqueryReservation"
 const BigtableBasePathKey = "Bigtable"
 const BillingBasePathKey = "Billing"
 const BinaryAuthorizationBasePathKey = "BinaryAuthorization"
+const BlockchainNodeEngineBasePathKey = "BlockchainNodeEngine"
 const CertificateManagerBasePathKey = "CertificateManager"
 const CloudAssetBasePathKey = "CloudAsset"
 const CloudBuildBasePathKey = "CloudBuild"
@@ -459,6 +461,7 @@ var DefaultBasePaths = map[string]string{
 	BigtableBasePathKey:                 "https://bigtableadmin.googleapis.com/v2/",
 	BillingBasePathKey:                  "https://billingbudgets.googleapis.com/v1/",
 	BinaryAuthorizationBasePathKey:      "https://binaryauthorization.googleapis.com/v1/",
+	BlockchainNodeEngineBasePathKey:     "https://blockchainnodeengine.googleapis.com/v1/",
 	CertificateManagerBasePathKey:       "https://certificatemanager.googleapis.com/v1/",
 	CloudAssetBasePathKey:               "https://cloudasset.googleapis.com/v1/",
 	CloudBuildBasePathKey:               "https://cloudbuild.googleapis.com/v1/",
@@ -721,6 +724,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("binary_authorization_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_BINARY_AUTHORIZATION_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[BinaryAuthorizationBasePathKey]))
+	}
+	if d.Get("blockchain_node_engine_custom_endpoint") == "" {
+		d.Set("blockchain_node_engine_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_BLOCKCHAIN_NODE_ENGINE_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[BlockchainNodeEngineBasePathKey]))
 	}
 	if d.Get("certificate_manager_custom_endpoint") == "" {
 		d.Set("certificate_manager_custom_endpoint", MultiEnvDefault([]string{
@@ -2060,6 +2068,7 @@ func ConfigureBasePaths(c *Config) {
 	c.BigtableBasePath = DefaultBasePaths[BigtableBasePathKey]
 	c.BillingBasePath = DefaultBasePaths[BillingBasePathKey]
 	c.BinaryAuthorizationBasePath = DefaultBasePaths[BinaryAuthorizationBasePathKey]
+	c.BlockchainNodeEngineBasePath = DefaultBasePaths[BlockchainNodeEngineBasePathKey]
 	c.CertificateManagerBasePath = DefaultBasePaths[CertificateManagerBasePathKey]
 	c.CloudAssetBasePath = DefaultBasePaths[CloudAssetBasePathKey]
 	c.CloudBuildBasePath = DefaultBasePaths[CloudBuildBasePathKey]

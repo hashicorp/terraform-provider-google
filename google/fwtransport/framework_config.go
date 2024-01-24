@@ -69,6 +69,7 @@ type FrameworkProviderConfig struct {
 	BigtableBasePath                 string
 	BillingBasePath                  string
 	BinaryAuthorizationBasePath      string
+	BlockchainNodeEngineBasePath     string
 	CertificateManagerBasePath       string
 	CloudAssetBasePath               string
 	CloudBuildBasePath               string
@@ -218,6 +219,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.BigtableBasePath = data.BigtableCustomEndpoint.ValueString()
 	p.BillingBasePath = data.BillingCustomEndpoint.ValueString()
 	p.BinaryAuthorizationBasePath = data.BinaryAuthorizationCustomEndpoint.ValueString()
+	p.BlockchainNodeEngineBasePath = data.BlockchainNodeEngineCustomEndpoint.ValueString()
 	p.CertificateManagerBasePath = data.CertificateManagerCustomEndpoint.ValueString()
 	p.CloudAssetBasePath = data.CloudAssetCustomEndpoint.ValueString()
 	p.CloudBuildBasePath = data.CloudBuildCustomEndpoint.ValueString()
@@ -579,6 +581,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.BinaryAuthorizationBasePathKey])
 		if customEndpoint != nil {
 			data.BinaryAuthorizationCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.BlockchainNodeEngineCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_BLOCKCHAIN_NODE_ENGINE_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.BlockchainNodeEngineBasePathKey])
+		if customEndpoint != nil {
+			data.BlockchainNodeEngineCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CertificateManagerCustomEndpoint.IsNull() {
