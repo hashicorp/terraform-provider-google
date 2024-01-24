@@ -142,7 +142,7 @@ resource "google_cloud_run_v2_job" "default" {
     template {
       timeout = "500s"
       service_account = google_service_account.service_account.email
-      execution_environment = "EXECUTION_ENVIRONMENT_GEN1"
+      execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
       containers {
         name = "container-update"
         image = "us-docker.pkg.dev/cloudrun/container/hello"
