@@ -107,6 +107,12 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Description: `The region where the managed instance group resides.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -638,6 +644,9 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	}
 	if err := d.Set("region", tpgresource.GetResourceNameFromSelfLink(manager.Region)); err != nil {
 		return fmt.Errorf("Error setting region: %s", err)
+	}
+	if err := d.Set("creation_timestamp", manager.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error reading creation_timestamp: %s", err)
 	}
 	if err := d.Set("description", manager.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)

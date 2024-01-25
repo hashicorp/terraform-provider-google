@@ -106,6 +106,12 @@ func ResourceComputeInstanceGroupManager() *schema.Resource {
 				Description: `The zone that instances in this group should be created in.`,
 			},
 
+			"creation_timestamp": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -696,6 +702,9 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 	}
 	if err := d.Set("zone", tpgresource.GetResourceNameFromSelfLink(manager.Zone)); err != nil {
 		return fmt.Errorf("Error setting zone: %s", err)
+	}
+	if err := d.Set("creation_timestamp", manager.CreationTimestamp); err != nil {
+		return fmt.Errorf("Error reading creation_timestamp: %s", err)
 	}
 	if err := d.Set("description", manager.Description); err != nil {
 		return fmt.Errorf("Error setting description: %s", err)
