@@ -159,6 +159,12 @@ The following arguments are supported:
   Maintenance policy for an instance.
   Structure is [documented below](#nested_maintenance_policy).
 
+* `reserved_ip_range_id` -
+  (Optional)
+  Contains the name of allocated IP address ranges associated with
+  the private service access connection for example, "test-default"
+  associated with IP range 10.0.0.0/29.
+
 * `region` -
   (Optional)
   The region of the Memcache instance. If it is not provided, the provider region is used.

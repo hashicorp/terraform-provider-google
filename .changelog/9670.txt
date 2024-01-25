@@ -1,0 +1,3 @@
+```release-note:enhancement
+memcache: added `reserved_ip_range_id` field to `google_memcache_instance` resource
+```
