@@ -250,6 +250,17 @@ determined by our system based on the latest supported minor version. Default va
 				ForceNew:    true,
 				Description: `The region of the Memcache instance. If it is not provided, the provider region is used.`,
 			},
+			"reserved_ip_range_id": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Contains the name of allocated IP address ranges associated with
+the private service access connection for example, "test-default"
+associated with IP range 10.0.0.0/29.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"zones": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -421,6 +432,12 @@ func resourceMemcacheInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
+	}
+	reservedIpRangeIdProp, err := expandMemcacheInstanceReservedIpRangeId(d.Get("reserved_ip_range_id"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("reserved_ip_range_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(reservedIpRangeIdProp)) && (ok || !reflect.DeepEqual(v, reservedIpRangeIdProp)) {
+		obj["reservedIpRangeId"] = reservedIpRangeIdProp
 	}
 	labelsProp, err := expandMemcacheInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1442,6 +1459,10 @@ func expandMemcacheInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeSeco
 }
 
 func expandMemcacheInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMemcacheInstanceReservedIpRangeId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
