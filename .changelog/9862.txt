@@ -1,0 +1,6 @@
+```release-note:enhancement
+Volume deletions fail if a volume contains nested resources (= snapshot). Such volumes require a force delete.
+Adds a new parameter called `deletion_policy`. The user can set it to
+- `DEFAULT`: The default behavior is to still fail volume delete if nested resources exist.
+- `FORCE`: Force volume deletion, meaning nested resources will be deleted as well.
+```

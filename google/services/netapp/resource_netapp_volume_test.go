@@ -47,7 +47,7 @@ func TestAccNetappVolume_volumeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "deletion_policy"},
 			}, {
 				Config: testAccNetappVolume_volumeBasicExample_full(context),
 			},
@@ -55,7 +55,7 @@ func TestAccNetappVolume_volumeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "deletion_policy"},
 			},
 			{
 				Config: testAccNetappVolume_volumeBasicExample_update(context),
@@ -64,7 +64,7 @@ func TestAccNetappVolume_volumeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "deletion_policy"},
 			},
 			{
 				Config: testAccNetappVolume_volumeBasicExample_updatesnapshot(context),
@@ -73,7 +73,7 @@ func TestAccNetappVolume_volumeBasicExample_update(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels", "deletion_policy"},
 			},
 		},
 	})
@@ -320,8 +320,21 @@ resource "google_netapp_volume" "test_volume" {
 			nfsv4                 = false
 		}
 	}
+	# Delete protection only gets active after an NFS client mounts.
+	# Setting it here is save, volume can still be deleted.
 	restricted_actions = ["DELETE"]
-	}
+	deletion_policy = "FORCE"
+}
+
+# Add the following snapshot block to the test as soon as snapshot resoruce
+# is added to the provider. It will make the test cleanup require
+# deletion_policy = "FORCE" on the volume for successful delete.
+# resource "google_netapp_volumesnapshot" "test-snapshot" {
+#	depends_on = [google_netapp_volume.test_volume]
+#	location = google_netapp_volume.test_volume.location
+#	volume_name = google_netapp_volume.test_volume.name
+#	name = "test-snapshot%{random_suffix}"
+#  }
 
 data "google_compute_network" "default" {
 	name = "%{network_name}"

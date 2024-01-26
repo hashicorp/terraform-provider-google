@@ -50,7 +50,7 @@ func TestAccNetappVolume_volumeBasicExample(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "deletion_policy", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -73,6 +73,7 @@ resource "google_netapp_volume" "test_volume" {
   share_name = "tf-test-test-volume%{random_suffix}"
   storage_pool = google_netapp_storage_pool.default.name
   protocols = ["NFSV3"]
+  deletion_policy = "DEFAULT"
 }
 
 data "google_compute_network" "default" {
