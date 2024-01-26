@@ -651,6 +651,11 @@ create the disk. Provide this when creating the disk.`,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `A reference to the zone where the disk resides.`,
 			},
+			"disk_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The unique identifier for the resource. This identifier is defined by the server.`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1024,6 +1029,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("source_disk_id", flattenComputeDiskSourceDiskId(res["sourceDiskId"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("disk_id", flattenComputeDiskDiskId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("type", flattenComputeDiskType(res["type"], d, config)); err != nil {
@@ -1521,6 +1529,10 @@ func flattenComputeDiskSourceDisk(v interface{}, d *schema.ResourceData, config 
 }
 
 func flattenComputeDiskSourceDiskId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeDiskDiskId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

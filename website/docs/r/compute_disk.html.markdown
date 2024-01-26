@@ -432,6 +432,9 @@ In addition to the arguments listed above, the following computed attributes are
   be used to determine whether the image was taken from the current
   or a previous instance of a given disk name.
 
+* `disk_id` -
+  The unique identifier for the resource. This identifier is defined by the server.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
