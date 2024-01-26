@@ -11,7 +11,7 @@ IMPROVEMENTS:
 * compute: added `iap.enabled` field to `compute_backend_service` resource ([#17053](https://github.com/hashicorp/terraform-provider-google/pull/17053))
 * logging: updated the `google_logging_project_bucket_config` resource to be created using the asynchronous create method ([#17067](https://github.com/hashicorp/terraform-provider-google/pull/17067))
 * pubsub: added `use_table_schema` field to `google_pubsub_subscription` resource ([#17054](https://github.com/hashicorp/terraform-provider-google/pull/17054))
-* workflows: promoted `call_log_level` field to GA for `google_workflows_workflow` resource ([#17051](https://github.com/hashicorp/terraform-provider-google/pull/17051))
+* workflows: added `call_log_level` field to `google_workflows_workflow` resource ([#17051](https://github.com/hashicorp/terraform-provider-google/pull/17051))
 
 BUG FIXES:
 * cloudfunctions2: fixed permadiff when `build_config.docker_repository` field is not specified on `google_cloudfunctions2_function` resource ([#17072](https://github.com/hashicorp/terraform-provider-google/pull/17072))
