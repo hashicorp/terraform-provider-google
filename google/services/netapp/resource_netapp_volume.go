@@ -451,6 +451,14 @@ Format for SMB volumes: '\\\\netbios_prefix-four_random_hex_letters.domain_name\
 				Computed:    true,
 				Description: `Used capacity of the volume (in GiB). This is computed periodically and it does not represent the realtime usage.`,
 			},
+			"deletion_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "DEFAULT",
+				Description: `Policy to determine if the volume should be deleted forcefully.
+Volumes may have nested snapshot resources. Deleting such a volume will fail.
+Setting this parameter to FORCE will delete volumes including nested snapshots.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -645,6 +653,12 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappVolume %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_policy"); !ok {
+		if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+			return fmt.Errorf("Error setting deletion_policy: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -918,6 +932,10 @@ func resourceNetappVolumeDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	var obj map[string]interface{}
+	// Delete volume even when nested snapshots do exist
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url = url + "?force=true"
+	}
 	log.Printf("[DEBUG] Deleting Volume %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
@@ -966,6 +984,11 @@ func resourceNetappVolumeImport(d *schema.ResourceData, meta interface{}) ([]*sc
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_policy", "DEFAULT"); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_policy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

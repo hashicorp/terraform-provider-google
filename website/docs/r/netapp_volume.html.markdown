@@ -57,6 +57,7 @@ resource "google_netapp_volume" "test_volume" {
   share_name = "test-volume"
   storage_pool = google_netapp_storage_pool.default.name
   protocols = ["NFSV3"]
+  deletion_policy = "DEFAULT"
 }
 
 data "google_compute_network" "default" {
@@ -150,6 +151,10 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_policy` - (Optional) Policy to determine if the volume should be deleted forcefully.
+Volumes may have nested snapshot resources. Deleting such a volume will fail.
+Setting this parameter to FORCE will delete volumes including nested snapshots.
 
 
 <a name="nested_export_policy"></a>The `export_policy` block supports:
