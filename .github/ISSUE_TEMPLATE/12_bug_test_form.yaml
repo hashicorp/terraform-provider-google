@@ -1,0 +1,93 @@
+name: [TEST] Bug
+labels: bug
+description: [TEST] For when something is there, but doesn't work how it should.
+body:
+  - type: textarea
+    id: community-note
+    attributes:
+      label: Community Note
+      description: Please keep this note for the community
+      value: |
+        * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request.
+        * Please do not leave _+1_ or _me too_ comments, they generate extra noise for issue followers and do not help prioritize the request.
+        * If you are interested in working on this issue or have submitted a pull request, please leave a comment.
+        * If an issue is assigned to a user, that user is claiming responsibility for the issue.
+        * Customers working with a Google Technical Account Manager or Customer Engineer can ask them to [reach out internally](https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team)
+          to expedite investigation and resolution of this issue.
+    validations:
+      required: true
+  - type: textarea
+    id: terraform-version
+    attributes:
+      label: Terraform Version
+      description: |
+        Please run [`terraform version`](https://developer.hashicorp.com/terraform/cli/commands/version) to show
+        the Terraform core version and provider version(s) and past the output here.
+        If you are not running the latest version of Terraform or the provider, please upgrade
+        because your issue may have already been fixed.
+    validations:
+      required: true
+  - type: textarea
+    id: affected-resources
+    attributes:
+      label: Affected Resource(s)
+      description: Please list the affected resources and data sources. Use google_* if all resources or data sources are affected.
+    validations:
+      required: true
+  - type: textarea
+    id: terraform-configuration
+    attributes:
+      label: Terraform Configuration
+      description: |
+        Copy-paste your Terraform configurations here as [markdown code blocks](https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code).
+
+        For large Terraform configs, please use a service like Dropbox and share a link to the ZIP file.
+        For security, you can also encrypt the files using our GPG public key:
+           https://www.hashicorp.com/security
+
+        If reproducing the bug involves modifying the config file (e.g., apply a config,
+        change a value, apply the config again, see the bug), then please include both:
+        * the version of the config before the change, and
+        * the version of the config after the change.
+      value: |
+        ```tf
+        ```
+  - type: textarea
+    id: debug-output
+    attributes:
+      label: Debug Output
+      description: |
+        Please provide a link to a GitHub Gist containing your complete
+        [debug output]((https://www.terraform.io/docs/internals/debugging.html). Please do NOT
+        paste the debug output in the issue; just paste a link to the Gist.
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Please list the steps required to reproduce the issue.
+      value: 1. `terraform apply`
+  - type: textarea
+    id: important-factoids
+    attributes:
+      label: Important Factoids
+      description: |
+        Is there anything atypical about your accounts that we should know? For example: authenticating
+        as a user instead of a service account?
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: |
+        Are there any other GitHub issues (open or closed) or pull requests that should be
+        [linked](https://help.github.com/articles/basic-writing-and-formatting-syntax/#referencing-issues-and-pull-requests)
+        here? Vendor documentation?
