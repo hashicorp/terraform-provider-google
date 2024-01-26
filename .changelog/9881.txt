@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `enabled` field to `compute_backend_service.iap` resource (revert)
+```
