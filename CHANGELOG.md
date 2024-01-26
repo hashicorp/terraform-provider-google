@@ -8,7 +8,6 @@ FEATURES:
 IMPROVEMENTS:
 * artifactregistry: promoted `cleanup_policies` and `cleanup_policy_dry_run` fields to GA for `google_artifactregistry_repository` resource ([#17074](https://github.com/hashicorp/terraform-provider-google/pull/17074))
 * composer: added `data_retention_config` field to `google_composer_environment` resource ([#17050](https://github.com/hashicorp/terraform-provider-google/pull/17050))
-* compute: added `iap.enabled` field to `compute_backend_service` resource ([#17053](https://github.com/hashicorp/terraform-provider-google/pull/17053))
 * logging: updated the `google_logging_project_bucket_config` resource to be created using the asynchronous create method ([#17067](https://github.com/hashicorp/terraform-provider-google/pull/17067))
 * pubsub: added `use_table_schema` field to `google_pubsub_subscription` resource ([#17054](https://github.com/hashicorp/terraform-provider-google/pull/17054))
 * workflows: added `call_log_level` field to `google_workflows_workflow` resource ([#17051](https://github.com/hashicorp/terraform-provider-google/pull/17051))
