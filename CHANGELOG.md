@@ -1,5 +1,22 @@
 ## 5.14.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_discovery_engine_data_store` ([#17084](https://github.com/hashicorp/terraform-provider-google/pull/17084))
+* **New Resource:** `google_securityposture_posture_deployment` ([#17085](https://github.com/hashicorp/terraform-provider-google/pull/17085))
+* **New Resource:** `google_securityposture_posture` ([#17079](https://github.com/hashicorp/terraform-provider-google/pull/17079))
+
+IMPROVEMENTS:
+* artifactregistry: promoted `cleanup_policies` and `cleanup_policy_dry_run` fields to GA for `google_artifactregistry_repository` resource ([#17074](https://github.com/hashicorp/terraform-provider-google/pull/17074))
+* composer: added `data_retention_config` field to `google_composer_environment` resource ([#17050](https://github.com/hashicorp/terraform-provider-google/pull/17050))
+* logging: updated the `google_logging_project_bucket_config` resource to be created using the asynchronous create method ([#17067](https://github.com/hashicorp/terraform-provider-google/pull/17067))
+* pubsub: added `use_table_schema` field to `google_pubsub_subscription` resource ([#17054](https://github.com/hashicorp/terraform-provider-google/pull/17054))
+* workflows: added `call_log_level` field to `google_workflows_workflow` resource ([#17051](https://github.com/hashicorp/terraform-provider-google/pull/17051))
+
+BUG FIXES:
+* cloudfunctions2: fixed permadiff when `build_config.docker_repository` field is not specified on `google_cloudfunctions2_function` resource ([#17072](https://github.com/hashicorp/terraform-provider-google/pull/17072))
+* compute: fixed error when `iap` field is unset for `google_compute_region_backend_service` resource ([#17071](https://github.com/hashicorp/terraform-provider-google/pull/17071))
+* eventarc: fixed error when setting `destination.cloud_function` field on `google_eventarc_trigger` resource by making it output-only ([#17052](https://github.com/hashicorp/terraform-provider-google/pull/17052))
+
 ## 5.13.0 (Jan 22, 2024)
 
 NOTES:
