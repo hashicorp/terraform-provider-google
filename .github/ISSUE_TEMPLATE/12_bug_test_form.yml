@@ -1,6 +1,6 @@
-name: [TEST] Bug
-labels: bug
-description: [TEST] For when something is there, but doesn't work how it should.
+name: "[TEST] Bug"
+labels: ["bug"]
+description: "[TEST] For when something is there, but doesn't work how it should."
 body:
   - type: textarea
     id: community-note
