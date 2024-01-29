@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed an issue where `database_flags` in secondary `google_alloydb_instance` resources would cause a diff, as they are copied from the primary
+```

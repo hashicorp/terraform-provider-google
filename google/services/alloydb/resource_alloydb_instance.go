@@ -139,6 +139,7 @@ can have regional availability (nodes are present in 2 or more zones in a region
 			},
 			"database_flags": {
 				Type:        schema.TypeMap,
+				Computed:    true,
 				Optional:    true,
 				Description: `Database flags. Set at instance level. * They are copied from primary instance on read instance creation. * Read instances can set new or override existing flags that are relevant for reads, e.g. for enabling columnar cache on a read instance. Flags set on read instance may or may not be present on primary.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
