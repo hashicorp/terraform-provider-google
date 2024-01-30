@@ -215,6 +215,17 @@ this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not 
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Region where the regional interconnect attachment resides.`,
 			},
+			"stack_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_IPV6", "IPV4_ONLY", ""}),
+				Description: `The stack type for this interconnect attachment to identify whether the IPv6
+feature is enabled or not. If not specified, IPV4_ONLY will be used.
+
+This field can be both set at interconnect attachments creation and update
+interconnect attachment operations. Possible values: ["IPV4_IPV6", "IPV4_ONLY"]`,
+			},
 			"type": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -391,6 +402,12 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 	} else if v, ok := d.GetOkExists("encryption"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionProp)) && (ok || !reflect.DeepEqual(v, encryptionProp)) {
 		obj["encryption"] = encryptionProp
 	}
+	stackTypeProp, err := expandComputeInterconnectAttachmentStackType(d.Get("stack_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stack_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+		obj["stackType"] = stackTypeProp
+	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -556,6 +573,9 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("encryption", flattenComputeInterconnectAttachmentEncryption(res["encryption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("stack_type", flattenComputeInterconnectAttachmentStackType(res["stackType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -605,6 +625,12 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("bandwidth"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bandwidthProp)) {
 		obj["bandwidth"] = bandwidthProp
+	}
+	stackTypeProp, err := expandComputeInterconnectAttachmentStackType(d.Get("stack_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("stack_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
+		obj["stackType"] = stackTypeProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -862,6 +888,10 @@ func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.Res
 	return v
 }
 
+func flattenComputeInterconnectAttachmentStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeInterconnectAttachmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -934,6 +964,10 @@ func expandComputeInterconnectAttachmentIpsecInternalAddresses(v interface{}, d 
 }
 
 func expandComputeInterconnectAttachmentEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentStackType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -216,6 +216,14 @@ The following arguments are supported:
   Default value is `NONE`.
   Possible values are: `NONE`, `IPSEC`.
 
+* `stack_type` -
+  (Optional)
+  The stack type for this interconnect attachment to identify whether the IPv6
+  feature is enabled or not. If not specified, IPV4_ONLY will be used.
+  This field can be both set at interconnect attachments creation and update
+  interconnect attachment operations.
+  Possible values are: `IPV4_IPV6`, `IPV4_ONLY`.
+
 * `region` -
   (Optional)
   Region where the regional interconnect attachment resides.
