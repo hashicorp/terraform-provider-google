@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
 description: |-
-  A regional NEG that can support Serverless Products.
+  A regional NEG that can support Serverless Products and proxying traffic to external backends.
 ---
 
 # google\_compute\_region\_network\_endpoint\_group
 
-A regional NEG that can support Serverless Products.
+A regional NEG that can support Serverless Products and proxying traffic to external backends.
 
 Recreating a region network endpoint group that's in use by another resource will give a
 `resourceInUseByAnotherResource` error. Use `lifecycle.create_before_destroy`
@@ -30,7 +30,8 @@ To get more information about RegionNetworkEndpointGroup, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionNetworkEndpointGroups)
 * How-to Guides
-    * [Official Documentation](https://cloud.google.com/load-balancing/docs/negs/serverless-neg-concepts)
+    * [Serverless NEGs Official Documentation](https://cloud.google.com/load-balancing/docs/negs/serverless-neg-concepts)
+    * [Internet NEGs Official Documentation](https://cloud.google.com/load-balancing/docs/negs/internet-neg-concepts)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_functions&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
@@ -286,6 +287,48 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
   subnetwork            = google_compute_subnetwork.default.self_link
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_internet_ip_port&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Internet Ip Port
+
+
+```hcl
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_ip_port" {
+  name                  = "ip-port-neg"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+
+  network_endpoint_type = "INTERNET_IP_PORT"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "network"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_network_endpoint_group_internet_fqdn_port&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Internet Fqdn Port
+
+
+```hcl
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_fqdn_port" {
+  name                  = "ip-port-neg"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+
+  network_endpoint_type = "INTERNET_FQDN_PORT"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "network"
+}
+```
 
 ## Argument Reference
 
@@ -304,7 +347,7 @@ The following arguments are supported:
 
 * `region` -
   (Required)
-  A reference to the region where the Serverless NEGs Reside.
+  A reference to the region where the regional NEGs reside.
 
 
 - - -
@@ -317,47 +360,48 @@ The following arguments are supported:
 
 * `network_endpoint_type` -
   (Optional)
-  Type of network endpoints in this network endpoint group. Defaults to SERVERLESS
+  Type of network endpoints in this network endpoint group. Defaults to SERVERLESS.
   Default value is `SERVERLESS`.
-  Possible values are: `SERVERLESS`, `PRIVATE_SERVICE_CONNECT`.
+  Possible values are: `SERVERLESS`, `PRIVATE_SERVICE_CONNECT`, `INTERNET_IP_PORT`, `INTERNET_FQDN_PORT`.
 
 * `psc_target_service` -
   (Optional)
+  This field is only used for PSC and INTERNET NEGs.
   The target service url used to set up private service connection to
   a Google API or a PSC Producer Service Attachment.
 
 * `network` -
   (Optional)
-  This field is only used for PSC.
+  This field is only used for PSC and INTERNET NEGs.
   The URL of the network to which all network endpoints in the NEG belong. Uses
   "default" project network if unspecified.
 
 * `subnetwork` -
   (Optional)
-  This field is only used for PSC.
+  This field is only used for PSC NEGs.
   Optional URL of the subnetwork to which all network endpoints in the NEG belong.
 
 * `cloud_run` -
   (Optional)
-  Only valid when networkEndpointType is "SERVERLESS".
+  This field is only used for SERVERLESS NEGs.
   Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
   Structure is [documented below](#nested_cloud_run).
 
 * `app_engine` -
   (Optional)
-  Only valid when networkEndpointType is "SERVERLESS".
+  This field is only used for SERVERLESS NEGs.
   Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
   Structure is [documented below](#nested_app_engine).
 
 * `cloud_function` -
   (Optional)
-  Only valid when networkEndpointType is "SERVERLESS".
+  This field is only used for SERVERLESS NEGs.
   Only one of cloud_run, app_engine, cloud_function or serverless_deployment may be set.
   Structure is [documented below](#nested_cloud_function).
 
 * `serverless_deployment` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  Only valid when networkEndpointType is "SERVERLESS".
+  This field is only used for SERVERLESS NEGs.
   Only one of cloudRun, appEngine, cloudFunction or serverlessDeployment may be set.
   Structure is [documented below](#nested_serverless_deployment).
 
