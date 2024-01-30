@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_region_network_endpoint`
+```
+```release-note:enhancement
+added `INTERNET_IP_PORT` and `INTERNET_FQDN_PORT` options for the `google_compute_region_network_endpoint_group` resource. 
+```

@@ -385,6 +385,88 @@ resource "google_compute_region_network_endpoint_group" "psc_neg_service_attachm
 `, context)
 }
 
+func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetIpPortExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetIpPortExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_ip_port",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetIpPortExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_ip_port" {
+  name                  = "tf-test-ip-port-neg%{random_suffix}"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+
+  network_endpoint_type = "INTERNET_IP_PORT"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "network%{random_suffix}"
+}
+`, context)
+}
+
+func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetFqdnPortExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetFqdnPortExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_fqdn_port",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternetFqdnPortExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_internet_fqdn_port" {
+  name                  = "tf-test-ip-port-neg%{random_suffix}"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+
+  network_endpoint_type = "INTERNET_FQDN_PORT"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "network%{random_suffix}"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
