@@ -184,7 +184,6 @@ The following arguments are supported:
 * `type` -
   (Optional)
   Initial type of the private cloud.
-  Default value is `STANDARD`.
   Possible values are: `STANDARD`, `TIME_LIMITED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

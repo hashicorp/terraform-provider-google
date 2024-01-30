@@ -32,6 +32,13 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func vmwareenginePrivateCloudStandardTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
+	if (old == "STANDARD" && new == "") || (old == "" && new == "STANDARD") {
+		return true
+	}
+	return false
+}
+
 func ResourceVmwareenginePrivateCloud() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceVmwareenginePrivateCloudCreate,
@@ -164,12 +171,12 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 				Description: `User-provided description for this private cloud.`,
 			},
 			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "TIME_LIMITED", ""}),
-				Description:  `Initial type of the private cloud. Default value: "STANDARD" Possible values: ["STANDARD", "TIME_LIMITED"]`,
-				Default:      "STANDARD",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"STANDARD", "TIME_LIMITED", ""}),
+				DiffSuppressFunc: vmwareenginePrivateCloudStandardTypeDiffSuppressFunc,
+				Description:      `Initial type of the private cloud. Possible values: ["STANDARD", "TIME_LIMITED"]`,
 			},
 			"hcx": {
 				Type:        schema.TypeList,
