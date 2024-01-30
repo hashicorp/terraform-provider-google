@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -19,14 +20,19 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":        "southamerica-west1",
-		"random_suffix": acctest.RandString(t, 10),
+		"region":          "southamerica-west1",
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVmwareenginePrivateCloudDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckVmwareenginePrivateCloudDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testPrivateCloudUpdateConfig(context, "description1", 1),
@@ -69,14 +75,38 @@ func testPrivateCloudUpdateConfig(context map[string]interface{}, description st
 	context["description"] = description
 
 	return acctest.Nprintf(`
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "google_project_service" "vmwareengine" {
+  project = google_project.project.project_id
+  service = "vmwareengine.googleapis.com"
+}
+
+resource "time_sleep" "sleep" {
+  create_duration = "1m"
+  depends_on = [
+    google_project_service.vmwareengine,
+  ]
+}
+
 resource "google_vmwareengine_network" "default-nw" {
+  project           = google_project.project.project_id
   name              = "tf-test-pc-nw-%{random_suffix}"
   location          = "global"
   type              = "STANDARD"
   description       = "PC network description."
+  depends_on = [
+    time_sleep.sleep # Sleep allows permissions in the new project to propagate
+  ]
 }
 
 resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
+  project     = google_project.project.project_id
   location = "%{region}-a"
   name = "tf-test-sample-pc%{random_suffix}"
   description = "%{description}"
@@ -96,6 +126,7 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
 }
 
 data "google_vmwareengine_private_cloud" "ds" {
+	project     = google_project.project.project_id
 	location = "%{region}-a"
 	name = "tf-test-sample-pc%{random_suffix}"
 	depends_on = [
