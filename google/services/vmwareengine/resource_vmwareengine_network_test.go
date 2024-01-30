@@ -24,11 +24,10 @@ func TestAccVmwareengineNetwork_vmwareEngineNetworkUpdate(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckVmwareengineNetworkDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {},
-			"time":   {},
+			"time": {},
 		},
+		CheckDestroy: testAccCheckVmwareengineNetworkDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(configTemplate, "description1"),
