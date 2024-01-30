@@ -27,7 +27,9 @@ Storage pools act as containers for volumes. All volumes in a storage pool share
 * LDAP use for NFS volumes, if applicable
 * Customer-managed encryption key (CMEK) policy
 
-The capacity of the pool can be split up and assigned to volumes within the pool. Storage pools are a billable component of NetApp Volumes. Billing is based on the location, service level, and capacity allocated to a pool independent of consumption at the volume level.
+The capacity of the pool can be split up and assigned to volumes within the pool. Storage pools are a billable
+component of NetApp Volumes. Billing is based on the location, service level, and capacity allocated to a pool
+independent of consumption at the volume level.
 
 
 To get more information about storagePool, see:
@@ -45,12 +47,13 @@ To get more information about storagePool, see:
 
 
 ```hcl
-
+# Create a network or use datasource to reference existing network
 resource "google_compute_network" "peering_network" {
   name = "test-network"
 }
 
-# Create an IP address
+# Reserve a CIDR for NetApp Volumes to use
+# When using shared-VPCs, this resource needs to be created in host project
 resource "google_compute_global_address" "private_ip_alloc" {
   name          = "test-address"
   purpose       = "VPC_PEERING"
@@ -59,15 +62,29 @@ resource "google_compute_global_address" "private_ip_alloc" {
   network       = google_compute_network.peering_network.id
 }
 
-# Create a private connection
+# Create a Private Service Access connection
+# When using shared-VPCs, this resource needs to be created in host project
 resource "google_service_networking_connection" "default" {
   network                 = google_compute_network.peering_network.id
   service                 = "netapp.servicenetworking.goog"
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 
+# Modify the PSA Connection to allow import/export of custom routes
+# When using shared-VPCs, this resource needs to be created in host project
+resource "google_compute_network_peering_routes_config" "route_updates" {
+  peering = google_service_networking_connection.default.peering
+  network = google_compute_network.peering_network.name
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+# Create a storage pool
+# Create this resource in the project which is expected to own the volumes
 resource "google_netapp_storage_pool" "test_pool" {
   name = "test-pool"
+  # project = <your_project>
   location = "us-central1"
   service_level = "PREMIUM"
   capacity_gib = "2048"
