@@ -243,6 +243,7 @@ type Config struct {
 	EdgenetworkBasePath              string
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
+	FirebaseAppCheckBasePath         string
 	FirestoreBasePath                string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
@@ -375,6 +376,7 @@ const EdgecontainerBasePathKey = "Edgecontainer"
 const EdgenetworkBasePathKey = "Edgenetwork"
 const EssentialContactsBasePathKey = "EssentialContacts"
 const FilestoreBasePathKey = "Filestore"
+const FirebaseAppCheckBasePathKey = "FirebaseAppCheck"
 const FirestoreBasePathKey = "Firestore"
 const GKEBackupBasePathKey = "GKEBackup"
 const GKEHubBasePathKey = "GKEHub"
@@ -501,6 +503,7 @@ var DefaultBasePaths = map[string]string{
 	EdgenetworkBasePathKey:              "https://edgenetwork.googleapis.com/v1/",
 	EssentialContactsBasePathKey:        "https://essentialcontacts.googleapis.com/v1/",
 	FilestoreBasePathKey:                "https://file.googleapis.com/v1/",
+	FirebaseAppCheckBasePathKey:         "https://firebaseappcheck.googleapis.com/v1/",
 	FirestoreBasePathKey:                "https://firestore.googleapis.com/v1/",
 	GKEBackupBasePathKey:                "https://gkebackup.googleapis.com/v1/",
 	GKEHubBasePathKey:                   "https://gkehub.googleapis.com/v1/",
@@ -924,6 +927,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("filestore_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_FILESTORE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[FilestoreBasePathKey]))
+	}
+	if d.Get("firebase_app_check_custom_endpoint") == "" {
+		d.Set("firebase_app_check_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_APP_CHECK_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[FirebaseAppCheckBasePathKey]))
 	}
 	if d.Get("firestore_custom_endpoint") == "" {
 		d.Set("firestore_custom_endpoint", MultiEnvDefault([]string{
@@ -2108,6 +2116,7 @@ func ConfigureBasePaths(c *Config) {
 	c.EdgenetworkBasePath = DefaultBasePaths[EdgenetworkBasePathKey]
 	c.EssentialContactsBasePath = DefaultBasePaths[EssentialContactsBasePathKey]
 	c.FilestoreBasePath = DefaultBasePaths[FilestoreBasePathKey]
+	c.FirebaseAppCheckBasePath = DefaultBasePaths[FirebaseAppCheckBasePathKey]
 	c.FirestoreBasePath = DefaultBasePaths[FirestoreBasePathKey]
 	c.GKEBackupBasePath = DefaultBasePaths[GKEBackupBasePathKey]
 	c.GKEHubBasePath = DefaultBasePaths[GKEHubBasePathKey]
