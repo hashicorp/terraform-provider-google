@@ -62,6 +62,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/edgenetwork"
 	"github.com/hashicorp/terraform-provider-google/google/services/essentialcontacts"
 	"github.com/hashicorp/terraform-provider-google/google/services/filestore"
+	"github.com/hashicorp/terraform-provider-google/google/services/firebaseappcheck"
 	"github.com/hashicorp/terraform-provider-google/google/services/firestore"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkebackup"
 	"github.com/hashicorp/terraform-provider-google/google/services/gkehub"
@@ -382,9 +383,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 375
+// Generated resources: 376
 // Generated IAM resources: 222
-// Total generated resources: 597
+// Total generated resources: 598
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -715,6 +716,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_filestore_backup":                                        filestore.ResourceFilestoreBackup(),
 	"google_filestore_instance":                                      filestore.ResourceFilestoreInstance(),
 	"google_filestore_snapshot":                                      filestore.ResourceFilestoreSnapshot(),
+	"google_firebase_app_check_service_config":                       firebaseappcheck.ResourceFirebaseAppCheckServiceConfig(),
 	"google_firestore_backup_schedule":                               firestore.ResourceFirestoreBackupSchedule(),
 	"google_firestore_database":                                      firestore.ResourceFirestoreDatabase(),
 	"google_firestore_document":                                      firestore.ResourceFirestoreDocument(),

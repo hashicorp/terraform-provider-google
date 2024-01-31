@@ -109,6 +109,7 @@ type FrameworkProviderConfig struct {
 	EdgenetworkBasePath              string
 	EssentialContactsBasePath        string
 	FilestoreBasePath                string
+	FirebaseAppCheckBasePath         string
 	FirestoreBasePath                string
 	GKEBackupBasePath                string
 	GKEHubBasePath                   string
@@ -259,6 +260,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.EdgenetworkBasePath = data.EdgenetworkCustomEndpoint.ValueString()
 	p.EssentialContactsBasePath = data.EssentialContactsCustomEndpoint.ValueString()
 	p.FilestoreBasePath = data.FilestoreCustomEndpoint.ValueString()
+	p.FirebaseAppCheckBasePath = data.FirebaseAppCheckCustomEndpoint.ValueString()
 	p.FirestoreBasePath = data.FirestoreCustomEndpoint.ValueString()
 	p.GKEBackupBasePath = data.GKEBackupCustomEndpoint.ValueString()
 	p.GKEHubBasePath = data.GKEHubCustomEndpoint.ValueString()
@@ -901,6 +903,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.FilestoreBasePathKey])
 		if customEndpoint != nil {
 			data.FilestoreCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.FirebaseAppCheckCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_FIREBASE_APP_CHECK_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.FirebaseAppCheckBasePathKey])
+		if customEndpoint != nil {
+			data.FirebaseAppCheckCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.FirestoreCustomEndpoint.IsNull() {
