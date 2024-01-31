@@ -93,7 +93,7 @@ func ResourceArtifactRegistryRepository() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareCaseInsensitive,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The format of packages that are stored in the repository. Supported formats
 can be found [here](https://cloud.google.com/artifact-registry/docs/supported-formats).
 You can only create alpha formats if you are a member of the

@@ -287,10 +287,6 @@ func ProjectNumberDiffSuppress(_, old, new string, _ *schema.ResourceData) bool 
 	return a2 == b2
 }
 
-func CompareCaseInsensitive(k, old, new string, d *schema.ResourceData) bool {
-	return strings.ToLower(old) == strings.ToLower(new)
-}
-
 func IsNewResource(diff TerraformResourceDiff) bool {
 	name := diff.Get("name")
 	return name.(string) == ""
