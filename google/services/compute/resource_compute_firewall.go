@@ -388,7 +388,7 @@ func computeFirewallAllowSchema() *schema.Resource {
 			"protocol": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: tpgresource.CompareCaseInsensitive,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The IP protocol to which this rule applies. The protocol type is
 required when creating a firewall rule. This value can either be
 one of the following well known protocol strings (tcp, udp,
@@ -418,7 +418,7 @@ func computeFirewallDenySchema() *schema.Resource {
 			"protocol": {
 				Type:             schema.TypeString,
 				Required:         true,
-				DiffSuppressFunc: tpgresource.CompareCaseInsensitive,
+				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The IP protocol to which this rule applies. The protocol type is
 required when creating a firewall rule. This value can either be
 one of the following well known protocol strings (tcp, udp,
