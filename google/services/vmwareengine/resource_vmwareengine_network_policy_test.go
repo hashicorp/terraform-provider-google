@@ -36,7 +36,7 @@ func TestAccVmwareengineNetworkPolicy_update(t *testing.T) {
 				ResourceName:            "google_vmwareengine_network_policy.vmw-engine-network-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time"},
 			},
 			{
 				Config: testAccVmwareengineNetworkPolicy_config(context, "description2", "192.168.1.0/26", true, true),
@@ -45,7 +45,7 @@ func TestAccVmwareengineNetworkPolicy_update(t *testing.T) {
 				ResourceName:            "google_vmwareengine_network_policy.vmw-engine-network-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time"},
 			},
 		},
 	})
