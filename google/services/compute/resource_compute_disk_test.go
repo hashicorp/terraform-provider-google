@@ -1191,3 +1191,171 @@ resource "google_compute_disk" "foobar" {
 }
 `, diskName)
 }
+
+func TestAccComputeDisk_attributionLabelOnCreation(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_attributionLabel(diskName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "2"),
+				),
+			},
+			{
+				Config: testAccComputeDisk_attributionLabelUpdated(diskName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_attributionLabelOnCreationSkip(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_attributionLabel(diskName, "false", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "1"),
+				),
+			},
+			{
+				Config: testAccComputeDisk_attributionLabelUpdated(diskName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeDisk_attributionLabelProactive(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_attributionLabel(diskName, "false", "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "foo"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "1"),
+				),
+			},
+			{
+				Config: testAccComputeDisk_attributionLabelUpdated(diskName, "true", "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "terraform_labels.user-label", "bar"),
+
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "effective_labels.%", "2"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeDisk_attributionLabel(diskName, add, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	add_terraform_attribution_label               = %s
+	terraform_attribution_label_addition_strategy = %q
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  labels = {
+    user-label = "foo"
+  }
+}
+`, add, strategy, diskName)
+}
+
+func testAccComputeDisk_attributionLabelUpdated(diskName, add, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	add_terraform_attribution_label               = %s
+	terraform_attribution_label_addition_strategy = %q
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobar" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 50
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+  labels = {
+    user-label = "bar"
+  }
+}
+`, add, strategy, diskName)
+}

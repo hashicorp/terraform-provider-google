@@ -2646,6 +2646,109 @@ func TestAccComputeInstance_regionBootDisk(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_creationOnlyAttributionLabel(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_attributionLabelCreate(instanceName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "foo"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, true),
+				),
+			},
+			{
+				Config: testAccComputeInstance_attributionLabelUpdate(instanceName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "bar"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, true),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_creationOnlyAttributionLabelConfiguredOnUpdate(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_attributionLabelCreate(instanceName, "false", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "foo"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, false),
+				),
+			},
+			{
+				Config: testAccComputeInstance_attributionLabelUpdate(instanceName, "true", "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "bar"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_proactiveAttributionLabel(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_attributionLabelCreate(instanceName, "false", "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "foo"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, false),
+				),
+			},
+			{
+				Config: testAccComputeInstance_attributionLabelUpdate(instanceName, "true", "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceLabel(&instance, "user_label", "bar"),
+					testAccCheckComputeInstanceAttributionLabel(&instance, true),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -3109,6 +3212,26 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 		}
 		if v != value {
 			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceAttributionLabel(instance *compute.Instance, present bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Labels == nil {
+			if present {
+				return fmt.Errorf("no labels found on instance %s", instance.Name)
+			}
+			return nil
+		}
+
+		_, ok := instance.Labels["goog-terraform-provisioned"]
+		if ok {
+			if !present {
+				return fmt.Errorf("Attribution label found on instance %s", instance.Name)
+			}
 		}
 
 		return nil
@@ -6507,6 +6630,80 @@ resource "google_compute_instance" "foobar" {
 
 }
 `, instance, enableConfidentialCompute)
+}
+
+func testAccComputeInstance_attributionLabelCreate(instance, add, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	add_terraform_attribution_label               = %s
+	terraform_attribution_label_addition_strategy = %q
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  desired_status  = "RUNNING"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  labels = {
+    user_label = "foo"
+  }
+}
+`, add, strategy, instance)
+}
+
+func testAccComputeInstance_attributionLabelUpdate(instance, add, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+	add_terraform_attribution_label               = %s
+	terraform_attribution_label_addition_strategy = %q
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%s"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+  desired_status  = "RUNNING"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  labels = {
+    user_label = "bar"
+  }
+}
+`, add, strategy, instance)
 }
 
 func testAccComputeInstanceConfidentialHyperDiskBootDisk(context map[string]interface{}) string {

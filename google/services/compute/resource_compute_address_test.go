@@ -279,6 +279,251 @@ func TestAccComputeAddress_withProviderDefaultLabels(t *testing.T) {
 	})
 }
 
+func TestAccComputeAddress_withCreationOnlyAttribution(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Creating with two user supplied labels should result in those labels + the attribution label.
+				Config: testAccComputeAddress_networkTier_withAttribution(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_address.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				// Updating the user supplied labels should leave the attribution label intact.
+				Config: testAccComputeAddress_networkTier_withAttributionUpdate(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+			{
+				// Removing the user supplied labels should leave the attribution label intact.
+				Config: testAccComputeAddress_networkTier_withAttributionClear(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "labels.%"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeAddress_withCreationOnlyAttributionSetOnUpdate(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create the initial resource without the attribution label.
+				Config: testAccComputeAddress_networkTier_withSkipAttribution(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "2"),
+				),
+			},
+			{
+				// Updating with attribution label set to "CREATION_ONLY" should not add the label.
+				Config: testAccComputeAddress_networkTier_withAttributionUpdate(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeAddress_withProactiveAttribution(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Creating with two user supplied labels should result in those labels + the attribution label.
+				Config: testAccComputeAddress_networkTier_withAttribution(suffix, "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_compute_address.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				// Updating the user supplied labels should leave the attribution label intact.
+				Config: testAccComputeAddress_networkTier_withAttributionUpdate(suffix, "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+			{
+				// Removing the user supplied labels should leave the attribution label intact.
+				Config: testAccComputeAddress_networkTier_withAttributionClear(suffix, "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_compute_address.foobar", "labels.%"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeAddress_withProactiveAttributionSetOnUpdate(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create the initial resource without the attribution label.
+				Config: testAccComputeAddress_networkTier_withSkipAttribution(suffix, "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "2"),
+				),
+			},
+			{
+				// Updating with attribution label set to "PROACTIVE" should add the label.
+				Config: testAccComputeAddress_networkTier_withAttributionUpdate(suffix, "PROACTIVE"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeAddress_withAttributionRemoved(t *testing.T) {
+	// VCR tests cache provider configuration between steps, this test changes provider configuration and fails under VCR.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Creating with two user supplied labels should result in those labels + the attribution label.
+				Config: testAccComputeAddress_networkTier_withAttribution(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.goog-terraform-provisioned", "true"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "3"),
+				),
+			},
+			{
+				// Skipping attribution on resources that already have attribution removes the previous attribution.
+				Config: testAccComputeAddress_networkTier_withSkipAttributionUpdate(suffix, "CREATION_ONLY"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.env", "bar"),
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "terraform_labels.default_expiration_ms", "7200000"),
+
+					resource.TestCheckResourceAttr("google_compute_address.foobar", "effective_labels.%", "2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccComputeAddress_networkTier_withLabels(i string) string {
 	return fmt.Sprintf(`
 resource "google_compute_address" "foobar" {
@@ -367,6 +612,96 @@ resource "google_compute_address" "foobar" {
   }
 }
 `, i)
+}
+
+func testAccComputeAddress_networkTier_withAttribution(suffix, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label               = true
+  terraform_attribution_label_addition_strategy = %q
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "tf-test-address-%s"
+  network_tier = "STANDARD"
+
+  labels = {
+    env                   = "foo"
+    default_expiration_ms = 3600000
+  }
+}
+`, strategy, suffix)
+}
+
+func testAccComputeAddress_networkTier_withSkipAttribution(suffix, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label               = false
+  terraform_attribution_label_addition_strategy = %q
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "tf-test-address-%s"
+  network_tier = "STANDARD"
+
+  labels = {
+    env                   = "foo"
+    default_expiration_ms = 3600000
+  }
+}
+`, strategy, suffix)
+}
+
+func testAccComputeAddress_networkTier_withAttributionUpdate(suffix, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label               = true
+  terraform_attribution_label_addition_strategy = %q
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "tf-test-address-%s"
+  network_tier = "STANDARD"
+
+  labels = {
+    env                   = "bar"
+    default_expiration_ms = 7200000
+  }
+}
+`, strategy, suffix)
+}
+
+func testAccComputeAddress_networkTier_withSkipAttributionUpdate(suffix, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label               = false
+  terraform_attribution_label_addition_strategy = %q
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "tf-test-address-%s"
+  network_tier = "STANDARD"
+
+  labels = {
+    env                   = "bar"
+    default_expiration_ms = 7200000
+  }
+}
+`, strategy, suffix)
+}
+
+func testAccComputeAddress_networkTier_withAttributionClear(suffix, strategy string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label               = true
+  terraform_attribution_label_addition_strategy = %q
+}
+
+resource "google_compute_address" "foobar" {
+  name         = "tf-test-address-%s"
+  network_tier = "STANDARD"
+}
+`, strategy, suffix)
 }
 
 func testAccComputeAddress_internal(i string) string {

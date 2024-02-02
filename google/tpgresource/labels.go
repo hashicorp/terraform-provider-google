@@ -79,6 +79,18 @@ func SetLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) 
 		terraformLabels[k] = v
 	}
 
+	// Append optional label indicating the resource was provisioned using Terraform
+	if config.AddTerraformAttributionLabel {
+		if el, ok := d.Get("effective_labels").(map[string]any); ok {
+			_, hasExistingLabel := el[transport_tpg.AttributionKey]
+			if hasExistingLabel ||
+				config.TerraformAttributionLabelAdditionStrategy == transport_tpg.ProactiveAttributionStrategy ||
+				(config.TerraformAttributionLabelAdditionStrategy == transport_tpg.CreateOnlyAttributionStrategy && d.Id() == "") {
+				terraformLabels[transport_tpg.AttributionKey] = transport_tpg.AttributionValue
+			}
+		}
+	}
+
 	labels := raw.(map[string]interface{})
 	for k, v := range labels {
 		terraformLabels[k] = v.(string)
@@ -133,6 +145,18 @@ func SetMetadataLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta inter
 	terraformLabels := make(map[string]string)
 	for k, v := range config.DefaultLabels {
 		terraformLabels[k] = v
+	}
+
+	// Append optional label indicating the resource was provisioned using Terraform
+	if config.AddTerraformAttributionLabel {
+		if el, ok := d.Get("metadata.0.effective_labels").(map[string]any); ok {
+			_, hasExistingLabel := el[transport_tpg.AttributionKey]
+			if hasExistingLabel ||
+				config.TerraformAttributionLabelAdditionStrategy == transport_tpg.ProactiveAttributionStrategy ||
+				(config.TerraformAttributionLabelAdditionStrategy == transport_tpg.CreateOnlyAttributionStrategy && d.Id() == "") {
+				terraformLabels[transport_tpg.AttributionKey] = transport_tpg.AttributionValue
+			}
+		}
 	}
 
 	labels := raw.(map[string]interface{})
