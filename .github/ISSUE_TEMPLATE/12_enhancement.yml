@@ -6,7 +6,7 @@ body:
     id: community-note
     attributes:
       label: Community Note
-      description: Please keep this note for the community
+      description: Please keep this note for the community.
       value: |
         * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request.
         * Please do not leave _+1_ or _me too_ comments, they generate extra noise for issue followers and do not help prioritize the request.
@@ -39,7 +39,7 @@ body:
       description: |
         Propose what you think the configuration to take advantage of this feature should look like. We may not use it verbatim, but it's helpful in understanding your intent.
 
-        Information about code formatting: https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code"
+        Use [markdown code blocks](https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code) to format the configuration.
       value: |
         ```tf 
         ```
