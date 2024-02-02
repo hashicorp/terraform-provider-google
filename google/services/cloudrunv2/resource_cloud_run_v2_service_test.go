@@ -746,3 +746,105 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, serviceName, customAudience)
 }
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceAttributionLabel(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix":        acctest.RandString(t, 10),
+		"add_attribution":      "true",
+		"attribution_strategy": "CREATION_ONLY",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithAttributionLabel(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "labels.user_label", "foo"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.user_label", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.goog-terraform-provisioned", "true"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.user_label", "foo"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.goog-terraform-provisioned", "true"),
+				),
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithAttributionLabelUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "labels.%", "1"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "labels.user_label", "bar"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.user_label", "bar"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "terraform_labels.goog-terraform-provisioned", "true"),
+
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.user_label", "bar"),
+					resource.TestCheckResourceAttr("google_cloud_run_v2_service.default", "effective_labels.goog-terraform-provisioned", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithAttributionLabel(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  add_terraform_attribution_label               = %{add_attribution}
+  terraform_attribution_label_addition_strategy = "%{attribution_strategy}"
+}
+
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+
+  labels = {
+    user_label = "foo"
+  }
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithAttributionLabelUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+provider "google" {
+  add_terraform_attribution_label               = %{add_attribution}
+  terraform_attribution_label_addition_strategy = "%{attribution_strategy}"
+}
+
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  location = "us-central1"
+
+  labels = {
+    user_label = "bar"
+  }
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      ports {
+        container_port = 8080
+      }
+    }
+  }
+}
+`, context)
+}

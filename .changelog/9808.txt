@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: added an optional provider level label `goog-terraform-provisioned` to identify resources that were created by Terraform when viewing/editing these resources in other tools.
+```

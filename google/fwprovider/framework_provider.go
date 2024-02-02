@@ -135,6 +135,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Optional:    true,
 				ElementType: types.StringType,
 			},
+			"add_terraform_attribution_label": schema.BoolAttribute{
+				Optional: true,
+			},
+			"terraform_attribution_label_addition_strategy": schema.StringAttribute{
+				Optional: true,
+			},
 			// Generated Products
 			"access_approval_custom_endpoint": &schema.StringAttribute{
 				Optional: true,

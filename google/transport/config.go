@@ -159,21 +159,23 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 // provider.
 type Config struct {
 	DCLConfig
-	AccessToken                        string
-	Credentials                        string
-	ImpersonateServiceAccount          string
-	ImpersonateServiceAccountDelegates []string
-	Project                            string
-	Region                             string
-	BillingProject                     string
-	Zone                               string
-	UniverseDomain                     string
-	Scopes                             []string
-	BatchingConfig                     *BatchingConfig
-	UserProjectOverride                bool
-	RequestReason                      string
-	RequestTimeout                     time.Duration
-	DefaultLabels                      map[string]string
+	AccessToken                               string
+	Credentials                               string
+	ImpersonateServiceAccount                 string
+	ImpersonateServiceAccountDelegates        []string
+	Project                                   string
+	Region                                    string
+	BillingProject                            string
+	Zone                                      string
+	UniverseDomain                            string
+	Scopes                                    []string
+	BatchingConfig                            *BatchingConfig
+	UserProjectOverride                       bool
+	RequestReason                             string
+	RequestTimeout                            time.Duration
+	DefaultLabels                             map[string]string
+	AddTerraformAttributionLabel              bool
+	TerraformAttributionLabelAdditionStrategy string
 	// PollInterval is passed to resource.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
@@ -575,6 +577,11 @@ var DefaultClientScopes = []string{
 	"https://www.googleapis.com/auth/cloud-platform",
 	"https://www.googleapis.com/auth/userinfo.email",
 }
+
+const AttributionKey = "goog-terraform-provisioned"
+const AttributionValue = "true"
+const CreateOnlyAttributionStrategy = "CREATION_ONLY"
+const ProactiveAttributionStrategy = "PROACTIVE"
 
 func HandleSDKDefaults(d *schema.ResourceData) error {
 	if d.Get("impersonate_service_account") == "" {

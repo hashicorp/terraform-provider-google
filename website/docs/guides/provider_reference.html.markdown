@@ -268,6 +268,38 @@ resource "google_compute_address" "my_address" {
 }
 ```
 
+---
+
+* `add_terraform_attribution_label` (Optional) Whether to add a label to
+resources indicating that the resource was provisioned using Terraform. When
+set to `true` the label `goog-terraform-provisioned = true` will be added
+automatically to resources, and will be returned in the `terraform_labels`
+and `effective_labels` fields. This makes it possible to distinguish Terraform
+resources when using other tools like Cloud Console or gcloud.
+
+The default value is `false`. No label will be added unless the provider is
+explicitly configured to do so by setting the value to `true`.
+
+---
+
+* `terraform_attribution_label_addition_strategy` (Optional) In conjunction
+with `add_terraform_attribution_label` this determines when the
+`goog-terraform-provisioned = true` label will be added to resources. There
+are two possible values: `CREATION_ONLY` (the default value) will only add
+the label to newly created resources; and `PROACTIVE`, which will add the
+label to all resources with `labels` during the next `terraform apply`.
+
+If `add_terraform_attribution_label` is `false`, this configuration is
+ignored. This example configuration adds the label to resources every
+time `terraform apply` is run:
+
+```
+provider "google" {
+  add_terraform_attribution_label               = true
+  terraform_attribution_label_addition_strategy = "PROACTIVE"
+}
+```
+
 ## Advanced Settings Configuration
 
 * `request_timeout` - (Optional) A duration string controlling the amount of time

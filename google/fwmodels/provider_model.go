@@ -9,21 +9,23 @@ import (
 
 // ProviderModel describes the provider config data model.
 type ProviderModel struct {
-	Credentials                        types.String `tfsdk:"credentials"`
-	AccessToken                        types.String `tfsdk:"access_token"`
-	ImpersonateServiceAccount          types.String `tfsdk:"impersonate_service_account"`
-	ImpersonateServiceAccountDelegates types.List   `tfsdk:"impersonate_service_account_delegates"`
-	Project                            types.String `tfsdk:"project"`
-	BillingProject                     types.String `tfsdk:"billing_project"`
-	Region                             types.String `tfsdk:"region"`
-	Zone                               types.String `tfsdk:"zone"`
-	Scopes                             types.List   `tfsdk:"scopes"`
-	Batching                           types.List   `tfsdk:"batching"`
-	UserProjectOverride                types.Bool   `tfsdk:"user_project_override"`
-	RequestTimeout                     types.String `tfsdk:"request_timeout"`
-	RequestReason                      types.String `tfsdk:"request_reason"`
-	UniverseDomain                     types.String `tfsdk:"universe_domain"`
-	DefaultLabels                      types.Map    `tfsdk:"default_labels"`
+	Credentials                               types.String `tfsdk:"credentials"`
+	AccessToken                               types.String `tfsdk:"access_token"`
+	ImpersonateServiceAccount                 types.String `tfsdk:"impersonate_service_account"`
+	ImpersonateServiceAccountDelegates        types.List   `tfsdk:"impersonate_service_account_delegates"`
+	Project                                   types.String `tfsdk:"project"`
+	BillingProject                            types.String `tfsdk:"billing_project"`
+	Region                                    types.String `tfsdk:"region"`
+	Zone                                      types.String `tfsdk:"zone"`
+	Scopes                                    types.List   `tfsdk:"scopes"`
+	Batching                                  types.List   `tfsdk:"batching"`
+	UserProjectOverride                       types.Bool   `tfsdk:"user_project_override"`
+	RequestTimeout                            types.String `tfsdk:"request_timeout"`
+	RequestReason                             types.String `tfsdk:"request_reason"`
+	UniverseDomain                            types.String `tfsdk:"universe_domain"`
+	DefaultLabels                             types.Map    `tfsdk:"default_labels"`
+	AddTerraformAttributionLabel              types.Bool   `tfsdk:"add_terraform_attribution_label"`
+	TerraformAttributionLabelAdditionStrategy types.String `tfsdk:"terraform_attribution_label_addition_strategy"`
 
 	// Generated Products
 	AccessApprovalCustomEndpoint           types.String `tfsdk:"access_approval_custom_endpoint"`

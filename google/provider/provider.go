@@ -134,6 +134,16 @@ func Provider() *schema.Provider {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"add_terraform_attribution_label": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"terraform_attribution_label_addition_strategy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			// Generated Products
 			"access_approval_custom_endpoint": {
 				Type:         schema.TypeString,
@@ -886,6 +896,20 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 
 	for k, v := range defaultLabels {
 		config.DefaultLabels[k] = v.(string)
+	}
+
+	// Attribution label is opt-in; if unset, the default for AddTerraformAttributionLabel is false.
+	config.AddTerraformAttributionLabel = d.Get("add_terraform_attribution_label").(bool)
+	if config.AddTerraformAttributionLabel {
+		config.TerraformAttributionLabelAdditionStrategy = transport_tpg.CreateOnlyAttributionStrategy
+		if v, ok := d.GetOk("terraform_attribution_label_addition_strategy"); ok {
+			config.TerraformAttributionLabelAdditionStrategy = v.(string)
+		}
+		switch config.TerraformAttributionLabelAdditionStrategy {
+		case transport_tpg.CreateOnlyAttributionStrategy, transport_tpg.ProactiveAttributionStrategy:
+		default:
+			return nil, diag.FromErr(fmt.Errorf("unrecognized terraform_attribution_label_addition_strategy %q", config.TerraformAttributionLabelAdditionStrategy))
+		}
 	}
 
 	batchCfg, err := transport_tpg.ExpandProviderBatchingConfig(d.Get("batching"))
