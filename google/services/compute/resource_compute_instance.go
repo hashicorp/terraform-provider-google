@@ -244,8 +244,8 @@ func ResourceComputeInstance() *schema.Resource {
 										AtLeastOneOf: initializeParamsKeys,
 										Computed:     true,
 										ForceNew:     true,
-										ValidateFunc: validation.IntBetween(10000, 120000),
-										Description:  `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 120,000.`,
+										ValidateFunc: validation.IntBetween(10000, 160000),
+										Description:  `Indicates how many IOPS to provision for the disk. This sets the number of I/O operations per second that the disk can handle. Values must be between 10,000 and 160,000.`,
 									},
 
 									"provisioned_throughput": {
