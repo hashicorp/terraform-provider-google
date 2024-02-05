@@ -13,13 +13,13 @@ IMPROVEMENTS:
 * compute: added `creation_timestamp` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`. ([#17110](https://github.com/hashicorp/terraform-provider-google/pull/17110))
 * compute: added `disk_id` attribute to `google_compute_disk` resource ([#17112](https://github.com/hashicorp/terraform-provider-google/pull/17112))
 * compute: added `stack_type` attribute for `google_compute_interconnect_attachment` resource. ([#17139](https://github.com/hashicorp/terraform-provider-google/pull/17139))
-* compute: updated the `google_compute_security_policy` resource's `json_parsing` field to accept the value STANDARD_WITH_GRAPHQL ([#17097](https://github.com/hashicorp/terraform-provider-google/pull/17097))
+* compute: updated the `google_compute_security_policy` resource's `json_parsing` field to accept the value `STANDARD_WITH_GRAPHQL` ([#17097](https://github.com/hashicorp/terraform-provider-google/pull/17097))
 * memcache: added `reserved_ip_range_id` field to `google_memcache_instance` resource ([#17101](https://github.com/hashicorp/terraform-provider-google/pull/17101))
 * netapp: added `deletion_policy` field to `google_netapp_volume` resource ([#17111](https://github.com/hashicorp/terraform-provider-google/pull/17111))
 
 BUG FIXES:
 * alloydb: fixed an issue where `database_flags` in secondary `google_alloydb_instance` resources would cause a diff, as they are copied from the primary ([#17128](https://github.com/hashicorp/terraform-provider-google/pull/17128))
-* filestore: made source_backup field configurable ([#17099](https://github.com/hashicorp/terraform-provider-google/pull/17099))
+* filestore: made `google_filestore_instance.source_backup` field configurable ([#17099](https://github.com/hashicorp/terraform-provider-google/pull/17099))
 * vmwareengine: fixed a bug to prevent recreation of existing PCs when upgrading provider version from <5.10.0 ([#17135](https://github.com/hashicorp/terraform-provider-google/pull/17135)
 
 ## 5.14.0 (Jan 29, 2024)
