@@ -1,0 +1,5 @@
+```release-note:new-resource
+`google_clouddeploy_delivery_pipeline_iam_policy`
+`google_clouddeploy_delivery_pipeline_iam_binding`
+`google_clouddeploy_delivery_pipeline_iam_member`
+```
