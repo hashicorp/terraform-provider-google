@@ -70,7 +70,7 @@ func ResourceSecurityposturePostureDeployment() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: `Relative name of the posture which needs to be deployed. It should be in the format:
-  organizations/<ORG_ID>/locations/<LOCATION>/postures/<postureID>`,
+  organizations/{organization_id}/locations/{location}/postures/{posture_id}`,
 			},
 			"posture_revision_id": {
 				Type:        schema.TypeString,
@@ -82,9 +82,9 @@ func ResourceSecurityposturePostureDeployment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Description: `The resource on which the posture should be deployed. This can be in one of the following formats:
-projects/<project_number>
-folders/<folder_number>
-organizations/<organization_id>`,
+projects/{project_number},
+folders/{folder_number},
+organizations/{organization_id}`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -101,14 +101,14 @@ organizations/<organization_id>`,
 				Computed: true,
 				Description: `This is an output only optional field which will be filled in case when
 PostureDeployment state is UPDATE_FAILED or CREATE_FAILED or DELETE_FAILED.
-It denotes the desired Posture to be deployed.`,
+It denotes the desired posture to be deployed.`,
 			},
 			"desired_posture_revision_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `This is an output only optional field which will be filled in case when
 PostureDeployment state is UPDATE_FAILED or CREATE_FAILED or DELETE_FAILED.
-It denotes the desired Posture revision_id to be deployed.`,
+It denotes the desired posture revision_id to be deployed.`,
 			},
 			"etag": {
 				Type:        schema.TypeString,
@@ -134,9 +134,10 @@ CREATE/UPDATE/DELETE methods.`,
 				Description: `If set, there are currently changes in flight to the posture deployment.`,
 			},
 			"state": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `State of the posture deployment.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `State of the posture deployment. A posture deployment can be in the following terminal states:
+ACTIVE, CREATE_FAILED, UPDATE_FAILED, DELETE_FAILED.`,
 			},
 			"update_time": {
 				Type:        schema.TypeString,

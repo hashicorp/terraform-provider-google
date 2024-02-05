@@ -77,14 +77,14 @@ The following arguments are supported:
 * `target_resource` -
   (Required)
   The resource on which the posture should be deployed. This can be in one of the following formats:
-  projects/<project_number>
-  folders/<folder_number>
-  organizations/<organization_id>
+  projects/{project_number},
+  folders/{folder_number},
+  organizations/{organization_id}
 
 * `posture_id` -
   (Required)
   Relative name of the posture which needs to be deployed. It should be in the format:
-    organizations/<ORG_ID>/locations/<LOCATION>/postures/<postureID>
+    organizations/{organization_id}/locations/{location}/postures/{posture_id}
 
 * `posture_revision_id` -
   (Required)
@@ -121,7 +121,8 @@ In addition to the arguments listed above, the following computed attributes are
   Name of the posture deployment instance.
 
 * `state` -
-  State of the posture deployment.
+  State of the posture deployment. A posture deployment can be in the following terminal states:
+  ACTIVE, CREATE_FAILED, UPDATE_FAILED, DELETE_FAILED.
 
 * `create_time` -
   Time the posture deployment was created in UTC.
@@ -138,12 +139,12 @@ In addition to the arguments listed above, the following computed attributes are
 * `desired_posture_id` -
   This is an output only optional field which will be filled in case when
   PostureDeployment state is UPDATE_FAILED or CREATE_FAILED or DELETE_FAILED.
-  It denotes the desired Posture to be deployed.
+  It denotes the desired posture to be deployed.
 
 * `desired_posture_revision_id` -
   This is an output only optional field which will be filled in case when
   PostureDeployment state is UPDATE_FAILED or CREATE_FAILED or DELETE_FAILED.
-  It denotes the desired Posture revision_id to be deployed.
+  It denotes the desired posture revision_id to be deployed.
 
 * `failure_message` -
   This is a output only optional field which will be filled in case where
