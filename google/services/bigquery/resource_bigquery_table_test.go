@@ -1433,6 +1433,94 @@ func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_TableReplicationInfo_ConflictsWithView(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccBigQueryTableWithReplicationInfoAndView(datasetID, tableID),
+				ExpectError: regexp.MustCompile("Schema, view, or materialized view cannot be specified when table replication info is present"),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_TableReplicationInfo_WithoutReplicationInterval(t *testing.T) {
+	t.Parallel()
+
+	projectID := envvar.GetTestProjectFromEnv()
+
+	sourceDatasetID := fmt.Sprintf("tf_test_source_dataset_%s", acctest.RandString(t, 10))
+	sourceTableID := fmt.Sprintf("tf_test_source_table_%s", acctest.RandString(t, 10))
+	sourceMVID := fmt.Sprintf("tf_test_source_mv_%s", acctest.RandString(t, 10))
+	replicaDatasetID := fmt.Sprintf("tf_test_replica_dataset_%s", acctest.RandString(t, 10))
+	replicaMVID := fmt.Sprintf("tf_test_replica_mv_%s", acctest.RandString(t, 10))
+	sourceMVJobID := fmt.Sprintf("tf_test_create_source_mv_job_%s", acctest.RandString(t, 10))
+	dropMVJobID := fmt.Sprintf("tf_test_drop_source_mv_job_%s", acctest.RandString(t, 10))
+	replicationIntervalExpr := ""
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithReplicationInfo(projectID, sourceDatasetID, sourceTableID, sourceMVID, replicaDatasetID, replicaMVID, sourceMVJobID, dropMVJobID, replicationIntervalExpr),
+			},
+			{
+				ResourceName:            "google_bigquery_table.replica_mv",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryTable_TableReplicationInfo_WithReplicationInterval(t *testing.T) {
+	t.Parallel()
+
+	projectID := envvar.GetTestProjectFromEnv()
+
+	sourceDatasetID := fmt.Sprintf("tf_test_source_dataset_%s", acctest.RandString(t, 10))
+	sourceTableID := fmt.Sprintf("tf_test_source_table_%s", acctest.RandString(t, 10))
+	sourceMVID := fmt.Sprintf("tf_test_source_mv_%s", acctest.RandString(t, 10))
+	replicaDatasetID := fmt.Sprintf("tf_test_replica_dataset_%s", acctest.RandString(t, 10))
+	replicaMVID := fmt.Sprintf("tf_test_replica_mv_%s", acctest.RandString(t, 10))
+	sourceMVJobID := fmt.Sprintf("tf_test_create_source_mv_job_%s", acctest.RandString(t, 10))
+	dropMVJobID := fmt.Sprintf("tf_test_drop_source_mv_job_%s", acctest.RandString(t, 10))
+	replicationIntervalExpr := "replication_interval_ms = 600000"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableWithReplicationInfo(projectID, sourceDatasetID, sourceTableID, sourceMVID, replicaDatasetID, replicaMVID, sourceMVJobID, dropMVJobID, replicationIntervalExpr),
+			},
+			{
+				ResourceName:            "google_bigquery_table.replica_mv",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryExtData(t *testing.T, expectedQuoteChar string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, rs := range s.RootModule().Resources {
@@ -3626,6 +3714,122 @@ resource "google_bigquery_table" "test" {
   EOF
 }
 `, datasetID, tableID, schema)
+}
+
+func testAccBigQueryTableWithReplicationInfoAndView(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  view {
+    query          = "SELECT state FROM [lookerdata:cdc.project_tycho_reports]"
+    use_legacy_sql = true
+  }
+  table_replication_info {
+    source_project_id = "source_project_id"
+    source_dataset_id = "source_dataset_id"
+    source_table_id = "source_table_id"
+  }
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTableWithReplicationInfo(projectID, sourceDatasetID, sourceTableID, sourceMVID, replicaDatasetID, replicaMVID, sourceMVJobID, dropMVJobID, replicationIntervalExpr string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "source" {
+  dataset_id = "%s"
+  location = "aws-us-east-1"
+}
+
+resource "google_bigquery_table" "source_table" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.source.dataset_id
+  external_data_configuration {
+    connection_id   = "bigquerytestdefault.aws-us-east-1.e2e_ccmv_tf_test"
+    autodetect      = true
+		metadata_cache_mode = "AUTOMATIC"
+    source_format = "PARQUET"
+    source_uris = [
+      "s3://bq-testing/parquet/all_types.parquet",
+    ]
+  }
+  max_staleness = "0-0 0 10:0:0"
+}
+
+resource "google_bigquery_job" "source_mv_job" {
+  job_id = "%s"
+
+  location = "aws-us-east-1"
+  query {
+    query = "CREATE MATERIALIZED VIEW %s.%s OPTIONS(max_staleness=INTERVAL \"10:00:0\" HOUR TO SECOND) AS SELECT * FROM %s.%s"
+    use_legacy_sql = false
+    create_disposition = ""
+    write_disposition = ""
+  }
+
+  depends_on = [google_bigquery_table.source_table]
+}
+
+resource "time_sleep" "wait_10_seconds" {
+  depends_on = [google_bigquery_job.source_mv_job]
+  create_duration = "10s"
+}
+
+resource "google_bigquery_dataset_access" "access" {
+  dataset_id    = google_bigquery_dataset.source.dataset_id
+  view {
+    project_id = "%s"
+    dataset_id = google_bigquery_dataset.source.dataset_id
+    table_id   = "%s"
+  }
+
+  depends_on = [time_sleep.wait_10_seconds]
+}
+
+resource "google_bigquery_dataset" "replica" {
+  dataset_id = "%s"
+  location = "us"
+}
+
+resource "google_bigquery_table" "replica_mv" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.replica.dataset_id
+  table_id   = "%s"
+  table_replication_info {
+    source_project_id = "%s"
+    source_dataset_id = google_bigquery_dataset.source.dataset_id
+    source_table_id = "%s"
+    %s
+  }
+
+  depends_on = [google_bigquery_dataset_access.access]
+}
+
+resource "google_bigquery_job" "drop_source_mv_job" {
+  job_id = "%s"
+
+  location = "aws-us-east-1"
+  query {
+    query = "DROP MATERIALIZED VIEW %s.%s"
+    use_legacy_sql = false
+    create_disposition = ""
+    write_disposition = ""
+  }
+
+  depends_on = [google_bigquery_table.replica_mv]
+}
+
+resource "time_sleep" "wait_10_seconds_last" {
+  depends_on = [google_bigquery_job.drop_source_mv_job]
+  create_duration = "10s"
+}
+`, sourceDatasetID, sourceTableID, sourceMVJobID, sourceDatasetID, sourceMVID, sourceDatasetID, sourceTableID, projectID, sourceMVID, replicaDatasetID, replicaMVID, projectID, sourceMVID, replicationIntervalExpr, dropMVJobID, sourceDatasetID, sourceMVID)
 }
 
 var TEST_CSV = `lifelock,LifeLock,,web,Tempe,AZ,1-May-07,6850000,USD,b
