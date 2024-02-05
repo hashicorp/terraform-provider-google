@@ -20,7 +20,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * alloydb: fixed an issue where `database_flags` in secondary `google_alloydb_instance` resources would cause a diff, as they are copied from the primary ([#17128](https://github.com/hashicorp/terraform-provider-google/pull/17128))
 * filestore: made `google_filestore_instance.source_backup` field configurable ([#17099](https://github.com/hashicorp/terraform-provider-google/pull/17099))
-* vmwareengine: fixed a bug to prevent recreation of existing PCs when upgrading provider version from <5.10.0 ([#17135](https://github.com/hashicorp/terraform-provider-google/pull/17135)
+* vmwareengine: fixed a bug to prevent recreation of existing [`google_vmwareengine_private_cloud`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/vmwareengine_private_cloud) resources when upgrading provider version from <5.10.0 ([#17135](https://github.com/hashicorp/terraform-provider-google/pull/17135)
 
 ## 5.14.0 (Jan 29, 2024)
 
