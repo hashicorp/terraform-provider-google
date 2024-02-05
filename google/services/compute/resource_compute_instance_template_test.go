@@ -737,10 +737,10 @@ func TestAccComputeInstanceTemplate_ConfidentialInstanceConfigMain(t *testing.T)
 		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceTemplateConfidentialInstanceConfig(acctest.RandString(t, 10), true),
+				Config: testAccComputeInstanceTemplateConfidentialInstanceConfigEnable(acctest.RandString(t, 10), "SEV"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true),
+					testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true, "SEV"),
 				),
 			},
 		},
@@ -1593,7 +1593,7 @@ func testAccCheckComputeInstanceTemplateHasShieldedVmConfig(instanceTemplate *co
 	}
 }
 
-func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
@@ -2850,7 +2850,7 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
-func testAccComputeInstanceTemplateConfidentialInstanceConfig(suffix string, enableConfidentialCompute bool) string {
+func testAccComputeInstanceTemplateConfidentialInstanceConfigEnable(suffix string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "ubuntu-2004-lts"
@@ -2863,7 +2863,7 @@ resource "google_compute_instance_template" "foobar" {
 
   disk {
     source_image = data.google_compute_image.my_image.self_link
-	auto_delete  = true
+    auto_delete  = true
     boot         = true
   }
 
@@ -2872,15 +2872,19 @@ resource "google_compute_instance_template" "foobar" {
   }
 
   confidential_instance_config {
-    enable_confidential_compute       = %t
+    enable_confidential_compute       = true
+    
   }
 
   scheduling {
-	  on_host_maintenance = "TERMINATE"
+    on_host_maintenance = "TERMINATE"
   }
 
 }
-`, suffix, enableConfidentialCompute)
+
+
+`, suffix)
+
 }
 
 func testAccComputeInstanceTemplateAdvancedMachineFeatures(suffix string) string {

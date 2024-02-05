@@ -1801,6 +1801,7 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
+
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -1809,10 +1810,10 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceConfidentialInstanceConfig(instanceName, true),
+				Config: testAccComputeInstanceConfidentialInstanceConfigEnable(instanceName, "SEV"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true, "SEV"),
 				),
 			},
 		},
@@ -3468,7 +3469,7 @@ func testAccCheckComputeInstanceHasShieldedVmConfig(instance *compute.Instance, 
 	}
 }
 
-func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *compute.Instance, EnableConfidentialCompute bool) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasConfidentialInstanceConfig(instance *compute.Instance, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		if instance.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
@@ -6598,7 +6599,7 @@ resource "google_compute_instance" "foobar" {
 `, instance, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
-func testAccComputeInstanceConfidentialInstanceConfig(instance string, enableConfidentialCompute bool) string {
+func testAccComputeInstanceConfidentialInstanceConfigEnable(instance string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family    = "ubuntu-2004-lts"
@@ -6621,7 +6622,8 @@ resource "google_compute_instance" "foobar" {
   }
 
   confidential_instance_config {
-    enable_confidential_compute       = %t
+    enable_confidential_compute       = true
+    
   }
 
   scheduling {
@@ -6629,7 +6631,10 @@ resource "google_compute_instance" "foobar" {
   }
 
 }
-`, instance, enableConfidentialCompute)
+
+
+`, instance)
+
 }
 
 func testAccComputeInstance_attributionLabelCreate(instance, add, strategy string) string {
