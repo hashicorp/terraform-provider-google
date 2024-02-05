@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 name: "Bug"
 labels: ["bug"]
 description: "For when something is there, but doesn't work how it should."
