@@ -689,10 +689,10 @@ func TestAccComputeRegionInstanceTemplate_ConfidentialInstanceConfigMain(t *test
 		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeRegionInstanceTemplateConfidentialInstanceConfig(acctest.RandString(t, 10), true),
+				Config: testAccComputeRegionInstanceTemplateConfidentialInstanceConfigEnable(acctest.RandString(t, 10), "SEV"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeRegionInstanceTemplateExists(t, "google_compute_region_instance_template.foobar", &instanceTemplate),
-					testAccCheckComputeRegionInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true),
+					testAccCheckComputeRegionInstanceTemplateHasConfidentialInstanceConfig(&instanceTemplate, true, "SEV"),
 				),
 			},
 		},
@@ -1475,7 +1475,7 @@ func testAccCheckComputeRegionInstanceTemplateHasShieldedVmConfig(instanceTempla
 	}
 }
 
-func testAccCheckComputeRegionInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool) resource.TestCheckFunc {
+func testAccCheckComputeRegionInstanceTemplateHasConfidentialInstanceConfig(instanceTemplate *compute.InstanceTemplate, EnableConfidentialCompute bool, ConfidentialInstanceType string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		if instanceTemplate.Properties.ConfidentialInstanceConfig.EnableConfidentialCompute != EnableConfidentialCompute {
@@ -2555,7 +2555,7 @@ resource "google_compute_region_instance_template" "foobar" {
 `, suffix, enableSecureBoot, enableVtpm, enableIntegrityMonitoring)
 }
 
-func testAccComputeRegionInstanceTemplateConfidentialInstanceConfig(suffix string, enableConfidentialCompute bool) string {
+func testAccComputeRegionInstanceTemplateConfidentialInstanceConfigEnable(suffix string, confidentialInstanceType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "ubuntu-2004-lts"
@@ -2578,7 +2578,8 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 
   confidential_instance_config {
-    enable_confidential_compute       = %t
+    enable_confidential_compute       = true
+    
   }
 
   scheduling {
@@ -2586,7 +2587,10 @@ resource "google_compute_region_instance_template" "foobar" {
   }
 
 }
-`, suffix, enableConfidentialCompute)
+
+
+`, suffix)
+
 }
 
 func testAccComputeRegionInstanceTemplateAdvancedMachineFeatures(suffix string) string {
