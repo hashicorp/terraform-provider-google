@@ -12,7 +12,6 @@ IMPROVEMENTS:
 * compute: added `INTERNET_IP_PORT` and `INTERNET_FQDN_PORT` options for the `google_compute_region_network_endpoint_group` resource. ([#17137](https://github.com/hashicorp/terraform-provider-google/pull/17137))
 * compute: added `creation_timestamp` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`. ([#17110](https://github.com/hashicorp/terraform-provider-google/pull/17110))
 * compute: added `disk_id` attribute to `google_compute_disk` resource ([#17112](https://github.com/hashicorp/terraform-provider-google/pull/17112))
-* compute: added `enabled` field to `compute_backend_service.iap` resource (revert) ([#17118](https://github.com/hashicorp/terraform-provider-google/pull/17118))
 * compute: added `stack_type` attribute for `google_compute_interconnect_attachment` resource. ([#17139](https://github.com/hashicorp/terraform-provider-google/pull/17139))
 * compute: updated the `google_compute_security_policy` resource's `json_parsing` field to accept the value STANDARD_WITH_GRAPHQL ([#17097](https://github.com/hashicorp/terraform-provider-google/pull/17097))
 * memcache: added `reserved_ip_range_id` field to `google_memcache_instance` resource ([#17101](https://github.com/hashicorp/terraform-provider-google/pull/17101))
