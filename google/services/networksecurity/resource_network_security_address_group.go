@@ -191,7 +191,6 @@ func resourceNetworkSecurityAddressGroupCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
-	project = ""
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -363,7 +362,6 @@ func resourceNetworkSecurityAddressGroupUpdate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return err
 	}
-	project = ""
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -416,7 +414,6 @@ func resourceNetworkSecurityAddressGroupDelete(d *schema.ResourceData, meta inte
 	}
 
 	var obj map[string]interface{}
-	project = ""
 	log.Printf("[DEBUG] Deleting AddressGroup %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found

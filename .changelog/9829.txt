@@ -1,0 +1,3 @@
+```release-note:enhancement
+networksecurity: remove unused custom code from `google_network_security_address_group`
+```
