@@ -170,6 +170,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -205,16 +206,6 @@ resource "google_compute_subnetwork" "my_subnetwork" {
   ip_cidr_range = "10.0.1.0/24"
 }
 
-resource "google_kms_key_ring" "keyring" {
-  name = "tf-test-tftest-shared-keyring-1%{random_suffix}"
-  location = "global"
-}
-
-resource "google_kms_crypto_key" "crypto-key" {
-  name     = "tf-test-tftest-shared-key-1%{random_suffix}"
-  key_ring = google_kms_key_ring.keyring.id
-}
-
 resource "google_workbench_instance" "instance" {
   name = "tf-test-workbench-instance%{random_suffix}"
   location = "us-central1-a"
@@ -236,14 +227,14 @@ resource "google_workbench_instance" "instance" {
       disk_size_gb  = 310
       disk_type = "PD_SSD"
       disk_encryption = "GMEK"
-      kms_key = google_kms_crypto_key.crypto-key.id
+      kms_key = "%{key_name}"
     }
 
     data_disks {
       disk_size_gb  = 330
       disk_type = "PD_SSD"
       disk_encryption = "GMEK"
-      kms_key = google_kms_crypto_key.crypto-key.id
+      kms_key = "%{key_name}"
     }
 
     network_interfaces {

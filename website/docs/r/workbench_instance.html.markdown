@@ -107,16 +107,6 @@ resource "google_compute_subnetwork" "my_subnetwork" {
   ip_cidr_range = "10.0.1.0/24"
 }
 
-resource "google_kms_key_ring" "keyring" {
-  name = "tftest-shared-keyring-1"
-  location = "global"
-}
-
-resource "google_kms_crypto_key" "crypto-key" {
-  name     = "tftest-shared-key-1"
-  key_ring = google_kms_key_ring.keyring.id
-}
-
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
   location = "us-central1-a"
@@ -138,14 +128,14 @@ resource "google_workbench_instance" "instance" {
       disk_size_gb  = 310
       disk_type = "PD_SSD"
       disk_encryption = "GMEK"
-      kms_key = google_kms_crypto_key.crypto-key.id
+      kms_key = "my-crypto-key"
     }
 
     data_disks {
       disk_size_gb  = 330
       disk_type = "PD_SSD"
       disk_encryption = "GMEK"
-      kms_key = google_kms_crypto_key.crypto-key.id
+      kms_key = "my-crypto-key"
     }
 
     network_interfaces {
