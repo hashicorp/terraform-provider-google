@@ -13,9 +13,7 @@ title: "Failing test(s): TestAccWhatever"
 - X% in MONTH
 
 <!--
-TeamCity projects can be found here:
-- GA : https://hashicorp.teamcity.com/project/TerraformProviders_Google_NightlyTests
-- Beta : https://hashicorp.teamcity.com/project/TerraformProviders_GoogleBeta_NightlyTests
+TeamCity projects can be found here: https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud?mode=builds
 -->
 
 
@@ -33,7 +31,7 @@ TeamCity projects can be found here:
 
 ### Nightly build test history
 
-<!-- Link to the test failure(s) page ie https://hashicorp.teamcity.com/test/-4508774451323501918?currentProjectId=TerraformProviders_Google_NightlyTests&testTab=overview -->
+<!-- Link to the test failure(s) page ie https://hashicorp.teamcity.com/test/1458901879521596451?currentProjectId=TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS&expandTestHistoryChartSection=true -->
 - Link
 
 <!-- The error message that displays in the tests tab, for reference -->
