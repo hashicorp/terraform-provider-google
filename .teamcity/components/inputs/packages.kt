@@ -1,12 +1,8 @@
-/*
- * Copyright (c) HashiCorp, Inc.
- * SPDX-License-Identifier: MPL-2.0
- */
+// This file is controlled by MMv1, any changes made here will be overwritten
 
-// this file is auto-generated with mmv1, any changes made here will be overwritten
+package generated
 
-
-var packages = mapOf(
+var PackagesList = mapOf(
     "envvar" to mapOf(
         "name" to "envvar",
         "displayName" to "Environment Variables",
@@ -49,10 +45,19 @@ var packages = mapOf(
     )
 )
 
-var sweepers = mapOf(
+var SweepersList = mapOf(
     "sweeper" to mapOf(
         "name" to "sweeper",
         "displayName" to "Sweeper",
         "path" to "./google/sweeper"
     )
 )
+
+fun GetPackageNameList(): List<String> {
+    var packageNameList: ArrayList<String> = arrayListOf()
+    PackagesList.forEach{ p ->
+        var packageName = p.value.getValue("name").toString()
+        packageNameList.add(packageName)
+    }
+    return packageNameList
+}
