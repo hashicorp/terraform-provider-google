@@ -20,8 +20,7 @@ fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
     val filter = "+:refs/heads/main"
 
     schedule{
-        // enabled = config.nightlyTestsEnabled
-        enabled = false // Temporary measure while developing new config
+        enabled = config.nightlyTestsEnabled
         branchFilter = filter
         triggerBuild = always() // Run build even if no new commits/pending changes
         withPendingChangesOnly = false
