@@ -48,4 +48,8 @@ endif
 docscheck:
 	@sh -c "'$(CURDIR)/scripts/docscheck.sh'"
 
+teamcity-test:
+	@$(MAKE) -C .teamcity tools
+	@$(MAKE) -C .teamcity test
+
 .PHONY: build test testnolint testacc fmt fmtcheck vet lint test-compile website website-test docscheck
