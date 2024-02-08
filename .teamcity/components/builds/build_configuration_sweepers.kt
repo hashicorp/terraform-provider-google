@@ -10,15 +10,35 @@ import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
 
-fun BuildConfigurationForSweeper(providerName: String, sweeperName: String, packages: Map<String, Map<String, String>>, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType {
+fun BuildConfigurationForServiceSweeper(providerName: String, sweeperName: String, packages: Map<String, Map<String, String>>, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType {
     val sweeperPackage: Map<String, String> = packages.getValue("sweeper")
     val sweeperPath: String = sweeperPackage.getValue("path").toString()
-    val s = SweeperDetails(sweeperName, parentProjectName, providerName)
 
-    return s.sweeperBuildConfig(sweeperPath, vcsRoot, sharedResources, DefaultParallelism, environmentVariables)
+    val sweeperRun = "" // Empty string means all sweepers run
+    val sweeperRegions = "us-central1"
+
+    val s = SweeperDetails(sweeperName, parentProjectName, providerName, sweeperRun, sweeperRegions)
+
+    val bc = s.sweeperBuildConfig(sweeperPath, vcsRoot, sharedResources, DefaultParallelism, environmentVariables)
+    bc.disableProjectSweep()
+    return bc
 }
 
-class SweeperDetails(private val sweeperName: String, private val parentProjectName: String, private val providerName: String) {
+fun BuildConfigurationForProjectSweeper(providerName: String, sweeperName: String, packages: Map<String, Map<String, String>>, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType {
+    val sweeperPackage: Map<String, String> = packages.getValue("sweeper")
+    val sweeperPath: String = sweeperPackage.getValue("path").toString()
+
+    val sweeperRun = "GoogleProject" // Name from .google/services/resourcemanager/resource_google_project_sweeper.go
+    val sweeperRegions = "" // Projects aren't region-specific
+
+    val s = SweeperDetails(sweeperName, parentProjectName, providerName, sweeperRun, sweeperRegions)
+
+    val bc = s.sweeperBuildConfig(sweeperPath, vcsRoot, sharedResources, DefaultParallelism, environmentVariables)
+    bc.enableProjectSweep()
+    return bc
+}
+
+class SweeperDetails(private val sweeperName: String, private val parentProjectName: String, private val providerName: String, private val sweeperRun: String, private val sweeperRegions: String) {
 
     fun sweeperBuildConfig(
         path: String,
@@ -32,8 +52,6 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
         // These hardcoded values affect the sweeper CLI command's behaviour
         val testPrefix = "TestAcc"
         val testTimeout = "12"
-        val sweeperRegions = "us-central1"
-        val sweeperRun = "" // Empty string means all sweepers run
 
         return BuildType {
 
@@ -70,7 +88,6 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
                 configureGoogleSpecificTestParameters(environmentVariables)
                 acceptanceTestBuildParams(parallelism, testPrefix, testTimeout)
                 sweeperParameters(sweeperRegions, sweeperRun)
-                terraformSkipProjectSweeper()
                 terraformLoggingParameters(providerName)
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()

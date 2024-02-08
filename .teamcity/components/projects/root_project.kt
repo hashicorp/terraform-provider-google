@@ -8,8 +8,8 @@ import SharedResourceNameVcr
 import builds.AllContextParameters
 import builds.readOnlySettings
 import generated.GetPackageNameList
-import generated.ServicesListGa
 import generated.ServicesListBeta
+import generated.ServicesListGa
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.sharedResource
 

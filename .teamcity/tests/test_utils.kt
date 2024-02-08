@@ -7,6 +7,7 @@ import builds.AllContextParameters
 const val gaProjectName = "Google"
 const val betaProjectName = "Google Beta"
 const val nightlyTestsProjectName = "Nightly Tests"
+const val projectSweeperProjectName = "Project Sweeper"
 
 fun testContextParameters(): AllContextParameters {
     return AllContextParameters(
