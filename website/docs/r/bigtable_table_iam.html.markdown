@@ -108,13 +108,13 @@ exported:
 
 IAM member imports use space-delimited identifiers that contain the resource's `table`, `role`, and `member`. For example:
 
-* `"projects/{project}/tables/{table} roles/editor user:jane@example.com"`
+* `"projects/{project}/instances/{instance}/tables/{table} roles/editor user:jane@example.com"`
 
 An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
 
 ```tf
 import {
-  id = "projects/{project}/tables/{table} roles/editor user:jane@example.com"
+  id = "projects/{project}/instances/{instance}/tables/{table} roles/editor user:jane@example.com"
   to = google_bigtable_table_iam_member.default
 }
 ```
@@ -122,20 +122,20 @@ import {
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigtable_table_iam_member.default "projects/{project}/tables/{table} roles/editor user:jane@example.com"
+$ terraform import google_bigtable_table_iam_member.default "projects/{project}/instances/{instance}/tables/{table} roles/editor user:jane@example.com"
 ```
 
 ### Importing IAM bindings
 
 IAM binding imports use space-delimited identifiers that contain the resource's `table` and `role`. For example:
 
-* `"projects/{project}/tables/{table} roles/editor"`
+* `"projects/{project}/instances/{instance}/tables/{table} roles/editor"`
 
 An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
 
 ```tf
 import {
-  id = "projects/{project}/tables/{table} roles/editor"
+  id = "projects/{project}/instances/{instance}/tables/{table} roles/editor"
   to = google_bigtable_table_iam_binding.default
 }
 ```
@@ -143,20 +143,20 @@ import {
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigtable_table_iam_binding.default "projects/{project}/tables/{table} roles/editor"
+$ terraform import google_bigtable_table_iam_binding.default "projects/{project}/instances/{instance}/tables/{table} roles/editor"
 ```
 
 ### Importing IAM policies
 
 IAM policy imports use the `table` identifier of the Bigtable Table resource only. For example:
 
-* `"projects/{project}/tables/{table}"`
+* `"projects/{project}/instances/{instance}/tables/{table}"`
 
 An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
 
 ```tf
 import {
-  id = "projects/{project}/tables/{table}"
+  id = "projects/{project}/instances/{instance}/tables/{table}"
   to = google_bigtable_table_iam_policy.default
 }
 ```
@@ -164,5 +164,5 @@ import {
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
 
 ```
-$ terraform import google_bigtable_table_iam_policy.default projects/{project}/tables/{table}
+$ terraform import google_bigtable_table_iam_policy.default projects/{project}/instances/{instance}/tables/{table}
 ```
