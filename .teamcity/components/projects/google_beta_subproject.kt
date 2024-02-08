@@ -3,9 +3,14 @@
 package projects
 
 import ProviderNameBeta
-import builds.*
+import builds.AllContextParameters
+import builds.getBetaAcceptanceTestConfig
+import builds.getVcrAcceptanceTestConfig
+import builds.readOnlySettings
 import jetbrains.buildServer.configs.kotlin.Project
-import projects.reused.*
+import projects.reused.mmUpstream
+import projects.reused.nightlyTests
+import projects.reused.vcrRecording
 import replaceCharsId
 import vcs_roots.HashiCorpVCSRootBeta
 import vcs_roots.ModularMagicianVCSRootBeta

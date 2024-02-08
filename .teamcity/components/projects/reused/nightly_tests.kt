@@ -41,7 +41,7 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     }
 
     // Create build config for sweeping the nightly test project
-    val serviceSweeperConfig = BuildConfigurationForSweeper(providerName, ServiceSweeperName, SweepersList, projectId, vcsRoot, sharedResources, config)
+    val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, SweepersList, projectId, vcsRoot, sharedResources, config)
     serviceSweeperConfig.addTrigger(trigger)
 
     return Project {
