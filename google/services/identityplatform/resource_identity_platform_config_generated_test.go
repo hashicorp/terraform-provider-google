@@ -46,9 +46,10 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 				Config: testAccIdentityPlatformConfig_identityPlatformConfigBasicExample(context),
 			},
 			{
-				ResourceName:      "google_identity_platform_config.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_identity_platform_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client.0.api_key", "client.0.firebase_subdomain"},
 			},
 		},
 	})
@@ -143,9 +144,10 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testi
 				Config: testAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(context),
 			},
 			{
-				ResourceName:      "google_identity_platform_config.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_identity_platform_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"client.0.api_key", "client.0.firebase_subdomain"},
 			},
 		},
 	})
@@ -171,7 +173,33 @@ resource "google_project_service" "identitytoolkit" {
 
 resource "google_identity_platform_config" "default" {
   project = google_project.default.project_id
-  
+  client {
+    permissions {
+      disabled_user_deletion = false
+      disabled_user_signup   = true
+    }
+  }
+
+  mfa {
+    enabled_providers = ["PHONE_SMS"]
+    provider_configs {
+      state = "ENABLED"
+      totp_provider_config {
+        adjacent_intervals = 3
+      }
+    }
+    state = "ENABLED"
+  }
+  monitoring {
+    request_logging {
+      enabled = true
+    }
+  }
+  multi_tenant {
+    allow_tenants           = true
+    default_tenant_location = "organizations/%{org_id}"
+  }
+
   depends_on = [
     google_project_service.identitytoolkit
   ]

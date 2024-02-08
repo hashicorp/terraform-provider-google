@@ -34,6 +34,10 @@ To get more information about Config, see:
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/identity-platform/docs)
 
+~> **Warning:** All arguments including the following potentially sensitive
+values will be stored in the raw state as plain text: `client.api_key`.
+[Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
+
 ## Example Usage - Identity Platform Config Basic
 
 
@@ -143,6 +147,26 @@ The following arguments are supported:
   (Optional)
   Configures the regions where users are allowed to send verification SMS for the project or tenant. This is based on the calling code of the destination phone number.
   Structure is [documented below](#nested_sms_region_config).
+
+* `client` -
+  (Optional)
+  Options related to how clients making requests on behalf of a project should be configured.
+  Structure is [documented below](#nested_client).
+
+* `mfa` -
+  (Optional)
+  Options related to how clients making requests on behalf of a project should be configured.
+  Structure is [documented below](#nested_mfa).
+
+* `multi_tenant` -
+  (Optional)
+  Configuration related to multi-tenant functionality.
+  Structure is [documented below](#nested_multi_tenant).
+
+* `monitoring` -
+  (Optional)
+  Configuration related to monitoring project activity.
+  Structure is [documented below](#nested_monitoring).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -310,6 +334,97 @@ The following arguments are supported:
 * `allowed_regions` -
   (Optional)
   Two letter unicode region codes to allow as defined by https://cldr.unicode.org/ The full list of these region codes is here: https://github.com/unicode-cldr/cldr-localenames-full/blob/master/main/en/territories.json
+
+<a name="nested_client"></a>The `client` block supports:
+
+* `permissions` -
+  (Optional)
+  Configuration related to restricting a user's ability to affect their account.
+  Structure is [documented below](#nested_permissions).
+
+* `api_key` -
+  (Output)
+  API key that can be used when making requests for this project.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `firebase_subdomain` -
+  (Output)
+  Firebase subdomain.
+
+
+<a name="nested_permissions"></a>The `permissions` block supports:
+
+* `disabled_user_signup` -
+  (Optional)
+  When true, end users cannot sign up for a new account on the associated project through any of our API methods
+
+* `disabled_user_deletion` -
+  (Optional)
+  When true, end users cannot delete their account on the associated project through any of our API methods
+
+<a name="nested_mfa"></a>The `mfa` block supports:
+
+* `state` -
+  (Optional)
+  Whether MultiFactor Authentication has been enabled for this project.
+  Possible values are: `DISABLED`, `ENABLED`, `MANDATORY`.
+
+* `enabled_providers` -
+  (Optional)
+  A list of usable second factors for this project.
+  Each value may be one of: `PHONE_SMS`.
+
+* `provider_configs` -
+  (Optional)
+  A list of usable second factors for this project along with their configurations.
+  This field does not support phone based MFA, for that use the 'enabledProviders' field.
+  Structure is [documented below](#nested_provider_configs).
+
+
+<a name="nested_provider_configs"></a>The `provider_configs` block supports:
+
+* `state` -
+  (Optional)
+  Whether MultiFactor Authentication has been enabled for this project.
+  Possible values are: `DISABLED`, `ENABLED`, `MANDATORY`.
+
+* `totp_provider_config` -
+  (Optional)
+  TOTP MFA provider config for this project.
+  Structure is [documented below](#nested_totp_provider_config).
+
+
+<a name="nested_totp_provider_config"></a>The `totp_provider_config` block supports:
+
+* `adjacent_intervals` -
+  (Optional)
+  The allowed number of adjacent intervals that will be used for verification to avoid clock skew.
+
+<a name="nested_multi_tenant"></a>The `multi_tenant` block supports:
+
+* `allow_tenants` -
+  (Optional)
+  Whether this project can have tenants or not.
+
+* `default_tenant_location` -
+  (Optional)
+  The default cloud parent org or folder that the tenant project should be created under.
+  The parent resource name should be in the format of "/", such as "folders/123" or "organizations/456".
+  If the value is not set, the tenant will be created under the same organization or folder as the agent project.
+
+<a name="nested_monitoring"></a>The `monitoring` block supports:
+
+* `request_logging` -
+  (Optional)
+  Configuration for logging requests made to this project to Stackdriver Logging
+  Structure is [documented below](#nested_request_logging).
+
+
+<a name="nested_request_logging"></a>The `request_logging` block supports:
+
+* `enabled` -
+  (Optional)
+  Whether logging is enabled for this project or not.
 
 ## Attributes Reference
 
