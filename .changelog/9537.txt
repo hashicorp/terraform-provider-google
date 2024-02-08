@@ -1,0 +1,3 @@
+```release-note:note
+cloudbuildv2: changed underlying actuation engine for `google_cloudbuildv2_connection`, there should be no user-facing impact
+```
