@@ -186,6 +186,7 @@ resource "google_cloud_run_service" "default" {
       "run.googleapis.com/launch-stage" = "BETA"
     }
   }
+
   template {
     metadata {
       annotations = {
@@ -194,39 +195,39 @@ resource "google_cloud_run_service" "default" {
     }
     spec {
       containers {
-	name = "hello-1"
-	ports {
-	  container_port = 8080
-	}
-	image = "us-docker.pkg.dev/cloudrun/container/hello"
-	volume_mounts {
-	  name = "shared-volume"
-	  mount_path = "/mnt/shared"
-	}
+        name = "hello-1"
+        ports {
+          container_port = 8080
+        }
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        volume_mounts {
+          name = "shared-volume"
+          mount_path = "/mnt/shared"
+          }
       }
       containers {
-	name = "hello-2"
-	image = "us-docker.pkg.dev/cloudrun/container/hello"
-	env {
-	  name = "PORT"
-	  value = "8081"
-	}
-	startup_probe {
-	  http_get {
-	    port = 8081
-	  }
-	}
-	volume_mounts {
-	  name = "shared-volume"
-	  mount_path = "/mnt/shared"
-	}
+        name = "hello-2"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        env {
+          name = "PORT"
+          value = "8081"
+        }
+        startup_probe {
+          http_get {
+            port = 8081
+          }
+        }
+        volume_mounts {
+          name = "shared-volume"
+          mount_path = "/mnt/shared"
+        }
       }
       volumes {
-	name = "shared-volume"
-	empty_dir {
-	  medium = "Memory"
-	  size_limit = "128Mi"
-	}
+          name = "shared-volume"
+          empty_dir {
+          medium = "Memory"
+          size_limit = "128Mi"
+        }
       }
     }
   }

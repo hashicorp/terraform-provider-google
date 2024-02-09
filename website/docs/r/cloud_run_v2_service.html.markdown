@@ -356,12 +356,21 @@ resource "google_cloud_run_v2_service" "default" {
       depends_on = ["hello-2"]
       volume_mounts {
         name = "empty-dir-volume"
-	mount_path = "/mnt"
+        mount_path = "/mnt"
       }
     }
     containers {
       name = "hello-2"
       image = "us-docker.pkg.dev/cloudrun/container/hello"
+      env {
+        name = "PORT"
+        value = "8081"
+      }
+      startup_probe {
+        http_get {
+          port = 8081
+        }
+      }
     }
     volumes {
       name = "empty-dir-volume"
