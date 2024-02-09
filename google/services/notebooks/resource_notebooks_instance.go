@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -32,6 +33,42 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+var NotebooksInstanceProvidedScopes = []string{
+	"https://www.googleapis.com/auth/cloud-platform",
+	"https://www.googleapis.com/auth/userinfo.email",
+}
+
+func NotebooksInstanceScopesDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("service_account_scopes")
+	oldValue := old.([]interface{})
+	newValue := new.([]interface{})
+	oldValueList := []string{}
+	newValueList := []string{}
+
+	for _, item := range oldValue {
+		oldValueList = append(oldValueList, item.(string))
+	}
+
+	for _, item := range newValue {
+		newValueList = append(newValueList, item.(string))
+	}
+	newValueList = append(newValueList, NotebooksInstanceProvidedScopes...)
+
+	sort.Strings(oldValueList)
+	sort.Strings(newValueList)
+	if reflect.DeepEqual(oldValueList, newValueList) {
+		return true
+	}
+	return false
+}
+
+func NotebooksInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if strings.HasPrefix(old, new) {
+		return true
+	}
+	return false
+}
 
 func ResourceNotebooksInstance() *schema.Resource {
 	return &schema.Resource{
@@ -178,6 +215,7 @@ If not specified, this defaults to 100.`,
 			},
 			"disk_encryption": {
 				Type:             schema.TypeString,
+				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
 				ValidateFunc:     verify.ValidateEnum([]string{"DISK_ENCRYPTION_UNSPECIFIED", "GMEK", "CMEK", ""}),
@@ -206,9 +244,10 @@ your VM instance's service account can use the instance.`,
 				},
 			},
 			"kms_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: NotebooksInstanceKmsDiffSuppress,
 				Description: `The KMS key used to encrypt the disks, only applicable if diskEncryption is CMEK.
 Format: projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`,
 			},
@@ -317,9 +356,11 @@ permission to use the instance. If not specified,
 the Compute Engine default service account is used.`,
 			},
 			"service_account_scopes": {
-				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Type:             schema.TypeList,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: NotebooksInstanceScopesDiffSuppress,
 				Description: `Optional. The URIs of service account scopes to be included in Compute Engine instances.
 If not specified, the following scopes are defined:
 - https://www.googleapis.com/auth/cloud-platform

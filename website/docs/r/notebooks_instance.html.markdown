@@ -135,6 +135,14 @@ resource "google_notebooks_instance" "instance" {
   metadata = {
     terraform = "true"
   }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+  disk_encryption = "CMEK"
+  kms_key         = "my-crypto-key"
 }
 
 data "google_compute_network" "my_network" {
