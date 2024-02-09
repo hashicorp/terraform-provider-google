@@ -1,5 +1,22 @@
 ## 5.16.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+* Add Cloud Deploy Delivery Pipeline ([#17180](https://github.com/hashicorp/terraform-provider-google/pull/17180))
+* Corrected name of google_blockchain_node_engine_blockchain_nodes ([#17200](https://github.com/hashicorp/terraform-provider-google/pull/17200))
+* Switched to issue form for bug reports ([#17143](https://github.com/hashicorp/terraform-provider-google/pull/17143))
+* Update CHANGELOG.md for v5.14.0, v5.15.0 ([#17186](https://github.com/hashicorp/terraform-provider-google/pull/17186))
+
+FEATURES:
+* **New Resource:** `google_compute_instance_group_membership` ([#17188](https://github.com/hashicorp/terraform-provider-google/pull/17188))
+* **New Resource:** `google_discovery_engine_search_engine` ([#17146](https://github.com/hashicorp/terraform-provider-google/pull/17146))
+* **New Resource:** `google_firebase_app_check_service_config` ([#17155](https://github.com/hashicorp/terraform-provider-google/pull/17155))
+
+IMPROVEMENTS:
+* bigquery: promoted support for replica mv in `resource_bigquery_table` to GA ([#17181](https://github.com/hashicorp/terraform-provider-google/pull/17181))
+* compute: added `confidential_instance_config.confidential_instance_type` field to `google_compute_instance`,  `google_compute_instance_template`, and `google_compute_region_instance_template` resources (beta) ([#17189](https://github.com/hashicorp/terraform-provider-google/pull/17189))
+* networksecurity: remove unused custom code from `google_network_security_address_group` ([#17183](https://github.com/hashicorp/terraform-provider-google/pull/17183))
+* provider: added an optional provider level label `goog-terraform-provisioned` to identify resources that were created by Terraform when viewing/editing these resources in other tools. ([#17170](https://github.com/hashicorp/terraform-provider-google/pull/17170))
+
 ## 5.15.0 (Feb 5, 2024)
 
 FEATURES:
