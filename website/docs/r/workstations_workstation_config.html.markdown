@@ -92,6 +92,7 @@ resource "google_workstations_workstation_config" "default" {
       machine_type                = "e2-standard-4"
       boot_disk_size_gb           = 35
       disable_public_ip_addresses = true
+      disable_ssh                 = false
     }
   }
 }
@@ -623,6 +624,10 @@ The following arguments are supported:
 * `disable_public_ip_addresses` -
   (Optional)
   Whether instances have no public IP address.
+
+* `disable_ssh` -
+  (Optional)
+  Whether to disable SSH access to the VM.
 
 * `enable_nested_virtualization` -
   (Optional)
