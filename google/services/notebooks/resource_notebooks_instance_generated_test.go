@@ -163,6 +163,7 @@ func TestAccNotebooksInstance_notebookInstanceFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
+		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "global").CryptoKey.Name,
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -216,6 +217,14 @@ resource "google_notebooks_instance" "instance" {
   metadata = {
     terraform = "true"
   }
+  service_account_scopes = [
+    "https://www.googleapis.com/auth/bigquery",
+    "https://www.googleapis.com/auth/devstorage.read_write",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ]
+  disk_encryption = "CMEK"
+  kms_key         = "%{key_name}"
 }
 
 data "google_compute_network" "my_network" {
