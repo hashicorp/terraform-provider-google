@@ -200,6 +200,22 @@ func EventarcTriggerDestinationSchema() *schema.Resource {
 				Elem:        EventarcTriggerDestinationGkeSchema(),
 			},
 
+			"http_endpoint": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "An HTTP endpoint destination described by an URI.",
+				MaxItems:    1,
+				Elem:        EventarcTriggerDestinationHttpEndpointSchema(),
+			},
+
+			"network_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Optional. Network config is used to configure how Eventarc resolves and connect to a destination. This should only be used with HttpEndpoint destination type.",
+				MaxItems:    1,
+				Elem:        EventarcTriggerDestinationNetworkConfigSchema(),
+			},
+
 			"workflow": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -274,6 +290,31 @@ func EventarcTriggerDestinationGkeSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Optional. The relative path on the GKE service the events should be sent to. The value must conform to the definition of a URI path segment (section 3.3 of RFC2396). Examples: \"/route\", \"route\", \"route/subroute\".",
+			},
+		},
+	}
+}
+
+func EventarcTriggerDestinationHttpEndpointSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"uri": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Required. The URI of the HTTP enpdoint. The value must be a RFC2396 URI string. Examples: `http://10.10.10.8:80/route`, `http://svc.us-central1.p.local:8080/`. Only HTTP and HTTPS protocols are supported. The host can be either a static IP addressable from the VPC specified by the network config, or an internal DNS hostname of the service resolvable via Cloud DNS.",
+			},
+		},
+	}
+}
+
+func EventarcTriggerDestinationNetworkConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"network_attachment": {
+				Type:             schema.TypeString,
+				Required:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      "Required. Name of the NetworkAttachment that allows access to the destination VPC. Format: `projects/{PROJECT_ID}/regions/{REGION}/networkAttachments/{NETWORK_ATTACHMENT_NAME}`",
 			},
 		},
 	}
@@ -621,6 +662,8 @@ func expandEventarcTriggerDestination(o interface{}) *eventarc.TriggerDestinatio
 	return &eventarc.TriggerDestination{
 		CloudRunService: expandEventarcTriggerDestinationCloudRunService(obj["cloud_run_service"]),
 		Gke:             expandEventarcTriggerDestinationGke(obj["gke"]),
+		HttpEndpoint:    expandEventarcTriggerDestinationHttpEndpoint(obj["http_endpoint"]),
+		NetworkConfig:   expandEventarcTriggerDestinationNetworkConfig(obj["network_config"]),
 		Workflow:        dcl.String(obj["workflow"].(string)),
 	}
 }
@@ -632,6 +675,8 @@ func flattenEventarcTriggerDestination(obj *eventarc.TriggerDestination) interfa
 	transformed := map[string]interface{}{
 		"cloud_run_service": flattenEventarcTriggerDestinationCloudRunService(obj.CloudRunService),
 		"gke":               flattenEventarcTriggerDestinationGke(obj.Gke),
+		"http_endpoint":     flattenEventarcTriggerDestinationHttpEndpoint(obj.HttpEndpoint),
+		"network_config":    flattenEventarcTriggerDestinationNetworkConfig(obj.NetworkConfig),
 		"workflow":          obj.Workflow,
 		"cloud_function":    obj.CloudFunction,
 	}
@@ -698,6 +743,58 @@ func flattenEventarcTriggerDestinationGke(obj *eventarc.TriggerDestinationGke) i
 		"namespace": obj.Namespace,
 		"service":   obj.Service,
 		"path":      obj.Path,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandEventarcTriggerDestinationHttpEndpoint(o interface{}) *eventarc.TriggerDestinationHttpEndpoint {
+	if o == nil {
+		return eventarc.EmptyTriggerDestinationHttpEndpoint
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return eventarc.EmptyTriggerDestinationHttpEndpoint
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &eventarc.TriggerDestinationHttpEndpoint{
+		Uri: dcl.String(obj["uri"].(string)),
+	}
+}
+
+func flattenEventarcTriggerDestinationHttpEndpoint(obj *eventarc.TriggerDestinationHttpEndpoint) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"uri": obj.Uri,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandEventarcTriggerDestinationNetworkConfig(o interface{}) *eventarc.TriggerDestinationNetworkConfig {
+	if o == nil {
+		return eventarc.EmptyTriggerDestinationNetworkConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return eventarc.EmptyTriggerDestinationNetworkConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &eventarc.TriggerDestinationNetworkConfig{
+		NetworkAttachment: dcl.String(obj["network_attachment"].(string)),
+	}
+}
+
+func flattenEventarcTriggerDestinationNetworkConfig(obj *eventarc.TriggerDestinationNetworkConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"network_attachment": obj.NetworkAttachment,
 	}
 
 	return []interface{}{transformed}

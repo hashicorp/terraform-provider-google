@@ -139,7 +139,7 @@ func ResourceRecaptchaEnterpriseKey() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The resource name for the Key in the format \"projects/{project}/keys/{key}\".",
+				Description: "The resource id for the Key, which is the same as the Site Key itself.",
 			},
 
 			"terraform_labels": {
