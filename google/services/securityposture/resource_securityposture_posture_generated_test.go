@@ -116,7 +116,7 @@ resource "google_securityposture_posture" "posture1"{
       policy_id = "sha_custom_module"
       constraint {
         security_health_analytics_custom_module {
-          display_name = "custom SHA policy"
+          display_name = "custom_SHA_policy"
           config {
             predicate {
               expression = "resource.rotationPeriod > duration('2592000s')"
