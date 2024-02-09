@@ -110,6 +110,14 @@ The `destination` block supports:
   (Optional)
   A GKE service capable of receiving events. The service should be running in the same project as the trigger.
     
+* `http_endpoint` -
+  (Optional)
+  An HTTP endpoint destination described by an URI.
+    
+* `network_config` -
+  (Optional)
+  Optional. Network config is used to configure how Eventarc resolves and connect to a destination. This should only be used with HttpEndpoint destination type.
+    
 * `workflow` -
   (Optional)
   The resource name of the Workflow whose Executions are triggered by the events. The Workflow resource should be deployed in the same project as the trigger. Format: `projects/{project}/locations/{location}/workflows/{workflow}`
@@ -194,6 +202,18 @@ The `gke` block supports:
 * `service` -
   (Required)
   Required. Name of the GKE service.
+    
+The `http_endpoint` block supports:
+    
+* `uri` -
+  (Required)
+  Required. The URI of the HTTP enpdoint. The value must be a RFC2396 URI string. Examples: `http://10.10.10.8:80/route`, `http://svc.us-central1.p.local:8080/`. Only HTTP and HTTPS protocols are supported. The host can be either a static IP addressable from the VPC specified by the network config, or an internal DNS hostname of the service resolvable via Cloud DNS.
+    
+The `network_config` block supports:
+    
+* `network_attachment` -
+  (Required)
+  Required. Name of the NetworkAttachment that allows access to the destination VPC. Format: `projects/{PROJECT_ID}/regions/{REGION}/networkAttachments/{NETWORK_ATTACHMENT_NAME}`
     
 The `transport` block supports:
     

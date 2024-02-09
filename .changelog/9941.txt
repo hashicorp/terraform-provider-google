@@ -1,0 +1,4 @@
+```release-note:enhancement
+eventarc: added support for `http_endpoint.uri` and `network_config.network_attachment` to `google_eventarc_trigger`
+clouddeploy: added support for `canary_revision_tags`, `prior_revision_tags`, `stable_revision_tags`, and `stable_cutback_duration` to `google_clouddeploy_delivery_pipeline`
+```

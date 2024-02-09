@@ -290,7 +290,7 @@ In addition to the arguments listed above, the following computed attributes are
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
   
 * `name` -
-  The resource name for the Key in the format "projects/{project}/keys/{key}".
+  The resource id for the Key, which is the same as the Site Key itself.
   
 * `terraform_labels` -
   The combination of labels configured directly on the resource and default labels configured on the provider.

@@ -53,6 +53,43 @@ func TestAccEventarcTrigger_channel(t *testing.T) {
 	})
 }
 
+func TestAccEventarcTrigger_HttpDest(t *testing.T) {
+	t.Parallel()
+
+	region := envvar.GetTestRegionFromEnv()
+
+	testNetworkName := acctest.BootstrapSharedTestNetwork(t, "attachment-network")
+	subnetName := acctest.BootstrapSubnet(t, "tf-test-subnet", testNetworkName)
+	networkAttachmentName := acctest.BootstrapNetworkAttachment(t, "tf-test-attachment", subnetName)
+
+	// Need to have the full network attachment name in the format project/{project_id}/regions/{region_id}/networkAttachments/{networkAttachmentName}
+	fullFormNetworkAttachmentName := fmt.Sprintf("projects/%s/regions/%s/networkAttachments/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), networkAttachmentName)
+
+	context := map[string]interface{}{
+		"region":             region,
+		"project_name":       envvar.GetTestProjectFromEnv(),
+		"service_account":    envvar.GetTestServiceAccountFromEnv(t),
+		"network_attachment": fullFormNetworkAttachmentName,
+		"random_suffix":      acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckEventarcChannelTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEventarcTrigger_createTriggerWithHttpDest(context),
+			},
+			{
+				ResourceName:      "google_eventarc_trigger.primary",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccEventarcTrigger_createTriggerWithChannelName(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "test_project" {
@@ -130,6 +167,34 @@ resource "google_eventarc_trigger" "primary" {
     channel = "projects/${data.google_project.test_project.project_id}/locations/%{region}/channels/${google_eventarc_channel.test_channel.name}"
 
     depends_on = [google_cloud_run_service.default,google_eventarc_channel.test_channel]
+}
+`, context)
+}
+
+func testAccEventarcTrigger_createTriggerWithHttpDest(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+	project_id  = "%{project_name}"
+}
+
+resource "google_eventarc_trigger" "primary" {
+	name = "tf-test-trigger%{random_suffix}"
+	location = "%{region}"
+	matching_criteria {
+		attribute = "type"
+		value = "google.cloud.pubsub.topic.v1.messagePublished"
+	}
+	destination {
+		http_endpoint {
+			uri = "http://10.10.10.8:80/route"
+		}
+                network_config {
+                        network_attachment = "%{network_attachment}"
+                }
+
+	}
+	service_account = "%{service_account}"
+
 }
 `, context)
 }

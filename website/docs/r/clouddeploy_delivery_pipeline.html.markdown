@@ -439,6 +439,18 @@ The `cloud_run` block supports:
   (Optional)
   Whether Cloud Deploy should update the traffic stanza in a Cloud Run Service on the user's behalf to facilitate traffic splitting. This is required to be true for CanaryDeployments, but optional for CustomCanaryDeployments.
     
+* `canary_revision_tags` -
+  (Optional)
+  Optional. A list of tags that are added to the canary revision while the canary phase is in progress.
+    
+* `prior_revision_tags` -
+  (Optional)
+  Optional. A list of tags that are added to the prior revision while the canary phase is in progress.
+    
+* `stable_revision_tags` -
+  (Optional)
+  Optional. A list of tags that are added to the final stable revision when the stable phase is applied.
+    
 The `kubernetes` block supports:
     
 * `gateway_service_mesh` -
@@ -466,6 +478,10 @@ The `gateway_service_mesh` block supports:
 * `service` -
   (Required)
   Required. Name of the Kubernetes Service.
+    
+* `stable_cutback_duration` -
+  (Optional)
+  Optional. The amount of time to migrate traffic back from the canary Service to the original Service during the stable phase deployment. If specified, must be between 15s and 3600s. If unspecified, there is no cutback time.
     
 The `service_networking` block supports:
     
