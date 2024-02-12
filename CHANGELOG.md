@@ -1,5 +1,16 @@
 ## 5.16.0 (Unreleased)
 
+FEATURES:
+* **New Resource:** `google_clouddeploy_delivery_pipeline_iam_*` ([#17180](https://github.com/hashicorp/terraform-provider-google/pull/17180))
+* **New Resource:** `google_compute_instance_group_membership` ([#17188](https://github.com/hashicorp/terraform-provider-google/pull/17188))
+* **New Resource:** `google_discovery_engine_search_engine` ([#17146](https://github.com/hashicorp/terraform-provider-google/pull/17146))
+* **New Resource:** `google_firebase_app_check_service_config` ([#17155](https://github.com/hashicorp/terraform-provider-google/pull/17155))
+
+IMPROVEMENTS:
+* bigquery: promoted `table_replication_info` field on `resource_bigquery_table` resource to GA ([#17181](https://github.com/hashicorp/terraform-provider-google/pull/17181))
+* networksecurity: removed unused custom code from `google_network_security_address_group` ([#17183](https://github.com/hashicorp/terraform-provider-google/pull/17183))
+* provider: added an optional provider level label `goog-terraform-provisioned` to identify resources that were created by Terraform when viewing/editing these resources in other tools. ([#17170](https://github.com/hashicorp/terraform-provider-google/pull/17170))
+
 ## 5.15.0 (Feb 5, 2024)
 
 FEATURES:
