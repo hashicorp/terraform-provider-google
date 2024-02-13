@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -68,6 +69,55 @@ func NotebooksInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData
 		return true
 	}
 	return false
+}
+
+// waitForNotebooksInstanceActive waits for an Notebook instance to become "ACTIVE"
+func waitForNotebooksInstanceActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
+	return resource.Retry(timeout, func() *resource.RetryError {
+		if err := resourceNotebooksInstanceRead(d, config); err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		name := d.Get("name").(string)
+		state := d.Get("state").(string)
+		if state == "ACTIVE" {
+			log.Printf("[DEBUG] Notebook Instance %q has state %q.", name, state)
+			return nil
+		} else {
+			return resource.RetryableError(fmt.Errorf("Notebook Instance %q has state %q. Waiting for ACTIVE state", name, state))
+		}
+
+	})
+}
+
+func modifyNotebooksInstanceState(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, state string) (map[string]interface{}, error) {
+	url, err := tpgresource.ReplaceVars(d, config, "{{NotebooksBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:"+state)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Unable to %q google_notebooks_instance %q: %s", state, d.Id(), err)
+	}
+	return res, nil
+}
+
+func waitForNotebooksOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, response map[string]interface{}) error {
+	var opRes map[string]interface{}
+	err := NotebooksOperationWaitTimeWithResponse(
+		config, response, &opRes, project, "Modifying Notebook Instance state", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ResourceNotebooksInstance() *schema.Resource {
@@ -496,6 +546,12 @@ the population of this value.`,
 				Optional:    true,
 				Description: `Instance update time.`,
 			},
+			"desired_state": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "ACTIVE",
+				Description: `Desired state of the Notebook Instance. Set this field to 'ACTIVE' to start the Instance, and 'STOPPED' to stop the Instance.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -737,6 +793,20 @@ func resourceNotebooksInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	d.SetId(id)
 
+	if err := waitForNotebooksInstanceActive(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+		return fmt.Errorf("Notebook instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
+	}
+
+	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
+		dRes, err := modifyNotebooksInstanceState(config, d, project, billingProject, userAgent, "stop")
+		if err != nil {
+			return err
+		}
+		if err := waitForNotebooksOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+			return fmt.Errorf("Error stopping Notebook Instance: %s", err)
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
 	return resourceNotebooksInstanceRead(d, meta)
@@ -778,6 +848,12 @@ func resourceNotebooksInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NotebooksInstance %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("desired_state"); !ok {
+		if err := d.Set("desired_state", "ACTIVE"); err != nil {
+			return fmt.Errorf("Error setting desired_state: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -972,6 +1048,27 @@ func resourceNotebooksInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	d.Partial(false)
 
+	name := d.Get("name").(string)
+	state := d.Get("state").(string)
+	desired_state := d.Get("desired_state").(string)
+
+	if state != desired_state {
+		verb := "start"
+		if desired_state == "STOPPED" {
+			verb = "stop"
+		}
+		pRes, err := modifyNotebooksInstanceState(config, d, project, billingProject, userAgent, verb)
+		if err != nil {
+			return err
+		}
+
+		if err := waitForNotebooksOperation(config, d, project, billingProject, userAgent, pRes); err != nil {
+			return fmt.Errorf("Error waiting to modify Notebook Instance state: %s", err)
+		}
+
+	} else {
+		log.Printf("[DEBUG] Notebook Instance %q has state %q.", name, state)
+	}
 	return resourceNotebooksInstanceRead(d, meta)
 }
 
@@ -1044,6 +1141,11 @@ func resourceNotebooksInstanceImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("desired_state", "ACTIVE"); err != nil {
+		return nil, fmt.Errorf("Error setting desired_state: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
