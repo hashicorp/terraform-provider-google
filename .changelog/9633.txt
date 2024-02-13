@@ -1,0 +1,4 @@
+```release-note:enhancement
+container: added support for `enable_relay` field to `advanced_datapath_observability_config`
+container: deprecated support for `relay_mode` field in `advanced_datapath_observability_config` in favor of `enable_relay` field, `relay_mode` field will be removed in upcoming releases
+```

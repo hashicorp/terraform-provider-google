@@ -2745,6 +2745,24 @@ func TestAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityCo
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
+			{
+				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigEnabledOld(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabledOld(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
 		},
 	})
 }
@@ -7814,6 +7832,56 @@ resource "google_container_cluster" "primary" {
     enable_components = []
     advanced_datapath_observability_config {
       enable_metrics = true
+      enable_relay   = true
+    }
+  }
+  deletion_protection = false
+}
+`, name, name)
+}
+
+func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigEnabledOld(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-nw"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = google_compute_network.container_network.name
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "services-range"
+    ip_cidr_range = "192.168.1.0/24"
+  }
+
+  secondary_ip_range {
+    range_name    = "pod-ranges"
+    ip_cidr_range = "192.168.64.0/22"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  datapath_provider = "ADVANCED_DATAPATH"
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  monitoring_config {
+    enable_components = []
+    advanced_datapath_observability_config {
+      enable_metrics = true
       relay_mode     = "INTERNAL_VPC_LB"
     }
   }
@@ -7823,6 +7891,56 @@ resource "google_container_cluster" "primary" {
 }
 
 func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabled(name string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-nw"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = google_compute_network.container_network.name
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "services-range"
+    ip_cidr_range = "192.168.1.0/24"
+  }
+
+  secondary_ip_range {
+    range_name    = "pod-ranges"
+    ip_cidr_range = "192.168.64.0/22"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  datapath_provider  = "ADVANCED_DATAPATH"
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  monitoring_config {
+    enable_components = []
+    advanced_datapath_observability_config {
+      enable_metrics = false
+      enable_relay   = false
+    }
+  }
+  deletion_protection = false
+}
+`, name, name)
+}
+
+func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabledOld(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
   name                    = "%s-nw"
