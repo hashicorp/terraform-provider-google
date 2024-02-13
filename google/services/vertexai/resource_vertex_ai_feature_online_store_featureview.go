@@ -88,6 +88,41 @@ func ResourceVertexAIFeatureOnlineStoreFeatureview() *schema.Resource {
 						},
 					},
 				},
+				ExactlyOneOf: []string{"big_query_source", "feature_registry_source"},
+			},
+			"feature_registry_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Configures the features from a Feature Registry source that need to be loaded onto the FeatureOnlineStore.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"feature_groups": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: `List of features that need to be synced to Online Store.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"feature_group_id": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `Identifier of the feature group.`,
+									},
+									"feature_ids": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Identifiers of features under the feature group.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ConflictsWith: []string{},
+				ExactlyOneOf:  []string{"big_query_source", "feature_registry_source"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -175,6 +210,12 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 		return err
 	} else if v, ok := d.GetOkExists("big_query_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(bigQuerySourceProp)) && (ok || !reflect.DeepEqual(v, bigQuerySourceProp)) {
 		obj["bigQuerySource"] = bigQuerySourceProp
+	}
+	featureRegistrySourceProp, err := expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(d.Get("feature_registry_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("feature_registry_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(featureRegistrySourceProp)) && (ok || !reflect.DeepEqual(v, featureRegistrySourceProp)) {
+		obj["featureRegistrySource"] = featureRegistrySourceProp
 	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreFeatureviewEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -302,6 +343,9 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewRead(d *schema.ResourceData, m
 	if err := d.Set("big_query_source", flattenVertexAIFeatureOnlineStoreFeatureviewBigQuerySource(res["bigQuerySource"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
 	}
+	if err := d.Set("feature_registry_source", flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(res["featureRegistrySource"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreFeatureviewTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStoreFeatureview: %s", err)
 	}
@@ -340,6 +384,12 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("big_query_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigQuerySourceProp)) {
 		obj["bigQuerySource"] = bigQuerySourceProp
 	}
+	featureRegistrySourceProp, err := expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(d.Get("feature_registry_source"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("feature_registry_source"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, featureRegistrySourceProp)) {
+		obj["featureRegistrySource"] = featureRegistrySourceProp
+	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreFeatureviewEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -361,6 +411,10 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 
 	if d.HasChange("big_query_source") {
 		updateMask = append(updateMask, "bigQuerySource")
+	}
+
+	if d.HasChange("feature_registry_source") {
+		updateMask = append(updateMask, "featureRegistrySource")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -538,6 +592,46 @@ func flattenVertexAIFeatureOnlineStoreFeatureviewBigQuerySourceEntityIdColumns(v
 	return v
 }
 
+func flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["feature_groups"] =
+		flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroups(original["featureGroups"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroups(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"feature_group_id": flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureGroupId(original["featureGroupId"], d, config),
+			"feature_ids":      flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureIds(original["featureIds"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureGroupId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureIds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIFeatureOnlineStoreFeatureviewTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -611,6 +705,62 @@ func expandVertexAIFeatureOnlineStoreFeatureviewBigQuerySourceUri(v interface{},
 }
 
 func expandVertexAIFeatureOnlineStoreFeatureviewBigQuerySourceEntityIdColumns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedFeatureGroups, err := expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroups(original["feature_groups"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFeatureGroups); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["featureGroups"] = transformedFeatureGroups
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroups(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedFeatureGroupId, err := expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureGroupId(original["feature_group_id"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFeatureGroupId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["featureGroupId"] = transformedFeatureGroupId
+		}
+
+		transformedFeatureIds, err := expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureIds(original["feature_ids"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedFeatureIds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["featureIds"] = transformedFeatureIds
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureGroupId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreFeatureviewFeatureRegistrySourceFeatureGroupsFeatureIds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
