@@ -577,7 +577,7 @@ Google Cloud KMS.`,
 			"resource_manager_tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
+				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Description: `A map of resource manager tags.
