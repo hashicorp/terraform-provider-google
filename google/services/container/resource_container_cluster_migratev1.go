@@ -855,6 +855,11 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 										Required:    true,
 										Description: `Whether or not the advanced datapath metrics are enabled.`,
 									},
+									"enable_relay": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `Whether or not Relay is enabled.`,
+									},
 									"relay_mode": {
 										Type:         schema.TypeString,
 										Optional:     true,
