@@ -385,9 +385,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 379
+// Generated resources: 380
 // Generated IAM resources: 225
-// Total generated resources: 604
+// Total generated resources: 605
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -499,6 +499,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloudbuildv2_connection_iam_member":                      tpgiamresource.ResourceIamMember(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_connection_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_repository":                                 cloudbuildv2.ResourceCloudbuildv2Repository(),
+	"google_clouddeploy_custom_target_type":                          clouddeploy.ResourceClouddeployCustomTargetType(),
 	"google_clouddeploy_delivery_pipeline_iam_binding":               tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_member":                tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_policy":                tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
