@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"time"
 
@@ -387,6 +388,12 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"NORMAL", "VERBOSE"}, false),
 							Description:  `Logging level. Supported values include: "NORMAL", "VERBOSE".`,
 						},
+						"user_ip_request_headers": {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Description: `An optional list of case-insensitive request header names to use for resolving the callers client IP address.`,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -597,6 +604,8 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 		Fingerprint: d.Get("fingerprint").(string),
 	}
 
+	updateMask := []string{}
+
 	if d.HasChange("type") {
 		securityPolicy.Type = d.Get("type").(string)
 		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "Type")
@@ -610,6 +619,11 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("advanced_options_config") {
 		securityPolicy.AdvancedOptionsConfig = expandSecurityPolicyAdvancedOptionsConfig(d.Get("advanced_options_config").([]interface{}))
 		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "AdvancedOptionsConfig", "advancedOptionsConfig.jsonParsing", "advancedOptionsConfig.jsonCustomConfig", "advancedOptionsConfig.logLevel")
+		securityPolicy.ForceSendFields = append(securityPolicy.ForceSendFields, "advanceOptionConfig.userIpRequestHeaders")
+		if len(securityPolicy.AdvancedOptionsConfig.UserIpRequestHeaders) == 0 {
+			// to clean this list we must send the updateMask of this field on the request.
+			updateMask = append(updateMask, "advanced_options_config.user_ip_request_headers")
+		}
 	}
 
 	if d.HasChange("adaptive_protection_config") {
@@ -625,7 +639,7 @@ func resourceComputeSecurityPolicyUpdate(d *schema.ResourceData, meta interface{
 	if len(securityPolicy.ForceSendFields) > 0 {
 		client := config.NewComputeClient(userAgent)
 
-		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).Do()
+		op, err := client.SecurityPolicies.Patch(project, sp, securityPolicy).UpdateMask(strings.Join(updateMask, ",")).Do()
 
 		if err != nil {
 			return errwrap.Wrapf(fmt.Sprintf("Error updating SecurityPolicy %q: {{err}}", sp), err)
@@ -862,9 +876,10 @@ func expandSecurityPolicyAdvancedOptionsConfig(configured []interface{}) *comput
 
 	data := configured[0].(map[string]interface{})
 	return &compute.SecurityPolicyAdvancedOptionsConfig{
-		JsonParsing:      data["json_parsing"].(string),
-		JsonCustomConfig: expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(data["json_custom_config"].([]interface{})),
-		LogLevel:         data["log_level"].(string),
+		JsonParsing:          data["json_parsing"].(string),
+		JsonCustomConfig:     expandSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(data["json_custom_config"].([]interface{})),
+		LogLevel:             data["log_level"].(string),
+		UserIpRequestHeaders: tpgresource.ConvertStringArr(data["user_ip_request_headers"].(*schema.Set).List()),
 	}
 }
 
@@ -874,9 +889,10 @@ func flattenSecurityPolicyAdvancedOptionsConfig(conf *compute.SecurityPolicyAdva
 	}
 
 	data := map[string]interface{}{
-		"json_parsing":       conf.JsonParsing,
-		"json_custom_config": flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf.JsonCustomConfig),
-		"log_level":          conf.LogLevel,
+		"json_parsing":            conf.JsonParsing,
+		"json_custom_config":      flattenSecurityPolicyAdvancedOptionsConfigJsonCustomConfig(conf.JsonCustomConfig),
+		"log_level":               conf.LogLevel,
+		"user_ip_request_headers": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.UserIpRequestHeaders)),
 	}
 
 	return []map[string]interface{}{data}
