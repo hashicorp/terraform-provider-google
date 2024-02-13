@@ -51,6 +51,11 @@ resource "google_securityposture_posture" "posture1"{
           canned_constraint_id = "storage.uniformBucketLevelAccess"
           policy_rules {
             enforce = true
+            condition {
+            	description = "condition description"
+            	expression = "resource.matchTag('org_id/tag_key_short_name,'tag_value_short_name')"
+            	title = "a CEL condition"
+            }
           }
         }
       }
@@ -70,6 +75,11 @@ resource "google_securityposture_posture" "posture1"{
           }
           policy_rules {
             enforce = true
+            condition {
+            	description = "condition description"
+            	expression = "resource.matchTagId('tagKeys/key_id','tagValues/value_id')"
+            	title = "a CEL condition"
+            }
           }
         }
       }
@@ -259,12 +269,12 @@ The following arguments are supported:
   If `true`, then the policy is enforced. If `false`, then any configuration is acceptable.
   This field can be set only in policies for boolean constraints.
 
-* `expr` -
+* `condition` -
   (Optional)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
   This page details the objects and attributes that are used to the build the CEL expressions for
   custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
-  Structure is [documented below](#nested_expr).
+  Structure is [documented below](#nested_condition).
 
 
 <a name="nested_values"></a>The `values` block supports:
@@ -277,7 +287,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_expr"></a>The `expr` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)
@@ -359,12 +369,12 @@ The following arguments are supported:
   If `true`, then the policy is enforced. If `false`, then any configuration is acceptable.
   This field can be set only in policies for boolean constraints.
 
-* `expr` -
+* `condition` -
   (Optional)
   Represents a textual expression in the Common Expression Language (CEL) syntax. CEL is a C-like expression language.
   This page details the objects and attributes that are used to the build the CEL expressions for
   custom access levels - https://cloud.google.com/access-context-manager/docs/custom-access-level-spec.
-  Structure is [documented below](#nested_expr).
+  Structure is [documented below](#nested_condition).
 
 
 <a name="nested_values"></a>The `values` block supports:
@@ -377,7 +387,7 @@ The following arguments are supported:
   (Optional)
   List of values denied at this resource.
 
-<a name="nested_expr"></a>The `expr` block supports:
+<a name="nested_condition"></a>The `condition` block supports:
 
 * `expression` -
   (Required)
