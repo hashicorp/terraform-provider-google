@@ -1,0 +1,3 @@
+```release-note:new-resource
+networksecurity: new `google_network_security_security_profile_group` resource
+```
