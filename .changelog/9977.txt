@@ -1,0 +1,3 @@
+```release-note:enhancement
+healthcare: added `reject_duplicate_message` field to `google_healthcare_hl7_v2_store ` resource
+```
