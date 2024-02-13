@@ -1,0 +1,51 @@
+name: "[TEST] Enhancement"
+labels: ["enhancement"]
+description: "[TEST] For when something (a resource, field, etc.) is missing, and should be added."
+body:
+  - type: textarea
+    id: community-note
+    attributes:
+      label: Community Note
+      description: Please keep this note for the community.
+      value: |
+        * Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request.
+        * Please do not leave _+1_ or _me too_ comments, they generate extra noise for issue followers and do not help prioritize the request.
+        * If you are interested in working on this issue or have submitted a pull request, please leave a comment.
+        * If an issue is assigned to a user, that user is claiming responsibility for the issue.
+        * Customers working with a Google Technical Account Manager or Customer Engineer can ask them to [reach out internally](https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team)
+          to expedite investigation and resolution of this issue.
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please leave a helpful description of the feature request here. Including use cases and why it would help you is a great way to convince maintainers to spend time on it.
+    validations:
+      required: true
+  - type: textarea
+    id: affected-resources
+    attributes:
+      label: New or Affected Resource(s)
+      description: Please list the new or affected resources and data sources. Use google_* if all resources or data sources are affected.
+      value: |
+        * google_XXXXX
+    validations:
+      required: true
+  - type: textarea
+    id: terraform-configuration
+    attributes:
+      label: Potential Terraform Configuration
+      description: |
+        Propose what you think the configuration to take advantage of this feature should look like. We may not use it verbatim, but it's helpful in understanding your intent.
+
+        Use [markdown code blocks](https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code) to format the configuration.
+      value: |
+        ```tf 
+        ```
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: |
+        Are there any other GitHub issues (open or closed) or pull requests that should be [linked](https://help.github.com/articles/basic-writing-and-formatting-syntax/#referencing-issues-and-pull-requests) here? Vendor documentation?
