@@ -1,6 +1,6 @@
-name: "[TEST] Enhancement"
+name: "Enhancement"
 labels: ["enhancement"]
-description: "[TEST] For when something (a resource, field, etc.) is missing, and should be added."
+description: "For when something (a resource, field, etc.) is missing, and should be added."
 body:
   - type: textarea
     id: community-note
