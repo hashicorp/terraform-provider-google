@@ -173,6 +173,43 @@ func waitForWorkbenchInstanceActive(d *schema.ResourceData, config *transport_tp
 	})
 }
 
+func modifyWorkbenchInstanceState(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, state string) (map[string]interface{}, error) {
+	url, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:"+state)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Unable to %q google_workbench_instance %q: %s", state, d.Id(), err)
+	}
+	return res, nil
+}
+
+func WorkbenchInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if strings.HasPrefix(old, new) {
+		return true
+	}
+	return false
+}
+
+func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, response map[string]interface{}) error {
+	var opRes map[string]interface{}
+	err := WorkbenchOperationWaitTimeWithResponse(
+		config, response, &opRes, project, "Modifying Workbench Instance state", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func ResourceWorkbenchInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWorkbenchInstanceCreate,
@@ -280,10 +317,11 @@ recommended value of 150GB.`,
 										Description:  `Optional. Indicates the type of the disk. Possible values: ["PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME"]`,
 									},
 									"kms_key": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Description: `'Optional. Input only. The KMS key used to encrypt the disks, only
+										Type:             schema.TypeString,
+										Optional:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: WorkbenchInstanceKmsDiffSuppress,
+										Description: `'Optional. The KMS key used to encrypt the disks, only
 applicable if disk_encryption is CMEK. Format: 'projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}'
 Learn more about using your own encryption keys.'`,
 									},
@@ -325,10 +363,11 @@ up to a maximum of 64000 GB (64 TB). If not specified, this defaults to
 										Description:  `Optional. Input only. Indicates the type of the disk. Possible values: ["PD_STANDARD", "PD_SSD", "PD_BALANCED", "PD_EXTREME"]`,
 									},
 									"kms_key": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-										Description: `'Optional. Input only. The KMS key used to encrypt the disks,
+										Type:             schema.TypeString,
+										Optional:         true,
+										ForceNew:         true,
+										DiffSuppressFunc: WorkbenchInstanceKmsDiffSuppress,
+										Description: `'Optional. The KMS key used to encrypt the disks,
 only applicable if disk_encryption is CMEK. Format: 'projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}'
 Learn more about using your own encryption keys.'`,
 									},
@@ -615,6 +654,12 @@ The milliseconds portion (".SSS") is optional.`,
 					},
 				},
 			},
+			"desired_state": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "ACTIVE",
+				Description: `Desired state of the Workbench Instance. Set this field to 'ACTIVE' to start the Instance, and 'STOPPED' to stop the Instance.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -722,6 +767,16 @@ func resourceWorkbenchInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Workbench instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
 	}
 
+	if p, ok := d.GetOk("desired_state"); ok && p.(string) == "STOPPED" {
+		dRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, "stop")
+		if err != nil {
+			return err
+		}
+		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+			return fmt.Errorf("Error stopping Workbench Instance: %s", err)
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
 
 	return resourceWorkbenchInstanceRead(d, meta)
@@ -763,6 +818,12 @@ func resourceWorkbenchInstanceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("WorkbenchInstance %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("desired_state"); !ok {
+		if err := d.Set("desired_state", "ACTIVE"); err != nil {
+			return fmt.Errorf("Error setting desired_state: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -863,34 +924,15 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	name := d.Get("name").(string)
 	if d.HasChange("gce_setup.0.machine_type") || d.HasChange("gce_setup.0.accelerator_configs") {
 		state := d.Get("state").(string)
+
 		if state != "STOPPED" {
-			stopURL, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:stop")
+			dRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, "stop")
 			if err != nil {
 				return err
 			}
 
-			log.Printf("[DEBUG] Stopping Workbench Instance: %q", name)
-
-			emptyReqBody := make(map[string]interface{})
-
-			dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "POST",
-				Project:   billingProject,
-				RawURL:    stopURL,
-				UserAgent: userAgent,
-				Body:      emptyReqBody,
-			})
-			if err != nil {
-				return fmt.Errorf("Error Stopping Workbench Instance: %s", err)
-			}
-
-			var opRes map[string]interface{}
-			err = WorkbenchOperationWaitTimeWithResponse(
-				config, dRes, &opRes, project, "Stopping Workbench Instance", userAgent,
-				d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return fmt.Errorf("Error waiting to stop Workbench Instance: %s", err)
+			if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, dRes); err != nil {
+				return fmt.Errorf("Error stopping Workbench Instance: %s", err)
 			}
 
 		} else {
@@ -955,35 +997,20 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	state := d.Get("state").(string)
+	desired_state := d.Get("desired_state").(string)
 
-	if state != "ACTIVE" {
-		startURL, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:start")
+	if state != desired_state {
+		verb := "start"
+		if desired_state == "STOPPED" {
+			verb = "stop"
+		}
+		pRes, err := modifyWorkbenchInstanceState(config, d, project, billingProject, userAgent, verb)
 		if err != nil {
 			return err
 		}
 
-		log.Printf("[DEBUG] Starting Workbench Instance: %q", name)
-
-		emptyReqBody := make(map[string]interface{})
-
-		pRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   billingProject,
-			RawURL:    startURL,
-			UserAgent: userAgent,
-			Body:      emptyReqBody,
-		})
-		if err != nil {
-			return fmt.Errorf("Error Starting Workbench Instance: %s", err)
-		}
-
-		var opResp map[string]interface{}
-		err = WorkbenchOperationWaitTimeWithResponse(
-			config, pRes, &opResp, project, "Starting Workbench Instance", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("Error waiting to start Workbench Instance: %s", err)
+		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, pRes); err != nil {
+			return fmt.Errorf("Error waiting to modify Workbench Instance state: %s", err)
 		}
 
 	} else {
@@ -1061,6 +1088,11 @@ func resourceWorkbenchInstanceImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("desired_state", "ACTIVE"); err != nil {
+		return nil, fmt.Errorf("Error setting desired_state: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1191,11 +1223,11 @@ func flattenWorkbenchInstanceGceSetupBootDiskDiskType(v interface{}, d *schema.R
 }
 
 func flattenWorkbenchInstanceGceSetupBootDiskDiskEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("gce_setup.0.boot_disk.0.disk_encryption")
+	return v
 }
 
 func flattenWorkbenchInstanceGceSetupBootDiskKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("gce_setup.0.boot_disk.0.kms_key")
+	return v
 }
 
 func flattenWorkbenchInstanceGceSetupDataDisks(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1228,11 +1260,11 @@ func flattenWorkbenchInstanceGceSetupDataDisksDiskType(v interface{}, d *schema.
 }
 
 func flattenWorkbenchInstanceGceSetupDataDisksDiskEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("gce_setup.0.data_disks.0.disk_encryption")
+	return v
 }
 
 func flattenWorkbenchInstanceGceSetupDataDisksKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("gce_setup.0.data_disks.0.kms_key")
+	return v
 }
 
 func flattenWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

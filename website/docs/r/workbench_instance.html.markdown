@@ -62,7 +62,7 @@ resource "google_workbench_instance" "instance" {
   }
 }
 ```
-## Example Usage - Workbench Instance Labels
+## Example Usage - Workbench Instance Labels Stopped
 
 
 ```hcl
@@ -88,6 +88,8 @@ resource "google_workbench_instance" "instance" {
   labels = {
     k = "val"
   }
+
+  desired_state = "STOPPED"
 
 }
 ```
@@ -127,14 +129,14 @@ resource "google_workbench_instance" "instance" {
     boot_disk {
       disk_size_gb  = 310
       disk_type = "PD_SSD"
-      disk_encryption = "GMEK"
+      disk_encryption = "CMEK"
       kms_key = "my-crypto-key"
     }
 
     data_disks {
       disk_size_gb  = 330
       disk_type = "PD_SSD"
-      disk_encryption = "GMEK"
+      disk_encryption = "CMEK"
       kms_key = "my-crypto-key"
     }
 
@@ -161,6 +163,8 @@ resource "google_workbench_instance" "instance" {
   labels = {
     k = "val"
   }
+
+  desired_state = "ACTIVE"
 
 }
 ```
@@ -211,6 +215,8 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `desired_state` - (Optional) Desired state of the Workbench Instance. Set this field to `ACTIVE` to start the Instance, and `STOPPED` to stop the Instance.
 
 
 <a name="nested_gce_setup"></a>The `gce_setup` block supports:
@@ -330,7 +336,7 @@ The following arguments are supported:
 
 * `kms_key` -
   (Optional)
-  'Optional. Input only. The KMS key used to encrypt the disks, only
+  'Optional. The KMS key used to encrypt the disks, only
   applicable if disk_encryption is CMEK. Format: `projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`
   Learn more about using your own encryption keys.'
 
@@ -355,7 +361,7 @@ The following arguments are supported:
 
 * `kms_key` -
   (Optional)
-  'Optional. Input only. The KMS key used to encrypt the disks,
+  'Optional. The KMS key used to encrypt the disks,
   only applicable if disk_encryption is CMEK. Format: `projects/{project_id}/locations/{location}/keyRings/{key_ring_id}/cryptoKeys/{key_id}`
   Learn more about using your own encryption keys.'
 

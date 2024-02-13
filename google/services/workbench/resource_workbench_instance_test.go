@@ -271,3 +271,57 @@ resource "google_workbench_instance" "instance" {
 }
 `, context)
 }
+
+func TestAccWorkbenchInstance_updateState(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_updateState(context),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_updateState(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+
+  desired_state = "STOPPED"
+
+}
+`, context)
+}

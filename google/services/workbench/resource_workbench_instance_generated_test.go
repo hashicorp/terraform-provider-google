@@ -110,7 +110,7 @@ resource "google_workbench_instance" "instance" {
 `, context)
 }
 
-func TestAccWorkbenchInstance_workbenchInstanceLabelsExample(t *testing.T) {
+func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -124,19 +124,19 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsExample(t *testing.T) {
 		CheckDestroy:             testAccCheckWorkbenchInstanceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWorkbenchInstance_workbenchInstanceLabelsExample(context),
+				Config: testAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(context),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "desired_state", "labels", "terraform_labels"},
 			},
 		},
 	})
 }
 
-func testAccWorkbenchInstance_workbenchInstanceLabelsExample(context map[string]interface{}) string {
+func testAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_workbench_instance" "instance" {
   name = "tf-test-workbench-instance%{random_suffix}"
@@ -160,6 +160,8 @@ resource "google_workbench_instance" "instance" {
   labels = {
     k = "val"
   }
+
+  desired_state = "STOPPED"
 
 }
 `, context)
@@ -186,7 +188,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_workbench_instance.instance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "gce_setup.0.vm_image", "gce_setup.0.boot_disk.0.disk_encryption", "gce_setup.0.boot_disk.0.disk_type", "gce_setup.0.boot_disk.0.kms_key", "gce_setup.0.data_disks.0.disk_encryption", "gce_setup.0.data_disks.0.disk_type", "gce_setup.0.data_disks.0.kms_key", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "gce_setup.0.vm_image", "gce_setup.0.boot_disk.0.disk_type", "gce_setup.0.data_disks.0.disk_type", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -226,14 +228,14 @@ resource "google_workbench_instance" "instance" {
     boot_disk {
       disk_size_gb  = 310
       disk_type = "PD_SSD"
-      disk_encryption = "GMEK"
+      disk_encryption = "CMEK"
       kms_key = "%{key_name}"
     }
 
     data_disks {
       disk_size_gb  = 330
       disk_type = "PD_SSD"
-      disk_encryption = "GMEK"
+      disk_encryption = "CMEK"
       kms_key = "%{key_name}"
     }
 
@@ -260,6 +262,8 @@ resource "google_workbench_instance" "instance" {
   labels = {
     k = "val"
   }
+
+  desired_state = "ACTIVE"
 
 }
 `, context)
