@@ -41,6 +41,7 @@ To get more information about Hl7V2Store, see:
 resource "google_healthcare_hl7_v2_store" "store" {
   name    = "example-hl7-v2-store"
   dataset = google_healthcare_dataset.dataset.id
+  reject_duplicate_message = true
 
   notification_configs {
     pubsub_topic = google_pubsub_topic.topic.id
@@ -212,6 +213,10 @@ The following arguments are supported:
 
 - - -
 
+
+* `reject_duplicate_message` -
+  (Optional)
+  Determines whether duplicate messages are allowed.
 
 * `parser_config` -
   (Optional)
