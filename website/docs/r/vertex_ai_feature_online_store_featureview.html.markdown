@@ -108,6 +108,108 @@ data "google_project" "project" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featureonlinestore_featureview_feature_registry&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Vertex Ai Featureonlinestore Featureview Feature Registry
+
+
+```hcl
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  name     = "example_feature_view_feature_registry"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 2
+      cpu_utilization_target = 80
+    }
+  }
+}
+
+resource "google_bigquery_dataset" "sample_dataset" {
+  dataset_id                  = "example_feature_view_feature_registry"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "sample_table" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.sample_dataset.dataset_id
+  table_id   = "example_feature_view_feature_registry"
+
+  schema = <<EOF
+[
+    {
+        "name": "feature_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "example_feature_view_feature_registry",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "feature_timestamp",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]
+EOF
+}
+
+resource "google_vertex_ai_feature_group" "sample_feature_group" {
+  name = "example_feature_view_feature_registry"
+  description = "A sample feature group"
+  region = "us-central1"
+  labels = {
+      label-one = "value-one"
+  }
+  big_query {
+    big_query_source {
+        # The source table must have a column named 'feature_timestamp' of type TIMESTAMP.
+        input_uri = "bq://${google_bigquery_table.sample_table.project}.${google_bigquery_table.sample_table.dataset_id}.${google_bigquery_table.sample_table.table_id}"
+    }
+    entity_id_columns = ["feature_id"]
+  }
+}
+
+
+
+resource "google_vertex_ai_feature_group_feature" "sample_feature" {
+  name = "example_feature_view_feature_registry"
+  region = "us-central1"
+  feature_group = google_vertex_ai_feature_group.sample_feature_group.name
+  description = "A sample feature"
+  labels = {
+      label-one = "value-one"
+  }
+}
+
+
+resource "google_vertex_ai_feature_online_store_featureview" "featureview_featureregistry" {
+  name                 = "example_feature_view_feature_registry"
+  region               = "us-central1"
+  feature_online_store = google_vertex_ai_feature_online_store.featureonlinestore.name
+  sync_config {
+    cron = "0 0 * * *"
+  }
+  feature_registry_source {
+    
+    feature_groups { 
+        feature_group_id = google_vertex_ai_feature_group.sample_feature_group.name
+        feature_ids      = [google_vertex_ai_feature_group_feature.sample_feature.name]
+       }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=vertex_ai_featureonlinestore_featureview_with_vector_search&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -263,6 +365,11 @@ The following arguments are supported:
   Configures how data is supposed to be extracted from a BigQuery source to be loaded onto the FeatureOnlineStore.
   Structure is [documented below](#nested_big_query_source).
 
+* `feature_registry_source` -
+  (Optional)
+  Configures the features from a Feature Registry source that need to be loaded onto the FeatureOnlineStore.
+  Structure is [documented below](#nested_feature_registry_source).
+
 * `vector_search_config` -
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
   Configuration for vector search. It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
@@ -288,6 +395,24 @@ The following arguments are supported:
 * `entity_id_columns` -
   (Required)
   Columns to construct entityId / row keys. Start by supporting 1 only.
+
+<a name="nested_feature_registry_source"></a>The `feature_registry_source` block supports:
+
+* `feature_groups` -
+  (Required)
+  List of features that need to be synced to Online Store.
+  Structure is [documented below](#nested_feature_groups).
+
+
+<a name="nested_feature_groups"></a>The `feature_groups` block supports:
+
+* `feature_group_id` -
+  (Required)
+  Identifier of the feature group.
+
+* `feature_ids` -
+  (Required)
+  Identifiers of features under the feature group.
 
 <a name="nested_vector_search_config"></a>The `vector_search_config` block supports:
 
