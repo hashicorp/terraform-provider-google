@@ -70,6 +70,46 @@ resource "google_notebooks_instance" "instance" {
 `, context)
 }
 
+func TestAccNotebooksInstance_notebookInstanceBasicStoppedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNotebooksInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNotebooksInstance_notebookInstanceBasicStoppedExample(context),
+			},
+			{
+				ResourceName:            "google_notebooks_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "boot_disk_type", "boot_disk_size_gb", "data_disk_type", "data_disk_size_gb", "no_remove_data_disk", "metadata", "vm_image", "container_image", "location", "desired_state", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNotebooksInstance_notebookInstanceBasicStoppedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_notebooks_instance" "instance" {
+  name = "tf-test-notebooks-instance%{random_suffix}"
+  location = "us-west1-a"
+  machine_type = "e2-medium"
+  vm_image {
+    project      = "deeplearning-platform-release"
+    image_family = "tf-latest-cpu"
+  }
+  desired_state = "STOPPED"
+}
+`, context)
+}
+
 func TestAccNotebooksInstance_notebookInstanceBasicContainerExample(t *testing.T) {
 	t.Parallel()
 
@@ -225,6 +265,7 @@ resource "google_notebooks_instance" "instance" {
   ]
   disk_encryption = "CMEK"
   kms_key         = "%{key_name}"
+  desired_state = "ACTIVE"
 }
 
 data "google_compute_network" "my_network" {
