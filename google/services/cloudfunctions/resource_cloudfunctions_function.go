@@ -492,6 +492,11 @@ func ResourceCloudFunctionsFunction() *schema.Resource {
 				Computed:    true,
 				Description: `Describes the current stage of a deployment.`,
 			},
+			"version_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The version identifier of the Cloud Function. Each deployment attempt results in a new version of a function being created.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -787,6 +792,9 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := d.Set("project", cloudFuncId.Project); err != nil {
 		return fmt.Errorf("Error setting project: %s", err)
+	}
+	if err := d.Set("version_id", strconv.FormatInt(function.VersionId, 10)); err != nil {
+		return fmt.Errorf("Error setting version_id: %s", err)
 	}
 
 	return nil
