@@ -51,7 +51,7 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_update(
 func testAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
@@ -95,7 +95,7 @@ resource "google_gke_hub_membership_binding" "example" {
 func testAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_container_cluster" "primary" {
-  name               = "basiccluster%{random_suffix}"
+  name               = "tf-test-basic-cluster%{random_suffix}"
   location           = "us-central1-a"
   initial_node_count = 1
   deletion_protection = false
