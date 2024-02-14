@@ -23,7 +23,7 @@ description: |-
 A Region network endpoint represents a IP address/FQDN and port combination that is
 part of a specific network endpoint group (NEG).
 
-**NOTE**: Network endpoints cannot be created outside of a network endpoint group.
+~> **NOTE**: Network endpoints cannot be created outside of a network endpoint group.
 
 
 To get more information about RegionNetworkEndpoint, see:
