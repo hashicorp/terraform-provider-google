@@ -810,8 +810,10 @@ The following arguments are supported:
   Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.
   It must match the pattern projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}.
 
-* `project` - (Optional) The ID of the project in which the resource belongs.
-    If it is not provided, the provider project is used.
+* `project` -
+  (Optional)
+  The ID of the project in which the resource belongs.
+  If it is not provided, the provider project is used.
 
 
 <a name="nested_build_config"></a>The `build_config` block supports:
@@ -1046,7 +1048,7 @@ The following arguments are supported:
 
 * `trigger` -
   (Output)
-  Output only. The resource name of the Eventarc trigger.
+  The resource name of the Eventarc trigger.
 
 * `trigger_region` -
   (Optional)
@@ -1056,8 +1058,8 @@ The following arguments are supported:
   region. If not provided, defaults to the same region as the function.
 
 * `event_type` -
-  (Optional)
-  Required. The type of event to observe.
+  (Required)
+  The type of event to observe.
 
 * `event_filters` -
   (Optional)
@@ -1071,7 +1073,7 @@ The following arguments are supported:
 
 * `service_account_email` -
   (Optional)
-  Optional. The email of the trigger's service account. The service account
+  The email of the trigger's service account. The service account
   must have permission to invoke Cloud Run services. If empty, defaults to the
   Compute Engine default service account: {project_number}-compute@developer.gserviceaccount.com.
 
@@ -1086,18 +1088,18 @@ The following arguments are supported:
 
 * `attribute` -
   (Required)
-  'Required. The name of a CloudEvents attribute.
+  The name of a CloudEvents attribute.
   Currently, only a subset of attributes are supported for filtering. Use the `gcloud eventarc providers describe` command to learn more about events and their attributes.
   Do not filter for the 'type' attribute here, as this is already achieved by the resource's `event_type` attribute.
 
 * `value` -
   (Required)
-  Required. The value for the attribute.
+  The value for the attribute.
   If the operator field is set as `match-path-pattern`, this value can be a path pattern instead of an exact value.
 
 * `operator` -
   (Optional)
-  Optional. The operator used for matching the events with the value of
+  The operator used for matching the events with the value of
   the filter. If not specified, only events that have an exact key-value
   pair specified in the filter are matched.
   The only allowed value is `match-path-pattern`.
