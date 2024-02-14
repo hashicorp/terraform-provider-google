@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_firebase_app_check_app_attest_config`
+```
+```release-note:new-resource
+`google_firebase_app_check_play_integrity_config`
+```
