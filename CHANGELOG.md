@@ -20,14 +20,14 @@ IMPROVEMENTS:
 * eventarc: added support for `http_endpoint.uri` and `network_config.network_attachment` to `google_eventarc_trigger` ([#17237](https://github.com/hashicorp/terraform-provider-google/pull/17237))
 * healthcare: added `reject_duplicate_message` field to `google_healthcare_hl7_v2_store ` resource ([#17267](https://github.com/hashicorp/terraform-provider-google/pull/17267))
 * identityplatform: added `client`, `permissions`, `monitoring` and `mfa` fields to `google_identity_platform_config` ([#17225](https://github.com/hashicorp/terraform-provider-google/pull/17225))
-* notebooks: made `google_notebooks_instance` wait for active state on creation and enable stopping/starting instances ([#17268](https://github.com/hashicorp/terraform-provider-google/pull/17268))
+* notebooks: added `desired_state` field to `google_notebooks_instance` ([#17268](https://github.com/hashicorp/terraform-provider-google/pull/17268))
 * vertexai: added `feature_registry_source` field to `google_vertex_ai_feature_online_store_featureview` resource ([#17264](https://github.com/hashicorp/terraform-provider-google/pull/17264))
 * workbench: added `desired_state` field to `google_workbench_instance` resource ([#17270](https://github.com/hashicorp/terraform-provider-google/pull/17270))
-* workstations: add support for `disable_ssh` in `google_workstations_workstation_config` (beta) ([#17229](https://github.com/hashicorp/terraform-provider-google/pull/17229))
+* workstations: added support for `disable_ssh` in `google_workstations_workstation_config` (beta) ([#17229](https://github.com/hashicorp/terraform-provider-google/pull/17229))
 
 BUG FIXES:
-* compute: fixed doing nothing when `resource_manager_tags` is changed on `google_compute_instance_template` and `google_compute_region_instance_template` ([#17256](https://github.com/hashicorp/terraform-provider-google/pull/17256))
-* notebooks: fixed notebooks instances recreating for scopes and CMEK ([#17232](https://github.com/hashicorp/terraform-provider-google/pull/17232))
+* compute: made `resource_manager_tags` updatable on `google_compute_instance_template` and `google_compute_region_instance_template` ([#17256](https://github.com/hashicorp/terraform-provider-google/pull/17256))
+* notebooks: prevented recreation of `google_notebooks_instance` when `kms_key` or `service_account_scopes` are changed server-side ([#17232](https://github.com/hashicorp/terraform-provider-google/pull/17232))
 
 ## 5.16.0 (Feb 12, 2024)
 
