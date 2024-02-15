@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: allowed users to set permissions for `principal`/`principalSets` (`iamMember`) in `google_bigquery_dataset_iam_member`.
+```
