@@ -1927,6 +1927,23 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 
+		if !updateDuringStop && d.HasChange(prefix+".stack_type") {
+
+			networkInterfacePatchObj := &compute.NetworkInterface{
+				StackType:   d.Get(prefix + ".stack_type").(string),
+				Fingerprint: instNetworkInterface.Fingerprint,
+			}
+			updateCall := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, networkInterfacePatchObj).Do
+			op, err := updateCall()
+			if err != nil {
+				return errwrap.Wrapf("Error updating network interface: {{err}}", err)
+			}
+			opErr := ComputeOperationWaitTime(config, op, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
+			if opErr != nil {
+				return opErr
+			}
+		}
+
 		if !updateDuringStop && d.HasChange(prefix+".ipv6_address") {
 
 			networkInterfacePatchObj := &compute.NetworkInterface{
