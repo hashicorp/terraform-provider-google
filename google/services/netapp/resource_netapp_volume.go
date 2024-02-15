@@ -190,6 +190,35 @@ func ResourceNetappVolume() *schema.Resource {
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"restore_parameters": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Used to create this volume from a snapshot (= cloning) or an backup.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_backup": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Full name of the snapshot to use for creating this volume.
+'source_snapshot' and 'source_backup' cannot be used simultaneously.
+Format: 'projects/{{project}}/locations/{{location}}/backupVaults/{{backupVaultId}}/backups/{{backup}}'.`,
+							ExactlyOneOf: []string{"restore_parameters.0.source_backup", "restore_parameters.0.source_snapshot"},
+						},
+						"source_snapshot": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Full name of the snapshot to use for creating this volume.
+'source_snapshot' and 'source_backup' cannot be used simultaneously.
+Format: 'projects/{{project}}/locations/{{location}}/volumes/{{volume}}/snapshots/{{snapshot}}'.`,
+							ExactlyOneOf: []string{"restore_parameters.0.source_backup", "restore_parameters.0.source_snapshot"},
+						},
+					},
+				},
+			},
 			"restricted_actions": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -365,6 +394,11 @@ To disable automatic snapshot creation you have to remove the whole snapshot_pol
 				Computed:    true,
 				Description: `Reports the resource name of the Active Directory policy being used. Inherited from storage pool.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Create time of the volume. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".`,
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -438,6 +472,16 @@ Format for SMB volumes: '\\\\netbios_prefix-four_random_hex_letters.domain_name\
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Service level of the volume. Inherited from storage pool.`,
+			},
+			"state": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State of the volume.`,
+			},
+			"state_details": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `State details of the volume.`,
 			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
@@ -543,6 +587,12 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("kerberos_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(kerberosEnabledProp)) && (ok || !reflect.DeepEqual(v, kerberosEnabledProp)) {
 		obj["kerberosEnabled"] = kerberosEnabledProp
+	}
+	restoreParametersProp, err := expandNetappVolumeRestoreParameters(d.Get("restore_parameters"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("restore_parameters"); !tpgresource.IsEmptyValue(reflect.ValueOf(restoreParametersProp)) && (ok || !reflect.DeepEqual(v, restoreParametersProp)) {
+		obj["restoreParameters"] = restoreParametersProp
 	}
 	restrictedActionsProp, err := expandNetappVolumeRestrictedActions(d.Get("restricted_actions"), d, config)
 	if err != nil {
@@ -663,6 +713,15 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
 
+	if err := d.Set("state", flattenNetappVolumeState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
+	if err := d.Set("state_details", flattenNetappVolumeStateDetails(res["stateDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
+	if err := d.Set("create_time", flattenNetappVolumeCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("share_name", flattenNetappVolumeShareName(res["shareName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -991,6 +1050,18 @@ func resourceNetappVolumeImport(d *schema.ResourceData, meta interface{}) ([]*sc
 	}
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenNetappVolumeState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeStateDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenNetappVolumeShareName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1711,6 +1782,40 @@ func expandNetappVolumeSecurityStyle(v interface{}, d tpgresource.TerraformResou
 }
 
 func expandNetappVolumeKerberosEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeRestoreParameters(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceSnapshot, err := expandNetappVolumeRestoreParametersSourceSnapshot(original["source_snapshot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceSnapshot); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceSnapshot"] = transformedSourceSnapshot
+	}
+
+	transformedSourceBackup, err := expandNetappVolumeRestoreParametersSourceBackup(original["source_backup"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceBackup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceBackup"] = transformedSourceBackup
+	}
+
+	return transformed, nil
+}
+
+func expandNetappVolumeRestoreParametersSourceSnapshot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeRestoreParametersSourceBackup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

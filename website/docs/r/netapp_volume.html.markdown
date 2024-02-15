@@ -34,11 +34,11 @@ To get more information about Volume, see:
     * [Documentation](https://cloud.google.com/netapp/volumes/docs/configure-and-use/volumes/overview)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=volume_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=netapp_volume_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Volume Basic
+## Example Usage - Netapp Volume Basic
 
 
 ```hcl
@@ -138,6 +138,11 @@ The following arguments are supported:
   (Optional)
   Flag indicating if the volume is a kerberos volume or not, export policy rules control kerberos security modes (krb5, krb5i, krb5p).
 
+* `restore_parameters` -
+  (Optional)
+  Used to create this volume from a snapshot (= cloning) or an backup.
+  Structure is [documented below](#nested_restore_parameters).
+
 * `restricted_actions` -
   (Optional)
   List of actions that are restricted on this volume.
@@ -211,6 +216,20 @@ Setting this parameter to FORCE will delete volumes including nested snapshots.
 * `kerberos5p_read_write` -
   (Optional)
   If enabled (true) the rule defines read and write access for clients matching the 'allowedClients' specification. It enables nfs clients to mount using 'privacy' kerberos security mode. The 'kerberos5pReadOnly' value is ignored if this is enabled.
+
+<a name="nested_restore_parameters"></a>The `restore_parameters` block supports:
+
+* `source_snapshot` -
+  (Optional)
+  Full name of the snapshot to use for creating this volume.
+  `source_snapshot` and `source_backup` cannot be used simultaneously.
+  Format: `projects/{{project}}/locations/{{location}}/volumes/{{volume}}/snapshots/{{snapshot}}`.
+
+* `source_backup` -
+  (Optional)
+  Full name of the snapshot to use for creating this volume.
+  `source_snapshot` and `source_backup` cannot be used simultaneously.
+  Format: `projects/{{project}}/locations/{{location}}/backupVaults/{{backupVaultId}}/backups/{{backup}}`.
 
 <a name="nested_snapshot_policy"></a>The `snapshot_policy` block supports:
 
@@ -305,6 +324,15 @@ Setting this parameter to FORCE will delete volumes including nested snapshots.
 In addition to the arguments listed above, the following computed attributes are exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/volumes/{{name}}`
+
+* `state` -
+  State of the volume.
+
+* `state_details` -
+  State details of the volume.
+
+* `create_time` -
+  Create time of the volume. A timestamp in RFC3339 UTC "Zulu" format. Examples: "2023-06-22T09:13:01.617Z".
 
 * `psa_range` -
   Name of the Private Service Access allocated range. Inherited from storage pool.
