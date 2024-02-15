@@ -2789,6 +2789,33 @@ func testAccCheckComputeInstanceUpdateMachineType(t *testing.T, n string) resour
 	}
 }
 
+func TestAccComputeInstance_NicStackTypeUpdate(t *testing.T) {
+	t.Parallel()
+	suffix := acctest.RandString(t, 10)
+	envRegion := envvar.GetTestRegionFromEnv()
+	instanceName := fmt.Sprintf("tf-test-compute-instance-%s", suffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_nicStackTypeUpdate(suffix, envRegion, "IPV4_ONLY", instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_nicStackTypeUpdate(suffix, envRegion, "IPV4_IPV6", instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_nicStackTypeUpdate(suffix, envRegion, "IPV4_ONLY", instanceName),
+			},
+			computeInstanceImportStep("us-central1-a", instanceName, []string{"allow_stopping_for_update"}),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -7354,4 +7381,52 @@ resource "google_compute_disk" "debian" {
   zone  = "us-central1-c"
 }
 `, instance, diskName, suffix, suffix, suffix)
+}
+
+func testAccComputeInstance_nicStackTypeUpdate(suffix, region, stack_type, instance string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_network" "net" {
+  name                    = "tf-test-network-%s"
+  enable_ula_internal_ipv6 = true
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet-ipv6" {
+  region                     = "%s"
+  name                       = "tf-test-subnet-ip6-%s"
+  ip_cidr_range              = "10.0.0.0/22"
+  purpose                    = "PRIVATE"
+  stack_type                 = "IPV4_IPV6"
+  ipv6_access_type           = "INTERNAL"
+  network                    = google_compute_network.net.id
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "e2-medium"
+  zone         = "%s-a"
+  tags         = ["foo", "bar"]
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = google_compute_network.net.self_link
+    subnetwork = google_compute_subnetwork.subnet-ipv6.self_link
+    stack_type = "%s"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+}
+`, suffix, region, suffix, instance, region, stack_type)
 }
