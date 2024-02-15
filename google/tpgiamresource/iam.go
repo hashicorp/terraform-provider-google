@@ -275,6 +275,11 @@ func normalizeIamMemberCasing(member string) string {
 		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "deleted:")) {
 			pieces[2] = strings.ToLower(pieces[2])
 		}
+	} else if strings.HasPrefix(member, "iamMember:") {
+		pieces = strings.SplitN(member, ":", 3)
+		if len(pieces) > 2 && !iamMemberIsCaseSensitive(strings.TrimPrefix(member, "iamMember:")) {
+			pieces[2] = strings.ToLower(pieces[2])
+		}
 	} else if !iamMemberIsCaseSensitive(member) {
 		pieces = strings.SplitN(member, ":", 2)
 		if len(pieces) > 1 {

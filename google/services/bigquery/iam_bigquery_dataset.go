@@ -216,7 +216,6 @@ func iamMemberToAccess(member string) (string, string, error) {
 	if strings.HasPrefix(member, "deleted:") {
 		return "", "", fmt.Errorf("BigQuery Dataset IAM member is deleted: %s", member)
 	}
-
 	pieces := strings.SplitN(member, ":", 2)
 	if len(pieces) > 1 {
 		switch pieces[0] {
@@ -224,19 +223,19 @@ func iamMemberToAccess(member string) (string, string, error) {
 			return "groupByEmail", pieces[1], nil
 		case "domain":
 			return "domain", pieces[1], nil
+		case "iamMember":
+			return "iamMember", pieces[1], nil
 		case "user":
 			return "userByEmail", pieces[1], nil
 		case "serviceAccount":
 			return "userByEmail", pieces[1], nil
-		default:
-			return "", "", fmt.Errorf("Failed to parse BigQuery Dataset IAM member type: %s", member)
 		}
 	}
 	if member == "projectOwners" || member == "projectReaders" || member == "projectWriters" || member == "allAuthenticatedUsers" {
 		// These are special BigQuery Dataset permissions
 		return "specialGroup", member, nil
 	}
-	return "iamMember", member, nil
+	return "", "", fmt.Errorf("Failed to parse BigQuery Dataset IAM member type: %s", member)
 }
 
 func accessToIamMember(access map[string]interface{}) (string, error) {
@@ -251,7 +250,7 @@ func accessToIamMember(access map[string]interface{}) (string, error) {
 		return member.(string), nil
 	}
 	if member, ok := access["iamMember"]; ok {
-		return member.(string), nil
+		return fmt.Sprintf("iamMember:%s", member.(string)), nil
 	}
 	if _, ok := access["view"]; ok {
 		// view does not map to an IAM member, use access instead
