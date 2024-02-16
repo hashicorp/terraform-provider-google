@@ -1878,6 +1878,16 @@ func ResourceContainerCluster() *schema.Resource {
 							Computed:    true,
 							Description: `Whether the cluster has been registered via the fleet API.`,
 						},
+						"membership_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Short name of the fleet membership, for example "member-1".`,
+						},
+						"membership_location": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Location of the fleet membership, for example "us-central1".`,
+						},
 					},
 				},
 			},
@@ -5523,11 +5533,22 @@ func flattenFleet(c *container.Fleet) []map[string]interface{} {
 	if c == nil {
 		return nil
 	}
+
+	// Parse membership_id and membership_location from full membership name.
+	var membership_id, membership_location string
+	membershipRE := regexp.MustCompile(`^(//[a-zA-Z0-9\.\-]+)?/?projects/([^/]+)/locations/([a-zA-Z0-9\-]+)/memberships/([^/]+)$`)
+	if match := membershipRE.FindStringSubmatch(c.Membership); match != nil {
+		membership_id = match[4]
+		membership_location = match[3]
+	}
+
 	return []map[string]interface{}{
 		{
-			"project":        c.Project,
-			"membership":     c.Membership,
-			"pre_registered": c.PreRegistered,
+			"project":             c.Project,
+			"membership":          c.Membership,
+			"membership_id":       membership_id,
+			"membership_location": membership_location,
+			"pre_registered":      c.PreRegistered,
 		},
 	}
 }
