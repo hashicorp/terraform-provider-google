@@ -465,6 +465,42 @@ service account. Set by the CLH to https://www.googleapis.com/auth/cloud-platfor
 								},
 							},
 						},
+						"shielded_instance_config": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Optional: true,
+							Description: `A set of Shielded Instance options. See [Images using supported Shielded
+VM features](https://cloud.google.com/compute/docs/instances/modifying-shielded-vm).
+Not all combinations are valid.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_integrity_monitoring": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Optional. Defines whether the VM instance has integrity monitoring
+enabled. Enables monitoring and attestation of the boot integrity of the VM
+instance. The attestation is performed against the integrity policy baseline.
+This baseline is initially derived from the implicitly trusted boot image
+when the VM instance is created. Enabled by default.`,
+									},
+									"enable_secure_boot": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Optional. Defines whether the VM instance has Secure Boot enabled.
+Secure Boot helps ensure that the system only runs authentic software by verifying
+the digital signature of all boot components, and halting the boot process
+if signature verification fails. Disabled by default.`,
+									},
+									"enable_vtpm": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Description: `Optional. Defines whether the VM instance has the vTPM enabled.
+Enabled by default.`,
+									},
+								},
+							},
+						},
 						"tags": {
 							Type:             schema.TypeList,
 							Computed:         true,
@@ -922,7 +958,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	name := d.Get("name").(string)
-	if d.HasChange("gce_setup.0.machine_type") || d.HasChange("gce_setup.0.accelerator_configs") {
+	if d.HasChange("gce_setup.0.machine_type") || d.HasChange("gce_setup.0.accelerator_configs") || d.HasChange("gce_setup.0.shielded_instance_config") {
 		state := d.Get("state").(string)
 
 		if state != "STOPPED" {
@@ -950,6 +986,9 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	if d.HasChange("gce_setup.0.accelerator_configs") {
 		newUpdateMask = append(newUpdateMask, "gce_setup.accelerator_configs")
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config")
 	}
 	if d.HasChange("gce_setup.0.metadata") {
 		newUpdateMask = append(newUpdateMask, "gceSetup.metadata")
@@ -1110,6 +1149,8 @@ func flattenWorkbenchInstanceGceSetup(v interface{}, d *schema.ResourceData, con
 		flattenWorkbenchInstanceGceSetupMachineType(original["machineType"], d, config)
 	transformed["accelerator_configs"] =
 		flattenWorkbenchInstanceGceSetupAcceleratorConfigs(original["acceleratorConfigs"], d, config)
+	transformed["shielded_instance_config"] =
+		flattenWorkbenchInstanceGceSetupShieldedInstanceConfig(original["shieldedInstanceConfig"], d, config)
 	transformed["service_accounts"] =
 		flattenWorkbenchInstanceGceSetupServiceAccounts(original["serviceAccounts"], d, config)
 	transformed["vm_image"] =
@@ -1161,6 +1202,32 @@ func flattenWorkbenchInstanceGceSetupAcceleratorConfigsType(v interface{}, d *sc
 }
 
 func flattenWorkbenchInstanceGceSetupAcceleratorConfigsCoreCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupShieldedInstanceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["enable_secure_boot"] =
+		flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableSecureBoot(original["enableSecureBoot"], d, config)
+	transformed["enable_vtpm"] =
+		flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableVtpm(original["enableVtpm"], d, config)
+	transformed["enable_integrity_monitoring"] =
+		flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableIntegrityMonitoring(original["enableIntegrityMonitoring"], d, config)
+	return []interface{}{transformed}
+}
+func flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableSecureBoot(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableVtpm(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1474,6 +1541,13 @@ func expandWorkbenchInstanceGceSetup(v interface{}, d tpgresource.TerraformResou
 		transformed["acceleratorConfigs"] = transformedAcceleratorConfigs
 	}
 
+	transformedShieldedInstanceConfig, err := expandWorkbenchInstanceGceSetupShieldedInstanceConfig(original["shielded_instance_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["shieldedInstanceConfig"] = transformedShieldedInstanceConfig
+	}
+
 	transformedServiceAccounts, err := expandWorkbenchInstanceGceSetupServiceAccounts(original["service_accounts"], d, config)
 	if err != nil {
 		return nil, err
@@ -1578,6 +1652,56 @@ func expandWorkbenchInstanceGceSetupAcceleratorConfigsType(v interface{}, d tpgr
 }
 
 func expandWorkbenchInstanceGceSetupAcceleratorConfigsCoreCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupShieldedInstanceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableSecureBoot, err := expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableSecureBoot(original["enable_secure_boot"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableSecureBoot); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableSecureBoot"] = transformedEnableSecureBoot
+	}
+
+	transformedEnableVtpm, err := expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableVtpm(original["enable_vtpm"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableVtpm); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableVtpm"] = transformedEnableVtpm
+	}
+
+	transformedEnableIntegrityMonitoring, err := expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableIntegrityMonitoring(original["enable_integrity_monitoring"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableIntegrityMonitoring); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableIntegrityMonitoring"] = transformedEnableIntegrityMonitoring
+	}
+
+	return transformed, nil
+}
+
+func expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableSecureBoot(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableVtpm(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupShieldedInstanceConfigEnableIntegrityMonitoring(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

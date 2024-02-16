@@ -66,6 +66,12 @@ resource "google_workbench_instance" "instance" {
       core_count   = 1
     }
 
+    shielded_instance_config {
+      enable_secure_boot = false
+      enable_vtpm = true
+      enable_integrity_monitoring = false
+    }
+
     metadata = {
       terraform = "true"
     }
@@ -142,6 +148,12 @@ resource "google_workbench_instance" "instance" {
     accelerator_configs{
       type         = "NVIDIA_TESLA_P4"
       core_count   = 1
+    }
+
+    shielded_instance_config {
+      enable_secure_boot = false
+      enable_vtpm = true
+      enable_integrity_monitoring = false
     }
 
   }
