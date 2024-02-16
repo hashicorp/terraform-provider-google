@@ -1,0 +1,3 @@
+```release-note:bug
+Fix issue that changes only in stateful_(internal|external)_ip will not trigger a Patch call in the GA provider for compute_(region_)instance_group_manager
+```
