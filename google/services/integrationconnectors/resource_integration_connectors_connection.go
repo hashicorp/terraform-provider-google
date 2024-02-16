@@ -1010,7 +1010,7 @@ Will be empty string if google managed.`,
 			"connector_version_infra_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `This cofiguration provides infra configs like rate limit threshold which need to be configurable for every connector version.`,
+				Description: `This configuration provides infra configs like rate limit threshold which need to be configurable for every connector version.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ratelimit_threshold": {
