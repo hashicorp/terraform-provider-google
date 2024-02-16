@@ -141,6 +141,11 @@ The following arguments are supported:
   with other field updates.
   Possible values are: `DEPRECATED`, `DRAFT`, `ACTIVE`.
 
+* `policy_sets` -
+  (Required)
+  List of policy sets for the posture.
+  Structure is [documented below](#nested_policy_sets).
+
 * `parent` -
   (Required)
   The parent of the resource, an organization. Format should be `organizations/{organization_id}`.
@@ -154,19 +159,6 @@ The following arguments are supported:
   Id of the posture. It is an immutable field.
 
 
-- - -
-
-
-* `description` -
-  (Optional)
-  Description of the posture.
-
-* `policy_sets` -
-  (Optional)
-  List of policy sets for the posture.
-  Structure is [documented below](#nested_policy_sets).
-
-
 <a name="nested_policy_sets"></a>The `policy_sets` block supports:
 
 * `policy_set_id` -
@@ -178,7 +170,7 @@ The following arguments are supported:
   Description of the policy set.
 
 * `policies` -
-  (Optional)
+  (Required)
   List of security policy
   Structure is [documented below](#nested_policies).
 
@@ -540,6 +532,14 @@ The following arguments are supported:
 * `resource_types` -
   (Required)
   The resource types to run the detector on.
+
+- - -
+
+
+* `description` -
+  (Optional)
+  Description of the posture.
+
 
 ## Attributes Reference
 
