@@ -403,6 +403,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -469,6 +473,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -550,6 +558,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -618,6 +630,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -684,6 +700,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -750,6 +770,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -821,6 +845,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -914,6 +942,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -985,6 +1017,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
@@ -1078,6 +1114,10 @@ resource "google_app_engine_standard_app_version" "version" {
   runtime         = "nodejs10"
   noop_on_destroy = true
 
+  // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
+  basic_scaling { 
+    max_instances = 5 
+  }
   entrypoint {
     shell = "node ./app.js"
   }
