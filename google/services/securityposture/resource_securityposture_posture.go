@@ -78,43 +78,15 @@ func ResourceSecurityposturePosture() *schema.Resource {
 				ForceNew:    true,
 				Description: `The parent of the resource, an organization. Format should be 'organizations/{organization_id}'.`,
 			},
-			"posture_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `Id of the posture. It is an immutable field.`,
-			},
-			"state": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DEPRECATED", "DRAFT", "ACTIVE"}),
-				Description: `State of the posture. Update to state field should not be triggered along with
-with other field updates. Possible values: ["DEPRECATED", "DRAFT", "ACTIVE"]`,
-			},
-			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Description of the posture.`,
-			},
 			"policy_sets": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Required:    true,
 				Description: `List of policy sets for the posture.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"policy_set_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: `ID of the policy set.`,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Description of the policy set.`,
-						},
 						"policies": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Required:    true,
 							Description: `List of security policy`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -595,8 +567,36 @@ returned by this custom module.`,
 								},
 							},
 						},
+						"policy_set_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `ID of the policy set.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Description of the policy set.`,
+						},
 					},
 				},
+			},
+			"posture_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Id of the posture. It is an immutable field.`,
+			},
+			"state": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DEPRECATED", "DRAFT", "ACTIVE"}),
+				Description: `State of the posture. Update to state field should not be triggered along with
+with other field updates. Possible values: ["DEPRECATED", "DRAFT", "ACTIVE"]`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Description of the posture.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
