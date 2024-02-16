@@ -41,7 +41,7 @@ resource "google_scc_event_threat_detection_custom_module" "example" {
   enablement_state = "ENABLED"
   type = "CONFIGURABLE_BAD_IP"
   description = "My Event Threat Detection Custom Module"
-  cofig = jsonencode({
+  config = jsonencode({
     "metadata": {
       "severity": "LOW",
       "description": "Flagged by Forcepoint as malicious",

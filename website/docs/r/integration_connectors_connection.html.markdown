@@ -1060,7 +1060,7 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_eventing_runtime_data).
 
 * `connector_version_infra_config` -
-  This cofiguration provides infra configs like rate limit threshold which need to be configurable for every connector version.
+  This configuration provides infra configs like rate limit threshold which need to be configurable for every connector version.
   Structure is [documented below](#nested_connector_version_infra_config).
 
 * `terraform_labels` -
