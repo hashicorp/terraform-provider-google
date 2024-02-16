@@ -324,8 +324,6 @@ func TestAccRegionInstanceGroupManager_distributionPolicy(t *testing.T) {
 }
 
 func TestAccRegionInstanceGroupManager_stateful(t *testing.T) {
-	// TODO: Flaky test due to ordering of IPs https://github.com/hashicorp/terraform-provider-google/issues/13430
-	t.Skip()
 	t.Parallel()
 
 	template := fmt.Sprintf("tf-test-rigm-%s", acctest.RandString(t, 10))
