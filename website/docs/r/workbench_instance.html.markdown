@@ -73,6 +73,12 @@ resource "google_workbench_instance" "instance" {
   gce_setup {
     machine_type = "e2-standard-4"
 
+    shielded_instance_config {
+      enable_secure_boot = false
+      enable_vtpm = false
+      enable_integrity_monitoring = false
+    }
+
     service_accounts {
       email = "my@service-account.com"
     }
@@ -118,6 +124,12 @@ resource "google_workbench_instance" "instance" {
     accelerator_configs {
       type         = "NVIDIA_TESLA_T4"
       core_count   = 1
+    }
+
+    shielded_instance_config {
+      enable_secure_boot = true
+      enable_vtpm = true
+      enable_integrity_monitoring = true
     }
 
     disable_public_ip = false
@@ -232,6 +244,13 @@ The following arguments are supported:
   Currently supports only one accelerator configuration.
   Structure is [documented below](#nested_accelerator_configs).
 
+* `shielded_instance_config` -
+  (Optional)
+  A set of Shielded Instance options. See [Images using supported Shielded
+  VM features](https://cloud.google.com/compute/docs/instances/modifying-shielded-vm).
+  Not all combinations are valid.
+  Structure is [documented below](#nested_shielded_instance_config).
+
 * `service_accounts` -
   (Optional)
   The service account that serves as an identity for the VM instance. Currently supports only one service account.
@@ -287,6 +306,28 @@ The following arguments are supported:
 * `core_count` -
   (Optional)
   Optional. Count of cores of this accelerator.
+
+<a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
+
+* `enable_secure_boot` -
+  (Optional)
+  Optional. Defines whether the VM instance has Secure Boot enabled.
+  Secure Boot helps ensure that the system only runs authentic software by verifying
+  the digital signature of all boot components, and halting the boot process
+  if signature verification fails. Disabled by default.
+
+* `enable_vtpm` -
+  (Optional)
+  Optional. Defines whether the VM instance has the vTPM enabled.
+  Enabled by default.
+
+* `enable_integrity_monitoring` -
+  (Optional)
+  Optional. Defines whether the VM instance has integrity monitoring
+  enabled. Enables monitoring and attestation of the boot integrity of the VM
+  instance. The attestation is performed against the integrity policy baseline.
+  This baseline is initially derived from the implicitly trusted boot image
+  when the VM instance is created. Enabled by default.
 
 <a name="nested_service_accounts"></a>The `service_accounts` block supports:
 

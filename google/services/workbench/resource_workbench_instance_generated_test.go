@@ -145,6 +145,12 @@ resource "google_workbench_instance" "instance" {
   gce_setup {
     machine_type = "e2-standard-4"
 
+    shielded_instance_config {
+      enable_secure_boot = false
+      enable_vtpm = false
+      enable_integrity_monitoring = false
+    }
+
     service_accounts {
       email = "%{service_account}"
     }
@@ -217,6 +223,12 @@ resource "google_workbench_instance" "instance" {
     accelerator_configs {
       type         = "NVIDIA_TESLA_T4"
       core_count   = 1
+    }
+
+    shielded_instance_config {
+      enable_secure_boot = true
+      enable_vtpm = true
+      enable_integrity_monitoring = true
     }
 
     disable_public_ip = false
