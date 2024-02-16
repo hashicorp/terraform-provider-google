@@ -184,6 +184,28 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   member        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-looker.iam.gserviceaccount.com"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=looker_instance_custom_domain&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Looker Instance Custom Domain
+
+
+```hcl
+resource "google_looker_instance" "looker-instance" {
+  name              = "my-instance"
+  platform_edition  = "LOOKER_CORE_STANDARD"
+  region            = "us-central1"
+  oauth_config {
+    client_id = "my-client-id"
+    client_secret = "my-client-secret"
+  }
+  custom_domain {
+    domain = "my-custom-domain.com"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -268,6 +290,11 @@ The following arguments are supported:
   With the Standard edition of Looker (Google Cloud core), you can provision up to 50
   total users, distributed across Viewer, Standard, and Developer.
   Structure is [documented below](#nested_user_metadata).
+
+* `custom_domain` -
+  (Optional)
+  Custom domain settings for a Looker instance.
+  Structure is [documented below](#nested_custom_domain).
 
 * `region` -
   (Optional)
@@ -432,6 +459,16 @@ The following arguments are supported:
 * `additional_developer_user_count` -
   (Optional)
   Number of additional Developer Users to allocate to the Looker Instance.
+
+<a name="nested_custom_domain"></a>The `custom_domain` block supports:
+
+* `domain` -
+  (Optional)
+  Domain name
+
+* `state` -
+  (Output)
+  Status of the custom domain.
 
 ## Attributes Reference
 

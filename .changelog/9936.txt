@@ -1,0 +1,3 @@
+```release-note:enhancement
+looker: added `custom_domain` field to `google_looker_instance ` resource
+```

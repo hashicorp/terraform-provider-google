@@ -240,6 +240,48 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 `, context)
 }
 
+func TestAccLookerInstance_lookerInstanceCustomDomainExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLookerInstance_lookerInstanceCustomDomainExample(context),
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+		},
+	})
+}
+
+func testAccLookerInstance_lookerInstanceCustomDomainExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_looker_instance" "looker-instance" {
+  name              = "tf-test-my-instance%{random_suffix}"
+  platform_edition  = "LOOKER_CORE_STANDARD"
+  region            = "us-central1"
+  oauth_config {
+    client_id = "tf-test-my-client-id%{random_suffix}"
+    client_secret = "tf-test-my-client-secret%{random_suffix}"
+  }
+  custom_domain {
+    domain = "tf-test-my-custom-domain%{random_suffix}.com"
+  }
+}
+`, context)
+}
+
 func testAccCheckLookerInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
