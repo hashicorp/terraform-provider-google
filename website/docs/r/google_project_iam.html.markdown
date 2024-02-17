@@ -228,7 +228,7 @@ An [`import` block](https://developer.hashicorp.com/terraform/language/import) (
 
 ```tf
 import {
-  id = ""{{project_id}} roles/viewer user:foo@example.com"m"
+  id = "{{project_id}} roles/viewer user:foo@example.com"
   to = google_project_iam_member.default
 }
 ```
