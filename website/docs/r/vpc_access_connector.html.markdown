@@ -54,22 +54,19 @@ resource "google_vpc_access_connector" "connector" {
 ```hcl
 resource "google_vpc_access_connector" "connector" {
   name          = "vpc-con"
+
   subnet {
-    name = google_compute_subnetwork.custom_test.name
+    name       = google_compute_subnetwork.custom_test.name
+    project_id = "host-project-id"
   }
+
   machine_type = "e2-standard-4"
 }
 
-resource "google_compute_subnetwork" "custom_test" {
-  name          = "vpc-con"
-  ip_cidr_range = "10.2.0.0/28"
-  region        = "us-central1"
-  network       = google_compute_network.custom_test.id
-}
-
-resource "google_compute_network" "custom_test" {
-  name                    = "vpc-con"
-  auto_create_subnetworks = false
+data "google_compute_subnetwork" "custom_test" {
+  name    = "vpc-con"
+  project = "host-project-id"
+  region  = var.region
 }
 ```
 
