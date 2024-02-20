@@ -38,6 +38,27 @@ resource "google_workbench_instance" "instance" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workbench_instance_basic_container&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workbench Instance Basic Container
+
+
+```hcl
+resource "google_workbench_instance" "instance" {
+  name = "workbench-instance"
+  location = "us-west1-a"
+
+  gce_setup {
+    container_image {
+      repository = "us-docker.pkg.dev/deeplearning-platform-release/gcr.io/base-cu113.py310"
+      tag = "latest"
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workbench_instance_basic_gpu&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -262,6 +283,11 @@ The following arguments are supported:
   a workbench instance with the environment installed directly on the VM.
   Structure is [documented below](#nested_vm_image).
 
+* `container_image` -
+  (Optional)
+  Use a container image to start the workbench instance.
+  Structure is [documented below](#nested_container_image).
+
 * `boot_disk` -
   (Optional)
   The definition of a boot disk.
@@ -355,6 +381,17 @@ The following arguments are supported:
   (Optional)
   Optional. Use this VM image family to find the image; the newest
   image in this family will be used.
+
+<a name="nested_container_image"></a>The `container_image` block supports:
+
+* `repository` -
+  (Required)
+  The path to the container image repository.
+  For example: gcr.io/{project_id}/{imageName}
+
+* `tag` -
+  (Optional)
+  The tag of the container image. If not specified, this defaults to the latest tag.
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:
 
