@@ -15,13 +15,13 @@
 subcategory: "Cloud (Stackdriver) Monitoring"
 description: |-
   A Service is a discrete, autonomous, and network-accessible unit,
-  designed to solve an individual concern (Wikipedia).
+  designed to solve an individual concern.
 ---
 
 # google\_monitoring\_custom\_service
 
 A Service is a discrete, autonomous, and network-accessible unit,
-designed to solve an individual concern (Wikipedia). In Cloud Monitoring,
+designed to solve an individual concern. In Cloud Monitoring,
 a Service acts as the root resource under which operational aspects of
 the service are accessible
 
@@ -32,6 +32,7 @@ To get more information about Service, see:
 * How-to Guides
     * [Service Monitoring](https://cloud.google.com/monitoring/service-monitoring)
     * [Monitoring API Documentation](https://cloud.google.com/monitoring/api/v3/)
+    * [Service-orientation on Wikipedia](https://en.wikipedia.org/wiki/Service-orientation)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=monitoring_service_custom&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
