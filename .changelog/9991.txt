@@ -1,0 +1,4 @@
+```release-note:new-resource
+`google_firebase_app_check_recaptcha_enterprise_config`
+`google_firebase_app_check_recaptcha_v3_config `
+```
