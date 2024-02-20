@@ -257,6 +257,7 @@ Compute Engine default service account: {project_number}-compute@developer.gserv
 						},
 						"trigger_region": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							Description: `The region that the trigger will be in. The trigger will only receive
 events originating in this region. It can be the same
