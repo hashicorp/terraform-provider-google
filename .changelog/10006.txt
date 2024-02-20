@@ -1,0 +1,3 @@
+```release-note:bug
+notebooks: changed `tag` field to default to the API's value if not specified in `google_notebooks_instance` 
+```

@@ -470,6 +470,7 @@ Format: projects/{project_id}/regions/{region}/subnetworks/{subnetwork_id}`,
 			},
 			"tags": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `The Compute Engine tags to add to instance.`,
