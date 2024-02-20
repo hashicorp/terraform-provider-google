@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions2: fixed an issue where not specifying `event_config.trigger_region` in `google_cloudfunctions2_function` resulted in a permanent diff. The field now pulls a default value from the API when unset.
+```
