@@ -328,6 +328,28 @@ Learn more about using your own encryption keys.'`,
 								},
 							},
 						},
+						"container_image": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Use a container image to start the workbench instance.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"repository": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The path to the container image repository.
+For example: gcr.io/{project_id}/{imageName}`,
+									},
+									"tag": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The tag of the container image. If not specified, this defaults to the latest tag.`,
+									},
+								},
+							},
+							ConflictsWith: []string{"gce_setup.0.vm_image"},
+						},
 						"data_disks": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -547,6 +569,7 @@ Format: {project_id}`,
 									},
 								},
 							},
+							ConflictsWith: []string{"gce_setup.0.container_image"},
 						},
 					},
 				},
@@ -1155,6 +1178,8 @@ func flattenWorkbenchInstanceGceSetup(v interface{}, d *schema.ResourceData, con
 		flattenWorkbenchInstanceGceSetupServiceAccounts(original["serviceAccounts"], d, config)
 	transformed["vm_image"] =
 		flattenWorkbenchInstanceGceSetupVmImage(original["vmImage"], d, config)
+	transformed["container_image"] =
+		flattenWorkbenchInstanceGceSetupContainerImage(original["containerImage"], d, config)
 	transformed["boot_disk"] =
 		flattenWorkbenchInstanceGceSetupBootDisk(original["bootDisk"], d, config)
 	transformed["data_disks"] =
@@ -1260,6 +1285,29 @@ func flattenWorkbenchInstanceGceSetupServiceAccountsScopes(v interface{}, d *sch
 
 func flattenWorkbenchInstanceGceSetupVmImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("gce_setup.0.vm_image")
+}
+
+func flattenWorkbenchInstanceGceSetupContainerImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["repository"] =
+		flattenWorkbenchInstanceGceSetupContainerImageRepository(original["repository"], d, config)
+	transformed["tag"] =
+		flattenWorkbenchInstanceGceSetupContainerImageTag(original["tag"], d, config)
+	return []interface{}{transformed}
+}
+func flattenWorkbenchInstanceGceSetupContainerImageRepository(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupContainerImageTag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenWorkbenchInstanceGceSetupBootDisk(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1562,6 +1610,13 @@ func expandWorkbenchInstanceGceSetup(v interface{}, d tpgresource.TerraformResou
 		transformed["vmImage"] = transformedVmImage
 	}
 
+	transformedContainerImage, err := expandWorkbenchInstanceGceSetupContainerImage(original["container_image"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedContainerImage); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["containerImage"] = transformedContainerImage
+	}
+
 	transformedBootDisk, err := expandWorkbenchInstanceGceSetupBootDisk(original["boot_disk"], d, config)
 	if err != nil {
 		return nil, err
@@ -1784,6 +1839,40 @@ func expandWorkbenchInstanceGceSetupVmImageName(v interface{}, d tpgresource.Ter
 }
 
 func expandWorkbenchInstanceGceSetupVmImageFamily(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupContainerImage(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRepository, err := expandWorkbenchInstanceGceSetupContainerImageRepository(original["repository"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRepository); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["repository"] = transformedRepository
+	}
+
+	transformedTag, err := expandWorkbenchInstanceGceSetupContainerImageTag(original["tag"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTag); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["tag"] = transformedTag
+	}
+
+	return transformed, nil
+}
+
+func expandWorkbenchInstanceGceSetupContainerImageRepository(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupContainerImageTag(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
