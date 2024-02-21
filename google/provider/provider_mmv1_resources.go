@@ -163,6 +163,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_default_service_account":              compute.DataSourceGoogleComputeDefaultServiceAccount(),
 	"google_compute_disk":                                 compute.DataSourceGoogleComputeDisk(),
 	"google_compute_forwarding_rule":                      compute.DataSourceGoogleComputeForwardingRule(),
+	"google_compute_forwarding_rules":                     compute.DataSourceGoogleComputeForwardingRules(),
 	"google_compute_global_address":                       compute.DataSourceGoogleComputeGlobalAddress(),
 	"google_compute_global_forwarding_rule":               compute.DataSourceGoogleComputeGlobalForwardingRule(),
 	"google_compute_ha_vpn_gateway":                       compute.DataSourceGoogleComputeHaVpnGateway(),
