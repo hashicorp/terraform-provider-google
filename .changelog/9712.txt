@@ -1,0 +1,3 @@
+```release-note:bug
+compute: removed diff detection on `min_ports_per_vm` in `google_compute_router_nat` when the field is unset
+```
