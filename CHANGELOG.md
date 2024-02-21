@@ -11,7 +11,7 @@ FEATURES:
 IMPROVEMENTS:
 * bigquery: promoted `table_replication_info` field on `resource_bigquery_table` resource to GA ([#17181](https://github.com/hashicorp/terraform-provider-google/pull/17181))
 * networksecurity: removed unused custom code from `google_network_security_address_group` ([#17183](https://github.com/hashicorp/terraform-provider-google/pull/17183))
-* provider: added an optional provider level label `goog-terraform-provisioned` to identify resources that were created by Terraform when viewing/editing these resources in other tools. ([#17170](https://github.com/hashicorp/terraform-provider-google/pull/17170))
+* provider: added an optional provider level label `goog-terraform-provisioned` to identify resources that were created by Terraform when viewing/editing these resources in other tools. To add the label to your resources, set `add_terraform_attribution_label = true` in your provider configuration. See [the documentation](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#add_terraform_attribution_label) for full configuration details. ([#17170](https://github.com/hashicorp/terraform-provider-google/pull/17170))
 
 ## 5.15.0 (Feb 5, 2024)
 
