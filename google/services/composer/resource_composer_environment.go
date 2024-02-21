@@ -24,7 +24,7 @@ import (
 const (
 	composerEnvironmentEnvVariablesRegexp          = "[a-zA-Z_][a-zA-Z0-9_]*."
 	composerEnvironmentReservedAirflowEnvVarRegexp = "AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+"
-	composerEnvironmentVersionRegexp               = `composer-(([0-9]+)(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-(([0-9]+)((\.[0-9]+)(\.[0-9]+)?)?)`
+	composerEnvironmentVersionRegexp               = `composer-(([0-9]+)(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-(([0-9]+)((\.[0-9]+)(\.[0-9]+)?)?(-build\.[0-9]+)?)`
 )
 
 var composerEnvironmentReservedEnvVar = map[string]struct{}{
@@ -2501,7 +2501,7 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 	versionRe := regexp.MustCompile(composerEnvironmentVersionRegexp)
 	oldVersions := versionRe.FindStringSubmatch(old)
 	newVersions := versionRe.FindStringSubmatch(new)
-	if oldVersions == nil || len(oldVersions) < 10 {
+	if oldVersions == nil || len(oldVersions) < 11 {
 		// Somehow one of the versions didn't match the regexp or didn't
 		// have values in the capturing groups. In that case, fall back to
 		// an equality check.
@@ -2510,7 +2510,7 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 		}
 		return old == new
 	}
-	if newVersions == nil || len(newVersions) < 10 {
+	if newVersions == nil || len(newVersions) < 11 {
 		// Somehow one of the versions didn't match the regexp or didn't
 		// have values in the capturing groups. In that case, fall back to
 		// an equality check.
@@ -2523,9 +2523,11 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 	oldAirflow := oldVersions[5]
 	oldAirflowMajor := oldVersions[6]
 	oldAirflowMajorMinor := oldVersions[6] + oldVersions[8]
+	oldAirflowMajorMinorPatch := oldVersions[6] + oldVersions[8] + oldVersions[9]
 	newAirflow := newVersions[5]
 	newAirflowMajor := newVersions[6]
 	newAirflowMajorMinor := newVersions[6] + newVersions[8]
+	newAirflowMajorMinorPatch := newVersions[6] + newVersions[8] + newVersions[9]
 	// Check Airflow versions.
 	if oldAirflow == oldAirflowMajor || newAirflow == newAirflowMajor {
 		// If one of the Airflow versions specifies only major version
@@ -2547,8 +2549,18 @@ func composerImageVersionDiffSuppress(_, old, new string, _ *schema.ResourceData
 		if !eq {
 			return false
 		}
+	} else if oldAirflow == oldAirflowMajorMinorPatch || newAirflow == newAirflowMajorMinorPatch {
+		// If one of the Airflow versions specifies only major, minor and patch version
+		// (like 1.10.15), we can only compare major, minor and patch versions.
+		eq, err := versionsEqual(oldAirflowMajorMinorPatch, newAirflowMajorMinorPatch)
+		if err != nil {
+			log.Printf("[WARN] Could not parse airflow version, %s", err)
+		}
+		if !eq {
+			return false
+		}
 	} else {
-		// Otherwise, we compare the full Airflow versions (like 1.10.15).
+		// Otherwise, we compare the full Airflow versions (like 1.10.15-build.5).
 		eq, err := versionsEqual(oldAirflow, newAirflow)
 		if err != nil {
 			log.Printf("[WARN] Could not parse airflow version, %s", err)
