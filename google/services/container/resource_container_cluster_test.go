@@ -57,6 +57,43 @@ func TestAccContainerCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_resourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	pid := envvar.GetTestProjectFromEnv()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_resourceManagerTags(pid, clusterName, networkName, subnetworkName, randomSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "self_link"),
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "node_config.0.resource_manager_tags.%"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateId:           fmt.Sprintf("us-central1-a/%s", clusterName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_networkingModeRoutes(t *testing.T) {
 	t.Parallel()
 
@@ -3805,11 +3842,11 @@ func testAccContainerCluster_withIncompatibleMasterVersionNodeVersion(name strin
 	resource "google_container_cluster" "gke_cluster" {
 		name = "%s"
 		location = "us-central1"
-	
+
 		min_master_version = "1.10.9-gke.5"
 		node_version = "1.10.6-gke.11"
 		initial_node_count = 1
-		
+
 	}
 	`, name)
 }
@@ -5824,7 +5861,7 @@ resource "google_container_cluster" "with_autoprovisioning" {
   min_master_version = data.google_container_engine_versions.central1a.latest_master_version
   initial_node_count = 1
   deletion_protection = false
-  
+
   network    = "%s"
   subnetwork    = "%s"
 
@@ -8095,7 +8132,7 @@ resource "google_compute_resource_policy" "policy" {
 resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
-  
+
   node_pool {
     name               = "%s"
     initial_node_count = 2
@@ -8195,4 +8232,87 @@ func testAccContainerCluster_additional_pod_ranges_config(name string, nameCount
 		deletion_protection = false
 	}
 	`, name, name, name, aprc)
+}
+
+func testAccContainerCluster_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%[1]s"
+}
+
+resource "google_project_iam_binding" "tagHoldAdmin" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagHoldAdmin"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "tagUser" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
+  ]
+
+  depends_on = [google_project_iam_binding.tagHoldAdmin]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+
+  depends_on = [
+    google_project_iam_binding.tagHoldAdmin,
+    google_project_iam_binding.tagUser
+  ]
+}
+
+resource "google_tags_tag_key" "key" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz-%[2]s"
+  description = "For foo/bar resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+}
+
+resource "google_tags_tag_value" "value" {
+  parent = "tagKeys/${google_tags_tag_key.key.name}"
+  short_name = "foo-%[2]s"
+  description = "For foo resources"
+}
+
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%[3]s"
+  location           = "us-central1-a"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  initial_node_count = 1
+
+  node_config {
+    machine_type    = "n1-standard-1"  // can't be e2 because of local-ssd
+    disk_size_gb    = 15
+
+    resource_manager_tags = {
+      "tagKeys/${google_tags_tag_key.key.name}" = "tagValues/${google_tags_tag_value.value.name}"
+    }
+  }
+
+  deletion_protection = false
+  network    = "%[4]s"
+  subnetwork    = "%[5]s"
+
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
 }

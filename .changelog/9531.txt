@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: added `node_config.resource_manager_tags` field to `google_container_cluster` resource
+```
+```release-note:enhancement
+container: added `node_config.resource_manager_tags` field to `google_container_node_pool` resource
+```
