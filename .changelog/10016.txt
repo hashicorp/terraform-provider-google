@@ -1,0 +1,3 @@
+```release-note:bug
+dataflow: fixes potential nil-pointer error if a job's Environment field is nil when reading job information in `google_dataflow_job`
+```
