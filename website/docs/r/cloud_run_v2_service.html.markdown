@@ -714,7 +714,8 @@ The following arguments are supported:
 
 * `cpu_idle` -
   (Optional)
-  Determines whether CPU should be throttled or not outside of requests.
+  Determines whether CPU is only allocated during requests. True by default if the parent `resources` field is not set. However, if
+  `resources` is set, this field must be explicitly set to true to preserve the default behavior.
 
 * `startup_cpu_boost` -
   (Optional)
