@@ -49,7 +49,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 				ResourceName:            "google_certificate_manager_dns_authorization.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -59,7 +59,8 @@ func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
-  description = "The default dnss"
+  location    = "global"
+  description = "The default dns"
   domain      = "subdomain%{random_suffix}.hashicorptest.com"
 }
 
@@ -89,7 +90,7 @@ func testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t *testing.T)
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 			if err != nil {
 				return err
 			}
