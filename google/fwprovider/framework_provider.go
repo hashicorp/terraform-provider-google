@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/metaschema"
@@ -26,6 +27,7 @@ import (
 // Ensure the implementation satisfies the expected interfaces
 var (
 	_ provider.ProviderWithMetaSchema = &FrameworkProvider{}
+	_ provider.ProviderWithFunctions  = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -942,5 +944,10 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 
 // Resources defines the resources implemented in the provider.
 func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
+	return nil
+}
+
+// Functions defines the provider functions implemented in the provider.
+func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Function {
 	return nil
 }
