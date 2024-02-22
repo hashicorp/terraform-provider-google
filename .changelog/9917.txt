@@ -1,0 +1,6 @@
+```release-note:enhancement
+composer: 
+- added validations for Composer 2/3 only fields
+- blocked Composer2 -> Composer3 upgrade
+- updated attributes of fields not used in Composer 3
+```
