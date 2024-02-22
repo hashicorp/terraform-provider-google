@@ -284,8 +284,9 @@ This field can only be set when enableDynamicPortAllocation is enabled.`,
 			},
 			"min_ports_per_vm": {
 				Type:        schema.TypeInt,
+				Computed:    true,
 				Optional:    true,
-				Description: `Minimum number of ports allocated to a VM from this NAT.`,
+				Description: `Minimum number of ports allocated to a VM from this NAT. Defaults to 64 for static port allocation and 32 dynamic port allocation if not set.`,
 			},
 			"nat_ip_allocate_option": {
 				Type:         schema.TypeString,

@@ -17,6 +17,14 @@ Note: these instructions need to be tested and improved. Please contact @SarahFr
 You will need to install:
 * Java 17
     * `brew install openjdk@17`
+* Maven
+    * `brew install --ignore-dependencies maven`
+
+Add the following to `~/.zshrc` and reload your terminal:
+
+```
+export JAVA_HOME=/usr/local/Cellar/openjdk@17/17.0.9/libexec/openjdk.jdk/Contents/Home
+```
 
 
 ## Getting started
@@ -27,7 +35,7 @@ You will need to install:
 * Run `make validate` to check the code for both:
     * Errors that prevent the code building
     * Logical errors in TeamCity-specific logic, e.g. the need for unique identifiers for builds.
-* Run `make tests` to run the automated tests defined in `.teamcity/tests`
+* Run `make test` to run the automated tests defined in `.teamcity/tests`
 
 ## Rough description of the code base
 

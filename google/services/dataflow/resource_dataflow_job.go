@@ -372,6 +372,9 @@ func resourceDataflowJobRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("effective_labels", job.Labels); err != nil {
 		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
+	if job.Environment == nil {
+		return fmt.Errorf("Error accessing Environment proto: proto is nil")
+	}
 	if err := d.Set("kms_key_name", job.Environment.ServiceKmsKeyName); err != nil {
 		return fmt.Errorf("Error setting kms_key_name: %s", err)
 	}

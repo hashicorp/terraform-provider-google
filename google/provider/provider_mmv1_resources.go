@@ -163,6 +163,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_default_service_account":              compute.DataSourceGoogleComputeDefaultServiceAccount(),
 	"google_compute_disk":                                 compute.DataSourceGoogleComputeDisk(),
 	"google_compute_forwarding_rule":                      compute.DataSourceGoogleComputeForwardingRule(),
+	"google_compute_forwarding_rules":                     compute.DataSourceGoogleComputeForwardingRules(),
 	"google_compute_global_address":                       compute.DataSourceGoogleComputeGlobalAddress(),
 	"google_compute_global_forwarding_rule":               compute.DataSourceGoogleComputeGlobalForwardingRule(),
 	"google_compute_ha_vpn_gateway":                       compute.DataSourceGoogleComputeHaVpnGateway(),
@@ -385,9 +386,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 385
+// Generated resources: 386
 // Generated IAM resources: 225
-// Total generated resources: 610
+// Total generated resources: 611
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -843,6 +844,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_monitoring_slo":                                          monitoring.ResourceMonitoringSlo(),
 	"google_monitoring_uptime_check_config":                          monitoring.ResourceMonitoringUptimeCheckConfig(),
 	"google_netapp_volume":                                           netapp.ResourceNetappVolume(),
+	"google_netapp_volume_replication":                               netapp.ResourceNetappVolumeReplication(),
 	"google_netapp_volume_snapshot":                                  netapp.ResourceNetappVolumeSnapshot(),
 	"google_netapp_active_directory":                                 netapp.ResourceNetappactiveDirectory(),
 	"google_netapp_backup_policy":                                    netapp.ResourceNetappbackupPolicy(),

@@ -20,7 +20,7 @@ Configure a Google Kubernetes Engine (GKE) cluster with node auto-provisioning, 
 
 ```hcl
 data "google_compute_machine_types" "example" {
-  filter = "name = 'n1-standard-1'"
+  filter = "name = \"n1-standard-1\""
   zone   = "us-central1-a"
 }
 

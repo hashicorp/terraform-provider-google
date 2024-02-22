@@ -14,8 +14,8 @@ import ServiceSweeperName
 import SharedResourceNameBeta
 import SharedResourceNameGa
 import builds.*
-import generated.PackagesList
-import generated.SweepersList
+import generated.SweepersListBeta
+import generated.SweepersListGa
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
@@ -44,7 +44,13 @@ fun nightlyTests(parentProject:String, providerName: String, vcsRoot: GitVcsRoot
     }
 
     // Create build config for sweeping the nightly test project
-    val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, SweepersList, projectId, vcsRoot, sharedResources, config)
+    var sweepersList: Map<String,Map<String,String>>
+    when(providerName) {
+        ProviderNameGa -> sweepersList = SweepersListGa
+        ProviderNameBeta -> sweepersList = SweepersListBeta
+        else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
+    }
+    val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)
     val sweeperTrigger  = NightlyTriggerConfiguration(startHour=12)  // Override hour
     serviceSweeperConfig.addTrigger(sweeperTrigger)
 
