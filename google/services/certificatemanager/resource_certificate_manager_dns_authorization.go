@@ -18,6 +18,7 @@
 package certificatemanager
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -48,6 +49,15 @@ func ResourceCertificateManagerDnsAuthorization() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceCertificateManagerDnsAuthorizationResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceCertificateManagerDnsAuthorizationUpgradeV0,
+				Version: 0,
+			},
+		},
 		CustomizeDiff: customdiff.All(
 			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
@@ -83,6 +93,13 @@ and all following characters must be a dash, underscore, letter or digit.`,
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The Certificate Manager location. If not specified, "global" is used.`,
+				Default:     "global",
 			},
 			"dns_resource_record": {
 				Type:     schema.TypeList,
@@ -162,7 +179,7 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations?dnsAuthorizationId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations?dnsAuthorizationId={{name}}")
 	if err != nil {
 		return err
 	}
@@ -195,7 +212,7 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -223,7 +240,7 @@ func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -307,7 +324,7 @@ func resourceCertificateManagerDnsAuthorizationUpdate(d *schema.ResourceData, me
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -379,7 +396,7 @@ func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, me
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -420,15 +437,15 @@ func resourceCertificateManagerDnsAuthorizationDelete(d *schema.ResourceData, me
 func resourceCertificateManagerDnsAuthorizationImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/locations/global/dnsAuthorizations/(?P<name>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<name>[^/]+)$",
-		"^(?P<name>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/dnsAuthorizations/(?P<name>[^/]+)$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -525,4 +542,96 @@ func expandCertificateManagerDnsAuthorizationEffectiveLabels(v interface{}, d tp
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func ResourceCertificateManagerDnsAuthorizationUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] Attributes before migration: %#v", rawState)
+	// Version 0 didn't support location. Default it to global.
+	rawState["location"] = "global"
+	log.Printf("[DEBUG] Attributes after migration: %#v", rawState)
+	return rawState, nil
+}
+
+func resourceCertificateManagerDnsAuthorizationResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"domain": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `A domain which is being authorized. A DnsAuthorization resource covers a
+single domain and its wildcard, e.g. authorization for "example.com" can
+be used to issue certificates for "example.com" and "*.example.com".`,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				Description: `Name of the resource; provided by the client when the resource is created.
+The name must be 1-64 characters long, and match the regular expression [a-zA-Z][a-zA-Z0-9_-]* which means the first character must be a letter,
+and all following characters must be a dash, underscore, letter or digit.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `A human-readable description of the resource.`,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Set of label tags associated with the DNS Authorization resource.
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"dns_resource_record": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Description: `The structure describing the DNS Resource Record that needs to be added
+to DNS configuration for the authorization to be usable by
+certificate.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Data of the DNS Resource Record.`,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `Fully qualified name of the DNS Resource Record.
+E.g. '_acme-challenge.example.com'.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Type of the DNS Resource Record.`,
+						},
+					},
+				},
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"project": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+		},
+	}
+
 }

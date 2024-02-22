@@ -34,7 +34,8 @@ DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 ```hcl
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "dns-auth"
-  description = "The default dnss"
+  location    = "global"
+  description = "The default dns"
   domain      = "subdomain.hashicorptest.com"
 }
 
@@ -82,6 +83,10 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `location` -
+  (Optional)
+  The Certificate Manager location. If not specified, "global" is used.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -90,7 +95,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/global/dnsAuthorizations/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}`
 
 * `dns_resource_record` -
   The structure describing the DNS Resource Record that needs to be added
@@ -135,16 +140,16 @@ This resource provides the following
 
 DnsAuthorization can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/global/dnsAuthorizations/{{name}}`
-* `{{project}}/{{name}}`
-* `{{name}}`
+* `projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}`
+* `{{project}}/{{location}}/{{name}}`
+* `{{location}}/{{name}}`
 
 
 In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import DnsAuthorization using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/global/dnsAuthorizations/{{name}}"
+  id = "projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}"
   to = google_certificate_manager_dns_authorization.default
 }
 ```
@@ -152,9 +157,9 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), DnsAuthorization can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_certificate_manager_dns_authorization.default projects/{{project}}/locations/global/dnsAuthorizations/{{name}}
-$ terraform import google_certificate_manager_dns_authorization.default {{project}}/{{name}}
-$ terraform import google_certificate_manager_dns_authorization.default {{name}}
+$ terraform import google_certificate_manager_dns_authorization.default projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}
+$ terraform import google_certificate_manager_dns_authorization.default {{project}}/{{location}}/{{name}}
+$ terraform import google_certificate_manager_dns_authorization.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides

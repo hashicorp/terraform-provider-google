@@ -1,0 +1,4 @@
+```release-note:enhancement
+certificatemanager: added `location` field to `google_certificate_manager_dns_authorization` resource
+
+```
