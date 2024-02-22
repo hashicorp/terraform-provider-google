@@ -182,7 +182,7 @@ quota or billing issues which don't seem to apply to you, you may want to set
 ### Using Terraform Cloud as the Backend
 You need to use a different [environment variable](https://www.terraform.io/docs/cloud/workspaces/variables.html) name to store your credentials in Terraform Cloud.
 1. Create an environment variable called `GOOGLE_CREDENTIALS` in your Terraform Cloud workspace.
-2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field.
+2. Remove the newline characters from your JSON key file and then paste the credentials into the environment variable value field. (Running `cat CREDENTIALS.json | tr -s '\n' ' '` will remove newline characters from your JSON key file)
 3. Mark the variable as **Sensitive** and click **Save variable**.
 
 All runs within the workspace will use the `GOOGLE_CREDENTIALS` variable to authenticate with Google Cloud Platform.

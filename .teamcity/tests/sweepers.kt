@@ -9,6 +9,7 @@ package tests
 
 import ServiceSweeperName
 import jetbrains.buildServer.configs.kotlin.BuildType
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import jetbrains.buildServer.configs.kotlin.Project
@@ -63,6 +64,31 @@ class SweeperTests {
     }
 
     @Test
+    fun gaNightlyProjectServiceSweeperRunsInGoogle() {
+        val project = googleCloudRootProject(testContextParameters())
+
+        // Find GA nightly test project
+        val gaProject: Project? =  project.subProjects.find { p->  p.name == gaProjectName}
+        if (gaProject == null) {
+            Assert.fail("Could not find the Google (GA) project")
+        }
+        val gaNightlyTestProject: Project? = gaProject!!.subProjects.find { p->  p.name == nightlyTestsProjectName}
+        if (gaNightlyTestProject == null) {
+            Assert.fail("Could not find the Google (GA) Nightly Test project")
+        }
+
+        // Find sweeper inside
+        val sweeper: BuildType? = gaNightlyTestProject!!.buildTypes.find { p-> p.name == ServiceSweeperName}
+        if (sweeper == null) {
+            Assert.fail("Could not find the sweeper build in the Google (GA) Nightly Test project")
+        }
+
+        // Check PACKAGE_PATH is in google (not google-beta)
+        val value = sweeper!!.params.findRawParam("PACKAGE_PATH")!!.value
+        assertEquals("./google/sweeper", value)
+    }
+
+    @Test
     fun betaNightlyProjectServiceSweeperSkipsProjectSweep() {
         val project = googleCloudRootProject(testContextParameters())
 
@@ -87,5 +113,30 @@ class SweeperTests {
 
         val value = sweeper!!.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
         assertTrue("env.SKIP_PROJECT_SWEEPER is set to a non-empty string, so project sweepers are skipped. Value = `${value}` ", value != "")
+    }
+
+    @Test
+    fun betaNightlyProjectServiceSweeperRunsInGoogleBeta() {
+        val project = googleCloudRootProject(testContextParameters())
+
+        // Find Beta nightly test project
+        val betaProject: Project? =  project.subProjects.find { p->  p.name == betaProjectName}
+        if (betaProject == null) {
+            Assert.fail("Could not find the Google (GA) project")
+        }
+        val betaNightlyTestProject: Project? = betaProject!!.subProjects.find { p->  p.name == nightlyTestsProjectName}
+        if (betaNightlyTestProject == null) {
+            Assert.fail("Could not find the Google (GA) Nightly Test project")
+        }
+
+        // Find sweeper inside
+        val sweeper: BuildType? = betaNightlyTestProject!!.buildTypes.find { p-> p.name == ServiceSweeperName}
+        if (sweeper == null) {
+            Assert.fail("Could not find the sweeper build in the Google (GA) Nightly Test project")
+        }
+
+        // Check PACKAGE_PATH is in google-beta
+        val value = sweeper!!.params.findRawParam("PACKAGE_PATH")!!.value
+        assertEquals("./google-beta/sweeper", value)
     }
 }

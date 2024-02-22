@@ -1436,6 +1436,48 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			log.Printf("[INFO] Updated tags for node pool %s", name)
 		}
 
+		if d.HasChange(prefix + "node_config.0.resource_manager_tags") {
+			req := &container.UpdateNodePoolRequest{
+				Name: name,
+			}
+			if v, ok := d.GetOk(prefix + "node_config.0.resource_manager_tags"); ok {
+				req.ResourceManagerTags = expandResourceManagerTags(v)
+			}
+
+			// sets resource manager tags to the empty list when user removes a previously defined list of tags entriely
+			// aka the node pool goes from having tags to no longer having any
+			if req.ResourceManagerTags == nil {
+				tags := make(map[string]string)
+				rmTags := &container.ResourceManagerTags{
+					Tags: tags,
+				}
+				req.ResourceManagerTags = rmTags
+			}
+
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool resource manager tags", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] Updated resource manager tags for node pool %s", name)
+		}
+
 		if d.HasChange(prefix + "node_config.0.resource_labels") {
 			req := &container.UpdateNodePoolRequest{
 				Name: name,
