@@ -114,6 +114,64 @@ resource "google_compute_region_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManagerCertificateExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionTargetHttpsProxyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManagerCertificateExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_target_https_proxy.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManagerCertificateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_target_https_proxy" "default" {
+  name                             = "tf-test-target-http-proxy%{random_suffix}"
+  url_map                          = google_compute_region_url_map.default.id
+  certificate_manager_certificates =  ["//certificatemanager.googleapis.com/${google_certificate_manager_certificate.default.id}"] # [google_certificate_manager_certificate.default.id] is also acceptable
+}
+
+resource "google_certificate_manager_certificate" "default" {
+  name              = "tf-test-my-certificate%{random_suffix}"
+  location          = "us-central1"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")                                                                                                                
+  }
+}
+
+resource "google_compute_region_url_map" "default" {
+  name            = "tf-test-url-map%{random_suffix}"
+  default_service = google_compute_region_backend_service.default.id
+  region          = "us-central1"
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "tf-test-backend-service%{random_suffix}"
+  region                = "us-central1"
+  protocol              = "HTTPS"
+  timeout_sec           = 30
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+`, context)
+}
+
 func testAccCheckComputeRegionTargetHttpsProxyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
