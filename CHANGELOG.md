@@ -1,4 +1,66 @@
-## 5.17.0 (Unreleased)
+## 5.18.0 (Unreleased)
+
+UNKNOWN CHANGELOG TYPE:
+* App Check reCAPTCHA V3 and reCAPTCHA Enterprise providers ([#17327](https://github.com/hashicorp/terraform-provider-google/pull/17327))
+* Switched enhancements to use issue form ([#17272](https://github.com/hashicorp/terraform-provider-google/pull/17272))
+BREAKING CHANGES:
+* securityposture: marked `policy_sets` and `policy_sets.policies` required in `google_securityposture_posture`. API validation already enforced this, so no resources could be provisioned without these ([#17303](https://github.com/hashicorp/terraform-provider-google/pull/17303))
+
+FEATURES:
+* **New Data Source:** google_compute_forwarding_rules ([#17342](https://github.com/hashicorp/terraform-provider-google/pull/17342))
+* **New Resource:** `google_firebase_app_check_app_attest_config` ([#17279](https://github.com/hashicorp/terraform-provider-google/pull/17279))
+* **New Resource:** `google_firebase_app_check_play_integrity_config` ([#17279](https://github.com/hashicorp/terraform-provider-google/pull/17279))
+* **New Resource:** `google_migration_center_preference_set` ([#17291](https://github.com/hashicorp/terraform-provider-google/pull/17291))
+* **New Resource:** google_netapp_volume_replication ([#17348](https://github.com/hashicorp/terraform-provider-google/pull/17348))
+
+IMPROVEMENTS:
+* Expose version_id on google_cloudfunctions_function ([#17273](https://github.com/hashicorp/terraform-provider-google/pull/17273))
+* composer: support new version schema in composer 3 ([#17345](https://github.com/hashicorp/terraform-provider-google/pull/17345))
+* compute: support updating `network_interface.stack_type` field on `google_compute_instance` resource. ([#17295](https://github.com/hashicorp/terraform-provider-google/pull/17295))
+* container: added `node_config.resource_manager_tags` field to `google_container_cluster` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
+* container: added `node_config.resource_manager_tags` field to `google_container_node_pool` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
+* container: added output-only fields `membership_id` and  `membership_location` under `fleet` in `google_container_cluster` resource ([#17305](https://github.com/hashicorp/terraform-provider-google/pull/17305))
+* looker: added `custom_domain` field to `google_looker_instance ` resource ([#17301](https://github.com/hashicorp/terraform-provider-google/pull/17301))
+* netapp: added field `restore_parameters` and output-only fields `state`, `state_details` and `create_time` to `google_netapp_volume` resource ([#17293](https://github.com/hashicorp/terraform-provider-google/pull/17293))
+* workbench: added `container_image` field to `google_workbench_instance` resource ([#17326](https://github.com/hashicorp/terraform-provider-google/pull/17326))
+* workbench: added `shielded_instance_config` field to `google_workbench_instance` resource ([#17306](https://github.com/hashicorp/terraform-provider-google/pull/17306))
+
+BUG FIXES:
+* Fix issue that changes only in stateful_(internal|external)_ip will not trigger a Patch call in the GA provider for compute_(region_)instance_group_manager ([#17297](https://github.com/hashicorp/terraform-provider-google/pull/17297))
+* bigquery: allowed users to set permissions for `principal`/`principalSets` (`iamMember`) in `google_bigquery_dataset_iam_member`. ([#17292](https://github.com/hashicorp/terraform-provider-google/pull/17292))
+* cloudfunctions2: fixed an issue where not specifying `event_config.trigger_region` in `google_cloudfunctions2_function` resulted in a permanent diff. The field now pulls a default value from the API when unset. ([#17328](https://github.com/hashicorp/terraform-provider-google/pull/17328))
+* compute: removed diff detection on `min_ports_per_vm` in `google_compute_router_nat` when the field is unset ([#17337](https://github.com/hashicorp/terraform-provider-google/pull/17337))
+* dataflow: fixes potential nil-pointer error if a job's Environment field is nil when reading job information in `google_dataflow_job` ([#17344](https://github.com/hashicorp/terraform-provider-google/pull/17344))
+* notebooks: changed `tag` field to default to the API's value if not specified in `google_notebooks_instance` ([#17323](https://github.com/hashicorp/terraform-provider-google/pull/17323))
+
+## 5.17.0 (Feb 20, 2024)
+
+NOTES:
+* cloudbuildv2: changed underlying actuation engine for `google_cloudbuildv2_connection`, there should be no user-facing impact ([#17222](https://github.com/hashicorp/terraform-provider-google/pull/17222))
+
+DEPRECATIONS:
+* container: deprecated support for `relay_mode` field in `google_container_cluster.monitoring_config.advanced_datapath_observability_config` in favor of `enable_relay` field, `relay_mode` field will be removed in a future major release ([#17262](https://github.com/hashicorp/terraform-provider-google/pull/17262))
+
+FEATURES:
+* **New Resource:** `google_firebase_app_check_debug_token` ([#17242](https://github.com/hashicorp/terraform-provider-google/pull/17242))
+* **New Resource:** `google_clouddeploy_custom_target_type` ([#17254](https://github.com/hashicorp/terraform-provider-google/pull/17254))
+
+IMPROVEMENTS:
+* cloudasset: allowed overriding the billing project for the `google_cloud_asset_resources_search_all` datasource
+* clouddeploy: added support for `canary_revision_tags`, `prior_revision_tags`, `stable_revision_tags`, and `stable_cutback_duration` to `google_clouddeploy_delivery_pipeline`
+* cloudfunctions: expose `version_id` on `google_cloudfunctions_function` ([#17273](https://github.com/hashicorp/terraform-provider-google/pull/17273))
+* compute: promoted `user_ip_request_headers` field on `google_compute_security_policy` resource to GA ([#17271](https://github.com/hashicorp/terraform-provider-google/pull/17271))
+* container: added support for `enable_relay` field to `google_container_cluster.monitoring_config.advanced_datapath_observability_config` ([#17262](https://github.com/hashicorp/terraform-provider-google/pull/17262))
+* eventarc: added support for `http_endpoint.uri` and `network_config.network_attachment` to `google_eventarc_trigger` ([#17237](https://github.com/hashicorp/terraform-provider-google/pull/17237))
+* healthcare: added `reject_duplicate_message` field to `google_healthcare_hl7_v2_store ` resource ([#17267](https://github.com/hashicorp/terraform-provider-google/pull/17267))
+* identityplatform: added `client`, `permissions`, `monitoring` and `mfa` fields to `google_identity_platform_config` ([#17225](https://github.com/hashicorp/terraform-provider-google/pull/17225))
+* notebooks: added `desired_state` field to `google_notebooks_instance` ([#17268](https://github.com/hashicorp/terraform-provider-google/pull/17268))
+* vertexai: added `feature_registry_source` field to `google_vertex_ai_feature_online_store_featureview` resource ([#17264](https://github.com/hashicorp/terraform-provider-google/pull/17264))
+* workbench: added `desired_state` field to `google_workbench_instance` resource ([#17270](https://github.com/hashicorp/terraform-provider-google/pull/17270))
+
+BUG FIXES:
+* compute: made `resource_manager_tags` updatable on `google_compute_instance_template` and `google_compute_region_instance_template` ([#17256](https://github.com/hashicorp/terraform-provider-google/pull/17256))
+* notebooks: prevented recreation of `google_notebooks_instance` when `kms_key` or `service_account_scopes` are changed server-side ([#17232](https://github.com/hashicorp/terraform-provider-google/pull/17232))
 
 ## 5.16.0 (Feb 12, 2024)
 
