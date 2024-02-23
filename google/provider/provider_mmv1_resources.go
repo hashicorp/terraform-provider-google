@@ -300,6 +300,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_binary_authorization_attestor_iam_policy":        tpgiamresource.DataSourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer),
 	"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
 	"google_clouddeploy_delivery_pipeline_iam_policy":        tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer),
+	"google_clouddeploy_target_iam_policy":                   tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer),
 	"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
 	"google_cloudfunctions2_function_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudfunctions2.Cloudfunctions2functionIamSchema, cloudfunctions2.Cloudfunctions2functionIamUpdaterProducer),
 	"google_cloud_run_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer),
@@ -387,8 +388,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 386
-// Generated IAM resources: 225
-// Total generated resources: 611
+// Generated IAM resources: 228
+// Total generated resources: 614
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -504,6 +505,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_clouddeploy_delivery_pipeline_iam_binding":               tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_member":                tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_policy":                tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
+	"google_clouddeploy_target_iam_binding":                          tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
+	"google_clouddeploy_target_iam_member":                           tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
+	"google_clouddeploy_target_iam_policy":                           tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
 	"google_clouddomains_registration":                               clouddomains.ResourceClouddomainsRegistration(),
 	"google_cloudfunctions_function_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 	"google_cloudfunctions_function_iam_member":                      tpgiamresource.ResourceIamMember(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
