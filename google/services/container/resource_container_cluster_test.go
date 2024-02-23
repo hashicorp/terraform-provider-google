@@ -8234,6 +8234,175 @@ func testAccContainerCluster_additional_pod_ranges_config(name string, nameCount
 	`, name, name, name, aprc)
 }
 
+func TestAccContainerCluster_withConfidentialBootDisk(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-node-pool-%s", acctest.RandString(t, 10))
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withConfidentialBootDisk(clusterName, npName, kms.CryptoKey.Name, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_confidential_boot_disk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withConfidentialBootDisk(clusterName, npName, kmsKeyName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_confidential_boot_disk" {
+  name               = "%s"
+  location           = "us-central1-a"
+  release_channel {
+  channel = "RAPID"
+}
+  node_pool {
+    name = "%s"
+    initial_node_count = 1
+    node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    image_type = "COS_CONTAINERD"
+    boot_disk_kms_key = "%s"
+    machine_type = "n2-standard-2"
+    enable_confidential_storage = true
+    disk_type = "hyperdisk-balanced"
+  }
+}
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, npName, kmsKeyName, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_withConfidentialBootDiskNodeConfig(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withConfidentialBootDiskNodeConfig(clusterName, kms.CryptoKey.Name, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_confidential_boot_disk_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withConfidentialBootDiskNodeConfig(clusterName, kmsKeyName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_confidential_boot_disk_node_config" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  release_channel {
+    channel = "RAPID"
+  }
+  node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    image_type = "COS_CONTAINERD"
+    boot_disk_kms_key = "%s"
+    machine_type = "n2-standard-2"
+    enable_confidential_storage = true
+    disk_type = "hyperdisk-balanced"
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, kmsKeyName, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_withoutConfidentialBootDisk(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-cluster-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withoutConfidentialBootDisk(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.without_confidential_boot_disk",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+func testAccContainerCluster_withoutConfidentialBootDisk(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "without_confidential_boot_disk" {
+  name               = "%s"
+  location           = "us-central1-a"
+  release_channel {
+    channel = "RAPID"
+  }
+  node_pool {
+    name = "%s"
+    initial_node_count = 1
+    node_config {
+      oauth_scopes = [
+       "https://www.googleapis.com/auth/cloud-platform",
+      ]
+      image_type = "COS_CONTAINERD"
+      machine_type = "n2-standard-2"
+      enable_confidential_storage = false
+      disk_type = "pd-balanced"
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, npName, networkName, subnetworkName)
+}
+
 func testAccContainerCluster_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {
