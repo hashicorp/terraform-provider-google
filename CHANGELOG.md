@@ -14,8 +14,8 @@ FEATURES:
 
 IMPROVEMENTS:
 * cloudfunctions: added output-only `version_id` field on `google_cloudfunctions_function` ([#17273](https://github.com/hashicorp/terraform-provider-google/pull/17273))
-* composer: support patch versions of airflow on `google_composer_environment` ([#17345](https://github.com/hashicorp/terraform-provider-google/pull/17345))
-* compute: support updating `network_interface.stack_type` field on `google_compute_instance` resource. ([#17295](https://github.com/hashicorp/terraform-provider-google/pull/17295))
+* composer: supported patch versions of airflow on `google_composer_environment` ([#17345](https://github.com/hashicorp/terraform-provider-google/pull/17345))
+* compute: supported updating `network_interface.stack_type` field on `google_compute_instance` resource. ([#17295](https://github.com/hashicorp/terraform-provider-google/pull/17295))
 * container: added `node_config.resource_manager_tags` field to `google_container_cluster` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
 * container: added `node_config.resource_manager_tags` field to `google_container_node_pool` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
 * container: added output-only fields `membership_id` and  `membership_location` under `fleet` in `google_container_cluster` resource ([#17305](https://github.com/hashicorp/terraform-provider-google/pull/17305))
