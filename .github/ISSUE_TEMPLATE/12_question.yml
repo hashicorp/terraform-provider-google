@@ -1,0 +1,18 @@
+name: "[TEST] Question"
+labels: ["question"]
+description: "[TEST] If you have a question, please check out our [community resources](https://www.terraform.io/docs/extend/community/index.html)!"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues on GitHub are intended to be related to bugs or feature requests with provider codebase, so we recommend using our other community resources instead of asking here 👍.
+
+        If you have a support request or question please submit them to one of these resources:
+
+        * [Terraform community resources](https://www.terraform.io/docs/extend/community/index.html)
+        * [HashiCorp support](https://support.hashicorp.com) (Terraform Enterprise customers)
+        * [GCP support](https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team) (Customers working with a Google Technical Account Manager or Customer Engineer)
+  - type: textarea
+    id: question
+    attributes:
+      value: Please use the resources listed above instead of submitting a question with this form.
