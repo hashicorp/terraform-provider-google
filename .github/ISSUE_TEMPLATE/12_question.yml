@@ -17,3 +17,5 @@ body:
     attributes:
       label: Question
       value: Please use the resources listed above instead of submitting a question with this form.
+    validations:
+      required: true
