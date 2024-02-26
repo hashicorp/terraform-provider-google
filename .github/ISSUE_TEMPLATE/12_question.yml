@@ -4,7 +4,6 @@ description: "[TEST] If you have a question, please check out our [community res
 body:
   - type: markdown
     attributes:
-      label: Resources
       value: |
         Issues on GitHub are intended to be related to bugs or feature requests with provider codebase, so we recommend using our other community resources instead of asking here 👍.
 
