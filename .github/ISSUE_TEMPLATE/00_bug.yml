@@ -12,8 +12,7 @@ body:
         * Please do not leave _+1_ or _me too_ comments, they generate extra noise for issue followers and do not help prioritize the request.
         * If you are interested in working on this issue or have submitted a pull request, please leave a comment.
         * If an issue is assigned to a user, that user is claiming responsibility for the issue.
-        * Customers working with a Google Technical Account Manager or Customer Engineer can ask them to [reach out internally](https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team)
-          to expedite investigation and resolution of this issue.
+        * Customers working with a Google Technical Account Manager or Customer Engineer can ask them to [reach out internally](https://github.com/hashicorp/terraform-provider-google/wiki/Customer-Contact#raising-gcp-internal-issues-with-the-provider-development-team) to expedite investigation and resolution of this issue.
     validations:
       required: true
   - type: textarea
