@@ -1,4 +1,38 @@
-## 5.18.0 (Unreleased)
+## 5.19.0 (Unreleased)
+
+## 5.18.0 (Feb 26, 2024)
+
+BREAKING CHANGES:
+* securityposture: marked `policy_sets` and `policy_sets.policies` required in `google_securityposture_posture`. API validation already enforced this, so no resources could be provisioned without these ([#17303](https://github.com/hashicorp/terraform-provider-google/pull/17303))
+
+FEATURES:
+* **New Data Source:** `google_compute_forwarding_rules` ([#17342](https://github.com/hashicorp/terraform-provider-google/pull/17342))
+* **New Resource:** `google_firebase_app_check_app_attest_config` ([#17279](https://github.com/hashicorp/terraform-provider-google/pull/17279))
+* **New Resource:** `google_firebase_app_check_play_integrity_config` ([#17279](https://github.com/hashicorp/terraform-provider-google/pull/17279))
+* **New Resource:** `google_firebase_app_check_recaptcha_enterprise_config` ([#17327](https://github.com/hashicorp/terraform-provider-google/pull/17327))
+* **New Resource:** `google_firebase_app_check_recaptcha_v3_config` ([#17327](https://github.com/hashicorp/terraform-provider-google/pull/17327))
+* **New Resource:** `google_migration_center_preference_set` ([#17291](https://github.com/hashicorp/terraform-provider-google/pull/17291))
+* **New Resource:** `google_netapp_volume_replication` ([#17348](https://github.com/hashicorp/terraform-provider-google/pull/17348))
+
+IMPROVEMENTS:
+* cloudfunctions: added output-only `version_id` field on `google_cloudfunctions_function` ([#17273](https://github.com/hashicorp/terraform-provider-google/pull/17273))
+* composer: supported patch versions of airflow on `google_composer_environment` ([#17345](https://github.com/hashicorp/terraform-provider-google/pull/17345))
+* compute: supported updating `network_interface.stack_type` field on `google_compute_instance` resource. ([#17295](https://github.com/hashicorp/terraform-provider-google/pull/17295))
+* container: added `node_config.resource_manager_tags` field to `google_container_cluster` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
+* container: added `node_config.resource_manager_tags` field to `google_container_node_pool` resource ([#17346](https://github.com/hashicorp/terraform-provider-google/pull/17346))
+* container: added output-only fields `membership_id` and  `membership_location` under `fleet` in `google_container_cluster` resource ([#17305](https://github.com/hashicorp/terraform-provider-google/pull/17305))
+* looker: added `custom_domain` field to `google_looker_instance ` resource ([#17301](https://github.com/hashicorp/terraform-provider-google/pull/17301))
+* netapp: added field `restore_parameters` and output-only fields `state`, `state_details` and `create_time` to `google_netapp_volume` resource ([#17293](https://github.com/hashicorp/terraform-provider-google/pull/17293))
+* workbench: added `container_image` field to `google_workbench_instance` resource ([#17326](https://github.com/hashicorp/terraform-provider-google/pull/17326))
+* workbench: added `shielded_instance_config` field to `google_workbench_instance` resource ([#17306](https://github.com/hashicorp/terraform-provider-google/pull/17306))
+
+BUG FIXES:
+* bigquery: allowed users to set permissions for `principal`/`principalSets` (`iamMember`) in `google_bigquery_dataset_iam_member`. ([#17292](https://github.com/hashicorp/terraform-provider-google/pull/17292))
+* cloudfunctions2: fixed an issue where not specifying `event_config.trigger_region` in `google_cloudfunctions2_function` resulted in a permanent diff. The field now pulls a default value from the API when unset. ([#17328](https://github.com/hashicorp/terraform-provider-google/pull/17328))
+* compute: fixed issue where changes only in `stateful_(internal|external)_ip` would not trigger an update for `google_compute_(region_)instance_group_manager` ([#17297](https://github.com/hashicorp/terraform-provider-google/pull/17297))
+* compute: fixed perma-diff on `min_ports_per_vm` in `google_compute_router_nat` when the field is unset by making the field default to the API-set value ([#17337](https://github.com/hashicorp/terraform-provider-google/pull/17337))
+* dataflow: fixed crash in `google_dataflox_job` to return an error instead if a job's Environment field is nil when reading job information ([#17344](https://github.com/hashicorp/terraform-provider-google/pull/17344))
+* notebooks: changed `tag` field to default to the API's value if not specified in `google_notebooks_instance` ([#17323](https://github.com/hashicorp/terraform-provider-google/pull/17323))
 
 ## 5.17.0 (Feb 20, 2024)
 
