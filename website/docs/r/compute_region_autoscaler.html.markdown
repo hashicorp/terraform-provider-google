@@ -172,7 +172,7 @@ The following arguments are supported:
   Defines operating mode for this policy.
 
 * `scale_down_control` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Defines scale down controls to reduce the risk of response latency
   and outages due to abrupt scale-in events
   Structure is [documented below](#nested_scale_down_control).
@@ -287,7 +287,7 @@ The following arguments are supported:
   The metric must have a value type of INT64 or DOUBLE.
 
 * `single_instance_assignment` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   If scaling is based on a per-group metric value that represents the
   total amount of work to be done or resource usage, set this value to
   an amount assigned for a single instance of the scaled group.
@@ -321,7 +321,7 @@ The following arguments are supported:
   Possible values are: `GAUGE`, `DELTA_PER_SECOND`, `DELTA_PER_MINUTE`.
 
 * `filter` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A filter string to be used as the filter string for
   a Stackdriver Monitoring TimeSeries.list API call.
   This filter is used to select a specific TimeSeries for
