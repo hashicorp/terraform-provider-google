@@ -563,6 +563,14 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     port = 8080
   }
 
+  all_instances_config {
+    metadata = {
+      foo = "bar"
+    }
+    labels = {
+      doo = "dad"
+    }
+  }
 
   instance_lifecycle_policy {
     force_update_on_repair = "YES"
@@ -659,6 +667,14 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     port = 8443
   }
 
+  all_instances_config {
+    metadata = {
+      doo = "dad"
+    }
+    labels = {
+      foo = "bar"
+    }
+  }
 
   instance_lifecycle_policy {
     force_update_on_repair = "NO"

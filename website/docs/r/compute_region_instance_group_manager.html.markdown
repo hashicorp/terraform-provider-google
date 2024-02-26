@@ -155,7 +155,7 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `all_instances_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `all_instances_config` - (Optional)
   Properties to set on all instances in the group. After setting
   allInstancesConfig on the group, you must update the group's instances to
   apply the configuration.
@@ -235,9 +235,9 @@ all_instances_config {
 }
 ```
 
-* `metadata` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
+* `metadata` - (Optional), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
 
-* `labels` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The label key-value pairs that you want to patch onto the instance.
+* `labels` - (Optional), The label key-value pairs that you want to patch onto the instance.
 
 - - -
 
