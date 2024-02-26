@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: added a retry to deleting the default network when `auto_create_network` is false in `google_project`
+```
