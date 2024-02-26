@@ -14,6 +14,8 @@ body:
       description: List all impacted tests for searchability. The title of the issue can instead list one or more groups of tests, or describe the overall root cause.
       value: |
         - TestAccWhatever
+    validations:
+      required: true
   - type: textarea
     id: affected-resources
     attributes:
@@ -21,6 +23,8 @@ body:
       description: List the primary resource or data source under test, even if the root cause of the failure is in a different resource. Use `google_*` for tests related to core provider logic.
       value: |
         - google_XXXXX
+    validations:
+      required: true
   - type: textarea
     id: failure-rates
     attributes:
@@ -29,6 +33,8 @@ body:
       value: |
         - 100% since YYYY-MM-DD
         - X% as of YYYY-MM-DD (Y/120 runs)
+    validations:
+      required: true
   - type: textarea
     id: messages
     attributes:
@@ -38,6 +44,8 @@ body:
         ```
         
         ```
+    validations:
+      required: true
   - type: textarea
     id: test-history
     attributes:
@@ -45,3 +53,5 @@ body:
       description: Link to the [test history page](https://hashicorp.teamcity.com/test/1458901879521596451?currentProjectId=TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS&expandTestHistoryChartSection=true) for the failed test.
       value: |
         - https://hashicorp.teamcity.com/...
+    validations:
+      required: true
