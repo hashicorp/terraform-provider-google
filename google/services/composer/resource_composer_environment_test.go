@@ -22,6 +22,7 @@ import (
 const testComposerEnvironmentPrefix = "tf-test-composer-env"
 const testComposerNetworkPrefix = "tf-test-composer-net"
 const testComposerBucketPrefix = "tf-test-composer-bucket"
+const testComposerNetworkAttachmentPrefix = "tf-test-composer-nta"
 
 func allComposerServiceAgents() []string {
 	return []string{

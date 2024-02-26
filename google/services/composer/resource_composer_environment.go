@@ -233,7 +233,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-										Description:      `The Compute Engine subnetwork to be used for machine communications, , specified as a self-link, relative resource name (e.g. "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.`,
+										Description:      `The Compute Engine subnetwork to be used for machine communications, specified as a self-link, relative resource name (e.g. "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.`,
 									},
 									"disk_size_gb": {
 										Type:        schema.TypeInt,
@@ -2173,6 +2173,7 @@ func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.Resource
 		}
 		transformed.Subnetwork = transformedSubnetwork
 	}
+
 	transformedIPAllocationPolicy, err := expandComposerEnvironmentIPAllocationPolicy(original["ip_allocation_policy"], d, config)
 	if err != nil {
 		return nil, err
@@ -2614,6 +2615,17 @@ func versionsEqual(old, new string) (bool, error) {
 
 func isComposer3(imageVersion string) bool {
 	return strings.Contains(imageVersion, "composer-3")
+}
+
+func forceNewCustomDiff(key string) customdiff.ResourceConditionFunc {
+	return func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+		old, new := d.GetChange(key)
+		imageVersion := d.Get("config.0.software_config.0.image_version").(string)
+		if isComposer3(imageVersion) || tpgresource.CompareSelfLinkRelativePaths("", old.(string), new.(string), nil) {
+			return false
+		}
+		return true
+	}
 }
 
 func imageVersionChangeValidationFunc(ctx context.Context, old, new, meta any) error {
