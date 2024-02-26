@@ -1,0 +1,6 @@
+```release-note:enhancement
+composer: added composer_network_attachment, modified network/subnetwork to work with composer 3, modified isComposer3 function to work with multiple types
+```
+```release-note:none
+Fixes: b/304402329, b/304432955, b/304432958
+```
