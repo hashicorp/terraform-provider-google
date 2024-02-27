@@ -1,0 +1,57 @@
+name: "[TEST] Test failure"
+labels: ["test-failure"]
+description: "[TEST] (Internal) For reporting test failures on the nightly builds"
+title: "Failing test(s): TestAccWhatever"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a template for reporting test failures on nightly builds. It should only be used by core contributors who have access to our CI/CD results.
+  - type: textarea
+    id: impacted-tests
+    attributes:
+      label: Impacted tests
+      description: List all impacted tests for searchability. The title of the issue can instead list one or more groups of tests, or describe the overall root cause.
+      value: |
+        - TestAccWhatever
+    validations:
+      required: true
+  - type: textarea
+    id: affected-resources
+    attributes:
+      label: Affected Resource(s)
+      description: List the primary resource or data source under test, even if the root cause of the failure is in a different resource. Use `google_*` for tests related to core provider logic.
+      value: |
+        - google_XXXXX
+    validations:
+      required: true
+  - type: textarea
+    id: failure-rates
+    attributes:
+      label: Failure rates
+      description: For 100% test failures, provide the start date. For flakey tests, use as much of the test history as seems relevant.
+      value: |
+        - 100% since YYYY-MM-DD
+        - X% (Y failed out of last Z runs) as of YYYY-MM-DD
+    validations:
+      required: true
+  - type: textarea
+    id: messages
+    attributes:
+      label: Message(s)
+      description: The error message that displays in the tests tab, for reference. Project IDs are okay to share, but do check for other sensitive information.
+      value: |
+        ```
+        
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: test-history
+    attributes:
+      label: Nightly build test history
+      description: Link to the [test history page](https://hashicorp.teamcity.com/test/1458901879521596451?currentProjectId=TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS&expandTestHistoryChartSection=true) for the failed test.
+      value: |
+        - https://hashicorp.teamcity.com/...
+    validations:
+      required: true
