@@ -1,6 +1,6 @@
-name: "[TEST] Test failure"
+name: "Test failure"
 labels: ["test-failure"]
-description: "[TEST] (Internal) For reporting test failures on the nightly builds"
+description: "(Internal) For reporting test failures on the nightly builds"
 title: "Failing test(s): TestAccWhatever"
 body:
   - type: markdown
