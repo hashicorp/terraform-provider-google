@@ -32,7 +32,7 @@ body:
       description: For 100% test failures, provide the start date. For flakey tests, use as much of the test history as seems relevant.
       value: |
         - 100% since YYYY-MM-DD
-        - X% as of YYYY-MM-DD (Y/120 runs)
+        - X% (Y failed out of last Z runs) as of YYYY-MM-DD
     validations:
       required: true
   - type: textarea
