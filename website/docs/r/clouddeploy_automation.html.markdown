@@ -21,8 +21,6 @@ description: |-
 
 An `Automation` enables the automation of manually driven actions for a Delivery Pipeline, which includes Release promotion amongst Targets, Rollout repair and Rollout deployment strategy advancement.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Automation, see:
 
@@ -35,7 +33,6 @@ To get more information about Automation, see:
 
 ```hcl
 resource "google_clouddeploy_automation" "b-automation" {
-  provider = google-beta
   name     = "cd-automation"
   project = google_clouddeploy_delivery_pipeline.pipeline.project
   location = google_clouddeploy_delivery_pipeline.pipeline.location
@@ -55,7 +52,6 @@ resource "google_clouddeploy_automation" "b-automation" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "pipeline" {
-  provider = google-beta
   name = "cd-pipeline"
   location = "us-central1"
   serial_pipeline  {
@@ -71,7 +67,6 @@ resource "google_clouddeploy_delivery_pipeline" "pipeline" {
 
 ```hcl
 resource "google_clouddeploy_automation" "f-automation" {
-  provider = google-beta
   name     = "cd-automation"
   location = "us-central1"
   delivery_pipeline = google_clouddeploy_delivery_pipeline.pipeline.name
@@ -112,7 +107,6 @@ resource "google_clouddeploy_automation" "f-automation" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "pipeline" {
-  provider = google-beta
   name = "cd-pipeline"
   location = "us-central1"
   serial_pipeline  {
