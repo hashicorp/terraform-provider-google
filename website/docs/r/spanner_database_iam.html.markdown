@@ -39,6 +39,32 @@ resource "google_spanner_database_iam_policy" "database" {
 }
 ```
 
+With IAM Conditions:
+
+```hcl
+data "google_iam_policy" "admin" {
+  binding {
+    role = "roles/editor"
+
+    members = [
+      "user:jane@example.com",
+    ]
+    
+    condition {
+      title       = "My Role"
+      description = "Grant permissions on my_role"
+      expression  = "(resource.type == \"spanner.googleapis.com/DatabaseRole\" && (resource.name.endsWith(\"/myrole\")))"
+    }
+  }
+}
+
+resource "google_spanner_database_iam_policy" "database" {
+  instance    = "your-instance-name"
+  database    = "your-database-name"
+  policy_data = data.google_iam_policy.admin.policy_data
+}
+```
+
 ## google\_spanner\_database\_iam\_binding
 
 ```hcl
@@ -53,6 +79,26 @@ resource "google_spanner_database_iam_binding" "database" {
 }
 ```
 
+With IAM Conditions:
+
+```hcl
+resource "google_spanner_database_iam_binding" "database" {
+  instance = "your-instance-name"
+  database = "your-database-name"
+  role     = "roles/compute.networkUser"
+
+  members = [
+    "user:jane@example.com",
+  ]
+  
+  condition {
+    title       = "My Role"
+    description = "Grant permissions on my_role"
+    expression  = "(resource.type == \"spanner.googleapis.com/DatabaseRole\" && (resource.name.endsWith(\"/myrole\")))"
+  }
+}
+```
+
 ## google\_spanner\_database\_iam\_member
 
 ```hcl
@@ -61,6 +107,23 @@ resource "google_spanner_database_iam_member" "database" {
   database = "your-database-name"
   role     = "roles/compute.networkUser"
   member   = "user:jane@example.com"
+}
+```
+
+With IAM Conditions:
+
+```hcl
+resource "google_spanner_database_iam_member" "database" {
+  instance = "your-instance-name"
+  database = "your-database-name"
+  role     = "roles/compute.networkUser"
+  member   = "user:jane@example.com"
+  
+  condition {
+    title       = "My Role"
+    description = "Grant permissions on my_role"
+    expression  = "(resource.type == \"spanner.googleapis.com/DatabaseRole\" && (resource.name.endsWith(\"/myrole\")))"
+  }
 }
 ```
 
@@ -90,6 +153,23 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
+
+* `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
+  Structure is [documented below](#nested_condition).
+
+---
+
+<a name="nested_condition"></a>The `condition` block supports:
+
+* `expression` - (Required) Textual representation of an expression in Common Expression Language syntax.
+
+* `title` - (Required) A title for the expression, i.e. a short string describing its purpose.
+
+* `description` - (Optional) An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
+
+~> **Warning:** Terraform considers the `role` and condition contents (`title`+`description`+`expression`) as the
+identifier for the binding. This means that if any part of the condition is changed out-of-band, Terraform will
+consider it to be an entirely different resource and will treat it as such.
 
 ## Attributes Reference
 
