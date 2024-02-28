@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
 	"github.com/hashicorp/terraform-provider-google/google/services/dns"
@@ -949,5 +950,7 @@ func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resou
 
 // Functions defines the provider functions implemented in the provider.
 func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Function {
-	return nil
+	return []func() function.Function{
+		functions.NewProjectFromIdFunction,
+	}
 }
