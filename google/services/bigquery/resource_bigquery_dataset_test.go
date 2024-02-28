@@ -4,6 +4,8 @@ package bigquery_test
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -323,6 +325,47 @@ func TestAccBigQueryDataset_storageBillModel(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_invalidCharacterInID(t *testing.T) {
+	t.Parallel()
+	// Not an acceptance test.
+	acctest.SkipIfVcr(t)
+
+	datasetID := fmt.Sprintf("tf_test_%s-with-hyphens", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccBigQueryDataset(datasetID),
+				ExpectError: regexp.MustCompile("must contain only letters.+numbers.+or underscores.+"),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDataset_invalidLongID(t *testing.T) {
+	t.Parallel()
+	// Not an acceptance test.
+	acctest.SkipIfVcr(t)
+
+	datasetSuffix := acctest.RandString(t, 10)
+	datasetID := fmt.Sprintf("tf_test_%s", strings.Repeat(datasetSuffix, 200))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccBigQueryDataset(datasetID),
+				ExpectError: regexp.MustCompile(".+cannot be greater than 1,024 characters"),
 			},
 		},
 	})
