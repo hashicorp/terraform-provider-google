@@ -1,6 +1,6 @@
-name: "[TEST] Question"
+name: "Question"
 labels: ["question"]
-description: "[TEST] If you have a question, please check out our [community resources](https://www.terraform.io/docs/extend/community/index.html)!"
+description: "If you have a question, please check out our [community resources](https://www.terraform.io/docs/extend/community/index.html)!"
 body:
   - type: markdown
     attributes:
