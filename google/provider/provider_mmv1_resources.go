@@ -299,6 +299,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_bigquery_datapolicy_data_policy_iam_policy":      tpgiamresource.DataSourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer),
 	"google_binary_authorization_attestor_iam_policy":        tpgiamresource.DataSourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer),
 	"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
+	"google_clouddeploy_custom_target_type_iam_policy":       tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer),
 	"google_clouddeploy_delivery_pipeline_iam_policy":        tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer),
 	"google_clouddeploy_target_iam_policy":                   tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer),
 	"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
@@ -388,8 +389,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 387
-// Generated IAM resources: 228
-// Total generated resources: 615
+// Generated IAM resources: 231
+// Total generated resources: 618
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -503,6 +504,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloudbuildv2_repository":                                 cloudbuildv2.ResourceCloudbuildv2Repository(),
 	"google_clouddeploy_automation":                                  clouddeploy.ResourceClouddeployAutomation(),
 	"google_clouddeploy_custom_target_type":                          clouddeploy.ResourceClouddeployCustomTargetType(),
+	"google_clouddeploy_custom_target_type_iam_binding":              tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
+	"google_clouddeploy_custom_target_type_iam_member":               tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
+	"google_clouddeploy_custom_target_type_iam_policy":               tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_binding":               tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_member":                tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_policy":                tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
