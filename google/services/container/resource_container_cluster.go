@@ -1498,7 +1498,6 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
-							ForceNew:     true,
 							AtLeastOneOf: privateClusterConfigKeys,
 							ValidateFunc: verify.OrEmpty(validation.IsCIDRNetwork(28, 28)),
 							Description:  `The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning private IP addresses to the cluster master(s) and the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network, and it must be a /28 subnet. See Private Cluster Limitations for more details. This field only applies to private clusters, when enable_private_nodes is true.`,
@@ -1516,7 +1515,6 @@ func ResourceContainerCluster() *schema.Resource {
 						"private_endpoint_subnetwork": {
 							Type:             schema.TypeString,
 							Optional:         true,
-							ForceNew:         true,
 							AtLeastOneOf:     privateClusterConfigKeys,
 							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 							Description:      `Subnetwork in cluster's network where master's endpoint will be provisioned.`,

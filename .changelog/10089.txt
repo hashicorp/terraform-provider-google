@@ -1,0 +1,3 @@
+```release-note:bug
+container: changed `master_ipv4_cidr_block`/`private_endpoint_subnetwork` to `ForceNew: false` on `Cluster`
+```
