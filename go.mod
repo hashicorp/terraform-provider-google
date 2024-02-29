@@ -26,7 +26,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/net v0.21.0
 	golang.org/x/oauth2 v0.17.0
-	google.golang.org/api v0.166.0
+	google.golang.org/api v0.167.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240213162025-012b6fc9bca9
 	google.golang.org/grpc v1.61.1
 	google.golang.org/protobuf v1.32.0
