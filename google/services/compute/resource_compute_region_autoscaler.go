@@ -168,62 +168,6 @@ The metric cannot have negative values.
 
 The metric must have a value type of INT64 or DOUBLE.`,
 									},
-									"filter": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `A filter string to be used as the filter string for
-a Stackdriver Monitoring TimeSeries.list API call.
-This filter is used to select a specific TimeSeries for
-the purpose of autoscaling and to determine whether the metric
-is exporting per-instance or per-group data.
-
-You can only use the AND operator for joining selectors.
-You can only use direct equality comparison operator (=) without
-any functions for each selector.
-You can specify the metric in both the filter string and in the
-metric field. However, if specified in both places, the metric must
-be identical.
-
-The monitored resource type determines what kind of values are
-expected for the metric. If it is a gce_instance, the autoscaler
-expects the metric to include a separate TimeSeries for each
-instance in a group. In such a case, you cannot filter on resource
-labels.
-
-If the resource type is any other value, the autoscaler expects
-this metric to contain values that apply to the entire autoscaled
-instance group and resource label filtering can be performed to
-point autoscaler at the correct TimeSeries to scale upon.
-This is called a per-group metric for the purpose of autoscaling.
-
-If not specified, the type defaults to gce_instance.
-
-You should provide a filter that is selective enough to pick just
-one TimeSeries for the autoscaled group or for each of the instances
-(if you are using gce_instance resource type). If multiple
-TimeSeries are returned upon the query execution, the autoscaler
-will sum their respective values to obtain its scaling value.`,
-									},
-									"single_instance_assignment": {
-										Type:     schema.TypeFloat,
-										Optional: true,
-										Description: `If scaling is based on a per-group metric value that represents the
-total amount of work to be done or resource usage, set this value to
-an amount assigned for a single instance of the scaled group.
-The autoscaler will keep the number of instances proportional to the
-value of this metric, the metric itself should not change value due
-to group resizing.
-
-For example, a good metric to use with the target is
-'pubsub.googleapis.com/subscription/num_undelivered_messages'
-or a custom metric exporting the total number of requests coming to
-your instances.
-
-A bad example would be a metric exporting an average or median
-latency, since this value can't include a chunk assignable to a
-single instance, it could be better used with utilization_target
-instead.`,
-									},
 									"target": {
 										Type:     schema.TypeFloat,
 										Optional: true,
@@ -252,49 +196,6 @@ Stackdriver Monitoring metric. Possible values: ["GAUGE", "DELTA_PER_SECOND", "D
 							Optional:    true,
 							Description: `Defines operating mode for this policy.`,
 							Default:     "ON",
-						},
-						"scale_down_control": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Description: `Defines scale down controls to reduce the risk of response latency
-and outages due to abrupt scale-in events`,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"max_scaled_down_replicas": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: `A nested object resource`,
-										MaxItems:    1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"fixed": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Description: `Specifies a fixed number of VM instances. This must be a positive
-integer.`,
-													AtLeastOneOf: []string{"autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.fixed", "autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.percent"},
-												},
-												"percent": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Description: `Specifies a percentage of instances between 0 to 100%, inclusive.
-For example, specify 80 for 80%.`,
-													AtLeastOneOf: []string{"autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.fixed", "autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas.0.percent"},
-												},
-											},
-										},
-										AtLeastOneOf: []string{"autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas", "autoscaling_policy.0.scale_down_control.0.time_window_sec"},
-									},
-									"time_window_sec": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Description: `How long back autoscaling should look when computing recommendations
-to include directives regarding slower scale down, as described above.`,
-										AtLeastOneOf: []string{"autoscaling_policy.0.scale_down_control.0.max_scaled_down_replicas", "autoscaling_policy.0.scale_down_control.0.time_window_sec"},
-									},
-								},
-							},
 						},
 						"scale_in_control": {
 							Type:     schema.TypeList,
@@ -789,8 +690,6 @@ func flattenComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d *schema.Re
 		flattenComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(original["coolDownPeriodSec"], d, config)
 	transformed["mode"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyMode(original["mode"], d, config)
-	transformed["scale_down_control"] =
-		flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControl(original["scaleDownControl"], d, config)
 	transformed["scale_in_control"] =
 		flattenComputeRegionAutoscalerAutoscalingPolicyScaleInControl(original["scaleInControl"], d, config)
 	transformed["cpu_utilization"] =
@@ -856,87 +755,6 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{}
 
 func flattenComputeRegionAutoscalerAutoscalingPolicyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
-}
-
-func flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["max_scaled_down_replicas"] =
-		flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicas(original["maxScaledDownReplicas"], d, config)
-	transformed["time_window_sec"] =
-		flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlTimeWindowSec(original["timeWindowSec"], d, config)
-	return []interface{}{transformed}
-}
-func flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicas(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["fixed"] =
-		flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasFixed(original["fixed"], d, config)
-	transformed["percent"] =
-		flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasPercent(original["percent"], d, config)
-	return []interface{}{transformed}
-}
-func flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasFixed(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasPercent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
-}
-
-func flattenComputeRegionAutoscalerAutoscalingPolicyScaleDownControlTimeWindowSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	// Handles the string fixed64 format
-	if strVal, ok := v.(string); ok {
-		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
-			return intVal
-		}
-	}
-
-	// number values are represented as float64
-	if floatVal, ok := v.(float64); ok {
-		intVal := int(floatVal)
-		return intVal
-	}
-
-	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeRegionAutoscalerAutoscalingPolicyScaleInControl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1060,11 +878,9 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d *sch
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":                       flattenComputeRegionAutoscalerAutoscalingPolicyMetricName(original["metric"], d, config),
-			"single_instance_assignment": flattenComputeRegionAutoscalerAutoscalingPolicyMetricSingleInstanceAssignment(original["singleInstanceAssignment"], d, config),
-			"target":                     flattenComputeRegionAutoscalerAutoscalingPolicyMetricTarget(original["utilizationTarget"], d, config),
-			"type":                       flattenComputeRegionAutoscalerAutoscalingPolicyMetricType(original["utilizationTargetType"], d, config),
-			"filter":                     flattenComputeRegionAutoscalerAutoscalingPolicyMetricFilter(original["filter"], d, config),
+			"name":   flattenComputeRegionAutoscalerAutoscalingPolicyMetricName(original["metric"], d, config),
+			"target": flattenComputeRegionAutoscalerAutoscalingPolicyMetricTarget(original["utilizationTarget"], d, config),
+			"type":   flattenComputeRegionAutoscalerAutoscalingPolicyMetricType(original["utilizationTargetType"], d, config),
 		})
 	}
 	return transformed
@@ -1073,19 +889,11 @@ func flattenComputeRegionAutoscalerAutoscalingPolicyMetricName(v interface{}, d 
 	return v
 }
 
-func flattenComputeRegionAutoscalerAutoscalingPolicyMetricSingleInstanceAssignment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func flattenComputeRegionAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenComputeRegionAutoscalerAutoscalingPolicyMetricType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeRegionAutoscalerAutoscalingPolicyMetricFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1225,13 +1033,6 @@ func expandComputeRegionAutoscalerAutoscalingPolicy(v interface{}, d tpgresource
 		transformed["mode"] = transformedMode
 	}
 
-	transformedScaleDownControl, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControl(original["scale_down_control"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedScaleDownControl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["scaleDownControl"] = transformedScaleDownControl
-	}
-
 	transformedScaleInControl, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleInControl(original["scale_in_control"], d, config)
 	if err != nil {
 		return nil, err
@@ -1283,70 +1084,6 @@ func expandComputeRegionAutoscalerAutoscalingPolicyCooldownPeriod(v interface{},
 }
 
 func expandComputeRegionAutoscalerAutoscalingPolicyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedMaxScaledDownReplicas, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicas(original["max_scaled_down_replicas"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxScaledDownReplicas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["maxScaledDownReplicas"] = transformedMaxScaledDownReplicas
-	}
-
-	transformedTimeWindowSec, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlTimeWindowSec(original["time_window_sec"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedTimeWindowSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["timeWindowSec"] = transformedTimeWindowSec
-	}
-
-	return transformed, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
-		return nil, nil
-	}
-	raw := l[0]
-	original := raw.(map[string]interface{})
-	transformed := make(map[string]interface{})
-
-	transformedFixed, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasFixed(original["fixed"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedFixed); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["fixed"] = transformedFixed
-	}
-
-	transformedPercent, err := expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasPercent(original["percent"], d, config)
-	if err != nil {
-		return nil, err
-	} else if val := reflect.ValueOf(transformedPercent); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-		transformed["percent"] = transformedPercent
-	}
-
-	return transformed, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasFixed(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlMaxScaledDownReplicasPercent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyScaleDownControlTimeWindowSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1465,13 +1202,6 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d tpgre
 			transformed["metric"] = transformedName
 		}
 
-		transformedSingleInstanceAssignment, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricSingleInstanceAssignment(original["single_instance_assignment"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedSingleInstanceAssignment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["singleInstanceAssignment"] = transformedSingleInstanceAssignment
-		}
-
 		transformedTarget, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricTarget(original["target"], d, config)
 		if err != nil {
 			return nil, err
@@ -1486,13 +1216,6 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMetric(v interface{}, d tpgre
 			transformed["utilizationTargetType"] = transformedType
 		}
 
-		transformedFilter, err := expandComputeRegionAutoscalerAutoscalingPolicyMetricFilter(original["filter"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["filter"] = transformedFilter
-		}
-
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1502,19 +1225,11 @@ func expandComputeRegionAutoscalerAutoscalingPolicyMetricName(v interface{}, d t
 	return v, nil
 }
 
-func expandComputeRegionAutoscalerAutoscalingPolicyMetricSingleInstanceAssignment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
 func expandComputeRegionAutoscalerAutoscalingPolicyMetricTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
 func expandComputeRegionAutoscalerAutoscalingPolicyMetricType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandComputeRegionAutoscalerAutoscalingPolicyMetricFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
