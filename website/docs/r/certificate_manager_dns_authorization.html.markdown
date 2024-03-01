@@ -51,6 +51,23 @@ output "record_data_to_insert" {
  value = google_certificate_manager_dns_authorization.default.dns_resource_record.0.data
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=certificate_manager_dns_authorization_regional&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Dns Authorization Regional
+
+
+```hcl
+resource "google_certificate_manager_dns_authorization" "default" {
+  name        = "dns-auth"
+  location    = "us-central1"
+  description = "reginal dns"
+  type        = "PER_PROJECT_RECORD"
+  domain      = "subdomain.hashicorptest.com"
+}
+```
 
 ## Argument Reference
 
@@ -82,6 +99,16 @@ The following arguments are supported:
   Set of label tags associated with the DNS Authorization resource.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
+
+* `type` -
+  (Optional)
+  type of DNS authorization. If unset during the resource creation, FIXED_RECORD will
+  be used for global resources, and PER_PROJECT_RECORD will be used for other locations.
+  FIXED_RECORD DNS authorization uses DNS-01 validation method
+  PER_PROJECT_RECORD DNS authorization allows for independent management
+  of Google-managed certificates with DNS authorization across multiple
+  projects.
+  Possible values are: `FIXED_RECORD`, `PER_PROJECT_RECORD`.
 
 * `location` -
   (Optional)
