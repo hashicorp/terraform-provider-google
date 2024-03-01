@@ -31,7 +31,7 @@ See the [provider reference](/docs/providers/google/guides/provider_reference.ht
 page for details on authentication and configuring the provider.
 
 Take advantage of [Modules](https://www.terraform.io/docs/modules/index.html)
-to simplify your config by browsing the [Module Registry for GCP modules](https://registry.terraform.io/browse?provider=google).
+to simplify your config by browsing the [Module Registry for GCP modules](https://registry.terraform.io/browse/modules?provider=google).
 
 The Google provider is jointly maintained by:
 
