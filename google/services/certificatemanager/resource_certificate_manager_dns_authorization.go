@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceCertificateManagerDnsAuthorization() *schema.Resource {
@@ -101,6 +102,21 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `The Certificate Manager location. If not specified, "global" is used.`,
 				Default:     "global",
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"FIXED_RECORD", "PER_PROJECT_RECORD", ""}),
+				Description: `type of DNS authorization. If unset during the resource creation, FIXED_RECORD will
+be used for global resources, and PER_PROJECT_RECORD will be used for other locations.
+
+FIXED_RECORD DNS authorization uses DNS-01 validation method
+
+PER_PROJECT_RECORD DNS authorization allows for independent management
+of Google-managed certificates with DNS authorization across multiple
+projects. Possible values: ["FIXED_RECORD", "PER_PROJECT_RECORD"]`,
+			},
 			"dns_resource_record": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -171,6 +187,12 @@ func resourceCertificateManagerDnsAuthorizationCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("domain"); !tpgresource.IsEmptyValue(reflect.ValueOf(domainProp)) && (ok || !reflect.DeepEqual(v, domainProp)) {
 		obj["domain"] = domainProp
+	}
+	typeProp, err := expandCertificateManagerDnsAuthorizationType(d.Get("type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
+		obj["type"] = typeProp
 	}
 	labelsProp, err := expandCertificateManagerDnsAuthorizationEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -280,6 +302,9 @@ func resourceCertificateManagerDnsAuthorizationRead(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
 	}
 	if err := d.Set("domain", flattenCertificateManagerDnsAuthorizationDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
+	}
+	if err := d.Set("type", flattenCertificateManagerDnsAuthorizationType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DnsAuthorization: %s", err)
 	}
 	if err := d.Set("dns_resource_record", flattenCertificateManagerDnsAuthorizationDnsResourceRecord(res["dnsResourceRecord"], d, config)); err != nil {
@@ -477,6 +502,10 @@ func flattenCertificateManagerDnsAuthorizationDomain(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenCertificateManagerDnsAuthorizationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenCertificateManagerDnsAuthorizationDnsResourceRecord(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -530,6 +559,10 @@ func expandCertificateManagerDnsAuthorizationDescription(v interface{}, d tpgres
 }
 
 func expandCertificateManagerDnsAuthorizationDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCertificateManagerDnsAuthorizationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
