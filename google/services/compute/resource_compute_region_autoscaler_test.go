@@ -218,12 +218,6 @@ resource "google_compute_region_autoscaler" "foobar" {
       target = 0.5
       predictive_method = "OPTIMIZE_AVAILABILITY"
     }
-    scale_down_control {
-      max_scaled_down_replicas {
-        percent = 80
-      }
-      time_window_sec = 300
-    }
   }
 }
 `, autoscalerName)
@@ -267,12 +261,6 @@ resource "google_compute_region_autoscaler" "foobar" {
     cooldown_period = 60
     cpu_utilization {
       target = 0.5
-    }
-    scale_down_control {
-      max_scaled_down_replicas {
-        percent = 80
-      }
-      time_window_sec = 300
     }
     scaling_schedules {
       name = "every-weekday-morning"
