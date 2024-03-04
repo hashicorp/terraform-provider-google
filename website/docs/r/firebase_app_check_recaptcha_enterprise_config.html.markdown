@@ -33,6 +33,8 @@ To get more information about RecaptchaEnterpriseConfig, see:
 
 ```hcl
 resource "google_firebase_web_app" "default" {
+  provider = google-beta
+
   project      = "my-project-name"
   display_name = "Web App for reCAPTCHA Enterprise"
 }
@@ -45,6 +47,8 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_recaptcha_enterprise_config" "default" {
+  provider = google-beta
+
   project   = "my-project-name"
   app_id    = google_firebase_web_app.default.app_id
   site_key  = "6LdpMXIpAAAAANkwWQPgEdjEhal7ugkH9RK9ytuw"
