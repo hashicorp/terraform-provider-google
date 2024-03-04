@@ -461,6 +461,15 @@ func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigSchema() *s
 				Description: "The maximum number of audit violations to be stored in a constraint. If not set, the internal default of 20 will be used.",
 			},
 
+			"deployment_configs": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Description: "Map of deployment configs to deployments (\"admission\", \"audit\", \"mutation\").",
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsSchema(),
+				Set:         schema.HashResource(GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsSchema()),
+			},
+
 			"exemptable_namespaces": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -513,6 +522,133 @@ func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigSchema() *s
 	}
 }
 
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"component_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name for the key in the map for which this object is mapped to in the API",
+			},
+
+			"container_resources": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Container resource requirements.",
+				MaxItems:    1,
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesSchema(),
+			},
+
+			"pod_affinity": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Pod affinity configuration. Possible values: AFFINITY_UNSPECIFIED, NO_AFFINITY, ANTI_AFFINITY",
+			},
+
+			"pod_tolerations": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Pod tolerations of node taints.",
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsSchema(),
+			},
+
+			"replica_count": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Pod replica count.",
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"limits": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Limits describes the maximum amount of compute resources allowed for use by the running container.",
+				MaxItems:    1,
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsSchema(),
+			},
+
+			"requests": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Requests describes the amount of compute resources reserved for the container by the kube-scheduler.",
+				MaxItems:    1,
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsSchema(),
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimitsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cpu": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "CPU requirement expressed in Kubernetes resource units.",
+			},
+
+			"memory": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Memory requirement expressed in Kubernetes resource units.",
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequestsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cpu": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "CPU requirement expressed in Kubernetes resource units.",
+			},
+
+			"memory": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Memory requirement expressed in Kubernetes resource units.",
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"effect": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Matches a taint effect.",
+			},
+
+			"key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Matches a taint key (not necessarily unique).",
+			},
+
+			"operator": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Matches a taint operator.",
+			},
+
+			"value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Matches a taint value.",
+			},
+		},
+	}
+}
+
 func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigMonitoringSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -530,6 +666,14 @@ func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigMonitoringS
 func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"bundles": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "map of bundle name to BundleInstallSpec. The bundle name maps to the `bundleName` key in the `policycontroller.gke.io/constraintData` annotation on a constraint.",
+				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesSchema(),
+				Set:         schema.HashResource(GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesSchema()),
+			},
+
 			"template_library": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -537,6 +681,25 @@ func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyConte
 				Description: "Configures the installation of the Template Library.",
 				MaxItems:    1,
 				Elem:        GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrarySchema(),
+			},
+		},
+	}
+}
+
+func GkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bundle_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name for the key in the map for which this object is mapped to in the API",
+			},
+
+			"exempted_namespaces": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "The set of namespaces to be exempted from the bundle.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -1141,6 +1304,7 @@ func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfig(o in
 	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfig{
 		AuditIntervalSeconds:     dcl.Int64(int64(obj["audit_interval_seconds"].(int))),
 		ConstraintViolationLimit: dcl.Int64(int64(obj["constraint_violation_limit"].(int))),
+		DeploymentConfigs:        expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsMap(obj["deployment_configs"]),
 		ExemptableNamespaces:     tpgdclresource.ExpandStringArray(obj["exemptable_namespaces"]),
 		InstallSpec:              gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigInstallSpecEnumRef(obj["install_spec"].(string)),
 		LogDeniesEnabled:         dcl.Bool(obj["log_denies_enabled"].(bool)),
@@ -1158,6 +1322,7 @@ func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfig(obj
 	transformed := map[string]interface{}{
 		"audit_interval_seconds":     obj.AuditIntervalSeconds,
 		"constraint_violation_limit": obj.ConstraintViolationLimit,
+		"deployment_configs":         flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsMap(obj.DeploymentConfigs),
 		"exemptable_namespaces":      obj.ExemptableNamespaces,
 		"install_spec":               obj.InstallSpec,
 		"log_denies_enabled":         obj.LogDeniesEnabled,
@@ -1168,6 +1333,219 @@ func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfig(obj
 	}
 
 	return []interface{}{transformed}
+
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsMap(o interface{}) map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs {
+	if o == nil {
+		return nil
+	}
+
+	o = o.(*schema.Set).List()
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return nil
+	}
+
+	items := make(map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs)
+	for _, item := range objs {
+		i := expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(item)
+		if item != nil {
+			items[item.(map[string]interface{})["component_name"].(string)] = *i
+		}
+	}
+
+	return items
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs {
+	if o == nil {
+		return nil
+	}
+
+	obj := o.(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs{
+		ContainerResources: expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(obj["container_resources"]),
+		PodAffinity:        gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodAffinityEnumRef(obj["pod_affinity"].(string)),
+		PodTolerations:     expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsArray(obj["pod_tolerations"]),
+		ReplicaCount:       dcl.Int64(int64(obj["replica_count"].(int))),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsMap(objs map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for name, item := range objs {
+		i := flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(&item, name)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigs, name string) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"container_resources": flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(obj.ContainerResources),
+		"pod_affinity":        obj.PodAffinity,
+		"pod_tolerations":     flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsArray(obj.PodTolerations),
+		"replica_count":       obj.ReplicaCount,
+	}
+
+	transformed["component_name"] = name
+
+	return transformed
+
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources{
+		Limits:   expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(obj["limits"]),
+		Requests: expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(obj["requests"]),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResources) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"limits":   flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(obj.Limits),
+		"requests": flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(obj.Requests),
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits{
+		Cpu:    dcl.String(obj["cpu"].(string)),
+		Memory: dcl.String(obj["memory"].(string)),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesLimits) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"cpu":    obj.Cpu,
+		"memory": obj.Memory,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests{
+		Cpu:    dcl.String(obj["cpu"].(string)),
+		Memory: dcl.String(obj["memory"].(string)),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsContainerResourcesRequests) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"cpu":    obj.Cpu,
+		"memory": obj.Memory,
+	}
+
+	return []interface{}{transformed}
+
+}
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsArray(o interface{}) []gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations {
+	if o == nil {
+		return make([]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations, 0)
+	}
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make([]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations, 0)
+	}
+
+	items := make([]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations, 0, len(objs))
+	for _, item := range objs {
+		i := expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations(item)
+		items = append(items, *i)
+	}
+
+	return items
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations
+	}
+
+	obj := o.(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations{
+		Effect:   dcl.String(obj["effect"].(string)),
+		Key:      dcl.String(obj["key"].(string)),
+		Operator: dcl.String(obj["operator"].(string)),
+		Value:    dcl.String(obj["value"].(string)),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerationsArray(objs []gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for _, item := range objs {
+		i := flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations(&item)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigDeploymentConfigsPodTolerations) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"effect":   obj.Effect,
+		"key":      obj.Key,
+		"operator": obj.Operator,
+		"value":    obj.Value,
+	}
+
+	return transformed
 
 }
 
@@ -1207,6 +1585,7 @@ func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolic
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContent{
+		Bundles:         expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesMap(obj["bundles"]),
 		TemplateLibrary: expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(obj["template_library"]),
 	}
 }
@@ -1216,10 +1595,73 @@ func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPoli
 		return nil
 	}
 	transformed := map[string]interface{}{
+		"bundles":          flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesMap(obj.Bundles),
 		"template_library": flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentTemplateLibrary(obj.TemplateLibrary),
 	}
 
 	return []interface{}{transformed}
+
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesMap(o interface{}) map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles {
+	if o == nil {
+		return make(map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles)
+	}
+
+	o = o.(*schema.Set).List()
+
+	objs := o.([]interface{})
+	if len(objs) == 0 || objs[0] == nil {
+		return make(map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles)
+	}
+
+	items := make(map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles)
+	for _, item := range objs {
+		i := expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(item)
+		if item != nil {
+			items[item.(map[string]interface{})["bundle_name"].(string)] = *i
+		}
+	}
+
+	return items
+}
+
+func expandGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(o interface{}) *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles {
+	if o == nil {
+		return gkehub.EmptyFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles
+	}
+
+	obj := o.(map[string]interface{})
+	return &gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles{
+		ExemptedNamespaces: tpgdclresource.ExpandStringArray(obj["exempted_namespaces"]),
+	}
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundlesMap(objs map[string]gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles) []interface{} {
+	if objs == nil {
+		return nil
+	}
+
+	items := []interface{}{}
+	for name, item := range objs {
+		i := flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(&item, name)
+		items = append(items, i)
+	}
+
+	return items
+}
+
+func flattenGkeHubFeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles(obj *gkehub.FeatureMembershipPolicycontrollerPolicyControllerHubConfigPolicyContentBundles, name string) interface{} {
+	if obj == nil {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"exempted_namespaces": obj.ExemptedNamespaces,
+	}
+
+	transformed["bundle_name"] = name
+
+	return transformed
 
 }
 
