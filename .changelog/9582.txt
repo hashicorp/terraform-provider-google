@@ -1,0 +1,3 @@
+```release-note:bug
+kms: fixed issue where `google_kms_crypto_key_version.attestation.cert_chains` properties were incorrectly set to type string
+```
