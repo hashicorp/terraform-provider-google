@@ -5,7 +5,7 @@ FEATURES:
 * **New Resource:** `google_clouddeploy_target_iam_*` ([#17368](https://github.com/hashicorp/terraform-provider-google/pull/17368))
 
 IMPROVEMENTS:
-* bigquery: added `remote_function_options` field to `bigquery_routine` resource ([#17382](https://github.com/hashicorp/terraform-provider-google/pull/17382))
+* bigquery: added `remote_function_options` field to `google_bigquery_routine` resource ([#17382](https://github.com/hashicorp/terraform-provider-google/pull/17382))
 * certificatemanager: added `location` field to `google_certificate_manager_dns_authorization` resource ([#17358](https://github.com/hashicorp/terraform-provider-google/pull/17358))
 * composer: added validations for composer 2/3 only fields in `google_composer_environment` ([#17361](https://github.com/hashicorp/terraform-provider-google/pull/17361))
 * compute: added `certificate_manager_certificates` field to `google_compute_region_target_https_proxy` resource ([#17365](https://github.com/hashicorp/terraform-provider-google/pull/17365))
