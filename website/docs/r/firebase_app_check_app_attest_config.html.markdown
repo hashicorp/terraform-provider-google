@@ -34,8 +34,6 @@ To get more information about AppAttestConfig, see:
 
 ```hcl
 resource "google_firebase_apple_app" "default" {
-  provider = google-beta
-
   project      = "my-project-name"
   display_name = "Apple app"
   bundle_id    = "bundle.id.appattest"
@@ -50,8 +48,6 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_app_attest_config" "default" {
-  provider = google-beta
-
   project = "my-project-name"
   app_id  = google_firebase_apple_app.default.app_id
 
@@ -70,8 +66,6 @@ resource "google_firebase_app_check_app_attest_config" "default" {
 
 ```hcl
 resource "google_firebase_apple_app" "default" {
-  provider = google-beta
-
   project      = "my-project-name"
   display_name = "Apple app"
   bundle_id    = "bundle.id.appattest"
@@ -86,8 +80,6 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_app_attest_config" "default" {
-  provider = google-beta
-
   project   = "my-project-name"
   app_id    = google_firebase_apple_app.default.app_id
   token_ttl = "7200s"

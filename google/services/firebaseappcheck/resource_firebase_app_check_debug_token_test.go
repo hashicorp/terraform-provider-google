@@ -28,7 +28,7 @@ func TestAccFirebaseAppCheckDebugToken_firebaseAppCheckDebugTokenUpdate(t *testi
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
 			"random": {},
 			"time":   {},
@@ -60,8 +60,6 @@ func TestAccFirebaseAppCheckDebugToken_firebaseAppCheckDebugTokenUpdate(t *testi
 func testAccFirebaseAppCheckDebugToken_firebaseAppCheckDebugTokenTemplate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_firebase_web_app" "default" {
-  provider = google-beta
-
   project = "%{project_id}"
   display_name = "Web App for debug token"
 }
@@ -74,8 +72,6 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_debug_token" "default" {
-  provider = google-beta
-
   project      = "%{project_id}"
   app_id       = google_firebase_web_app.default.app_id
   display_name = "%{display_name}"
