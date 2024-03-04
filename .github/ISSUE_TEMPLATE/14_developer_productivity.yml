@@ -1,0 +1,30 @@
+name: "[TEST] Developer Productivity"
+labels: ["technical-debt"]
+description: "[TEST] For bug reports, feature requests, and feedback about developing in the provider"
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: What kind of contribution is this issue about?
+      options:
+        - "Other (specify in details)"
+        - "Pull request UX"
+        - "MMv1-based resource"
+        - "tpgtools/DCL-based resource"
+        - "Handwritten resource"
+        - "Downstream builds"
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: |
+        Are there any other GitHub issues (open or closed) or pull requests that should be [linked](https://help.github.com/articles/basic-writing-and-formatting-syntax/#referencing-issues-and-pull-requests) here? Vendor documentation?
