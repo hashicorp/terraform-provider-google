@@ -7,6 +7,6 @@ partition: tf-ecosystem
 summary:
   owner: team-tf-hybrid-cloud
   description: |
-    The Terraform Google provider is a plugin that allows Terraform to manage resources on Google Cloud Platform.  
+    The Terraform provider for Google Cloud is a plugin that allows Terraform to manage resources on Google Cloud.  
   
   visibility: external

@@ -1,12 +1,12 @@
 ---
-page_title: "Terraform Google Provider 2.0.0 Upgrade Guide"
+page_title: "Terraform provider for Google Cloud 2.0.0 Upgrade Guide"
 description: |-
-  Terraform Google Provider 2.0.0 Upgrade Guide
+  Terraform provider for Google Cloud 2.0.0 Upgrade Guide
 ---
 
-# Terraform Google Provider 2.0.0 Upgrade Guide
+# Terraform provider for Google Cloud 2.0.0 Upgrade Guide
 
-Version `2.0.0` of the Google provider for Terraform is a major release and
+Version `2.0.0` of the Terraform provider for Google Cloud is a major release and
 includes some changes that you will need to consider when upgrading. This guide
 is intended to help with that process and focuses only on the changes necessary
 to upgrade from version `1.20.0` to `2.0.0`.
