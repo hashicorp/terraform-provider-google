@@ -1,7 +1,7 @@
 ---
-page_title: "Google Provider Configuration Reference"
+page_title: "Google Cloud Provider Configuration Reference"
 description: |-
-  Configuration reference for the Google provider for Terraform.
+  Configuration reference for the Terraform provider for Google Cloud.
 ---
 
 # Google Provider Configuration Reference

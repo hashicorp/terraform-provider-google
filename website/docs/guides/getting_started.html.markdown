@@ -1,10 +1,10 @@
 ---
-page_title: "Getting Started with the Google provider"
+page_title: "Getting Started with the Google Cloud provider"
 description: |-
-  Getting started with the Google Cloud Platform provider
+  Getting started with the Google Cloud provider
 ---
 
-# Getting Started with the Google Provider
+# Getting Started with the Google Cloud provider
 
 ## Before you begin
 
