@@ -37,8 +37,6 @@ values will be stored in the raw state as plain text: `site_secret`.
 
 ```hcl
 resource "google_firebase_web_app" "default" {
-  provider = google-beta
-
   project      = "my-project-name"
   display_name = "Web App for reCAPTCHA V3"
 }
@@ -51,8 +49,6 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_recaptcha_v3_config" "default" {
-  provider = google-beta
-
   project     = "my-project-name"
   app_id      = google_firebase_web_app.default.app_id
   site_secret = "6Lf9YnQpAAAAAC3-MHmdAllTbPwTZxpUw5d34YzX"
