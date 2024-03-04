@@ -118,6 +118,10 @@ provided, the provider project is used.
 
 * `region` - (Optional) The region in which the created job should run.
 
+* `service_account_email` - (Optional) Service account email to run the workers as.
+
+* `subnetwork` - (Optional) Compute Engine subnetwork for launching instances to run your pipeline.
+
 ## Attributes Reference
 In addition to the arguments listed above, the following computed attributes are exported:
 
