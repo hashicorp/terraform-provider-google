@@ -214,6 +214,113 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=service_attachment_explicit_networks&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Service Attachment Explicit Networks
+
+
+```hcl
+resource "google_compute_service_attachment" "psc_ilb_service_attachment" {
+  name        = "my-psc-ilb"
+  region      = "us-west2"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol    = false
+  
+  connection_preference    = "ACCEPT_MANUAL"
+  nat_subnets              = [google_compute_subnetwork.psc_ilb_nat.id]
+  target_service           = google_compute_forwarding_rule.psc_ilb_target_service.id
+
+  consumer_accept_lists {
+    network_url       = google_compute_network.psc_ilb_consumer_network.self_link
+    connection_limit  = 1
+  }
+}
+
+resource "google_compute_network" "psc_ilb_consumer_network" {
+  name                    = "psc-ilb-consumer-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_consumer_subnetwork" {
+  name          = "psc-ilb-consumer-network"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-west2"
+  network       = google_compute_network.psc_ilb_consumer_network.id
+}
+
+resource "google_compute_address" "psc_ilb_consumer_address" {
+  name   = "psc-ilb-consumer-address"
+  region = "us-west2"
+
+  subnetwork   = google_compute_subnetwork.psc_ilb_consumer_subnetwork.id
+  address_type = "INTERNAL"
+}
+
+resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
+  name   = "psc-ilb-consumer-forwarding-rule"
+  region = "us-west2"
+
+  target                = google_compute_service_attachment.psc_ilb_service_attachment.id
+  load_balancing_scheme = "" # need to override EXTERNAL default when target is a service attachment
+  network               = google_compute_network.psc_ilb_consumer_network.id
+  subnetwork            = google_compute_subnetwork.psc_ilb_consumer_subnetwork.id
+  ip_address            = google_compute_address.psc_ilb_consumer_address.id
+}
+
+resource "google_compute_forwarding_rule" "psc_ilb_target_service" {
+  name   = "producer-forwarding-rule"
+  region = "us-west2"
+
+  load_balancing_scheme = "INTERNAL"
+  backend_service       = google_compute_region_backend_service.producer_service_backend.id
+  all_ports             = true
+  network               = google_compute_network.psc_ilb_network.name
+  subnetwork            = google_compute_subnetwork.psc_ilb_producer_subnetwork.name
+}
+
+resource "google_compute_region_backend_service" "producer_service_backend" {
+  name   = "producer-service"
+  region = "us-west2"
+
+  health_checks = [google_compute_health_check.producer_service_health_check.id]
+}
+
+resource "google_compute_health_check" "producer_service_health_check" {
+  name = "producer-service-health-check"
+
+  check_interval_sec = 1
+  timeout_sec        = 1
+  tcp_health_check {
+    port = "80"
+  }
+}
+
+resource "google_compute_network" "psc_ilb_network" {
+  name = "psc-ilb-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc_ilb_producer_subnetwork" {
+  name   = "psc-ilb-producer-subnetwork"
+  region = "us-west2"
+
+  network       = google_compute_network.psc_ilb_network.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_subnetwork" "psc_ilb_nat" {
+  name   = "psc-ilb-nat"
+  region = "us-west2"
+
+  network       = google_compute_network.psc_ilb_network.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=service_attachment_reconcile_connections&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -371,8 +478,14 @@ The following arguments are supported:
 <a name="nested_consumer_accept_lists"></a>The `consumer_accept_lists` block supports:
 
 * `project_id_or_num` -
-  (Required)
+  (Optional)
   A project that is allowed to connect to this service attachment.
+  Only one of project_id_or_num and network_url may be set.
+
+* `network_url` -
+  (Optional)
+  The network that is allowed to connect to this service attachment.
+  Only one of project_id_or_num and network_url may be set.
 
 * `connection_limit` -
   (Required)
