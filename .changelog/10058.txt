@@ -1,0 +1,3 @@
+```release-note:note
+cloudfunctions: Updated docs for Cloud Function's `docker_registry` field to reflect the change of default from Container Registry to Artifact Registry.
+```
