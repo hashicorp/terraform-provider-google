@@ -1,6 +1,6 @@
-name: "[TEST] Developer Productivity"
+name: "Developer Productivity"
 labels: ["technical-debt"]
-description: "[TEST] For bug reports, feature requests, and feedback about developing in the provider"
+description: "For bug reports, feature requests, and feedback about developing in the provider"
 body:
   - type: dropdown
     id: type
