@@ -1,0 +1,3 @@
+```release-note:bug
+compute: allowed sending empty values for `SERVERLESS` in `google_compute_region_network_endpoint_group` resource
+```
