@@ -27,6 +27,15 @@ for doc in $docs; do
       fi
       ;;
 
+    "functions")
+      # Functions require a page_title
+      grep "^page_title: " "$doc" > /dev/null
+      if [[ "$?" == "1" ]]; then
+        echo "Doc is missing a page_title: $doc"
+        error=true
+      fi
+      ;;
+
     *)
       error=true
       echo "Unknown category \"$category\". " \
