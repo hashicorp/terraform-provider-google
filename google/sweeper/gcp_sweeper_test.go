@@ -13,6 +13,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/alloydb"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/appengine"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/biglake"
