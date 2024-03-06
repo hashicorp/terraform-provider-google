@@ -61,6 +61,61 @@ resource "google_firestore_database" "database" {
   deletion_policy                   = "DELETE"
 }
 ```
+## Example Usage - Firestore Cmek Database
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_firestore_database" "database" {
+  provider = google-beta
+
+  project                           = "my-project-name"
+  name                              = "cmek-database-id"
+  location_id                       = "nam5"
+  type                              = "FIRESTORE_NATIVE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
+  cmek_config {
+    kms_key_name                    = google_kms_crypto_key.crypto_key.id
+  }
+
+  depends_on = [
+    google_kms_crypto_key_iam_binding.firestore_cmek_keyuser
+  ]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  provider = google-beta
+
+  name     = "kms-key"
+  key_ring = google_kms_key_ring.key_ring.id
+  purpose  = "ENCRYPT_DECRYPT"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  provider = google-beta
+
+  name     = "kms-key-ring"
+  location = "us"
+}
+
+resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
+  provider = google-beta
+
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-firestore.iam.gserviceaccount.com",
+  ]
+}
+```
 ## Example Usage - Firestore Default Database In Datastore Mode
 
 
@@ -86,6 +141,61 @@ resource "google_firestore_database" "datastore_mode_database" {
   point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
   delete_protection_state           = "DELETE_PROTECTION_ENABLED"
   deletion_policy                   = "DELETE"
+}
+```
+## Example Usage - Firestore Cmek Database In Datastore Mode
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_firestore_database" "database" {
+  provider = google-beta
+
+  project                           = "my-project-name"
+  name                              = "cmek-database-id"
+  location_id                       = "nam5"
+  type                              = "DATASTORE_MODE"
+  concurrency_mode                  = "OPTIMISTIC"
+  app_engine_integration_mode       = "DISABLED"
+  point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_ENABLED"
+  delete_protection_state           = "DELETE_PROTECTION_ENABLED"
+  deletion_policy                   = "DELETE"
+  cmek_config {
+    kms_key_name                    = google_kms_crypto_key.crypto_key.id
+  }
+
+  depends_on = [
+    google_kms_crypto_key_iam_binding.firestore_cmek_keyuser
+  ]
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  provider = google-beta
+
+  name     = "kms-key"
+  key_ring = google_kms_key_ring.key_ring.id
+  purpose  = "ENCRYPT_DECRYPT"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  provider = google-beta
+
+  name     = "kms-key-ring"
+  location = "us"
+}
+
+resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
+  provider = google-beta
+
+  crypto_key_id = google_kms_crypto_key.crypto_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-firestore.iam.gserviceaccount.com",
+  ]
 }
 ```
 
@@ -147,6 +257,13 @@ The following arguments are supported:
   **Note:** Additionally, to delete this database using `terraform destroy`, `deletion_policy` must be set to `DELETE`.
   Possible values are: `DELETE_PROTECTION_STATE_UNSPECIFIED`, `DELETE_PROTECTION_ENABLED`, `DELETE_PROTECTION_DISABLED`.
 
+* `cmek_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The CMEK (Customer Managed Encryption Key) configuration for a Firestore
+  database. If not present, the database is secured by the default Google
+  encryption key.
+  Structure is [documented below](#nested_cmek_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -156,6 +273,30 @@ If the deletion policy is `DELETE`, the database will both be removed from Terra
 The default value is `ABANDON`.
 See also `delete_protection`.
 
+
+<a name="nested_cmek_config"></a>The `cmek_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The resource ID of a Cloud KMS key. If set, the database created will
+  be a Customer-managed Encryption Key (CMEK) database encrypted with
+  this key. This feature is allowlist only in initial launch.
+  Only keys in the same location as this database are allowed to be used
+  for encryption. For Firestore's nam5 multi-region, this corresponds to Cloud KMS
+  multi-region us. For Firestore's eur3 multi-region, this corresponds to
+  Cloud KMS multi-region europe. See https://cloud.google.com/kms/docs/locations.
+  This value should be the KMS key resource ID in the format of
+  `projects/{project_id}/locations/{kms_location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+  How to retrive this resource ID is listed at
+  https://cloud.google.com/kms/docs/getting-resource-ids#getting_the_id_for_a_key_and_version.
+
+* `active_key_version` -
+  (Output)
+  Currently in-use KMS key versions (https://cloud.google.com/kms/docs/resource-hierarchy#key_versions).
+  During key rotation (https://cloud.google.com/kms/docs/key-rotation), there can be
+  multiple in-use key versions.
+  The expected format is
+  `projects/{project_id}/locations/{kms_location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}/cryptoKeyVersions/{key_version}`.
 
 ## Attributes Reference
 
