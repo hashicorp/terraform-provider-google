@@ -1,0 +1,3 @@
+```release-note:none
+Adds a test for PATCH Apigee environment type.
+```
