@@ -57,6 +57,7 @@ type FrameworkProviderConfig struct {
 	AlloydbBasePath                  string
 	ApigeeBasePath                   string
 	AppEngineBasePath                string
+	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
@@ -208,6 +209,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.AlloydbBasePath = data.AlloydbCustomEndpoint.ValueString()
 	p.ApigeeBasePath = data.ApigeeCustomEndpoint.ValueString()
 	p.AppEngineBasePath = data.AppEngineCustomEndpoint.ValueString()
+	p.ApphubBasePath = data.ApphubCustomEndpoint.ValueString()
 	p.ArtifactRegistryBasePath = data.ArtifactRegistryCustomEndpoint.ValueString()
 	p.BeyondcorpBasePath = data.BeyondcorpCustomEndpoint.ValueString()
 	p.BiglakeBasePath = data.BiglakeCustomEndpoint.ValueString()
@@ -487,6 +489,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.AppEngineBasePathKey])
 		if customEndpoint != nil {
 			data.AppEngineCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.ApphubCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_APPHUB_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.ApphubBasePathKey])
+		if customEndpoint != nil {
+			data.ApphubCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.ArtifactRegistryCustomEndpoint.IsNull() {

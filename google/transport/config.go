@@ -193,6 +193,7 @@ type Config struct {
 	AlloydbBasePath                  string
 	ApigeeBasePath                   string
 	AppEngineBasePath                string
+	ApphubBasePath                   string
 	ArtifactRegistryBasePath         string
 	BeyondcorpBasePath               string
 	BiglakeBasePath                  string
@@ -326,6 +327,7 @@ const ActiveDirectoryBasePathKey = "ActiveDirectory"
 const AlloydbBasePathKey = "Alloydb"
 const ApigeeBasePathKey = "Apigee"
 const AppEngineBasePathKey = "AppEngine"
+const ApphubBasePathKey = "Apphub"
 const ArtifactRegistryBasePathKey = "ArtifactRegistry"
 const BeyondcorpBasePathKey = "Beyondcorp"
 const BiglakeBasePathKey = "Biglake"
@@ -453,6 +455,7 @@ var DefaultBasePaths = map[string]string{
 	AlloydbBasePathKey:                  "https://alloydb.googleapis.com/v1/",
 	ApigeeBasePathKey:                   "https://apigee.googleapis.com/v1/",
 	AppEngineBasePathKey:                "https://appengine.googleapis.com/v1/",
+	ApphubBasePathKey:                   "https://apphub.googleapis.com/v1/",
 	ArtifactRegistryBasePathKey:         "https://artifactregistry.googleapis.com/v1/",
 	BeyondcorpBasePathKey:               "https://beyondcorp.googleapis.com/v1/",
 	BiglakeBasePathKey:                  "https://biglake.googleapis.com/v1/",
@@ -674,6 +677,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("app_engine_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_APP_ENGINE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[AppEngineBasePathKey]))
+	}
+	if d.Get("apphub_custom_endpoint") == "" {
+		d.Set("apphub_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_APPHUB_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ApphubBasePathKey]))
 	}
 	if d.Get("artifact_registry_custom_endpoint") == "" {
 		d.Set("artifact_registry_custom_endpoint", MultiEnvDefault([]string{
@@ -2071,6 +2079,7 @@ func ConfigureBasePaths(c *Config) {
 	c.AlloydbBasePath = DefaultBasePaths[AlloydbBasePathKey]
 	c.ApigeeBasePath = DefaultBasePaths[ApigeeBasePathKey]
 	c.AppEngineBasePath = DefaultBasePaths[AppEngineBasePathKey]
+	c.ApphubBasePath = DefaultBasePaths[ApphubBasePathKey]
 	c.ArtifactRegistryBasePath = DefaultBasePaths[ArtifactRegistryBasePathKey]
 	c.BeyondcorpBasePath = DefaultBasePaths[BeyondcorpBasePathKey]
 	c.BiglakeBasePath = DefaultBasePaths[BiglakeBasePathKey]
