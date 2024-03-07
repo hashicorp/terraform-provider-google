@@ -64,14 +64,15 @@ fun BuildSteps.downloadTerraformBinary() {
     // https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
     val terraformUrl = "https://releases.hashicorp.com/terraform/%env.TERRAFORM_CORE_VERSION%/terraform_%env.TERRAFORM_CORE_VERSION%_linux_amd64.zip"
     step(ScriptBuildStep {
-        name = "Download Terraform version %s".format(DefaultTerraformCoreVersion)
+        name = "Download Terraform"
         scriptContent = """
         #!/bin/bash
+        echo "Downloading Terraform version %env.TERRAFORM_CORE_VERSION%"
         mkdir -p tools
-        wget -O tf.zip %s
+        wget -O tf.zip $terraformUrl
         unzip tf.zip
         mv terraform tools/
-        """.format(terraformUrl).trimIndent()
+        """.trimIndent()
     })
 }
 

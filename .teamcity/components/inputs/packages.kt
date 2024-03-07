@@ -13,6 +13,11 @@ var PackagesListGa = mapOf(
         "displayName" to "Environment Variables",
         "path" to "./google/envvar"
     ),
+    "functions" to mapOf(
+        "name" to "functions",
+        "displayName" to "Provider-Defined Functions",
+        "path" to "./google/functions"
+    ),
     "fwmodels" to mapOf(
         "name" to "fwmodels",
         "displayName" to "Framework Models",
@@ -63,6 +68,11 @@ var PackagesListBeta = mapOf(
         "name" to "envvar",
         "displayName" to "Environment Variables",
         "path" to "./google-beta/envvar"
+    ),
+    "functions" to mapOf(
+        "name" to "functions",
+        "displayName" to "Provider-Defined Functions",
+        "path" to "./google-beta/functions"
     ),
     "fwmodels" to mapOf(
         "name" to "fwmodels",
