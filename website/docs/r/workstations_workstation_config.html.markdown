@@ -561,6 +561,11 @@ The following arguments are supported:
   Directories to persist across workstation sessions.
   Structure is [documented below](#nested_persistent_directories).
 
+* `ephemeral_directories` -
+  (Optional)
+  Ephemeral directories which won't persist across workstation sessions.
+  Structure is [documented below](#nested_ephemeral_directories).
+
 * `container` -
   (Optional)
   Container that will be run for each workstation using this configuration when that workstation is started.
@@ -715,6 +720,41 @@ The following arguments are supported:
 * `source_snapshot` -
   (Optional)
   Name of the snapshot to use as the source for the disk. This can be the snapshot's `self_link`, `id`, or a string in the format of `projects/{project}/global/snapshots/{snapshot}`. If set, `sizeGb` and `fsType` must be empty. Can only be updated if it has an existing value.
+
+<a name="nested_ephemeral_directories"></a>The `ephemeral_directories` block supports:
+
+* `mount_path` -
+  (Optional)
+  Location of this directory in the running workstation.
+
+* `gce_pd` -
+  (Optional)
+  An EphemeralDirectory backed by a Compute Engine persistent disk.
+  Structure is [documented below](#nested_gce_pd).
+
+
+<a name="nested_gce_pd"></a>The `gce_pd` block supports:
+
+* `disk_type` -
+  (Optional)
+  Type of the disk to use. Defaults to `"pd-standard"`.
+
+* `source_snapshot` -
+  (Optional)
+  Name of the snapshot to use as the source for the disk.
+  Must be empty if `sourceImage` is set.
+  Must be empty if `read_only` is false.
+  Updating `source_snapshot` will update content in the ephemeral directory after the workstation is restarted.
+
+* `source_image` -
+  (Optional)
+  Name of the disk image to use as the source for the disk.
+  Must be empty `sourceSnapshot` is set.
+  Updating `sourceImage` will update content in the ephemeral directory after the workstation is restarted.
+
+* `read_only` -
+  (Optional)
+  Whether the disk is read only. If true, the disk may be shared by multiple VMs and `sourceSnapshot` must be set.
 
 <a name="nested_container"></a>The `container` block supports:
 
