@@ -1,0 +1,4 @@
+```release-note:enhancement
+composer:
+- added separate argument reference section for Composer 3. 
+```
