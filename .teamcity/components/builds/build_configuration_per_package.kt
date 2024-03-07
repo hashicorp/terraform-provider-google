@@ -15,6 +15,8 @@ import jetbrains.buildServer.configs.kotlin.sharedResources
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
+// BuildConfigurationsForPackages accepts a map containing details of multiple packages in a provider and returns a list of build configurations for them all.
+// Intended to be used in projects where we're testing all packages, e.g. the nightly test projects
 fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): List<BuildType> {
     val list = ArrayList<BuildType>()
 
@@ -29,6 +31,13 @@ fun BuildConfigurationsForPackages(packages: Map<String, Map<String, String>>, p
     }
 
     return list
+}
+
+// BuildConfigurationForSinglePackage accepts details of a single package in a provider and returns a build configuration for it
+// Intended to be used in short-lived projects where we're testing specific packages, e.g. feature branch testing
+fun BuildConfigurationForSinglePackage(packageName: String, packagePath: String, packageDisplayName: String, providerName: String, parentProjectName: String, vcsRoot: GitVcsRoot, sharedResources: List<String>, environmentVariables: AccTestConfiguration): BuildType{
+    val pkg = PackageDetails(packageName, packageDisplayName, providerName, parentProjectName)
+    return pkg.buildConfiguration(packagePath, vcsRoot, sharedResources, environmentVariables)
 }
 
 class PackageDetails(private val packageName: String, private val displayName: String, private val providerName: String, private val parentProjectName: String) {
