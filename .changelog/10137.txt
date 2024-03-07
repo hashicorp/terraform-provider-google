@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed two or more lifecycle rules with different values of `no_age` field always generates change in `google_storage_bucket` resource.
+```

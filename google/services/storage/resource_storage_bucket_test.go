@@ -509,7 +509,7 @@ func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.0.condition.0.no_age"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age"},
 			},
 			{
 				Config: testAccStorageBucket_customAttributes_withLifecycleNoAgeAndAge(bucketName),
@@ -523,7 +523,7 @@ func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.0.condition.0.no_age"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age"},
 			},
 			{
 				Config: testAccStorageBucket_customAttributes_withLifecycle1(bucketName),
@@ -1478,8 +1478,8 @@ func testAccCheckStorageBucketLifecycleConditionState(expected *bool, b *storage
 
 func testAccCheckStorageBucketLifecycleConditionNoAge(expected *int64, b *storage.Bucket) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		actual := b.Lifecycle.Rule[0].Condition.Age
-		if expected == nil && b.Lifecycle.Rule[0].Condition.Age == nil {
+		actual := b.Lifecycle.Rule[1].Condition.Age
+		if expected == nil && b.Lifecycle.Rule[1].Condition.Age == nil {
 			return nil
 		}
 		if expected == nil {
@@ -1690,6 +1690,15 @@ resource "google_storage_bucket" "bucket" {
   location      = "EU"
   force_destroy = "true"
   lifecycle_rule {
+     action {
+       type = "Delete"
+     }
+     condition {
+        age = 10
+        no_age = false
+     }
+  }
+  lifecycle_rule {
     action {
       type = "Delete"
     }
@@ -1708,6 +1717,15 @@ resource "google_storage_bucket" "bucket" {
   name          = "%s"
   location      = "EU"
   force_destroy = "true"
+  lifecycle_rule {
+     action {
+       type = "Delete"
+     }
+     condition {
+       age = 10
+       no_age = false
+     }
+  }
   lifecycle_rule {
     action {
       type = "Delete"
