@@ -95,6 +95,7 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
         gateway="test-gateway"
       }
     }
+    vcenter_network = "test-vcenter-network"
   }
   control_plane_node {
      cpus = 4
@@ -427,7 +428,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_dhcp_ip_config).
 
 * `vcenter_network` -
-  (Output)
+  (Optional)
   vcenter_network specifies vCenter network name. Inherited from the admin cluster.
 
 * `host_config` -
