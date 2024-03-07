@@ -35,7 +35,7 @@ To get more information about PostureDeployment, see:
 
 
 ```hcl
-resource "google_securityposture_posture" "posture1" {
+resource "google_securityposture_posture" "posture_1" {
     posture_id          = "posture_1"
     parent = "organizations/123456789"
     location = "global"
@@ -64,8 +64,8 @@ resource "google_securityposture_posture_deployment" "postureDeployment" {
     location = "global"
     description = "a new posture deployment"
     target_resource = "projects/1111111111111"
-    posture_id = google_securityposture_posture.posture1.name
-    posture_revision_id = google_securityposture_posture.posture1.revision_id
+    posture_id = google_securityposture_posture.posture_1.name
+    posture_revision_id = google_securityposture_posture.posture_1.revision_id
 }
 ```
 

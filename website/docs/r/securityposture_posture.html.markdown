@@ -36,7 +36,7 @@ To get more information about Posture, see:
 
 ```hcl
 resource "google_securityposture_posture" "posture1"{
-  posture_id  = "posture_1"
+  posture_id  = "posture_example"
   parent      = "organizations/123456789"
   location    = "global"
   state       = "ACTIVE"
