@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: promoted `metric.single_instance_assignment` and `metric.filter` for `google_compute_region_autoscaler` to GA
+```
