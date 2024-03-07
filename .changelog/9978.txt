@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_firebase_app_check_device_check_config`
+```
