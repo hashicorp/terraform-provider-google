@@ -150,6 +150,7 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
         gateway="test-gateway"
       }
     }
+    vcenter_network = "test-vcenter-network"
   }
   control_plane_node {
      cpus = 4
