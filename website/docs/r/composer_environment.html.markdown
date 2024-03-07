@@ -229,7 +229,7 @@ The following arguments are supported:
 
 * `config` -
   (Optional)
-  Configuration parameters for this environment  Structure is [documented below](#nested_config).
+  Configuration parameters for this environment  Structure is [documented below](#nested_config_c1).
 
 * `labels` -
   (Optional)
@@ -260,7 +260,7 @@ The following arguments are supported:
   (Optional) The ID of the project in which the resource belongs.
   If it is not provided, the provider project is used.
 
-<a name="nested_config"></a>The `config` block supports:
+<a name="nested_config_c1"></a>The `config` block supports:
 
 * `node_count` -
   (Optional, Cloud Composer 1 only)
@@ -268,28 +268,19 @@ The following arguments are supported:
 
 * `node_config` -
   (Optional)
-  The configuration used for the Kubernetes Engine cluster.  Structure is [documented below](#nested_node_config).
+  The configuration used for the Kubernetes Engine cluster.  Structure is [documented below](#nested_node_config_c1).
 
 * `recovery_config` -
   (Optional, Cloud Composer 2 only)
-  The configuration settings for recovery. Structure is [documented below](#nested_recovery_config).
+  The configuration settings for recovery. Structure is [documented below](#nested_recovery_config_c1).
 
 * `software_config` -
   (Optional)
-  The configuration settings for software inside the environment.  Structure is [documented below](#nested_software_config).
+  The configuration settings for software inside the environment.  Structure is [documented below](#nested_software_config_c1).
 
 * `private_environment_config` -
   (Optional)
-  The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config).
-
-* `enable_private_environment` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
-  If true, a private Composer environment will be created.
-
-* `enable_private_builds_only` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
-  If true, builds performed during operations that install Python packages have only private connectivity to Google services.
-  If false, the builds also have access to the internet.
+  The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config_c1).
 
 * `web_server_network_access_control` -
   The network-level access control policy for the Airflow web server.
@@ -319,9 +310,9 @@ The following arguments are supported:
   master authorized networks will disallow all external traffic to access
   Kubernetes master through HTTPS except traffic from the given CIDR blocks,
   Google Compute Engine Public IPs and Google Prod IPs. Structure is
-  [documented below](#nested_master_authorized_networks_config).
+  [documented below](#nested_master_authorized_networks_config_c1).
 
-<a name="nested_node_config"></a>The `node_config` block supports:
+<a name="nested_node_config_c1"></a>The `node_config` block supports:
 
 * `zone` -
   (Optional, Cloud Composer 1 only)
@@ -382,7 +373,7 @@ The following arguments are supported:
 * `ip_allocation_policy` -
   (Optional)
   Configuration for controlling how IPs are allocated in the GKE cluster.
-  Structure is [documented below](#nested_ip_allocation_policy).
+  Structure is [documented below](#nested_ip_allocation_policy_c1).
   Cannot be updated.
 
 * `max_pods_per_node` -
@@ -401,7 +392,7 @@ The following arguments are supported:
   all destination addresses, except between pods traffic.
   See the [documentation](https://cloud.google.com/composer/docs/enable-ip-masquerade-agent).
 
-<a name="nested_software_config"></a>The `software_config` block supports:
+<a name="nested_software_config_c1"></a>The `software_config` block supports:
 
 * `airflow_config_overrides` -
   (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names,
@@ -444,7 +435,7 @@ The following arguments are supported:
   ```
 
 * `image_version` -
-  (Optional in Cloud Composer 1, required in Cloud Composer 2)
+(Required) In Composer 1, use a specific Composer 1 version in this parameter. If omitted, the default is the latest version of Composer 2.  
 
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression
@@ -465,12 +456,8 @@ The following arguments are supported:
   (Optional, Cloud Composer 1 with Airflow 2 only)
   The number of schedulers for Airflow.
 
-* `web_server_plugins_mode` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
-  Web server plugins configuration. Should be either 'ENABLED' or 'DISABLED'. Defaults to 'ENABLED'.
 
-
-See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. <a name="nested_private_environment_config"></a>The `private_environment_config` block supports:
+See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. <a name="nested_private_environment_config_c1"></a>The `private_environment_config` block supports:
 
 * `connection_type` -
   (Optional, Cloud Composer 2 only)
@@ -506,9 +493,9 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
 The `web_server_network_access_control` supports:
 
 * `allowed_ip_range` -
-  A collection of allowed IP ranges with descriptions. Structure is [documented below](#nested_allowed_ip_range).
+  A collection of allowed IP ranges with descriptions. Structure is [documented below](#nested_allowed_ip_range_c1).
 
-<a name="nested_allowed_ip_range"></a>The `allowed_ip_range` supports:
+<a name="nested_allowed_ip_range_c1"></a>The `allowed_ip_range` supports:
 
 * `value` -
   (Required)
@@ -521,7 +508,7 @@ The `web_server_network_access_control` supports:
   (Optional)
   A description of this ip range.
 
-<a name="nested_ip_allocation_policy"></a>The `ip_allocation_policy` block supports:
+<a name="nested_ip_allocation_policy_c1"></a>The `ip_allocation_policy` block supports:
 
 * `use_ip_aliases` -
   (Optional, Cloud Composer 1 only)
@@ -560,7 +547,7 @@ The `web_server_network_access_control` supports:
   (e.g. 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) to pick a specific range to use.
   Specify either `services_secondary_range_name` or `services_ipv4_cidr_block` but not both.
 
-<a name="nested_database_config"></a>The `database_config` block supports:
+<a name="nested_database_config_c1"></a>The `database_config` block supports:
 
 * `machine_type` -
   (Optional)
@@ -571,7 +558,7 @@ The `web_server_network_access_control` supports:
   (Optional)
   Preferred Cloud SQL database zone.
 
-<a name="nested_web_server_config"></a>The `web_server_config` block supports:
+<a name="nested_web_server_config_c1"></a>The `web_server_config` block supports:
 
 * `machine_type` -
   (Required)
@@ -580,7 +567,7 @@ The `web_server_network_access_control` supports:
   Value custom is returned only in response, if Airflow web server parameters were
   manually changed to a non-standard values.
 
-<a name="nested_encryption_config"></a>The `encryption_config` block supports:
+<a name="nested_encryption_config_c1"></a>The `encryption_config` block supports:
 
 * `kms_key_name` -
   (Required)
@@ -588,7 +575,7 @@ The `web_server_network_access_control` supports:
   be the fully qualified resource name,
   i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
 
-<a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
+<a name="nested_maintenance_window_c1"></a>The `maintenance_window` block supports:
 * `start_time` -
   (Required)
   Start time of the first recurrence of the maintenance window.
@@ -604,15 +591,15 @@ The `web_server_network_access_control` supports:
   The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
   Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
 
-<a name="nested_master_authorized_networks_config"></a>The `master_authorized_networks_config` block supports:
+<a name="nested_master_authorized_networks_config_c1"></a>The `master_authorized_networks_config` block supports:
 * `enabled` -
   (Required)
   Whether or not master authorized networks is enabled.
 
 * `cidr_blocks` -
-  `cidr_blocks `define up to 50 external networks that could access Kubernetes master through HTTPS. Structure is [documented below](#nested_cidr_blocks).
+  `cidr_blocks `define up to 50 external networks that could access Kubernetes master through HTTPS. Structure is [documented below](#nested_cidr_blocks_c1).
 
-<a name="nested_cidr_blocks"></a>The `cidr_blocks` supports:
+<a name="nested_cidr_blocks_c1"></a>The `cidr_blocks` supports:
 
 * `display_name` -
   (Optional)
@@ -632,7 +619,7 @@ The following arguments are supported:
 
 * `config` -
   (Optional)
-  Configuration parameters for this environment. Structure is documented below.
+  Configuration parameters for this environment. Structure is [documented below](#nested_config_c2).
 
 * `labels` -
   (Optional)
@@ -656,24 +643,23 @@ The following arguments are supported:
 
 * `storage_config` -
   (Optional)
-  Configuration options for storage used by Composer environment. Structure is documented below.
+  Configuration options for storage used by Composer environment. Structure is [documented below](#nested_storage_config_c2).
 
 
-The `config` block supports:
+<a name="nested_config_c2"></a>The `config` block supports:
 
 * `node_config` -
   (Optional)
-  The configuration used for the Kubernetes Engine cluster. Structure is documented below.
+  The configuration used for the Kubernetes Engine cluster. Structure is [documented below](#nested_node_config_c2).
 
 * `software_config` -
   (Optional)
   The configuration settings for software (Airflow) inside the environment. Structure is
-  documented below.
+  [documented below](#nested_software_config_c2).
 
 * `private_environment_config` -
   (Optional)
-  The configuration used for the Private IP Cloud Composer environment. Structure is documented
-  below.
+  The configuration used for the Private IP Cloud Composer environment. Structure is [documented below](#nested_private_environment_config_c2).
 
 * `encryption_config` -
   (Optional)
@@ -685,12 +671,12 @@ The `config` block supports:
   The configuration settings for Cloud Composer maintenance windows.
 
 * `workloads_config` -
-  (Optional, Cloud Composer 2 only)
+  (Optional)
   The Kubernetes workloads configuration for GKE cluster associated with the
   Cloud Composer environment.
 
 * `environment_size` -
-  (Optional, Cloud Composer 2 only)
+  (Optional)
   The environment size controls the performance parameters of the managed
   Cloud Composer infrastructure that includes the Airflow database. Values for
   environment size are `ENVIRONMENT_SIZE_SMALL`, `ENVIRONMENT_SIZE_MEDIUM`,
@@ -709,20 +695,20 @@ The `config` block supports:
   master authorized networks will disallow all external traffic to access
   Kubernetes master through HTTPS except traffic from the given CIDR blocks,
   Google Compute Engine Public IPs and Google Prod IPs. Structure is
-  documented below.
+  [documented below](#nested_master_authorized_networks_config_c1).
 
 * `data_retention_config` -
   (Optional, Cloud Composer 2.0.23 or newer only)
   Configuration setting for airflow data rentention mechanism. Structure is
-  [documented below](#nested_data_retention_config).
+  [documented below](#nested_data_retention_config_c2).
 
-<a name="nested_data_retention_config"></a>The `data_retention_config` block supports:
+<a name="nested_data_retention_config_c2"></a>The `data_retention_config` block supports:
 * `task_logs_retention_config` - 
   (Optional)
   The configuration setting for Task Logs. Structure is
-  [documented below](#nested_task_logs_retention_config).
+  [documented below](#nested_task_logs_retention_config_c2).
 
-<a name="nested_task_logs_retention_config"></a>The `task_logs_retention_config` block supports:
+<a name="nested_task_logs_retention_config_c2"></a>The `task_logs_retention_config` block supports:
 * `storage_mode` - 
   (Optional)
   The mode of storage for Airflow workers task logs. Values for storage mode are 
@@ -730,14 +716,14 @@ The `config` block supports:
   `CLOUD_LOGGING_AND_CLOUD_STORAGE` to store logs in cloud logging and cloud storage.
 
 
-The `storage_config` block supports:
+<a name="nested_storage_config_c2"></a>The `storage_config` block supports:
 
 * `bucket` -
   (Required)
   Name of an existing Cloud Storage bucket to be used by the environment.
 
 
-The `node_config` block supports:
+<a name="nested_node_config_c2"></a>The `node_config` block supports:
 
 * `network` -
   (Optional)
@@ -773,7 +759,7 @@ The `node_config` block supports:
 * `ip_allocation_policy` -
   (Optional)
   Configuration for controlling how IPs are allocated in the GKE cluster.
-  Structure is documented below.
+  Structure is [documented below](#nested_ip_allocation_policy_c2).
   Cannot be updated.
 
 * `enable_ip_masq_agent` -
@@ -783,12 +769,7 @@ The `node_config` block supports:
   packets from node IP addresses instead of Pod IP addresses
   See the [documentation](https://cloud.google.com/composer/docs/enable-ip-masquerade-agent).
 
-* `composer_internal_ipv4_cidr_block` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
-  At least /20 IPv4 cidr range that will be used by Composer internal components.
-  Cannot be updated.
-
-The `software_config` block supports:
+<a name="nested_software_config_c2"></a>The `software_config` block supports:
 
 * `airflow_config_overrides` -
   (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names,
@@ -831,10 +812,8 @@ The `software_config` block supports:
   ```
 
 * `image_version` -
-  (Required in Cloud Composer 2, optional in Cloud Composer 1)
+(Optional) If omitted, the default is the latest version of Composer 2.
 
-  **In Cloud Composer 2, you must specify an image with Cloud Composer 2**. Otherwise, the default image for Cloud Composer 1 is used. For more information about Cloud Composer images, see
-  [Cloud Composer version list](https://cloud.google.com/composer/docs/concepts/versioning/composer-versions).
 
   The version of the software running in the environment. This encapsulates both the version of Cloud Composer
   functionality and the version of Apache Airflow. It must match the regular expression
@@ -853,14 +832,14 @@ The `software_config` block supports:
   (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
   Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and newer)
   The configuration for Cloud Data Lineage integration. Structure is
-  [documented below](#nested_cloud_data_lineage_integration).
+  [documented below](#nested_cloud_data_lineage_integration_c2).
 
-<a name="nested_cloud_data_lineage_integration"></a>The `cloud_data_lineage_integration` block supports:
+<a name="nested_cloud_data_lineage_integration_c2"></a>The `cloud_data_lineage_integration` block supports:
 * `enabled` -
   (Required)
   Whether or not Cloud Data Lineage integration is enabled.
 
-See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
+<a name="nested_private_environment_config_c2"></a>See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
 
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
@@ -894,7 +873,7 @@ See [documentation](https://cloud.google.com/composer/docs/how-to/managing/confi
   versions `composer-2.*.*-airflow-*.*.*` and newer.
 
 
-The `ip_allocation_policy` block supports:
+<a name="nested_ip_allocation_policy_c2"></a>The `ip_allocation_policy` block supports:
 
 * `cluster_secondary_range_name` -
   (Optional)
@@ -951,7 +930,7 @@ The `ip_allocation_policy` block supports:
   The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
   Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
 
-The `recovery_config` block supports:
+<a name="nested_recovery_config_c1"></a>The `recovery_config` block supports:
 
 * `scheduled_snapshots_config` -
   (Optional)
@@ -980,6 +959,345 @@ The `workloads_config` block supports:
 * `scheduler` -
   (Optional)
   Configuration for resources used by Airflow schedulers.
+
+* `triggerer` -
+  (Optional)
+  Configuration for resources used by Airflow triggerer.
+
+* `web_server` -
+  (Optional)
+  Configuration for resources used by Airflow web server.
+
+* `worker` -
+  (Optional)
+  Configuration for resources used by Airflow workers.
+
+The `scheduler` block supports:
+
+* `cpu` -
+  (Optional)
+  The number of CPUs for a single Airflow scheduler.
+
+* `memory_gb` -
+  (Optional)
+  The amount of memory (GB) for a single Airflow scheduler.
+
+* `storage_gb` -
+  (Optional)
+  The amount of storage (GB) for a single Airflow scheduler.
+
+* `count` -
+  (Optional)
+  The number of schedulers.
+
+The `triggerer` block supports:
+
+* `cpu` -
+  (Required)
+  The number of CPUs for a single Airflow triggerer.
+
+* `memory_gb` -
+  (Required)
+  The amount of memory (GB) for a single Airflow triggerer.
+
+* `count` -
+  (Required)
+  The number of Airflow triggerers.
+
+The `web_server` block supports:
+
+* `cpu` -
+  (Optional)
+  The number of CPUs for the Airflow web server.
+
+* `memory_gb` -
+  (Optional)
+  The amount of memory (GB) for the Airflow web server.
+
+* `storage_gb` -
+  (Optional)
+  The amount of storage (GB) for the Airflow web server.
+
+The `worker` block supports:
+
+* `cpu` -
+  (Optional)
+  The number of CPUs for a single Airflow worker.
+
+* `memory_gb` -
+  (Optional)
+  The amount of memory (GB) for a single Airflow worker.
+
+* `storage_gb`
+  (Optional)
+  The amount of storage (GB) for a single Airflow worker.
+
+* `min_count` -
+  (Optional)
+  The minimum number of Airflow workers that the environment can run. The number of workers in the
+  environment does not go above this number, even if a lower number of workers can handle the load.
+
+* `max_count` -
+  (Optional)
+  The maximum number of Airflow workers that the environment can run. The number of workers in the
+  environment does not go above this number, even if a higher number of workers is required to
+  handle the load.
+
+
+## Argument Reference - Cloud Composer 3
+
+**Please note: This documentation corresponds to Composer 3, which is not yet released.**
+
+The following arguments are supported:
+
+* `name` -
+  (Required)
+  Name of the environment
+
+* `config` -
+  (Optional)
+  Configuration parameters for this environment. Structure is [documented below](#nested_config_c3).
+
+* `labels` -
+  (Optional)
+  User-defined labels for this environment. The labels map can contain
+  no more than 64 entries. Entries of the labels map are UTF8 strings
+  that comply with the following restrictions:
+  Label keys must be between 1 and 63 characters long and must conform
+  to the following regular expression: `[a-z]([-a-z0-9]*[a-z0-9])?`.
+  Label values must be between 0 and 63 characters long and must
+  conform to the regular expression `([a-z]([-a-z0-9]*[a-z0-9])?)?`.
+  No more than 64 labels can be associated with a given environment.
+  Both keys and values must be <= 128 bytes in size.
+
+* `region` -
+  (Optional)
+  The location or Compute Engine region for the environment.
+
+* `project` -
+  (Optional) The ID of the project in which the resource belongs.
+  If it is not provided, the provider project is used.
+
+* `storage_config` -
+  (Optional)
+  Configuration options for storage used by Composer environment. Structure is [documented below](#nested_storage_config_c3).
+
+
+<a name="nested_config_c3"></a>The `config` block supports:
+
+* `node_config` -
+  (Optional)
+  The configuration used for the Kubernetes Engine cluster. Structure is [documented below](#nested_node_config_c3).
+
+* `software_config` -
+  (Optional)
+  The configuration settings for software (Airflow) inside the environment. Structure is [documented below](#nested_software_config_c3).
+
+* `enable_private_environment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  If true, a private Composer environment will be created.
+
+* `enable_private_builds_only` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  If true, builds performed during operations that install Python packages have only private connectivity to Google services.
+  If false, the builds also have access to the internet.
+
+* `encryption_config` -
+  (Optional)
+  The encryption options for the Cloud Composer environment and its
+  dependencies.
+
+* `maintenance_window` -
+  (Optional)
+  The configuration settings for Cloud Composer maintenance windows.
+
+* `workloads_config` -
+  (Optional)
+  The Kubernetes workloads configuration for GKE cluster associated with the
+  Cloud Composer environment.
+
+* `environment_size` -
+  (Optional)
+  The environment size controls the performance parameters of the managed
+  Cloud Composer infrastructure that includes the Airflow database. Values for
+  environment size are `ENVIRONMENT_SIZE_SMALL`, `ENVIRONMENT_SIZE_MEDIUM`,
+  and `ENVIRONMENT_SIZE_LARGE`.
+
+* `data_retention_config` -
+  (Optional, Cloud Composer 2.0.23 or later only)
+  Configuration setting for Airflow database retention mechanism. Structure is
+  [documented below](#nested_data_retention_config_c3).
+
+<a name="nested_data_retention_config_c3"></a>The `data_retention_config` block supports:
+* `task_logs_retention_config` - 
+  (Optional)
+  The configuration setting for Airflow task logs. Structure is
+  [documented below](#nested_task_logs_retention_config_c3).
+
+<a name="nested_task_logs_retention_config_c3"></a>The `task_logs_retention_config` block supports:
+* `storage_mode` - 
+  (Optional)
+  The mode of storage for Airflow task logs. Values for storage mode are 
+  `CLOUD_LOGGING_ONLY` to only store logs in cloud logging and 
+  `CLOUD_LOGGING_AND_CLOUD_STORAGE` to store logs in cloud logging and cloud storage.
+
+
+<a name="nested_storage_config_c3"></a>The `storage_config` block supports:
+
+* `bucket` -
+  (Required)
+  Name of an existing Cloud Storage bucket to be used by the environment.
+
+
+<a name="nested_node_config_c3"></a>The `node_config` block supports:
+
+* `network` -
+  (Optional)
+  The Compute Engine network to be used for machine
+  communications, specified as a self-link, relative resource name
+  (for example "projects/{project}/global/networks/{network}"), by name.
+
+  The network must belong to the environment's project. If unspecified, the "default" network ID in the environment's
+  project is used. If a Custom Subnet Network is provided, subnetwork must also be provided.
+
+* `subnetwork` -
+  (Optional)
+  The Compute Engine subnetwork to be used for machine
+  communications, specified as a self-link, relative resource name (for example,
+  "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided,
+  network must also be provided and the subnetwork must belong to the enclosing environment's project and region.
+
+* `composer_network_attachment` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  PSC (Private Service Connect) Network entry point. Customers can pre-create the Network Attachment 
+  and point Cloud Composer environment to use. It is possible to share network attachment among many environments, 
+  provided enough IP addresses are available.
+
+* `service_account` -
+  (Optional)
+  The Google Cloud Platform Service Account to be used by the
+  node VMs. If a service account is not specified, the "default"
+  Compute Engine service account is used. Cannot be updated. If given,
+  note that the service account must have `roles/composer.worker`
+  for any GCP resources created under the Cloud Composer Environment.
+
+* `tags` -
+  (Optional)
+  The list of instance tags applied to all node VMs. Tags are
+  used to identify valid sources or targets for network
+  firewalls. Each tag within the list must comply with RFC1035.
+  Cannot be updated.
+
+* `composer_internal_ipv4_cidr_block` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  /20 IPv4 cidr range that will be used by Composer internal components.
+  Cannot be updated.
+
+<a name="nested_software_config_c3">The `software_config` block supports:
+
+* `airflow_config_overrides` -
+  (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names,
+  separated by a hyphen, for example "core-dags_are_paused_at_creation".
+
+  Section names must not contain hyphens ("-"), opening square brackets ("["), or closing square brackets ("]").
+  The property name must not be empty and cannot contain "=" or ";". Section and property names cannot contain
+  characters: "." Apache Airflow configuration property names must be written in snake_case. Property values can
+  contain any character, and can be written in any lower/upper case format. Certain Apache Airflow configuration
+  property values are [blacklisted](https://cloud.google.com/composer/docs/concepts/airflow-configurations#airflow_configuration_blacklists),
+  and cannot be overridden.
+
+* `pypi_packages` -
+  (Optional)
+  Custom Python Package Index (PyPI) packages to be installed
+  in the environment. Keys refer to the lowercase package name (e.g. "numpy"). Values are the lowercase extras and
+  version specifier (e.g. "==1.12.0", "[devel,gcp_api]", "[devel]>=1.8.2, <1.9.2"). To specify a package without
+  pinning it to a version specifier, use the empty string as the value.
+
+* `env_variables` -
+  (Optional)
+  Additional environment variables to provide to the Apache Airflow scheduler, worker, and webserver processes.
+  Environment variable names must match the regular expression `[a-zA-Z_][a-zA-Z0-9_]*`.
+  They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression
+  `AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+`), and they cannot match any of the following reserved names:
+  ```
+  AIRFLOW_HOME
+  C_FORCE_ROOT
+  CONTAINER_NAME
+  DAGS_FOLDER
+  GCP_PROJECT
+  GCS_BUCKET
+  GKE_CLUSTER_NAME
+  SQL_DATABASE
+  SQL_INSTANCE
+  SQL_PASSWORD
+  SQL_PROJECT
+  SQL_REGION
+  SQL_USER
+  ```
+
+* `image_version` -
+  (Required) If omitted, the default is the latest version of Composer 2.
+
+  In Cloud Composer 3, you can only specify 3 in the Cloud Composer portion of the image version. Example: composer-3-airflow-x.y.z-build.t.
+
+  The Apache Airflow portion of the image version is a full semantic version that points to one of the
+  supported Apache Airflow versions, or an alias in the form of only major, major.minor or major.minor.patch versions specified.
+  Like in Composer 1 and 2, a given Airflow version is released multiple times in Composer, with different patches
+  and versions of dependencies. To distinguish between these versions in Composer 3, you can optionally specify a
+  build number to pin to a specific Airflow release.
+  Example: composer-3-airflow-2.6.3-build.4.
+
+  The image version in Composer 3 must match the regular expression:
+  `composer-(([0-9]+)(\.[0-9]+\.[0-9]+(-preview\.[0-9]+)?)?|latest)-airflow-(([0-9]+)((\.[0-9]+)(\.[0-9]+)?)?(-build\.[0-9]+)?)`
+  Example: composer-3-airflow-2.6.3-build.4
+
+  **Important**: In-place upgrade for Composer 3 is not yet supported.
+
+* `cloud_data_lineage_integration` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
+  Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and later)
+  The configuration for Cloud Data Lineage integration. Structure is
+  [documented below](#nested_cloud_data_lineage_integration_c3).
+
+* `web_server_plugins_mode` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Cloud Composer 3 only)
+  Web server plugins configuration. Can be either 'ENABLED' or 'DISABLED'. Defaults to 'ENABLED'.
+
+<a name="nested_cloud_data_lineage_integration_c3"></a>The `cloud_data_lineage_integration` block supports:
+* `enabled` -
+  (Required)
+  Whether or not Cloud Data Lineage integration is enabled.
+
+<a name="nested_encryption_config_comp_2"></a>The `encryption_config` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Customer-managed Encryption Key available through Google's Key Management Service. It must
+  be the fully qualified resource name,
+  i.e. projects/project-id/locations/location/keyRings/keyring/cryptoKeys/key. Cannot be updated.
+
+<a name="nested_maintenance_window_comp_2"></a>The `maintenance_window` block supports:
+
+* `start_time` -
+  (Required)
+  Start time of the first recurrence of the maintenance window.
+
+* `end_time` -
+  (Required)
+  Maintenance window end time. It is used only to calculate the duration of the maintenance window.
+  The value for end-time must be in the future, relative to 'start_time'.
+
+* `recurrence` -
+  (Required)
+  Maintenance window recurrence. Format is a subset of RFC-5545 (https://tools.ietf.org/html/rfc5545) 'RRULE'.
+  The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
+  Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
+
+The `workloads_config` block supports:
+
+* `scheduler` -
+  (Optional)
+  Configuration for resources used by Airflow scheduler.
 
 * `triggerer` -
   (Optional)
