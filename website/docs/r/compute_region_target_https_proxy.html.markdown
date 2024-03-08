@@ -94,6 +94,44 @@ resource "google_compute_region_health_check" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_target_https_proxy_certificate_manager_certificate&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Target Https Proxy Certificate Manager Certificate
+
+
+```hcl
+resource "google_compute_region_target_https_proxy" "default" {
+  name                             = "target-http-proxy"
+  url_map                          = google_compute_region_url_map.default.id
+  certificate_manager_certificates =  ["//certificatemanager.googleapis.com/${google_certificate_manager_certificate.default.id}"] # [google_certificate_manager_certificate.default.id] is also acceptable
+}
+
+resource "google_certificate_manager_certificate" "default" {
+  name              = "my-certificate"
+  location          = "us-central1"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")                                                                                                                
+  }
+}
+
+resource "google_compute_region_url_map" "default" {
+  name            = "url-map"
+  default_service = google_compute_region_backend_service.default.id
+  region          = "us-central1"
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "backend-service"
+  region                = "us-central1"
+  protocol              = "HTTPS"
+  timeout_sec           = 30
+  load_balancing_scheme = "INTERNAL_MANAGED"
+}
+```
 
 ## Argument Reference
 
@@ -110,12 +148,6 @@ The following arguments are supported:
   characters must be a dash, lowercase letter, or digit, except the last
   character, which cannot be a dash.
 
-* `ssl_certificates` -
-  (Required)
-  A list of RegionSslCertificate resources that are used to authenticate
-  connections between users and the load balancer. Currently, exactly
-  one SSL certificate must be specified.
-
 * `url_map` -
   (Required)
   A reference to the RegionUrlMap resource that defines the mapping from URL
@@ -128,6 +160,19 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `certificate_manager_certificates` -
+  (Optional)
+  URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
+  Currently, you may specify up to 15 certificates. Certificate manager certificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
+  sslCertificates and certificateManagerCertificates fields can not be defined together.
+  Accepted format is `//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}` or just the self_link `projects/{project}/locations/{location}/certificates/{resourceName}`
+
+* `ssl_certificates` -
+  (Optional)
+  URLs to SslCertificate resources that are used to authenticate connections between users and the load balancer.
+  At least one SSL certificate must be specified. Currently, you may specify up to 15 SSL certificates.
+  sslCertificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
 
 * `ssl_policy` -
   (Optional)

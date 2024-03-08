@@ -591,6 +591,8 @@ used for VMware user clusters.`,
 						"vcenter_network": {
 							Type:        schema.TypeString,
 							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
 							Description: `vcenter_network specifies vCenter network name. Inherited from the admin cluster.`,
 						},
 					},

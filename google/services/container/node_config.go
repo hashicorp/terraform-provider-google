@@ -630,6 +630,12 @@ func schemaNodeConfig() *schema.Schema {
 					Optional:    true,
 					Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
 				},
+				"enable_confidential_storage": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					ForceNew:    true,
+					Description: `If enabled boot disks are configured with confidential mode.`,
+				},
 			},
 		},
 	}
@@ -896,6 +902,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.SoleTenantConfig = expandSoleTenantConfig(v)
 	}
 
+	if v, ok := nodeConfig["enable_confidential_storage"]; ok {
+		nc.EnableConfidentialStorage = v.(bool)
+	}
+
 	if v, ok := nodeConfig["confidential_nodes"]; ok {
 		nc.ConfidentialNodes = expandConfidentialNodes(v)
 	}
@@ -1113,6 +1123,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"sole_tenant_config":                 flattenSoleTenantConfig(c.SoleTenantConfig),
 		"fast_socket":                        flattenFastSocket(c.FastSocket),
 		"resource_manager_tags":              flattenResourceManagerTags(c.ResourceManagerTags),
+		"enable_confidential_storage":        c.EnableConfidentialStorage,
 	})
 
 	if len(c.OauthScopes) > 0 {

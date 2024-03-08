@@ -59,7 +59,7 @@ func TestAccDefaultUniverseDomain_doesNotMatchExplicit(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config:      testAccUniverseDomain_basic_disk(universeDomainFake),
-				ExpectError: regexp.MustCompile("supplied directly to Terraform with no matching universe domain in credentials"),
+				ExpectError: regexp.MustCompile("Universe domain mismatch"),
 			},
 		},
 	})

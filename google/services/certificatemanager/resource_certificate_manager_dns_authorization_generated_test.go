@@ -49,7 +49,7 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 				ResourceName:            "google_certificate_manager_dns_authorization.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -59,7 +59,8 @@ func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 	return acctest.Nprintf(`
 resource "google_certificate_manager_dns_authorization" "default" {
   name        = "tf-test-dns-auth%{random_suffix}"
-  description = "The default dnss"
+  location    = "global"
+  description = "The default dns"
   domain      = "subdomain%{random_suffix}.hashicorptest.com"
 }
 
@@ -77,6 +78,43 @@ output "record_data_to_insert" {
 `, context)
 }
 
+func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationRegionalExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationRegionalExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_dns_authorization.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizationRegionalExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_dns_authorization" "default" {
+  name        = "tf-test-dns-auth%{random_suffix}"
+  location    = "us-central1"
+  description = "reginal dns"
+  type        = "PER_PROJECT_RECORD"
+  domain      = "subdomain%{random_suffix}.hashicorptest.com"
+}
+`, context)
+}
+
 func testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
@@ -89,7 +127,7 @@ func testAccCheckCertificateManagerDnsAuthorizationDestroyProducer(t *testing.T)
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/global/dnsAuthorizations/{{name}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{CertificateManagerBasePath}}projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}")
 			if err != nil {
 				return err
 			}

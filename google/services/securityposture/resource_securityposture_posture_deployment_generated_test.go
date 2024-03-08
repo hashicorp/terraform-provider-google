@@ -60,7 +60,7 @@ func TestAccSecurityposturePostureDeployment_securityposturePostureDeploymentBas
 
 func testAccSecurityposturePostureDeployment_securityposturePostureDeploymentBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_securityposture_posture" "posture1" {
+resource "google_securityposture_posture" "posture_1" {
     posture_id          = "posture_1"
     parent = "organizations/%{org_id}"
     location = "global"
@@ -89,8 +89,8 @@ resource "google_securityposture_posture_deployment" "postureDeployment" {
     location = "global"
     description = "a new posture deployment"
     target_resource = "projects/%{project_number}"
-    posture_id = google_securityposture_posture.posture1.name
-    posture_revision_id = google_securityposture_posture.posture1.revision_id
+    posture_id = google_securityposture_posture.posture_1.name
+    posture_revision_id = google_securityposture_posture.posture_1.revision_id
 }
 `, context)
 }

@@ -64,7 +64,7 @@ func testSweepCertificateManagerDnsAuthorization(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://certificatemanager.googleapis.com/v1/projects/{{project}}/locations/global/dnsAuthorizations", "?")[0]
+	listTemplate := strings.Split("https://certificatemanager.googleapis.com/v1/projects/{{project}}/locations/{{location}}/dnsAuthorizations", "?")[0]
 	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -108,7 +108,7 @@ func testSweepCertificateManagerDnsAuthorization(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://certificatemanager.googleapis.com/v1/projects/{{project}}/locations/global/dnsAuthorizations/{{name}}"
+		deleteTemplate := "https://certificatemanager.googleapis.com/v1/projects/{{project}}/locations/{{location}}/dnsAuthorizations/{{name}}"
 		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)

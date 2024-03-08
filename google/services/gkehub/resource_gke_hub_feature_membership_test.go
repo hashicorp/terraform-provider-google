@@ -991,6 +991,17 @@ func TestAccGKEHubFeatureMembership_gkehubFeaturePolicyController(t *testing.T) 
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHubFeatureMembership_policycontrollerUpdateMaps(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGkeHubFeatureMembershipPresent(t, fmt.Sprintf("tf-test-gkehub%s", context["random_suffix"]), "global", "policycontroller", fmt.Sprintf("tf-test1%s", context["random_suffix"])),
+				),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature_membership.feature_member",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -1047,9 +1058,92 @@ resource "google_gke_hub_feature_membership" "feature_member" {
           "PROMETHEUS"
         ]
       }
+      deployment_configs {
+        component_name = "admission"
+        replica_count = 3
+        pod_affinity = "ANTI_AFFINITY"
+        container_resources {
+          limits {
+            memory = "1Gi"
+            cpu = "1.5"
+          }
+          requests {
+            memory = "500Mi"
+            cpu = "150m"
+          }
+        }
+        pod_tolerations {
+          key = "key1"
+          operator = "Equal"
+          value = "value1"
+          effect = "NoSchedule"
+        }
+      }
+      deployment_configs {
+        component_name = "mutation"
+        replica_count = 3
+        pod_affinity = "ANTI_AFFINITY"
+      }
       policy_content {
         template_library {
-          installation = "NOT_INSTALLED"
+          installation = "ALL"
+        }
+        bundles {
+          bundle_name = "pci-dss-v3.2.1"
+          exempted_namespaces = ["sample-namespace"]
+        }
+        bundles {
+          bundle_name = "nist-sp-800-190"
+        }
+      }
+    }
+    version = "1.17.0"
+  }
+}
+`, context)
+}
+
+func testAccGKEHubFeatureMembership_policycontrollerUpdateMaps(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetup(context) + gkeHubClusterMembershipSetup(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  project = google_project.project.project_id
+  name = "policycontroller"
+  location = "global"
+  depends_on = [google_project_service.container, google_project_service.gkehub, google_project_service.poco]
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  project = google_project.project.project_id
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec = "INSTALL_SPEC_SUSPENDED"
+      constraint_violation_limit = 50
+      referential_rules_enabled = true
+      log_denies_enabled = true
+      mutation_enabled = true
+      monitoring {
+        backends = [
+          "PROMETHEUS"
+        ]
+      }
+      deployment_configs {
+        component_name = "admission"
+        pod_affinity = "NO_AFFINITY"
+      }
+      deployment_configs {
+        component_name = "audit"
+        container_resources {
+          limits {
+            memory = "1Gi"
+            cpu = "1.5"
+          }
+          requests {
+            memory = "500Mi"
+            cpu = "150m"
+          }
         }
       }
     }

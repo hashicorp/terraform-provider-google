@@ -229,7 +229,13 @@ func resourceGoogleProjectCreate(d *schema.ResourceData, meta interface{}) error
 			return errwrap.Wrapf("Error enabling the Compute Engine API required to delete the default network: {{err}} ", err)
 		}
 
-		if err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default"); err != nil {
+		err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default")
+		// Retry if API is not yet enabled.
+		if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
+			time.Sleep(10 * time.Second)
+			err = forceDeleteComputeNetwork(d, config, project.ProjectId, "default")
+		}
+		if err != nil {
 			if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
 				log.Printf("[DEBUG] Default network not found for project %q, no need to delete it", project.ProjectId)
 			} else {

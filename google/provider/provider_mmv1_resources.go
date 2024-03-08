@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/alloydb"
 	"github.com/hashicorp/terraform-provider-google/google/services/apigee"
 	"github.com/hashicorp/terraform-provider-google/google/services/appengine"
+	"github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	"github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
 	"github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	"github.com/hashicorp/terraform-provider-google/google/services/biglake"
@@ -299,7 +300,9 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_bigquery_datapolicy_data_policy_iam_policy":      tpgiamresource.DataSourceIamPolicy(bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamSchema, bigquerydatapolicy.BigqueryDatapolicyDataPolicyIamUpdaterProducer),
 	"google_binary_authorization_attestor_iam_policy":        tpgiamresource.DataSourceIamPolicy(binaryauthorization.BinaryAuthorizationAttestorIamSchema, binaryauthorization.BinaryAuthorizationAttestorIamUpdaterProducer),
 	"google_cloudbuildv2_connection_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer),
+	"google_clouddeploy_custom_target_type_iam_policy":       tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer),
 	"google_clouddeploy_delivery_pipeline_iam_policy":        tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer),
+	"google_clouddeploy_target_iam_policy":                   tpgiamresource.DataSourceIamPolicy(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer),
 	"google_cloudfunctions_function_iam_policy":              tpgiamresource.DataSourceIamPolicy(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer),
 	"google_cloudfunctions2_function_iam_policy":             tpgiamresource.DataSourceIamPolicy(cloudfunctions2.Cloudfunctions2functionIamSchema, cloudfunctions2.Cloudfunctions2functionIamUpdaterProducer),
 	"google_cloud_run_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer),
@@ -386,9 +389,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 386
-// Generated IAM resources: 225
-// Total generated resources: 611
+// Generated resources: 390
+// Generated IAM resources: 231
+// Total generated resources: 621
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                         accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                   accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -439,6 +442,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_app_engine_service_network_settings":                     appengine.ResourceAppEngineServiceNetworkSettings(),
 	"google_app_engine_service_split_traffic":                        appengine.ResourceAppEngineServiceSplitTraffic(),
 	"google_app_engine_standard_app_version":                         appengine.ResourceAppEngineStandardAppVersion(),
+	"google_apphub_application":                                      apphub.ResourceApphubApplication(),
 	"google_artifact_registry_repository":                            artifactregistry.ResourceArtifactRegistryRepository(),
 	"google_artifact_registry_repository_iam_binding":                tpgiamresource.ResourceIamBinding(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
 	"google_artifact_registry_repository_iam_member":                 tpgiamresource.ResourceIamMember(artifactregistry.ArtifactRegistryRepositoryIamSchema, artifactregistry.ArtifactRegistryRepositoryIamUpdaterProducer, artifactregistry.ArtifactRegistryRepositoryIdParseFunc),
@@ -500,10 +504,17 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloudbuildv2_connection_iam_member":                      tpgiamresource.ResourceIamMember(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_connection_iam_policy":                      tpgiamresource.ResourceIamPolicy(cloudbuildv2.Cloudbuildv2ConnectionIamSchema, cloudbuildv2.Cloudbuildv2ConnectionIamUpdaterProducer, cloudbuildv2.Cloudbuildv2ConnectionIdParseFunc),
 	"google_cloudbuildv2_repository":                                 cloudbuildv2.ResourceCloudbuildv2Repository(),
+	"google_clouddeploy_automation":                                  clouddeploy.ResourceClouddeployAutomation(),
 	"google_clouddeploy_custom_target_type":                          clouddeploy.ResourceClouddeployCustomTargetType(),
+	"google_clouddeploy_custom_target_type_iam_binding":              tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
+	"google_clouddeploy_custom_target_type_iam_member":               tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
+	"google_clouddeploy_custom_target_type_iam_policy":               tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployCustomTargetTypeIamSchema, clouddeploy.ClouddeployCustomTargetTypeIamUpdaterProducer, clouddeploy.ClouddeployCustomTargetTypeIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_binding":               tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_member":                tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
 	"google_clouddeploy_delivery_pipeline_iam_policy":                tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployDeliveryPipelineIamSchema, clouddeploy.ClouddeployDeliveryPipelineIamUpdaterProducer, clouddeploy.ClouddeployDeliveryPipelineIdParseFunc),
+	"google_clouddeploy_target_iam_binding":                          tpgiamresource.ResourceIamBinding(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
+	"google_clouddeploy_target_iam_member":                           tpgiamresource.ResourceIamMember(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
+	"google_clouddeploy_target_iam_policy":                           tpgiamresource.ResourceIamPolicy(clouddeploy.ClouddeployTargetIamSchema, clouddeploy.ClouddeployTargetIamUpdaterProducer, clouddeploy.ClouddeployTargetIdParseFunc),
 	"google_clouddomains_registration":                               clouddomains.ResourceClouddomainsRegistration(),
 	"google_cloudfunctions_function_iam_binding":                     tpgiamresource.ResourceIamBinding(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
 	"google_cloudfunctions_function_iam_member":                      tpgiamresource.ResourceIamMember(cloudfunctions.CloudFunctionsCloudFunctionIamSchema, cloudfunctions.CloudFunctionsCloudFunctionIamUpdaterProducer, cloudfunctions.CloudFunctionsCloudFunctionIdParseFunc),
@@ -727,6 +738,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_filestore_snapshot":                                      filestore.ResourceFilestoreSnapshot(),
 	"google_firebase_app_check_app_attest_config":                    firebaseappcheck.ResourceFirebaseAppCheckAppAttestConfig(),
 	"google_firebase_app_check_debug_token":                          firebaseappcheck.ResourceFirebaseAppCheckDebugToken(),
+	"google_firebase_app_check_device_check_config":                  firebaseappcheck.ResourceFirebaseAppCheckDeviceCheckConfig(),
 	"google_firebase_app_check_play_integrity_config":                firebaseappcheck.ResourceFirebaseAppCheckPlayIntegrityConfig(),
 	"google_firebase_app_check_recaptcha_enterprise_config":          firebaseappcheck.ResourceFirebaseAppCheckRecaptchaEnterpriseConfig(),
 	"google_firebase_app_check_recaptcha_v3_config":                  firebaseappcheck.ResourceFirebaseAppCheckRecaptchaV3Config(),
@@ -821,6 +833,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_integration_connectors_endpoint_attachment":              integrationconnectors.ResourceIntegrationConnectorsEndpointAttachment(),
 	"google_kms_crypto_key":                                          kms.ResourceKMSCryptoKey(),
 	"google_kms_crypto_key_version":                                  kms.ResourceKMSCryptoKeyVersion(),
+	"google_kms_ekm_connection":                                      kms.ResourceKMSEkmConnection(),
 	"google_kms_key_ring":                                            kms.ResourceKMSKeyRing(),
 	"google_kms_key_ring_import_job":                                 kms.ResourceKMSKeyRingImportJob(),
 	"google_kms_secret_ciphertext":                                   kms.ResourceKMSSecretCiphertext(),

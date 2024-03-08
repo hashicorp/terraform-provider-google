@@ -714,7 +714,8 @@ The following arguments are supported:
 
 * `cpu_idle` -
   (Optional)
-  Determines whether CPU should be throttled or not outside of requests.
+  Determines whether CPU is only allocated during requests. True by default if the parent `resources` field is not set. However, if
+  `resources` is set, this field must be explicitly set to true to preserve the default behavior.
 
 * `startup_cpu_boost` -
   (Optional)
@@ -1062,6 +1063,11 @@ The following arguments are supported:
   One or more custom audiences that you want this service to support. Specify each custom audience as the full URL in a string. The custom audiences are encoded in the token and used to authenticate requests.
   For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
 
+* `scaling` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Scaling settings that apply to the whole service
+  Structure is [documented below](#nested_scaling).
+
 * `traffic` -
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.
@@ -1080,6 +1086,12 @@ The following arguments are supported:
 * `use_default` -
   (Optional)
   If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.
+
+<a name="nested_scaling"></a>The `scaling` block supports:
+
+* `min_instance_count` -
+  (Optional)
+  Minimum number of instances for the service, to be divided among all revisions receiving traffic.
 
 <a name="nested_traffic"></a>The `traffic` block supports:
 

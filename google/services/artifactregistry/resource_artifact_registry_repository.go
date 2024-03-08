@@ -1079,9 +1079,6 @@ func flattenArtifactRegistryRepositoryDockerConfig(v interface{}, d *schema.Reso
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["immutable_tags"] =
 		flattenArtifactRegistryRepositoryDockerConfigImmutableTags(original["immutableTags"], d, config)
@@ -1525,8 +1522,13 @@ func expandArtifactRegistryRepositoryKmsKeyName(v interface{}, d tpgresource.Ter
 
 func expandArtifactRegistryRepositoryDockerConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})

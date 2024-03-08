@@ -84,6 +84,9 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRegionInstanceGroupManager_update(template1, target1, igm),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_instance_group_manager.igm-update", "instance_lifecycle_policy.0.default_action_on_failure", "DO_NOTHING"),
+				),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-update",
@@ -93,6 +96,9 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 			},
 			{
 				Config: testAccRegionInstanceGroupManager_update2(template1, target1, target2, template2, igm),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_instance_group_manager.igm-update", "instance_lifecycle_policy.0.default_action_on_failure", "REPAIR"),
+				),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-update",
@@ -102,6 +108,9 @@ func TestAccRegionInstanceGroupManager_update(t *testing.T) {
 			},
 			{
 				Config: testAccRegionInstanceGroupManager_update3(template1, target1, target2, template2, igm),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_region_instance_group_manager.igm-update", "instance_lifecycle_policy.0.default_action_on_failure", "REPAIR"),
+				),
 			},
 			{
 				ResourceName:            "google_compute_region_instance_group_manager.igm-update",
@@ -563,9 +572,18 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     port = 8080
   }
 
+  all_instances_config {
+    metadata = {
+      foo = "bar"
+    }
+    labels = {
+      doo = "dad"
+    }
+  }
 
   instance_lifecycle_policy {
     force_update_on_repair = "YES"
+    default_action_on_failure = "DO_NOTHING"
   }
 }
 `, template, target, igm)
@@ -659,9 +677,18 @@ resource "google_compute_region_instance_group_manager" "igm-update" {
     port = 8443
   }
 
+  all_instances_config {
+    metadata = {
+      doo = "dad"
+    }
+    labels = {
+      foo = "bar"
+    }
+  }
 
   instance_lifecycle_policy {
     force_update_on_repair = "NO"
+    default_action_on_failure = "REPAIR"
   }
 }
 `, template1, target1, target2, template2, igm)

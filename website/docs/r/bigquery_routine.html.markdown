@@ -29,11 +29,11 @@ To get more information about Routine, see:
     * [Routines Intro](https://cloud.google.com/bigquery/docs/reference/rest/v2/routines)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_basic&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Basic
+## Example Usage - Bigquery Routine Basic
 
 
 ```hcl
@@ -50,11 +50,11 @@ resource "google_bigquery_routine" "sproc" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_json&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_json&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Json
+## Example Usage - Bigquery Routine Json
 
 
 ```hcl
@@ -81,11 +81,11 @@ resource "google_bigquery_routine" "sproc" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_tvf&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_tvf&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Tvf
+## Example Usage - Bigquery Routine Tvf
 
 
 ```hcl
@@ -112,11 +112,11 @@ resource "google_bigquery_routine" "sproc" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_pyspark&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_pyspark&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Pyspark
+## Example Usage - Bigquery Routine Pyspark
 
 
 ```hcl
@@ -163,11 +163,11 @@ resource "google_bigquery_routine" "pyspark" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_pyspark_mainfile&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_pyspark_mainfile&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Pyspark Mainfile
+## Example Usage - Bigquery Routine Pyspark Mainfile
 
 
 ```hcl
@@ -198,11 +198,11 @@ resource "google_bigquery_routine" "pyspark_mainfile" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=big_query_routine_spark_jar&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_spark_jar&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Big Query Routine Spark Jar
+## Example Usage - Bigquery Routine Spark Jar
 
 
 ```hcl
@@ -231,6 +231,38 @@ resource "google_bigquery_routine" "spark_jar" {
     properties      = {
       "spark.dataproc.scaling.version" : "2",
       "spark.reducer.fetchMigratedShuffle.enabled" : "true",
+    }
+  }
+}
+```
+## Example Usage - Bigquery Routine Remote Function
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+}
+
+resource "google_bigquery_connection" "test" {
+  connection_id = "connection_id"
+  location      = "US"
+  cloud_resource { }
+}
+
+resource "google_bigquery_routine" "remote_function" {
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  routine_id = "routine_id"
+  routine_type = "SCALAR_FUNCTION"
+  definition_body = ""
+
+  return_type = "{\"typeKind\" :  \"STRING\"}"
+
+  remote_function_options {
+    endpoint = "https://us-east1-my_gcf_project.cloudfunctions.net/remote_add"
+    connection = google_bigquery_connection.test.name
+    max_batching_rows = "10"
+    user_defined_context = {
+      "z": "1.5",
     }
   }
 }
@@ -311,6 +343,11 @@ The following arguments are supported:
   Optional. If language is one of "PYTHON", "JAVA", "SCALA", this field stores the options for spark stored procedure.
   Structure is [documented below](#nested_spark_options).
 
+* `remote_function_options` -
+  (Optional)
+  Remote function specific options.
+  Structure is [documented below](#nested_remote_function_options).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -389,6 +426,32 @@ The following arguments are supported:
   (Optional)
   The fully qualified name of a class in jarUris, for example, com.example.wordcount.
   Exactly one of mainClass and main_jar_uri field should be set for Java/Scala language type.
+
+<a name="nested_remote_function_options"></a>The `remote_function_options` block supports:
+
+* `endpoint` -
+  (Optional)
+  Endpoint of the user-provided remote service, e.g.
+  `https://us-east1-my_gcf_project.cloudfunctions.net/remote_add`
+
+* `connection` -
+  (Optional)
+  Fully qualified name of the user-provided connection object which holds
+  the authentication information to send requests to the remote service.
+  Format: "projects/{projectId}/locations/{locationId}/connections/{connectionId}"
+
+* `user_defined_context` -
+  (Optional)
+  User-defined context as a set of key/value pairs, which will be sent as function
+  invocation context together with batched arguments in the requests to the remote
+  service. The total number of bytes of keys and values must be less than 8KB.
+  An object containing a list of "key": value pairs. Example:
+  `{ "name": "wrench", "mass": "1.3kg", "count": "3" }`.
+
+* `max_batching_rows` -
+  (Optional)
+  Max number of rows in each batch sent to the remote service. If absent or if 0,
+  BigQuery dynamically decides the number of rows in a batch.
 
 ## Attributes Reference
 

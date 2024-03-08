@@ -400,7 +400,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -470,7 +470,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -555,7 +555,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -627,7 +627,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -697,7 +697,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -767,7 +767,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -842,7 +842,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -939,7 +939,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -1014,7 +1014,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.
@@ -1111,7 +1111,7 @@ resource "google_app_engine_standard_app_version" "version" {
   project         = google_app_engine_application.app.project
   version_id      = "v2"
   service         = "default"
-  runtime         = "nodejs10"
+  runtime         = "nodejs20"
   noop_on_destroy = true
 
   // TODO: Removed basic scaling once automatic_scaling refresh behavior is fixed.

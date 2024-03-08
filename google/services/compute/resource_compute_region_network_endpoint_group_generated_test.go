@@ -251,6 +251,44 @@ resource "google_storage_bucket_object" "appengine_neg" {
 `, context)
 }
 
+func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineEmptyExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionNetworkEndpointGroupDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineEmptyExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengineEmptyExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+// App Engine Example
+resource "google_compute_region_network_endpoint_group" "appengine_neg" {
+  name                  = "tf-test-appengine-neg%{random_suffix}"
+  network_endpoint_type = "SERVERLESS"
+  region                = "us-central1"
+  app_engine {
+  }
+}
+`, context)
+}
+
 func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExample(t *testing.T) {
 	t.Parallel()
 

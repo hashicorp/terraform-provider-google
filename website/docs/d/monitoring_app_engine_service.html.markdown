@@ -34,7 +34,7 @@ data "google_monitoring_app_engine_service" "srv" {
 resource "google_app_engine_standard_app_version" "myapp" {
   version_id = "v1"
   service    = "myapp"
-  runtime    = "nodejs10"
+  runtime    = "nodejs20"
 
   entrypoint {
     shell = "node ./app.js"
