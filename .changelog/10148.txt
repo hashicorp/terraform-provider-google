@@ -1,0 +1,3 @@
+```release-note:none
+doc: added documentation about `creation_timestamp` to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```

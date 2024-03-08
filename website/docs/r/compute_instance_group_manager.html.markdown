@@ -313,6 +313,8 @@ exported:
 
 * `id` - an identifier for the resource with format `projects/{{project}}/zones/{{zone}}/instanceGroupManagers/{{name}}`
 
+* `creation_timestamp` - Creation timestamp in RFC3339 text format.
+
 * `fingerprint` - The fingerprint of the instance group manager.
 
 * `instance_group` - The full URL of the instance group created by the manager.
