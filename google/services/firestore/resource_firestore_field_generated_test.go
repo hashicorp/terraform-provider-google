@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -231,6 +232,15 @@ func testAccCheckFirestoreFieldDestroyProducer(t *testing.T) func(s *terraform.S
 				UserAgent: config.UserAgent,
 			})
 			if err != nil {
+				e := err.(*googleapi.Error)
+				if e.Code == 403 && strings.Contains(e.Message, "Cloud Firestore API has not been used in project") {
+					// The acceptance test has provisioned the resources under test in a new project, and the destory check is seeing the
+					// effects of the project not existing. This means the service isn't enabled, and that the resource is definitely destroyed.
+					// We do not return the error in this case - destroy was successful
+					return nil
+				}
+
+				// Return err in all other cases
 				return err
 			}
 

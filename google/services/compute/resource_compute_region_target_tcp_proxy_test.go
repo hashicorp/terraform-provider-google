@@ -14,9 +14,9 @@ import (
 func TestAccComputeRegionTargetTcpProxy_update(t *testing.T) {
 	t.Parallel()
 
-	target := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
-	backend := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
-	hc := fmt.Sprintf("trtcp-test-%s", acctest.RandString(t, 10))
+	target := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	backend := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	hc := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },

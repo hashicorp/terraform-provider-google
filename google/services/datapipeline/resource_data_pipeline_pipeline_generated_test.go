@@ -49,7 +49,7 @@ func TestAccDataPipelinePipeline_dataPipelinePipelineExample(t *testing.T) {
 				ResourceName:            "google_data_pipeline_pipeline.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region"},
+				ImportStateVerifyIgnore: []string{"region", "schedule_info.0.next_job_time"},
 			},
 		},
 	})

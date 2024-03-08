@@ -34,6 +34,11 @@ To get more information about Scope, see:
 ```hcl
 resource "google_gke_hub_scope" "scope" {
   scope_id = "my-scope"
+  namespace_labels = {
+      keyb = "valueb"
+      keya = "valuea"
+      keyc = "valuec" 
+  }
   labels = {
       keyb = "valueb"
       keya = "valuea"
@@ -54,6 +59,14 @@ The following arguments are supported:
 
 - - -
 
+
+* `namespace_labels` -
+  (Optional)
+  Scope-level cluster namespace labels. For the member clusters bound
+  to the Scope, these labels are applied to each namespace under the
+  Scope. Scope-level labels take precedence over Namespace-level
+  labels (`namespace_labels` in the Fleet Namespace resource) if they
+  share a key. Keys and values must be Kubernetes-conformant.
 
 * `labels` -
   (Optional)

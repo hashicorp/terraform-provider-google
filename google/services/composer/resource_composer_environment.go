@@ -3,6 +3,7 @@
 package composer
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -232,7 +233,7 @@ func ResourceComposerEnvironment() *schema.Resource {
 										Optional:         true,
 										ForceNew:         true,
 										DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-										Description:      `The Compute Engine subnetwork to be used for machine communications, , specified as a self-link, relative resource name (e.g. "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.`,
+										Description:      `The Compute Engine subnetwork to be used for machine communications, specified as a self-link, relative resource name (e.g. "projects/{project}/regions/{region}/subnetworks/{subnetwork}"), or by name. If subnetwork is provided, network must also be provided and the subnetwork must belong to the enclosing environment's project and region.`,
 									},
 									"disk_size_gb": {
 										Type:        schema.TypeInt,
@@ -1394,7 +1395,10 @@ func flattenComposerEnvironmentConfig(envCfg *composer.EnvironmentConfig) interf
 	transformed["airflow_uri"] = envCfg.AirflowUri
 	transformed["node_config"] = flattenComposerEnvironmentConfigNodeConfig(envCfg.NodeConfig)
 	transformed["software_config"] = flattenComposerEnvironmentConfigSoftwareConfig(envCfg.SoftwareConfig)
-	transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
+	imageVersion := envCfg.SoftwareConfig.ImageVersion
+	if !isComposer3(imageVersion) {
+		transformed["private_environment_config"] = flattenComposerEnvironmentConfigPrivateEnvironmentConfig(envCfg.PrivateEnvironmentConfig)
+	}
 	transformed["web_server_network_access_control"] = flattenComposerEnvironmentConfigWebServerNetworkAccessControl(envCfg.WebServerNetworkAccessControl)
 	transformed["database_config"] = flattenComposerEnvironmentConfigDatabaseConfig(envCfg.DatabaseConfig)
 	transformed["web_server_config"] = flattenComposerEnvironmentConfigWebServerConfig(envCfg.WebServerConfig)
@@ -2169,6 +2173,7 @@ func expandComposerEnvironmentConfigNodeConfig(v interface{}, d *schema.Resource
 		}
 		transformed.Subnetwork = transformedSubnetwork
 	}
+
 	transformedIPAllocationPolicy, err := expandComposerEnvironmentIPAllocationPolicy(original["ip_allocation_policy"], d, config)
 	if err != nil {
 		return nil, err
@@ -2608,7 +2613,59 @@ func versionsEqual(old, new string) (bool, error) {
 	return o.Equal(n), nil
 }
 
-func isComposer3(d *schema.ResourceData, config *transport_tpg.Config) bool {
-	image_version := d.Get("config.0.software_config.0.image_version").(string)
-	return strings.Contains(image_version, "composer-3")
+func isComposer3(imageVersion string) bool {
+	return strings.Contains(imageVersion, "composer-3")
+}
+
+func forceNewCustomDiff(key string) customdiff.ResourceConditionFunc {
+	return func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+		old, new := d.GetChange(key)
+		imageVersion := d.Get("config.0.software_config.0.image_version").(string)
+		if isComposer3(imageVersion) || tpgresource.CompareSelfLinkRelativePaths("", old.(string), new.(string), nil) {
+			return false
+		}
+		return true
+	}
+}
+
+func imageVersionChangeValidationFunc(ctx context.Context, old, new, meta any) error {
+	if old.(string) != "" && !isComposer3(old.(string)) && isComposer3(new.(string)) {
+		return fmt.Errorf("upgrade to composer 3 is not yet supported")
+	}
+	return nil
+}
+
+func validateComposer3FieldUsage(d *schema.ResourceDiff, key string, requireComposer3 bool) error {
+	_, ok := d.GetOk(key)
+	imageVersion := d.Get("config.0.software_config.0.image_version").(string)
+	if ok && (isComposer3(imageVersion) != requireComposer3) {
+		if requireComposer3 {
+			return fmt.Errorf("error in configuration, %s should only be used in Composer 3", key)
+		} else {
+			return fmt.Errorf("error in configuration, %s should not be used in Composer 3", key)
+		}
+	}
+	return nil
+}
+
+func versionValidationCustomizeDiffFunc(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	composer3FieldUsagePolicy := map[string]bool{
+		"config.0.node_config.0.max_pods_per_node":                           false, // not allowed in composer 3
+		"config.0.node_config.0.enable_ip_masq_agent":                        false,
+		"config.0.node_config.0.config.0.node_config.0.ip_allocation_policy": false,
+		"config.0.private_environment_config":                                false,
+		"config.0.master_authorized_networks_config":                         false,
+		"config.0.node_config.0.composer_network_attachment":                 true, // allowed only in composer 3
+		"config.0.node_config.0.composer_internal_ipv4_cidr_block":           true,
+		"config.0.software_config.0.web_server_plugins_mode":                 true,
+		"config.0.enable_private_environment":                                true,
+		"config.0.enable_private_builds_only":                                true,
+		"config.0.workloads_config.0.dag_processor":                          true,
+	}
+	for key, allowed := range composer3FieldUsagePolicy {
+		if err := validateComposer3FieldUsage(d, key, allowed); err != nil {
+			return err
+		}
+	}
+	return nil
 }

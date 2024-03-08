@@ -1238,10 +1238,10 @@ func flattenBucketLifecycle(d *schema.ResourceData, lifecycle *storage.BucketLif
 
 	rules := make([]map[string]interface{}, 0, len(lifecycle.Rule))
 
-	for _, rule := range lifecycle.Rule {
+	for index, rule := range lifecycle.Rule {
 		rules = append(rules, map[string]interface{}{
 			"action":    schema.NewSet(resourceGCSBucketLifecycleRuleActionHash, []interface{}{flattenBucketLifecycleRuleAction(rule.Action)}),
-			"condition": schema.NewSet(resourceGCSBucketLifecycleRuleConditionHash, []interface{}{flattenBucketLifecycleRuleCondition(d, rule.Condition)}),
+			"condition": schema.NewSet(resourceGCSBucketLifecycleRuleConditionHash, []interface{}{flattenBucketLifecycleRuleCondition(index, d, rule.Condition)}),
 		})
 	}
 
@@ -1255,7 +1255,7 @@ func flattenBucketLifecycleRuleAction(action *storage.BucketLifecycleRuleAction)
 	}
 }
 
-func flattenBucketLifecycleRuleCondition(d *schema.ResourceData, condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
+func flattenBucketLifecycleRuleCondition(index int, d *schema.ResourceData, condition *storage.BucketLifecycleRuleCondition) map[string]interface{} {
 	ruleCondition := map[string]interface{}{
 		"created_before":             condition.CreatedBefore,
 		"matches_storage_class":      tpgresource.ConvertStringArrToInterface(condition.MatchesStorageClass),
@@ -1280,7 +1280,7 @@ func flattenBucketLifecycleRuleCondition(d *schema.ResourceData, condition *stor
 		}
 	}
 	// setting no_age value from state config since it is terraform only variable and not getting value from backend.
-	if v, ok := d.GetOk("lifecycle_rule.0.condition"); ok {
+	if v, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.condition", index)); ok {
 		state_condition := v.(*schema.Set).List()[0].(map[string]interface{})
 		ruleCondition["no_age"] = state_condition["no_age"].(bool)
 	}

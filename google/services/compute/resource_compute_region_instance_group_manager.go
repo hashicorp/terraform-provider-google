@@ -205,8 +205,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Optional:     true,
 				Default:      "STABLE",
 				ValidateFunc: validation.StringInSlice([]string{"STABLE", "UPDATED"}, false),
-
-				Description: `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective as well as all instances to be stable before returning.`,
+				Description:  `When used with wait_for_instances specifies the status to wait for. When STABLE is specified this resource will wait until the instances are stable before returning. When UPDATED is set, it will wait for the version target to be reached and any per instance configs to be effective and all instances configs to be effective as well as all instances to be stable before returning.`,
 			},
 
 			"auto_healing_policies": {
@@ -261,6 +260,13 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 				Description: `The instance lifecycle policy for this managed instance group.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"default_action_on_failure": {
+							Type:         schema.TypeString,
+							Default:      "REPAIR",
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"REPAIR", "DO_NOTHING"}, true),
+							Description:  `Default behavior for all instance or health check failures.`,
+						},
 						"force_update_on_repair": {
 							Type:         schema.TypeString,
 							Default:      "NO",
@@ -346,6 +352,30 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 							ValidateFunc:     validation.StringInSlice([]string{"RECREATE", "SUBSTITUTE", ""}, false),
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("SUBSTITUTE"),
 							Description:      `The instance replacement method for regional managed instance groups. Valid values are: "RECREATE", "SUBSTITUTE". If SUBSTITUTE (default), the group replaces VM instances with new instances that have randomly generated names. If RECREATE, instance names are preserved.  You must also set max_unavailable_fixed or max_unavailable_percent to be greater than 0.`,
+						},
+					},
+				},
+			},
+			"all_instances_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Specifies configuration that overrides the instance template configuration for the group.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"metadata": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: `The metadata key-value pairs that you want to patch onto the instance. For more information, see Project and instance metadata,`,
+						},
+						"labels": {
+							Type:        schema.TypeMap,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         schema.HashString,
+							Description: `The label key-value pairs that you want to patch onto the instance,`,
 						},
 					},
 				},
@@ -440,6 +470,20 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 								},
 							},
 						},
+						"all_instances_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: `Status of all-instances configuration on the group.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"effective": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: `A bit indicating whether this configuration has been applied to all managed instances in the group.`,
+									},
+								},
+							},
+						},
 						"stateful": {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -505,6 +549,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 		Versions:                    expandVersions(d.Get("version").([]interface{})),
 		UpdatePolicy:                expandRegionUpdatePolicy(d.Get("update_policy").([]interface{})),
 		InstanceLifecyclePolicy:     expandInstanceLifecyclePolicy(d.Get("instance_lifecycle_policy").([]interface{})),
+		AllInstancesConfig:          expandAllInstancesConfig(nil, d.Get("all_instances_config").([]interface{})),
 		DistributionPolicy:          expandDistributionPolicy(d),
 		StatefulPolicy:              expandStatefulPolicy(d),
 		// Force send TargetSize to allow size of 0.
@@ -542,7 +587,7 @@ func resourceComputeRegionInstanceGroupManagerCreate(d *schema.ResourceData, met
 func computeRIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
 	waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
 	conf := resource.StateChangeConf{
-		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target"},
+		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target", "updating all instances config"},
 		Target:  []string{"created"},
 		Refresh: waitForInstancesRefreshFunc(getRegionalManager, waitForUpdates, d, meta),
 		Timeout: d.Timeout(schema.TimeoutCreate),
@@ -609,6 +654,9 @@ func waitForInstancesRefreshFunc(f getInstanceManagerFunc, waitForUpdates bool, 
 				}
 				if !m.Status.VersionTarget.IsReached {
 					return false, "reaching version target", nil
+				}
+				if !m.Status.AllInstancesConfig.Effective {
+					return false, "updating all instances config", nil
 				}
 			}
 			return true, "created", nil
@@ -694,6 +742,11 @@ func resourceComputeRegionInstanceGroupManagerRead(d *schema.ResourceData, meta 
 	if err = d.Set("instance_lifecycle_policy", flattenInstanceLifecyclePolicy(manager.InstanceLifecyclePolicy)); err != nil {
 		return fmt.Errorf("Error setting instance lifecycle policy in state: %s", err.Error())
 	}
+	if manager.AllInstancesConfig != nil {
+		if err = d.Set("all_instances_config", flattenAllInstancesConfig(manager.AllInstancesConfig)); err != nil {
+			return fmt.Errorf("Error setting all_instances_config in state: %s", err.Error())
+		}
+	}
 	if err = d.Set("stateful_disk", flattenStatefulPolicy(manager.StatefulPolicy)); err != nil {
 		return fmt.Errorf("Error setting stateful_disk in state: %s", err.Error())
 	}
@@ -773,6 +826,16 @@ func resourceComputeRegionInstanceGroupManagerUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("stateful_internal_ip") || d.HasChange("stateful_external_ip") || d.HasChange("stateful_disk") {
 		updatedManager.StatefulPolicy = expandStatefulPolicy(d)
+		change = true
+	}
+
+	if d.HasChange("all_instances_config") {
+		oldAic, newAic := d.GetChange("all_instances_config")
+		if newAic == nil || len(newAic.([]interface{})) == 0 {
+			updatedManager.NullFields = append(updatedManager.NullFields, "AllInstancesConfig")
+		} else {
+			updatedManager.AllInstancesConfig = expandAllInstancesConfig(oldAic.([]interface{}), newAic.([]interface{}))
+		}
 		change = true
 	}
 

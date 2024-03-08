@@ -326,9 +326,10 @@ If omitted, a port number will be chosen and passed to the container through the
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cpu_idle": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: `Determines whether CPU should be throttled or not outside of requests.`,
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `Determines whether CPU is only allocated during requests. True by default if the parent 'resources' field is not set. However, if
+'resources' is set, this field must be explicitly set to true to preserve the default behavior.`,
 												},
 												"limits": {
 													Type:        schema.TypeMap,

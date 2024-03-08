@@ -155,7 +155,7 @@ The following arguments are supported:
 * `auto_healing_policies` - (Optional) The autohealing policies for this managed instance
 group. You can specify only one value. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances#monitoring_groups).
 
-* `all_instances_config` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `all_instances_config` - (Optional)
   Properties to set on all instances in the group. After setting
   allInstancesConfig on the group, you must update the group's instances to
   apply the configuration.
@@ -215,11 +215,14 @@ update_policy {
 
 ```hcl
 instance_lifecycle_policy {
-  force_update_on_repair = "YES"
+  force_update_on_repair    = "YES"
+  default_action_on_failure = "DO_NOTHING"
 }
 ```
 
-* `force_update_on_repair` - (Optional, (https://terraform.io/docs/providers/google/guides/provider_versions.html)), Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: YES, NO. If YES and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If NO (default), then updates are applied in accordance with the group's update policy type.
+* `force_update_on_repair` - (Optional), Specifies whether to apply the group's latest configuration when repairing a VM. Valid options are: `YES`, `NO`. If `YES` and you updated the group's instance template or per-instance configurations after the VM was created, then these changes are applied when VM is repaired. If `NO` (default), then updates are applied in accordance with the group's update policy type.
+* `default_action_on_failure` - (Optional), Default behavior for all instance or health check failures. Valid options are: `REPAIR`, `DO_NOTHING`. If `DO_NOTHING` then instances will not be repaired. If `REPAIR` (default), then failed instances will be repaired.
+
 - - -
 
 <a name="nested_all_instances_config"></a>The `all_instances_config` block supports:
@@ -235,9 +238,9 @@ all_instances_config {
 }
 ```
 
-* `metadata` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
+* `metadata` - (Optional), The metadata key-value pairs that you want to patch onto the instance. For more information, see [Project and instance metadata](https://cloud.google.com/compute/docs/metadata#project_and_instance_metadata).
 
-* `labels` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)), The label key-value pairs that you want to patch onto the instance.
+* `labels` - (Optional), The label key-value pairs that you want to patch onto the instance.
 
 - - -
 

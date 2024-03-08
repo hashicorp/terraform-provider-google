@@ -33,7 +33,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-const datasetIdRegexp = `[0-9A-Za-z_]+`
+const datasetIdRegexp = `^[0-9A-Za-z_]+$`
 
 func validateDatasetId(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)

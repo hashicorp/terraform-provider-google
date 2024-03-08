@@ -307,7 +307,7 @@ func resourceComputeRegionNetworkEndpointGroupCreate(d *schema.ResourceData, met
 	appEngineProp, err := expandComputeRegionNetworkEndpointGroupAppEngine(d.Get("app_engine"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("app_engine"); !tpgresource.IsEmptyValue(reflect.ValueOf(appEngineProp)) && (ok || !reflect.DeepEqual(v, appEngineProp)) {
+	} else if v, ok := d.GetOkExists("app_engine"); ok || !reflect.DeepEqual(v, appEngineProp) {
 		obj["appEngine"] = appEngineProp
 	}
 	cloudFunctionProp, err := expandComputeRegionNetworkEndpointGroupCloudFunction(d.Get("cloud_function"), d, config)

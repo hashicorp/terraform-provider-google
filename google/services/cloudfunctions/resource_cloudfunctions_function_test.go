@@ -53,7 +53,7 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
-						"docker_registry", "CONTAINER_REGISTRY"),
+						"docker_registry", "ARTIFACT_REGISTRY"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -599,7 +599,7 @@ resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
   runtime               = "nodejs10"
   description           = "test function"
-  docker_registry       = "CONTAINER_REGISTRY"
+  docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -702,7 +702,7 @@ resource "google_cloudfunctions_function" "function" {
   name                  = "%[3]s"
   runtime               = "nodejs10"
   description           = "test function"
-  docker_registry       = "CONTAINER_REGISTRY"
+  docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name

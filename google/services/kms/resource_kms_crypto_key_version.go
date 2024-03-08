@@ -83,19 +83,28 @@ Only provided for key versions with protectionLevel HSM.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"cavium_certs": {
-										Type:        schema.TypeString,
+										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Cavium certificate chain corresponding to the attestation.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 									"google_card_certs": {
-										Type:        schema.TypeString,
+										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Google card certificate chain corresponding to the attestation.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 									"google_partition_certs": {
-										Type:        schema.TypeString,
+										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Google partition certificate chain corresponding to the attestation.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},

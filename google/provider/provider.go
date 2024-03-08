@@ -175,6 +175,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"apphub_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"artifact_registry_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -846,12 +851,12 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	// Check if the user provided a value from the universe_domain field other than the default
 	if v, ok := d.GetOk("universe_domain"); ok && v.(string) != "googleapis.com" {
 		if config.UniverseDomain == "" {
-			return nil, diag.FromErr(fmt.Errorf("Universe domain '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
+			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
 		} else if v.(string) != config.UniverseDomain {
 			if _, err := os.Stat(config.Credentials); err == nil {
-				return nil, diag.FromErr(fmt.Errorf("'%s' does not match the universe domain '%s' already set in the credential file '%s'. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain, config.Credentials))
+				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' already set in the credential file '%s'. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain, config.Credentials))
 			} else {
-				return nil, diag.FromErr(fmt.Errorf("'%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain))
+				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain))
 			}
 		}
 	}
@@ -925,6 +930,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.AlloydbBasePath = d.Get("alloydb_custom_endpoint").(string)
 	config.ApigeeBasePath = d.Get("apigee_custom_endpoint").(string)
 	config.AppEngineBasePath = d.Get("app_engine_custom_endpoint").(string)
+	config.ApphubBasePath = d.Get("apphub_custom_endpoint").(string)
 	config.ArtifactRegistryBasePath = d.Get("artifact_registry_custom_endpoint").(string)
 	config.BeyondcorpBasePath = d.Get("beyondcorp_custom_endpoint").(string)
 	config.BiglakeBasePath = d.Get("biglake_custom_endpoint").(string)

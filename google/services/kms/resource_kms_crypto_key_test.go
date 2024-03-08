@@ -446,6 +446,35 @@ func TestAccKmsCryptoKeyVersion_basic(t *testing.T) {
 	})
 }
 
+func TestAccKmsCryptoKeyVersionWithSymmetricHSM(t *testing.T) {
+	t.Parallel()
+
+	projectId := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKeyVersionWithSymmetricHSM(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+			},
+			{
+				ResourceName:            "google_kms_crypto_key_version.crypto_key_version",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testGoogleKmsCryptoKeyVersion_removed(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName),
+			},
+		},
+	})
+}
+
 func TestAccKmsCryptoKeyVersion_skipInitialVersion(t *testing.T) {
 	t.Parallel()
 
@@ -740,6 +769,44 @@ resource "google_kms_crypto_key" "crypto_key" {
 	key_ring = google_kms_key_ring.key_ring.id
 	labels = {
 		key = "value"
+	}
+}
+
+resource "google_kms_crypto_key_version" "crypto_key_version" {
+	crypto_key = google_kms_crypto_key.crypto_key.id
+}
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+}
+
+func testGoogleKmsCryptoKeyVersionWithSymmetricHSM(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+	name            = "%s"
+	project_id      = "%s"
+	org_id          = "%s"
+	billing_account = "%s"
+}
+
+resource "google_project_service" "acceptance" {
+	project = google_project.acceptance.project_id
+	service = "cloudkms.googleapis.com"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+	project  = google_project_service.acceptance.project
+	name     = "%s"
+	location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+	name     = "%s"
+	key_ring = google_kms_key_ring.key_ring.id
+	labels = {
+		key = "value"
+	}
+	version_template {
+		algorithm        = "GOOGLE_SYMMETRIC_ENCRYPTION"
+		protection_level = "HSM"
 	}
 }
 
