@@ -1,4 +1,22 @@
-## 5.19.0 (Unreleased)
+## 5.20.0 (Unreleased)
+
+## 5.19.0 (Mar 4, 2024)
+
+FEATURES:
+* **New Resource:** `google_clouddeploy_automation`([#17427](https://github.com/hashicorp/terraform-provider-google/pull/17427))
+* **New Resource:** `google_clouddeploy_target_iam_*` ([#17368](https://github.com/hashicorp/terraform-provider-google/pull/17368))
+
+IMPROVEMENTS:
+* bigquery: added `remote_function_options` field to `google_bigquery_routine` resource ([#17382](https://github.com/hashicorp/terraform-provider-google/pull/17382))
+* certificatemanager: added `location` field to `google_certificate_manager_dns_authorization` resource ([#17358](https://github.com/hashicorp/terraform-provider-google/pull/17358))
+* composer: added validations for composer 2/3 only fields in `google_composer_environment` ([#17361](https://github.com/hashicorp/terraform-provider-google/pull/17361))
+* compute: added `certificate_manager_certificates` field to `google_compute_region_target_https_proxy` resource ([#17365](https://github.com/hashicorp/terraform-provider-google/pull/17365))
+* compute: promoted `all_instances_config` field in resources `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` to GA ([#17414](https://github.com/hashicorp/terraform-provider-google/pull/17414))
+* container: promoted `enable_confidential_storage` from `node_config` in `google_container_cluster` and `google_container_node_pool` to GA ([#17367](https://github.com/hashicorp/terraform-provider-google/pull/17367))
+* gkehub2: added `namespace_labels` field to `google_gke_hub_scope` resource ([#17421](https://github.com/hashicorp/terraform-provider-google/pull/17421))
+
+BUG FIXES:
+* resourcemanager: added a retry to deleting the default network when `auto_create_network` is false in `google_project` ([#17419](https://github.com/hashicorp/terraform-provider-google/pull/17419))
 
 ## 5.18.0 (Feb 26, 2024)
 
