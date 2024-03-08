@@ -4,7 +4,6 @@ FEATURES:
 * **New Resource:** `google_clouddeploy_custom_target_type_iam_*` ([#17445](https://github.com/hashicorp/terraform-provider-google/pull/17445))
 
 IMPROVEMENTS:
-* bigquery: fixed `dataset_id` validation in `google_bigquery_dataset` ([#17449](https://github.com/hashicorp/terraform-provider-google/pull/17449))
 * certificatemanager: added `type` field to `google_certificate_manager_dns_authorization` resource ([#17459](https://github.com/hashicorp/terraform-provider-google/pull/17459))
 * compute: added the `network_url` attribute to the `consumer_accept_list`-block of the `google_compute_service_attachment` resource ([#17492](https://github.com/hashicorp/terraform-provider-google/pull/17492))
 * gkehub: added support for `policycontroller.policy_controller_hub_config.policy_content.bundles` and 
@@ -12,6 +11,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * artifactregistry: fixed permadiff when `google_artifact_repository.docker_config` field is unset ([#17484](https://github.com/hashicorp/terraform-provider-google/pull/17484))
+* bigquery: corrected plan-time validation on `google_bigquery_dataset.dataset_id` ([#17449](https://github.com/hashicorp/terraform-provider-google/pull/17449))
 * kms: fixed issue where `google_kms_crypto_key_version.attestation.cert_chains` properties were incorrectly set to type string ([#17486](https://github.com/hashicorp/terraform-provider-google/pull/17486))
 
 ## 5.19.0 (Mar 4, 2024)
