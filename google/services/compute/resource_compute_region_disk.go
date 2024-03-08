@@ -796,6 +796,12 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	readRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
@@ -856,11 +862,6 @@ func resourceComputeRegionDiskDelete(d *schema.ResourceData, meta interface{}) e
 				return err
 			}
 		}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting RegionDisk %q", d.Id())

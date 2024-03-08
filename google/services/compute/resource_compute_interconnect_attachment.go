@@ -699,13 +699,14 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 	}
 
 	var obj map[string]interface{}
-	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
-	}
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
+	}
+
+	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
 	}
 
 	log.Printf("[DEBUG] Deleting InterconnectAttachment %q", d.Id())

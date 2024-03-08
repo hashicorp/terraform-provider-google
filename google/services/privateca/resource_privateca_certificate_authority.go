@@ -1250,6 +1250,12 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy CertificateAuthority without setting deletion_protection=false and running `terraform apply`")
 	}
@@ -1280,11 +1286,6 @@ func resourcePrivatecaCertificateAuthorityDelete(d *schema.ResourceData, meta in
 		if err != nil {
 			return fmt.Errorf("Error waiting to disable CertificateAuthority: %s", err)
 		}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting CertificateAuthority %q", d.Id())

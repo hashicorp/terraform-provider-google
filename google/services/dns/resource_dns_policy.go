@@ -426,6 +426,12 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// if networks are attached, they need to be detached before the policy can be deleted
 	if d.Get("networks.#").(int) > 0 {
 		patched := make(map[string]interface{})
@@ -448,11 +454,6 @@ func resourceDNSPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Error updating Policy %q: %s", d.Id(), err)
 		}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting Policy %q", d.Id())

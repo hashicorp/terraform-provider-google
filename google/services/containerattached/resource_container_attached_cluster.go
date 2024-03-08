@@ -893,6 +893,12 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	if v, ok := d.GetOk("deletion_policy"); ok {
 		if v == "DELETE_IGNORE_ERRORS" {
 			url, err = transport_tpg.AddQueryParams(url, map[string]string{"ignore_errors": "true"})
@@ -900,11 +906,6 @@ func resourceContainerAttachedClusterDelete(d *schema.ResourceData, meta interfa
 				return err
 			}
 		}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())

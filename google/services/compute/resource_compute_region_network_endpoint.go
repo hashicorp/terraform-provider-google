@@ -308,6 +308,12 @@ func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta int
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	toDelete := make(map[string]interface{})
 
 	// Port
@@ -339,11 +345,6 @@ func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta int
 
 	obj = map[string]interface{}{
 		"networkEndpoints": []map[string]interface{}{toDelete},
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting RegionNetworkEndpoint %q", d.Id())

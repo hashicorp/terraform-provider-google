@@ -258,6 +258,12 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	obj = make(map[string]interface{})
 
 	zone, err := tpgresource.GetZone(d, config)
@@ -282,11 +288,6 @@ func resourceComputeDiskResourcePolicyAttachmentDelete(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(name)) && (ok || !reflect.DeepEqual(v, name)) {
 		obj["resourcePolicies"] = []interface{}{fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, region, name)}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting DiskResourcePolicyAttachment %q", d.Id())

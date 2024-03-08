@@ -374,6 +374,12 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	if v, ok := d.GetOk("entitytype"); ok {
 		re := regexp.MustCompile("projects/([a-zA-Z0-9-]*)/(?:locations|regions)/([a-zA-Z0-9-]*)")
 		switch {
@@ -382,11 +388,6 @@ func resourceVertexAIFeaturestoreEntitytypeFeatureDelete(d *schema.ResourceData,
 				project = res[1]
 			}
 		}
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting FeaturestoreEntitytypeFeature %q", d.Id())

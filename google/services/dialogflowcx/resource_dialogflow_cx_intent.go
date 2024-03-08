@@ -602,6 +602,11 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 
 	var obj map[string]interface{}
 
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// extract location from the parent
 	location := ""
 
@@ -626,11 +631,6 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 		// we can't delete these resources so do nothing
 		log.Printf("[DEBUG] Not deleting default DialogflowCXIntent")
 		return nil
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting Intent %q", d.Id())
