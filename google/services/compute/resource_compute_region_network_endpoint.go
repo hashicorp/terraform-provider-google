@@ -340,13 +340,13 @@ func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta int
 	obj = map[string]interface{}{
 		"networkEndpoints": []map[string]interface{}{toDelete},
 	}
-	log.Printf("[DEBUG] Deleting RegionNetworkEndpoint %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting RegionNetworkEndpoint %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

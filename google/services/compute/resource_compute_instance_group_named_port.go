@@ -285,13 +285,13 @@ func resourceComputeInstanceGroupNamedPortDelete(d *schema.ResourceData, meta in
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "InstanceGroupNamedPort")
 	}
-	log.Printf("[DEBUG] Deleting InstanceGroupNamedPort %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting InstanceGroupNamedPort %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
