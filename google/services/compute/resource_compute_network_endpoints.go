@@ -533,6 +533,12 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	var endpointsToDelete []interface{}
 
 	endpoints := d.Get("network_endpoints").(*schema.Set).List()
@@ -573,11 +579,6 @@ func resourceComputeNetworkEndpointsDelete(d *schema.ResourceData, meta interfac
 
 	obj = map[string]interface{}{
 		"networkEndpoints": lastPage,
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
 	}
 
 	log.Printf("[DEBUG] Deleting NetworkEndpoints %q", d.Id())
