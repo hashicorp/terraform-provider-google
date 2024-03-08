@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_iap_tunnel_dest_group`
+```
