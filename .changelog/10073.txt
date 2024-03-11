@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: added provider-defined function `region_from_zone` for retrieving the region from a resource's location/zone
+```
