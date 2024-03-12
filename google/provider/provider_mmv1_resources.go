@@ -138,6 +138,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_alloydb_supported_database_flags":             alloydb.DataSourceAlloydbSupportedDatabaseFlags(),
 	"google_artifact_registry_repository":                 artifactregistry.DataSourceArtifactRegistryRepository(),
 	"google_app_engine_default_service_account":           appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
+	"google_apphub_discovered_service":                    apphub.DataSourceApphubDiscoveredService(),
 	"google_beyondcorp_app_connection":                    beyondcorp.DataSourceGoogleBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                     beyondcorp.DataSourceGoogleBeyondcorpAppConnector(),
 	"google_beyondcorp_app_gateway":                       beyondcorp.DataSourceGoogleBeyondcorpAppGateway(),
