@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccProviderFunction_location_from_id(t *testing.T) {
@@ -17,7 +16,7 @@ func TestAccProviderFunction_location_from_id(t *testing.T) {
 	// Skipping due to requiring TF 1.8.0 in VCR systems : https://github.com/hashicorp/terraform-provider-google/issues/17451
 	acctest.SkipIfVcr(t)
 
-	location := envvar.GetTestRegionFromEnv()
+	location := "us-central1"
 	locationRegex := regexp.MustCompile(fmt.Sprintf("^%s$", location))
 
 	context := map[string]interface{}{
