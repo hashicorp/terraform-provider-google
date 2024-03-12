@@ -1,0 +1,6 @@
+```release-note:enhancement
+provider: added provider-defined function `region_from_id` for retrieving the region from a resource's self link or id
+```
+```release-note:enhancement
+provider: added provider-defined function `zone_from_id` for retrieving the zone from a resource's self link or id
+```
