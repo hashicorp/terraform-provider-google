@@ -23,7 +23,7 @@ func TestAccProviderFunction_project_from_id(t *testing.T) {
 	context := map[string]interface{}{
 		"function_name": "project_from_id",
 		"output_name":   "project_id",
-		"resource_name": fmt.Sprintf("tf-test-project-id-func-%s", acctest.RandString(t, 10)),
+		"resource_name": fmt.Sprintf("tf_test_project_id_func_%s", acctest.RandString(t, 10)),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -39,7 +39,7 @@ func TestAccProviderFunction_project_from_id(t *testing.T) {
 			},
 			{
 				// Can get the project from a resource's self_link in one step
-				// Uses google_compute_subnetwork resource's self_link attribute
+				// Uses google_bigquery_dataset resource's self_link attribute
 				Config: testProviderFunction_get_project_from_resource_self_link(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchOutput(context["output_name"].(string), projectIdRegex),
@@ -53,11 +53,11 @@ func testProviderFunction_get_project_from_resource_id(context map[string]interf
 	return acctest.Nprintf(`
 # terraform block required for provider function to be found
 terraform {
-	required_providers {
-		google = {
-			source = "hashicorp/google"
-		}
-	}
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+    }
+  }
 }
 
 resource "google_pubsub_topic" "default" {
@@ -65,7 +65,7 @@ resource "google_pubsub_topic" "default" {
 }
 
 output "%{output_name}" {
-	value = provider::google::%{function_name}(google_pubsub_topic.default.id)
+  value = provider::google::%{function_name}(google_pubsub_topic.default.id)
 }
 `, context)
 }
@@ -74,25 +74,20 @@ func testProviderFunction_get_project_from_resource_self_link(context map[string
 	return acctest.Nprintf(`
 # terraform block required for provider function to be found
 terraform {
-	required_providers {
-		google = {
-			source = "hashicorp/google"
-		}
-	}
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+    }
+  }
 }
 
-data "google_compute_network" "default" {
-  name = "default"
-}
-
-resource "google_compute_subnetwork" "default" {
-  name          = "%{resource_name}"
-  ip_cidr_range = "10.2.0.0/16"
-  network        = data.google_compute_network.default.id
+resource "google_bigquery_dataset" "default" {
+  dataset_id  = "%{resource_name}"
+  description = "This dataset is made in an acceptance test"
 }
 
 output "%{output_name}" {
-	value = provider::google::%{function_name}(google_compute_subnetwork.default.self_link)
+  value = provider::google::%{function_name}(google_bigquery_dataset.default.self_link)
 }
 `, context)
 }
