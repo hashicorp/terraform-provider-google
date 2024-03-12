@@ -1,0 +1,12 @@
+```release-note:none
+accesscontextmanager: updated documentation reflecting group support in `google_access_context_manager_service_perimeter`
+```
+```release-note:none
+accesscontextmanager: updated documentation reflecting group support in `google_access_context_manager_service_perimeters`
+```
+```release-note:none
+accesscontextmanager: updated documentation reflecting group support in `google_access_context_manager_service_perimeter_egress_policy`
+```
+```release-note:none
+accesscontextmanager: updated documentation reflecting group support in `google_access_context_manager_service_perimeter_ingress_policy`
+```
