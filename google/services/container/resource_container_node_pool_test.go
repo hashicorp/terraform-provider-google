@@ -1801,6 +1801,78 @@ resource "google_container_node_pool" "np" {
 `, cluster, networkName, subnetworkName, policyName, np)
 }
 
+func TestAccContainerNodePool_enableQueuedProvisioning(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_enableQueuedProvisioning(cluster, np, networkName, subnetworkName, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.machine_type", "n1-standard-2"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np",
+						"node_config.0.reservation_affinity.0.consume_reservation_type", "NO_RESERVATION"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "queued_provisioning.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_enableQueuedProvisioning(cluster, np, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = "1.28"
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  autoscaling {
+    total_min_node_count = 0
+    total_max_node_count = 1
+  }
+
+  node_config {
+    machine_type = "n1-standard-2"
+    guest_accelerator {
+      type  = "nvidia-tesla-t4"
+      count = 1
+      gpu_driver_installation_config {
+        gpu_driver_version = "LATEST"
+      }
+    }
+    reservation_affinity {
+      consume_reservation_type = "NO_RESERVATION"
+    }
+  }
+  queued_provisioning {
+    enabled = %t
+  }
+}
+`, cluster, networkName, subnetworkName, np, enabled)
+}
+
 func TestAccContainerNodePool_threadsPerCore(t *testing.T) {
 	t.Parallel()
 
