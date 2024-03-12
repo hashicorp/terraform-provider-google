@@ -1,0 +1,3 @@
+```release-note:bug
+notebooks: fixed an issue where default tags would cause a diff recreating `google_notebooks_instance` resources
+```
