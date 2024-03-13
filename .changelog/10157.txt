@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added field `path_template_match` to resource `google_compute_region_url_map`
+```
+```release-note:enhancement
+compute: added field `path_template_rewrite` to resource `google_compute_region_url_map`
+```
