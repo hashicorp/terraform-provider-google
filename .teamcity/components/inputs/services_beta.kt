@@ -178,6 +178,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Cloudids",
         "path" to "./google-beta/services/cloudids"
     ),
+    "cloudquotas" to mapOf(
+        "name" to "cloudquotas",
+        "displayName" to "Cloudquotas",
+        "path" to "./google-beta/services/cloudquotas"
+    ),
     "cloudrun" to mapOf(
         "name" to "cloudrun",
         "displayName" to "Cloudrun",

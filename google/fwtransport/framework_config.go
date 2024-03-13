@@ -81,6 +81,7 @@ type FrameworkProviderConfig struct {
 	Cloudfunctions2BasePath          string
 	CloudIdentityBasePath            string
 	CloudIdsBasePath                 string
+	CloudQuotasBasePath              string
 	CloudRunBasePath                 string
 	CloudRunV2BasePath               string
 	CloudSchedulerBasePath           string
@@ -233,6 +234,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.Cloudfunctions2BasePath = data.Cloudfunctions2CustomEndpoint.ValueString()
 	p.CloudIdentityBasePath = data.CloudIdentityCustomEndpoint.ValueString()
 	p.CloudIdsBasePath = data.CloudIdsCustomEndpoint.ValueString()
+	p.CloudQuotasBasePath = data.CloudQuotasCustomEndpoint.ValueString()
 	p.CloudRunBasePath = data.CloudRunCustomEndpoint.ValueString()
 	p.CloudRunV2BasePath = data.CloudRunV2CustomEndpoint.ValueString()
 	p.CloudSchedulerBasePath = data.CloudSchedulerCustomEndpoint.ValueString()
@@ -681,6 +683,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudIdsBasePathKey])
 		if customEndpoint != nil {
 			data.CloudIdsCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.CloudQuotasCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_CLOUD_QUOTAS_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.CloudQuotasBasePathKey])
+		if customEndpoint != nil {
+			data.CloudQuotasCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.CloudRunCustomEndpoint.IsNull() {
