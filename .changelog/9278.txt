@@ -1,0 +1,3 @@
+```release-note:enhancement
+storagetransferservice: added field `transfer_spec.azure_blob_storage_data_source.credentials_secret` to `google_storage_transfer_job` (beta)
+```
