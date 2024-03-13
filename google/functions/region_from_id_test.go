@@ -62,6 +62,7 @@ terraform {
 
 resource "google_compute_node_template" "default" {
   name      = "%{resource_name}"
+  node_type = "n1-node-96-624"
 }
 
 output "%{output_name}" {
@@ -83,6 +84,7 @@ terraform {
 
 resource "google_compute_node_template" "default" {
   name      = "%{resource_name}"
+  node_type = "n1-node-96-624"
 }
 
 output "%{output_name}" {
