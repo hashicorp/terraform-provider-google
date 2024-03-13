@@ -448,10 +448,15 @@ resource "google_pubsub_subscription" "foo" {
   name   = "%s"
   topic  = google_pubsub_topic.foo.id
 
-	bigquery_config {
-		table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
-	  use_table_schema = %t
-	}
+  bigquery_config {
+    table = "${google_bigquery_table.test.project}.${google_bigquery_table.test.dataset_id}.${google_bigquery_table.test.table_id}"
+    use_table_schema = %t
+  }
+
+  depends_on = [
+    google_project_iam_member.viewer,
+    google_project_iam_member.editor
+  ]
 }
 `, dataset, table, topic, subscription, useTableSchema)
 }
