@@ -125,6 +125,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
+	// https://github.com/hashicorp/terraform-provider-google/issues/15633 for details
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudquotas"
 )
 
 // Datasources
@@ -153,6 +155,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloud_identity_groups":                        cloudidentity.DataSourceGoogleCloudIdentityGroups(),
 	"google_cloud_identity_group_memberships":             cloudidentity.DataSourceGoogleCloudIdentityGroupMemberships(),
 	"google_cloud_identity_group_lookup":                  cloudidentity.DataSourceGoogleCloudIdentityGroupLookup(),
+	"google_cloud_quotas_quota_info":                      cloudquotas.DataSourceGoogleCloudQuotasQuotaInfo(),
 	"google_cloud_run_locations":                          cloudrun.DataSourceGoogleCloudRunLocations(),
 	"google_cloud_run_service":                            cloudrun.DataSourceGoogleCloudRunService(),
 	"google_cloud_run_v2_job":                             cloudrunv2.DataSourceGoogleCloudRunV2Job(),
