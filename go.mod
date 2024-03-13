@@ -1,6 +1,6 @@
 module github.com/hashicorp/terraform-provider-google
 
-go 1.20
+go 1.21
 
 require (
 	cloud.google.com/go/bigtable v1.19.0
