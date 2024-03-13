@@ -100,6 +100,55 @@ func TestAccBigQueryDataset_basic(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataset_withComputedLabels(t *testing.T) {
+	// Skip it in VCR test because of the randomness of uuid in "labels" field
+	// which causes the replaying mode after recording mode failing in VCR test
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset(datasetID),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.default_table_expiration_ms", "3600000"),
+
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.env", "foo"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.default_table_expiration_ms", "3600000"),
+				),
+			},
+			{
+				ResourceName:      "google_bigquery_dataset.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// The labels field in the state is decided by the configuration.
+				// During importing, the configuration is unavailable, so the labels field in the state after importing is empty.
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccBigQueryDatasetUpdated_withComputedLabels(datasetID),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataset_withProvider5(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
@@ -489,6 +538,27 @@ resource "google_bigquery_dataset" "test" {
 
   labels = {
     env                         = "bar"
+    default_table_expiration_ms = 7200000
+  }
+}
+`, datasetID)
+}
+
+func testAccBigQueryDatasetUpdated_withComputedLabels(datasetID string) string {
+	return fmt.Sprintf(`
+resource "random_uuid" "test" {
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id                      = "%s"
+  # friendly_name                   = "bar"
+  description                     = "This is a bar description"
+  location                        = "EU"
+  default_partition_expiration_ms = 7200000
+  default_table_expiration_ms     = 7200000
+
+  labels = {
+    env                         = "${random_uuid.test.result}"
     default_table_expiration_ms = 7200000
   }
 }
