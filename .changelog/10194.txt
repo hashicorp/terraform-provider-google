@@ -1,0 +1,3 @@
+```release-note:bug
+firebase: made the `google_firebase_android_app` resource's `package_name` field required and immutable. This prevents API errors encountered by users who attempted to update or leave that field unset in their configurations.
+```
