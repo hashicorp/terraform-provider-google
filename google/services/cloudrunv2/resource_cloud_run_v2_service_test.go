@@ -110,7 +110,6 @@ resource "google_service_account" "service_account" {
 }
 `, context)
 }
-
 func testAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
@@ -209,7 +208,6 @@ resource "google_compute_network" "custom_test" {
 }
 `, context)
 }
-
 func TestAccCloudRunV2Service_cloudrunv2ServiceTCPProbesUpdate(t *testing.T) {
 	t.Parallel()
 
