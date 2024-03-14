@@ -17,7 +17,7 @@ IMPROVEMENTS:
 * cloudrunv2: added support for `scaling.min_instance_count` in `google_cloud_run_v2_service`. ([#17501](https://github.com/hashicorp/terraform-provider-google/pull/17501))
 * compute: added `metric.single_instance_assignment` and `metric.filter` to `google_compute_region_autoscaler` ([#17519](https://github.com/hashicorp/terraform-provider-google/pull/17519))
 * container: added `queued_provisioning` to `google_container_node_pool` ([#17549](https://github.com/hashicorp/terraform-provider-google/pull/17549))
-* gkeonprem: added `vcenter_network` to `google_gkeonprem_vmware_cluster`, previously it was output-only ([#17505](https://github.com/hashicorp/terraform-provider-google/pull/17505))
+* gkeonprem: allowed `vcenter_network` to be set in `google_gkeonprem_vmware_cluster`, previously it was output-only ([#17505](https://github.com/hashicorp/terraform-provider-google/pull/17505))
 * workstations: added support for `ephemeral_directories` in `google_workstations_workstation_config` ([#17515](https://github.com/hashicorp/terraform-provider-google/pull/17515))
 
 BUG FIXES:
