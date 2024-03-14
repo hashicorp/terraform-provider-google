@@ -1,0 +1,3 @@
+```release-note:bug
+accesscontextmanager: fixed an issue with `access_context_manager_service_perimeter_ingress_policy` and `access_context_manager_service_perimeter_egress_policy` where updates could not be applied after initial creation. Any updates applied to these resources will now involve their recreation. To ensure that new policies are added before old ones are removed, add a `lifecycle` block with `create_before_destroy = true` to your resource configuration alongside other updates.
+```
