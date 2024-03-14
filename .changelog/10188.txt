@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `status.all_instances_config.revision` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager`
+```
