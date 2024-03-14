@@ -301,6 +301,7 @@ is the value of container.ports[0].containerPort.`,
 										Description: `List of ports to expose from the container. Only a single port can be specified. The specified ports must be listening on all interfaces (0.0.0.0) within the container to be accessible.
 
 If omitted, a port number will be chosen and passed to the container through the PORT environment variable for the container to listen on`,
+										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"container_port": {
