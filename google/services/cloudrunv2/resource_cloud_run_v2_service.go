@@ -597,7 +597,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 									"gcs": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Represents a GCS Bucket mounted as a volume.`,
+										Description: `Cloud Storage bucket mounted as a volume using GCSFuse. This feature is only supported in the gen2 execution environment and requires launch-stage to be set to ALPHA or BETA.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{

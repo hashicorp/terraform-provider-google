@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: support mounting Cloud Storage buckets using GCSFuse in Jobs (beta).
+```

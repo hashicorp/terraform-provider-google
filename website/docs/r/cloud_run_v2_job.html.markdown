@@ -556,6 +556,11 @@ The following arguments are supported:
   Ephemeral storage used as a shared volume.
   Structure is [documented below](#nested_empty_dir).
 
+* `gcs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Cloud Storage bucket mounted as a volume using GCSFuse. This feature requires the launch stage to be set to ALPHA or BETA.
+  Structure is [documented below](#nested_gcs).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -604,6 +609,16 @@ The following arguments are supported:
 * `size_limit` -
   (Optional)
   Limit on the storage usable by this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. This field's values are of the 'Quantity' k8s type: https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir.
+
+<a name="nested_gcs"></a>The `gcs` block supports:
+
+* `bucket` -
+  (Required)
+  Name of the cloud storage bucket to back the volume. The resource service account must have permission to access the bucket.
+
+* `read_only` -
+  (Optional)
+  If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
