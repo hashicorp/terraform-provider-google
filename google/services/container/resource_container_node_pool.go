@@ -204,6 +204,24 @@ var schemaNodePool = map[string]*schema.Schema{
 		},
 	},
 
+	"queued_provisioning": {
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Specifies the configuration of queued provisioning`,
+		ForceNew:    true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"enabled": {
+					Type:        schema.TypeBool,
+					Required:    true,
+					ForceNew:    true,
+					Description: `Whether nodes in this node pool are obtainable solely through the ProvisioningRequest API`,
+				},
+			},
+		},
+	},
+
 	"max_pods_per_node": {
 		Type:        schema.TypeInt,
 		Optional:    true,
@@ -911,6 +929,15 @@ func expandNodePool(d *schema.ResourceData, prefix string) (*container.NodePool,
 		}
 	}
 
+	if v, ok := d.GetOk(prefix + "queued_provisioning"); ok {
+		if v.([]interface{}) != nil && v.([]interface{})[0] != nil {
+			queued_provisioning := v.([]interface{})[0].(map[string]interface{})
+			np.QueuedProvisioning = &container.QueuedProvisioning{
+				Enabled: queued_provisioning["enabled"].(bool),
+			}
+		}
+	}
+
 	if v, ok := d.GetOk(prefix + "max_pods_per_node"); ok {
 		np.MaxPodsConstraint = &container.MaxPodsConstraint{
 			MaxPodsPerNode: int64(v.(int)),
@@ -1100,6 +1127,14 @@ func flattenNodePool(d *schema.ResourceData, config *transport_tpg.Config, np *c
 				"type":         np.PlacementPolicy.Type,
 				"policy_name":  np.PlacementPolicy.PolicyName,
 				"tpu_topology": np.PlacementPolicy.TpuTopology,
+			},
+		}
+	}
+
+	if np.QueuedProvisioning != nil {
+		nodePool["queued_provisioning"] = []map[string]interface{}{
+			{
+				"enabled": np.QueuedProvisioning.Enabled,
 			},
 		}
 	}

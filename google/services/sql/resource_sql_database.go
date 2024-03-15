@@ -385,18 +385,19 @@ func resourceSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	var obj map[string]interface{}
-	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
-		// Allows for database to be abandoned without deletion to avoid deletion failing
-		// for Postgres databases in some circumstances due to existing SQL users
-		return nil
-	}
-	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "ABANDON" {
+		// Allows for database to be abandoned without deletion to avoid deletion failing
+		// for Postgres databases in some circumstances due to existing SQL users
+		return nil
+	}
+
+	log.Printf("[DEBUG] Deleting Database %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

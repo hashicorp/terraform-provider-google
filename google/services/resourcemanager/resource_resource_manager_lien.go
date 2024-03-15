@@ -275,6 +275,12 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// log the old URL to make the ineffassign linter happy
 	// in theory, we should find a way to disable the default URL and not construct
 	// both, but that's a problem for another day. Today, we cheat.
@@ -283,13 +289,8 @@ func resourceResourceManagerLienDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+
 	log.Printf("[DEBUG] Deleting Lien %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

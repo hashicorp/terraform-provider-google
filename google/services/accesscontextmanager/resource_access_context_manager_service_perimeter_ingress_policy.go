@@ -67,9 +67,9 @@ to apply.`,
 						"identities": {
 							Type:     schema.TypeList,
 							Optional: true,
-							Description: `A list of identities that are allowed access through this ingress policy.
-Should be in the format of email address. The email address should represent
-individual user or service account only.`,
+							Description: `A list of identities that are allowed access through this 'IngressPolicy'.
+Should be in the format of an email address. The email address should represent
+an individual user, service account, or Google group.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -476,13 +476,13 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyDelete(d *schema.R
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Deleting ServicePerimeterIngressPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting ServicePerimeterIngressPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",

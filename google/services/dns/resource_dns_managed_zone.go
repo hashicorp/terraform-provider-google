@@ -724,6 +724,12 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	if d.Get("force_destroy").(bool) {
 		zone := d.Get("name").(string)
 		token := ""
@@ -794,13 +800,8 @@ func resourceDNSManagedZoneDelete(d *schema.ResourceData, meta interface{}) erro
 			paginate = token != ""
 		}
 	}
+
 	log.Printf("[DEBUG] Deleting ManagedZone %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

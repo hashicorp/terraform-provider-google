@@ -991,17 +991,18 @@ func resourceNetappVolumeDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	var obj map[string]interface{}
-	// Delete volume even when nested snapshots do exist
-	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
-		url = url + "?force=true"
-	}
-	log.Printf("[DEBUG] Deleting Volume %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	// Delete volume even when nested snapshots do exist
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url = url + "?force=true"
+	}
+
+	log.Printf("[DEBUG] Deleting Volume %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

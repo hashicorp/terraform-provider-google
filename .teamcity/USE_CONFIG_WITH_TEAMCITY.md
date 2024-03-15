@@ -8,6 +8,10 @@ Contents:
 * [Editing configuration files](#editing-configuration-files)
 * [Pushing configuration changes to TeamCity](#pushing-configuration-changes-to-teamcity)
 
+## Permissions
+
+Actions in this file require Project Administrator permissions - ask for these if you are unsure if you have them.
+
 
 ## Using configuration files for the first time in a project
 

@@ -643,6 +643,11 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 
 	var obj map[string]interface{}
 
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	if d.Get("force_destroy").(bool) {
 		backupsUrl, err := tpgresource.ReplaceVars(d, config, "{{SpannerBasePath}}projects/{{project}}/instances/{{name}}/backups")
 		if err != nil {
@@ -666,13 +671,8 @@ func resourceSpannerInstanceDelete(d *schema.ResourceData, meta interface{}) err
 			return err
 		}
 	}
+
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

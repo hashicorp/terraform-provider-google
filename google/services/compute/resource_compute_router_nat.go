@@ -958,13 +958,13 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "RouterNat")
 	}
-	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",

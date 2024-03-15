@@ -1514,6 +1514,19 @@ the provided metadata. Possible values: ["MATCH_ALL", "MATCH_ANY"]`,
 														},
 													},
 												},
+												"path_template_match": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `For satisfying the matchRule condition, the path of the request
+must match the wildcard pattern specified in pathTemplateMatch
+after removing any query parameters and anchor that may be part
+of the original URL.
+
+pathTemplateMatch must be between 1 and 255 characters
+(inclusive).  The pattern specified by pathTemplateMatch may
+have at most 5 wildcard operators and at most 5 variable
+captures in total.`,
+												},
 												"prefix_match": {
 													Type:     schema.TypeString,
 													Optional: true,
@@ -1873,6 +1886,24 @@ header is replaced with contents of hostRewrite. The value must be between 1 and
 																Description: `Prior to forwarding the request to the selected backend service, the matching
 portion of the request's path is replaced by pathPrefixRewrite. The value must
 be between 1 and 1024 characters.`,
+															},
+															"path_template_rewrite": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Prior to forwarding the request to the selected origin, if the
+request matched a pathTemplateMatch, the matching portion of the
+request's path is replaced re-written using the pattern specified
+by pathTemplateRewrite.
+
+pathTemplateRewrite must be between 1 and 255 characters
+(inclusive), must start with a '/', and must only use variables
+captured by the route's pathTemplate matchers.
+
+pathTemplateRewrite may only be used when all of a route's
+MatchRules specify pathTemplate.
+
+Only one of pathPrefixRewrite and pathTemplateRewrite may be
+specified.`,
 															},
 														},
 													},
@@ -2533,13 +2564,13 @@ func resourceComputeRegionUrlMapDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	var obj map[string]interface{}
-	log.Printf("[DEBUG] Deleting RegionUrlMap %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting RegionUrlMap %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -2857,6 +2888,7 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d 
 			"prefix_match":            flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesPrefixMatch(original["prefixMatch"], d, config),
 			"query_parameter_matches": flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatches(original["queryParameterMatches"], d, config),
 			"regex_match":             flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(original["regexMatch"], d, config),
+			"path_template_match":     flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesPathTemplateMatch(original["pathTemplateMatch"], d, config),
 		})
 	}
 	return transformed
@@ -3063,6 +3095,10 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatc
 }
 
 func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionUrlMapPathMatcherRouteRulesMatchRulesPathTemplateMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3412,6 +3448,8 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v inte
 		flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	transformed["path_prefix_rewrite"] =
 		flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(original["pathPrefixRewrite"], d, config)
+	transformed["path_template_rewrite"] =
+		flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathTemplateRewrite(original["pathTemplateRewrite"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3419,6 +3457,10 @@ func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRew
 }
 
 func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathTemplateRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5224,6 +5266,13 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesMatchRules(v interface{}, d t
 			transformed["regexMatch"] = transformedRegexMatch
 		}
 
+		transformedPathTemplateMatch, err := expandComputeRegionUrlMapPathMatcherRouteRulesMatchRulesPathTemplateMatch(original["path_template_match"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPathTemplateMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pathTemplateMatch"] = transformedPathTemplateMatch
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -5504,6 +5553,10 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesMatchRulesQueryParameterMatch
 }
 
 func expandComputeRegionUrlMapPathMatcherRouteRulesMatchRulesRegexMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionUrlMapPathMatcherRouteRulesMatchRulesPathTemplateMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -5951,6 +6004,13 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewrite(v inter
 		transformed["pathPrefixRewrite"] = transformedPathPrefixRewrite
 	}
 
+	transformedPathTemplateRewrite, err := expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathTemplateRewrite(original["path_template_rewrite"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPathTemplateRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pathTemplateRewrite"] = transformedPathTemplateRewrite
+	}
+
 	return transformed, nil
 }
 
@@ -5959,6 +6019,10 @@ func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewriteHostRewr
 }
 
 func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathPrefixRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionUrlMapPathMatcherRouteRulesRouteActionUrlRewritePathTemplateRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
