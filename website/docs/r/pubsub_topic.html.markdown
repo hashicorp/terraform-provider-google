@@ -108,6 +108,29 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=pubsub_topic_ingestion_kinesis&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Ingestion Kinesis
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual AWS resources for the test to pass.
+  ingestion_data_source_settings {
+    aws_kinesis {
+        stream_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/fake-stream-name"
+        consumer_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/fake-stream-name/consumer/consumer-1:1111111111"
+        aws_role_arn = "arn:aws:iam::111111111111:role/fake-role-name"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -160,6 +183,11 @@ The following arguments are supported:
   The rotation period has the format of a decimal number, followed by the
   letter `s` (seconds). Cannot be more than 31 days or less than 10 minutes.
 
+* `ingestion_data_source_settings` -
+  (Optional)
+  Settings for ingestion from a data source into this topic.
+  Structure is [documented below](#nested_ingestion_data_source_settings).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -189,6 +217,39 @@ The following arguments are supported:
   The encoding of messages validated against schema.
   Default value is `ENCODING_UNSPECIFIED`.
   Possible values are: `ENCODING_UNSPECIFIED`, `JSON`, `BINARY`.
+
+<a name="nested_ingestion_data_source_settings"></a>The `ingestion_data_source_settings` block supports:
+
+* `aws_kinesis` -
+  (Optional)
+  Settings for ingestion from Amazon Kinesis Data Streams.
+  Structure is [documented below](#nested_aws_kinesis).
+
+
+<a name="nested_aws_kinesis"></a>The `aws_kinesis` block supports:
+
+* `stream_arn` -
+  (Required)
+  The Kinesis stream ARN to ingest data from.
+
+* `consumer_arn` -
+  (Required)
+  The Kinesis consumer ARN to used for ingestion in
+  Enhanced Fan-Out mode. The consumer must be already
+  created and ready to be used.
+
+* `aws_role_arn` -
+  (Required)
+  AWS role ARN to be used for Federated Identity authentication with
+  Kinesis. Check the Pub/Sub docs for how to set up this role and the
+  required permissions that need to be attached to it.
+
+* `gcp_service_account` -
+  (Required)
+  The GCP service account to be used for Federated Identity authentication
+  with Kinesis (via a `AssumeRoleWithWebIdentity` call for the provided
+  role). The `awsRoleArn` must be set up with `accounts.google.com:sub`
+  equals to this service account number.
 
 ## Attributes Reference
 

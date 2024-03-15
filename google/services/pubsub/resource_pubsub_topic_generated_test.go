@@ -155,6 +155,49 @@ resource "google_pubsub_topic" "example" {
 `, context)
 }
 
+func TestAccPubsubTopic_pubsubTopicIngestionKinesisExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubTopicDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubTopic_pubsubTopicIngestionKinesisExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_topic.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPubsubTopic_pubsubTopicIngestionKinesisExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual AWS resources for the test to pass.
+  ingestion_data_source_settings {
+    aws_kinesis {
+        stream_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/fake-stream-name"
+        consumer_arn = "arn:aws:kinesis:us-west-2:111111111111:stream/fake-stream-name/consumer/consumer-1:1111111111"
+        aws_role_arn = "arn:aws:iam::111111111111:role/fake-role-name"
+        gcp_service_account = "fake-service-account@fake-gcp-project.iam.gserviceaccount.com"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckPubsubTopicDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
