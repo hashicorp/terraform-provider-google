@@ -62,6 +62,53 @@ func ResourcePubsubTopic() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description:      `Name of the topic.`,
 			},
+			"ingestion_data_source_settings": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for ingestion from a data source into this topic.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"aws_kinesis": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Settings for ingestion from Amazon Kinesis Data Streams.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"aws_role_arn": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `AWS role ARN to be used for Federated Identity authentication with
+Kinesis. Check the Pub/Sub docs for how to set up this role and the
+required permissions that need to be attached to it.`,
+									},
+									"consumer_arn": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The Kinesis consumer ARN to used for ingestion in
+Enhanced Fan-Out mode. The consumer must be already
+created and ready to be used.`,
+									},
+									"gcp_service_account": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `The GCP service account to be used for Federated Identity authentication
+with Kinesis (via a 'AssumeRoleWithWebIdentity' call for the provided
+role). The 'awsRoleArn' must be set up with 'accounts.google.com:sub'
+equals to this service account number.`,
+									},
+									"stream_arn": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The Kinesis stream ARN to ingest data from.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"kms_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -206,6 +253,12 @@ func resourcePubsubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("message_retention_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(messageRetentionDurationProp)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
 		obj["messageRetentionDuration"] = messageRetentionDurationProp
+	}
+	ingestionDataSourceSettingsProp, err := expandPubsubTopicIngestionDataSourceSettings(d.Get("ingestion_data_source_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ingestion_data_source_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(ingestionDataSourceSettingsProp)) && (ok || !reflect.DeepEqual(v, ingestionDataSourceSettingsProp)) {
+		obj["ingestionDataSourceSettings"] = ingestionDataSourceSettingsProp
 	}
 	labelsProp, err := expandPubsubTopicEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -371,6 +424,9 @@ func resourcePubsubTopicRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("message_retention_duration", flattenPubsubTopicMessageRetentionDuration(res["messageRetentionDuration"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
+	if err := d.Set("ingestion_data_source_settings", flattenPubsubTopicIngestionDataSourceSettings(res["ingestionDataSourceSettings"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Topic: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenPubsubTopicTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Topic: %s", err)
 	}
@@ -421,6 +477,12 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("message_retention_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, messageRetentionDurationProp)) {
 		obj["messageRetentionDuration"] = messageRetentionDurationProp
 	}
+	ingestionDataSourceSettingsProp, err := expandPubsubTopicIngestionDataSourceSettings(d.Get("ingestion_data_source_settings"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ingestion_data_source_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ingestionDataSourceSettingsProp)) {
+		obj["ingestionDataSourceSettings"] = ingestionDataSourceSettingsProp
+	}
 	labelsProp, err := expandPubsubTopicEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -455,6 +517,10 @@ func resourcePubsubTopicUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("message_retention_duration") {
 		updateMask = append(updateMask, "messageRetentionDuration")
+	}
+
+	if d.HasChange("ingestion_data_source_settings") {
+		updateMask = append(updateMask, "ingestionDataSourceSettings")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -632,6 +698,54 @@ func flattenPubsubTopicMessageRetentionDuration(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenPubsubTopicIngestionDataSourceSettings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["aws_kinesis"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesis(original["awsKinesis"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesis(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["stream_arn"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisStreamArn(original["streamArn"], d, config)
+	transformed["consumer_arn"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisConsumerArn(original["consumerArn"], d, config)
+	transformed["aws_role_arn"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(original["awsRoleArn"], d, config)
+	transformed["gcp_service_account"] =
+		flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(original["gcpServiceAccount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisStreamArn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisConsumerArn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPubsubTopicTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -717,6 +831,81 @@ func expandPubsubTopicSchemaSettingsEncoding(v interface{}, d tpgresource.Terraf
 }
 
 func expandPubsubTopicMessageRetentionDuration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAwsKinesis, err := expandPubsubTopicIngestionDataSourceSettingsAwsKinesis(original["aws_kinesis"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAwsKinesis); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["awsKinesis"] = transformedAwsKinesis
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAwsKinesis(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedStreamArn, err := expandPubsubTopicIngestionDataSourceSettingsAwsKinesisStreamArn(original["stream_arn"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStreamArn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["streamArn"] = transformedStreamArn
+	}
+
+	transformedConsumerArn, err := expandPubsubTopicIngestionDataSourceSettingsAwsKinesisConsumerArn(original["consumer_arn"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConsumerArn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["consumerArn"] = transformedConsumerArn
+	}
+
+	transformedAwsRoleArn, err := expandPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(original["aws_role_arn"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAwsRoleArn); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["awsRoleArn"] = transformedAwsRoleArn
+	}
+
+	transformedGcpServiceAccount, err := expandPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(original["gcp_service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGcpServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["gcpServiceAccount"] = transformedGcpServiceAccount
+	}
+
+	return transformed, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisStreamArn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisConsumerArn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisAwsRoleArn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubTopicIngestionDataSourceSettingsAwsKinesisGcpServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
