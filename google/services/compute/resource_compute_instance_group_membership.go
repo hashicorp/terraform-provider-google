@@ -250,6 +250,12 @@ func resourceComputeInstanceGroupMembershipDelete(d *schema.ResourceData, meta i
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	toDelete := make(map[string]interface{})
 
 	// Instance
@@ -262,13 +268,8 @@ func resourceComputeInstanceGroupMembershipDelete(d *schema.ResourceData, meta i
 	obj = map[string]interface{}{
 		"instances": []map[string]interface{}{toDelete},
 	}
+
 	log.Printf("[DEBUG] Deleting InstanceGroupMembership %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

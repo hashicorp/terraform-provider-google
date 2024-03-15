@@ -69,8 +69,8 @@ The following arguments are supported:
 * `identities` -
   (Optional)
   A list of identities that are allowed access through this `EgressPolicy`.
-  Should be in the format of email address. The email address should
-  represent individual user or service account only.
+  Should be in the format of an email address. The email address should
+  represent an individual user, service account, or Google group.
 
 * `sources` -
   (Optional)

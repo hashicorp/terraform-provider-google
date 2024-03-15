@@ -420,6 +420,12 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	getUrl, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}projects/{{project}}/hmacKeys/{{access_id}}")
 	if err != nil {
 		return err
@@ -459,13 +465,8 @@ func resourceStorageHmacKeyDelete(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error deactivating HmacKey %q: %s", d.Id(), err)
 		}
 	}
+
 	log.Printf("[DEBUG] Deleting HmacKey %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

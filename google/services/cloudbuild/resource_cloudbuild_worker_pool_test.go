@@ -15,6 +15,47 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+func TestAccCloudbuildWorkerPool_withComputedAnnotations(t *testing.T) {
+	// Skip it in VCR test because of the randomness of uuid in "annotations" field
+	// which causes the replaying mode after recording mode failing in VCR test
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		CheckDestroy: funcAccTestCloudbuildWorkerPoolCheckDestroy(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudbuildWorkerPool_updated(context),
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
+				ResourceName:            "google_cloudbuild_worker_pool.pool",
+			},
+			{
+				Config: testAccCloudbuildWorkerPool_withComputedAnnotations(context),
+			},
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations"},
+				ResourceName:            "google_cloudbuild_worker_pool.pool",
+			},
+		},
+	})
+}
+
 func TestAccCloudbuildWorkerPool_basic(t *testing.T) {
 	t.Parallel()
 
@@ -86,6 +127,28 @@ resource "google_cloudbuild_worker_pool" "pool" {
 		env                   = "foo"
 		default_expiration_ms = 3600000
 	}
+}
+`, context)
+}
+
+func testAccCloudbuildWorkerPool_withComputedAnnotations(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "random_uuid" "test" {
+}
+
+resource "google_cloudbuild_worker_pool" "pool" {
+  name = "pool%{random_suffix}"
+  location = "europe-west1"
+  worker_config {
+  disk_size_gb = 101
+  machine_type = "e2-standard-4"
+  no_external_ip = false
+  }
+
+  annotations = {
+    env                   = "${random_uuid.test.result}"
+    default_expiration_ms = 3600000
+  }
 }
 `, context)
 }

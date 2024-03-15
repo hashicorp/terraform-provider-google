@@ -685,6 +685,12 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// Read the config and avoid calling the delete API if the instance_type is SECONDARY and instead return nil
 	// Returning nil is equivalent of returning a success message to the users
 	// This is done because deletion of secondary instance is not supported
@@ -703,13 +709,8 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		log.Printf("[WARNING] This operation didn't delete the Secondary Instance %q. Please delete the associated Secondary Cluster as well to delete the entire cluster and the secondary instance.\n", d.Id())
 		return nil
 	}
+
 	log.Printf("[DEBUG] Deleting Instance %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

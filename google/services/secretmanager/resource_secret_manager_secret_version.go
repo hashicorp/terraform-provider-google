@@ -308,6 +308,12 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	deletionPolicy := d.Get("deletion_policy")
 
 	if deletionPolicy == "ABANDON" {
@@ -318,13 +324,8 @@ func resourceSecretManagerSecretVersionDelete(d *schema.ResourceData, meta inter
 			return err
 		}
 	}
+
 	log.Printf("[DEBUG] Deleting SecretVersion %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

@@ -232,13 +232,13 @@ func resourceAccessContextManagerIngressPolicyDelete(d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Deleting IngressPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting IngressPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",

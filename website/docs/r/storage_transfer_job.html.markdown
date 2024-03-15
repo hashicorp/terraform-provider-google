@@ -247,7 +247,9 @@ The `aws_access_key` block supports:
 
 * `path` - (Required) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
 
-* `azure_credentials` - (Required) Credentials used to authenticate API requests to Azure block.
+* `credentials_secret` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Full Resource name of a secret in Secret Manager containing [SAS Credentials in JSON form](https://cloud.google.com/storage-transfer/docs/reference/rest/v1/TransferSpec#azureblobstoragedata:~:text=begin%20with%20a%20%27/%27.-,credentialsSecret,-string). Service Agent for Storage Transfer must have permissions to access secret. If credentials_secret is specified, do not specify azure_credentials.`,
+
+* `azure_credentials` - (Required in GA, Optional in [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) Credentials used to authenticate API requests to Azure block.
 
 The `azure_credentials` block supports:
 

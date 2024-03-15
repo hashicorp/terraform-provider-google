@@ -1215,17 +1215,18 @@ func resourceAlloydbClusterDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var obj map[string]interface{}
-	// Forcefully delete the secondary cluster and the dependent instances because deletion of secondary instance is not supported.
-	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
-		url = url + "?force=true"
-	}
-	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	// Forcefully delete the secondary cluster and the dependent instances because deletion of secondary instance is not supported.
+	if deletionPolicy := d.Get("deletion_policy"); deletionPolicy == "FORCE" {
+		url = url + "?force=true"
+	}
+
+	log.Printf("[DEBUG] Deleting Cluster %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

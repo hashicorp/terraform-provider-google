@@ -760,6 +760,12 @@ func resourceNetappVolumeReplicationDelete(d *schema.ResourceData, meta interfac
 	}
 
 	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
 	// A replication can only be deleted if mirrorState==STOPPED
 	// We are about to delete the replication and need to stop the mirror before.
 	// FYI: Stopping a PREPARING mirror currently doesn't work. User have to wait until
@@ -793,13 +799,8 @@ func resourceNetappVolumeReplicationDelete(d *schema.ResourceData, meta interfac
 			return err
 		}
 	}
+
 	log.Printf("[DEBUG] Deleting VolumeReplication %q", d.Id())
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",

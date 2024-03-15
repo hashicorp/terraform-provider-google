@@ -67,8 +67,8 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 							Type:     schema.TypeList,
 							Optional: true,
 							Description: `A list of identities that are allowed access through this 'EgressPolicy'.
-Should be in the format of email address. The email address should
-represent individual user or service account only.`,
+Should be in the format of an email address. The email address should
+represent an individual user, service account, or Google group.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -471,13 +471,13 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] Deleting ServicePerimeterEgressPolicy %q", d.Id())
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
+	log.Printf("[DEBUG] Deleting ServicePerimeterEgressPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",

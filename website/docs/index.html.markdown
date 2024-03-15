@@ -91,9 +91,9 @@ experience for you using the Google provider.
 
 If you have a bug or feature request without an existing issue
 
-* and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/hashicorp/terraform-provider-google/issues/new?template=bug.md).
+* and an existing resource or field is working in an unexpected way, [file a bug](https://github.com/hashicorp/terraform-provider-google/issues/new?labels=bug&template=00_bug.yml).
 
-* and you'd like the provider to support a new resource or field, [file an enhancement/feature request](https://github.com/hashicorp/terraform-provider-google/issues/new?template=enhancement.md).
+* and you'd like the provider to support a new resource or field, [file an enhancement/feature request](https://github.com/hashicorp/terraform-provider-google/issues/new?labels=enhancement&template=01_enhancement.yml).
 
 The provider maintainers will often use the assignee field on an issue to mark
 who is working on it.

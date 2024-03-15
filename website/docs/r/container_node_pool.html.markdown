@@ -172,7 +172,7 @@ cluster.
 * `placement_policy` - (Optional) Specifies a custom placement policy for the
   nodes.
 
-* `queued_provisioning` - (Optional, Beta) Specifies node pool-level settings of queued provisioning.
+* `queued_provisioning` - (Optional) Specifies node pool-level settings of queued provisioning.
     Structure is [documented below](#nested_queued_provisioning).
 
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
