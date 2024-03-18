@@ -1,4 +1,30 @@
 ## 5.21.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_apphub_discovered_service` ([#17548](https://github.com/hashicorp/terraform-provider-google/pull/17548))
+* **New Data Source:** `google_apphub_discovered_workload` ([#17553](https://github.com/hashicorp/terraform-provider-google/pull/17553))
+* **New Resource:** `google_apphub_workload` ([#17561](https://github.com/hashicorp/terraform-provider-google/pull/17561))
+* **New Resource:** `google_firebase_app_check_device_check_config` ([#17517](https://github.com/hashicorp/terraform-provider-google/pull/17517))
+* **New Resource:** `google_iap_tunnel_dest_group` ([#17533](https://github.com/hashicorp/terraform-provider-google/pull/17533))
+* **New Resource:** `google_kms_ekm_connection` ([#17512](https://github.com/hashicorp/terraform-provider-google/pull/17512))
+* **New Resource:** `google_apphub_application` ([#17499](https://github.com/hashicorp/terraform-provider-google/pull/17499))
+* **New Resource:** `google_apphub_service` ([#17562](https://github.com/hashicorp/terraform-provider-google/pull/17562))
+* **New Resource:** `google_apphub_service_project_attachment` ([#17536](https://github.com/hashicorp/terraform-provider-google/pull/17536))
+* **New Resource:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
+* **New Resource:** `google_network_security_firewall_endpoint_association` ([#17540](https://github.com/hashicorp/terraform-provider-google/pull/17540))
+
+IMPROVEMENTS:
+* cloudrunv2: added support for `scaling.min_instance_count` in `google_cloud_run_v2_service`. ([#17501](https://github.com/hashicorp/terraform-provider-google/pull/17501))
+* compute: added `metric.single_instance_assignment` and `metric.filter` to `google_compute_region_autoscaler` ([#17519](https://github.com/hashicorp/terraform-provider-google/pull/17519))
+* container: added `queued_provisioning` to `google_container_node_pool` ([#17549](https://github.com/hashicorp/terraform-provider-google/pull/17549))
+* gkeonprem: allowed `vcenter_network` to be set in `google_gkeonprem_vmware_cluster`, previously it was output-only ([#17505](https://github.com/hashicorp/terraform-provider-google/pull/17505))
+* workstations: added support for `ephemeral_directories` in `google_workstations_workstation_config` ([#17515](https://github.com/hashicorp/terraform-provider-google/pull/17515))
+
+BUG FIXES:
+* compute: allowed sending empty values for `SERVERLESS` in `google_compute_region_network_endpoint_group` resource ([#17500](https://github.com/hashicorp/terraform-provider-google/pull/17500))
+* notebooks: fixed an issue where default tags would cause a diff recreating `google_notebooks_instance` resources ([#17559](https://github.com/hashicorp/terraform-provider-google/pull/17559))
+* storage: fixed an issue where two or more lifecycle rules with different values of `no_age` field always generates change in `google_storage_bucket` resource. ([#17513](https://github.com/hashicorp/terraform-provider-google/pull/17513))
+
 ## 5.20.0 (Mar 11, 2024)
 
 FEATURES:
