@@ -1,0 +1,6 @@
+```release-note:enhancement
+accesscontextmanager: support managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource`
+```
+```release-note:new-resource
+`google_access_context_manager_service_perimeter_dry_run_resource`
+```
