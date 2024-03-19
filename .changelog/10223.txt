@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: small fixes and enhancements after the bugbash.
+```
