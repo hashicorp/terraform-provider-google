@@ -2,17 +2,16 @@
 subcategory: "Cloud Quotas"
 ---
 
-# google\_cloud\_quotas\_quota\_info
+# google\_cloud\_quotas\_quota\_infos
 
-Provides information about a particular quota for a given project, folder or organization.
+Provides information about all quotas for a given project, folder or organization.
 
 ## Example Usage
 
 ```hcl
-data "google_cloud_quotas_quota_info" "my_quota_info" {
+data "google_cloud_quotas_quota_infos" "my_quota_infos" {
     parent      = "projects/my-project"	
     service 	= "compute.googleapis.com"
-    quota_id    = "CPUS-per-project-region"
 }
 ```
 
@@ -20,15 +19,18 @@ data "google_cloud_quotas_quota_info" "my_quota_info" {
 
 The following arguments are supported:
 
-* `parent` - (Required) The parent of the quota info. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number].
+* `parent` - (Required) Parent value of QuotaInfo resources. Listing across different resource containers (such as 'projects/-') is not allowed. Allowed parents are "projects/[project-id / number]" or "folders/[folder-id / number]" or "organizations/[org-id / number].
 
-* `quota_id` - (Required) The id of the quota, which is unique within the service.
+* `service` - (Required) The name of the service in which the quotas are defined.
 
-* `service` - (Required) The name of the service in which the quota is defined.
 
 ## Attributes Reference
 
 The following attributes are exported:
+
+* `quota_infos` - (Output) The list of QuotaInfo.
+
+<a name="nested_quota_infos"></a> The `quota_infos` block supports:
 
 * `name` - (Output) Resource name of this QuotaInfo, for example: `projects/123/locations/global/services/compute.googleapis.com/quotaInfos/CpusPerProjectPerRegion`.
 * `metric` - (Output) The metric of the quota. It specifies the resources consumption the quota is defined for, for example: `compute.googleapis.com/cpus`.

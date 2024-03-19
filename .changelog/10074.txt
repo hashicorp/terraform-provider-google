@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_cloud_quotas_quota_infos`
+```
