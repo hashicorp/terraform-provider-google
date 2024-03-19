@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: Added enumeration value `SEV_LIVE_MIGRATABLE_V2` for the `guest_os_features` of `google_compute_disk`
+```
