@@ -1,0 +1,3 @@
+```release-note:bug
+spanner: removed validation function for the field `version_retention_period` in the resource `google_spanner_database` and directly returned error from backend 
+```

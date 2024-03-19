@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/spanner"
 )
 
 func TestAccSpannerDatabase_basic(t *testing.T) {
@@ -465,77 +464,6 @@ resource "google_spanner_database" "basic" {
   ]
 }
 `, instanceName, instanceName, databaseName)
-}
-
-// Unit Tests for validation of retention period argument
-func TestValidateDatabaseRetentionPeriod(t *testing.T) {
-	t.Parallel()
-	testCases := map[string]struct {
-		input       string
-		expectError bool
-	}{
-		// Not valid input
-		"empty_string": {
-			input:       "",
-			expectError: true,
-		},
-		"number_with_no_unit": {
-			input:       "1",
-			expectError: true,
-		},
-		"less_than_1h": {
-			input:       "59m",
-			expectError: true,
-		},
-		"more_than_7days": {
-			input:       "8d",
-			expectError: true,
-		},
-		// Valid input
-		"1_hour_in_secs": {
-			input:       "3600s",
-			expectError: false,
-		},
-		"1_hour_in_mins": {
-			input:       "60m",
-			expectError: false,
-		},
-		"1_hour_in_hours": {
-			input:       "1h",
-			expectError: false,
-		},
-		"7_days_in_secs": {
-			input:       fmt.Sprintf("%ds", 7*24*60*60),
-			expectError: false,
-		},
-		"7_days_in_mins": {
-			input:       fmt.Sprintf("%dm", 7*24*60),
-			expectError: false,
-		},
-		"7_days_in_hours": {
-			input:       fmt.Sprintf("%dh", 7*24),
-			expectError: false,
-		},
-		"7_days_in_days": {
-			input:       "7d",
-			expectError: false,
-		},
-	}
-
-	for tn, tc := range testCases {
-		t.Run(tn, func(t *testing.T) {
-			_, errs := spanner.ValidateDatabaseRetentionPeriod(tc.input, "foobar")
-			var wantErrCount string
-			if tc.expectError {
-				wantErrCount = "1+"
-			} else {
-				wantErrCount = "0"
-			}
-			if (len(errs) > 0 && tc.expectError == false) || (len(errs) == 0 && tc.expectError == true) {
-				t.Errorf("failed, expected `%s` test case validation to have %s errors", tn, wantErrCount)
-			}
-		})
-	}
 }
 
 func TestAccSpannerDatabase_deletionProtection(t *testing.T) {
