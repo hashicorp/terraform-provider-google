@@ -2125,7 +2125,7 @@ resource "google_dataproc_cluster" "with_endpoint_config" {
     }
 
 		endpoint_config {
-			enable_http_port_access = "true"
+			enable_http_port_access = true
 		}
 	}
 }
