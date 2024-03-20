@@ -1,0 +1,3 @@
+```release-note:breaking-change
+networksecurity: added required field `billing_project_id` to `google_network_security_firewall_endpoint` resource. Any configuration without `billing_project_id` specified will cause resource creation fail (beta)
+```
