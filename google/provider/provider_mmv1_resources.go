@@ -35,6 +35,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudids"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudquotas"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
@@ -125,8 +126,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
-	// https://github.com/hashicorp/terraform-provider-google/issues/15633 for details
-	"github.com/hashicorp/terraform-provider-google/google/services/cloudquotas"
 )
 
 // Datasources
@@ -396,9 +395,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 395
+// Generated resources: 396
 // Generated IAM resources: 234
-// Total generated resources: 629
+// Total generated resources: 630
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -537,6 +536,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloud_identity_group":                                      cloudidentity.ResourceCloudIdentityGroup(),
 	"google_cloud_identity_group_membership":                           cloudidentity.ResourceCloudIdentityGroupMembership(),
 	"google_cloud_ids_endpoint":                                        cloudids.ResourceCloudIdsEndpoint(),
+	"google_cloud_quotas_quota_preference":                             cloudquotas.ResourceCloudQuotasQuotaPreference(),
 	"google_cloud_run_domain_mapping":                                  cloudrun.ResourceCloudRunDomainMapping(),
 	"google_cloud_run_service":                                         cloudrun.ResourceCloudRunService(),
 	"google_cloud_run_service_iam_binding":                             tpgiamresource.ResourceIamBinding(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer, cloudrun.CloudRunServiceIdParseFunc),
