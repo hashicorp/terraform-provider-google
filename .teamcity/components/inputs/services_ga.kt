@@ -461,6 +461,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Integrationconnectors",
         "path" to "./google/services/integrationconnectors"
     ),
+    "integrations" to mapOf(
+        "name" to "integrations",
+        "displayName" to "Applicationintegration",
+        "path" to "./google/services/integrations"
+    ),
     "kms" to mapOf(
         "name" to "kms",
         "displayName" to "Kms",

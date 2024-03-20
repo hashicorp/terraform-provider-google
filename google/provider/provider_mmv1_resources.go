@@ -78,6 +78,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/iap"
 	"github.com/hashicorp/terraform-provider-google/google/services/identityplatform"
 	"github.com/hashicorp/terraform-provider-google/google/services/integrationconnectors"
+	"github.com/hashicorp/terraform-provider-google/google/services/integrations"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
@@ -395,9 +396,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 396
+// Generated resources: 397
 // Generated IAM resources: 234
-// Total generated resources: 630
+// Total generated resources: 631
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -846,6 +847,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_identity_platform_tenant_oauth_idp_config":                 identityplatform.ResourceIdentityPlatformTenantOauthIdpConfig(),
 	"google_integration_connectors_connection":                         integrationconnectors.ResourceIntegrationConnectorsConnection(),
 	"google_integration_connectors_endpoint_attachment":                integrationconnectors.ResourceIntegrationConnectorsEndpointAttachment(),
+	"google_integrations_client":                                       integrations.ResourceIntegrationsClient(),
 	"google_kms_crypto_key":                                            kms.ResourceKMSCryptoKey(),
 	"google_kms_crypto_key_version":                                    kms.ResourceKMSCryptoKeyVersion(),
 	"google_kms_ekm_connection":                                        kms.ResourceKMSEkmConnection(),
