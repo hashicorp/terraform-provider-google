@@ -510,6 +510,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"integrations_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"kms_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -1002,6 +1007,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IapBasePath = d.Get("iap_custom_endpoint").(string)
 	config.IdentityPlatformBasePath = d.Get("identity_platform_custom_endpoint").(string)
 	config.IntegrationConnectorsBasePath = d.Get("integration_connectors_custom_endpoint").(string)
+	config.IntegrationsBasePath = d.Get("integrations_custom_endpoint").(string)
 	config.KMSBasePath = d.Get("kms_custom_endpoint").(string)
 	config.LoggingBasePath = d.Get("logging_custom_endpoint").(string)
 	config.LookerBasePath = d.Get("looker_custom_endpoint").(string)

@@ -260,6 +260,7 @@ type Config struct {
 	IapBasePath                      string
 	IdentityPlatformBasePath         string
 	IntegrationConnectorsBasePath    string
+	IntegrationsBasePath             string
 	KMSBasePath                      string
 	LoggingBasePath                  string
 	LookerBasePath                   string
@@ -395,6 +396,7 @@ const IAMWorkforcePoolBasePathKey = "IAMWorkforcePool"
 const IapBasePathKey = "Iap"
 const IdentityPlatformBasePathKey = "IdentityPlatform"
 const IntegrationConnectorsBasePathKey = "IntegrationConnectors"
+const IntegrationsBasePathKey = "Integrations"
 const KMSBasePathKey = "KMS"
 const LoggingBasePathKey = "Logging"
 const LookerBasePathKey = "Looker"
@@ -524,6 +526,7 @@ var DefaultBasePaths = map[string]string{
 	IapBasePathKey:                      "https://iap.googleapis.com/v1/",
 	IdentityPlatformBasePathKey:         "https://identitytoolkit.googleapis.com/v2/",
 	IntegrationConnectorsBasePathKey:    "https://connectors.googleapis.com/v1/",
+	IntegrationsBasePathKey:             "https://integrations.googleapis.com/v1/",
 	KMSBasePathKey:                      "https://cloudkms.googleapis.com/v1/",
 	LoggingBasePathKey:                  "https://logging.googleapis.com/v2/",
 	LookerBasePathKey:                   "https://looker.googleapis.com/v1/",
@@ -1015,6 +1018,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("integration_connectors_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_INTEGRATION_CONNECTORS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[IntegrationConnectorsBasePathKey]))
+	}
+	if d.Get("integrations_custom_endpoint") == "" {
+		d.Set("integrations_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_INTEGRATIONS_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[IntegrationsBasePathKey]))
 	}
 	if d.Get("kms_custom_endpoint") == "" {
 		d.Set("kms_custom_endpoint", MultiEnvDefault([]string{
@@ -2154,6 +2162,7 @@ func ConfigureBasePaths(c *Config) {
 	c.IapBasePath = DefaultBasePaths[IapBasePathKey]
 	c.IdentityPlatformBasePath = DefaultBasePaths[IdentityPlatformBasePathKey]
 	c.IntegrationConnectorsBasePath = DefaultBasePaths[IntegrationConnectorsBasePathKey]
+	c.IntegrationsBasePath = DefaultBasePaths[IntegrationsBasePathKey]
 	c.KMSBasePath = DefaultBasePaths[KMSBasePathKey]
 	c.LoggingBasePath = DefaultBasePaths[LoggingBasePathKey]
 	c.LookerBasePath = DefaultBasePaths[LookerBasePathKey]
