@@ -4,6 +4,7 @@
 FEATURES:
 * **New Data Source:** `google_apphub_discovered_service` ([#17548](https://github.com/hashicorp/terraform-provider-google/pull/17548))
 * **New Data Source:** `google_apphub_discovered_workload` ([#17553](https://github.com/hashicorp/terraform-provider-google/pull/17553))
+* **New Data Source:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 * **New Resource:** `google_apphub_workload` ([#17561](https://github.com/hashicorp/terraform-provider-google/pull/17561))
 * **New Resource:** `google_firebase_app_check_device_check_config` ([#17517](https://github.com/hashicorp/terraform-provider-google/pull/17517))
 * **New Resource:** `google_iap_tunnel_dest_group` ([#17533](https://github.com/hashicorp/terraform-provider-google/pull/17533))
@@ -11,7 +12,6 @@ FEATURES:
 * **New Resource:** `google_apphub_application` ([#17499](https://github.com/hashicorp/terraform-provider-google/pull/17499))
 * **New Resource:** `google_apphub_service` ([#17562](https://github.com/hashicorp/terraform-provider-google/pull/17562))
 * **New Resource:** `google_apphub_service_project_attachment` ([#17536](https://github.com/hashicorp/terraform-provider-google/pull/17536))
-* **New Resource:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 * **New Resource:** `google_network_security_firewall_endpoint_association` ([#17540](https://github.com/hashicorp/terraform-provider-google/pull/17540))
 
 IMPROVEMENTS:
