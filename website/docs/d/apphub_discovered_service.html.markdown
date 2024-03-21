@@ -1,5 +1,5 @@
 ---
-subcategory: "Apphub"
+subcategory: "App Hub"
 description: |-
   Get information about a discovered service.
 ---
