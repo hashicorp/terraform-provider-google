@@ -1,7 +1,5 @@
 ## 5.22.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Update CHANGELOG.md 5.21.0 ([#17611](https://github.com/hashicorp/terraform-provider-google/pull/17611))
 BREAKING CHANGES:
 * networksecurity: added required field `billing_project_id` to `google_network_security_firewall_endpoint` resource. Any configuration without `billing_project_id` specified will cause resource creation fail (beta) ([#17630](https://github.com/hashicorp/terraform-provider-google/pull/17630))
 
@@ -11,9 +9,8 @@ FEATURES:
 * **New Resource:** google_cloud_quotas_quota_info ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 
 IMPROVEMENTS:
-* accesscontextmanager: support managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
+* accesscontextmanager: supported managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
 * cloudrunv2: added the validation to restrict number of ports to 1 to fail earlier than server-side validation ([#17594](https://github.com/hashicorp/terraform-provider-google/pull/17594))
-* cloudrunv2: support mounting Cloud Storage buckets using GCSFuse in Jobs (beta). ([#17588](https://github.com/hashicorp/terraform-provider-google/pull/17588))
 * composer: small fixes and enhancements after the bugbash. ([#17625](https://github.com/hashicorp/terraform-provider-google/pull/17625))
 * compute: Added enumeration value `SEV_LIVE_MIGRATABLE_V2` for the `guest_os_features` of `google_compute_disk` ([#17629](https://github.com/hashicorp/terraform-provider-google/pull/17629))
 * compute: added `status.all_instances_config.revision` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#17595](https://github.com/hashicorp/terraform-provider-google/pull/17595))
@@ -21,7 +18,6 @@ IMPROVEMENTS:
 * compute: added field `path_template_rewrite` to resource `google_compute_region_url_map` ([#17571](https://github.com/hashicorp/terraform-provider-google/pull/17571))
 * pubsub: added `ingestion_data_source_settings` field to `google_pubsub_topic` resource ([#17604](https://github.com/hashicorp/terraform-provider-google/pull/17604))
 * storage: added 'soft_delete_policy' to 'google_storage_bucket' resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
-* workstations: added `host.gceInstance.boostConfig` to `google_workstations_workstation_config` (beta) ([#17627](https://github.com/hashicorp/terraform-provider-google/pull/17627))
 
 BUG FIXES:
 * accesscontextmanager: fixed an issue with `access_context_manager_service_perimeter_ingress_policy` and `access_context_manager_service_perimeter_egress_policy` where updates could not be applied after initial creation. Any updates applied to these resources will now involve their recreation. To ensure that new policies are added before old ones are removed, add a `lifecycle` block with `create_before_destroy = true` to your resource configuration alongside other updates. ([#17596](https://github.com/hashicorp/terraform-provider-google/pull/17596))
