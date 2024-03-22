@@ -12,13 +12,17 @@ import (
 var _ function.Function = NameFromIdFunction{}
 
 func NewNameFromIdFunction() function.Function {
-	return &NameFromIdFunction{}
+	return &NameFromIdFunction{
+		name: "name_from_id",
+	}
 }
 
-type NameFromIdFunction struct{}
+type NameFromIdFunction struct {
+	name string
+}
 
 func (f NameFromIdFunction) Metadata(ctx context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
-	resp.Name = "name_from_id"
+	resp.Name = f.name
 }
 
 func (f NameFromIdFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
@@ -38,9 +42,8 @@ func (f NameFromIdFunction) Definition(ctx context.Context, req function.Definit
 func (f NameFromIdFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	// Load arguments from function call
 	var arg0 string
-	resp.Diagnostics.Append(req.Arguments.GetArgument(ctx, 0, &arg0)...)
-
-	if resp.Diagnostics.HasError() {
+	resp.Error = function.ConcatFuncErrors(req.Arguments.GetArgument(ctx, 0, &arg0))
+	if resp.Error != nil {
 		return
 	}
 
@@ -50,12 +53,12 @@ func (f NameFromIdFunction) Run(ctx context.Context, req function.RunRequest, re
 	pattern := "resourceType/{name}$"                        // Human-readable pseudo-regex pattern used in errors and warnings
 
 	// Validate input
-	ValidateElementFromIdArguments(arg0, regex, pattern, resp)
-	if resp.Diagnostics.HasError() {
+	resp.Error = function.ConcatFuncErrors(ValidateElementFromIdArguments(ctx, arg0, regex, pattern, f.name))
+	if resp.Error != nil {
 		return
 	}
 
 	// Get and return element from input string
 	name := GetElementFromId(arg0, regex, template)
-	resp.Diagnostics.Append(resp.Result.Set(ctx, name)...)
+	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, name))
 }

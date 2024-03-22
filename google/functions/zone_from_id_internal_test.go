@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -57,19 +56,12 @@ func TestFunctionRun_zone_from_id(t *testing.T) {
 				Result: function.NewResultData(types.StringValue(zone)),
 			},
 		},
-		"it returns a warning and the first submatch when given repetitive input": {
+		"it returns the first submatch (with no error) when given repetitive input": {
 			request: function.RunRequest{
 				Arguments: function.NewArgumentsData([]attr.Value{types.StringValue(repetitiveInput)}),
 			},
 			expected: function.RunResponse{
 				Result: function.NewResultData(types.StringValue(zone)),
-				Diagnostics: diag.Diagnostics{
-					diag.NewArgumentWarningDiagnostic(
-						0,
-						ambiguousMatchesWarningSummary,
-						fmt.Sprintf("The input string \"%s\" contains more than one match for the pattern \"zones/{zone}/\". Terraform will use the first found match.", repetitiveInput),
-					),
-				},
 			},
 		},
 		"it returns an error when given input with no submatches": {
@@ -78,13 +70,10 @@ func TestFunctionRun_zone_from_id(t *testing.T) {
 			},
 			expected: function.RunResponse{
 				Result: function.NewResultData(types.StringNull()),
-				Diagnostics: diag.Diagnostics{
-					diag.NewArgumentErrorDiagnostic(
-						0,
-						noMatchesErrorSummary,
-						fmt.Sprintf("The input string \"%s\" doesn't contain the expected pattern \"zones/{zone}/\".", invalidInput),
-					),
-				},
+				Error: function.NewArgumentFuncError(
+					0,
+					fmt.Sprintf("The input string \"%s\" doesn't contain the expected pattern \"zones/{zone}/\".", invalidInput),
+				),
 			},
 		},
 	}
@@ -107,8 +96,8 @@ func TestFunctionRun_zone_from_id(t *testing.T) {
 			if diff := cmp.Diff(got.Result, tc.expected.Result); diff != "" {
 				t.Errorf("unexpected diff between expected and received result: %s", diff)
 			}
-			if diff := cmp.Diff(got.Diagnostics, tc.expected.Diagnostics); diff != "" {
-				t.Errorf("unexpected diff between expected and received diagnostics: %s", diff)
+			if diff := cmp.Diff(got.Error, tc.expected.Error); diff != "" {
+				t.Errorf("unexpected diff between expected and received errors: %s", diff)
 			}
 		})
 	}

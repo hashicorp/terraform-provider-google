@@ -3,11 +3,10 @@
 package functions_test
 
 import (
+	"context"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-framework/function"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	tpg_functions "github.com/hashicorp/terraform-provider-google/google/functions"
 )
 
@@ -21,16 +20,14 @@ func TestFunctionInternals_ValidateElementFromIdArguments(t *testing.T) {
 		Input           string
 		ExpectedElement string
 		ExpectError     bool
-		ExpectWarning   bool
 	}{
-		"it sets an error in diags if no match is found": {
+		"it sets an error if no match is found": {
 			Input:       "one/element-1/three/element-3",
 			ExpectError: true,
 		},
-		"it sets a warning in diags if more than one match is found": {
+		"it doesn't set an error if more than one match is found": {
 			Input:           "two/element-2/two/element-2/two/element-2",
 			ExpectedElement: "element-2",
-			ExpectWarning:   true,
 		},
 	}
 
@@ -38,25 +35,17 @@ func TestFunctionInternals_ValidateElementFromIdArguments(t *testing.T) {
 		t.Run(tn, func(t *testing.T) {
 
 			// Arrange
-			resp := function.RunResponse{
-				Result: function.NewResultData(basetypes.StringValue{}),
-			}
+			ctx := context.Background()
 
 			// Act
-			tpg_functions.ValidateElementFromIdArguments(tc.Input, regex, pattern, &resp)
+			err := tpg_functions.ValidateElementFromIdArguments(ctx, tc.Input, regex, pattern, "function-name-here") // last arg value is inconsequential for this test
 
 			// Assert
-			if resp.Diagnostics.HasError() && !tc.ExpectError {
-				t.Fatalf("Unexpected error(s) were set in response diags: %s", resp.Diagnostics.Errors())
+			if err != nil && !tc.ExpectError {
+				t.Fatalf("Unexpected error(s) were set in response diags: %s", err.Text)
 			}
-			if !resp.Diagnostics.HasError() && tc.ExpectError {
+			if err == nil && tc.ExpectError {
 				t.Fatal("Expected error(s) to be set in response diags, but there were none.")
-			}
-			if (resp.Diagnostics.WarningsCount() > 0) && !tc.ExpectWarning {
-				t.Fatalf("Unexpected warning(s) were set in response diags: %s", resp.Diagnostics.Warnings())
-			}
-			if (resp.Diagnostics.WarningsCount() == 0) && tc.ExpectWarning {
-				t.Fatal("Expected warning(s) to be set in response diags, but there were none.")
 			}
 		})
 	}

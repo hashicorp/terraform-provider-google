@@ -12,13 +12,17 @@ import (
 var _ function.Function = RegionFromIdFunction{}
 
 func NewRegionFromIdFunction() function.Function {
-	return &RegionFromIdFunction{}
+	return &RegionFromIdFunction{
+		name: "region_from_id",
+	}
 }
 
-type RegionFromIdFunction struct{}
+type RegionFromIdFunction struct {
+	name string // Makes function name available in Run logic for logging purposes
+}
 
 func (f RegionFromIdFunction) Metadata(ctx context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
-	resp.Name = "region_from_id"
+	resp.Name = f.name
 }
 
 func (f RegionFromIdFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
@@ -38,9 +42,8 @@ func (f RegionFromIdFunction) Definition(ctx context.Context, req function.Defin
 func (f RegionFromIdFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	// Load arguments from function call
 	var arg0 string
-	resp.Diagnostics.Append(req.Arguments.GetArgument(ctx, 0, &arg0)...)
-
-	if resp.Diagnostics.HasError() {
+	resp.Error = function.ConcatFuncErrors(req.Arguments.GetArgument(ctx, 0, &arg0))
+	if resp.Error != nil {
 		return
 	}
 
@@ -50,12 +53,12 @@ func (f RegionFromIdFunction) Run(ctx context.Context, req function.RunRequest, 
 	pattern := "regions/{region}/"                                // Human-readable pseudo-regex pattern used in errors and warnings
 
 	// Validate input
-	ValidateElementFromIdArguments(arg0, regex, pattern, resp)
-	if resp.Diagnostics.HasError() {
+	resp.Error = function.ConcatFuncErrors(ValidateElementFromIdArguments(ctx, arg0, regex, pattern, f.name))
+	if resp.Error != nil {
 		return
 	}
 
 	// Get and return element from input string
 	region := GetElementFromId(arg0, regex, template)
-	resp.Diagnostics.Append(resp.Result.Set(ctx, region)...)
+	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, region))
 }

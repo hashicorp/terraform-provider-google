@@ -1,0 +1,3 @@
+```release-note:enhancement
+provider: updated all provider-defined functions to use new error reporting behaviour set by hashicorp/terraform-plugin-framework v1.6.0. Information about ambiguous input values will now be reported by debug logs, instead of warnings.
+```
