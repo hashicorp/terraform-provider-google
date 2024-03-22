@@ -6,13 +6,13 @@ BREAKING CHANGES:
 FEATURES:
 * **New Data Source:** `google_cloud_quotas_quota_infos` ([#17617](https://github.com/hashicorp/terraform-provider-google/pull/17617))
 * **New Resource:** `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
-* **New Resource:** google_cloud_quotas_quota_info ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
+* **New Resource:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 
 IMPROVEMENTS:
 * accesscontextmanager: supported managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
-* cloudrunv2: added the validation to restrict number of ports to 1 to fail earlier than server-side validation ([#17594](https://github.com/hashicorp/terraform-provider-google/pull/17594))
-* composer: small fixes and enhancements after the bugbash. ([#17625](https://github.com/hashicorp/terraform-provider-google/pull/17625))
-* compute: Added enumeration value `SEV_LIVE_MIGRATABLE_V2` for the `guest_os_features` of `google_compute_disk` ([#17629](https://github.com/hashicorp/terraform-provider-google/pull/17629))
+* cloudrunv2: added plan-time validation to restrict number of ports to 1 in `google_cloud_run_v2_service` ([#17594](https://github.com/hashicorp/terraform-provider-google/pull/17594))
+* composer: added field `count` to validate number of DAG processors. ([#17625](https://github.com/hashicorp/terraform-provider-google/pull/17625))
+* compute: added enumeration value `SEV_LIVE_MIGRATABLE_V2` for the `guest_os_features` of `google_compute_disk` ([#17629](https://github.com/hashicorp/terraform-provider-google/pull/17629))
 * compute: added `status.all_instances_config.revision` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#17595](https://github.com/hashicorp/terraform-provider-google/pull/17595))
 * compute: added field `path_template_match` to resource `google_compute_region_url_map` ([#17571](https://github.com/hashicorp/terraform-provider-google/pull/17571))
 * compute: added field `path_template_rewrite` to resource `google_compute_region_url_map` ([#17571](https://github.com/hashicorp/terraform-provider-google/pull/17571))
