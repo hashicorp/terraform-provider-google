@@ -38,29 +38,22 @@ func (f RegionFromZoneFunction) Definition(ctx context.Context, req function.Def
 func (f RegionFromZoneFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	// Load arguments from function call
 	var arg0 string
-	resp.Diagnostics.Append(req.Arguments.GetArgument(ctx, 0, &arg0)...)
-
-	if resp.Diagnostics.HasError() {
+	resp.Error = function.ConcatFuncErrors(req.Arguments.GetArgument(ctx, 0, &arg0))
+	if resp.Error != nil {
 		return
 	}
 
 	if arg0 == "" {
-		resp.Diagnostics.AddArgumentError(
-			0,
-			noMatchesErrorSummary,
-			"The input string cannot be empty.",
-		)
+		err := function.NewArgumentFuncError(0, "The input string cannot be empty.")
+		resp.Error = function.ConcatFuncErrors(err)
 		return
 	}
 
 	if arg0[len(arg0)-2] != '-' {
-		resp.Diagnostics.AddArgumentError(
-			0,
-			noMatchesErrorSummary,
-			fmt.Sprintf("The input string \"%s\" is not a valid zone name.", arg0),
-		)
+		err := function.NewArgumentFuncError(0, fmt.Sprintf("The input string \"%s\" is not a valid zone name.", arg0))
+		resp.Error = function.ConcatFuncErrors(err)
 		return
 	}
 
-	resp.Diagnostics.Append(resp.Result.Set(ctx, arg0[:len(arg0)-2])...)
+	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, arg0[:len(arg0)-2]))
 }
