@@ -28,17 +28,17 @@ func TestAccProviderFunction_name_from_id(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				// Can get the project from a resource's id in one step
+				// Can get the name from a resource's id in one step
 				// Uses google_pubsub_topic resource's id attribute with format projects/{{project}}/topics/{{name}}
-				Config: testProviderFunction_get_project_from_resource_id(context),
+				Config: testProviderFunction_get_name_from_resource_id(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchOutput(context["output_name"].(string), nameRegex),
 				),
 			},
 			{
-				// Can get the project from a resource's self_link in one step
+				// Can get the name from a resource's self_link in one step
 				// Uses google_compute_disk resource's self_link attribute
-				Config: testProviderFunction_get_project_from_resource_self_link(context),
+				Config: testProviderFunction_get_name_from_resource_self_link(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchOutput(context["output_name"].(string), nameRegex),
 				),
