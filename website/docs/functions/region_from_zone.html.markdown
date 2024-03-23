@@ -23,9 +23,48 @@ terraform {
   }
 }
 
-# Value is "us-central1"
-output "function_output" {
-  value = provider::google::region_from_zone("us-central1-b")
+resource "google_compute_instance" "default" {
+  name         = "my-instance"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+      labels = {
+        my_label = "value"
+      }
+    }
+  }
+
+  network_interface {
+    network    = "default"
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  metadata_startup_script = "echo hi > /test.txt"
+}
+
+data "google_compute_network" "default" {
+  name = "default"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "my-subnet"
+  region        = "us-central1"
+  network       = data.google_compute_network.default.id
+  ip_cidr_range = "192.168.10.0/24"
+}
+
+// The region_from_zone function is used to assert that the VM and subnet are in the same region
+check "vm_subnet_compatibility_check" {
+  assert {
+    condition     = google_compute_subnetwork.default.region == provider::google::region_from_zone(google_compute_instance.default.zone)
+    error_message = "Subnet ${google_compute_subnetwork.default.id} and VM ${google_compute_instance.default.id} are not in the same region"
+  }
 }
 ```
 
@@ -40,9 +79,51 @@ terraform {
   }
 }
 
-# Value is "us-central1"
-output "function_output" {
-  value = provider::google-beta::region_from_zone("us-central1-b")
+resource "google_compute_instance" "default" {
+  provider     = google-beta
+  name         = "my-instance"
+  machine_type = "n2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+      labels = {
+        my_label = "value"
+      }
+    }
+  }
+
+  network_interface {
+    network    = "default"
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  metadata_startup_script = "echo hi > /test.txt"
+}
+
+data "google_compute_network" "default" {
+  provider   = google-beta
+  name       = "default"
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "my-subnet"
+  region        = "us-central1"
+  network       = data.google_compute_network.default.id
+  ip_cidr_range = "192.168.10.0/24"
+}
+
+// The region_from_zone function is used to assert that the VM and subnet are in the same region
+check "vm_subnet_compatibility_check" {
+  assert {
+    condition     = google_compute_subnetwork.default.region == provider::google-beta::region_from_zone(google_compute_instance.default.zone)
+    error_message = "Subnet ${google_compute_subnetwork.default.id} and VM ${google_compute_instance.default.id} are not in the same region"
+  }
 }
 ```
 

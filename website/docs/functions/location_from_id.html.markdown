@@ -23,9 +23,27 @@ terraform {
   }
 }
 
+resource "google_cloud_run_service" "default" {
+  name     = "my-service"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
 # Value is "us-central1"
-output "function_output" {
-  value = provider::google::location_from_id("https://run.googleapis.com/v2/projects/my-project/locations/us-central1/services/my-service")
+output "location_from_id" {
+  value = provider::google::location_from_id(google_cloud_run_service.default.id)
 }
 ```
 
@@ -40,9 +58,29 @@ terraform {
   }
 }
 
+resource "google_cloud_run_service" "default" {
+  # provider argument omitted - provisioning by google or google-beta doesn't impact this example
+  name     = "my-service"
+  location = "us-central1"
+
+  template {
+    spec {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
+
 # Value is "us-central1"
-output "function_output" {
-  value = provider::google-beta::location_from_id("https://run.googleapis.com/v2/projects/my-project/locations/us-central1/services/my-service")
+output "location_from_id" {
+  value = provider::google-beta::location_from_id(google_cloud_run_service.default.id)
 }
 ```
 
