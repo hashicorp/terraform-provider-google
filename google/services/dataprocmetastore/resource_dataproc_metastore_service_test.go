@@ -54,6 +54,34 @@ resource "google_dataproc_metastore_service" "my_metastore" {
 `, name, tier)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExampleUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.backup",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_id", "location", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExampleUpdate(context),
+			},
+		},
+	})
+}
+
 func TestAccDataprocMetastoreService_PrivateServiceConnect(t *testing.T) {
 	t.Skip("Skipping due to https://github.com/hashicorp/terraform-provider-google/issues/13710")
 	t.Parallel()
@@ -102,6 +130,42 @@ resource "google_dataproc_metastore_service" "default" {
       subnetwork = data.google_compute_subnetwork.subnet.id
     }
   }
+}
+`, context)
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExampleUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "backup" {
+  service_id = "tf-test-backup%{random_suffix}"
+  location   = "us-central1"
+  port       = 9080
+  tier       = "DEVELOPER"
+
+  maintenance_window {
+    hour_of_day = 2
+    day_of_week = "SUNDAY"
+  }
+
+  hive_metastore_config {
+    version = "2.3.6"
+  }
+
+  scheduled_backup {
+    enabled         = true
+    cron_schedule   = "0 0 * * 0"
+    time_zone       = "America/Los_Angeles"
+    backup_location = "gs://${google_storage_bucket.bucket.name}"
+  }
+
+  labels = {
+    env = "test"
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "tf-test-backup%{random_suffix}"
+  location = "us-central1"
 }
 `, context)
 }
