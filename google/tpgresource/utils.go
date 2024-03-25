@@ -774,7 +774,7 @@ func DefaultProviderProject(_ context.Context, diff *schema.ResourceDiff, meta i
 	if project := diff.Get("project"); project != nil {
 		project2, err := GetProjectFromDiff(diff, config)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve project, pid: %s, err: %s", project, err)
+			project = ""
 		}
 		if CompareSelfLinkRelativePaths("", project.(string), project2, nil) {
 			return nil
@@ -795,7 +795,7 @@ func DefaultProviderRegion(_ context.Context, diff *schema.ResourceDiff, meta in
 	if region := diff.Get("region"); region != nil {
 		region, err := GetRegionFromDiff(diff, config)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve region, pid: %s, err: %s", region, err)
+			region = ""
 		}
 		err = diff.SetNew("region", region)
 		if err != nil {
@@ -813,7 +813,7 @@ func DefaultProviderZone(_ context.Context, diff *schema.ResourceDiff, meta inte
 	if zone := diff.Get("zone"); zone != nil {
 		zone, err := GetZoneFromDiff(diff, config)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve zone, pid: %s, err: %s", zone, err)
+			zone = ""
 		}
 		err = diff.SetNew("zone", zone)
 		if err != nil {
