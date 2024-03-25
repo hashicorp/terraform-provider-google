@@ -1,0 +1,140 @@
+name: "Bug Report"
+description: Is something not working as expected? Submit a bug.
+title: "REPLACE WITH A SHORT DESCRIPTION"
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing an issue, please [search the existing issues](https://github.com/hashicorp/terraform-provider-google/issues?q=is%3Aopen+is%3Aissue+label%3Abug) (open or closed), and use the [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) feature to add up-votes to existing issues.
+        
+        When filing an issue, please include the following information.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Community Guidelines
+      description: The HashiCorp Community Guidelines apply to you when interacting with the community here on GitHub and contributing code.
+      options:
+        - label: I have read and agree to the [HashiCorp Community Guidelines ](https://www.hashicorp.com/community-guidelines).
+          required: true
+        - label: Vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue initial description to help the maintainers prioritize.
+          required: false
+        - label: Do not leave "+1" or other comments that do not add relevant information or questions.
+          required: false
+        - label: If you are interested in working on this issue or have submitted a pull request, please leave a comment.
+          required: false
+  - type: input
+    id: version-terraform
+    attributes:
+      label: Terraform
+      description: Please provide the Terraform version.
+      placeholder: e.g. v1.1.5
+    validations:
+      required: true
+  - type: input
+    id: version-terraform-provider-vsphere
+    attributes:
+      label: Terraform Provider Version
+      description: |
+        Please provide the Terraform provider for Google Provider version.
+        We recommend testing with [the latest version of the provider](https://github.com/hashicorp/terraform-provider-google/releases/latest).
+      placeholder: e.g. v4.18.0
+    validations:
+       required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please provide a clear and concise description of the issue you are experiencing.
+    validations:
+      required: true
+  - type: textarea
+    id: affected-resources
+    attributes:
+      label: Affected Resources
+      description: Please provide the affected resources or data sources as a list.
+      placeholder: |
+        e.g. `resource/google_dataproc_cluster`
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Terraform Configuration
+      description: |
+        - Please provide a code repository, [GitHub Gist](https://gist.github.com/), or code snippet.
+        - Please ensure all secrets and identifiable information is removed.
+
+        Learn more about [Code Formatting](https://help.github.com/articles/basic-writing-and-formatting-syntax/#quoting-code).
+      placeholder: |
+        Please format any code in code blocks using the markdown editor.
+    validations:
+      required: false
+  - type: textarea
+    id: debug
+    attributes:
+      label: Debug Output
+      description: |
+        Please provide a link to a [GitHub Gist](https://gist.github.com/) containing the complete debug output.
+      placeholder: |
+        Please do not paste the debug output in the issue.
+    validations:
+      required: false
+  - type: textarea
+    id: panic
+    attributes:
+      label: Panic Output
+      description: |
+        If Terraform produced a panic, please provide a link to a [GitHub Gist](https://gist.github.com/) containing the output of the `crash.log`
+      placeholder: |
+        Please do not paste the panic output in the issue.
+    validations:
+      required: false
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: |
+        What is it you expected to happen?
+        This should be a description of how the functionality you tried to use is supposed to work.
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened that's different from the expected behavior?
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Please provide the steps to reproduce the issue.
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Please add any additional information you can provide about the environment.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Screenshots of the issue, if applicable.
+    validations:
+      required: false
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: |
+        Please provide any related GitHub issues or pull requests (open or closed) or documentation.
+        Learn about [Referencing Github Issues](https://help.github.com/articles/basic-writing-and-formatting-syntax/#referencing-issues-and-pull-requests).
+      placeholder: |
+        #GH-0000
+    validations:
+      required: false
