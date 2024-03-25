@@ -141,6 +141,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_repository":                 artifactregistry.DataSourceArtifactRegistryRepository(),
 	"google_apphub_discovered_workload":                   apphub.DataSourceApphubDiscoveredWorkload(),
 	"google_app_engine_default_service_account":           appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
+	"google_apphub_application":                           apphub.DataSourceGoogleApphubApplication(),
 	"google_apphub_discovered_service":                    apphub.DataSourceApphubDiscoveredService(),
 	"google_beyondcorp_app_connection":                    beyondcorp.DataSourceGoogleBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                     beyondcorp.DataSourceGoogleBeyondcorpAppConnector(),
