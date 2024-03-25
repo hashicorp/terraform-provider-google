@@ -210,8 +210,8 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), CryptoKey can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_kms_crypto_key.default {{key_ring}}/cryptoKeys/{{name}}
-$ terraform import google_kms_crypto_key.default {{key_ring}}/{{name}}
+$ terraform import google_kms_crypto_key.default {{project}}/{{key_ring_location}}/{{key_ring}}/{{name}}
+$ terraform import google_kms_crypto_key.default {{key_ring_location}}/{{key_ring}}/{{name}}
 ```
 
 ## User Project Overrides
