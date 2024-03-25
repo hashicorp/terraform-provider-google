@@ -251,11 +251,54 @@ func resourceIntegrationsClientRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceIntegrationsClientDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[WARNING] Integrations Client resources"+
-		" cannot be deleted from Google Cloud. The resource %s will be removed from Terraform"+
-		" state, but will still be present on Google Cloud.", d.Id())
-	d.SetId("")
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
 
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for Client: %s", err)
+	}
+	billingProject = project
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "Client/{{location}}")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{IntegrationsBasePath}}projects/{{project}}/locations/{{location}}/clients:deprovision")
+	if err != nil {
+		return err
+	}
+
+	var obj map[string]interface{}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	log.Printf("[DEBUG] Deleting Client %q", d.Id())
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutDelete),
+	})
+	if err != nil {
+		return transport_tpg.HandleNotFoundError(err, d, "Client")
+	}
+
+	log.Printf("[DEBUG] Finished deleting Client %q: %#v", d.Id(), res)
 	return nil
 }
 

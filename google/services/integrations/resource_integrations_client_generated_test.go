@@ -18,11 +18,16 @@
 package integrations_test
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
@@ -35,6 +40,7 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIntegrationsClient_integrationsClientBasicExample(context),
@@ -68,6 +74,7 @@ func TestAccIntegrationsClient_integrationsClientAdvanceExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccIntegrationsClient_integrationsClientAdvanceExample(context),
@@ -119,4 +126,43 @@ resource "google_integrations_client" "example" {
   depends_on = [google_kms_crypto_key_version.test_key]
 }
 `, context)
+}
+
+func testAccCheckIntegrationsClientDestroyProducer(t *testing.T) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != "google_integrations_client" {
+				continue
+			}
+			if strings.HasPrefix(name, "data.") {
+				continue
+			}
+
+			config := acctest.GoogleProviderConfig(t)
+
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{IntegrationsBasePath}}projects/{{project}}/locations/{{location}}/clients")
+			if err != nil {
+				return err
+			}
+
+			billingProject := ""
+
+			if config.BillingProject != "" {
+				billingProject = config.BillingProject
+			}
+
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
+				UserAgent: config.UserAgent,
+			})
+			if err == nil {
+				return fmt.Errorf("IntegrationsClient still exists at %s", url)
+			}
+		}
+
+		return nil
+	}
 }
