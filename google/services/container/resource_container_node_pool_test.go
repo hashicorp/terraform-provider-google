@@ -544,7 +544,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, true, 1024),
-				ExpectError: regexp.MustCompile(`.*to be one of \[static none \].*`),
+				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
 	})
