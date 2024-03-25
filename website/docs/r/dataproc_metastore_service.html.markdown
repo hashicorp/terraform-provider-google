@@ -208,6 +208,47 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=dataproc_metastore_service_scheduled_backup&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Scheduled Backup
+
+
+```hcl
+resource "google_dataproc_metastore_service" "backup" {
+  service_id = "backup"
+  location   = "us-central1"
+  port       = 9080
+  tier       = "DEVELOPER"
+
+  maintenance_window {
+    hour_of_day = 2
+    day_of_week = "SUNDAY"
+  }
+
+  hive_metastore_config {
+    version = "2.3.6"
+  }
+
+  scheduled_backup {
+    enabled         = true
+    cron_schedule   = "0 0 * * *"
+    time_zone       = "UTC"
+    backup_location = "gs://${google_storage_bucket.bucket.name}"
+  }
+
+  labels = {
+    env = "test"
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "backup"
+  location = "us-central1"
+}
+```
 
 ## Argument Reference
 
@@ -248,6 +289,11 @@ The following arguments are supported:
   (Optional)
   Represents the scaling configuration of a metastore service.
   Structure is [documented below](#nested_scaling_config).
+
+* `scheduled_backup` -
+  (Optional)
+  The configuration of scheduled backup for the metastore service.
+  Structure is [documented below](#nested_scheduled_backup).
 
 * `maintenance_window` -
   (Optional)
@@ -313,6 +359,24 @@ The following arguments are supported:
 * `scaling_factor` -
   (Optional)
   Scaling factor, in increments of 0.1 for values less than 1.0, and increments of 1.0 for values greater than 1.0.
+
+<a name="nested_scheduled_backup"></a>The `scheduled_backup` block supports:
+
+* `enabled` -
+  (Optional)
+  Defines whether the scheduled backup is enabled. The default value is false.
+
+* `cron_schedule` -
+  (Optional)
+  The scheduled interval in Cron format, see https://en.wikipedia.org/wiki/Cron The default is empty: scheduled backup is not enabled. Must be specified to enable scheduled backups.
+
+* `time_zone` -
+  (Optional)
+  Specifies the time zone to be used when interpreting cronSchedule. Must be a time zone name from the time zone database (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. America/Los_Angeles or Africa/Abidjan. If left unspecified, the default is UTC.
+
+* `backup_location` -
+  (Required)
+  A Cloud Storage URI of a folder, in the format gs://<bucket_name>/<path_inside_bucket>. A sub-folder <backup_folder> containing backup files will be stored below it.
 
 <a name="nested_maintenance_window"></a>The `maintenance_window` block supports:
 

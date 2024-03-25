@@ -1,0 +1,3 @@
+```release-note:enhancement
+metastore: added `scheduled_backup` field to `google_dataproc_metastore_service` resource
+```
