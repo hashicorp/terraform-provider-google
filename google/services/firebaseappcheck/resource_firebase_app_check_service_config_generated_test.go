@@ -125,7 +125,7 @@ func TestAccFirebaseAppCheckServiceConfig_firebaseAppCheckServiceConfigUnenforce
 
 	context := map[string]interface{}{
 		"project_id":    envvar.GetTestProjectFromEnv(),
-		"service_id":    "firebasedatabase.googleapis.com",
+		"service_id":    "identitytoolkit.googleapis.com",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

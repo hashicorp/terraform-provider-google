@@ -34,7 +34,7 @@ func TestAccDataflowJob_basic(t *testing.T) {
 	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
-	zone := "us-central1-f"
+	zone := "us-east5-b"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -66,7 +66,7 @@ func TestAccDataflowJobSkipWait_basic(t *testing.T) {
 	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
-	zone := "us-central1-f"
+	zone := "us-east5-b"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -263,7 +263,7 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 	randStr := acctest.RandString(t, 10)
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
-	zone := "us-central1-f"
+	zone := "us-east5-b"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
@@ -417,7 +417,7 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 	crypto_key := "tf-test-dataflow-kms-key-" + randStr
 	bucket := "tf-test-dataflow-gcs-" + randStr
 	job := "tf-test-dataflow-job-" + randStr
-	zone := "us-central1-f"
+	zone := "us-east5-b"
 
 	if acctest.BootstrapPSARole(t, "service-", "compute-system", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
 		t.Fatal("Stopping the test because a role was added to the policy.")
@@ -867,7 +867,7 @@ resource "google_storage_bucket" "temp" {
 
 resource "google_dataflow_job" "big_data" {
   name = "%s"
- 
+
   zone    = "%s"
 
   machine_type      = "e2-standard-2"
@@ -892,7 +892,7 @@ resource "google_storage_bucket" "temp" {
 
 resource "google_dataflow_job" "big_data" {
   name = "%s"
- 
+
   zone    = "%s"
 
   machine_type      = "e2-standard-2"
@@ -1026,7 +1026,7 @@ resource "google_project_iam_member" "dataflow-worker" {
 resource "google_dataflow_job" "big_data" {
   name = "%s"
   depends_on = [
-    google_storage_bucket_iam_member.dataflow-gcs, 
+    google_storage_bucket_iam_member.dataflow-gcs,
     google_project_iam_member.dataflow-worker
   ]
 
@@ -1223,7 +1223,7 @@ resource "google_storage_bucket" "temp" {
 
 resource "google_dataflow_job" "big_data" {
   name = "%s"
- 
+
   zone    = "%s"
 
   machine_type      = "e2-standard-2"

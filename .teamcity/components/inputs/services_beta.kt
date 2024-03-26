@@ -466,6 +466,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Integrationconnectors",
         "path" to "./google-beta/services/integrationconnectors"
     ),
+    "integrations" to mapOf(
+        "name" to "integrations",
+        "displayName" to "Applicationintegration",
+        "path" to "./google-beta/services/integrations"
+    ),
     "kms" to mapOf(
         "name" to "kms",
         "displayName" to "Kms",

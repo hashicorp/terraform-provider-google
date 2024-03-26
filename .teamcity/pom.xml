@@ -136,7 +136,7 @@
     <dependency>
       <groupId>org.jetbrains.teamcity</groupId>
       <artifactId>server-api</artifactId>
-      <version>${teamcity.dsl.version}</version>
+      <version>2024.07-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

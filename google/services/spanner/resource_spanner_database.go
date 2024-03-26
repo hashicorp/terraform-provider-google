@@ -22,8 +22,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -65,44 +63,6 @@ func resourceSpannerDBDdlCustomDiffFunc(diff tpgresource.TerraformResourceDiff) 
 func resourceSpannerDBDdlCustomDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	// separate func to allow unit testing
 	return resourceSpannerDBDdlCustomDiffFunc(diff)
-}
-
-func ValidateDatabaseRetentionPeriod(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	valueError := fmt.Errorf("version_retention_period should be in range [1h, 7d], in a format resembling 1d, 24h, 1440m, or 86400s")
-
-	r := regexp.MustCompile("^(\\d{1}d|\\d{1,3}h|\\d{2,5}m|\\d{4,6}s)$")
-	if !r.MatchString(value) {
-		errors = append(errors, valueError)
-		return
-	}
-
-	unit := value[len(value)-1:]
-	multiple := value[:len(value)-1]
-	num, err := strconv.Atoi(multiple)
-	if err != nil {
-		errors = append(errors, valueError)
-		return
-	}
-
-	if unit == "d" && (num < 1 || num > 7) {
-		errors = append(errors, valueError)
-		return
-	}
-	if unit == "h" && (num < 1 || num > 7*24) {
-		errors = append(errors, valueError)
-		return
-	}
-	if unit == "m" && (num < 1*60 || num > 7*24*60) {
-		errors = append(errors, valueError)
-		return
-	}
-	if unit == "s" && (num < 1*60*60 || num > 7*24*60*60) {
-		errors = append(errors, valueError)
-		return
-	}
-
-	return
 }
 
 func resourceSpannerDBVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
@@ -210,10 +170,9 @@ in the same location as the Spanner Database.`,
 				},
 			},
 			"version_retention_period": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: ValidateDatabaseRetentionPeriod,
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 				Description: `The retention period for the database. The retention period must be between 1 hour
 and 7 days, and can be specified in days, hours, minutes, or seconds. For example,
 the values 1d, 24h, 1440m, and 86400s are equivalent. Default value is 1h.

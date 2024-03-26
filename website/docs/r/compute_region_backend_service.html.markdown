@@ -1119,6 +1119,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `fingerprint` -
   Fingerprint of this resource. A hash of the contents stored in this
   object. This field is used in optimistic locking.
+
+* `generated_id` -
+  The unique identifier for the resource. This identifier is defined by the server.
 * `self_link` - The URI of the created resource.
 
 

@@ -42,48 +42,20 @@ will be the same as the App Engine location specified.
 
 
 ```hcl
-resource "google_project" "project" {
-  project_id = "project-id"
-  name       = "project-id"
-  org_id     = "123456789"
-}
-
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [google_project.project]
-
-  create_duration = "60s"
-}
-
-resource "google_project_service" "firestore" {
-  project = google_project.project.project_id
-  service = "firestore.googleapis.com"
-
-  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
-  depends_on = [time_sleep.wait_60_seconds]
-}
-
 resource "google_firestore_database" "database" {
-  project     = google_project.project.project_id
-  name        = "(default)"
+  project     = "my-project-name"
+  name        = "database-id"
   location_id = "nam5"
   type        = "FIRESTORE_NATIVE"
 
-  depends_on = [google_project_service.firestore]
-}
-
-# Creating a document also creates its collection
-resource "google_firestore_document" "document" {
-  project     = google_project.project.project_id
-  database    = google_firestore_database.database.name
-  collection  = "somenewcollection"
-  document_id = ""
-  fields      = "{\"something\":{\"mapValue\":{\"fields\":{\"akey\":{\"stringValue\":\"avalue\"}}}}}"
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
 }
 
 resource "google_firestore_index" "my-index" {
-  project    = google_project.project.project_id
+  project     = "my-project-name"
   database   = google_firestore_database.database.name
-  collection = google_firestore_document.document.collection
+  collection = "atestcollection"
 
   fields {
     field_path = "name"
@@ -94,17 +66,26 @@ resource "google_firestore_index" "my-index" {
     field_path = "description"
     order      = "DESCENDING"
   }
-
 }
 ```
 ## Example Usage - Firestore Index Datastore Mode
 
 
 ```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id-dm"
+  location_id = "nam5"
+  type        = "DATASTORE_MODE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_firestore_index" "my-index" {
-  project    = "my-project-name"
-  database   = "(default)"
-  collection = "chatrooms"
+  project     = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "atestcollection"
 
   query_scope = "COLLECTION_RECURSIVE"
   api_scope = "DATASTORE_MODE_API"

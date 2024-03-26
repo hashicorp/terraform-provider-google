@@ -407,6 +407,72 @@ resource "google_workstations_workstation_config" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_config_boost&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Workstation Config Boost
+
+
+```hcl
+resource "google_compute_network" "default" {
+  provider                = google-beta
+  name                    = "workstation-cluster"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  provider      = google-beta
+  name          = "workstation-cluster"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.default.name
+}
+
+resource "google_workstations_workstation_cluster" "default" {
+  provider               = google-beta
+  workstation_cluster_id = "workstation-cluster"
+  network                = google_compute_network.default.id
+  subnetwork             = google_compute_subnetwork.default.id
+  location               = "us-central1"
+  
+  labels = {
+    "label" = "key"
+  }
+
+  annotations = {
+    label-one = "value-one"
+  }
+}
+
+resource "google_workstations_workstation_config" "default" {
+  provider               = google-beta
+  workstation_config_id  = "workstation-config"
+  workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
+  location               = "us-central1"
+
+  host {
+    gce_instance {
+      machine_type                = "e2-standard-4"
+      boot_disk_size_gb           = 35
+      disable_public_ip_addresses = true
+      boost_configs {
+        id           = "boost-1"
+        machine_type = "n1-standard-2"
+        accelerators {
+          type  = "nvidia-tesla-t4"
+          count = "1"
+        }
+      }
+      boost_configs {
+        id           = "boost-1"
+        machine_type = "e2-standard-2"
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=workstation_config_encryption_key&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -654,6 +720,11 @@ The following arguments are supported:
   An accelerator card attached to the instance.
   Structure is [documented below](#nested_accelerators).
 
+* `boost_configs` -
+  (Optional)
+  A list of the boost configurations that workstations created using this workstation configuration are allowed to use.
+  Structure is [documented below](#nested_boost_configs).
+
 
 <a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
 
@@ -674,6 +745,32 @@ The following arguments are supported:
 * `enable_confidential_compute` -
   (Optional)
   Whether the instance has confidential compute enabled.
+
+<a name="nested_accelerators"></a>The `accelerators` block supports:
+
+* `type` -
+  (Required)
+  Type of accelerator resource to attach to the instance, for example, "nvidia-tesla-p100".
+
+* `count` -
+  (Required)
+  Number of accelerator cards exposed to the instance.
+
+<a name="nested_boost_configs"></a>The `boost_configs` block supports:
+
+* `id` -
+  (Required)
+  The id to be used for the boost config.
+
+* `machine_type` -
+  (Optional)
+  The type of machine that boosted VM instances will use—for example, e2-standard-4. For more information about machine types that Cloud Workstations supports, see the list of available machine types https://cloud.google.com/workstations/docs/available-machine-types. Defaults to e2-standard-4.
+
+* `accelerators` -
+  (Optional)
+  An accelerator card attached to the boost instance.
+  Structure is [documented below](#nested_accelerators).
+
 
 <a name="nested_accelerators"></a>The `accelerators` block supports:
 

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"regexp"
 	"strings"
 	"time"
@@ -2668,4 +2669,18 @@ func versionValidationCustomizeDiffFunc(ctx context.Context, d *schema.ResourceD
 		}
 	}
 	return nil
+}
+
+func validateComposerInternalIpv4CidrBlock(v any, k string) (warns []string, errs []error) {
+	cidr_range := v.(string)
+	_, ip_net, err := net.ParseCIDR(cidr_range)
+	if err != nil {
+		errs = append(errs, fmt.Errorf("Invalid CIDR range: %s", err))
+		return
+	}
+	ones, _ := ip_net.Mask.Size()
+	if ones != 20 {
+		errs = append(errs, fmt.Errorf("Composer Internal IPv4 CIDR range must have size /20"))
+	}
+	return
 }
