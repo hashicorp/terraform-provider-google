@@ -1518,7 +1518,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Optional:         true,
 							ForceNew:         true,
 							AtLeastOneOf:     privateClusterConfigKeys,
-							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							DiffSuppressFunc: containerClusterPrivateClusterConfigSuppress,
 							Description:      `Subnetwork in cluster's network where master's endpoint will be provisioned.`,
 						},
 						"public_endpoint": {
@@ -5786,6 +5786,14 @@ func containerClusterPrivateClusterConfigSuppress(k, old, new string, d *schema.
 		return suppressNodes && !hasSubnet
 	} else if k == "private_cluster_config.#" {
 		return suppressEndpoint && suppressNodes && !hasSubnet && !hasGlobalAccessConfig
+	} else if k == "private_cluster_config.0.private_endpoint_subnetwork" {
+		// Before regular compare, for the sake of private flexible cluster,
+		// suppress diffs in private_endpoint_subnetwork when
+		//   master_ipv4_cidr_block is set
+		//   && private_endpoint_subnetwork is unset in terraform (new value == "")
+		//   && private_endpoint_subnetwork is returned from resource (old value != "")
+		_, hasMasterCidr := d.GetOk("private_cluster_config.0.master_ipv4_cidr_block")
+		return (hasMasterCidr && new == "" && old != "") || tpgresource.CompareSelfLinkOrResourceName(k, old, new, d)
 	}
 	return false
 }
