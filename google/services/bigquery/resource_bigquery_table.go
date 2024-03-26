@@ -624,6 +624,13 @@ func ResourceBigQueryTable() *schema.Resource {
 							},
 						},
 
+						"json_extension": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"GEOJSON"}, false),
+							Description:  `Load option to be used together with sourceFormat newline-delimited JSON to indicate that a variant of JSON is being loaded. To load newline-delimited GeoJSON, specify GEOJSON (and sourceFormat must be set to NEWLINE_DELIMITED_JSON).`,
+						},
+
 						"parquet_options": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1786,6 +1793,10 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 		edc.Compression = v.(string)
 	}
 
+	if v, ok := raw["json_extension"]; ok {
+		edc.JsonExtension = v.(string)
+	}
+
 	if v, ok := raw["csv_options"]; ok {
 		edc.CsvOptions = expandCsvOptions(v)
 	}
@@ -1851,6 +1862,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.Compression != "" {
 		result["compression"] = edc.Compression
+	}
+
+	if edc.JsonExtension != "" {
+		result["json_extension"] = edc.JsonExtension
 	}
 
 	if edc.CsvOptions != nil {

@@ -329,17 +329,25 @@ The `status` block holds:
 
 * `version_target` - A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager.
 
+* `all_instances_config` - Status of all-instances configuration on the group.
+
+* `stateful` - Stateful status of the given Instance Group Manager.
+
 The `version_target` block holds:
 
 * `version_target` - A bit indicating whether version target has been reached in this managed instance group, i.e. all instances are in their target version. Instances' target version are specified by version field on Instance Group Manager.
 
-* `stateful` - Stateful status of the given Instance Group Manager.
+The `all_instances_config` block holds:
+
+* `effective` -  A bit indicating whether this configuration has been applied to all managed instances in the group.
+
+* `current_revision` - Current all-instances configuration revision. This value is in RFC3339 text format.
 
 The `stateful` block holds:
 
 * `has_stateful_config` - A bit indicating whether the managed instance group has stateful configuration, that is, if you have configured any items in a stateful policy or in per-instance configs. The group might report that it has no stateful config even when there is still some preserved state on a managed instance, for example, if you have deleted all PICs but not yet applied those deletions.
 
-* `per_instance_configs` - Status of per-instance configs on the instance.
+* `per_instance_configs` - Status of per-instance configs on the instances.
 
 The `per_instance_configs` block holds:
 

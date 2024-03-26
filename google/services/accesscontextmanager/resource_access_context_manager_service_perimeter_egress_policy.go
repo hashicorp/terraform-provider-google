@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,7 +34,6 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 	return &schema.Resource{
 		Create: resourceAccessContextManagerServicePerimeterEgressPolicyCreate,
 		Read:   resourceAccessContextManagerServicePerimeterEgressPolicyRead,
-		Update: resourceAccessContextManagerServicePerimeterEgressPolicyUpdate,
 		Delete: resourceAccessContextManagerServicePerimeterEgressPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,7 +42,6 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
-			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -59,6 +56,7 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 			"egress_from": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `Defines conditions on the source of a request causing this 'EgressPolicy' to apply.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -66,6 +64,7 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 						"identities": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Description: `A list of identities that are allowed access through this 'EgressPolicy'.
 Should be in the format of an email address. The email address should
 represent an individual user, service account, or Google group.`,
@@ -76,6 +75,7 @@ represent an individual user, service account, or Google group.`,
 						"identity_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SERVICE_ACCOUNT", ""}),
 							Description: `Specifies the type of identities that are allowed access to outside the
 perimeter. If left unspecified, then members of 'identities' field will
@@ -84,18 +84,21 @@ be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SE
 						"source_restriction": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED", ""}),
 							Description:  `Whether to enforce traffic restrictions based on 'sources' field. If the 'sources' field is non-empty, then this field must be set to 'SOURCE_RESTRICTION_ENABLED'. Possible values: ["SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED"]`,
 						},
 						"sources": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `Sources that this EgressPolicy authorizes access from.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"access_level": {
 										Type:        schema.TypeString,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `An AccessLevel resource name that allows resources outside the ServicePerimeter to be accessed from the inside.`,
 									},
 								},
@@ -107,6 +110,7 @@ be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SE
 			"egress_to": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Description: `Defines the conditions on the 'ApiOperation' and destination resources that
 cause this 'EgressPolicy' to apply.`,
 				MaxItems: 1,
@@ -115,6 +119,7 @@ cause this 'EgressPolicy' to apply.`,
 						"external_resources": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Description: `A list of external resources that are allowed to be accessed. A request
 matches if it contains an external resource in this list (Example:
 s3://bucket/path). Currently '*' is not allowed.`,
@@ -125,6 +130,7 @@ s3://bucket/path). Currently '*' is not allowed.`,
 						"operations": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Description: `A list of 'ApiOperations' that this egress rule applies to. A request matches
 if it contains an operation/service in this list.`,
 							Elem: &schema.Resource{
@@ -132,6 +138,7 @@ if it contains an operation/service in this list.`,
 									"method_selectors": {
 										Type:     schema.TypeList,
 										Optional: true,
+										ForceNew: true,
 										Description: `API methods or permissions to allow. Method or permission must belong
 to the service specified by 'serviceName' field. A single MethodSelector
 entry with '*' specified for the 'method' field will allow all methods
@@ -141,6 +148,7 @@ AND permissions for the service specified in 'serviceName'.`,
 												"method": {
 													Type:     schema.TypeString,
 													Optional: true,
+													ForceNew: true,
 													Description: `Value for 'method' should be a valid method name for the corresponding
 'serviceName' in 'ApiOperation'. If '*' used as value for method,
 then ALL methods and permissions are allowed.`,
@@ -148,6 +156,7 @@ then ALL methods and permissions are allowed.`,
 												"permission": {
 													Type:     schema.TypeString,
 													Optional: true,
+													ForceNew: true,
 													Description: `Value for permission should be a valid Cloud IAM permission for the
 corresponding 'serviceName' in 'ApiOperation'.`,
 												},
@@ -157,6 +166,7 @@ corresponding 'serviceName' in 'ApiOperation'.`,
 									"service_name": {
 										Type:     schema.TypeString,
 										Optional: true,
+										ForceNew: true,
 										Description: `The name of the API whose methods or permissions the 'IngressPolicy' or
 'EgressPolicy' want to allow. A single 'ApiOperation' with serviceName
 field set to '*' will allow all methods AND permissions for all services.`,
@@ -167,6 +177,7 @@ field set to '*' will allow all methods AND permissions for all services.`,
 						"resources": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Description: `A list of resources, currently only projects in the form
 'projects/<projectnumber>', that match this to stanza. A request matches
 if it contains a resource in this list. If * is specified for resources,
@@ -346,98 +357,6 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyRead(d *schema.Reso
 	}
 
 	return nil
-}
-
-func resourceAccessContextManagerServicePerimeterEgressPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*transport_tpg.Config)
-	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
-	if err != nil {
-		return err
-	}
-
-	billingProject := ""
-
-	obj := make(map[string]interface{})
-	egressFromProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(d.Get("egress_from"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("egress_from"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, egressFromProp)) {
-		obj["egressFrom"] = egressFromProp
-	}
-	egressToProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(d.Get("egress_to"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("egress_to"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, egressToProp)) {
-		obj["egressTo"] = egressToProp
-	}
-
-	lockName, err := tpgresource.ReplaceVars(d, config, "{{perimeter}}")
-	if err != nil {
-		return err
-	}
-	transport_tpg.MutexStore.Lock(lockName)
-	defer transport_tpg.MutexStore.Unlock(lockName)
-
-	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating ServicePerimeterEgressPolicy %q: %#v", d.Id(), obj)
-	updateMask := []string{}
-
-	if d.HasChange("egress_from") {
-		updateMask = append(updateMask, "egressFrom")
-	}
-
-	if d.HasChange("egress_to") {
-		updateMask = append(updateMask, "egressTo")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
-
-	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-
-	// err == nil indicates that the billing_project value was found
-	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-		billingProject = bp
-	}
-
-	// if updateMask is empty we are not updating anything so skip the post
-	if len(updateMask) > 0 {
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PUT",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-		})
-
-		if err != nil {
-			return fmt.Errorf("Error updating ServicePerimeterEgressPolicy %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating ServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
-		}
-
-		err = AccessContextManagerOperationWaitTime(
-			config, res, "Updating ServicePerimeterEgressPolicy", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return resourceAccessContextManagerServicePerimeterEgressPolicyRead(d, meta)
 }
 
 func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -925,42 +844,6 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(
 	// Return list with the resource to create appended
 	res := map[string]interface{}{
 		"egressPolicies": append(currItems, obj),
-	}
-	wrapped := map[string]interface{}{
-		"status": res,
-	}
-	res = wrapped
-
-	return res, nil
-}
-
-// PatchUpdateEncoder handles creating request data to PATCH parent resource
-// with list including updated object.
-func resourceAccessContextManagerServicePerimeterEgressPolicyPatchUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	items, err := resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d, meta)
-	if err != nil {
-		return nil, err
-	}
-
-	idx, item, err := resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInList(d, meta, items)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return error if item to update does not exist.
-	if item == nil {
-		return nil, fmt.Errorf("Unable to update ServicePerimeterEgressPolicy %q - not found in list", d.Id())
-	}
-
-	// Merge new object into old.
-	for k, v := range obj {
-		item[k] = v
-	}
-	items[idx] = item
-
-	// Return list with new item added
-	res := map[string]interface{}{
-		"egressPolicies": items,
 	}
 	wrapped := map[string]interface{}{
 		"status": res,

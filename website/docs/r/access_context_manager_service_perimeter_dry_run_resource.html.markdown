@@ -14,23 +14,23 @@
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
 description: |-
-  Allows configuring a single GCP resource that should be inside the `status` block of a service perimeter.
+  Allows configuring a single GCP resource that should be inside of the `spec` block of a dry run service perimeter.
 ---
 
-# google\_access\_context\_manager\_service\_perimeter\_resource
+# google\_access\_context\_manager\_service\_perimeter\_dry\_run\_resource
 
-Allows configuring a single GCP resource that should be inside the `status` block of a service perimeter.
+Allows configuring a single GCP resource that should be inside of the `spec` block of a dry run service perimeter.
 This resource is intended to be used in cases where it is not possible to compile a full list
 of projects to include in a `google_access_context_manager_service_perimeter` resource,
 to enable them to be added separately.
-If your perimeter is in dry-run mode use `google_access_context_manager_service_perimeter_dry_run_resource` instead.
+If your perimeter is NOT in dry-run mode use `google_access_context_manager_service_perimeter_resource` instead.
 
 ~> **Note:** If this resource is used alongside a `google_access_context_manager_service_perimeter` resource,
-the service perimeter resource must have a `lifecycle` block with `ignore_changes = [status[0].resources]` so
+the service perimeter resource must have a `lifecycle` block with `ignore_changes = [spec[0].resources]` so
 they don't fight over which resources should be in the policy.
 
 
-To get more information about ServicePerimeterResource, see:
+To get more information about ServicePerimeterDryRunResource, see:
 
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/accessPolicies.servicePerimeters)
 * How-to Guides
@@ -42,25 +42,25 @@ in the provider configuration. Otherwise the ACM API will return a 403 error.
 Your account must have the `serviceusage.services.use` permission on the
 `billing_project` you defined.
 
-## Example Usage - Access Context Manager Service Perimeter Resource Basic
+## Example Usage - Access Context Manager Service Perimeter Dry Run Resource Basic
 
 
 ```hcl
-resource "google_access_context_manager_service_perimeter_resource" "service-perimeter-resource" {
-  perimeter_name = google_access_context_manager_service_perimeter.service-perimeter-resource.name
+resource "google_access_context_manager_service_perimeter_dry_run_resource" "service-perimeter-dry-run-resource" {
+  perimeter_name = google_access_context_manager_service_perimeter.service-perimeter-dry-run-resource.name
   resource = "projects/987654321"
 }
 
-resource "google_access_context_manager_service_perimeter" "service-perimeter-resource" {
+resource "google_access_context_manager_service_perimeter" "service-perimeter-dry-run-resource" {
   parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
   name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_all"
   title  = "restrict_all"
-  status {
+  spec {
     restricted_services = ["storage.googleapis.com"]
   }
-
+  use_explicit_dry_run_spec = true
   lifecycle {
-    ignore_changes = [status[0].resources]
+    ignore_changes = [spec[0].resources]
   }
 }
 
@@ -108,22 +108,22 @@ This resource provides the following
 ## Import
 
 
-ServicePerimeterResource can be imported using any of these accepted formats:
+ServicePerimeterDryRunResource can be imported using any of these accepted formats:
 
 * `{{perimeter_name}}/{{resource}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServicePerimeterResource using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServicePerimeterDryRunResource using one of the formats above. For example:
 
 ```tf
 import {
   id = "{{perimeter_name}}/{{resource}}"
-  to = google_access_context_manager_service_perimeter_resource.default
+  to = google_access_context_manager_service_perimeter_dry_run_resource.default
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ServicePerimeterResource can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ServicePerimeterDryRunResource can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_access_context_manager_service_perimeter_resource.default {{perimeter_name}}/{{resource}}
+$ terraform import google_access_context_manager_service_perimeter_dry_run_resource.default {{perimeter_name}}/{{resource}}
 ```

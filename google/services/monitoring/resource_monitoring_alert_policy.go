@@ -890,9 +890,10 @@ This limit is not implemented for alert policies that are not log-based.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"period": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Not more than one notification per period.`,
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Not more than one notification per period.
+A duration in seconds with up to nine fractional digits, terminated by 's'. Example "60.5s".`,
 									},
 								},
 							},

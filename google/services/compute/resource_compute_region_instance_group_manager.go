@@ -481,6 +481,11 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 										Computed:    true,
 										Description: `A bit indicating whether this configuration has been applied to all managed instances in the group.`,
 									},
+									"current_revision": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `Current all-instances configuration revision. This value is in RFC3339 text format.`,
+									},
 								},
 							},
 						},
@@ -498,7 +503,7 @@ func ResourceComputeRegionInstanceGroupManager() *schema.Resource {
 									"per_instance_configs": {
 										Type:        schema.TypeList,
 										Computed:    true,
-										Description: `Status of per-instance configs on the instance.`,
+										Description: `Status of per-instance configs on the instances.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"all_effective": {

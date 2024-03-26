@@ -28,10 +28,59 @@ For access from private networks, using the project of the hosting network is re
 Individual ingress policies can be limited by restricting which services and/
 or actions they match using the ingressTo field.
 
+~> **Note:** By default, updates to this resource will remove the IngressPolicy from the
+from the perimeter and add it back in a non-atomic manner. To ensure that the new IngressPolicy
+is added before the old one is removed, add a `lifecycle` block with `create_before_destroy = true` to this resource.
+
 
 To get more information about ServicePerimeterIngressPolicy, see:
 
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/accessPolicies.servicePerimeters#ingresspolicy)
+
+## Example Usage - Access Context Manager Service Perimeter Ingress Policy
+
+
+```hcl
+resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
+  parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
+  name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
+  title  = "Storage Perimeter"
+  status {
+    restricted_services = ["storage.googleapis.com"]
+  }
+  lifecycle {
+    ignore_changes = [status[0].resources]
+  }
+}
+
+resource "google_access_context_manager_service_perimeter_ingress_policy" "ingress_policy" {
+  perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
+  ingress_from {
+    identity_type = "any_identity"
+    sources {
+      access_level = "*"
+    }
+  }
+  ingress_to {
+    resources = ["*"]
+    operations {
+      service_name = "bigquery.googleapis.com"
+      method_selectors {
+        method = "*"
+      }
+    }
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+resource "google_access_context_manager_access_policy" "access-policy" {
+  parent = "organizations/123456789"
+  title  = "Storage Policy"
+}
+```
 
 ## Argument Reference
 
@@ -165,7 +214,6 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
-- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

@@ -1371,7 +1371,7 @@ The `worker` block supports:
   (Optional)
   The amount of memory (GB) for a single Airflow worker.
 
-* `float storage_gb`
+* `storage_gb`
   (Optional)
   The amount of storage (GB) for a single Airflow worker.
 
@@ -1396,7 +1396,7 @@ The `dag_processor` block supports:
   (Optional)
   Memory (GB) request and limit for DAG processor.
 
-* `float storage_gb`
+* `storage_gb`
   (Optional)
   Storage (GB) request and limit for DAG processor.
 

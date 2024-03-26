@@ -907,6 +907,7 @@ The following arguments are supported:
 * `period` -
   (Optional)
   Not more than one notification per period.
+  A duration in seconds with up to nine fractional digits, terminated by 's'. Example "60.5s".
 
 <a name="nested_notification_channel_strategy"></a>The `notification_channel_strategy` block supports:
 

@@ -428,6 +428,67 @@ resource "google_dataproc_metastore_service" "dpms2_scaling_factor_lt1" {
 `, context)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.backup",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_id", "location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceScheduledBackupExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "backup" {
+  service_id = "backup%{random_suffix}"
+  location   = "us-central1"
+  port       = 9080
+  tier       = "DEVELOPER"
+
+  maintenance_window {
+    hour_of_day = 2
+    day_of_week = "SUNDAY"
+  }
+
+  hive_metastore_config {
+    version = "2.3.6"
+  }
+
+  scheduled_backup {
+    enabled         = true
+    cron_schedule   = "0 0 * * *"
+    time_zone       = "UTC"
+    backup_location = "gs://${google_storage_bucket.bucket.name}"
+  }
+
+  labels = {
+    env = "test"
+  }
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "backup%{random_suffix}"
+  location = "us-central1"
+}
+`, context)
+}
+
 func testAccCheckDataprocMetastoreServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
