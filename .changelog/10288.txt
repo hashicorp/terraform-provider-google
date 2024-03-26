@@ -1,0 +1,15 @@
+```release-note:note
+provider: introduced support for provider-defined functions. This feature is in Terraform v1.8.0+.
+```
+```release-note:enhancement
+provider: added provider-defined function `project_from_id` for retrieving the project id from a resource's self link or id
+```
+```release-note:enhancement
+provider: added provider-defined functions `location_from_id`, `region_from_id`, and `zone_from_id` for retrieving the location/region/zone names from a resource's self link or id
+```
+```release-note:enhancement
+provider: added provider-defined function `name_from_id` for retrieving the short-form name of a resource from its self link or id
+```
+```release-note:enhancement
+provider: added provider-defined function `region_from_zone` for deriving a region from a zone's name
+```
