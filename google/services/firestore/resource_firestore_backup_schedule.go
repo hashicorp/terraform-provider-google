@@ -66,7 +66,7 @@ For a daily backup recurrence, set this to a value up to 7 days. If you set a we
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `For a schedule that runs daily at a specified time.`,
+				Description: `For a schedule that runs daily.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{},
@@ -84,7 +84,7 @@ For a daily backup recurrence, set this to a value up to 7 days. If you set a we
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `For a schedule that runs weekly on a specific day and time.`,
+				Description: `For a schedule that runs weekly on a specific day.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
