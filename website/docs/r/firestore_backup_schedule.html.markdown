@@ -101,11 +101,11 @@ The following arguments are supported:
 
 * `daily_recurrence` -
   (Optional)
-  For a schedule that runs daily at a specified time.
+  For a schedule that runs daily.
 
 * `weekly_recurrence` -
   (Optional)
-  For a schedule that runs weekly on a specific day and time.
+  For a schedule that runs weekly on a specific day.
   Structure is [documented below](#nested_weekly_recurrence).
 
 * `database` -
