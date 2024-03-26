@@ -124,6 +124,12 @@ the schema as returned by the API.`,
 					},
 				},
 			},
+			"data_governance_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"DATA_MASKING", ""}),
+				Description:  `If set to DATA_MASKING, the function is validated and made available as a masking function. For more information, see https://cloud.google.com/bigquery/docs/user-defined-functions#custom-mask Possible values: ["DATA_MASKING"]`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -392,6 +398,12 @@ func resourceBigQueryRoutineCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("determinism_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(determinismLevelProp)) && (ok || !reflect.DeepEqual(v, determinismLevelProp)) {
 		obj["determinismLevel"] = determinismLevelProp
 	}
+	dataGovernanceTypeProp, err := expandBigQueryRoutineDataGovernanceType(d.Get("data_governance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_governance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataGovernanceTypeProp)) && (ok || !reflect.DeepEqual(v, dataGovernanceTypeProp)) {
+		obj["dataGovernanceType"] = dataGovernanceTypeProp
+	}
 	sparkOptionsProp, err := expandBigQueryRoutineSparkOptions(d.Get("spark_options"), d, config)
 	if err != nil {
 		return err
@@ -537,6 +549,9 @@ func resourceBigQueryRoutineRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("determinism_level", flattenBigQueryRoutineDeterminismLevel(res["determinismLevel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
+	if err := d.Set("data_governance_type", flattenBigQueryRoutineDataGovernanceType(res["dataGovernanceType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Routine: %s", err)
+	}
 	if err := d.Set("spark_options", flattenBigQueryRoutineSparkOptions(res["sparkOptions"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Routine: %s", err)
 	}
@@ -622,6 +637,12 @@ func resourceBigQueryRoutineUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("determinism_level"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, determinismLevelProp)) {
 		obj["determinismLevel"] = determinismLevelProp
+	}
+	dataGovernanceTypeProp, err := expandBigQueryRoutineDataGovernanceType(d.Get("data_governance_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("data_governance_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataGovernanceTypeProp)) {
+		obj["dataGovernanceType"] = dataGovernanceTypeProp
 	}
 	sparkOptionsProp, err := expandBigQueryRoutineSparkOptions(d.Get("spark_options"), d, config)
 	if err != nil {
@@ -882,6 +903,10 @@ func flattenBigQueryRoutineDeterminismLevel(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenBigQueryRoutineDataGovernanceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigQueryRoutineSparkOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1111,6 +1136,10 @@ func expandBigQueryRoutineDescription(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandBigQueryRoutineDeterminismLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryRoutineDataGovernanceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

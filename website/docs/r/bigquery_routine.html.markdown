@@ -235,6 +235,34 @@ resource "google_bigquery_routine" "spark_jar" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_routine_data_governance_type&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Routine Data Governance Type
+
+
+```hcl
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_routine" "custom_masking_routine" {
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	routine_id     = "custom_masking_routine"
+	routine_type = "SCALAR_FUNCTION"
+	language = "SQL"
+	data_governance_type = "DATA_MASKING"
+	definition_body = "SAFE.REGEXP_REPLACE(ssn, '[0-9]', 'X')"
+	arguments {
+	  name = "ssn"
+	  data_type = "{\"typeKind\" :  \"STRING\"}"
+	} 
+	return_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  
+```
 ## Example Usage - Bigquery Routine Remote Function
 
 
@@ -337,6 +365,11 @@ The following arguments are supported:
   (Optional)
   The determinism level of the JavaScript UDF if defined.
   Possible values are: `DETERMINISM_LEVEL_UNSPECIFIED`, `DETERMINISTIC`, `NOT_DETERMINISTIC`.
+
+* `data_governance_type` -
+  (Optional)
+  If set to DATA_MASKING, the function is validated and made available as a masking function. For more information, see https://cloud.google.com/bigquery/docs/user-defined-functions#custom-mask
+  Possible values are: `DATA_MASKING`.
 
 * `spark_options` -
   (Optional)
