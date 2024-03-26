@@ -270,6 +270,14 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
+
+* `cloud_router_ipv6_address` -
+  IPv6 address + prefix length to be configured on Cloud Router
+  Interface for this interconnect attachment.
+
+* `customer_router_ipv6_address` -
+  IPv6 address + prefix length to be configured on the customer
+  router subinterface for this interconnect attachment.
 * `self_link` - The URI of the created resource.
 
 
