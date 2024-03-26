@@ -1,4 +1,31 @@
-## 5.22.0 (Unreleased)
+## 5.23.0 (Unreleased)
+
+## 5.22.0 (Mar 26, 2024)
+
+BREAKING CHANGES:
+* networksecurity: added required field `billing_project_id` to `google_network_security_firewall_endpoint` resource. Any configuration without `billing_project_id` specified will cause resource creation fail (beta) ([#17630](https://github.com/hashicorp/terraform-provider-google/pull/17630))
+
+FEATURES:
+* **New Data Source:** `google_cloud_quotas_quota_infos` ([#17617](https://github.com/hashicorp/terraform-provider-google/pull/17617))
+* **New Resource:** `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
+* **New Resource:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
+
+IMPROVEMENTS:
+* accesscontextmanager: supported managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
+* cloudrunv2: added plan-time validation to restrict number of ports to 1 in `google_cloud_run_v2_service` ([#17594](https://github.com/hashicorp/terraform-provider-google/pull/17594))
+* composer: added field `count` to validate number of DAG processors in `google_composer_environment` ([#17625](https://github.com/hashicorp/terraform-provider-google/pull/17625))
+* compute: added enumeration value `SEV_LIVE_MIGRATABLE_V2` for the `guest_os_features` of `google_compute_disk` ([#17629](https://github.com/hashicorp/terraform-provider-google/pull/17629))
+* compute: added `status.all_instances_config.revision` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` ([#17595](https://github.com/hashicorp/terraform-provider-google/pull/17595))
+* compute: added field `path_template_match` to resource `google_compute_region_url_map` ([#17571](https://github.com/hashicorp/terraform-provider-google/pull/17571))
+* compute: added field `path_template_rewrite` to resource `google_compute_region_url_map` ([#17571](https://github.com/hashicorp/terraform-provider-google/pull/17571))
+* pubsub: added `ingestion_data_source_settings` field to `google_pubsub_topic` resource ([#17604](https://github.com/hashicorp/terraform-provider-google/pull/17604))
+* storage: added 'soft_delete_policy' to 'google_storage_bucket' resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
+
+BUG FIXES:
+* accesscontextmanager: fixed an issue with `access_context_manager_service_perimeter_ingress_policy` and `access_context_manager_service_perimeter_egress_policy` where updates could not be applied after initial creation. Any updates applied to these resources will now involve their recreation. To ensure that new policies are added before old ones are removed, add a `lifecycle` block with `create_before_destroy = true` to your resource configuration alongside other updates. ([#17596](https://github.com/hashicorp/terraform-provider-google/pull/17596))
+* firebase: made the `google_firebase_android_app` resource's `package_name` field required and immutable. This prevents API errors encountered by users who attempted to update or leave that field unset in their configurations. ([#17585](https://github.com/hashicorp/terraform-provider-google/pull/17585))
+* spanner: removed validation function for the field `version_retention_period` in the resource `google_spanner_database` and directly returned error from backend ([#17621](https://github.com/hashicorp/terraform-provider-google/pull/17621))
+
 ## 5.21.0 (Mar 18, 2024)
 
 FEATURES:
