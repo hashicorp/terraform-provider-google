@@ -249,6 +249,12 @@ using PARTNER type this will be managed upstream.`,
 				Description: `IPv4 address + prefix length to be configured on Cloud Router
 Interface for this interconnect attachment.`,
 			},
+			"cloud_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `IPv6 address + prefix length to be configured on Cloud Router
+Interface for this interconnect attachment.`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -258,6 +264,12 @@ Interface for this interconnect attachment.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `IPv4 address + prefix length to be configured on the customer
+router subinterface for this interconnect attachment.`,
+			},
+			"customer_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `IPv6 address + prefix length to be configured on the customer
 router subinterface for this interconnect attachment.`,
 			},
 			"google_reference_id": {
@@ -576,6 +588,12 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("stack_type", flattenComputeInterconnectAttachmentStackType(res["stackType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("cloud_router_ipv6_address", flattenComputeInterconnectAttachmentCloudRouterIpv6Address(res["cloudRouterIpv6Address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("customer_router_ipv6_address", flattenComputeInterconnectAttachmentCustomerRouterIpv6Address(res["customerRouterIpv6Address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -890,6 +908,14 @@ func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.Res
 }
 
 func flattenComputeInterconnectAttachmentStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCloudRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCustomerRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
