@@ -1,0 +1,3 @@
+```release-note:bug
+dataflow: fixed an issue where the provider would crash when `enableStreamingEngine` is set as a `parameter` value in `google_dataflow_flex_template_job`
+```
