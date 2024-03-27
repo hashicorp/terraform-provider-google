@@ -823,9 +823,6 @@ func resourceCloudRunV2JobCreate(d *schema.ResourceData, meta interface{}) error
 		config, res, &opRes, project, "Creating Job", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		// The resource didn't actually create
-		d.SetId("")
-
 		return fmt.Errorf("Error waiting to create Job: %s", err)
 	}
 
