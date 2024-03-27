@@ -34,6 +34,8 @@ To get more information about PlayIntegrityConfig, see:
 
 ```hcl
 resource "google_firebase_android_app" "default" {
+  provider = google-beta
+
   project       = "my-project-name"
   display_name  = "Play Integrity app"
   package_name  = "package.name.playintegrity"
@@ -49,6 +51,8 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_play_integrity_config" "default" {
+  provider = google-beta
+
   project = "my-project-name"
   app_id  = google_firebase_android_app.default.app_id
 
@@ -67,6 +71,8 @@ resource "google_firebase_app_check_play_integrity_config" "default" {
 
 ```hcl
 resource "google_firebase_android_app" "default" {
+  provider = google-beta
+
   project       = "my-project-name"
   display_name  = "Play Integrity app"
   package_name  = "package.name.playintegrity"
@@ -82,6 +88,8 @@ resource "time_sleep" "wait_30s" {
 }
 
 resource "google_firebase_app_check_play_integrity_config" "default" {
+  provider = google-beta
+
   project   = "my-project-name"
   app_id    = google_firebase_android_app.default.app_id
   token_ttl = "7200s"
