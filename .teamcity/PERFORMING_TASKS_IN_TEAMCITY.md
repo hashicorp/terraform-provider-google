@@ -20,11 +20,11 @@ Google Cloud/
 │
 ├─ Google/
 │  ├─ Nightly Tests
-│  ├─ MM Upstream Testing
+│  ├─ Upstream MM Testing
 │
 ├─ Google Beta/
 │  ├─ Nightly Tests
-│  ├─ MM Upstream Testing
+│  ├─ Upstream MM Testing
 │  ├─ VCR Recording
 │
 ├─ Project Sweeper/
@@ -70,8 +70,8 @@ To use a release branch, or any other branch that isn't main, use [the `Build br
 When reviewing a PR you may need to run acceptance tests using the code shown in the Diff Report, present in branches in the modular-magician/terraform-provider-google(-beta) repositories.
 
 To do this you should navigate to either of these projects and run a custom build:
-* `Google > MM Upstream Testing`
-* `Google Beta > MM Upstream Testing`
+* `Google > Upstream MM Testing`
+* `Google Beta > Upstream MM Testing`
 
 Builds in these projects will test the code present in the Modular Magician's forks and will run tests against the VCR testing project in GCP.
 
@@ -106,7 +106,7 @@ The Service Sweeper builds in `Google > Nightly Tests` and `Google Beta > Nightl
 
 ### Sweeping the VCR Project
 
-The Service Sweeper builds in `Google > MM Upstream Testing` and `Google Beta > MM Upstream Testing` run every night via CRON. They are redundant as both sweep the VCR project, but I've left them both in. They are designed to not run until there are no builds testing any services in the VCR test GCP project. No acceptance testing builds will start until the sweeper stops.
+The Service Sweeper builds in `Google > Upstream MM Testing` and `Google Beta > Upstream MM Testing` run every night via CRON. They are redundant as both sweep the VCR project, but I've left them both in. They are designed to not run until there are no builds testing any services in the VCR test GCP project. No acceptance testing builds will start until the sweeper stops.
 
 ### Sweeping `google_project` Resources
 
