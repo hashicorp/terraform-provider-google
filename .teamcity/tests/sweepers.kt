@@ -7,12 +7,14 @@
 
 package tests
 
+import ProjectSweeperName
 import ServiceSweeperName
 import jetbrains.buildServer.configs.kotlin.BuildType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import org.junit.Assert
 import projects.googleCloudRootProject
 
@@ -101,5 +103,41 @@ class SweeperTests {
         // Check PACKAGE_PATH is in google-beta
         val value = sweeper!!.params.findRawParam("PACKAGE_PATH")!!.value
         assertEquals("./google-beta/sweeper", value)
+    }
+
+    @Test
+    fun projectSweepersRunAfterServiceSweepers() {
+        val project = googleCloudRootProject(testContextParameters())
+
+        // Find GA nightly test project's service sweeper
+        val gaNightlyTests: Project = getSubProject(project, gaProjectName, nightlyTestsProjectName)
+        val sweeperGa: BuildType = getBuildFromProject(gaNightlyTests, ServiceSweeperName)
+
+        // Find Beta nightly test project's service sweeper
+        val betaNightlyTests : Project = getSubProject(project, betaProjectName, nightlyTestsProjectName)
+        val sweeperBeta: BuildType = getBuildFromProject(betaNightlyTests, ServiceSweeperName)
+
+        // Find Project sweeper project's build
+        val projectSweeperProject : Project? =  project.subProjects.find { p->  p.name == projectSweeperProjectName}
+        if (projectSweeperProject == null) {
+            Assert.fail("Could not find the Project Sweeper project")
+        }
+        val projectSweeper: BuildType = getBuildFromProject(projectSweeperProject!!, ProjectSweeperName)
+        
+        // Check only one schedule trigger is on the builds in question
+        assertTrue(sweeperGa.triggers.items.size == 1)
+        assertTrue(sweeperBeta.triggers.items.size == 1)
+        assertTrue(projectSweeper.triggers.items.size == 1)
+
+        // Assert that the hour value that sweeper builds are triggered at is less than the hour value that project sweeper builds are triggered at
+        // i.e. sweeper builds are triggered first
+        val stGa = sweeperGa.triggers.items[0] as ScheduleTrigger
+        val cronGa = stGa.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
+        val stBeta = sweeperBeta.triggers.items[0] as ScheduleTrigger
+        val cronBeta = stBeta.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
+        val stProject = projectSweeper.triggers.items[0] as ScheduleTrigger
+        val cronProject = stProject.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
+        assertTrue("Service sweeper for the GA Nightly Test project is triggered at an earlier hour than the project sweeper", cronGa.hours.toString() < cronProject.hours.toString()) // Values are strings like "11", "12"
+        assertTrue("Service sweeper for the Beta Nightly Test project is triggered at an earlier hour than the project sweeper", cronBeta.hours.toString() < cronProject.hours.toString() )
     }
 }
