@@ -1,0 +1,9 @@
+```release-note:bug
+kms: added top-level `external_protection_level_options` field in `google_kms_crypto_key_version` resource
+```
+```release-note:deprecation
+kms: `attestation.external_protection_level_options` has been deprecated in favor of `external_protection_level_options` in `google_kms_crypto_key_version` 
+```
+```release-note:enhancement
+kms: added `crypto_key_backend` field to `google_kms_crypto_key` resource
+```
