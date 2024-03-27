@@ -70,6 +70,21 @@ The following arguments are supported:
   The current state of the CryptoKeyVersion.
   Possible values are: `PENDING_GENERATION`, `ENABLED`, `DISABLED`, `DESTROYED`, `DESTROY_SCHEDULED`, `PENDING_IMPORT`, `IMPORT_FAILED`.
 
+* `external_protection_level_options` -
+  (Optional)
+  ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level and EXTERNAL_VPC protection levels.
+  Structure is [documented below](#nested_external_protection_level_options).
+
+
+<a name="nested_external_protection_level_options"></a>The `external_protection_level_options` block supports:
+
+* `external_key_uri` -
+  (Optional)
+  The URI for an external resource that this CryptoKeyVersion represents.
+
+* `ekm_connection_key_path` -
+  (Optional)
+  The path to the external key material on the EKM when using EkmConnection e.g., "v0/my/key". Set this field instead of externalKeyUri when using an EkmConnection.
 
 ## Attributes Reference
 
@@ -111,9 +126,11 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_cert_chains).
 
 * `external_protection_level_options` -
-  (Optional)
+  (Optional, Deprecated)
   ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level and EXTERNAL_VPC protection levels.
   Structure is [documented below](#nested_external_protection_level_options).
+
+  ~> **Warning:** `externalProtectionLevelOptions` is being un-nested from the `attestation` field. Please use the top level `externalProtectionLevelOptions` field instead.
 
 
 <a name="nested_cert_chains"></a>The `cert_chains` block supports:
