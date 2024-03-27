@@ -84,16 +84,26 @@ resource "google_dataflow_flex_template_job" "big_data_job" {
 
 The following arguments are supported:
 
-* `name` - (Required) A unique name for the resource, required by Dataflow.
+* `name` - (Required) Immutable. A unique name for the resource, required by Dataflow.
 
 * `container_spec_gcs_path` - (Required) The GCS path to the Dataflow job Flex
 Template.
 
 - - -
 
+* `additional_experiments` - (Optional) List of experiments that should be used by the job. An example value is `["enable_stackdriver_agent_metrics"]`.
+
+* `autoscaling_algorithm` - (Optional) The algorithm to use for autoscaling.
+
 * `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as
 used in the template). Additional [pipeline options](https://cloud.google.com/dataflow/docs/guides/specifying-exec-params#setting-other-cloud-dataflow-pipeline-options)
 such as `serviceAccount`, `workerMachineType`, etc can be specified here.
+
+* `enable_streaming_engine` - (Optional) Immutable. Indicates if the job should use the streaming engine feature.
+
+* `ip_configuration` - (Optional) The configuration for VM IPs.  Options are `"WORKER_IP_PUBLIC"` or `"WORKER_IP_PRIVATE"`.
+
+* `kms_key_name` - (Optional) The name for the Cloud KMS key for the job. Key format is: `projects/PROJECT_ID/locations/LOCATION/keyRings/KEY_RING/cryptoKeys/KEY`
 
 * `labels` - (Optional) User labels to be specified for the job. Keys and values
 should follow the restrictions specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions)
@@ -106,21 +116,39 @@ page.
 * `effective_labels` -
   All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
 
+* `launcher_machine_type` - (Optional) The machine type to use for launching the job. The default is n1-standard-1.
+
+* `machine_type` - (Optional) The machine type to use for the job.
+
+* `max_workers` - (Optional) Immutable. The maximum number of Google Compute Engine instances to be made available to your pipeline during execution, from 1 to 1000.
+
+* `network` - (Optional) The network to which VMs will be assigned. If it is not provided, "default" will be used.
+
+* `num_workers` - (Optional) Immutable. The initial number of Google Compute Engine instances for the job.
+
 * `on_delete` - (Optional) One of "drain" or "cancel". Specifies behavior of
 deletion during `terraform destroy`.  See above note.
+
+* `project` - (Optional) The project in which the resource belongs. If it is not
+provided, the provider project is used.
+
+* `region` - (Optional) Immutable. The region in which the created job should run.
+
+* `sdk_container_image` - (Optional) Docker registry location of container image to use for the 'worker harness. Default is the container for the version of the SDK. Note this field is only valid for portable pipelines.
+
+* `service_account_email` - (Optional) Service account email to run the workers as.
 
 * `skip_wait_on_job_termination` - (Optional)  If set to `true`, terraform will
 treat `DRAINING` and `CANCELLING` as terminal states when deleting the resource,
 and will remove the resource from terraform state and move on.  See above note.
 
-* `project` - (Optional) The project in which the resource belongs. If it is not
-provided, the provider project is used.
+* `staging_location` - (Optional) The Cloud Storage path to use for staging files. Must be a valid Cloud Storage URL, beginning with gs://.
 
-* `region` - (Optional) The region in which the created job should run.
+* `subnetwork` - (Optional) The subnetwork to which VMs will be assigned. Should be of the form "regions/REGION/subnetworks/SUBNETWORK".
 
-* `service_account_email` - (Optional) Service account email to run the workers as.
+* `temp_location` - (Optional) The Cloud Storage path to use for temporary files. Must be a valid Cloud Storage URL, beginning with gs://.
 
-* `subnetwork` - (Optional) Compute Engine subnetwork for launching instances to run your pipeline.
+* `transform_name_mapping` - (Optional) Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job.Only applicable when updating a pipeline. Map of transform name prefixes of the job to be replaced with the corresponding name prefixes of the new job.
 
 ## Attributes Reference
 In addition to the arguments listed above, the following computed attributes are exported:
