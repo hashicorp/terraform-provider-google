@@ -14,7 +14,7 @@ import org.junit.Assert
 const val gaProjectName = "Google"
 const val betaProjectName = "Google Beta"
 const val nightlyTestsProjectName = "Nightly Tests"
-const val mmUpstreamProjectName = "MM Upstream Testing"
+const val mmUpstreamProjectName = "Upstream MM Testing"
 const val projectSweeperProjectName = "Project Sweeper"
 
 fun testContextParameters(): AllContextParameters {

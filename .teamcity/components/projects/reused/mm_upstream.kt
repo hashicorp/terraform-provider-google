@@ -50,7 +50,7 @@ fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot,
 
     return Project {
         id(projectId)
-        name = "MM Upstream Testing"
+        name = "Upstream MM Testing"
         description = "A project connected to the modular-magician/terraform-provider-${providerName} repository, to let users trigger ad-hoc builds against branches for PRs"
 
         // Register build configs in the project
