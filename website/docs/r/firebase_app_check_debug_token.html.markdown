@@ -41,18 +41,22 @@ values will be stored in the raw state as plain text: `token`.
 
 ```hcl
 resource "google_firebase_web_app" "default" {
-  project = "my-project-name"
+  provider = google-beta
+
+  project      = "my-project-name"
   display_name = "Web App for debug token"
 }
 
 # It takes a while for App Check to recognize the new app
 # If your app already exists, you don't have to wait 30 seconds.
 resource "time_sleep" "wait_30s" {
-  depends_on = [google_firebase_web_app.default]
+  depends_on      = [google_firebase_web_app.default]
   create_duration = "30s"
 }
 
 resource "google_firebase_app_check_debug_token" "default" {
+  provider = google-beta
+
   project      = "my-project-name"
   app_id       = google_firebase_web_app.default.app_id
   display_name = "Debug Token"
