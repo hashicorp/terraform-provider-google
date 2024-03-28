@@ -2600,6 +2600,62 @@ func TestAccContainerCluster_withAutopilotNetworkTags(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAutopilotResourceManagerTags(t *testing.T) {
+	t.Parallel()
+
+	pid := envvar.GetTestProjectFromEnv()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+	clusterNetName := fmt.Sprintf("tf-test-container-net-%s", randomSuffix)
+	clusterSubnetName := fmt.Sprintf("tf-test-container-subnet-%s", randomSuffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilotResourceManagerTags(pid, clusterName, clusterNetName, clusterSubnetName, randomSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.with_autopilot", "self_link"),
+					resource.TestCheckResourceAttrSet("google_container_cluster.with_autopilot", "node_pool_auto_config.0.resource_manager_tags.%"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotResourceManagerTagsUpdate1(pid, clusterName, clusterNetName, clusterSubnetName, randomSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.with_autopilot", "node_pool_auto_config.0.resource_manager_tags.%"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotResourceManagerTagsUpdate2(pid, clusterName, clusterNetName, clusterSubnetName, randomSuffix),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 	t.Parallel()
 
@@ -8535,6 +8591,418 @@ resource "google_container_cluster" "primary" {
   timeouts {
     create = "30m"
     update = "40m"
+  }
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutopilotResourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%[1]s"
+}
+
+resource "google_project_iam_binding" "tagHoldAdmin" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagHoldAdmin"
+  members = [
+   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "tagUser" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
+  ]
+
+  depends_on = [google_project_iam_binding.tagHoldAdmin]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+
+  depends_on = [
+    google_project_iam_binding.tagHoldAdmin,
+    google_project_iam_binding.tagUser
+  ]
+}
+
+resource "google_tags_tag_key" "key1" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz1-%[2]s"
+  description = "For foo/bar1 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [google_compute_network.container_network]
+}
+
+resource "google_tags_tag_value" "value1" {
+  parent = "tagKeys/${google_tags_tag_key.key1.name}"
+  short_name = "foo1-%[2]s"
+  description = "For foo1 resources"
+}
+
+resource "google_tags_tag_key" "key2" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz2-%[2]s"
+  description = "For foo/bar2 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [
+    google_compute_network.container_network,
+    google_tags_tag_key.key1
+  ]
+}
+
+resource "google_tags_tag_value" "value2" {
+  parent = "tagKeys/${google_tags_tag_key.key2.name}"
+  short_name = "foo2-%[2]s"
+  description = "For foo2 resources"
+}
+
+resource "google_compute_network" "container_network" {
+  name                    = "%[4]s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = "%[5]s"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autopilot" {
+  name = "%[3]s"
+  location = "us-central1"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  enable_autopilot = true
+
+  deletion_protection = false
+  network       = google_compute_network.container_network.name
+  subnetwork    = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  node_pool_auto_config {
+    resource_manager_tags = {
+      "tagKeys/${google_tags_tag_key.key1.name}" = "tagValues/${google_tags_tag_value.value1.name}"
+	}
+  }
+
+  addons_config {
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+  }
+  vertical_pod_autoscaling {
+    enabled = true
+  }
+
+  timeouts {
+	create = "30m"
+	update = "40m"
+  }
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutopilotResourceManagerTagsUpdate1(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%[1]s"
+}
+
+resource "google_project_iam_binding" "tagHoldAdmin" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagHoldAdmin"
+  members = [
+   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "tagUser" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
+  ]
+
+  depends_on = [google_project_iam_binding.tagHoldAdmin]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+
+  depends_on = [
+    google_project_iam_binding.tagHoldAdmin,
+    google_project_iam_binding.tagUser
+  ]
+}
+
+resource "google_tags_tag_key" "key1" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz1-%[2]s"
+  description = "For foo/bar1 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [google_compute_network.container_network]
+}
+
+resource "google_tags_tag_value" "value1" {
+  parent = "tagKeys/${google_tags_tag_key.key1.name}"
+  short_name = "foo1-%[2]s"
+  description = "For foo1 resources"
+}
+
+resource "google_tags_tag_key" "key2" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz2-%[2]s"
+  description = "For foo/bar2 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [
+    google_compute_network.container_network,
+    google_tags_tag_key.key1
+  ]
+}
+
+resource "google_tags_tag_value" "value2" {
+  parent = "tagKeys/${google_tags_tag_key.key2.name}"
+  short_name = "foo2-%[2]s"
+  description = "For foo2 resources"
+}
+
+resource "google_compute_network" "container_network" {
+  name                    = "%[4]s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = "%[5]s"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autopilot" {
+  name = "%[3]s"
+  location = "us-central1"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  enable_autopilot = true
+
+  deletion_protection = false
+  network       = google_compute_network.container_network.name
+  subnetwork    = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  node_pool_auto_config {
+    resource_manager_tags = {
+      "tagKeys/${google_tags_tag_key.key1.name}" = "tagValues/${google_tags_tag_value.value1.name}"
+      "tagKeys/${google_tags_tag_key.key2.name}" = "tagValues/${google_tags_tag_value.value2.name}"
+	}
+  }
+
+  addons_config {
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+  }
+  vertical_pod_autoscaling {
+    enabled = true
+  }
+
+  timeouts {
+	create = "30m"
+	update = "40m"
+  }
+
+  depends_on = [time_sleep.wait_120_seconds]
+}
+`, projectID, randomSuffix, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutopilotResourceManagerTagsUpdate2(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%[1]s"
+}
+
+resource "google_project_iam_binding" "tagHoldAdmin" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagHoldAdmin"
+  members = [
+   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+  ]
+}
+
+resource "google_project_iam_binding" "tagUser" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
+    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
+  ]
+
+  depends_on = [google_project_iam_binding.tagHoldAdmin]
+}
+
+resource "time_sleep" "wait_120_seconds" {
+  create_duration = "120s"
+
+  depends_on = [
+    google_project_iam_binding.tagHoldAdmin,
+    google_project_iam_binding.tagUser
+  ]
+}
+
+resource "google_tags_tag_key" "key1" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz1-%[2]s"
+  description = "For foo/bar1 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [google_compute_network.container_network]
+}
+
+resource "google_tags_tag_value" "value1" {
+  parent = "tagKeys/${google_tags_tag_key.key1.name}"
+  short_name = "foo1-%[2]s"
+  description = "For foo1 resources"
+}
+
+resource "google_tags_tag_key" "key2" {
+  parent = "projects/%[1]s"
+  short_name = "foobarbaz2-%[2]s"
+  description = "For foo/bar2 resources"
+  purpose = "GCE_FIREWALL"
+  purpose_data = {
+    network = "%[1]s/%[4]s"
+  }
+
+  depends_on = [
+    google_compute_network.container_network,
+    google_tags_tag_key.key1
+  ]
+}
+
+resource "google_tags_tag_value" "value2" {
+  parent = "tagKeys/${google_tags_tag_key.key2.name}"
+  short_name = "foo2-%[2]s"
+  description = "For foo2 resources"
+}
+
+resource "google_compute_network" "container_network" {
+  name                    = "%[4]s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = "%[5]s"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+}
+
+data "google_container_engine_versions" "uscentral1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "with_autopilot" {
+  name = "%[3]s"
+  location = "us-central1"
+  min_master_version = data.google_container_engine_versions.uscentral1a.release_channel_latest_version["STABLE"]
+  enable_autopilot = true
+
+  deletion_protection = false
+  network       = google_compute_network.container_network.name
+  subnetwork    = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+
+  addons_config {
+    horizontal_pod_autoscaling {
+      disabled = false
+    }
+  }
+  vertical_pod_autoscaling {
+    enabled = true
+  }
+
+  timeouts {
+	create = "30m"
+	update = "40m"
   }
 
   depends_on = [time_sleep.wait_120_seconds]
