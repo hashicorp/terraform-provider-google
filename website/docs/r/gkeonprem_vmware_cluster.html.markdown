@@ -123,6 +123,7 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
   }
   vm_tracking_enabled = true
   enable_control_plane_v2 = true
+  disable_bundled_ingress = true
   authorization {
     admin_users {
       username = "testuser@gmail.com"
@@ -373,6 +374,10 @@ The following arguments are supported:
 * `enable_control_plane_v2` -
   (Optional)
   Enable control plane V2. Default to false.
+
+* `disable_bundled_ingress` -
+  (Optional)
+  Disable bundled ingress.
 
 * `upgrade_policy` -
   (Optional)
