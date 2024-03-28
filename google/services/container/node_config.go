@@ -1140,7 +1140,6 @@ func flattenResourceManagerTags(c *container.ResourceManagerTags) map[string]int
 		for k, v := range c.Tags {
 			rmt[k] = v
 		}
-
 	}
 
 	return rmt
