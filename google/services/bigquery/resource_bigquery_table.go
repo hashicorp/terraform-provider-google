@@ -2357,6 +2357,11 @@ func expandPrimaryKey(configured interface{}) *bigquery.TableConstraintsPrimaryK
 
 	columns := []string{}
 	for _, rawColumn := range raw["columns"].([]interface{}) {
+		if rawColumn == nil {
+			// Terraform reads "" as nil, which ends up crashing when we cast below
+			// sending "" to the API triggers a 400, which is okay.
+			rawColumn = ""
+		}
 		columns = append(columns, rawColumn.(string))
 	}
 	if len(columns) > 0 {
