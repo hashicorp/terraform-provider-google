@@ -59,6 +59,7 @@ func testAccIntegrationsClient_integrationsClientBasicExample(context map[string
 	return acctest.Nprintf(`
 resource "google_integrations_client" "example" {
   location = "us-central1"
+  provision_gmek = true
 }
 `, context)
 }
@@ -96,7 +97,7 @@ data "google_project" "test_project" {
 
 resource "google_kms_key_ring" "keyring" {
   name     = "tf-test-my-keyring%{random_suffix}"
-  location = "us-central1"
+  location = "us-east1"
 }
 
 resource "google_kms_crypto_key" "cryptokey" {
@@ -111,19 +112,23 @@ resource "google_kms_crypto_key_version" "test_key" {
   depends_on = [google_kms_crypto_key.cryptokey]
 }
 
+resource "google_service_account" "service_account" {
+  account_id   = "service-account-id"
+  display_name = "Service Account"
+}
+
 resource "google_integrations_client" "example" {
-  location = "us-central1"
+  location = "us-east1"
   create_sample_workflows = true
-  provision_gmek = true
-  run_as_service_account = "radndom-service-account"
+  run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
-    kms_location = "us-central1"
+    kms_location = "us-east1"
     kms_ring = google_kms_key_ring.keyring.id
     key = google_kms_crypto_key.cryptokey.id
     key_version = google_kms_crypto_key_version.test_key.id
-    kms_project_id = data.google_project.test_project.id
+    kms_project_id = data.google_project.test_project.project_id
   }
-  depends_on = [google_kms_crypto_key_version.test_key]
+  depends_on = [google_kms_crypto_key_version.test_key, google_service_account.service_account]
 }
 `, context)
 }
