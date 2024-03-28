@@ -35,6 +35,10 @@ func TestAccStorageBucket_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_storage_bucket.bucket", "force_destroy", "false"),
+					resource.TestCheckResourceAttr(
+						"google_storage_bucket.bucket", "project", envvar.GetTestProjectFromEnv()),
+					resource.TestCheckResourceAttrSet(
+						"google_storage_bucket.bucket", "project_number"),
 				),
 			},
 			{

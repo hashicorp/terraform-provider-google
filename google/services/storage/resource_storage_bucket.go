@@ -132,6 +132,12 @@ func ResourceStorageBucket() *schema.Resource {
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
 			},
 
+			"project_number": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The project number of the project in which the resource belongs.`,
+			},
+
 			"self_link": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -1718,6 +1724,9 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	}
 	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
 		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("project_number", res.ProjectNumber); err != nil {
+		return fmt.Errorf("Error setting project_number: %s", err)
 	}
 	if err := d.Set("storage_class", res.StorageClass); err != nil {
 		return fmt.Errorf("Error setting storage_class: %s", err)

@@ -1,0 +1,6 @@
+```release-note:enhancement
+storage: added `project_number` attribute to `google_storage_bucket` resource and data source
+```
+```release-note:enhancement
+storage: added ability to provide `project` argument to `google_storage_bucket` data source. This will not impact reading the resource's data, instead this helps users avoid calls to the Compute API within the data source.
+```
