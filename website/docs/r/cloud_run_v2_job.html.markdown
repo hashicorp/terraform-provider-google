@@ -561,6 +561,11 @@ The following arguments are supported:
   Cloud Storage bucket mounted as a volume using GCSFuse. This feature requires the launch stage to be set to ALPHA or BETA.
   Structure is [documented below](#nested_gcs).
 
+* `nfs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  NFS share mounted as a volume. This feature requires the launch stage to be set to ALPHA or BETA.
+  Structure is [documented below](#nested_nfs).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -619,6 +624,20 @@ The following arguments are supported:
 * `read_only` -
   (Optional)
   If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.
+
+<a name="nested_nfs"></a>The `nfs` block supports:
+
+* `server` -
+  (Required)
+  Hostname or IP address of the NFS server.
+
+* `path` -
+  (Optional)
+  Path that is exported by the NFS server.
+
+* `read_only` -
+  (Optional)
+  If true, mount this volume as read-only in all mounts.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
 
