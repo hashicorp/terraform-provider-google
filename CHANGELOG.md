@@ -6,9 +6,9 @@ BREAKING CHANGES:
 * networksecurity: added required field `billing_project_id` to `google_network_security_firewall_endpoint` resource. Any configuration without `billing_project_id` specified will cause resource creation fail (beta) ([#17630](https://github.com/hashicorp/terraform-provider-google/pull/17630))
 
 FEATURES:
+* **New Data Source:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 * **New Data Source:** `google_cloud_quotas_quota_infos` ([#17617](https://github.com/hashicorp/terraform-provider-google/pull/17617))
 * **New Resource:** `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
-* **New Resource:** `google_cloud_quotas_quota_info` ([#17564](https://github.com/hashicorp/terraform-provider-google/pull/17564))
 
 IMPROVEMENTS:
 * accesscontextmanager: supported managing service perimeter dry run resources outside the perimeter via new resource `google_access_context_manager_service_perimeter_dry_run_resource` ([#17614](https://github.com/hashicorp/terraform-provider-google/pull/17614))
