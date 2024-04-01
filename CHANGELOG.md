@@ -1,3 +1,4 @@
+## 5.24.0 (Unreleased)
 ## 5.23.0 (Apr 1, 2024)
 NOTES:
 * provider: introduced support for [provider-defined functions](https://developer.hashicorp.com/terraform/plugin/framework/functions). This feature is in Terraform v1.8.0+. ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
