@@ -1,4 +1,36 @@
-## 5.23.0 (Unreleased)
+## 5.24.0 (Unreleased)
+## 5.23.0 (Apr 1, 2024)
+NOTES:
+* provider: introduced support for [provider-defined functions](https://developer.hashicorp.com/terraform/plugin/framework/functions). This feature is in Terraform v1.8.0+. ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
+
+DEPRECATIONS:
+* kms: deprecated `attestation.external_protection_level_options` in favor of `external_protection_level_options` in `google_kms_crypto_key_version` ([#17704](https://github.com/hashicorp/terraform-provider-google/pull/17704))
+
+FEATURES:
+* **New Data Source:** `google_apphub_application` ([#17679](https://github.com/hashicorp/terraform-provider-google/pull/17679))
+* **New Resource:** `google_cloud_quotas_quota_preference` ([#17637](https://github.com/hashicorp/terraform-provider-google/pull/17637))
+* **New Resource:** `google_vertex_ai_deployment_resource_pool` ([#17707](https://github.com/hashicorp/terraform-provider-google/pull/17707))
+* **New Resource:** `google_integrations_client` ([#17640](https://github.com/hashicorp/terraform-provider-google/pull/17640))
+
+IMPROVEMENTS:
+* bigquery: added `dataGovernanceType` to `google_bigquery_routine` resource ([#17689](https://github.com/hashicorp/terraform-provider-google/pull/17689))
+* bigquery: added support for `external_data_configuration.json_extension` to `google_bigquery_table` ([#17663](https://github.com/hashicorp/terraform-provider-google/pull/17663))
+* compute: added `cloud_router_ipv6_address`, `customer_router_ipv6_address` fields to `google_compute_interconnect_attachment` resource ([#17692](https://github.com/hashicorp/terraform-provider-google/pull/17692))
+* compute: added `generated_id` field to `google_compute_region_backend_service` resource ([#17639](https://github.com/hashicorp/terraform-provider-google/pull/17639))
+* integrations: added deletion support for `google_integrations_client` resource ([#17678](https://github.com/hashicorp/terraform-provider-google/pull/17678))
+* kms: added `crypto_key_backend` field to `google_kms_crypto_key` resource ([#17704](https://github.com/hashicorp/terraform-provider-google/pull/17704))
+* metastore: added `scheduled_backup` field to `google_dataproc_metastore_service` resource ([#17673](https://github.com/hashicorp/terraform-provider-google/pull/17673))
+* provider: added provider-defined function `name_from_id` for retrieving the short-form name of a resource from its self link or id ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
+* provider: added provider-defined function `project_from_id` for retrieving the project id from a resource's self link or id ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
+* provider: added provider-defined function `region_from_zone` for deriving a region from a zone's name ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
+* provider: added provider-defined functions `location_from_id`, `region_from_id`, and `zone_from_id` for retrieving the location/region/zone names from a resource's self link or id ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
+
+BUG FIXES:
+* cloudrunv2: fixed Terraform state inconsistency when resource `google_cloud_run_v2_job` creation fails ([#17711](https://github.com/hashicorp/terraform-provider-google/pull/17711))
+* cloudrunv2: fixed Terraform state inconsistency when resource `google_cloud_run_v2_service` creation fails ([#17711](https://github.com/hashicorp/terraform-provider-google/pull/17711))
+* container: fixed `google_container_cluster` permadiff when `master_ipv4_cidr_block` is set for a private flexible cluster ([#17687](https://github.com/hashicorp/terraform-provider-google/pull/17687))
+* dataflow: fixed an issue where the provider would crash when `enableStreamingEngine` is set as a `parameter` value in `google_dataflow_flex_template_job` ([#17712](https://github.com/hashicorp/terraform-provider-google/pull/17712))
+* kms: added top-level `external_protection_level_options` field in `google_kms_crypto_key_version` resource ([#17704](https://github.com/hashicorp/terraform-provider-google/pull/17704))
 
 ## 5.22.0 (Mar 26, 2024)
 
