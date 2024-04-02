@@ -176,7 +176,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 
 func testAccCheckDataprocAuxiliaryNodeGroupAccelerator(cluster *dataproc.Cluster, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-k80", project)
+		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-t4", project)
 		r := regexp.MustCompile(expectedUri)
 
 		nodeGroup := cluster.Config.AuxiliaryNodeGroups[0].NodeGroup.NodeGroupConfig.Accelerators
@@ -551,7 +551,7 @@ func TestAccDataprocCluster_spotWithAuxiliaryNodeGroups(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.roles.0", "DRIVER"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.num_instances", "2"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.machine_type", "n1-standard-2"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.min_cpu_platform", "AMD Rome"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.min_cpu_platform", "Intel Haswell"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_size_gb", "35"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_type", "pd-standard"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.num_local_ssds", "1"),
@@ -1959,7 +1959,7 @@ resource "google_dataproc_cluster" "with_auxiliary_node_groups" {
         node_group_config{
           num_instances=2
           machine_type="n1-standard-2"
-          min_cpu_platform = "AMD Rome"
+          min_cpu_platform = "Intel Haswell"
           disk_config {
             boot_disk_size_gb = 35
             boot_disk_type = "pd-standard"
@@ -1967,7 +1967,7 @@ resource "google_dataproc_cluster" "with_auxiliary_node_groups" {
           }
           accelerators {
             accelerator_count = 1
-            accelerator_type  = "nvidia-tesla-k80"
+            accelerator_type  = "nvidia-tesla-t4"
           }
         }
       }
