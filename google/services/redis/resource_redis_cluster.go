@@ -94,6 +94,15 @@ projects/{network_project_id_or_number}/global/networks/{network_id}.`,
 				Description:  `Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster. Default value: "AUTH_MODE_DISABLED" Possible values: ["AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED"]`,
 				Default:      "AUTH_MODE_DISABLED",
 			},
+			"node_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"REDIS_SHARED_CORE_NANO", "REDIS_HIGHMEM_MEDIUM", "REDIS_HIGHMEM_XLARGE", "REDIS_STANDARD_SMALL", ""}),
+				Description: `The nodeType for the Redis cluster.
+If not provided, REDIS_HIGHMEM_MEDIUM will be used as default Possible values: ["REDIS_SHARED_CORE_NANO", "REDIS_HIGHMEM_MEDIUM", "REDIS_HIGHMEM_XLARGE", "REDIS_STANDARD_SMALL"]`,
+			},
 			"region": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -160,6 +169,11 @@ projects/{network_project_id}/global/networks/{network_id}.`,
 						},
 					},
 				},
+			},
+			"precise_size_gb": {
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Description: `Output only. Redis memory precise size in GB for the entire cluster.`,
 			},
 			"psc_connections": {
 				Type:        schema.TypeList,
@@ -269,6 +283,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	} else if v, ok := d.GetOkExists("transit_encryption_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(transitEncryptionModeProp)) && (ok || !reflect.DeepEqual(v, transitEncryptionModeProp)) {
 		obj["transitEncryptionMode"] = transitEncryptionModeProp
+	}
+	nodeTypeProp, err := expandRedisClusterNodeType(d.Get("node_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("node_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(nodeTypeProp)) && (ok || !reflect.DeepEqual(v, nodeTypeProp)) {
+		obj["nodeType"] = nodeTypeProp
 	}
 	pscConfigsProp, err := expandRedisClusterPscConfigs(d.Get("psc_configs"), d, config)
 	if err != nil {
@@ -406,6 +426,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("transit_encryption_mode", flattenRedisClusterTransitEncryptionMode(res["transitEncryptionMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("node_type", flattenRedisClusterNodeType(res["nodeType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("discovery_endpoints", flattenRedisClusterDiscoveryEndpoints(res["discoveryEndpoints"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -419,6 +442,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("size_gb", flattenRedisClusterSizeGb(res["sizeGb"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("precise_size_gb", flattenRedisClusterPreciseSizeGb(res["preciseSizeGb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
 	if err := d.Set("shard_count", flattenRedisClusterShardCount(res["shardCount"], d, config)); err != nil {
@@ -618,6 +644,10 @@ func flattenRedisClusterTransitEncryptionMode(v interface{}, d *schema.ResourceD
 	return v
 }
 
+func flattenRedisClusterNodeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenRedisClusterDiscoveryEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -814,6 +844,10 @@ func flattenRedisClusterSizeGb(v interface{}, d *schema.ResourceData, config *tr
 	return v // let terraform core handle it otherwise
 }
 
+func flattenRedisClusterPreciseSizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenRedisClusterShardCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -836,6 +870,10 @@ func expandRedisClusterAuthorizationMode(v interface{}, d tpgresource.TerraformR
 }
 
 func expandRedisClusterTransitEncryptionMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterNodeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
