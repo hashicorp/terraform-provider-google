@@ -1209,9 +1209,6 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 	if err := d.Set("nobuild_files_regex", flattenAppEngineFlexibleAppVersionNobuildFilesRegex(res["nobuildFilesRegex"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
-	if err := d.Set("deployment", flattenAppEngineFlexibleAppVersionDeployment(res["deployment"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
-	}
 	if err := d.Set("endpoints_api_service", flattenAppEngineFlexibleAppVersionEndpointsApiService(res["endpointsApiService"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
@@ -2013,61 +2010,6 @@ func flattenAppEngineFlexibleAppVersionLivenessCheckInitialDelay(v interface{}, 
 }
 
 func flattenAppEngineFlexibleAppVersionNobuildFilesRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["zip"] = d.Get("deployment.0.zip")
-	transformed["files"] = d.Get("deployment.0.files")
-	transformed["container"] =
-		flattenAppEngineFlexibleAppVersionDeploymentContainer(original["container"], d, config)
-	transformed["cloud_build_options"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptions(original["cloudBuildOptions"], d, config)
-
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentContainer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["image"] =
-		flattenAppEngineFlexibleAppVersionDeploymentContainerImage(original["image"], d, config)
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentContainerImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["app_yaml_path"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsAppYamlPath(original["appYamlPath"], d, config)
-	transformed["cloud_build_timeout"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsCloudBuildTimeout(original["cloudBuildTimeout"], d, config)
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsAppYamlPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsCloudBuildTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

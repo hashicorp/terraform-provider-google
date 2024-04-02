@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: fixed a crash in `google_app_engine_flexible_app_version` due to the `deployment` field not being returned by the API
+```
