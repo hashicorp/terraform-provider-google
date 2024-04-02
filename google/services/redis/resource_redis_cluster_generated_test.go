@@ -66,6 +66,7 @@ resource "google_redis_cluster" "cluster-ha" {
   }
   region = "us-central1"
   replica_count = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
   authorization_mode = "AUTH_MODE_DISABLED"
   depends_on = [
