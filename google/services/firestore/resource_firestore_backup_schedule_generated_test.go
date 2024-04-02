@@ -74,7 +74,7 @@ resource "google_firestore_backup_schedule" "daily-backup" {
   project  = "%{project_id}"
   database = google_firestore_database.database.name
 
-  retention = "604800s" // 7 days (maximum possible value for daily backups)
+  retention = "8467200s" // 14 weeks (maximum possible retention)
 
   daily_recurrence {}
 }
@@ -124,7 +124,7 @@ resource "google_firestore_backup_schedule" "weekly-backup" {
   project  = "%{project_id}"
   database = google_firestore_database.database.name
 
-  retention = "8467200s" // 14 weeks (maximum possible value for weekly backups)
+  retention = "8467200s" // 14 weeks (maximum possible retention)
 
   weekly_recurrence {
     day = "SUNDAY"

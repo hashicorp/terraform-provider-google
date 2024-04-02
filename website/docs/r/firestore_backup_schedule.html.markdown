@@ -53,7 +53,7 @@ resource "google_firestore_backup_schedule" "daily-backup" {
   project  = "my-project-name"
   database = google_firestore_database.database.name
 
-  retention = "604800s" // 7 days (maximum possible value for daily backups)
+  retention = "8467200s" // 14 weeks (maximum possible retention)
 
   daily_recurrence {}
 }
@@ -76,7 +76,7 @@ resource "google_firestore_backup_schedule" "weekly-backup" {
   project  = "my-project-name"
   database = google_firestore_database.database.name
 
-  retention = "8467200s" // 14 weeks (maximum possible value for weekly backups)
+  retention = "8467200s" // 14 weeks (maximum possible retention)
 
   weekly_recurrence {
     day = "SUNDAY"
@@ -93,7 +93,7 @@ The following arguments are supported:
   (Required)
   At what relative time in the future, compared to its creation time, the backup should be deleted, e.g. keep backups for 7 days.
   A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
-  For a daily backup recurrence, set this to a value up to 7 days. If you set a weekly backup recurrence, set this to a value up to 14 weeks.
+  You can set this to a value up to 14 weeks.
 
 
 - - -
