@@ -31,7 +31,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"env_variables", "deployment.0.files", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
 			},
 			{
 				Config: testAccAppEngineFlexibleAppVersion_pythonUpdate(context),
@@ -40,7 +40,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"env_variables", "deployment.0.files", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
 			},
 		},
 	})
