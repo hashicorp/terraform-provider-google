@@ -10,6 +10,7 @@ package tests
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import org.junit.Assert
 import projects.googleCloudRootProject
 
@@ -29,13 +30,22 @@ class NightlyTestProjectsTests {
             assertTrue("Build configuration `${bt.name}` contains at least one trigger", bt.triggers.items.isNotEmpty())
              // Look for at least one CRON trigger
             var found: Boolean = false
+            lateinit var schedulingTrigger: ScheduleTrigger
             for (item in bt.triggers.items){
                 if (item.type == "schedulingTrigger") {
+                    schedulingTrigger = item as ScheduleTrigger
                     found = true
                     break
                 }
             }
             assertTrue("Build configuration `${bt.name}` contains a CRON trigger", found)
+
+            // Check that nightly test is being ran on main branch
+            var isDefault: Boolean = false
+            if (schedulingTrigger.branchFilter == "+:refs/heads/main"){
+                isDefault = true
+            }
+            assertTrue("Build configuration `${bt.name} is using the default branch;", isDefault)
         }
     }
 }
