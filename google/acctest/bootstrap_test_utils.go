@@ -389,10 +389,9 @@ const SharedTestGlobalAddressPrefix = "tf-bootstrap-addr-"
 // params are the functions to set compute global address
 func BootstrapSharedTestGlobalAddress(t *testing.T, testId string, params ...func(*AddressSettings)) string {
 	project := envvar.GetTestProjectFromEnv()
-	projectNumber := envvar.GetTestProjectNumberFromEnv()
 	addressName := SharedTestGlobalAddressPrefix + testId
 	networkName := BootstrapSharedTestNetwork(t, testId)
-	networkId := fmt.Sprintf("projects/%v/global/networks/%v", projectNumber, networkName)
+	networkId := fmt.Sprintf("projects/%v/global/networks/%v", project, networkName)
 
 	config := BootstrapConfig(t)
 	if config == nil {
