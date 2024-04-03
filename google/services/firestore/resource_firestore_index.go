@@ -100,12 +100,12 @@ func ResourceFirestoreIndex() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: firestoreIFieldsDiffSuppress,
-				Description: `The fields supported by this index. The last field entry is always for
-the field path '__name__'. If, on creation, '__name__' was not
-specified as the last field, it will be added automatically with the
-same direction as that of the last field defined. If the final field
-in a composite index is not directional, the '__name__' will be
-ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
+				Description: `The fields supported by this index. The last non-stored field entry is
+always for the field path '__name__'. If, on creation, '__name__' was not
+specified as the last field, it will be added automatically with the same
+direction as that of the last field defined. If the final field in a
+composite index is not directional, the '__name__' will be ordered
+'"ASCENDING"' (unless explicitly specified otherwise).`,
 				MinItems: 2,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -114,8 +114,8 @@ ordered '"ASCENDING"' (unless explicitly specified otherwise).`,
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"CONTAINS", ""}),
-							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order' and 'arrayConfig' can
-be specified. Possible values: ["CONTAINS"]`,
+							Description: `Indicates that this field supports operations on arrayValues. Only one of 'order', 'arrayConfig', and
+'vectorConfig' can be specified. Possible values: ["CONTAINS"]`,
 						},
 						"field_path": {
 							Type:        schema.TypeString,
@@ -129,7 +129,36 @@ be specified. Possible values: ["CONTAINS"]`,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"ASCENDING", "DESCENDING", ""}),
 							Description: `Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
-Only one of 'order' and 'arrayConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
+Only one of 'order', 'arrayConfig', and 'vectorConfig' can be specified. Possible values: ["ASCENDING", "DESCENDING"]`,
+						},
+						"vector_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							Description: `Indicates that this field supports vector search operations. Only one of 'order', 'arrayConfig', and
+'vectorConfig' can be specified. Vector Fields should come after the field path '__name__'.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"dimension": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+										Description: `The resulting index will only include vectors of this dimension, and can be used for vector search
+with the same dimension.`,
+									},
+									"flat": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Indicates the vector index is a flat index.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -467,9 +496,10 @@ func flattenFirestoreIndexFields(v interface{}, d *schema.ResourceData, config *
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"field_path":   flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d, config),
-			"order":        flattenFirestoreIndexFieldsOrder(original["order"], d, config),
-			"array_config": flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d, config),
+			"field_path":    flattenFirestoreIndexFieldsFieldPath(original["fieldPath"], d, config),
+			"order":         flattenFirestoreIndexFieldsOrder(original["order"], d, config),
+			"array_config":  flattenFirestoreIndexFieldsArrayConfig(original["arrayConfig"], d, config),
+			"vector_config": flattenFirestoreIndexFieldsVectorConfig(original["vectorConfig"], d, config),
 		})
 	}
 	return transformed
@@ -484,6 +514,46 @@ func flattenFirestoreIndexFieldsOrder(v interface{}, d *schema.ResourceData, con
 
 func flattenFirestoreIndexFieldsArrayConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenFirestoreIndexFieldsVectorConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["dimension"] =
+		flattenFirestoreIndexFieldsVectorConfigDimension(original["dimension"], d, config)
+	transformed["flat"] =
+		flattenFirestoreIndexFieldsVectorConfigFlat(original["flat"], d, config)
+	return []interface{}{transformed}
+}
+func flattenFirestoreIndexFieldsVectorConfigDimension(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenFirestoreIndexFieldsVectorConfigFlat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func expandFirestoreIndexDatabase(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -533,6 +603,13 @@ func expandFirestoreIndexFields(v interface{}, d tpgresource.TerraformResourceDa
 			transformed["arrayConfig"] = transformedArrayConfig
 		}
 
+		transformedVectorConfig, err := expandFirestoreIndexFieldsVectorConfig(original["vector_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVectorConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["vectorConfig"] = transformedVectorConfig
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -548,6 +625,51 @@ func expandFirestoreIndexFieldsOrder(v interface{}, d tpgresource.TerraformResou
 
 func expandFirestoreIndexFieldsArrayConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandFirestoreIndexFieldsVectorConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDimension, err := expandFirestoreIndexFieldsVectorConfigDimension(original["dimension"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDimension); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dimension"] = transformedDimension
+	}
+
+	transformedFlat, err := expandFirestoreIndexFieldsVectorConfigFlat(original["flat"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["flat"] = transformedFlat
+	}
+
+	return transformed, nil
+}
+
+func expandFirestoreIndexFieldsVectorConfigDimension(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFirestoreIndexFieldsVectorConfigFlat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func resourceFirestoreIndexEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {

@@ -101,6 +101,44 @@ resource "google_firestore_index" "my-index" {
   }
 }
 ```
+## Example Usage - Firestore Index Vector
+
+
+```hcl
+resource "google_firestore_database" "database" {
+  project     = "my-project-name"
+  name        = "database-id-vector"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
+resource "google_firestore_index" "my-index" {
+  project     = "my-project-name"
+  database   = google_firestore_database.database.name
+  collection = "atestcollection"
+
+  fields {
+    field_path = "field_name"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "__name__"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "description"
+    vector_config {
+      dimension = 128
+      flat {}
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -113,12 +151,12 @@ The following arguments are supported:
 
 * `fields` -
   (Required)
-  The fields supported by this index. The last field entry is always for
-  the field path `__name__`. If, on creation, `__name__` was not
-  specified as the last field, it will be added automatically with the
-  same direction as that of the last field defined. If the final field
-  in a composite index is not directional, the `__name__` will be
-  ordered `"ASCENDING"` (unless explicitly specified otherwise).
+  The fields supported by this index. The last non-stored field entry is
+  always for the field path `__name__`. If, on creation, `__name__` was not
+  specified as the last field, it will be added automatically with the same
+  direction as that of the last field defined. If the final field in a
+  composite index is not directional, the `__name__` will be ordered
+  `"ASCENDING"` (unless explicitly specified otherwise).
   Structure is [documented below](#nested_fields).
 
 
@@ -131,14 +169,32 @@ The following arguments are supported:
 * `order` -
   (Optional)
   Indicates that this field supports ordering by the specified order or comparing using =, <, <=, >, >=.
-  Only one of `order` and `arrayConfig` can be specified.
+  Only one of `order`, `arrayConfig`, and `vectorConfig` can be specified.
   Possible values are: `ASCENDING`, `DESCENDING`.
 
 * `array_config` -
   (Optional)
-  Indicates that this field supports operations on arrayValues. Only one of `order` and `arrayConfig` can
-  be specified.
+  Indicates that this field supports operations on arrayValues. Only one of `order`, `arrayConfig`, and
+  `vectorConfig` can be specified.
   Possible values are: `CONTAINS`.
+
+* `vector_config` -
+  (Optional)
+  Indicates that this field supports vector search operations. Only one of `order`, `arrayConfig`, and
+  `vectorConfig` can be specified. Vector Fields should come after the field path `__name__`.
+  Structure is [documented below](#nested_vector_config).
+
+
+<a name="nested_vector_config"></a>The `vector_config` block supports:
+
+* `dimension` -
+  (Optional)
+  The resulting index will only include vectors of this dimension, and can be used for vector search
+  with the same dimension.
+
+* `flat` -
+  (Optional)
+  Indicates the vector index is a flat index.
 
 - - -
 
