@@ -152,7 +152,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	var cluster dataproc.Cluster
 
 	project := envvar.GetTestProjectFromEnv()
-	acceleratorType := "nvidia-tesla-k80"
+	acceleratorType := "nvidia-tesla-t4"
 	zone := "us-central1-c"
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
@@ -194,7 +194,7 @@ func testAccCheckDataprocAuxiliaryNodeGroupAccelerator(cluster *dataproc.Cluster
 
 func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, project string, masterCount int, workerCount int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-k80", project)
+		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-t4", project)
 		r := regexp.MustCompile(expectedUri)
 
 		master := cluster.Config.MasterConfig.Accelerators
