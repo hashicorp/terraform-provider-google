@@ -40,7 +40,7 @@ To get more information about Instance, see:
 ```hcl
 resource "google_looker_instance" "looker-instance" {
   name              = "my-instance"
-  platform_edition  = "LOOKER_CORE_STANDARD"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
     client_id = "my-client-id"
@@ -59,17 +59,11 @@ resource "google_looker_instance" "looker-instance" {
 ```hcl
 resource "google_looker_instance" "looker-instance" {
   name               = "my-instance"
-  platform_edition   = "LOOKER_CORE_STANDARD"
+  platform_edition   = "LOOKER_CORE_STANDARD_ANNUAL"
   region             = "us-central1"
   public_ip_enabled  = true
   admin_settings {
     allowed_email_domains = ["google.com"]
-  }
-  // User metadata config is only available when platform edition is LOOKER_CORE_STANDARD.
-  user_metadata {
-    additional_developer_user_count = 10 
-    additional_standard_user_count  = 10
-    additional_viewer_user_count    = 10
   }
   maintenance_window {
     day_of_week = "THURSDAY"
@@ -195,12 +189,14 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 ```hcl
 resource "google_looker_instance" "looker-instance" {
   name              = "my-instance"
-  platform_edition  = "LOOKER_CORE_STANDARD"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
     client_id = "my-client-id"
     client_secret = "my-client-secret"
   }
+  // After your Looker (Google Cloud core) instance has been created, you can set up, view information about, or delete a custom domain for your instance. 
+  // Therefore 2 terraform applies, one to create the instance, then another to set up the custom domain. 
   custom_domain {
     domain = "my-custom-domain.com"
   }
@@ -259,8 +255,8 @@ The following arguments are supported:
 * `platform_edition` -
   (Optional)
   Platform editions for a Looker instance. Each edition maps to a set of instance features, like its size. Must be one of these values:
-  - LOOKER_CORE_TRIAL: trial instance
-  - LOOKER_CORE_STANDARD: pay as you go standard instance
+  - LOOKER_CORE_TRIAL: trial instance (Currently Unavailable)
+  - LOOKER_CORE_STANDARD: pay as you go standard instance (Currently Unavailable)
   - LOOKER_CORE_STANDARD_ANNUAL: subscription standard instance
   - LOOKER_CORE_ENTERPRISE_ANNUAL: subscription enterprise instance
   - LOOKER_CORE_EMBED_ANNUAL: subscription embed instance
