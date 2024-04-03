@@ -59,7 +59,7 @@ func testAccLookerInstance_lookerInstanceBasicExample(context map[string]interfa
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
   name              = "tf-test-my-instance%{random_suffix}"
-  platform_edition  = "LOOKER_CORE_STANDARD"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
     client_id = "tf-test-my-client-id%{random_suffix}"
@@ -98,17 +98,11 @@ func testAccLookerInstance_lookerInstanceFullExample(context map[string]interfac
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
   name               = "tf-test-my-instance%{random_suffix}"
-  platform_edition   = "LOOKER_CORE_STANDARD"
+  platform_edition   = "LOOKER_CORE_STANDARD_ANNUAL"
   region             = "us-central1"
   public_ip_enabled  = true
   admin_settings {
     allowed_email_domains = ["google.com"]
-  }
-  // User metadata config is only available when platform edition is LOOKER_CORE_STANDARD.
-  user_metadata {
-    additional_developer_user_count = 10 
-    additional_standard_user_count  = 10
-    additional_viewer_user_count    = 10
   }
   maintenance_window {
     day_of_week = "THURSDAY"
@@ -269,12 +263,14 @@ func testAccLookerInstance_lookerInstanceCustomDomainExample(context map[string]
 	return acctest.Nprintf(`
 resource "google_looker_instance" "looker-instance" {
   name              = "tf-test-my-instance%{random_suffix}"
-  platform_edition  = "LOOKER_CORE_STANDARD"
+  platform_edition  = "LOOKER_CORE_STANDARD_ANNUAL"
   region            = "us-central1"
   oauth_config {
     client_id = "tf-test-my-client-id%{random_suffix}"
     client_secret = "tf-test-my-client-secret%{random_suffix}"
   }
+  // After your Looker (Google Cloud core) instance has been created, you can set up, view information about, or delete a custom domain for your instance. 
+  // Therefore 2 terraform applies, one to create the instance, then another to set up the custom domain. 
   custom_domain {
     domain = "tf-test-my-custom-domain%{random_suffix}.com"
   }
