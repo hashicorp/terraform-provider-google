@@ -269,15 +269,15 @@ The following arguments are supported:
 <a name="nested_routing_policy"></a>The `routing_policy` block supports:
 
 * `wrr` - (Optional) The configuration for Weighted Round Robin based routing policy.
-    Structure is [document below](#nested_wrr).
+    Structure is [documented below](#nested_wrr).
 
 * `geo` - (Optional) The configuration for Geolocation based routing policy.
-    Structure is [document below](#nested_geo).
+    Structure is [documented below](#nested_geo).
 
 * `enable_geo_fencing` - (Optional) Specifies whether to enable fencing for geo queries.
 
 * `primary_backup` - (Optional) The configuration for a primary-backup policy with global to regional failover. Queries are responded to with the global primary targets, but if none of the primary targets are healthy, then we fallback to a regional failover policy.
-    Structure is [document below](#nested_primary_backup).
+    Structure is [documented below](#nested_primary_backup).
 
 <a name="nested_wrr"></a>The `wrr` block supports:
 
@@ -286,7 +286,7 @@ The following arguments are supported:
 * `rrdatas` - (Optional) Same as `rrdatas` above.
 
 * `health_checked_targets` - (Optional) The list of targets to be health checked. Note that if DNSSEC is enabled for this zone, only one of `rrdatas` or `health_checked_targets` can be set.
-    Structure is [document below](#nested_health_checked_targets).
+    Structure is [documented below](#nested_health_checked_targets).
 
 <a name="nested_geo"></a>The `geo` block supports:
 
@@ -295,12 +295,12 @@ The following arguments are supported:
 * `rrdatas` - (Optional) Same as `rrdatas` above.
 
 * `health_checked_targets` - (Optional) For A and AAAA types only. The list of targets to be health checked. These can be specified along with `rrdatas` within this item.
-    Structure is [document below](#nested_health_checked_targets).
+    Structure is [documented below](#nested_health_checked_targets).
 
 <a name="nested_primary_backup"></a>The `primary_backup` block supports:
 
 * `primary` - (Required) The list of global primary targets to be health checked.
-    Structure is [document below](#nested_health_checked_targets).
+    Structure is [documented below](#nested_health_checked_targets).
 
 * `backup_geo` - (Required) The backup geo targets, which provide a regional failover policy for the otherwise global primary targets.
     Structure is [document above](#nested_geo).
@@ -312,7 +312,7 @@ The following arguments are supported:
 <a name="nested_health_checked_targets"></a>The `health_checked_targets` block supports:
 
 * `internal_load_balancers` - (Required) The list of internal load balancers to health check.
-    Structure is [document below](#nested_internal_load_balancers).
+    Structure is [documented below](#nested_internal_load_balancers).
 
 <a name="nested_internal_load_balancers"></a>The `internal_load_balancers` block supports:
 
