@@ -1,0 +1,6 @@
+```release-note:enhancement
+networksecurity: Added 'disabled' field to 'google_network_security_firewall_endpoint_association' resource;
+```
+```release-note:bug
+networksecurity: fixed an issue where `google_network_security_firewall_endpoint_association` resources could not be created due to a bad parameter
+```
