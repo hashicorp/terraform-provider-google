@@ -98,6 +98,12 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
+* `disabled` -
+  (Optional)
+  Whether the association is disabled. True indicates that traffic will not be intercepted.
+  ~> **Note:** The API will reject the request if this value is set to true when creating the resource,
+  otherwise on an update the association can be disabled.
+
 * `parent` -
   (Optional)
   The name of the parent this firewall endpoint association belongs to.
