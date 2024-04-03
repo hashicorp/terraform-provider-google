@@ -63,7 +63,7 @@ resource "google_project" "my_project" {
   billing_account = var.billing_account_id
 }
 
-resource "time_resource" "wait_30_seconds" {
+resource "time_sleep" "wait_30_seconds" {
   depends_on = [google_project.my_project]
 
   create_duration = "30s"
@@ -74,7 +74,7 @@ resource "google_project_service" "my_service" {
   service = "firebase.googleapis.com"
 
   disable_dependent_services = true
-  depends_on = [time_resource.wait_30_seconds]
+  depends_on = [time_sleep.wait_30_seconds]
 }
 ```
 
