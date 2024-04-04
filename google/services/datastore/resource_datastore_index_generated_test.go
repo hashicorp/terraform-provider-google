@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -34,6 +35,7 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"project_id":    envvar.GetTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -56,6 +58,19 @@ func TestAccDatastoreIndex_datastoreIndexExample(t *testing.T) {
 
 func testAccDatastoreIndex_datastoreIndexExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_firestore_database" "database" {
+  project     = "%{project_id}"
+  # google_datastore_index resources only support the (default) database.
+  # However, google_firestore_index can express any Datastore Mode index
+  # and should be preferred in all cases.
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "DATASTORE_MODE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_datastore_index" "default" {
   kind = "foo"
   properties {
@@ -66,6 +81,8 @@ resource "google_datastore_index" "default" {
     name = "tf_test_property_b%{random_suffix}"
     direction = "ASCENDING"
   }
+  
+  depends_on = [google_firestore_database.database]
 }
 `, context)
 }
