@@ -351,6 +351,13 @@ The following arguments are supported:
   Configuration for logging on NAT
   Structure is [documented below](#nested_log_config).
 
+* `endpoint_types` -
+  (Optional)
+  Specifies the endpoint Types supported by the NAT Gateway.
+  Supported values include:
+        `ENDPOINT_TYPE_VM`, `ENDPOINT_TYPE_SWG`,
+        `ENDPOINT_TYPE_MANAGED_PROXY_LB`.
+
 * `rules` -
   (Optional)
   A list of rules associated with this NAT.
