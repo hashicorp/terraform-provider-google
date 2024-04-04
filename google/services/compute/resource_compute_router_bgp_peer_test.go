@@ -606,6 +606,17 @@ func testAccComputeRouterPeerWithMd5AuthKey(routerName string) string {
     router             = google_compute_router.foobar.name
     vpn_gateway_interface           = 0
   }
+
+  resource "google_compute_vpn_tunnel" "foobar1" {
+    name               = "%s1"
+    region             = google_compute_subnetwork.foobar.region
+    vpn_gateway = google_compute_ha_vpn_gateway.foobar.id
+    peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
+    peer_external_gateway_interface = 0  
+    shared_secret      = "unguessable"
+    router             = google_compute_router.foobar.name
+    vpn_gateway_interface           = 1
+  }
   
   resource "google_compute_router_interface" "foobar" {
     name       = "%s"
@@ -619,7 +630,7 @@ func testAccComputeRouterPeerWithMd5AuthKey(routerName string) string {
     name       = "%s1"
     router     = google_compute_router.foobar.name
     region     = google_compute_router.foobar.region
-    vpn_tunnel = google_compute_vpn_tunnel.foobar.name
+    vpn_tunnel = google_compute_vpn_tunnel.foobar1.name
     ip_range = "169.254.4.1/30"
     depends_on = [
       google_compute_router_interface.foobar
@@ -657,7 +668,7 @@ func testAccComputeRouterPeerWithMd5AuthKey(routerName string) string {
     ]
   }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName,
-		routerName)
+		routerName, routerName)
 }
 
 func testAccComputeRouterPeerWithMd5AuthKeyUpdate(routerName string) string {
@@ -714,6 +725,17 @@ func testAccComputeRouterPeerWithMd5AuthKeyUpdate(routerName string) string {
     router             = google_compute_router.foobar.name
     vpn_gateway_interface           = 0
   }
+
+  resource "google_compute_vpn_tunnel" "foobar1" {
+    name               = "%s1"
+    region             = google_compute_subnetwork.foobar.region
+    vpn_gateway = google_compute_ha_vpn_gateway.foobar.id
+    peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
+    peer_external_gateway_interface = 0  
+    shared_secret      = "unguessable"
+    router             = google_compute_router.foobar.name
+    vpn_gateway_interface           = 1
+  }
   
   resource "google_compute_router_interface" "foobar" {
     name       = "%s"
@@ -727,7 +749,7 @@ func testAccComputeRouterPeerWithMd5AuthKeyUpdate(routerName string) string {
     name       = "%s1"
     router     = google_compute_router.foobar.name
     region     = google_compute_router.foobar.region
-    vpn_tunnel = google_compute_vpn_tunnel.foobar.name
+    vpn_tunnel = google_compute_vpn_tunnel.foobar1.name
     ip_range = "169.254.4.1/30"
     depends_on = [
       google_compute_router_interface.foobar
@@ -765,7 +787,7 @@ func testAccComputeRouterPeerWithMd5AuthKeyUpdate(routerName string) string {
     ]
   }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName,
-		routerName)
+		routerName, routerName)
 }
 
 func testAccComputeRouterPeerKeepRouter(routerName string) string {
