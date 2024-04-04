@@ -1801,7 +1801,6 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 	t.Parallel()
 
 	var instance compute.Instance
-
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -6650,7 +6649,6 @@ resource "google_compute_instance" "foobar" {
 
   confidential_instance_config {
     enable_confidential_compute       = true
-    
   }
 
   scheduling {
@@ -6659,9 +6657,7 @@ resource "google_compute_instance" "foobar" {
 
 }
 
-
 `, instance)
-
 }
 
 func testAccComputeInstance_attributionLabelCreate(instance, add, strategy string) string {
