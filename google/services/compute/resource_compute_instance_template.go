@@ -807,7 +807,6 @@ be from 0 to 999,999,999 inclusive.`,
 				Description: `The Confidential VM config being used by the instance. on_host_maintenance has to be set to TERMINATE or this will fail to create.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-
 						"enable_confidential_compute": {
 							Type:        schema.TypeBool,
 							Required:    true,
