@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added in-place column drop support for `bigquery_table`
+```
