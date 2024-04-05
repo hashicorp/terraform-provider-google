@@ -397,9 +397,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 398
+// Generated resources: 399
 // Generated IAM resources: 234
-// Total generated resources: 632
+// Total generated resources: 633
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -588,6 +588,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_instance_iam_policy":                               tpgiamresource.ResourceIamPolicy(compute.ComputeInstanceIamSchema, compute.ComputeInstanceIamUpdaterProducer, compute.ComputeInstanceIdParseFunc),
 	"google_compute_instance_group_membership":                         compute.ResourceComputeInstanceGroupMembership(),
 	"google_compute_instance_group_named_port":                         compute.ResourceComputeInstanceGroupNamedPort(),
+	"google_compute_instance_settings":                                 compute.ResourceComputeInstanceSettings(),
 	"google_compute_interconnect_attachment":                           compute.ResourceComputeInterconnectAttachment(),
 	"google_compute_managed_ssl_certificate":                           compute.ResourceComputeManagedSslCertificate(),
 	"google_compute_network":                                           compute.ResourceComputeNetwork(),
