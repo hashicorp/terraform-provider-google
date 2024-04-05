@@ -10,7 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * appengine: fixed a crash in `google_app_engine_flexible_app_version` due to the `deployment` field not being returned by the API ([#17744](https://github.com/hashicorp/terraform-provider-google/pull/17744))
 * bigquery: fixed a crash when `google_bigquery_table` had a `primary_key.columns` entry set to `""` ([#17721](https://github.com/hashicorp/terraform-provider-google/pull/17721))
-* compute: added explicit update_encoder to `google_compute_region_target_https_proxy` and `google_compute_target_https_proxy` resources. ([#17733](https://github.com/hashicorp/terraform-provider-google/pull/17733))
+* compute: fixed update scenarios on`google_compute_region_target_https_proxy` and `google_compute_target_https_proxy` resources. ([#17733](https://github.com/hashicorp/terraform-provider-google/pull/17733))
 
 ## 5.23.0 (Apr 1, 2024)
 NOTES:
