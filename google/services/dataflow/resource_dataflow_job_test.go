@@ -423,6 +423,10 @@ func TestAccDataflowJob_withKmsKey(t *testing.T) {
 		t.Fatal("Stopping the test because a role was added to the policy.")
 	}
 
+	if acctest.BootstrapPSARole(t, "service-", "dataflow-service-producer-prod", "roles/cloudkms.cryptoKeyEncrypterDecrypter") {
+		t.Fatal("Stopping the test because a role was added to the policy.")
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -1195,15 +1199,6 @@ resource "google_dataflow_job" "big_data" {
 
 func testAccDataflowJob_kms(key_ring, crypto_key, bucket, job, zone string) string {
 	return fmt.Sprintf(`
-data "google_project" "project" {
-}
-
-resource "google_project_iam_member" "kms-project-dataflow-binding" {
-  project = data.google_project.project.project_id
-  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member  = "serviceAccount:service-${data.google_project.project.number}@dataflow-service-producer-prod.iam.gserviceaccount.com"
-}
-
 resource "google_kms_key_ring" "keyring" {
   name     = "%s"
   location = "global"
