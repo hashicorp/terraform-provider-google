@@ -709,7 +709,6 @@ and usability purposes only. The resource name is in the format
 						},
 						"pem_issuer_chain": {
 							Type:     schema.TypeList,
-							Computed: true,
 							Optional: true,
 							Description: `Contains the PEM certificate chain for the issuers of this CertificateAuthority,
 but not pem certificate for this CA itself.`,
@@ -1539,7 +1538,7 @@ func flattenPrivatecaCertificateAuthoritySubordinateConfig(v interface{}, d *sch
 	return []interface{}{transformed}
 }
 func flattenPrivatecaCertificateAuthoritySubordinateConfigCertificateAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("subordinate_config.0.certificate_authority")
+	return v
 }
 
 func flattenPrivatecaCertificateAuthoritySubordinateConfigPemIssuerChain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
