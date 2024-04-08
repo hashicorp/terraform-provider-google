@@ -397,6 +397,11 @@ is set to true. Defaults to ZONAL.`,
 							Default:     0,
 							Description: `The maximum size, in GB, to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.`,
 						},
+						"enable_google_ml_integration": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Enables Vertex AI Integration.`,
+						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -1268,7 +1273,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		Tier:                      _settings["tier"].(string),
 		Edition:                   _settings["edition"].(string),
 		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
-		ForceSendFields:           []string{"StorageAutoResize"},
+		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
 		DenyMaintenancePeriods:    expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
@@ -1281,6 +1286,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		DataDiskType:              _settings["disk_type"].(string),
 		PricingPlan:               _settings["pricing_plan"].(string),
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
+		EnableGoogleMlIntegration: _settings["enable_google_ml_integration"].(bool),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
@@ -1932,6 +1938,11 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
+	// Database Version is required for enabling Google ML integration.
+	if d.HasChange("settings.0.enable_google_ml_integration") {
+		instance.DatabaseVersion = databaseVersion
+	}
+
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() (rerr error) {
 			op, rerr = config.NewSqlAdminClient(userAgent).Instances.Update(project, d.Get("name").(string), instance).Do()
@@ -2098,6 +2109,8 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 
 	data["disk_autoresize"] = settings.StorageAutoResize
 	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
+
+	data["enable_google_ml_integration"] = settings.EnableGoogleMlIntegration
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
