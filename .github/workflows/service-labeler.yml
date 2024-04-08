@@ -30,7 +30,7 @@ jobs:
         echo "service_labels=$serviceLabels" >> $GITHUB_OUTPUT
     - name: Pick labels
       id: pick_labels
-      if: ${{ toJson(steps.service_labels.outputs.service_labels) == '[]' }}
+      if: ${{ steps.service_labels.outputs.service_labels == '[]' }}
       env:
         ISSUE_BODY: ${{ github.event.issue.body }}
       run: |
@@ -38,7 +38,7 @@ jobs:
         echo "labels=$(go run .)" >> $GITHUB_OUTPUT
     - name: Apply labels
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-      if: ${{ toJson(steps.service_labels.outputs.service_labels) == '[]' && steps.pick_labels.outputs.labels != '' }}
+      if: ${{ steps.service_labels.outputs.service_labels == '[]' && steps.pick_labels.outputs.labels != '' }}
       with:
         script: |
           github.rest.issues.addLabels({
