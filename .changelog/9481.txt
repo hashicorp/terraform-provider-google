@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added field `stateful_ha_config` for `resource_container_cluster`.
+```

@@ -4393,6 +4393,9 @@ resource "google_container_cluster" "primary" {
     gcs_fuse_csi_driver_config {
       enabled = false
     }
+    stateful_ha_config {
+      enabled = false
+    }
   }
   deletion_protection = false
   network    = "%s"
@@ -4449,6 +4452,9 @@ resource "google_container_cluster" "primary" {
     enabled = true
   }
     gcs_fuse_csi_driver_config {
+      enabled = true
+    }
+    stateful_ha_config {
       enabled = true
     }
 	}
