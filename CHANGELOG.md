@@ -1,4 +1,19 @@
-## 5.24.0 (Unreleased)
+## 5.25.0 (Unreleased)
+
+## 5.24.0 (Apr 8, 2024)
+IMPROVEMENTS:
+* container: added `enable_cilium_clusterwide_network_policy` field to `google_container_cluster` resource ([#17738](https://github.com/hashicorp/terraform-provider-google/pull/17738))
+* container: added `node_pool_auto_config.resource_manager_tags` field to `google_container_cluster` resource ([#17715](https://github.com/hashicorp/terraform-provider-google/pull/17715))
+* gkeonprem: added `disable_bundled_ingress` field to `google_gkeonprem_vmware_cluster` resource ([#17718](https://github.com/hashicorp/terraform-provider-google/pull/17718))
+* redis: added `node_type` and `precise_size_gb` fields to `google_redis_cluster` ([#17742](https://github.com/hashicorp/terraform-provider-google/pull/17742))
+* storage: added `project_number` attribute to `google_storage_bucket` resource and data source ([#17719](https://github.com/hashicorp/terraform-provider-google/pull/17719))
+* storage: added ability to provide `project` argument to `google_storage_bucket` data source. This will not impact reading the resource's data, instead this helps users avoid calls to the Compute API within the data source. ([#17719](https://github.com/hashicorp/terraform-provider-google/pull/17719))
+
+BUG FIXES:
+* appengine: fixed a crash in `google_app_engine_flexible_app_version` due to the `deployment` field not being returned by the API ([#17744](https://github.com/hashicorp/terraform-provider-google/pull/17744))
+* bigquery: fixed a crash when `google_bigquery_table` had a `primary_key.columns` entry set to `""` ([#17721](https://github.com/hashicorp/terraform-provider-google/pull/17721))
+* compute: fixed update scenarios on`google_compute_region_target_https_proxy` and `google_compute_target_https_proxy` resources. ([#17733](https://github.com/hashicorp/terraform-provider-google/pull/17733))
+
 ## 5.23.0 (Apr 1, 2024)
 NOTES:
 * provider: introduced support for [provider-defined functions](https://developer.hashicorp.com/terraform/plugin/framework/functions). This feature is in Terraform v1.8.0+. ([#17694](https://github.com/hashicorp/terraform-provider-google/pull/17694))
