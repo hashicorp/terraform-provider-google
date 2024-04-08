@@ -25,14 +25,14 @@ jobs:
     - name: Check for service labels
       id: service_labels
       run: |
-        serviceLabels="$(echo '${{ toJson(github.event.issue.labels.*.name) }}' | jq 'map(select(startswith("service/")))')"
+        serviceLabels="$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq 'map(select(startswith("service/")))')"
         echo "Service labels: $serviceLabels"
         echo "service_labels=$serviceLabels" >> $GITHUB_OUTPUT
     - name: Pick labels
       id: pick_labels
       if: ${{ steps.service_labels.outputs.service_labels == '[]' }}
       env:
-        ISSUE_BODY: ${{ github.event.issue.body }}
+        ISSUE_BODY: ${{ github.event.pull_request.body }}
       run: |
         cd magic-modules/tools/issue-labeler
         labels=$(go run .)
