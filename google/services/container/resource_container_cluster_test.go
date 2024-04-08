@@ -7490,19 +7490,10 @@ func testAccContainerCluster_withDatabaseEncryption(clusterName string, kmsData 
 data "google_project" "project" {
 }
 
-data "google_iam_policy" "test_kms_binding" {
-  binding {
-    role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-    members = [
-      "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    ]
-  }
-}
-
-resource "google_kms_key_ring_iam_policy" "test_key_ring_iam_policy" {
+resource "google_kms_key_ring_iam_member" "test_key_ring_iam_policy" {
   key_ring_id = "%[1]s"
-  policy_data = data.google_iam_policy.test_kms_binding.policy_data
+  role = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
 data "google_kms_key_ring_iam_policy" "test_key_ring_iam_policy" {
@@ -7862,12 +7853,10 @@ resource "google_service_account" "service_account" {
 	display_name = "Service Account"
 }
 
-resource "google_project_iam_binding" "project" {
+resource "google_project_iam_member" "project" {
 	project = "%[2]s"
 	role    = "roles/container.nodeServiceAccount"
-	members = [
-		"serviceAccount:%[1]s@%[2]s.iam.gserviceaccount.com",
-	]
+	member = "serviceAccount:%[1]s@%[2]s.iam.gserviceaccount.com"
 }`, serviceAccount, projectID)
 
 		clusterAutoscaling = fmt.Sprintf(`
@@ -8760,31 +8749,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
@@ -8843,31 +8836,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
@@ -8982,31 +8979,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
@@ -9122,31 +9123,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-   "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
