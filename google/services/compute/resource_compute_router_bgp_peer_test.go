@@ -1421,8 +1421,8 @@ resource "google_compute_router_peer" "foobar" {
   peer_asn                  = 65515
   advertised_route_priority = 100
   interface                 = google_compute_router_interface.foobar.name
-
   enable_ipv6               = %v
+
 }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, enableIpv6)
 }
@@ -1497,7 +1497,6 @@ resource "google_compute_router_peer" "foobar" {
   peer_asn                  = 65515
   advertised_route_priority = 100
   interface                 = google_compute_router_interface.foobar.name
-
   enable_ipv6               = %v
   ipv6_nexthop_address      = "2600:2d00:0000:0002:0000:0000:0000:0001"
   peer_ipv6_nexthop_address = "2600:2d00:0:2::2"

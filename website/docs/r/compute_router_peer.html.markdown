@@ -282,6 +282,10 @@ The following arguments are supported:
   (Optional)
   Enable IPv6 traffic over BGP Peer. If not specified, it is disabled by default.
 
+* `enable_ipv4` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Enable IPv4 traffic over BGP Peer. It is enabled by default if the peerIpAddress is version 4.
+
 * `ipv6_nexthop_address` -
   (Optional)
   IPv6 address of the interface inside Google Cloud Platform.
@@ -289,12 +293,20 @@ The following arguments are supported:
   If you do not specify the next hop addresses, Google Cloud automatically
   assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.
 
+* `ipv4_nexthop_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IPv4 address of the interface inside Google Cloud Platform.
+
 * `peer_ipv6_nexthop_address` -
   (Optional)
   IPv6 address of the BGP interface outside Google Cloud Platform.
   The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
   If you do not specify the next hop addresses, Google Cloud automatically
   assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.
+
+* `peer_ipv4_nexthop_address` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  IPv4 address of the BGP interface outside Google Cloud Platform.
 
 * `region` -
   (Optional)

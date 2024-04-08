@@ -171,6 +171,14 @@ The following arguments are supported:
   between the two peers. If set, this value must be between 20 and 60.
   The default is 20.
 
+* `identifier_range` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Explicitly specifies a range of valid BGP Identifiers for this Router.
+  It is provided as a link-local IPv4 range (from 169.254.0.0/16), of
+  size at least /30, even if the BGP sessions are over IPv6. It must
+  not overlap with any IPv4 BGP session ranges. Other vendors commonly
+  call this router ID.
+
 
 <a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 

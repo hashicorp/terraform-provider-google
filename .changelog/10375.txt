@@ -1,0 +1,9 @@
+```release-note:enhancement 
+compute: added `identifier_range` field to `google_compute_router` resource (beta)
+```
+```release-note:enhancement 
+compute: added `ip_version` field to `google_compute_router_interface` resource (beta)
+```
+```release-note:enhancement 
+compute: added `enable_ipv4`, `ipv4_nexthop_address` and `peer_ipv4_nexthop_address` fields to `google_compute_router_peer` resource (beta)
+```
