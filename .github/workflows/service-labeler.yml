@@ -3,6 +3,8 @@ name: Service Labeler
 on:
   issues:
     types: [opened, edited, unlabeled]
+  pull_request:
+    types: [opened, edited, unlabeled]
 
 jobs:
   add-labels:
