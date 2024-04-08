@@ -546,6 +546,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Oslogin",
         "path" to "./google/services/oslogin"
     ),
+    "parallelstore" to mapOf(
+        "name" to "parallelstore",
+        "displayName" to "Parallelstore",
+        "path" to "./google/services/parallelstore"
+    ),
     "privateca" to mapOf(
         "name" to "privateca",
         "displayName" to "Privateca",
