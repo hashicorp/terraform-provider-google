@@ -184,7 +184,15 @@ The following arguments are supported:
 * `type` -
   (Optional)
   Initial type of the private cloud.
-  Possible values are: `STANDARD`, `TIME_LIMITED`.
+  Possible values are: `STANDARD`, `TIME_LIMITED`, `STRETCHED`.
+
+* `preferred_zone` -
+  (Optional)
+  The preferred single failure domain within a region.
+
+* `secondary_zone` -
+  (Optional)
+  The secondary single failure domain within a region.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
