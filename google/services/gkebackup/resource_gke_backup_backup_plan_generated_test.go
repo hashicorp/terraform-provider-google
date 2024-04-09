@@ -307,6 +307,202 @@ resource "google_gke_backup_backup_plan" "full" {
 `, context)
 }
 
+func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupBackupPlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_backup_plan.rpo_daily_window",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-rpo-daily-cluster%{random_suffix}"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "rpo_daily_window" {
+  name = "tf-test-rpo-daily-window%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    paused = true
+    rpo_config {
+      target_rpo_minutes=1440
+      exclusion_windows {
+        start_time  {
+          hours = 12
+        }
+        duration = "7200s"
+        daily = true
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 8
+          minutes = 40
+          seconds = 1
+          nanos = 100
+        }
+        duration = "3600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 16
+        }
+      }
+    }
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+`, context)
+}
+
+func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupBackupPlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_backup_plan.rpo_weekly_window",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-rpo-weekly-cluster%{random_suffix}"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "rpo_weekly_window" {
+  name = "tf-test-rpo-weekly-window%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    paused = true
+    rpo_config {
+      target_rpo_minutes=1440
+      exclusion_windows {
+        start_time  {
+          hours = 1
+          minutes = 23
+        }
+        duration = "1800s"
+        days_of_week {
+          days_of_week = ["MONDAY", "THURSDAY"]
+        }
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 12
+        }
+        duration = "3600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 17
+        }
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 8
+          minutes = 40
+        }
+        duration = "600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 18
+        }
+      }
+    }
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+`, context)
+}
+
 func testAccCheckGKEBackupBackupPlanDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
