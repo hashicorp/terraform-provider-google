@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkebackup: added `backup_schedule.0.rpo_config` field to `google_gke_backup_backup_plan` resource
+```
