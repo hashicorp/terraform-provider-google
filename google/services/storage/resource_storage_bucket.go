@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -94,10 +95,11 @@ func ResourceStorageBucket() *schema.Resource {
 			},
 
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A set of key/value label pairs to assign to the bucket.`,
+				Type:         schema.TypeMap,
+				ValidateFunc: labelKeyValidator,
+				Optional:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				Description:  `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"terraform_labels": {
@@ -518,6 +520,22 @@ func ResourceStorageBucket() *schema.Resource {
 
 const resourceDataplexGoogleLabelPrefix = "goog-dataplex"
 const resourceDataplexGoogleProvidedLabelPrefix = "labels." + resourceDataplexGoogleLabelPrefix
+
+var labelKeyRegex = regexp.MustCompile(`^[a-z0-9_-]{1,63}$`)
+
+func labelKeyValidator(val interface{}, key string) (warns []string, errs []error) {
+	if val == nil {
+		return
+	}
+
+	m := val.(map[string]interface{})
+	for k := range m {
+		if !labelKeyRegex.MatchString(k) {
+			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://cloud.google.com/storage/docs/tags-and-labels#bucket-labels", k))
+		}
+	}
+	return
+}
 
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if strings.HasPrefix(k, resourceDataplexGoogleProvidedLabelPrefix) && new == "" {
