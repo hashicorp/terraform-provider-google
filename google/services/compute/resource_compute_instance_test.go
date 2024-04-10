@@ -1829,6 +1829,7 @@ func TestAccComputeInstance_confidentialHyperDiskBootDisk(t *testing.T) {
 		"key_ring":             kms.KeyRing.Name,
 		"key_name":             kms.CryptoKey.Name,
 		"zone":                 "us-central1-a",
+		"machine_type":         "n2-standard-16",
 	}
 
 	context_2 := map[string]interface{}{
@@ -1837,6 +1838,7 @@ func TestAccComputeInstance_confidentialHyperDiskBootDisk(t *testing.T) {
 		"key_ring":             context_1["key_ring"],
 		"key_name":             context_1["key_name"],
 		"zone":                 context_1["zone"],
+		"machine_type":         "c3d-standard-16",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -6751,7 +6753,7 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
 
 resource "google_compute_instance" "foobar" {
   name         = "%{instance_name}"
-  machine_type = "h3-standard-88"
+  machine_type = "%{machine_type}"
   zone         = "%{zone}"
 
   boot_disk {
