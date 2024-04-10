@@ -870,6 +870,8 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 			}
 		}
 	}
+	// Configure DCL basePath
+	transport_tpg.ProviderDCLConfigure(d, &config)
 
 	// Replace hostname by the universe_domain field.
 	if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
@@ -1075,7 +1077,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		return nil, diag.FromErr(err)
 	}
 
-	return transport_tpg.ProviderDCLConfigure(d, &config), nil
+	return &config, nil
 }
 
 func mergeResourceMaps(ms ...map[string]*schema.Resource) (map[string]*schema.Resource, error) {
