@@ -145,7 +145,8 @@ func SetMetadataLabelsDiff(_ context.Context, d *schema.ResourceDiff, meta inter
 	// "terraform_labels" and "effective_labels" cannot be set directly due to a bug that SetNew doesn't work on nested fields
 	// in terraform sdk.
 	// https://github.com/hashicorp/terraform-plugin-sdk/issues/459
-	if !d.GetRawPlan().GetAttr("metadata").AsValueSlice()[0].GetAttr("labels").IsWhollyKnown() {
+	values := d.GetRawPlan().GetAttr("metadata").AsValueSlice()
+	if len(values) > 0 && !values[0].GetAttr("labels").IsWhollyKnown() {
 		return nil
 	}
 
