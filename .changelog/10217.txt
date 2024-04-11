@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `params.resource_manager_tags` field to `resource_compute_instance_group_manager` and `resource_compute_region_instance_group_manager` that enables to create these resources with tags (beta)
+```
