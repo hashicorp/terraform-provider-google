@@ -484,7 +484,6 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 }
 
 func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
-	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -498,7 +497,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100us", networkName, subnetworkName, true, 2048),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, true, 2048),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
@@ -766,7 +765,6 @@ resource "google_container_node_pool" "with_enable_private_nodes" {
 }
 
 func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
-	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
