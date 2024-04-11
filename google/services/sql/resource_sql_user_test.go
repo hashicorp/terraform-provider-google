@@ -138,6 +138,7 @@ func TestAccSqlUser_postgres(t *testing.T) {
 }
 
 func TestAccSqlUser_postgresIAM(t *testing.T) {
+	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16704", t.Name())
 	t.Parallel()
 
 	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
