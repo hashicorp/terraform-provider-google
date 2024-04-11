@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"regexp"
 	"strings"
@@ -1481,6 +1482,8 @@ func resourceDialogflowCXPageCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -1503,6 +1506,7 @@ func resourceDialogflowCXPageCreate(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Page: %s", err)
@@ -1542,6 +1546,8 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -1562,6 +1568,7 @@ func resourceDialogflowCXPageRead(d *schema.ResourceData, meta interface{}) erro
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXPage %q", d.Id()))
@@ -1657,6 +1664,7 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating Page %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
@@ -1723,6 +1731,7 @@ func resourceDialogflowCXPageUpdate(d *schema.ResourceData, meta interface{}) er
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -1757,6 +1766,8 @@ func resourceDialogflowCXPageDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -1781,6 +1792,7 @@ func resourceDialogflowCXPageDelete(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Page")

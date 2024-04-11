@@ -20,6 +20,7 @@ package accesscontextmanager
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -192,6 +193,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -200,6 +202,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescCreate(d *schema.ResourceData
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating AuthorizedOrgsDesc: %s", err)
@@ -265,12 +268,14 @@ func resourceAccessContextManagerAuthorizedOrgsDescRead(d *schema.ResourceData, 
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerAuthorizedOrgsDesc %q", d.Id()))
@@ -329,6 +334,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 	}
 
 	log.Printf("[DEBUG] Updating AuthorizedOrgsDesc %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("orgs") {
@@ -354,6 +360,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescUpdate(d *schema.ResourceData
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
 	})
 
 	if err != nil {
@@ -394,6 +401,8 @@ func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting AuthorizedOrgsDesc %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -403,6 +412,7 @@ func resourceAccessContextManagerAuthorizedOrgsDescDelete(d *schema.ResourceData
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "AuthorizedOrgsDesc")

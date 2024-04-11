@@ -20,6 +20,7 @@ package alloydb
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -374,6 +375,7 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	// Read the config and call createsecondary api if instance_type is SECONDARY
 
 	if instanceType := d.Get("instance_type"); instanceType == "SECONDARY" {
@@ -387,6 +389,7 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Instance: %s", err)
@@ -433,12 +436,14 @@ func resourceAlloydbInstanceRead(d *schema.ResourceData, meta interface{}) error
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AlloydbInstance %q", d.Id()))
@@ -586,6 +591,7 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
@@ -649,6 +655,7 @@ func resourceAlloydbInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -691,6 +698,7 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	// Read the config and avoid calling the delete API if the instance_type is SECONDARY and instead return nil
 	// Returning nil is equivalent of returning a success message to the users
 	// This is done because deletion of secondary instance is not supported
@@ -719,6 +727,7 @@ func resourceAlloydbInstanceDelete(d *schema.ResourceData, meta interface{}) err
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Instance")

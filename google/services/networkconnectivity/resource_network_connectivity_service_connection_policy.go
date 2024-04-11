@@ -20,6 +20,7 @@ package networkconnectivity
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -327,6 +328,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyCreate(d *schema.Resource
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -335,6 +337,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyCreate(d *schema.Resource
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating ServiceConnectionPolicy: %s", err)
@@ -387,12 +390,14 @@ func resourceNetworkConnectivityServiceConnectionPolicyRead(d *schema.ResourceDa
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkConnectivityServiceConnectionPolicy %q", d.Id()))
@@ -494,6 +499,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyUpdate(d *schema.Resource
 	}
 
 	log.Printf("[DEBUG] Updating ServiceConnectionPolicy %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("description") {
@@ -533,6 +539,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyUpdate(d *schema.Resource
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -580,6 +587,8 @@ func resourceNetworkConnectivityServiceConnectionPolicyDelete(d *schema.Resource
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting ServiceConnectionPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -589,6 +598,7 @@ func resourceNetworkConnectivityServiceConnectionPolicyDelete(d *schema.Resource
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "ServiceConnectionPolicy")

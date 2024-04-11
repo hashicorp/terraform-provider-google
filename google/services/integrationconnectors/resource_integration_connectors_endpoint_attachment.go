@@ -20,6 +20,7 @@ package integrationconnectors
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -172,6 +173,7 @@ func resourceIntegrationConnectorsEndpointAttachmentCreate(d *schema.ResourceDat
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -180,6 +182,7 @@ func resourceIntegrationConnectorsEndpointAttachmentCreate(d *schema.ResourceDat
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating EndpointAttachment: %s", err)
@@ -242,12 +245,14 @@ func resourceIntegrationConnectorsEndpointAttachmentRead(d *schema.ResourceData,
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IntegrationConnectorsEndpointAttachment %q", d.Id()))
@@ -320,6 +325,7 @@ func resourceIntegrationConnectorsEndpointAttachmentUpdate(d *schema.ResourceDat
 	}
 
 	log.Printf("[DEBUG] Updating EndpointAttachment %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("description") {
@@ -351,6 +357,7 @@ func resourceIntegrationConnectorsEndpointAttachmentUpdate(d *schema.ResourceDat
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -398,6 +405,8 @@ func resourceIntegrationConnectorsEndpointAttachmentDelete(d *schema.ResourceDat
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting EndpointAttachment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -407,6 +416,7 @@ func resourceIntegrationConnectorsEndpointAttachmentDelete(d *schema.ResourceDat
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "EndpointAttachment")

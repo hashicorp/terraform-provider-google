@@ -20,6 +20,7 @@ package dialogflowcx
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"regexp"
 	"strings"
@@ -216,6 +217,8 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -238,6 +241,7 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating EntityType: %s", err)
@@ -277,6 +281,8 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -297,6 +303,7 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("DialogflowCXEntityType %q", d.Id()))
@@ -389,6 +396,7 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Updating EntityType %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
@@ -455,6 +463,7 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -489,6 +498,8 @@ func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	// extract location from the parent
 	location := ""
 
@@ -513,6 +524,7 @@ func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "EntityType")

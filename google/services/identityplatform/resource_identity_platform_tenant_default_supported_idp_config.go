@@ -20,6 +20,7 @@ package identityplatform
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -162,6 +163,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -170,6 +172,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigCreate(d *schema.Res
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating TenantDefaultSupportedIdpConfig: %s", err)
@@ -215,12 +218,14 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigRead(d *schema.Resou
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformTenantDefaultSupportedIdpConfig %q", d.Id()))
@@ -287,6 +292,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 	}
 
 	log.Printf("[DEBUG] Updating TenantDefaultSupportedIdpConfig %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("client_id") {
@@ -322,6 +328,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigUpdate(d *schema.Res
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -362,6 +369,8 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting TenantDefaultSupportedIdpConfig %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -371,6 +380,7 @@ func resourceIdentityPlatformTenantDefaultSupportedIdpConfigDelete(d *schema.Res
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "TenantDefaultSupportedIdpConfig")

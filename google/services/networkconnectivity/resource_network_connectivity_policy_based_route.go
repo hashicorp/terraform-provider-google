@@ -20,6 +20,7 @@ package networkconnectivity
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -329,6 +330,7 @@ func resourceNetworkConnectivityPolicyBasedRouteCreate(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -337,6 +339,7 @@ func resourceNetworkConnectivityPolicyBasedRouteCreate(d *schema.ResourceData, m
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating PolicyBasedRoute: %s", err)
@@ -389,12 +392,14 @@ func resourceNetworkConnectivityPolicyBasedRouteRead(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkConnectivityPolicyBasedRoute %q", d.Id()))
@@ -485,6 +490,8 @@ func resourceNetworkConnectivityPolicyBasedRouteDelete(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting PolicyBasedRoute %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -494,6 +501,7 @@ func resourceNetworkConnectivityPolicyBasedRouteDelete(d *schema.ResourceData, m
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "PolicyBasedRoute")

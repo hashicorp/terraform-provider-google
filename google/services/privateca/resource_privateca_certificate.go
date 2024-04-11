@@ -20,6 +20,7 @@ package privateca
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -1340,6 +1341,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	// Only include linked certificate authority if the user specified it
 	if p, ok := d.GetOk("certificate_authority"); ok {
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"issuingCertificateAuthorityId": p.(string)})
@@ -1355,6 +1357,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
@@ -1397,12 +1400,14 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificate %q", d.Id()))
@@ -1487,6 +1492,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating Certificate %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("effective_labels") {
@@ -1514,6 +1520,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -1554,6 +1561,8 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting Certificate %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -1563,6 +1572,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Certificate")
