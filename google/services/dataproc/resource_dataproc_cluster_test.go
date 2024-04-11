@@ -702,7 +702,10 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withServiceAcc(sa, rnd, subnetworkName),
@@ -2222,6 +2225,13 @@ resource "google_project_iam_member" "service_account" {
   member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
+# Wait for IAM propagation
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_project_iam_member.service_account]
+
+  create_duration = "120s"
+}
+
 resource "google_dataproc_cluster" "with_service_account" {
   name   = "dproc-cluster-test-%s"
   region = "us-central1"
@@ -2259,7 +2269,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     }
   }
 
-  depends_on = [google_project_iam_member.service_account]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, sa, rnd, subnetworkName)
 }
