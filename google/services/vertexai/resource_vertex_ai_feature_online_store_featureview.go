@@ -20,6 +20,7 @@ package vertexai
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -243,6 +244,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -251,6 +253,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewCreate(d *schema.ResourceData,
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating FeatureOnlineStoreFeatureview: %s", err)
@@ -313,12 +316,14 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewRead(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("VertexAIFeatureOnlineStoreFeatureview %q", d.Id()))
@@ -403,6 +408,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 	}
 
 	log.Printf("[DEBUG] Updating FeatureOnlineStoreFeatureview %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("sync_config") {
@@ -442,6 +448,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewUpdate(d *schema.ResourceData,
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -482,6 +489,8 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewDelete(d *schema.ResourceData,
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting FeatureOnlineStoreFeatureview %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -491,6 +500,7 @@ func resourceVertexAIFeatureOnlineStoreFeatureviewDelete(d *schema.ResourceData,
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "FeatureOnlineStoreFeatureview")

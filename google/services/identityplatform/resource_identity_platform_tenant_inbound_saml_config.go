@@ -20,6 +20,7 @@ package identityplatform
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -220,6 +221,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigCreate(d *schema.ResourceDat
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -228,6 +230,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigCreate(d *schema.ResourceDat
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating TenantInboundSamlConfig: %s", err)
@@ -270,12 +273,14 @@ func resourceIdentityPlatformTenantInboundSamlConfigRead(d *schema.ResourceData,
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("IdentityPlatformTenantInboundSamlConfig %q", d.Id()))
@@ -351,6 +356,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigUpdate(d *schema.ResourceDat
 	}
 
 	log.Printf("[DEBUG] Updating TenantInboundSamlConfig %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
@@ -390,6 +396,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigUpdate(d *schema.ResourceDat
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -430,6 +437,8 @@ func resourceIdentityPlatformTenantInboundSamlConfigDelete(d *schema.ResourceDat
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting TenantInboundSamlConfig %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -439,6 +448,7 @@ func resourceIdentityPlatformTenantInboundSamlConfigDelete(d *schema.ResourceDat
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "TenantInboundSamlConfig")
