@@ -105,6 +105,12 @@ function exported by the module specified in source_location.`,
 							Description: `The runtime in which to run the function. Required when deploying a new
 function, optional when updating an existing function.`,
 						},
+						"service_account": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The fully-qualified name of the service account to be used for building the container.`,
+						},
 						"source": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -991,6 +997,8 @@ func flattenCloudfunctions2functionBuildConfig(v interface{}, d *schema.Resource
 		flattenCloudfunctions2functionBuildConfigEnvironmentVariables(original["environmentVariables"], d, config)
 	transformed["docker_repository"] =
 		flattenCloudfunctions2functionBuildConfigDockerRepository(original["dockerRepository"], d, config)
+	transformed["service_account"] =
+		flattenCloudfunctions2functionBuildConfigServiceAccount(original["serviceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudfunctions2functionBuildConfigBuild(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1151,6 +1159,10 @@ func flattenCloudfunctions2functionBuildConfigEnvironmentVariables(v interface{}
 }
 
 func flattenCloudfunctions2functionBuildConfigDockerRepository(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionBuildConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1597,6 +1609,13 @@ func expandCloudfunctions2functionBuildConfig(v interface{}, d tpgresource.Terra
 		transformed["dockerRepository"] = transformedDockerRepository
 	}
 
+	transformedServiceAccount, err := expandCloudfunctions2functionBuildConfigServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -1788,6 +1807,10 @@ func expandCloudfunctions2functionBuildConfigEnvironmentVariables(v interface{},
 }
 
 func expandCloudfunctions2functionBuildConfigDockerRepository(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionBuildConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

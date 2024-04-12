@@ -446,6 +446,90 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 ```
+## Example Usage - Cloudfunctions2 Basic Builder
+
+
+```hcl
+locals {
+  project = "my-project-name" # Google Cloud Platform Project ID
+}
+
+resource "google_service_account" "account" {
+  account_id = "gcf-sa"
+  display_name = "Test Service Account"
+}
+
+resource "google_project_iam_member" "log_writer" {
+  project = google_service_account.account.project
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "artifact_registry_writer" {
+  project = google_service_account.account.project
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "storage_object_admin" {
+  project = google_service_account.account.project
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "${local.project}-gcf-source"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "function-source.zip"  # Add path to the zipped function source code
+}
+
+# builder permissions need to stablize before it can pull the source zip
+resource "time_sleep" "wait_60s" {
+  create_duration = "60s"
+
+  depends_on = [
+    google_project_iam_member.log_writer,
+    google_project_iam_member.artifact_registry_writer,
+    google_project_iam_member.storage_object_admin,
+  ]
+}
+ 
+resource "google_cloudfunctions2_function" "function" {
+  name = "function-v2"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime = "nodejs16"
+    entry_point = "helloHttp"  # Set the entry point 
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+    service_account = google_service_account.account.id
+  }
+ 
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+  }
+
+  depends_on = [time_sleep.wait_60s]
+}
+
+output "function_uri" { 
+  value = google_cloudfunctions2_function.function.service_config[0].uri
+}
+```
 ## Example Usage - Cloudfunctions2 Secret Env
 
 
@@ -849,6 +933,10 @@ The following arguments are supported:
 * `docker_repository` -
   (Optional)
   User managed repository created in Artifact Registry optionally with a customer managed encryption key.
+
+* `service_account` -
+  (Optional)
+  The fully-qualified name of the service account to be used for building the container.
 
 
 <a name="nested_source"></a>The `source` block supports:
