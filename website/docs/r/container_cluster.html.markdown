@@ -349,7 +349,7 @@ subnetwork in which the cluster's instances are launched.
 * `enable_intranode_visibility` - (Optional)
     Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network.
 
-* `enable_l4_ilb_subsetting` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `enable_l4_ilb_subsetting` - (Optional)
     Whether L4ILB Subsetting is enabled for this cluster.
 
 * `enable_multi_networking` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
