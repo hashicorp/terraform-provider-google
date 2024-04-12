@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"golang.org/x/exp/maps"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -237,6 +238,88 @@ func ExpandStringMap(d TerraformResourceData, key string) map[string]string {
 	}
 
 	return ConvertStringMap(v.(map[string]interface{}))
+}
+
+// SortStringsByConfigOrder takes a slice of map[string]interface{} from a TF config
+// and API data, and returns a new slice containing the API data, reorderd to match
+// the TF config as closely as possible (with new items at the end of the list.)
+func SortStringsByConfigOrder(configData, apiData []string) ([]string, error) {
+	configOrder := map[string]int{}
+	for index, item := range configData {
+		_, ok := configOrder[item]
+		if ok {
+			return nil, fmt.Errorf("configData element at %d has duplicate value `%s`", index, item)
+		}
+		configOrder[item] = index
+	}
+
+	apiSeen := map[string]struct{}{}
+	byConfigIndex := map[int]string{}
+	newElements := []string{}
+	for index, item := range apiData {
+		_, ok := apiSeen[item]
+		if ok {
+			return nil, fmt.Errorf("apiData element at %d has duplicate value `%s`", index, item)
+		}
+		apiSeen[item] = struct{}{}
+		configIndex, found := configOrder[item]
+		if found {
+			byConfigIndex[configIndex] = item
+		} else {
+			newElements = append(newElements, item)
+		}
+	}
+
+	// Sort set config indexes and convert to a slice of strings. This removes items present in the config
+	// but not present in the API response.
+	configIndexes := maps.Keys(byConfigIndex)
+	sort.Ints(configIndexes)
+	result := []string{}
+	for _, index := range configIndexes {
+		result = append(result, byConfigIndex[index])
+	}
+
+	// Add new elements to the end of the list, sorted alphabetically.
+	sort.Strings(newElements)
+	result = append(result, newElements...)
+
+	return result, nil
+}
+
+// SortMapsByConfigOrder takes a slice of map[string]interface{} from a TF config
+// and API data, and returns a new slice containing the API data, reorderd to match
+// the TF config as closely as possible (with new items at the end of the list.)
+// idKey is be used to extract a string key from the values in the slice.
+func SortMapsByConfigOrder(configData, apiData []map[string]interface{}, idKey string) ([]map[string]interface{}, error) {
+	configIds := make([]string, len(configData))
+	for i, item := range configData {
+		id, ok := item[idKey].(string)
+		if !ok {
+			return nil, fmt.Errorf("configData element at %d does not contain string value in key `%s`", i, idKey)
+		}
+		configIds[i] = id
+	}
+
+	apiIds := make([]string, len(apiData))
+	apiMap := map[string]map[string]interface{}{}
+	for i, item := range apiData {
+		id, ok := item[idKey].(string)
+		if !ok {
+			return nil, fmt.Errorf("apiData element at %d does not contain string value in key `%s`", i, idKey)
+		}
+		apiIds[i] = id
+		apiMap[id] = item
+	}
+
+	sortedIds, err := SortStringsByConfigOrder(configIds, apiIds)
+	if err != nil {
+		return nil, err
+	}
+	result := []map[string]interface{}{}
+	for _, id := range sortedIds {
+		result = append(result, apiMap[id])
+	}
+	return result, nil
 }
 
 func ConvertStringMap(v map[string]interface{}) map[string]string {

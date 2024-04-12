@@ -39,6 +39,153 @@ var fictionalSchema = map[string]*schema.Schema{
 	},
 }
 
+func TestSortByConfigOrder(t *testing.T) {
+	cases := map[string]struct {
+		configData, apiData []string
+		want                []string
+		wantError           bool
+	}{
+		"empty config data and api data": {
+			configData: []string{},
+			apiData:    []string{},
+			want:       []string{},
+		},
+		"config data with empty api data": {
+			configData: []string{"one", "two"},
+			apiData:    []string{},
+			want:       []string{},
+		},
+		"empty config data with api data": {
+			configData: []string{},
+			apiData:    []string{"one", "two", "three"},
+			want:       []string{"one", "three", "two"},
+		},
+		"config data and api data that do not overlap": {
+			configData: []string{"foo", "bar"},
+			apiData:    []string{"one", "two", "three"},
+			want:       []string{"one", "three", "two"},
+		},
+		"config order is preserved": {
+			configData: []string{"foo", "two", "bar", "baz"},
+			apiData:    []string{"one", "two", "three", "bar"},
+			want:       []string{"two", "bar", "one", "three"},
+		},
+		"config data and api data overlap completely": {
+			configData: []string{"foo", "bar", "baz", "one", "two", "three"},
+			apiData:    []string{"baz", "two", "one", "bar", "three", "foo"},
+			want:       []string{"foo", "bar", "baz", "one", "two", "three"},
+		},
+		"config data contains duplicates": {
+			configData: []string{"one", "one"},
+			apiData:    []string{},
+			wantError:  true,
+		},
+		"api data contains duplicates": {
+			configData: []string{},
+			apiData:    []string{"one", "one"},
+			wantError:  true,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(fmt.Sprintf("strings/%s", tn), func(t *testing.T) {
+			t.Parallel()
+			sorted, err := tpgresource.SortStringsByConfigOrder(tc.configData, tc.apiData)
+			if err != nil {
+				if !tc.wantError {
+					t.Fatalf("Unexpected error: %s", err)
+				}
+			} else if tc.wantError {
+				t.Fatalf("Wanted error, got none")
+			}
+			if !tc.wantError && (len(sorted) > 0 || len(tc.want) > 0) && !reflect.DeepEqual(sorted, tc.want) {
+				t.Fatalf("sorted result is incorrect. want %v, got %v", tc.want, sorted)
+			}
+		})
+
+		t.Run(fmt.Sprintf("maps/%s", tn), func(t *testing.T) {
+			t.Parallel()
+			configData := []map[string]interface{}{}
+			for _, item := range tc.configData {
+				configData = append(configData, map[string]interface{}{
+					"value": item,
+				})
+			}
+			apiData := []map[string]interface{}{}
+			for _, item := range tc.apiData {
+				apiData = append(apiData, map[string]interface{}{
+					"value": item,
+				})
+			}
+			want := []map[string]interface{}{}
+			for _, item := range tc.want {
+				want = append(want, map[string]interface{}{
+					"value": item,
+				})
+			}
+			sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "value")
+			if err != nil {
+				if !tc.wantError {
+					t.Fatalf("Unexpected error: %s", err)
+				}
+			} else if tc.wantError {
+				t.Fatalf("Wanted error, got none")
+			}
+			if !tc.wantError && (len(sorted) > 0 || len(want) > 0) && !reflect.DeepEqual(sorted, want) {
+				t.Fatalf("sorted result is incorrect. want %v, got %v", want, sorted)
+			}
+		})
+	}
+}
+
+func TestSortMapsByConfigOrder(t *testing.T) {
+	// most cases are covered by TestSortByConfigOrder; this covers map-specific cases.
+	cases := map[string]struct {
+		configData, apiData []map[string]interface{}
+		idKey               string
+		wantError           bool
+		want                []map[string]interface{}
+	}{
+		"config data is malformed": {
+			configData: []map[string]interface{}{{
+				"foo": "one",
+			},
+			},
+			apiData:   []map[string]interface{}{},
+			idKey:     "bar",
+			wantError: true,
+		},
+		"api data is malformed": {
+			configData: []map[string]interface{}{},
+			apiData: []map[string]interface{}{{
+				"foo": "one",
+			},
+			},
+			idKey:     "bar",
+			wantError: true,
+		},
+	}
+
+	for tn, tc := range cases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			sorted, err := tpgresource.SortMapsByConfigOrder(tc.configData, tc.apiData, tc.idKey)
+			if err != nil {
+				if !tc.wantError {
+					t.Fatalf("Unexpected error: %s", err)
+				}
+			} else if tc.wantError {
+				t.Fatalf("Wanted error, got none")
+			}
+			if !tc.wantError && (len(sorted) > 0 || len(tc.want) > 0) && !reflect.DeepEqual(sorted, tc.want) {
+				t.Fatalf("sorted result is incorrect. want %v, got %v", tc.want, sorted)
+			}
+		})
+	}
+}
+
 func TestConvertStringArr(t *testing.T) {
 	input := make([]interface{}, 3)
 	input[0] = "aaa"
