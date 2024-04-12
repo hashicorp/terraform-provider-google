@@ -7,15 +7,15 @@ FEATURES:
 
 IMPROVEMENTS:
 * bigquery: added in-place schema column drop support for `google_bigquery_table` resource ([#17777](https://github.com/hashicorp/terraform-provider-google/pull/17777))
-* compute: added 'endpoint_types' field to 'google_compute_router_nat' resource ([#17771](https://github.com/hashicorp/terraform-provider-google/pull/17771))
+* compute: added `endpoint_types` field to `google_compute_router_nat` resource ([#17771](https://github.com/hashicorp/terraform-provider-google/pull/17771))
 * compute: increased timeouts from 8 minutes to 20 minutes for `google_compute_security_policy` resource ([#17793](https://github.com/hashicorp/terraform-provider-google/pull/17793))
 * compute: promoted `google_compute_instance_settings` to GA ([#17781](https://github.com/hashicorp/terraform-provider-google/pull/17781))
 * container: added `stateful_ha_config` field to `google_container_cluster` resource ([#17796](https://github.com/hashicorp/terraform-provider-google/pull/17796))
 * firestore: added `vector_config` field to `google_firestore_index` resource ([#17758](https://github.com/hashicorp/terraform-provider-google/pull/17758))
-* gkebackup: added `backup_schedule.0.rpo_config` field to `google_gke_backup_backup_plan` resource ([#17805](https://github.com/hashicorp/terraform-provider-google/pull/17805))
-* networksecurity: added 'disabled' field to 'google_network_security_firewall_endpoint_association' resource; ([#17762](https://github.com/hashicorp/terraform-provider-google/pull/17762))
+* gkebackup: added `backup_schedule.rpo_config` field to `google_gke_backup_backup_plan` resource ([#17805](https://github.com/hashicorp/terraform-provider-google/pull/17805))
+* networksecurity: added `disabled` field to `google_network_security_firewall_endpoint_association` resource; ([#17762](https://github.com/hashicorp/terraform-provider-google/pull/17762))
 * sql: added `enable_google_ml_integration` field to `google_sql_database_instance` resource ([#17798](https://github.com/hashicorp/terraform-provider-google/pull/17798))
-* storage: added labels validation to 'google_storage_bucket' resource ([#17806](https://github.com/hashicorp/terraform-provider-google/pull/17806))
+* storage: added labels validation to `google_storage_bucket` resource ([#17806](https://github.com/hashicorp/terraform-provider-google/pull/17806))
 * vmwareengine: added `preferred_zone` and `secondary_zone` fields to `google_vmwareengine_private_cloud` resource ([#17803](https://github.com/hashicorp/terraform-provider-google/pull/17803))
 
 BUG FIXES:
