@@ -1421,7 +1421,7 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 						"enabled": {
 							Type:        schema.TypeBool,
 							Required:    true,
-							Description: `When enabled, services with exterenal ips specified will be allowed.`,
+							Description: `When enabled, services with external ips specified will be allowed.`,
 						},
 					},
 				},
