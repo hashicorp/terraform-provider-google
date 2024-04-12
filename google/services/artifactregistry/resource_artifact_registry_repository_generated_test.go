@@ -417,7 +417,7 @@ resource "google_artifact_registry_repository" "my-repo" {
 `, context)
 }
 
-func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(t *testing.T) {
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhubAuthExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -430,55 +430,344 @@ func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExa
 		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(context),
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhubAuthExample(context),
 			},
 			{
 				ResourceName:            "google_artifact_registry_repository.my-repo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"repository_id", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "remote_repository_config.0.disable_upstream_validation", "labels", "terraform_labels"},
 			},
 		},
 	})
 }
 
-func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteCustomExample(context map[string]interface{}) string {
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerhubAuthExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "tf-test-example-custom-remote-secret%{random_suffix}" {
+resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
   secret_id = "tf-test-example-secret%{random_suffix}"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "tf-test-example-custom-remote-secret%{random_suffix}_version" {
-  secret = google_secret_manager_secret.tf-test-example-custom-remote-secret%{random_suffix}.id
+resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
   secret_data = "tf-test-remote-password%{random_suffix}"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.tf-test-example-custom-remote-secret%{random_suffix}.id
+  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-example-custom-remote%{random_suffix}"
-  description   = "example remote docker repository with credentials%{random_suffix}"
+  repository_id = "tf-test-example-dockerhub-remote%{random_suffix}"
+  description   = "example remote dockerhub repository with credentials%{random_suffix}"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
     description = "docker hub with custom credentials"
+    disable_upstream_validation = true
     docker_repository {
       public_repository = "DOCKER_HUB"
     }
     upstream_credentials {
       username_password_credentials {
         username = "tf-test-remote-username%{random_suffix}"
-        password_secret_version = google_secret_manager_secret_version.tf-test-example-custom-remote-secret%{random_suffix}_version.name
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCustomWithAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCustomWithAuthExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "remote_repository_config.0.disable_upstream_validation", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteDockerCustomWithAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
+  secret_id = "tf-test-example-secret%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_data = "tf-test-remote-password%{random_suffix}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-example-docker-custom-remote%{random_suffix}"
+  description   = "example remote custom docker repository with credentia%{random_suffix}"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom docker remote with credentials"
+    disable_upstream_validation = true
+    docker_repository {
+      custom_repository {
+        uri = "https://registry-1.docker.io"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "tf-test-remote-username%{random_suffix}"
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCustomWithAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCustomWithAuthExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "remote_repository_config.0.disable_upstream_validation", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteMavenCustomWithAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
+  secret_id = "tf-test-example-secret%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_data = "tf-test-remote-password%{random_suffix}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-example-maven-custom-remote%{random_suffix}"
+  description   = "example remote custom maven repository with credential%{random_suffix}"
+  format        = "MAVEN"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom maven remote with credentials"
+    disable_upstream_validation = true
+    maven_repository {
+      custom_repository {
+        uri = "https://my.maven.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "tf-test-remote-username%{random_suffix}"
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustomWithAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustomWithAuthExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "remote_repository_config.0.disable_upstream_validation", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteNpmCustomWithAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
+  secret_id = "tf-test-example-secret%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_data = "tf-test-remote-password%{random_suffix}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-example-npm-custom-remote%{random_suffix}"
+  description   = "example remote custom npm repository with credentials%{random_suffix}"
+  format        = "NPM"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom npm with credentials"
+    disable_upstream_validation = true
+    npm_repository {
+      custom_repository {
+        uri = "https://my.npm.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "tf-test-remote-username%{random_suffix}"
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
+      }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCustomWithAuthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckArtifactRegistryRepositoryDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCustomWithAuthExample(context),
+			},
+			{
+				ResourceName:            "google_artifact_registry_repository.my-repo",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"repository_id", "location", "remote_repository_config.0.disable_upstream_validation", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemotePythonCustomWithAuthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "tf-test-example-remote-secret%{random_suffix}" {
+  secret_id = "tf-test-example-secret%{random_suffix}"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "tf-test-example-remote-secret%{random_suffix}_version" {
+  secret = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  secret_data = "tf-test-remote-password%{random_suffix}"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.tf-test-example-remote-secret%{random_suffix}.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "tf-test-example-python-custom-remote%{random_suffix}"
+  description   = "example remote custom python repository with credentia%{random_suffix}"
+  format        = "PYTHON"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom npm with credentials"
+    disable_upstream_validation = true
+    python_repository {
+      custom_repository {
+        uri = "https://my.python.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "tf-test-remote-username%{random_suffix}"
+        password_secret_version = google_secret_manager_secret_version.tf-test-example-remote-secret%{random_suffix}_version.name
       }
     }
   }
