@@ -617,31 +617,6 @@ func Fake404(reasonResourceType, resourceName string) *googleapi.Error {
 	}
 }
 
-// validate name of the gcs bucket. Guidelines are located at https://cloud.google.com/storage/docs/naming-buckets
-// this does not attempt to check for IP addresses or close misspellings of "google"
-func CheckGCSName(name string) error {
-	if strings.HasPrefix(name, "goog") {
-		return fmt.Errorf("error: bucket name %s cannot start with %q", name, "goog")
-	}
-
-	if strings.Contains(name, "google") {
-		return fmt.Errorf("error: bucket name %s cannot contain %q", name, "google")
-	}
-
-	valid, _ := regexp.MatchString("^[a-z0-9][a-z0-9_.-]{1,220}[a-z0-9]$", name)
-	if !valid {
-		return fmt.Errorf("error: bucket name validation failed %v. See https://cloud.google.com/storage/docs/naming-buckets", name)
-	}
-
-	for _, str := range strings.Split(name, ".") {
-		valid, _ := regexp.MatchString("^[a-z0-9_-]{1,63}$", str)
-		if !valid {
-			return fmt.Errorf("error: bucket name validation failed %v", str)
-		}
-	}
-	return nil
-}
-
 // CheckGoogleIamPolicy makes assertions about the contents of a google_iam_policy data source's policy_data attribute
 func CheckGoogleIamPolicy(value string) error {
 	if strings.Contains(value, "\"description\":\"\"") {
