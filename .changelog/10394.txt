@@ -1,0 +1,3 @@
+```release-note:bug
+iam: fixed a bug that prevented setting 'create_ignore_already_exists' on existing resources in `google_service_account`.
+```
