@@ -644,26 +644,28 @@ func flattenApigeeOrganizationPropertiesProperty(v interface{}, d *schema.Resour
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	apiData := make([]map[string]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"name":  flattenApigeeOrganizationPropertiesPropertyName(original["name"], d, config),
-			"value": flattenApigeeOrganizationPropertiesPropertyValue(original["value"], d, config),
+		apiData = append(apiData, map[string]interface{}{
+			"name":  original["name"],
+			"value": original["value"],
 		})
 	}
-	return transformed
-}
-func flattenApigeeOrganizationPropertiesPropertyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenApigeeOrganizationPropertiesPropertyValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	configData := []map[string]interface{}{}
+	for _, item := range d.Get("properties.0.property").([]interface{}) {
+		configData = append(configData, item.(map[string]interface{}))
+	}
+	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "name")
+	if err != nil {
+		log.Printf("[ERROR] Could not support API response for properties.0.property: %s", err)
+		return apiData
+	}
+	return sorted
 }
 
 func flattenApigeeOrganizationApigeeProjectId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
