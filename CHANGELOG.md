@@ -3,7 +3,6 @@
 FEATURES:
 * **New Data Source:** `google_tags_tag_keys` ([#17782](https://github.com/hashicorp/terraform-provider-google/pull/17782))
 * **New Data Source:** `google_tags_tag_values` ([#17782](https://github.com/hashicorp/terraform-provider-google/pull/17782))
-* **New Resource:** `google_parallelstore_instance` ([#17800](https://github.com/hashicorp/terraform-provider-google/pull/17800))
 
 IMPROVEMENTS:
 * bigquery: added in-place schema column drop support for `google_bigquery_table` resource ([#17777](https://github.com/hashicorp/terraform-provider-google/pull/17777))
