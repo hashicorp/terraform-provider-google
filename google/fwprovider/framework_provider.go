@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
-	"github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -954,10 +953,6 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 	return []func() datasource.DataSource{
 		resourcemanager.NewGoogleClientConfigDataSource,
 		resourcemanager.NewGoogleClientOpenIDUserinfoDataSource,
-		dns.NewGoogleDnsManagedZoneDataSource,
-		dns.NewGoogleDnsManagedZonesDataSource,
-		dns.NewGoogleDnsRecordSetDataSource,
-		dns.NewGoogleDnsKeysDataSource,
 	}
 }
 
