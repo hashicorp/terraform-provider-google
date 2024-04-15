@@ -1,0 +1,3 @@
+```release-note: bug
+storage: added validation to `name` field in `google_storage_bucket` resource
+```

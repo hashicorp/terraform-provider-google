@@ -17,6 +17,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -59,10 +60,11 @@ func ResourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the bucket.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The name of the bucket.`,
+				ValidateFunc: verify.ValidateGCSName,
 			},
 
 			"encryption": {
@@ -579,9 +581,6 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get the bucket and location
 	bucket := d.Get("name").(string)
-	if err := tpgresource.CheckGCSName(bucket); err != nil {
-		return err
-	}
 	location := d.Get("location").(string)
 
 	// Create a bucket, setting the labels, location and name.
