@@ -12,50 +12,23 @@ import (
 )
 
 func TestAccDataSourceDNSKeys_basic(t *testing.T) {
-	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", acctest.RandString(t, 10))
 
-	var kskDigest1, kskDigest2, zskPubKey1, zskPubKey2, kskAlg1, kskAlg2 string
-
 	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				ExternalProviders: map[string]resource.ExternalProvider{
-					"google": {
-						VersionConstraint: "4.58.0",
-						Source:            "hashicorp/google",
-					},
-				},
-				Config: testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, "on"),
+				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "on"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "1"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "key_signing_keys.#", "1"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "zone_signing_keys.#", "1"),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.0.digests.0.digest", &kskDigest1),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key_id", "zone_signing_keys.0.public_key", &zskPubKey1),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key_id", "key_signing_keys.0.algorithm", &kskAlg1),
-				),
-			},
-			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				Config:                   testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, "on"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
-					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
-					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "1"),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.0.digests.0.digest", &kskDigest2),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key_id", "zone_signing_keys.0.public_key", &zskPubKey2),
-					acctest.TestExtractResourceAttr("data.google_dns_keys.foo_dns_key_id", "key_signing_keys.0.algorithm", &kskAlg2),
-					acctest.TestCheckAttributeValuesEqual(&kskDigest1, &kskDigest2),
-					acctest.TestCheckAttributeValuesEqual(&zskPubKey1, &zskPubKey2),
-					acctest.TestCheckAttributeValuesEqual(&kskAlg1, &kskAlg2),
 				),
 			},
 		},
@@ -63,32 +36,17 @@ func TestAccDataSourceDNSKeys_basic(t *testing.T) {
 }
 
 func TestAccDataSourceDNSKeys_noDnsSec(t *testing.T) {
-	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				ExternalProviders: map[string]resource.ExternalProvider{
-					"google": {
-						VersionConstraint: "4.58.0",
-						Source:            "hashicorp/google",
-					},
-				},
 				Config: testAccDataSourceDNSKeysConfig(dnsZoneName, "off"),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "0"),
-					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "0"),
-				),
-			},
-			{
-				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-				Config:                   testAccDataSourceDNSKeysConfig(dnsZoneName, "off"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "0"),
 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "0"),
@@ -117,7 +75,7 @@ func testAccDataSourceDNSKeysConfig(dnsZoneName, dnssecStatus string) string {
 	return fmt.Sprintf(`
 resource "google_dns_managed_zone" "foo" {
   name     = "%s"
-  dns_name = "%s.hashicorptest.com."
+  dns_name = "dnssec.gcp.tfacc.hashicorptest.com."
 
   dnssec_config {
     state         = "%s"
@@ -132,27 +90,90 @@ data "google_dns_keys" "foo_dns_key" {
 data "google_dns_keys" "foo_dns_key_id" {
   managed_zone = google_dns_managed_zone.foo.id
 }
-`, dnsZoneName, dnsZoneName, dnssecStatus)
+`, dnsZoneName, dnssecStatus)
 }
 
-// This function extends the config returned from the `testAccDataSourceDNSKeysConfig` function
-// to include output blocks that access the `key_signing_keys` and `zone_signing_keys` attributes.
-// These are null if DNSSEC is not enabled.
-func testAccDataSourceDNSKeysConfigWithOutputs(dnsZoneName, dnssecStatus string) string {
+// TestAccDataSourceDNSKeys_basic_AdcAuth is the same as TestAccDataSourceDNSKeys_basic but the test enforces that a developer runs this using
+// ADCs, supplied via GOOGLE_APPLICATION_CREDENTIALS. If any other credentials ENVs are set the PreCheck will fail.
+// Commented out until this test can run in TeamCity/CI.
+// func TestAccDataSourceDNSKeys_basic_AdcAuth(t *testing.T) {
+// 	acctest.SkipIfVcr(t) // Uses external providers
+// 	t.Parallel()
 
-	config := testAccDataSourceDNSKeysConfig(dnsZoneName, dnssecStatus)
-	config = config + `
-# These outputs will cause an error if google_dns_managed_zone.foo.dnssec_config.state == "off"
+// 	creds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS") // PreCheck assertion handles checking this is set
 
-output "test_access_google_dns_keys_key_signing_keys" {
-  description = "Testing that we can access a value in key_signing_keys ok as a computed block"
-  value       = data.google_dns_keys.foo_dns_key_id.key_signing_keys[0].ds_record
+// 	dnsZoneName := fmt.Sprintf("tf-test-dnskey-test-%s", acctest.RandString(t, 10))
+
+// 	context := map[string]interface{}{
+// 		"credentials_path": creds,
+// 		"dns_zone_name":    dnsZoneName,
+// 		"dnssec_status":    "on",
+// 	}
+
+// 	acctest.VcrTest(t, resource.TestCase{
+// 		PreCheck:     func() { acctest.AccTestPreCheck_AdcCredentialsOnly(t) }, // Note different than default
+// 		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
+// 		Steps: []resource.TestStep{
+// 			// Check test fails with version of provider where data source is implemented with PF
+// 			{
+// 				ExternalProviders: map[string]resource.ExternalProvider{
+// 					"google": {
+// 						VersionConstraint: "4.60.0", // Muxed provider with dns data sources migrated to PF
+// 						Source:            "hashicorp/google",
+// 					},
+// 				},
+// 				ExpectError: regexp.MustCompile("Post \"https://oauth2.googleapis.com/token\": context canceled"),
+// 				Config:      testAccDataSourceDNSKeysConfig_AdcCredentials(context),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "key_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "zone_signing_keys.#", "1"),
+// 				),
+// 			},
+// 			// Test should pass with more recent code
+// 			{
+// 				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+// 				Config:                   testAccDataSourceDNSKeysConfig_AdcCredentials(context),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccDataSourceDNSKeysDSRecordCheck("data.google_dns_keys.foo_dns_key"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "key_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key", "zone_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "key_signing_keys.#", "1"),
+// 					resource.TestCheckResourceAttr("data.google_dns_keys.foo_dns_key_id", "zone_signing_keys.#", "1"),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
+
+func testAccDataSourceDNSKeysConfig_AdcCredentials(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+
+// The auth problem isn't triggered unless provider block is
+// present in the test config.
+
+provider "google" {
+  credentials = "%{credentials_path}"
 }
 
-output "test_access_google_dns_keys_zone_signing_keys" {
-  description = "Testing that we can access a value in zone_signing_keys ok as a computed block"
-  value       = data.google_dns_keys.foo_dns_key_id.zone_signing_keys[0].id
+resource "google_dns_managed_zone" "foo" {
+  name     = "%{dns_zone_name}"
+  dns_name = "dnssec.gcp.tfacc.hashicorptest.com."
+
+  dnssec_config {
+    state         = "%{dnssec_status}"
+    non_existence = "nsec3"
+  }
 }
-`
-	return config
+
+data "google_dns_keys" "foo_dns_key" {
+  managed_zone = google_dns_managed_zone.foo.name
+}
+
+data "google_dns_keys" "foo_dns_key_id" {
+  managed_zone = google_dns_managed_zone.foo.id
+}
+`, context)
 }
