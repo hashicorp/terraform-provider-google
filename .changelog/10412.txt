@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: add support for `api_consumer_data_location`, `api_consumer_data_encryption_key_name`, and `control_plane_encryption_key_name` in `google_apigee_organization`
+```
