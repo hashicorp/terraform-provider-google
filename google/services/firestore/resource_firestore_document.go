@@ -88,7 +88,7 @@ func ResourceFirestoreDocument() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `A server defined name for this index. Format:
+				Description: `A server defined name for this document. Format:
 'projects/{{project_id}}/databases/{{database_id}}/documents/{{path}}/{{document_id}}'`,
 			},
 			"path": {
