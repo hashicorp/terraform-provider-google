@@ -43,7 +43,7 @@ var (
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				Description: `Whether master is accessbile via Google Compute Engine Public IP addresses.`,
+				Description: `Whether Kubernetes master is accessible via Google Compute Engine Public IPs.`,
 			},
 		},
 	}
