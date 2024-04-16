@@ -401,6 +401,8 @@ resource "google_billing_budget" "budget" {
     disable_default_iam_recipients = true
     pubsub_topic = google_pubsub_topic.budget.id
   }
+
+  ownership_scope = "BILLING_ACCOUNT"
 }
 
 resource "google_pubsub_topic" "budget" {

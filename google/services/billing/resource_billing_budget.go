@@ -376,6 +376,13 @@ account and all subaccounts, if they exist.
 				Optional:    true,
 				Description: `User data for display name in UI. Must be <= 60 chars.`,
 			},
+			"ownership_scope": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"OWNERSHIP_SCOPE_UNSPECIFIED", "ALL_USERS", "BILLING_ACCOUNT", ""}),
+				Description: `The ownership scope of the budget. The ownership scope and users'
+IAM permissions determine who has full access to the budget's data. Possible values: ["OWNERSHIP_SCOPE_UNSPECIFIED", "ALL_USERS", "BILLING_ACCOUNT"]`,
+			},
 			"threshold_rules": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -450,6 +457,12 @@ func resourceBillingBudgetCreate(d *schema.ResourceData, meta interface{}) error
 		return err
 	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(notificationsRuleProp)) && (ok || !reflect.DeepEqual(v, notificationsRuleProp)) {
 		obj["notificationsRule"] = notificationsRuleProp
+	}
+	ownershipScopeProp, err := expandBillingBudgetOwnershipScope(d.Get("ownership_scope"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ownership_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(ownershipScopeProp)) && (ok || !reflect.DeepEqual(v, ownershipScopeProp)) {
+		obj["ownershipScope"] = ownershipScopeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets")
@@ -545,6 +558,9 @@ func resourceBillingBudgetRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("all_updates_rule", flattenBillingBudgetAllUpdatesRule(res["notificationsRule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Budget: %s", err)
 	}
+	if err := d.Set("ownership_scope", flattenBillingBudgetOwnershipScope(res["ownershipScope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Budget: %s", err)
+	}
 
 	return nil
 }
@@ -589,6 +605,12 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("all_updates_rule"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, notificationsRuleProp)) {
 		obj["notificationsRule"] = notificationsRuleProp
 	}
+	ownershipScopeProp, err := expandBillingBudgetOwnershipScope(d.Get("ownership_scope"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ownership_scope"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ownershipScopeProp)) {
+		obj["ownershipScope"] = ownershipScopeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{BillingBasePath}}billingAccounts/{{billing_account}}/budgets/{{name}}")
 	if err != nil {
@@ -630,6 +652,10 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 			"notificationsRule.schemaVersion",
 			"notificationsRule.monitoringNotificationChannels",
 			"notificationsRule.disableDefaultIamRecipients")
+	}
+
+	if d.HasChange("ownership_scope") {
+		updateMask = append(updateMask, "ownershipScope")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1106,6 +1132,10 @@ func flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}
 	return v
 }
 
+func flattenBillingBudgetOwnershipScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBillingBudgetDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1511,6 +1541,10 @@ func expandBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface
 }
 
 func expandBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetOwnershipScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
