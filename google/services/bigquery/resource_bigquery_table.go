@@ -1774,6 +1774,10 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 		return err
 	}
 
+	if table.Schema == nil {
+		return nil
+	}
+
 	newTableFields := map[string]bool{}
 	for _, field := range table.Schema.Fields {
 		newTableFields[field.Name] = true
@@ -1809,7 +1813,7 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
 	if d.Get("deletion_protection").(bool) {
-		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
 	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
