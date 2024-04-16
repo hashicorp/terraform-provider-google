@@ -145,13 +145,13 @@ func BootstrapKMSKeyWithPurposeInLocationAndName(t *testing.T, purpose, location
 	}
 }
 
-var serviceAccountEmail = "tf-bootstrap-service-account"
+var serviceAccountPrefix = "tf-bootstrap-sa-"
 var serviceAccountDisplay = "Bootstrapped Service Account for Terraform tests"
 
 // Some tests need a second service account, other than the test runner, to assert functionality on.
 // This provides a well-known service account that can be used when dynamically creating a service
 // account isn't an option.
-func getOrCreateServiceAccount(config *transport_tpg.Config, project string) (*iam.ServiceAccount, error) {
+func getOrCreateServiceAccount(config *transport_tpg.Config, project, serviceAccountEmail string) (*iam.ServiceAccount, error) {
 	name := fmt.Sprintf("projects/%s/serviceAccounts/%s@%s.iam.gserviceaccount.com", project, serviceAccountEmail, project)
 	log.Printf("[DEBUG] Verifying %s as bootstrapped service account.\n", name)
 
@@ -208,13 +208,19 @@ func impersonationServiceAccountPermissions(config *transport_tpg.Config, sa *ia
 	return nil
 }
 
-func BootstrapServiceAccount(t *testing.T, project, testRunner string) string {
+// A separate testId should be used for each test, to create separate service accounts for each,
+// and avoid race conditions where the policy of the same service account is being modified by 2
+// tests at once. This is needed as long as the function overwrites the policy on every run.
+func BootstrapServiceAccount(t *testing.T, testId, testRunner string) string {
+	project := envvar.GetTestProjectFromEnv()
+	serviceAccountEmail := serviceAccountPrefix + testId
+
 	config := BootstrapConfig(t)
 	if config == nil {
 		return ""
 	}
 
-	sa, err := getOrCreateServiceAccount(config, project)
+	sa, err := getOrCreateServiceAccount(config, project, serviceAccountEmail)
 	if err != nil {
 		t.Fatalf("Bootstrapping failed. Cannot retrieve service account, %s", err)
 	}
@@ -1230,7 +1236,8 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 	}
 
 	// Create a service account for project-1
-	sa1, err := getOrCreateServiceAccount(config, pid)
+	serviceAccountEmail := serviceAccountPrefix + service
+	sa1, err := getOrCreateServiceAccount(config, pid, serviceAccountEmail)
 	if err != nil {
 		return "", err
 	}
