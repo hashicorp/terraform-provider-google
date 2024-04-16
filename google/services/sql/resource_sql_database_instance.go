@@ -1938,8 +1938,8 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 		instance.InstanceType = d.Get("instance_type").(string)
 	}
 
-	// Database Version is required for enabling Google ML integration.
-	if d.HasChange("settings.0.enable_google_ml_integration") {
+	// Database Version is required for all calls with Google ML integration enabled or it will be rejected by the API.
+	if d.Get("settings.0.enable_google_ml_integration").(bool) {
 		instance.DatabaseVersion = databaseVersion
 	}
 
