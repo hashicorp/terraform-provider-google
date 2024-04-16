@@ -173,7 +173,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
-  A server defined name for this index. Format:
+  A server defined name for this document. Format:
   `projects/{{project_id}}/databases/{{database_id}}/documents/{{path}}/{{document_id}}`
 
 * `path` -
