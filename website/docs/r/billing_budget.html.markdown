@@ -307,6 +307,12 @@ The following arguments are supported:
   using threshold rules.
   Structure is [documented below](#nested_all_updates_rule).
 
+* `ownership_scope` -
+  (Optional)
+  The ownership scope of the budget. The ownership scope and users'
+  IAM permissions determine who has full access to the budget's data.
+  Possible values are: `OWNERSHIP_SCOPE_UNSPECIFIED`, `ALL_USERS`, `BILLING_ACCOUNT`.
+
 
 <a name="nested_budget_filter"></a>The `budget_filter` block supports:
 
