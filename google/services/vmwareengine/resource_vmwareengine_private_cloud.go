@@ -113,6 +113,26 @@ This cannot be changed once the PrivateCloud is created.`,
 								},
 							},
 						},
+						"stretched_cluster_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The stretched cluster configuration for the private cloud.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"preferred_location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Zone that will remain operational when connection between the two zones is lost.`,
+									},
+									"secondary_location": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Additional zone for a higher level of availability and load balancing.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -170,16 +190,6 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `User-provided description for this private cloud.`,
-			},
-			"preferred_zone": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The preferred single failure domain within a region.`,
-			},
-			"secondary_zone": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `The secondary single failure domain within a region.`,
 			},
 			"type": {
 				Type:             schema.TypeString,
@@ -332,18 +342,6 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
-	preferredZoneProp, err := expandVmwareenginePrivateCloudPreferredZone(d.Get("preferred_zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preferred_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(preferredZoneProp)) && (ok || !reflect.DeepEqual(v, preferredZoneProp)) {
-		obj["preferredZone"] = preferredZoneProp
-	}
-	secondaryZoneProp, err := expandVmwareenginePrivateCloudSecondaryZone(d.Get("secondary_zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("secondary_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(secondaryZoneProp)) && (ok || !reflect.DeepEqual(v, secondaryZoneProp)) {
-		obj["secondaryZone"] = secondaryZoneProp
-	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds?privateCloudId={{name}}")
 	if err != nil {
@@ -481,12 +479,6 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 	if err := d.Set("vcenter", flattenVmwareenginePrivateCloudVcenter(res["vcenter"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
-	if err := d.Set("preferred_zone", flattenVmwareenginePrivateCloudPreferredZone(res["preferredZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
-	if err := d.Set("secondary_zone", flattenVmwareenginePrivateCloudSecondaryZone(res["secondaryZone"], d, config)); err != nil {
-		return fmt.Errorf("Error reading PrivateCloud: %s", err)
-	}
 
 	return nil
 }
@@ -518,18 +510,6 @@ func resourceVmwareenginePrivateCloudUpdate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("management_cluster"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, managementClusterProp)) {
 		obj["managementCluster"] = managementClusterProp
-	}
-	preferredZoneProp, err := expandVmwareenginePrivateCloudPreferredZone(d.Get("preferred_zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("preferred_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, preferredZoneProp)) {
-		obj["preferredZone"] = preferredZoneProp
-	}
-	secondaryZoneProp, err := expandVmwareenginePrivateCloudSecondaryZone(d.Get("secondary_zone"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("secondary_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryZoneProp)) {
-		obj["secondaryZone"] = secondaryZoneProp
 	}
 
 	obj, err = resourceVmwareenginePrivateCloudUpdateEncoder(d, meta, obj)
@@ -828,6 +808,8 @@ func flattenVmwareenginePrivateCloudManagementCluster(v interface{}, d *schema.R
 		flattenVmwareenginePrivateCloudManagementClusterClusterId(original["clusterId"], d, config)
 	transformed["node_type_configs"] =
 		flattenVmwareenginePrivateCloudManagementClusterNodeTypeConfigs(original["nodeTypeConfigs"], d, config)
+	transformed["stretched_cluster_config"] =
+		flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfig(original["stretchedClusterConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenVmwareenginePrivateCloudManagementClusterClusterId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -882,6 +864,29 @@ func flattenVmwareenginePrivateCloudManagementClusterNodeTypeConfigsCustomCoreCo
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["preferred_location"] =
+		flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfigPreferredLocation(original["preferredLocation"], d, config)
+	transformed["secondary_location"] =
+		flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfigSecondaryLocation(original["secondaryLocation"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfigPreferredLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVmwareenginePrivateCloudManagementClusterStretchedClusterConfigSecondaryLocation(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenVmwareenginePrivateCloudHcx(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -989,14 +994,6 @@ func flattenVmwareenginePrivateCloudVcenterFqdn(v interface{}, d *schema.Resourc
 	return v
 }
 
-func flattenVmwareenginePrivateCloudPreferredZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenVmwareenginePrivateCloudSecondaryZone(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
 func expandVmwareenginePrivateCloudDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1091,6 +1088,13 @@ func expandVmwareenginePrivateCloudManagementCluster(v interface{}, d tpgresourc
 		transformed["nodeTypeConfigs"] = transformedNodeTypeConfigs
 	}
 
+	transformedStretchedClusterConfig, err := expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfig(original["stretched_cluster_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStretchedClusterConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["stretchedClusterConfig"] = transformedStretchedClusterConfig
+	}
+
 	return transformed, nil
 }
 
@@ -1138,15 +1142,41 @@ func expandVmwareenginePrivateCloudManagementClusterNodeTypeConfigsCustomCoreCou
 	return v, nil
 }
 
+func expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPreferredLocation, err := expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfigPreferredLocation(original["preferred_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPreferredLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["preferredLocation"] = transformedPreferredLocation
+	}
+
+	transformedSecondaryLocation, err := expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfigSecondaryLocation(original["secondary_location"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSecondaryLocation); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["secondaryLocation"] = transformedSecondaryLocation
+	}
+
+	return transformed, nil
+}
+
+func expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfigPreferredLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVmwareenginePrivateCloudManagementClusterStretchedClusterConfigSecondaryLocation(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVmwareenginePrivateCloudType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandVmwareenginePrivateCloudPreferredZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandVmwareenginePrivateCloudSecondaryZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -1,0 +1,3 @@
+```release-note: bug
+vmwareengine: fixed stretched cluster creation in `google_vmwareengine_private_cloud`
+```
