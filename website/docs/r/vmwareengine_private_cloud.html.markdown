@@ -158,6 +158,11 @@ The following arguments are supported:
   where the key is canonical identifier of the node type (corresponds to the NodeType).
   Structure is [documented below](#nested_node_type_configs).
 
+* `stretched_cluster_config` -
+  (Optional)
+  The stretched cluster configuration for the private cloud.
+  Structure is [documented below](#nested_stretched_cluster_config).
+
 
 <a name="nested_node_type_configs"></a>The `node_type_configs` block supports:
 
@@ -174,6 +179,16 @@ The following arguments are supported:
   If zero is provided max value from `nodeType.availableCustomCoreCounts` will be used.
   This cannot be changed once the PrivateCloud is created.
 
+<a name="nested_stretched_cluster_config"></a>The `stretched_cluster_config` block supports:
+
+* `preferred_location` -
+  (Optional)
+  Zone that will remain operational when connection between the two zones is lost.
+
+* `secondary_location` -
+  (Optional)
+  Additional zone for a higher level of availability and load balancing.
+
 - - -
 
 
@@ -185,14 +200,6 @@ The following arguments are supported:
   (Optional)
   Initial type of the private cloud.
   Possible values are: `STANDARD`, `TIME_LIMITED`, `STRETCHED`.
-
-* `preferred_zone` -
-  (Optional)
-  The preferred single failure domain within a region.
-
-* `secondary_zone` -
-  (Optional)
-  The secondary single failure domain within a region.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
