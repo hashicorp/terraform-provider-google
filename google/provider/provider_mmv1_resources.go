@@ -1092,6 +1092,7 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_project_default_service_accounts":       resourcemanager.ResourceGoogleProjectDefaultServiceAccounts(),
 	"google_project_service":                        resourcemanager.ResourceGoogleProjectService(),
 	"google_project_iam_custom_role":                resourcemanager.ResourceGoogleProjectIamCustomRole(),
+	"google_project_iam_member_remove":              resourcemanager.ResourceGoogleProjectIamMemberRemove(),
 	"google_project_organization_policy":            resourcemanager.ResourceGoogleProjectOrganizationPolicy(),
 	"google_project_usage_export_bucket":            compute.ResourceProjectUsageBucket(),
 	"google_service_account":                        resourcemanager.ResourceGoogleServiceAccount(),
