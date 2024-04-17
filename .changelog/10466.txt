@@ -1,0 +1,3 @@
+```release-note:enhancement
+composer: Add resource for userWorkloadsSecret in Composer environment. Includes tests and documentation for this resource. Adding in 'beta' version for now.
+```
