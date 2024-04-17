@@ -169,7 +169,7 @@ func ResourceDnsRecordSet() *schema.Resource {
 						"primary_backup": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "The configuration for a primary-backup policy with global to regional failover. Queries are responded to with the global primary targets, but if none of the primary targets are healthy, then we fallback to a regional failover policy.",
+							Description: "The configuration for a failover policy with global to regional failover. Queries are responded to with the global primary targets, but if none of the primary targets are healthy, then we fallback to a regional failover policy.",
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
