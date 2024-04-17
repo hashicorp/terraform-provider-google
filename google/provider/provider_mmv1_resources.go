@@ -403,9 +403,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 399
+// Generated resources: 400
 // Generated IAM resources: 234
-// Total generated resources: 633
+// Total generated resources: 634
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -685,6 +685,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_data_fusion_instance_iam_member":                           tpgiamresource.ResourceIamMember(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer, datafusion.DataFusionInstanceIdParseFunc),
 	"google_data_fusion_instance_iam_policy":                           tpgiamresource.ResourceIamPolicy(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer, datafusion.DataFusionInstanceIdParseFunc),
 	"google_data_loss_prevention_deidentify_template":                  datalossprevention.ResourceDataLossPreventionDeidentifyTemplate(),
+	"google_data_loss_prevention_discovery_config":                     datalossprevention.ResourceDataLossPreventionDiscoveryConfig(),
 	"google_data_loss_prevention_inspect_template":                     datalossprevention.ResourceDataLossPreventionInspectTemplate(),
 	"google_data_loss_prevention_job_trigger":                          datalossprevention.ResourceDataLossPreventionJobTrigger(),
 	"google_data_loss_prevention_stored_info_type":                     datalossprevention.ResourceDataLossPreventionStoredInfoType(),
