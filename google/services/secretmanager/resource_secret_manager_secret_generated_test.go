@@ -127,6 +127,45 @@ resource "google_secret_manager_secret" "secret-with-annotations" {
 `, context)
 }
 
+func TestAccSecretManagerSecret_secretWithVersionDestroyTtlExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerSecret_secretWithVersionDestroyTtlExample(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_secret.secret-with-version-destroy-ttl",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ttl", "secret_id", "labels", "annotations", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccSecretManagerSecret_secretWithVersionDestroyTtlExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_secret" "secret-with-version-destroy-ttl" {
+  secret_id = "secret%{random_suffix}"
+
+  version_destroy_ttl = "2592000s"
+
+  replication {
+    auto {}
+  }
+}
+`, context)
+}
+
 func TestAccSecretManagerSecret_secretWithAutomaticCmekExample(t *testing.T) {
 	t.Parallel()
 
