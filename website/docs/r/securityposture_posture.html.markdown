@@ -53,8 +53,8 @@ resource "google_securityposture_posture" "posture1"{
             enforce = true
             condition {
             	description = "condition description"
-            	expression = "resource.matchTag('org_id/tag_key_short_name,'tag_value_short_name')"
-            	title = "a CEL condition"
+            	expression  = "resource.matchTag('org_id/tag_key_short_name,'tag_value_short_name')"
+            	title       = "a CEL condition"
             }
           }
         }
@@ -65,9 +65,9 @@ resource "google_securityposture_posture" "posture1"{
       constraint {
         org_policy_constraint_custom {
           custom_constraint {
-            name         = "organizations/123456789/customConstraints/custom.disableGkeAutoUpgrade"
-            display_name = "Disable GKE auto upgrade"
-            description  = "Only allow GKE NodePool resource to be created or updated if AutoUpgrade is not enabled where this custom constraint is enforced."
+            name           = "organizations/123456789/customConstraints/custom.disableGkeAutoUpgrade"
+            display_name   = "Disable GKE auto upgrade"
+            description    = "Only allow GKE NodePool resource to be created or updated if AutoUpgrade is not enabled where this custom constraint is enforced."
             action_type    = "ALLOW"
             condition      = "resource.management.autoUpgrade == false"
             method_types   = ["CREATE", "UPDATE"]
