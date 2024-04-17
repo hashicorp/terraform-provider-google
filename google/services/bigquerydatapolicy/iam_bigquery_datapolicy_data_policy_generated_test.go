@@ -126,24 +126,24 @@ func TestAccBigqueryDatapolicyDataPolicyIamPolicyGenerated(t *testing.T) {
 func testAccBigqueryDatapolicyDataPolicyIamMember_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
-  }
-  
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy%{random_suffix}"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
 
 resource "google_bigquery_datapolicy_data_policy_iam_member" "foo" {
   project = google_bigquery_datapolicy_data_policy.data_policy.project
@@ -158,24 +158,24 @@ resource "google_bigquery_datapolicy_data_policy_iam_member" "foo" {
 func testAccBigqueryDatapolicyDataPolicyIamPolicy_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
-  }
-  
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy%{random_suffix}"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
 
 data "google_iam_policy" "foo" {
   binding {
@@ -205,24 +205,24 @@ data "google_bigquery_datapolicy_data_policy_iam_policy" "foo" {
 func testAccBigqueryDatapolicyDataPolicyIamPolicy_emptyBinding(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
-  }
-  
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy%{random_suffix}"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
 
 data "google_iam_policy" "foo" {
 }
@@ -239,24 +239,24 @@ resource "google_bigquery_datapolicy_data_policy_iam_policy" "foo" {
 func testAccBigqueryDatapolicyDataPolicyIamBinding_basicGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
-  }
-  
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy%{random_suffix}"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
 
 resource "google_bigquery_datapolicy_data_policy_iam_binding" "foo" {
   project = google_bigquery_datapolicy_data_policy.data_policy.project
@@ -271,24 +271,24 @@ resource "google_bigquery_datapolicy_data_policy_iam_binding" "foo" {
 func testAccBigqueryDatapolicyDataPolicyIamBinding_updateGenerated(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "tf_test_data_policy%{random_suffix}"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "tf_test_data_policy%{random_suffix}"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
-  }
-  
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy%{random_suffix}"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy%{random_suffix}"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
 
 resource "google_bigquery_datapolicy_data_policy_iam_binding" "foo" {
   project = google_bigquery_datapolicy_data_policy.data_policy.project
