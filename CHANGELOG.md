@@ -4,15 +4,13 @@ FEATURES:
 * **New Resource:** `google_project_iam_member_remove` ([#17871](https://github.com/hashicorp/terraform-provider-google/pull/17871))
 
 IMPROVEMENTS:
-* apigee: add support for `api_consumer_data_location`, `api_consumer_data_encryption_key_name`, and `control_plane_encryption_key_name` in `google_apigee_organization` ([#17874](https://github.com/hashicorp/terraform-provider-google/pull/17874))
+* apigee: added support for `api_consumer_data_location`, `api_consumer_data_encryption_key_name`, and `control_plane_encryption_key_name` in `google_apigee_organization` ([#17874](https://github.com/hashicorp/terraform-provider-google/pull/17874))
 * artifactregistry: added `remote_repository_config.<facade>_repository.custom_repository.uri` field to `google_artifact_registry_repository` resource. ([#17840](https://github.com/hashicorp/terraform-provider-google/pull/17840))
 * bigquery: added `resource_tags` field to `google_bigquery_table` resource ([#17876](https://github.com/hashicorp/terraform-provider-google/pull/17876))
 * billing: added `ownership_scope` field to `google_billing_budget` resource ([#17868](https://github.com/hashicorp/terraform-provider-google/pull/17868))
 * cloudfunctions2: added `build_config.service_account` field to `google_cloudfunctions2_function` resource ([#17841](https://github.com/hashicorp/terraform-provider-google/pull/17841))
-* compute: added `params.resource_manager_tags` field to `resource_compute_instance_group_manager` and `resource_compute_region_instance_group_manager` that enables to create these resources with tags (beta) ([#17830](https://github.com/hashicorp/terraform-provider-google/pull/17830))
 * resourcemanager: added the field `api_method` to datasource `google_active_folder` so you can use either `SEARCH` or `LIST` to find your folder ([#17877](https://github.com/hashicorp/terraform-provider-google/pull/17877))
 * storage: added labels validation to 'google_storage_bucket' resource ([#17806](https://github.com/hashicorp/terraform-provider-google/pull/17806))
-* workstations: added output-only field `control_plane_ip` to `google_workstations_workstation_cluster` resource (beta) ([#17869](https://github.com/hashicorp/terraform-provider-google/pull/17869))
 
 BUG FIXES:
 * apigee: fixed permadiff in ordering of `google_apigee_organization.properties.property`. ([#17850](https://github.com/hashicorp/terraform-provider-google/pull/17850))
