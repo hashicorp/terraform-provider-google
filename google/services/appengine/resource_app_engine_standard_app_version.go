@@ -1254,6 +1254,35 @@ func flattenAppEngineStandardAppVersionAutomaticScaling(v interface{}, d *schema
 		flattenAppEngineStandardAppVersionAutomaticScalingMinPendingLatency(original["minPendingLatency"], d, config)
 	transformed["standard_scheduler_settings"] =
 		flattenAppEngineStandardAppVersionAutomaticScalingStandardSchedulerSettings(original["standardSchedulerSettings"], d, config)
+
+	// begin handwritten code (all other parts of this file are forked from generated code)
+	// solve for the following diff when no scaling settings are configured:
+	//
+	// - automatic_scaling {
+	//   - max_concurrent_requests = 0 -> null
+	//   - max_idle_instances      = 0 -> null
+	//    - min_idle_instances      = 0 -> null
+	// }
+	//
+	// this happens because the field is returned as:
+	//
+	//"automaticScaling": {
+	//   "standardSchedulerSettings": {}
+	// },
+	//
+	// this is hacky but avoids marking the field as computed, since it's in a oneof
+	// if any new fields are added to the block or explicit defaults start getting
+	// returned, it will need to be updated
+	if transformed["max_concurrent_requests"] == nil && // even primitives are nil at this stage if they're not returned by the API
+		transformed["max_idle_instances"] == nil &&
+		transformed["max_pending_latency"] == nil &&
+		transformed["min_idle_instances"] == nil &&
+		transformed["min_pending_latency"] == nil &&
+		transformed["standard_scheduler_settings"] == nil {
+		return nil
+	}
+	// end handwritten code
+
 	return []interface{}{transformed}
 }
 func flattenAppEngineStandardAppVersionAutomaticScalingMaxConcurrentRequests(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
