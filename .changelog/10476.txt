@@ -1,0 +1,3 @@
+```release-note:bug
+appengine: added suppression for a diff in google_app_engine_standard_app_version.automatic_scaling when the block is unset in configuration
+```
