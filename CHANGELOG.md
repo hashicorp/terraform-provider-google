@@ -16,7 +16,7 @@ BUG FIXES:
 * apigee: fixed permadiff in ordering of `google_apigee_organization.properties.property`. ([#17850](https://github.com/hashicorp/terraform-provider-google/pull/17850))
 * cloudrun: fixed the bug that computed `metadata.0.labels` and `metadata.0.annotations` fields don't appear in terraform plan when creating resource `google_cloud_run_service` and `google_cloud_run_domain_mapping` ([#17815](https://github.com/hashicorp/terraform-provider-google/pull/17815))
 * dns: fixed bug where some methods of authentication didn't work when using `dns` data sources ([#17847](https://github.com/hashicorp/terraform-provider-google/pull/17847))
-* iam: fixed a bug that prevented setting 'create_ignore_already_exists' on existing resources in `google_service_account`. ([#17856](https://github.com/hashicorp/terraform-provider-google/pull/17856))
+* iam: fixed a bug that prevented setting `create_ignore_already_exists` on existing resources in `google_service_account`. ([#17856](https://github.com/hashicorp/terraform-provider-google/pull/17856))
 * sql: fixed issues with updating the `enable_google_ml_integration` field in `google_sql_database_instance` resource ([#17878](https://github.com/hashicorp/terraform-provider-google/pull/17878))
 * storage: added validation to `name` field in `google_storage_bucket` resource ([#17858](https://github.com/hashicorp/terraform-provider-google/pull/17858))
 * vmwareengine: fixed stretched cluster creation in `google_vmwareengine_private_cloud` ([#17875](https://github.com/hashicorp/terraform-provider-google/pull/17875))
