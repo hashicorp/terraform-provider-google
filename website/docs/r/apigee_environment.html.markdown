@@ -123,6 +123,10 @@ The following arguments are supported:
   An Apigee org can support heterogeneous Environments.
   Possible values are: `ENVIRONMENT_TYPE_UNSPECIFIED`, `BASE`, `INTERMEDIATE`, `COMPREHENSIVE`.
 
+* `forward_proxy_uri` -
+  (Optional)
+  Optional. URI of the forward proxy to be applied to the runtime instances in this environment. Must be in the format of {scheme}://{hostname}:{port}. Note that the scheme must be one of "http" or "https", and the port must be supplied.
+
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 

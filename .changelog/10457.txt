@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: added `forward_proxy_uri` field to `google_apigee_environment`
+```
