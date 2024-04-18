@@ -98,6 +98,11 @@ Creating, updating, or deleting target servers. Possible values: ["DEPLOYMENT_TY
 				ForceNew:    true,
 				Description: `Display name of the environment.`,
 			},
+			"forward_proxy_uri": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Optional. URI of the forward proxy to be applied to the runtime instances in this environment. Must be in the format of {scheme}://{hostname}:{port}. Note that the scheme must be one of "http" or "https", and the port must be supplied.`,
+			},
 			"node_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -193,6 +198,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	forwardProxyUriProp, err := expandApigeeEnvironmentForwardProxyUri(d.Get("forward_proxy_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardProxyUriProp)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
+		obj["forwardProxyUri"] = forwardProxyUriProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
@@ -312,6 +323,9 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("type", flattenApigeeEnvironmentType(res["type"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
+	if err := d.Set("forward_proxy_uri", flattenApigeeEnvironmentForwardProxyUri(res["forwardProxyUri"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
 
 	return nil
 }
@@ -338,6 +352,12 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	forwardProxyUriProp, err := expandApigeeEnvironmentForwardProxyUri(d.Get("forward_proxy_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
+		obj["forwardProxyUri"] = forwardProxyUriProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
@@ -354,6 +374,10 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("type") {
 		updateMask = append(updateMask, "type")
+	}
+
+	if d.HasChange("forward_proxy_uri") {
+		updateMask = append(updateMask, "forwardProxyUri")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -546,6 +570,10 @@ func flattenApigeeEnvironmentType(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenApigeeEnvironmentForwardProxyUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -612,5 +640,9 @@ func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d
 }
 
 func expandApigeeEnvironmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentForwardProxyUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
