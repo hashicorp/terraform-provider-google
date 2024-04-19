@@ -26,7 +26,7 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8
-	golang.org/x/net v0.22.0
+	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.18.0
 	google.golang.org/api v0.171.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c
