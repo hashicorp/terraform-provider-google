@@ -275,6 +275,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_service_networking_peered_dns_domain":         servicenetworking.DataSourceGoogleServiceNetworkingPeeredDNSDomain(),
 	"google_storage_bucket":                               storage.DataSourceGoogleStorageBucket(),
 	"google_storage_bucket_object":                        storage.DataSourceGoogleStorageBucketObject(),
+	"google_storage_bucket_objects":                       storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                storage.DataSourceGoogleStorageBucketObjectContent(),
 	"google_storage_object_signed_url":                    storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":              storage.DataSourceGoogleStorageProjectServiceAccount(),
