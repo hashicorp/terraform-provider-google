@@ -4,6 +4,7 @@ package alloydb
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -49,7 +50,8 @@ func testSweepAlloydbCluster(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://alloydb.googleapis.com/v1/projects/{{project}}/locations/{{location}}/clusters", "?")[0]
+	// manual patch: use aggregated list instead of sweeper-specific location. This will clear secondary clusters.
+	listTemplate := strings.Split("https://alloydb.googleapis.com/v1/projects/{{project}}/locations/-/clusters", "?")[0]
 	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -81,29 +83,19 @@ func testSweepAlloydbCluster(region string) error {
 	nonPrefixCount := 0
 	for _, ri := range rl {
 		obj := ri.(map[string]interface{})
-		var name string
-		// Id detected in the delete URL, attempt to use id.
-		if obj["id"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["id"].(string))
-		} else if obj["name"] != nil {
-			name = tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
-		} else {
-			log.Printf("[INFO][SWEEPER_LOG] %s resource name and id were nil", resourceName)
-			return nil
-		}
+
+		// manual patch: use raw name for url instead of constructing it, so that resource locations are supplied through aggregated list
+		// manual patch: Using the force=true ensures that we delete instances as well.
+		name := obj["name"].(string)
+		shortname := tpgresource.GetResourceNameFromSelfLink(name)
 		// Skip resources that shouldn't be sweeped
-		if !sweeper.IsSweepableTestResource(name) {
+		if !sweeper.IsSweepableTestResource(shortname) {
 			nonPrefixCount++
 			continue
 		}
 
-		deleteTemplate := "https://alloydb.googleapis.com/v1/projects/{{project}}/locations/{{location}}/clusters/{{cluster_id}}"
-		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
-		if err != nil {
-			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
-			return nil
-		}
-		deleteUrl = deleteUrl + name + "?force=true"
+		deleteTemplate := "https://alloydb.googleapis.com/v1/%s?force=true"
+		deleteUrl := fmt.Sprintf(deleteTemplate, name)
 
 		// Don't wait on operations as we may have a lot to delete
 		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -116,7 +108,7 @@ func testSweepAlloydbCluster(region string) error {
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error deleting for url %s : %s", deleteUrl, err)
 		} else {
-			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", resourceName, name)
+			log.Printf("[INFO][SWEEPER_LOG] Sent delete request for %s resource: %s", name, shortname)
 		}
 	}
 
