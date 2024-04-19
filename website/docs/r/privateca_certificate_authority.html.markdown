@@ -270,6 +270,67 @@ resource "google_privateca_certificate_authority" "default" {
   ]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=privateca_certificate_authority_custom_ski&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Privateca Certificate Authority Custom Ski
+
+
+```hcl
+resource "google_privateca_certificate_authority" "default" {
+ // This example assumes this pool already exists.
+ // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = "ca-pool"
+  certificate_authority_id = "my-certificate-authority"
+  location = "us-central1"
+  deletion_protection = "true"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    subject_key_id {
+        key_id = "4cf3372289b1d411b999dbb9ebcd44744b6b2fca"
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+        max_issuer_path_length = 10
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          content_commitment = true
+          key_encipherment = false
+          data_encipherment = true
+          key_agreement = true
+          cert_sign = true
+          crl_sign = true
+          decipher_only = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = false
+          email_protection = true
+          code_signing = true
+          time_stamping = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    cloud_kms_key_version = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key/cryptoKeyVersions/1"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -304,6 +365,11 @@ The following arguments are supported:
 
 <a name="nested_config"></a>The `config` block supports:
 
+* `subject_key_id` -
+  (Optional)
+  When specified this provides a custom SKI to be used in the certificate. This should only be used to maintain a SKI of an existing CA originally created outside CA service, which was not generated using method (1) described in RFC 5280 section 4.2.1.2..
+  Structure is [documented below](#nested_subject_key_id).
+
 * `x509_config` -
   (Required)
   Describes how some of the technical X.509 fields in a certificate should be populated.
@@ -314,6 +380,12 @@ The following arguments are supported:
   Specifies some of the values in a certificate that are related to the subject.
   Structure is [documented below](#nested_subject_config).
 
+
+<a name="nested_subject_key_id"></a>The `subject_key_id` block supports:
+
+* `key_id` -
+  (Optional)
+  The value of the KeyId in lowercase hexidecimal.
 
 <a name="nested_x509_config"></a>The `x509_config` block supports:
 

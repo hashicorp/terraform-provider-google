@@ -426,6 +426,102 @@ resource "google_privateca_certificate" "default" {
   depends_on = [google_privateca_certificate_authority.default]
 }
 ```
+## Example Usage - Privateca Certificate Custom Ski
+
+
+```hcl
+resource "google_privateca_ca_pool" "default" {
+  location = "us-central1"
+  name = "my-pool"
+  tier = "ENTERPRISE"
+}
+
+resource "google_privateca_certificate_authority" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  certificate_authority_id = "my-authority"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          cert_sign = true
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    algorithm = "RSA_PKCS1_4096_SHA256"
+  }
+
+  // Disable CA deletion related safe checks for easier cleanup.
+  deletion_protection                    = false
+  skip_grace_period                      = true
+  ignore_active_certificates_on_deletion = true
+}
+
+
+resource "google_privateca_certificate" "default" {
+  location = "us-central1"
+  pool = google_privateca_ca_pool.default.name
+  name = "my-certificate"
+  lifetime = "860s"
+  config {
+    subject_config  {
+      subject {
+        common_name = "san1.example.com"
+        country_code = "us"
+        organization = "google"
+        organizational_unit = "enterprise"
+        locality = "mountain view"
+        province = "california"
+        street_address = "1600 amphitheatre parkway"
+        postal_code = "94109"
+      }
+    }
+    subject_key_id {
+      key_id = "4cf3372289b1d411b999dbb9ebcd44744b6b2fca"
+    }
+    x509_config {
+      ca_options {
+        is_ca = false
+      }
+      key_usage {
+        base_key_usage {
+          crl_sign = true
+        }
+        extended_key_usage {
+          server_auth = true
+        }
+      }
+    }
+    public_key {
+      format = "PEM"
+      key = filebase64("test-fixtures/rsa_public.pem")
+    }
+  }
+  // Certificates require an authority to exist in the pool, though they don't
+  // need to be explicitly connected to it
+  depends_on = [google_privateca_certificate_authority.default]
+}
+```
 
 ## Argument Reference
 
@@ -501,6 +597,11 @@ The following arguments are supported:
   (Required)
   Specifies some of the values in a certificate that are related to the subject.
   Structure is [documented below](#nested_subject_config).
+
+* `subject_key_id` -
+  (Optional)
+  When specified this provides a custom SKI to be used in the certificate. This should only be used to maintain a SKI of an existing CA originally created outside CA service, which was not generated using method (1) described in RFC 5280 section 4.2.1.2..
+  Structure is [documented below](#nested_subject_key_id).
 
 * `public_key` -
   (Required)
@@ -806,6 +907,12 @@ The following arguments are supported:
 * `ip_addresses` -
   (Optional)
   Contains only valid 32-bit IPv4 addresses or RFC 4291 IPv6 addresses.
+
+<a name="nested_subject_key_id"></a>The `subject_key_id` block supports:
+
+* `key_id` -
+  (Optional)
+  The value of the KeyId in lowercase hexidecimal.
 
 <a name="nested_public_key"></a>The `public_key` block supports:
 
