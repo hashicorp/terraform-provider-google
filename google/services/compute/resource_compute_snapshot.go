@@ -227,8 +227,7 @@ can be because the original image had licenses attached (such as a
 Windows image).  snapshotEncryptionKey nested object Encrypts the
 snapshot using a customer-supplied encryption key.`,
 				Elem: &schema.Schema{
-					Type:             schema.TypeString,
-					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+					Type: schema.TypeString,
 				},
 			},
 			"snapshot_id": {
