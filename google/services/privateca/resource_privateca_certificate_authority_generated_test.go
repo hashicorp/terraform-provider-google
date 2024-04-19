@@ -239,6 +239,92 @@ resource "google_privateca_certificate_authority" "default" {
 `, context)
 }
 
+func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCustomSkiExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"kms_key_name":        acctest.BootstrapKMSKeyWithPurposeInLocation(t, "ASYMMETRIC_SIGN", "us-central1").CryptoKey.Name,
+		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
+		"pool_location":       "us-central1",
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCustomSkiExample(context),
+			},
+			{
+				ResourceName:            "google_privateca_certificate_authority.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"pem_ca_certificate", "ignore_active_certificates_on_deletion", "skip_grace_period", "location", "certificate_authority_id", "pool", "deletion_protection", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCustomSkiExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_privateca_certificate_authority" "default" {
+ // This example assumes this pool already exists.
+ // Pools cannot be deleted in normal test circumstances, so we depend on static pools
+  pool = "%{pool_name}"
+  certificate_authority_id = "tf-test-my-certificate-authority%{random_suffix}"
+  location = "%{pool_location}"
+  deletion_protection = "%{deletion_protection}"
+  config {
+    subject_config {
+      subject {
+        organization = "HashiCorp"
+        common_name = "my-certificate-authority"
+      }
+      subject_alt_name {
+        dns_names = ["hashicorp.com"]
+      }
+    }
+    subject_key_id {
+        key_id = "4cf3372289b1d411b999dbb9ebcd44744b6b2fca"
+    }
+    x509_config {
+      ca_options {
+        is_ca = true
+        max_issuer_path_length = 10
+      }
+      key_usage {
+        base_key_usage {
+          digital_signature = true
+          content_commitment = true
+          key_encipherment = false
+          data_encipherment = true
+          key_agreement = true
+          cert_sign = true
+          crl_sign = true
+          decipher_only = true
+        }
+        extended_key_usage {
+          server_auth = true
+          client_auth = false
+          email_protection = true
+          code_signing = true
+          time_stamping = true
+        }
+      }
+    }
+  }
+  lifetime = "86400s"
+  key_spec {
+    cloud_kms_key_version = "%{kms_key_name}/cryptoKeyVersions/1"
+  }
+}
+`, context)
+}
+
 func testAccCheckPrivatecaCertificateAuthorityDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

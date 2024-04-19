@@ -591,6 +591,23 @@ leading period (like '.example.com')`,
 								},
 							},
 						},
+						"subject_key_id": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `When specified this provides a custom SKI to be used in the certificate. This should only be used to maintain a SKI of an existing CA originally created outside CA service, which was not generated using method (1) described in RFC 5280 section 4.2.1.2..`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The value of the KeyId in lowercase hexidecimal.`,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1369,11 +1386,29 @@ func flattenPrivatecaCertificateAuthorityConfig(v interface{}, d *schema.Resourc
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["subject_key_id"] =
+		flattenPrivatecaCertificateAuthorityConfigSubjectKeyId(original["subjectKeyId"], d, config)
 	transformed["x509_config"] =
 		flattenPrivatecaCertificateAuthorityConfigX509Config(original["x509Config"], d, config)
 	transformed["subject_config"] =
 		flattenPrivatecaCertificateAuthorityConfigSubjectConfig(original["subjectConfig"], d, config)
 	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateAuthorityConfigSubjectKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_id"] =
+		flattenPrivatecaCertificateAuthorityConfigSubjectKeyIdKeyId(original["keyId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateAuthorityConfigSubjectKeyIdKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1658,6 +1693,13 @@ func expandPrivatecaCertificateAuthorityConfig(v interface{}, d tpgresource.Terr
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedSubjectKeyId, err := expandPrivatecaCertificateAuthorityConfigSubjectKeyId(original["subject_key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubjectKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["subjectKeyId"] = transformedSubjectKeyId
+	}
+
 	transformedX509Config, err := expandPrivatecaCertificateAuthorityConfigX509Config(original["x509_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -1673,6 +1715,29 @@ func expandPrivatecaCertificateAuthorityConfig(v interface{}, d tpgresource.Terr
 	}
 
 	return transformed, nil
+}
+
+func expandPrivatecaCertificateAuthorityConfigSubjectKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyId, err := expandPrivatecaCertificateAuthorityConfigSubjectKeyIdKeyId(original["key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keyId"] = transformedKeyId
+	}
+
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateAuthorityConfigSubjectKeyIdKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandPrivatecaCertificateAuthorityConfigX509Config(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
