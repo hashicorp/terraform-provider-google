@@ -6,6 +6,9 @@ description: |-
 
 # google\_composer\_user\_workloads\_secret
 
+~> **Warning:** These resources are in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
+
 User workloads Secret used by Airflow tasks that run with Kubernetes Executor or KubernetesPodOperator. 
 Intended for Composer 3 Environments.
 
