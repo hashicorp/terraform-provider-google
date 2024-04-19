@@ -206,6 +206,10 @@ resource "google_network_connectivity_internal_range" "default" {
   overlaps = [
     "OVERLAP_EXISTING_SUBNET_RANGE"
   ]
+
+  depends_on = [
+    google_compute_subnetwork.default
+  ]
 }
 
 resource "google_compute_network" "default" {
