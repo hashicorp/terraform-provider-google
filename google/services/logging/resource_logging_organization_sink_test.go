@@ -266,8 +266,50 @@ func testAccCheckLoggingOrganizationSink(sink *logging.LogSink, n string) resour
 			return fmt.Errorf("mismatch on include_children: api has %v but client has %v", sink.IncludeChildren, includeChildren)
 		}
 
+		interceptChildren := false
+		if attributes["intercept_children"] != "" {
+			includeChildren, err = strconv.ParseBool(attributes["intercept_children"])
+			if err != nil {
+				return err
+			}
+		}
+		if sink.InterceptChildren != interceptChildren {
+			return fmt.Errorf("mismatch on intercept_children: api has %v but client has %v", sink.InterceptChildren, interceptChildren)
+		}
+
 		return nil
 	}
+}
+
+func TestAccLoggingOrganizationSink_updateInterceptChildren(t *testing.T) {
+	t.Parallel()
+
+	orgId := envvar.GetTestOrgFromEnv(t)
+	sinkName := "tf-test-sink-" + acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLoggingOrganizationSinkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLoggingOrganizationSink_intercept_updated(sinkName, orgId, true),
+			},
+			{
+				ResourceName:      "google_logging_organization_sink.intercept_update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccLoggingOrganizationSink_intercept_updated(sinkName, orgId, false),
+			},
+			{
+				ResourceName:      "google_logging_organization_sink.intercept_update",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
 func testAccLoggingOrganizationSink_basic(sinkName, bucketName, orgId string) string {
@@ -397,4 +439,16 @@ resource "google_bigquery_dataset" "logging_sink" {
   dataset_id  = "%s"
   description = "Log sink (generated during acc test of terraform-provider-google(-beta))."
 }`, sinkName, orgId, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), bqDatasetID)
+}
+
+func testAccLoggingOrganizationSink_intercept_updated(sinkName, orgId string, intercept_children bool) string {
+	return fmt.Sprintf(`
+resource "google_logging_organization_sink" "intercept_update" {
+  name             = "%s"
+  org_id           = "%s"
+  destination      = "logging.googleapis.com/projects/%s"
+  filter           = "logName=\"projects/%s/logs/compute.googleapis.com%%2Factivity_log\" AND severity>=ERROR"
+  include_children = true
+  intercept_children = %t
+}`, sinkName, orgId, envvar.GetTestProjectFromEnv(), envvar.GetTestProjectFromEnv(), intercept_children)
 }
