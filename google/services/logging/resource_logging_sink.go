@@ -178,6 +178,12 @@ func expandResourceLoggingSinkForUpdate(d *schema.ResourceData) (sink *logging.L
 		sink.BigqueryOptions = expandLoggingSinkBigqueryOptions(d.Get("bigquery_options"))
 		updateFields = append(updateFields, "bigqueryOptions")
 	}
+	if d.HasChange("include_children") {
+		updateFields = append(updateFields, "includeChildren")
+	}
+	if d.HasChange("intercept_children") {
+		updateFields = append(updateFields, "interceptChildren")
+	}
 	updateMask = strings.Join(updateFields, ",")
 	return
 }
