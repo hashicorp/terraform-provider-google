@@ -33,6 +33,17 @@ To get more information about PlayIntegrityConfig, see:
 
 
 ```hcl
+# Enables the Play Integrity API
+resource "google_project_service" "play_integrity" {
+  provider = google-beta
+
+  project = "my-project-name"
+  service = "playintegrity.googleapis.com"
+
+  # Don't disable the service if the resource block is removed by accident.
+  disable_on_destroy = false
+}
+
 resource "google_firebase_android_app" "default" {
   provider = google-beta
 
@@ -70,6 +81,17 @@ resource "google_firebase_app_check_play_integrity_config" "default" {
 
 
 ```hcl
+# Enables the Play Integrity API
+resource "google_project_service" "play_integrity" {
+  provider = google-beta
+
+  project = "my-project-name"
+  service = "playintegrity.googleapis.com"
+
+  # Don't disable the service if the resource block is removed by accident.
+  disable_on_destroy = false
+}
+
 resource "google_firebase_android_app" "default" {
   provider = google-beta
 
