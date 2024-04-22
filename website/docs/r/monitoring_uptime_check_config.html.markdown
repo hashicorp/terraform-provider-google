@@ -134,6 +134,9 @@ resource "google_monitoring_uptime_check_config" "https" {
     port = "443"
     use_ssl = true
     validate_ssl = true
+    service_agent_authentication {
+      type = "OIDC_TOKEN"
+    }
   }
 
   monitored_resource {
@@ -362,8 +365,13 @@ The following arguments are supported:
 
 * `auth_info` -
   (Optional)
-  The authentication information. Optional when creating an HTTP check; defaults to empty.
+  The authentication information using username and password. Optional when creating an HTTP check; defaults to empty. Do not use with other authentication fields.
   Structure is [documented below](#nested_auth_info).
+
+* `service_agent_authentication` -
+  (Optional)
+  The authentication information using the Monitoring Service Agent. Optional when creating an HTTPS check; defaults to empty. Do not use with other authentication fields.
+  Structure is [documented below](#nested_service_agent_authentication).
 
 * `port` -
   (Optional)
@@ -414,6 +422,13 @@ The following arguments are supported:
 * `username` -
   (Required)
   The username to authenticate.
+
+<a name="nested_service_agent_authentication"></a>The `service_agent_authentication` block supports:
+
+* `type` -
+  (Optional)
+  The type of authentication to use.
+  Possible values are: `SERVICE_AGENT_AUTHENTICATION_TYPE_UNSPECIFIED`, `OIDC_TOKEN`.
 
 <a name="nested_accepted_response_status_codes"></a>The `accepted_response_status_codes` block supports:
 
