@@ -10,7 +10,7 @@ IMPROVEMENTS:
 * billing: added `ownership_scope` field to `google_billing_budget` resource ([#17868](https://github.com/hashicorp/terraform-provider-google/pull/17868))
 * cloudfunctions2: added `build_config.service_account` field to `google_cloudfunctions2_function` resource ([#17841](https://github.com/hashicorp/terraform-provider-google/pull/17841))
 * resourcemanager: added the field `api_method` to datasource `google_active_folder` so you can use either `SEARCH` or `LIST` to find your folder ([#17877](https://github.com/hashicorp/terraform-provider-google/pull/17877))
-* storage: added labels validation to 'google_storage_bucket' resource ([#17806](https://github.com/hashicorp/terraform-provider-google/pull/17806))
+* storage: added labels validation to `google_storage_bucket` resource ([#17806](https://github.com/hashicorp/terraform-provider-google/pull/17806))
 
 BUG FIXES:
 * apigee: fixed permadiff in ordering of `google_apigee_organization.properties.property`. ([#17850](https://github.com/hashicorp/terraform-provider-google/pull/17850))
