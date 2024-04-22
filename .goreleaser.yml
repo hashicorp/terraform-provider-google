@@ -1,7 +1,7 @@
 archives:
   - files:
-      # Only include built binary in archive
-      - 'none*'
+      # Include built binary and license files in archive
+      - 'LICENSE'
     format: zip
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 builds:
