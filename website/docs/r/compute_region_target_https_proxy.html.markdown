@@ -95,6 +95,117 @@ resource "google_compute_region_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_target_https_proxy_mtls&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Target Https Proxy Mtls
+
+
+```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_compute_region_target_https_proxy" "default" {
+  provider          = google-beta
+  region           = "us-central1"
+  name              = "test-mtls-proxy"
+  url_map           = google_compute_region_url_map.default.id
+  ssl_certificates  = [google_compute_region_ssl_certificate.default.id]
+  server_tls_policy = google_network_security_server_tls_policy.default.id
+}
+
+resource "google_certificate_manager_trust_config" "default" {
+  provider    = google-beta
+  location    = "us-central1"
+  name        = "my-trust-config"
+  description = "sample description for trust config"
+
+  trust_stores {
+    trust_anchors {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+    intermediate_cas {
+      pem_certificate = file("test-fixtures/ca_cert.pem")
+    }
+  }
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_network_security_server_tls_policy" "default" {
+  provider               = google-beta
+  location               = "us-central1"
+  name                   = "my-tls-policy"
+  description            = "my description"
+  allow_open             = "false"
+  mtls_policy {
+    client_validation_mode = "REJECT_INVALID"
+    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/us-central1/trustConfigs/${google_certificate_manager_trust_config.default.name}"
+  }
+}
+
+resource "google_compute_region_ssl_certificate" "default" {
+  provider    = google-beta
+  region      = "us-central1"
+  name        = "my-certificate"
+  private_key = file("path/to/private.key")
+  certificate = file("path/to/certificate.crt")
+}
+
+resource "google_compute_region_url_map" "default" {
+  provider    = google-beta
+  region      = "us-central1"
+  name        = "url-map"
+  description = "a description"
+
+  default_service = google_compute_region_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_region_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_region_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  provider    = google-beta
+  region      = "us-central1"
+  name        = "backend-service"
+  port_name   = "http"
+  protocol    = "HTTP"
+  timeout_sec = 10
+
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  health_checks = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_health_check" "default" {
+  provider           = google-beta
+  region             = "us-central1"
+  name               = "http-health-check"
+  check_interval_sec = 1
+  timeout_sec        = 1
+
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_target_https_proxy_certificate_manager_certificate&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -179,6 +290,18 @@ The following arguments are supported:
   A reference to the Region SslPolicy resource that will be associated with
   the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
   resource will not have any SSL policy configured.
+
+* `server_tls_policy` -
+  (Optional)
+  A URL referring to a networksecurity.ServerTlsPolicy
+  resource that describes how the proxy should authenticate inbound
+  traffic. serverTlsPolicy only applies to a global TargetHttpsProxy
+  attached to globalForwardingRules with the loadBalancingScheme
+  set to INTERNAL_SELF_MANAGED or EXTERNAL or EXTERNAL_MANAGED.
+  For details which ServerTlsPolicy resources are accepted with
+  INTERNAL_SELF_MANAGED and which with EXTERNAL, EXTERNAL_MANAGED
+  loadBalancingScheme consult ServerTlsPolicy documentation.
+  If left blank, communications are not encrypted.
 
 * `region` -
   (Optional)
