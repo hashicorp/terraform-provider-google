@@ -3250,7 +3250,7 @@ func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 
 	initConfig := testAccContainerCluster_withInitialCIDR(containerNetName, clusterName)
 	overlapConfig := testAccContainerCluster_withCIDROverlap(initConfig, clusterNameError)
-	overlapConfigWithTimeout := testAccContainerCluster_withCIDROverlapWithTimeout(initConfig, clusterNameErrorWithTimeout, "40s")
+	overlapConfigWithTimeout := testAccContainerCluster_withCIDROverlapWithTimeout(initConfig, clusterNameErrorWithTimeout, "1s")
 
 	checkTaintApplied := func(st *terraform.State) error {
 		// Return an error if there is no tainted (i.e. marked for deletion) cluster.
@@ -3296,7 +3296,7 @@ func TestAccContainerCluster_errorCleanDanglingCluster(t *testing.T) {
 				Check:              checkTaintApplied,
 			},
 			{
-				// Next attempt to create the overlapping cluster with a 40s timeout. This will fail with a different error.
+				// Next attempt to create the overlapping cluster with a 1s timeout. This will fail with a different error.
 				Config:      overlapConfigWithTimeout,
 				ExpectError: regexp.MustCompile("timeout while waiting for state to become 'DONE'"),
 			},
