@@ -1,0 +1,180 @@
+---
+subcategory: "BigQuery"
+description: |-
+ Collection of resources to manage IAM policy for a BigQuery dataset.
+---
+
+# IAM policy for BigQuery Dataset
+
+Three different resources help you manage your IAM policy for BigQuery dataset. Each of these resources serves a different use case:
+
+* `google_bigquery_dataset_iam_policy`: Authoritative. Sets the IAM policy for the dataset and replaces any existing policy already attached.
+* `google_bigquery_dataset_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the dataset are preserved.
+* `google_bigquery_dataset_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the dataset are preserved.
+
+These resources are intended to convert the permissions system for BigQuery datasets to the standard IAM interface. For advanced usages, including [creating authorized views](https://cloud.google.com/bigquery/docs/share-access-views), please use either `google_bigquery_dataset_access` or the `access` field on `google_bigquery_dataset`.
+
+~> **Note:** These resources **cannot** be used with `google_bigquery_dataset_access` resources or the `access` field on `google_bigquery_dataset` or they will fight over what the policy should be.
+
+~> **Note:** Using any of these resources will remove any authorized view permissions from the dataset. To assign and preserve authorized view permissions use the `google_bigquery_dataset_access` instead.
+
+~> **Note:** Legacy BigQuery roles `OWNER` `WRITER` and `READER` **cannot** be used with any of these IAM resources. Instead use the full role form of: `roles/bigquery.dataOwner` `roles/bigquery.dataEditor` and `roles/bigquery.dataViewer`.
+
+~> **Note:** `google_bigquery_dataset_iam_policy` **cannot** be used in conjunction with `google_bigquery_dataset_iam_binding` and `google_bigquery_dataset_iam_member` or they will fight over what your policy should be.
+
+~> **Note:** `google_bigquery_dataset_iam_binding` resources **can be** used in conjunction with `google_bigquery_dataset_iam_member` resources **only if** they do not grant privilege to the same role.
+
+## google\_bigquery\_dataset\_iam\_policy
+
+```hcl
+data "google_iam_policy" "owner" {
+  binding {
+    role = "roles/bigquery.dataOwner"
+
+    members = [
+      "user:jane@example.com",
+    ]
+  }
+}
+
+resource "google_bigquery_dataset_iam_policy" "dataset" {
+  dataset_id  = google_bigquery_dataset.dataset.dataset_id
+  policy_data = data.google_iam_policy.owner.policy_data
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
+## google\_bigquery\_dataset\_iam\_binding
+
+```hcl
+resource "google_bigquery_dataset_iam_binding" "reader" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataViewer"
+
+  members = [
+    "user:jane@example.com",
+  ]
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
+## google\_bigquery\_dataset\_iam\_member
+
+```hcl
+resource "google_bigquery_dataset_iam_member" "editor" {
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = "user:jane@example.com"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "example_dataset"
+}
+```
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `dataset_id` - (Required) The dataset ID.
+
+* `member/members` - (Required) Identities that will be granted the privilege in `role`.
+  Each entry can have one of the following values:
+  * **allAuthenticatedUsers**: A special identifier that represents anyone who is authenticated with a Google account or a service account.
+  * **allUsers**: A special identifier that represents anyone who is on the internet; with or without a Google account.
+  * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
+  * **iamMember:{principal}**: Some other type of member that appears in the IAM Policy but isn't a user, group, domain, or special group. This is used for example for workload/workforce federated identities (principal, principalSet).
+  * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
+  * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
+
+* `role` - (Required) The role that should be applied. Only one
+    `google_bigquery_dataset_iam_binding` can be used per role. Note that custom roles must be of the format
+    `[projects|organizations]/{parent-name}/roles/{role-name}`.
+
+* `policy_data` - (Required only by `google_bigquery_dataset_iam_policy`) The policy data generated by
+  a `google_iam_policy` data source.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are
+exported:
+
+* `etag` - (Computed) The etag of the dataset's IAM policy.
+
+## Import
+
+-> **Custom Roles** If you're importing a IAM resource with a custom role, make sure to use the full name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`.
+
+### Importing IAM members
+
+IAM member imports use space-delimited identifiers that contains the `dataset_id`, `role`, and `member`. For example:
+
+* `"projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"`
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM members:
+
+```tf
+import {
+  id = "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"
+  to = google_bigquery_dataset_iam_member.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_bigquery_dataset_iam_member.default "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer user:foo@example.com"
+```
+
+### Importing IAM bindings
+
+IAM binding imports use space-delimited identifiers that contain the resource's `dataset_id` and `role`. For example:
+
+* `"projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM bindings:
+
+```tf
+import {
+  id = "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer"
+  to = google_bigquery_dataset_iam_binding.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_bigquery_dataset_iam_binding.default "projects/{{project_id}}/datasets/{{dataset_id}} roles/viewer"
+```
+
+### Importing IAM policies
+
+IAM policy imports use the identifier of the BigQuery Dataset resource. For example:
+
+* `projects/{{project_id}}/datasets/{{dataset_id}}`
+
+
+An [`import` block](https://developer.hashicorp.com/terraform/language/import) (Terraform v1.5.0 and later) can be used to import IAM policies:
+
+```tf
+import {
+  id = projects/{{project_id}}/datasets/{{dataset_id}}
+  to = google_bigquery_dataset_iam_policy.default
+}
+```
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can also be used:
+
+```
+$ terraform import google_bigquery_dataset_iam_policy.default projects/{{project_id}}/datasets/{{dataset_id}}
+```
