@@ -49,7 +49,7 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyBasicExample(t *
 				ResourceName:            "google_compute_region_target_https_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "region"},
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "server_tls_policy", "region"},
 			},
 		},
 	})
@@ -133,7 +133,7 @@ func TestAccComputeRegionTargetHttpsProxy_regionTargetHttpsProxyCertificateManag
 				ResourceName:            "google_compute_region_target_https_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "region"},
+				ImportStateVerifyIgnore: []string{"ssl_policy", "url_map", "server_tls_policy", "region"},
 			},
 		},
 	})
