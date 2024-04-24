@@ -35,7 +35,6 @@ To get more information about AuthConfig, see:
 ```hcl
 resource "google_integrations_client" "client" {
   location = "us-west1"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "basic_example" {
