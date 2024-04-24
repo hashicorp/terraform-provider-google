@@ -177,6 +177,30 @@ expiration time indicated by this property.`,
 				Optional:    true,
 				Description: `A user-friendly description of the dataset`,
 			},
+			"external_dataset_reference": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Information about the external metadata storage where the dataset is defined.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+							Description: `The connection id that is used to access the externalSource.
+Format: projects/{projectId}/locations/{locationId}/connections/{connectionId}`,
+						},
+						"external_source": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `External source that backs this dataset.`,
+						},
+					},
+				},
+			},
 			"friendly_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -490,6 +514,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	externalDatasetReferenceProp, err := expandBigQueryDatasetExternalDatasetReference(d.Get("external_dataset_reference"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_dataset_reference"); !tpgresource.IsEmptyValue(reflect.ValueOf(externalDatasetReferenceProp)) && (ok || !reflect.DeepEqual(v, externalDatasetReferenceProp)) {
+		obj["externalDatasetReference"] = externalDatasetReferenceProp
+	}
 	friendlyNameProp, err := expandBigQueryDatasetFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {
 		return err
@@ -663,6 +693,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("etag", flattenBigQueryDatasetEtag(res["etag"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("external_dataset_reference", flattenBigQueryDatasetExternalDatasetReference(res["externalDatasetReference"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("friendly_name", flattenBigQueryDatasetFriendlyName(res["friendlyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -751,6 +784,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	externalDatasetReferenceProp, err := expandBigQueryDatasetExternalDatasetReference(d.Get("external_dataset_reference"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("external_dataset_reference"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, externalDatasetReferenceProp)) {
+		obj["externalDatasetReference"] = externalDatasetReferenceProp
 	}
 	friendlyNameProp, err := expandBigQueryDatasetFriendlyName(d.Get("friendly_name"), d, config)
 	if err != nil {
@@ -1128,6 +1167,29 @@ func flattenBigQueryDatasetDescription(v interface{}, d *schema.ResourceData, co
 }
 
 func flattenBigQueryDatasetEtag(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetExternalDatasetReference(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["external_source"] =
+		flattenBigQueryDatasetExternalDatasetReferenceExternalSource(original["externalSource"], d, config)
+	transformed["connection"] =
+		flattenBigQueryDatasetExternalDatasetReferenceConnection(original["connection"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigQueryDatasetExternalDatasetReferenceExternalSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigQueryDatasetExternalDatasetReferenceConnection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1511,6 +1573,40 @@ func expandBigQueryDatasetDefaultPartitionExpirationMs(v interface{}, d tpgresou
 }
 
 func expandBigQueryDatasetDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetExternalDatasetReference(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedExternalSource, err := expandBigQueryDatasetExternalDatasetReferenceExternalSource(original["external_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExternalSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["externalSource"] = transformedExternalSource
+	}
+
+	transformedConnection, err := expandBigQueryDatasetExternalDatasetReferenceConnection(original["connection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConnection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["connection"] = transformedConnection
+	}
+
+	return transformed, nil
+}
+
+func expandBigQueryDatasetExternalDatasetReferenceExternalSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigQueryDatasetExternalDatasetReferenceConnection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

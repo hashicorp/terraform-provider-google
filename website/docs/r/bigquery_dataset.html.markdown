@@ -203,12 +203,11 @@ resource "google_bigquery_dataset" "private" {
   }
 }
 ```
-## Example Usage - Bigquery Dataset External Reference Aws Docs
+## Example Usage - Bigquery Dataset External Reference Aws
 
 
 ```hcl
 resource "google_bigquery_dataset" "dataset" {
-  provider                    = google-beta
   dataset_id                  = "example_dataset"
   friendly_name               = "test"
   description                 = "This is a test description"
@@ -282,7 +281,7 @@ The following arguments are supported:
   A user-friendly description of the dataset
 
 * `external_dataset_reference` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Information about the external metadata storage where the dataset is defined.
   Structure is [documented below](#nested_external_dataset_reference).
 
