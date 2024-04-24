@@ -72,7 +72,10 @@ func datasourceGoogleStorageBucketObjectsRead(d *schema.ResourceData, meta inter
 
 	for {
 		bucket := d.Get("bucket").(string)
-		url := fmt.Sprintf("https://storage.googleapis.com/storage/v1/b/%s/o", bucket)
+		url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{StorageBasePath}}b/%s/o", bucket))
+		if err != nil {
+			return err
+		}
 
 		if v, ok := d.GetOk("match_glob"); ok {
 			params["matchGlob"] = v.(string)
@@ -82,7 +85,7 @@ func datasourceGoogleStorageBucketObjectsRead(d *schema.ResourceData, meta inter
 			params["prefix"] = v.(string)
 		}
 
-		url, err := transport_tpg.AddQueryParams(url, params)
+		url, err = transport_tpg.AddQueryParams(url, params)
 		if err != nil {
 			return err
 		}

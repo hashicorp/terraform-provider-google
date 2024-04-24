@@ -43,7 +43,10 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 		name = url.QueryEscape(name)
 	}
 	// Using REST apis because the storage go client doesn't support folders
-	url := fmt.Sprintf("https://www.googleapis.com/storage/v1/b/%s/o/%s", bucket, name)
+	url, err := tpgresource.ReplaceVars(d, config, fmt.Sprintf("{{StorageBasePath}}b/%s/o/%s", bucket, name))
+	if err != nil {
+		return fmt.Errorf("Error formatting url for storage bucket object: %s", err)
+	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
