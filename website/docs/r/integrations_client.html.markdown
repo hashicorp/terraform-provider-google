@@ -40,15 +40,14 @@ To get more information about Client, see:
 ```hcl
 resource "google_integrations_client" "example" {
   location = "us-central1"
-  provision_gmek = true
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=integrations_client_advance&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=integrations_client_full&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Integrations Client Advance
+## Example Usage - Integrations Client Full
 
 
 ```hcl
@@ -64,12 +63,10 @@ resource "google_kms_crypto_key" "cryptokey" {
   name = "crypto-key-example"
   key_ring = google_kms_key_ring.keyring.id
   rotation_period = "7776000s"
-  depends_on = [google_kms_key_ring.keyring]
 }
 
 resource "google_kms_crypto_key_version" "test_key" {
   crypto_key = google_kms_crypto_key.cryptokey.id
-  depends_on = [google_kms_crypto_key.cryptokey]
 }
 
 resource "google_service_account" "service_account" {
@@ -79,7 +76,7 @@ resource "google_service_account" "service_account" {
 
 resource "google_integrations_client" "example" {
   location = "us-east1"
-  create_sample_workflows = true
+  create_sample_integrations = true
   run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
@@ -88,7 +85,6 @@ resource "google_integrations_client" "example" {
     key_version = google_kms_crypto_key_version.test_key.id
     kms_project_id = data.google_project.test_project.project_id
   }
-  depends_on = [google_kms_crypto_key_version.test_key, google_service_account.service_account]
 }
 ```
 
@@ -111,12 +107,20 @@ The following arguments are supported:
   Structure is [documented below](#nested_cloud_kms_config).
 
 * `create_sample_workflows` -
-  (Optional)
+  (Optional, Deprecated)
   Indicates if sample workflow should be created along with provisioning.
 
-* `provision_gmek` -
+  ~> **Warning:** `create_sample_workflows` is deprecated and will be removed in a future major release. Use `create_sample_integrations` instead.
+
+* `create_sample_integrations` -
   (Optional)
+  Indicates if sample integrations should be created along with provisioning.
+
+* `provision_gmek` -
+  (Optional, Deprecated)
   Indicates provision with GMEK or CMEK.
+
+  ~> **Warning:** `provision_gmek` is deprecated and will be removed in a future major release. Client would be provisioned as gmek if `cloud_kms_config` is not given.
 
 * `run_as_service_account` -
   (Optional)

@@ -59,7 +59,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigAdvanceExample(context 
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "asia-east2"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "advance_example" {
@@ -110,7 +109,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigUsernameAndPasswordExam
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "northamerica-northeast2"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "username_and_password_example" {
@@ -158,7 +156,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2AuthorizationCode
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "asia-east1"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "oauth2_authotization_code_example" {
@@ -209,7 +206,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigOauth2ClientCredentials
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "southamerica-east1"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "oauth2_client_credentials_example" {
@@ -274,7 +270,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigJwtExample(context map[
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "us-west4"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "jwt_example" {
@@ -323,7 +318,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigAuthTokenExample(contex
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "us-west2"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "auth_token_example" {
@@ -371,7 +365,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigServiceAccountExample(c
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "northamerica-northeast1"
-  provision_gmek = true
 }
 
 resource "google_service_account" "service_account" {
@@ -424,7 +417,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigOidcTokenExample(contex
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "us-south1"
-  provision_gmek = true
 }
 
 resource "google_service_account" "service_account" {
@@ -477,7 +469,6 @@ func testAccIntegrationsAuthConfig_integrationsAuthConfigClientCertificateOnlyEx
 	return acctest.Nprintf(`
 resource "google_integrations_client" "client" {
   location = "us-west3"
-  provision_gmek = true
 }
 
 resource "google_integrations_auth_config" "client_certificate_example" {

@@ -49,7 +49,7 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "provision_gmek", "run_as_service_account", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
 			},
 		},
 	})
@@ -59,12 +59,11 @@ func testAccIntegrationsClient_integrationsClientBasicExample(context map[string
 	return acctest.Nprintf(`
 resource "google_integrations_client" "example" {
   location = "us-central1"
-  provision_gmek = true
 }
 `, context)
 }
 
-func TestAccIntegrationsClient_integrationsClientAdvanceExample(t *testing.T) {
+func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
@@ -78,19 +77,19 @@ func TestAccIntegrationsClient_integrationsClientAdvanceExample(t *testing.T) {
 		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccIntegrationsClient_integrationsClientAdvanceExample(context),
+				Config: testAccIntegrationsClient_integrationsClientFullExample(context),
 			},
 			{
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "provision_gmek", "run_as_service_account", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
 			},
 		},
 	})
 }
 
-func testAccIntegrationsClient_integrationsClientAdvanceExample(context map[string]interface{}) string {
+func testAccIntegrationsClient_integrationsClientFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "test_project" {
 }
@@ -104,12 +103,10 @@ resource "google_kms_crypto_key" "cryptokey" {
   name = "crypto-key-example"
   key_ring = google_kms_key_ring.keyring.id
   rotation_period = "7776000s"
-  depends_on = [google_kms_key_ring.keyring]
 }
 
 resource "google_kms_crypto_key_version" "test_key" {
   crypto_key = google_kms_crypto_key.cryptokey.id
-  depends_on = [google_kms_crypto_key.cryptokey]
 }
 
 resource "google_service_account" "service_account" {
@@ -119,7 +116,7 @@ resource "google_service_account" "service_account" {
 
 resource "google_integrations_client" "example" {
   location = "us-east1"
-  create_sample_workflows = true
+  create_sample_integrations = true
   run_as_service_account = google_service_account.service_account.email
   cloud_kms_config {
     kms_location = "us-east1"
@@ -128,7 +125,41 @@ resource "google_integrations_client" "example" {
     key_version = google_kms_crypto_key_version.test_key.id
     kms_project_id = data.google_project.test_project.project_id
   }
-  depends_on = [google_kms_crypto_key_version.test_key, google_service_account.service_account]
+}
+`, context)
+}
+
+func TestAccIntegrationsClient_integrationsClientDeprecatedFieldsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIntegrationsClientDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIntegrationsClient_integrationsClientDeprecatedFieldsExample(context),
+			},
+			{
+				ResourceName:            "google_integrations_client.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
+			},
+		},
+	})
+}
+
+func testAccIntegrationsClient_integrationsClientDeprecatedFieldsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_integrations_client" "example" {
+  location = "asia-south1"
+  provision_gmek = true
+  create_sample_workflows = true
 }
 `, context)
 }

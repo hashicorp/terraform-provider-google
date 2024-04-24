@@ -107,18 +107,30 @@ encrypted with GMEK.`,
 						},
 					},
 				},
+				ConflictsWith: []string{"provision_gmek"},
+			},
+			"create_sample_integrations": {
+				Type:          schema.TypeBool,
+				Optional:      true,
+				ForceNew:      true,
+				Description:   `Indicates if sample integrations should be created along with provisioning.`,
+				ConflictsWith: []string{"create_sample_workflows"},
 			},
 			"create_sample_workflows": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Indicates if sample workflow should be created along with provisioning.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Deprecated:    "`create_sample_workflows` is deprecated and will be removed in a future major release. Use `create_sample_integrations` instead.",
+				ForceNew:      true,
+				Description:   `Indicates if sample workflow should be created along with provisioning.`,
+				ConflictsWith: []string{"create_sample_integrations"},
 			},
 			"provision_gmek": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Indicates provision with GMEK or CMEK.`,
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Deprecated:    "`provision_gmek` is deprecated and will be removed in a future major release. Client would be provisioned as gmek if `cloud_kms_config` is not given.",
+				ForceNew:      true,
+				Description:   `Indicates provision with GMEK or CMEK.`,
+				ConflictsWith: []string{"cloud_kms_config"},
 			},
 			"run_as_service_account": {
 				Type:        schema.TypeString,
@@ -156,6 +168,12 @@ func resourceIntegrationsClientCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("create_sample_workflows"); !tpgresource.IsEmptyValue(reflect.ValueOf(createSampleWorkflowsProp)) && (ok || !reflect.DeepEqual(v, createSampleWorkflowsProp)) {
 		obj["createSampleWorkflows"] = createSampleWorkflowsProp
+	}
+	createSampleIntegrationsProp, err := expandIntegrationsClientCreateSampleIntegrations(d.Get("create_sample_integrations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("create_sample_integrations"); !tpgresource.IsEmptyValue(reflect.ValueOf(createSampleIntegrationsProp)) && (ok || !reflect.DeepEqual(v, createSampleIntegrationsProp)) {
+		obj["createSampleIntegrations"] = createSampleIntegrationsProp
 	}
 	provisionGmekProp, err := expandIntegrationsClientProvisionGmek(d.Get("provision_gmek"), d, config)
 	if err != nil {
@@ -197,6 +215,11 @@ func resourceIntegrationsClientCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	headers := make(http.Header)
+	// Translate `createSampleIntegrations` to `createSampleWorkflows`
+	if val, ok := obj["createSampleIntegrations"]; ok {
+		delete(obj, "createSampleIntegrations")
+		obj["createSampleWorkflows"] = val
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -423,6 +446,10 @@ func expandIntegrationsClientCloudKmsConfigKmsProjectId(v interface{}, d tpgreso
 }
 
 func expandIntegrationsClientCreateSampleWorkflows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIntegrationsClientCreateSampleIntegrations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
