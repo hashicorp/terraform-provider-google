@@ -328,6 +328,61 @@ If not set, defaults to 14 days.`,
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"maintenance_update_policy": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `MaintenanceUpdatePolicy defines the policy for system updates.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"maintenance_windows": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Preferred windows to perform maintenance. Currently limited to 1.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"day": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
+										Description:  `Preferred day of the week for maintenance, e.g. MONDAY, TUESDAY, etc. Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
+									},
+									"start_time": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Preferred time to start the maintenance operation on the specified day. Maintenance will start within 1 hour of this time.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hours": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Hours of day in 24 hour format. Should be from 0 to 23.`,
+												},
+												"minutes": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Minutes of hour of day. Currently, only the value 0 is supported.`,
+												},
+												"nanos": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.`,
+												},
+												"seconds": {
+													Type:        schema.TypeInt,
+													Optional:    true,
+													Description: `Seconds of minutes of the time. Currently, only the value 0 is supported.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"network": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -677,6 +732,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("secondary_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(secondaryConfigProp)) && (ok || !reflect.DeepEqual(v, secondaryConfigProp)) {
 		obj["secondaryConfig"] = secondaryConfigProp
 	}
+	maintenanceUpdatePolicyProp, err := expandAlloydbClusterMaintenanceUpdatePolicy(d.Get("maintenance_update_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_update_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceUpdatePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenanceUpdatePolicyProp)) {
+		obj["maintenanceUpdatePolicy"] = maintenanceUpdatePolicyProp
+	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -918,6 +979,9 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("secondary_config", flattenAlloydbClusterSecondaryConfig(res["secondaryConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("maintenance_update_policy", flattenAlloydbClusterMaintenanceUpdatePolicy(res["maintenanceUpdatePolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1013,6 +1077,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("secondary_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, secondaryConfigProp)) {
 		obj["secondaryConfig"] = secondaryConfigProp
 	}
+	maintenanceUpdatePolicyProp, err := expandAlloydbClusterMaintenanceUpdatePolicy(d.Get("maintenance_update_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_update_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceUpdatePolicyProp)) {
+		obj["maintenanceUpdatePolicy"] = maintenanceUpdatePolicyProp
+	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1077,6 +1147,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("secondary_config") {
 		updateMask = append(updateMask, "secondaryConfig")
+	}
+
+	if d.HasChange("maintenance_update_policy") {
+		updateMask = append(updateMask, "maintenanceUpdatePolicy")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1804,6 +1878,129 @@ func flattenAlloydbClusterSecondaryConfigPrimaryClusterName(v interface{}, d *sc
 	return v
 }
 
+func flattenAlloydbClusterMaintenanceUpdatePolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["maintenance_windows"] =
+		flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindows(original["maintenanceWindows"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindows(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"day":        flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsDay(original["day"], d, config),
+			"start_time": flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTime(original["startTime"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsDay(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["hours"] =
+		flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	transformed["minutes"] =
+		flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	transformed["seconds"] =
+		flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeHours(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeMinutes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenAlloydbClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2328,6 +2525,114 @@ func expandAlloydbClusterSecondaryConfig(v interface{}, d tpgresource.TerraformR
 }
 
 func expandAlloydbClusterSecondaryConfigPrimaryClusterName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMaintenanceWindows, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindows(original["maintenance_windows"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaintenanceWindows); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maintenanceWindows"] = transformedMaintenanceWindows
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindows(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDay, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsDay(original["day"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedDay); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["day"] = transformedDay
+		}
+
+		transformedStartTime, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTime(original["start_time"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["startTime"] = transformedStartTime
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsDay(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHours, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeHours(original["hours"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHours); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["hours"] = transformedHours
+	}
+
+	transformedMinutes, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeMinutes(original["minutes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinutes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minutes"] = transformedMinutes
+	}
+
+	transformedSeconds, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeHours(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeMinutes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
