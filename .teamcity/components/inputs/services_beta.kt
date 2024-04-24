@@ -561,6 +561,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Privateca",
         "path" to "./google-beta/services/privateca"
     ),
+    "privilegedaccessmanager" to mapOf(
+        "name" to "privilegedaccessmanager",
+        "displayName" to "Privilegedaccessmanager",
+        "path" to "./google-beta/services/privilegedaccessmanager"
+    ),
     "publicca" to mapOf(
         "name" to "publicca",
         "displayName" to "Publicca",
