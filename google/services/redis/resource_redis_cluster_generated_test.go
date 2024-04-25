@@ -69,6 +69,9 @@ resource "google_redis_cluster" "cluster-ha" {
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
   authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]

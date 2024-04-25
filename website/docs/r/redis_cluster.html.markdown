@@ -48,6 +48,9 @@ resource "google_redis_cluster" "cluster-ha" {
   node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
   authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -136,6 +139,12 @@ The following arguments are supported:
 * `replica_count` -
   (Optional)
   Optional. The number of replica nodes per shard.
+
+* `redis_configs` -
+  (Optional)
+  Configure Redis Cluster behavior using a subset of native Redis configuration parameters.
+  Please check Memorystore documentation for the list of supported parameters:
+  https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurations
 
 * `region` -
   (Optional)
