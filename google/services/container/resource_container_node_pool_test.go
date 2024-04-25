@@ -1495,6 +1495,64 @@ resource "google_container_node_pool" "np" {
 `, cluster, networkName, subnetworkName, np)
 }
 
+func TestAccContainerNodePool_secondaryBootDisks(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_secondaryBootDisks(cluster, np, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_secondaryBootDisks(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  min_master_version = "1.28"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-8"
+    image_type = "COS_CONTAINERD"
+	gcfs_config {
+  		enabled = true
+	}
+    secondary_boot_disks {
+      disk_image = ""
+      mode = "CONTAINER_IMAGE_CACHE"
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np)
+}
+
 func TestAccContainerNodePool_gcfsConfig(t *testing.T) {
 	t.Parallel()
 
