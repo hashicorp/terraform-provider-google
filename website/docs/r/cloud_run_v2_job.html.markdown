@@ -223,7 +223,7 @@ resource "google_compute_network" "custom_test" {
 resource "google_cloud_run_v2_job" "default" {
   name     = "cloudrun-job"
   location = "us-central1"
-  launch_stage = "BETA"
+  launch_stage = "GA"
   template {
     template{
       containers {
@@ -235,7 +235,6 @@ resource "google_cloud_run_v2_job" "default" {
           subnetwork = "default"
           tags = ["tag1", "tag2", "tag3"]
         }
-        egress = "ALL_TRAFFIC"
       }
     }
   }
