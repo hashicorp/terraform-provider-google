@@ -33,6 +33,9 @@ func init() {
 	}
 }
 
+// GoogleProviderConfig returns a configured SDKv2 provider.
+// This function is typically used in CheckDestroy functions in acceptance tests. The provider client is used to make GET requests to check a resource is destroyed.
+// Either a preexisting configured SDKv2 provider for the given test name is returned, or a new one is configured with empty (but non-nil) terraform.ResourceConfig
 func GoogleProviderConfig(t *testing.T) *transport_tpg.Config {
 	configsLock.RLock()
 	config, ok := configs[t.Name()]
