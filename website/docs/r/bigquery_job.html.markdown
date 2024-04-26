@@ -304,9 +304,13 @@ resource "google_bigquery_job" "job" {
 
 
 ```hcl
+locals {
+  count = 2
+}
+
 resource "google_bigquery_table" "source" {
   deletion_protection = false
-  count = length(google_bigquery_dataset.source)
+  count = local.count
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
   table_id   = "job_copy_${count.index}_table"
@@ -333,7 +337,7 @@ EOF
 }
 
 resource "google_bigquery_dataset" "source" {
-  count = 2
+  count = local.count
 
   dataset_id                  = "job_copy_${count.index}_dataset"
   friendly_name               = "test"
