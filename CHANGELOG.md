@@ -3,9 +3,9 @@
 FEATURES:
 * **New Data Source:** `google_storage_bucket_objects` ([#17920](https://github.com/hashicorp/terraform-provider-google/pull/17920))
 * **New Resource:** `google_compute_security_policy_rule` ([#17937](https://github.com/hashicorp/terraform-provider-google/pull/17937))
-* **New Resource:** google_data_loss_prevention_discovery_config ([#17887](https://github.com/hashicorp/terraform-provider-google/pull/17887))
-* **New Resource:** google_integrations_auth_config ([#17917](https://github.com/hashicorp/terraform-provider-google/pull/17917))
-* **New Resource:** google_network_connectivity_internal_range ([#17909](https://github.com/hashicorp/terraform-provider-google/pull/17909))
+* **New Resource:** `google_data_loss_prevention_discovery_config` ([#17887](https://github.com/hashicorp/terraform-provider-google/pull/17887))
+* **New Resource:** `google_integrations_auth_config` ([#17917](https://github.com/hashicorp/terraform-provider-google/pull/17917))
+* **New Resource:** `google_network_connectivity_internal_range` ([#17909](https://github.com/hashicorp/terraform-provider-google/pull/17909))
 
 IMPROVEMENTS:
 * alloydb: added `network_config` field to `google_alloydb_instance` resource ([#17921](https://github.com/hashicorp/terraform-provider-google/pull/17921))
