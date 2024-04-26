@@ -15,7 +15,7 @@ IMPROVEMENTS:
 * compute: added `server_tls_policy` field to `google_compute_region_target_https_proxy` resource ([#17934](https://github.com/hashicorp/terraform-provider-google/pull/17934))
 * logging: added `intercept_children` field to `google_logging_organization_sink` and `google_logging_folder_sink` resources ([#17932](https://github.com/hashicorp/terraform-provider-google/pull/17932))
 * monitoring: added `service_agent_authentication` field to `google_monitoring_uptime_check_config` resource ([#17929](https://github.com/hashicorp/terraform-provider-google/pull/17929))
-* privateca: added 'subject_key_id' field to `google_privateca_certificate` and `google_privateca_certificate_authority` resources ([#17923](https://github.com/hashicorp/terraform-provider-google/pull/17923))
+* privateca: added `subject_key_id` field to `google_privateca_certificate` and `google_privateca_certificate_authority` resources ([#17923](https://github.com/hashicorp/terraform-provider-google/pull/17923))
 * secretmanager: added `version_destroy_ttl` field to `google_secret_manager_secret` resource ([#17888](https://github.com/hashicorp/terraform-provider-google/pull/17888))
 
 BUG FIXES:
