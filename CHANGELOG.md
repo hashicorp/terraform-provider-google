@@ -1,5 +1,27 @@
 ## 5.27.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_storage_bucket_objects` ([#17920](https://github.com/hashicorp/terraform-provider-google/pull/17920))
+* **New Resource:** `google_compute_security_policy_rule` ([#17937](https://github.com/hashicorp/terraform-provider-google/pull/17937))
+* **New Resource:** google_data_loss_prevention_discovery_config ([#17887](https://github.com/hashicorp/terraform-provider-google/pull/17887))
+* **New Resource:** google_integrations_auth_config ([#17917](https://github.com/hashicorp/terraform-provider-google/pull/17917))
+* **New Resource:** google_network_connectivity_internal_range ([#17909](https://github.com/hashicorp/terraform-provider-google/pull/17909))
+
+IMPROVEMENTS:
+* alloydb: added `network_config` field to `google_alloydb_instance` resource ([#17921](https://github.com/hashicorp/terraform-provider-google/pull/17921))
+* alloydb: added `public_ip_address` field  to `google_alloydb_instance` resource ([#17921](https://github.com/hashicorp/terraform-provider-google/pull/17921))
+* apigee: added `forward_proxy_uri` field to `google_apigee_environment` resource ([#17902](https://github.com/hashicorp/terraform-provider-google/pull/17902))
+* bigquerydatapolicy: added `data_masking_policy.routine` field to `google_bigquery_data_policy` resource ([#17885](https://github.com/hashicorp/terraform-provider-google/pull/17885))
+* compute: added `server_tls_policy` field to `google_compute_region_target_https_proxy` resource ([#17934](https://github.com/hashicorp/terraform-provider-google/pull/17934))
+* logging: added `intercept_children` field to `google_logging_organization_sink` and `google_logging_folder_sink` resources ([#17932](https://github.com/hashicorp/terraform-provider-google/pull/17932))
+* monitoring: added `service_agent_authentication` field to `google_monitoring_uptime_check_config` resource ([#17929](https://github.com/hashicorp/terraform-provider-google/pull/17929))
+* privateca: added 'subject_key_id' field to `google_privateca_certificate` and `google_privateca_certificate_authority` resources ([#17923](https://github.com/hashicorp/terraform-provider-google/pull/17923))
+* secretmanager: added `version_destroy_ttl` field to `google_secret_manager_secret` resource ([#17888](https://github.com/hashicorp/terraform-provider-google/pull/17888))
+
+BUG FIXES:
+* appengine: added suppression for a diff in `google_app_engine_standard_app_version.automatic_scaling` when the block is unset in configuration ([#17905](https://github.com/hashicorp/terraform-provider-google/pull/17905))
+* sql: fixed issues with updating the `enable_google_ml_integration` field in `google_sql_database_instance` resource ([#17878](https://github.com/hashicorp/terraform-provider-google/pull/17878))
+
 ## 5.26.0 (Apr 22, 2024)
 
 FEATURES:
