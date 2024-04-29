@@ -95,9 +95,9 @@ Template.
 
 * `autoscaling_algorithm` - (Optional) The algorithm to use for autoscaling.
 
-* `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as
-used in the template). Additional [pipeline options](https://cloud.google.com/dataflow/docs/guides/specifying-exec-params#setting-other-cloud-dataflow-pipeline-options)
-such as `serviceAccount`, `workerMachineType`, etc can be specified here.
+* `parameters` - **Template specific** Key/Value pairs to be forwarded to the pipeline's options; keys are
+  case-sensitive based on the language on which the pipeline is coded, mostly Java.
+  **Note**: do not configure Dataflow options here in parameters.
 
 * `enable_streaming_engine` - (Optional) Immutable. Indicates if the job should use the streaming engine feature.
 

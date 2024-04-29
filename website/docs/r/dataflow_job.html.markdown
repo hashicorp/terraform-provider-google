@@ -99,7 +99,9 @@ The following arguments are supported:
 
 - - -
 
-* `parameters` - (Optional) Key/Value pairs to be passed to the Dataflow job (as used in the template).
+* `parameters` - **Template specific** Key/Value pairs to be forwarded to the pipeline's options; keys are
+  case-sensitive based on the language on which the pipeline is coded, mostly Java.
+  **Note**: do not configure Dataflow options here in parameters.
 * `labels` - (Optional) User labels to be specified for the job. Keys and values should follow the restrictions
    specified in the [labeling restrictions](https://cloud.google.com/compute/docs/labeling-resources#restrictions) page.
    **Note**: This field is non-authoritative, and will only manage the labels present in your configuration. Please refer to the field `effective_labels` for all of the labels present on the resource.
