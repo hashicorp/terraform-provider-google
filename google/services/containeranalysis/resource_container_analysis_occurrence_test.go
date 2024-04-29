@@ -20,7 +20,7 @@ import (
 
 const testAttestationOccurrenceImageUrl = "gcr.io/cloud-marketplace/google/ubuntu1804"
 const testAttestationOccurrenceImageDigest = "sha256:3593cd4ac7d782d460dc86ba9870a3beaf81c8f5cdbcc8880bf9a5ef6af10c5a"
-const testAttestationOccurrencePayloadTemplate = "test-fixtures/generated_payload.json.tmpl"
+const testAttestationOccurrencePayloadTemplate = "test-fixtures/generated_payload.json"
 
 var testAttestationOccurrenceFullImagePath = fmt.Sprintf("%s@%s", testAttestationOccurrenceImageUrl, testAttestationOccurrenceImageDigest)
 
