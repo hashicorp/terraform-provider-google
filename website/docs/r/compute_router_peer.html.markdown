@@ -183,6 +183,25 @@ resource "google_compute_router_peer" "peer" {
 }
 ```
 
+## Example Usage - Router Peer md5 authentication key
+
+
+```hcl
+  resource "google_compute_router_peer" "foobar" {
+    name                      = "%s-peer"
+    router                    = google_compute_router.foobar.name
+    region                    = google_compute_router.foobar.region
+    peer_asn                  = 65515
+    advertised_route_priority = 100
+    interface                 = google_compute_router_interface.foobar.name
+    peer_ip_address           = "169.254.3.2"
+    md5_authentication_key {
+      name = "%s-peer-key"
+      key = "%s-peer-key-value"
+    }
+  }
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -316,6 +335,8 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+* `md5_authentication_key` - (Optional) Configuration for MD5 authentication on the BGP session.
+  Structure is [documented below](#nested_md5_authentication_key).
 
 <a name="nested_advertised_ip_ranges"></a>The `advertised_ip_ranges` block supports:
 
@@ -360,6 +381,16 @@ The following arguments are supported:
   The number of consecutive BFD packets that must be missed before
   BFD declares that a peer is unavailable. If set, the value must
   be a value between 5 and 16.
+
+<a name="nested_md5_authentication_key"></a>The `md5_authentication_key` block supports:
+
+* `name` -
+  (Required)
+  Name used to identify the key. Must be unique within a router. Must comply with RFC1035.
+
+* `key` -
+  (Required, Input Only)
+  The MD5 authentication key for this BGP peer. Maximum length is 80 characters. Can only contain printable ASCII characters
 
 ## Attributes Reference
 
