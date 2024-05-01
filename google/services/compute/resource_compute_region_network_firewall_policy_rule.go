@@ -60,7 +60,7 @@ func ResourceComputeRegionNetworkFirewallPolicyRule() *schema.Resource {
 			"action": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The Action to perform when the client connection triggers the rule. Valid actions are \"allow\", \"deny\" and \"goto_next\".",
+				Description: "The Action to perform when the client connection triggers the rule. Valid actions are \"allow\", \"deny\", \"goto_next\" and \"apply_security_profile_group\".",
 			},
 
 			"direction": {
@@ -133,6 +133,12 @@ func ResourceComputeRegionNetworkFirewallPolicyRule() *schema.Resource {
 				Description: "An optional name for the rule. This field is not a unique identifier and can be updated.",
 			},
 
+			"security_profile_group": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A fully-qualified URL of a SecurityProfileGroup resource. Example: https://networksecurity.googleapis.com/v1/organizations/{organizationId}/locations/global/securityProfileGroups/my-security-profile-group. It must be specified if action = 'apply_security_profile_group' and cannot be specified for other actions.",
+			},
+
 			"target_secure_tags": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -145,6 +151,12 @@ func ResourceComputeRegionNetworkFirewallPolicyRule() *schema.Resource {
 				Optional:    true,
 				Description: "A list of service accounts indicating the sets of instances that are applied with this rule.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+
+			"tls_inspect": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Boolean flag indicating if the traffic should be TLS decrypted. It can be set only if action = 'apply_security_profile_group' and cannot be set for other actions.",
 			},
 
 			"kind": {
@@ -332,8 +344,10 @@ func resourceComputeRegionNetworkFirewallPolicyRuleCreate(d *schema.ResourceData
 		Project:               dcl.String(project),
 		Location:              dcl.String(region),
 		RuleName:              dcl.String(d.Get("rule_name").(string)),
+		SecurityProfileGroup:  dcl.String(d.Get("security_profile_group").(string)),
 		TargetSecureTags:      expandComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsArray(d.Get("target_secure_tags")),
 		TargetServiceAccounts: tpgdclresource.ExpandStringArray(d.Get("target_service_accounts")),
+		TlsInspect:            dcl.Bool(d.Get("tls_inspect").(bool)),
 	}
 
 	id, err := tpgresource.ReplaceVarsForId(d, config, "projects/{{project}}/regions/{{region}}/firewallPolicies/{{firewall_policy}}/{{priority}}")
@@ -396,8 +410,10 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 		Project:               dcl.String(project),
 		Location:              dcl.String(region),
 		RuleName:              dcl.String(d.Get("rule_name").(string)),
+		SecurityProfileGroup:  dcl.String(d.Get("security_profile_group").(string)),
 		TargetSecureTags:      expandComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsArray(d.Get("target_secure_tags")),
 		TargetServiceAccounts: tpgdclresource.ExpandStringArray(d.Get("target_service_accounts")),
+		TlsInspect:            dcl.Bool(d.Get("tls_inspect").(bool)),
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -455,11 +471,17 @@ func resourceComputeRegionNetworkFirewallPolicyRuleRead(d *schema.ResourceData, 
 	if err = d.Set("rule_name", res.RuleName); err != nil {
 		return fmt.Errorf("error setting rule_name in state: %s", err)
 	}
+	if err = d.Set("security_profile_group", res.SecurityProfileGroup); err != nil {
+		return fmt.Errorf("error setting security_profile_group in state: %s", err)
+	}
 	if err = d.Set("target_secure_tags", flattenComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsArray(res.TargetSecureTags)); err != nil {
 		return fmt.Errorf("error setting target_secure_tags in state: %s", err)
 	}
 	if err = d.Set("target_service_accounts", res.TargetServiceAccounts); err != nil {
 		return fmt.Errorf("error setting target_service_accounts in state: %s", err)
+	}
+	if err = d.Set("tls_inspect", res.TlsInspect); err != nil {
+		return fmt.Errorf("error setting tls_inspect in state: %s", err)
 	}
 	if err = d.Set("kind", res.Kind); err != nil {
 		return fmt.Errorf("error setting kind in state: %s", err)
@@ -493,8 +515,10 @@ func resourceComputeRegionNetworkFirewallPolicyRuleUpdate(d *schema.ResourceData
 		Project:               dcl.String(project),
 		Location:              dcl.String(region),
 		RuleName:              dcl.String(d.Get("rule_name").(string)),
+		SecurityProfileGroup:  dcl.String(d.Get("security_profile_group").(string)),
 		TargetSecureTags:      expandComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsArray(d.Get("target_secure_tags")),
 		TargetServiceAccounts: tpgdclresource.ExpandStringArray(d.Get("target_service_accounts")),
+		TlsInspect:            dcl.Bool(d.Get("tls_inspect").(bool)),
 	}
 	directive := tpgdclresource.UpdateDirective
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -552,8 +576,10 @@ func resourceComputeRegionNetworkFirewallPolicyRuleDelete(d *schema.ResourceData
 		Project:               dcl.String(project),
 		Location:              dcl.String(region),
 		RuleName:              dcl.String(d.Get("rule_name").(string)),
+		SecurityProfileGroup:  dcl.String(d.Get("security_profile_group").(string)),
 		TargetSecureTags:      expandComputeRegionNetworkFirewallPolicyRuleTargetSecureTagsArray(d.Get("target_secure_tags")),
 		TargetServiceAccounts: tpgdclresource.ExpandStringArray(d.Get("target_service_accounts")),
+		TlsInspect:            dcl.Bool(d.Get("tls_inspect").(bool)),
 	}
 
 	log.Printf("[DEBUG] Deleting NetworkFirewallPolicyRule %q", d.Id())

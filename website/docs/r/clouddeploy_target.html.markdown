@@ -140,7 +140,7 @@ The following arguments are supported:
   
 * `name` -
   (Required)
-  Name of the `Target`. Format is [a-z][a-z0-9\-]{0,62}.
+  Name of the `Target`. Format is `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`.
   
 
 
@@ -156,6 +156,10 @@ Please refer to the field `effective_annotations` for all of the annotations pre
 * `anthos_cluster` -
   (Optional)
   Information specifying an Anthos Cluster.
+  
+* `custom_target` -
+  (Optional)
+  Optional. Information specifying a Custom Target.
   
 * `deploy_parameters` -
   (Optional)
@@ -203,6 +207,12 @@ The `anthos_cluster` block supports:
 * `membership` -
   (Optional)
   Membership of the GKE Hub-registered cluster to which to apply the Skaffold configuration. Format is `projects/{project}/locations/{location}/memberships/{membership_name}`.
+    
+The `custom_target` block supports:
+    
+* `custom_target_type` -
+  (Required)
+  Required. The name of the CustomTargetType. Format must be `projects/{project}/locations/{location}/customTargetTypes/{custom_target_type}`.
     
 The `execution_configs` block supports:
     

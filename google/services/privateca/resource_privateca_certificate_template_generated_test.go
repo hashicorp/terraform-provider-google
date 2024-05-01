@@ -88,6 +88,8 @@ resource "google_privateca_certificate_template" "primary" {
     }
   }
 
+  maximum_lifetime = "86400s"
+
   passthrough_extensions {
     additional_extensions {
       object_id_path = [1, 6]
@@ -175,6 +177,8 @@ resource "google_privateca_certificate_template" "primary" {
     }
   }
 
+  maximum_lifetime = "172800s"
+
   passthrough_extensions {
     additional_extensions {
       object_id_path = [1, 7]
@@ -261,12 +265,13 @@ func testAccCheckPrivatecaCertificateTemplateDestroyProducer(t *testing.T) func(
 			}
 
 			obj := &privateca.CertificateTemplate{
-				Location:    dcl.String(rs.Primary.Attributes["location"]),
-				Name:        dcl.String(rs.Primary.Attributes["name"]),
-				Description: dcl.String(rs.Primary.Attributes["description"]),
-				Project:     dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				CreateTime:  dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
-				UpdateTime:  dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
+				Location:        dcl.String(rs.Primary.Attributes["location"]),
+				Name:            dcl.String(rs.Primary.Attributes["name"]),
+				Description:     dcl.String(rs.Primary.Attributes["description"]),
+				MaximumLifetime: dcl.String(rs.Primary.Attributes["maximum_lifetime"]),
+				Project:         dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				CreateTime:      dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
+				UpdateTime:      dcl.StringOrNil(rs.Primary.Attributes["update_time"]),
 			}
 
 			client := transport_tpg.NewDCLPrivatecaClient(config, config.UserAgent, billingProject, 0)

@@ -229,15 +229,17 @@ func testAccCheckComputeNetworkFirewallPolicyRuleDestroyProducer(t *testing.T) f
 			}
 
 			obj := &compute.NetworkFirewallPolicyRule{
-				Action:         dcl.String(rs.Primary.Attributes["action"]),
-				Direction:      compute.NetworkFirewallPolicyRuleDirectionEnumRef(rs.Primary.Attributes["direction"]),
-				FirewallPolicy: dcl.String(rs.Primary.Attributes["firewall_policy"]),
-				Description:    dcl.String(rs.Primary.Attributes["description"]),
-				Disabled:       dcl.Bool(rs.Primary.Attributes["disabled"] == "true"),
-				EnableLogging:  dcl.Bool(rs.Primary.Attributes["enable_logging"] == "true"),
-				Project:        dcl.StringOrNil(rs.Primary.Attributes["project"]),
-				RuleName:       dcl.String(rs.Primary.Attributes["rule_name"]),
-				Kind:           dcl.StringOrNil(rs.Primary.Attributes["kind"]),
+				Action:               dcl.String(rs.Primary.Attributes["action"]),
+				Direction:            compute.NetworkFirewallPolicyRuleDirectionEnumRef(rs.Primary.Attributes["direction"]),
+				FirewallPolicy:       dcl.String(rs.Primary.Attributes["firewall_policy"]),
+				Description:          dcl.String(rs.Primary.Attributes["description"]),
+				Disabled:             dcl.Bool(rs.Primary.Attributes["disabled"] == "true"),
+				EnableLogging:        dcl.Bool(rs.Primary.Attributes["enable_logging"] == "true"),
+				Project:              dcl.StringOrNil(rs.Primary.Attributes["project"]),
+				RuleName:             dcl.String(rs.Primary.Attributes["rule_name"]),
+				SecurityProfileGroup: dcl.String(rs.Primary.Attributes["security_profile_group"]),
+				TlsInspect:           dcl.Bool(rs.Primary.Attributes["tls_inspect"] == "true"),
+				Kind:                 dcl.StringOrNil(rs.Primary.Attributes["kind"]),
 			}
 
 			client := transport_tpg.NewDCLComputeClient(config, config.UserAgent, billingProject, 0)

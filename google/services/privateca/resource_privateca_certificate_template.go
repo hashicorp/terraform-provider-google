@@ -91,6 +91,12 @@ func ResourcePrivatecaCertificateTemplate() *schema.Resource {
 				Elem:        PrivatecaCertificateTemplateIdentityConstraintsSchema(),
 			},
 
+			"maximum_lifetime": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Optional. The maximum lifetime allowed for all issued certificates that use this template. If the issuing CaPool's IssuancePolicy specifies a maximum lifetime the minimum of the two durations will be the maximum lifetime for issued. Note that if the issuing CertificateAuthority expires before a Certificate's requested maximum_lifetime, the effective lifetime will be explicitly truncated to match it.",
+			},
+
 			"passthrough_extensions": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -503,6 +509,7 @@ func resourcePrivatecaCertificateTemplateCreate(d *schema.ResourceData, meta int
 		Description:           dcl.String(d.Get("description").(string)),
 		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
+		MaximumLifetime:       dcl.String(d.Get("maximum_lifetime").(string)),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -558,6 +565,7 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 		Description:           dcl.String(d.Get("description").(string)),
 		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
+		MaximumLifetime:       dcl.String(d.Get("maximum_lifetime").(string)),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -600,6 +608,9 @@ func resourcePrivatecaCertificateTemplateRead(d *schema.ResourceData, meta inter
 	if err = d.Set("identity_constraints", flattenPrivatecaCertificateTemplateIdentityConstraints(res.IdentityConstraints)); err != nil {
 		return fmt.Errorf("error setting identity_constraints in state: %s", err)
 	}
+	if err = d.Set("maximum_lifetime", res.MaximumLifetime); err != nil {
+		return fmt.Errorf("error setting maximum_lifetime in state: %s", err)
+	}
 	if err = d.Set("passthrough_extensions", flattenPrivatecaCertificateTemplatePassthroughExtensions(res.PassthroughExtensions)); err != nil {
 		return fmt.Errorf("error setting passthrough_extensions in state: %s", err)
 	}
@@ -637,6 +648,7 @@ func resourcePrivatecaCertificateTemplateUpdate(d *schema.ResourceData, meta int
 		Description:           dcl.String(d.Get("description").(string)),
 		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
+		MaximumLifetime:       dcl.String(d.Get("maximum_lifetime").(string)),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
@@ -687,6 +699,7 @@ func resourcePrivatecaCertificateTemplateDelete(d *schema.ResourceData, meta int
 		Description:           dcl.String(d.Get("description").(string)),
 		Labels:                tpgresource.CheckStringMap(d.Get("effective_labels")),
 		IdentityConstraints:   expandPrivatecaCertificateTemplateIdentityConstraints(d.Get("identity_constraints")),
+		MaximumLifetime:       dcl.String(d.Get("maximum_lifetime").(string)),
 		PassthroughExtensions: expandPrivatecaCertificateTemplatePassthroughExtensions(d.Get("passthrough_extensions")),
 		PredefinedValues:      expandPrivatecaCertificateTemplatePredefinedValues(d.Get("predefined_values")),
 		Project:               dcl.String(project),
