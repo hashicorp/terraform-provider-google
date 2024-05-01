@@ -80,7 +80,7 @@ The following arguments are supported:
 
 * `action` -
   (Required)
-  The Action to perform when the client connection triggers the rule. Valid actions are "allow", "deny" and "goto_next".
+  The Action to perform when the client connection triggers the rule. Valid actions are "allow", "deny", "goto_next" and "apply_security_profile_group".
   
 * `direction` -
   (Required)
@@ -170,6 +170,10 @@ The `layer4_configs` block supports:
   (Optional)
   Denotes whether to enable logging for a particular rule. If logging is enabled, logs will be exported to the configured export destination in Stackdriver. Logs may be exported to BigQuery or Pub/Sub. Note: you cannot enable logging on "goto_next" rules.
   
+* `security_profile_group` -
+  (Optional)
+  A fully-qualified URL of a SecurityProfileGroup resource. Example: https://networksecurity.googleapis.com/v1/organizations/{organizationId}/locations/global/securityProfileGroups/my-security-profile-group. It must be specified if action = 'apply_security_profile_group' and cannot be specified for other actions.
+  
 * `target_resources` -
   (Optional)
   A list of network resource URLs to which this rule applies. This field allows you to control which network's VMs get this rule. If this field is left blank, all VMs within the organization will receive the rule.
@@ -177,6 +181,10 @@ The `layer4_configs` block supports:
 * `target_service_accounts` -
   (Optional)
   A list of service accounts indicating the sets of instances that are applied with this rule.
+  
+* `tls_inspect` -
+  (Optional)
+  Boolean flag indicating if the traffic should be TLS decrypted. It can be set only if action = 'apply_security_profile_group' and cannot be set for other actions.
   
 
 

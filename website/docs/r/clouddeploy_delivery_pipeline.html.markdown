@@ -253,7 +253,7 @@ The following arguments are supported:
   
 * `name` -
   (Required)
-  Name of the `DeliveryPipeline`. Format is [a-z][a-z0-9\-]{0,62}.
+  Name of the `DeliveryPipeline`. Format is `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`.
   
 
 

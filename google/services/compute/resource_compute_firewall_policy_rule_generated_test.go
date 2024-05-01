@@ -192,13 +192,15 @@ func testAccCheckComputeFirewallPolicyRuleDestroyProducer(t *testing.T) func(s *
 			}
 
 			obj := &compute.FirewallPolicyRule{
-				Action:         dcl.String(rs.Primary.Attributes["action"]),
-				Direction:      compute.FirewallPolicyRuleDirectionEnumRef(rs.Primary.Attributes["direction"]),
-				FirewallPolicy: dcl.String(rs.Primary.Attributes["firewall_policy"]),
-				Description:    dcl.String(rs.Primary.Attributes["description"]),
-				Disabled:       dcl.Bool(rs.Primary.Attributes["disabled"] == "true"),
-				EnableLogging:  dcl.Bool(rs.Primary.Attributes["enable_logging"] == "true"),
-				Kind:           dcl.StringOrNil(rs.Primary.Attributes["kind"]),
+				Action:               dcl.String(rs.Primary.Attributes["action"]),
+				Direction:            compute.FirewallPolicyRuleDirectionEnumRef(rs.Primary.Attributes["direction"]),
+				FirewallPolicy:       dcl.String(rs.Primary.Attributes["firewall_policy"]),
+				Description:          dcl.String(rs.Primary.Attributes["description"]),
+				Disabled:             dcl.Bool(rs.Primary.Attributes["disabled"] == "true"),
+				EnableLogging:        dcl.Bool(rs.Primary.Attributes["enable_logging"] == "true"),
+				SecurityProfileGroup: dcl.String(rs.Primary.Attributes["security_profile_group"]),
+				TlsInspect:           dcl.Bool(rs.Primary.Attributes["tls_inspect"] == "true"),
+				Kind:                 dcl.StringOrNil(rs.Primary.Attributes["kind"]),
 			}
 
 			client := transport_tpg.NewDCLComputeClient(config, config.UserAgent, billingProject, 0)

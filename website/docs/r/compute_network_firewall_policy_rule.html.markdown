@@ -97,7 +97,7 @@ The following arguments are supported:
 
 * `action` -
   (Required)
-  The Action to perform when the client connection triggers the rule. Valid actions are "allow", "deny" and "goto_next".
+  The Action to perform when the client connection triggers the rule. Valid actions are "allow", "deny", "goto_next" and "apply_security_profile_group".
   
 * `direction` -
   (Required)
@@ -199,6 +199,10 @@ The `layer4_configs` block supports:
   (Optional)
   An optional name for the rule. This field is not a unique identifier and can be updated.
   
+* `security_profile_group` -
+  (Optional)
+  A fully-qualified URL of a SecurityProfileGroup resource. Example: https://networksecurity.googleapis.com/v1/organizations/{organizationId}/locations/global/securityProfileGroups/my-security-profile-group. It must be specified if action = 'apply_security_profile_group' and cannot be specified for other actions.
+  
 * `target_secure_tags` -
   (Optional)
   A list of secure tags that controls which instances the firewall rule applies to. If <code>targetSecureTag</code> are specified, then the firewall rule applies only to instances in the VPC network that have one of those EFFECTIVE secure tags, if all the target_secure_tag are in INEFFECTIVE state, then this rule will be ignored. <code>targetSecureTag</code> may not be set at the same time as <code>targetServiceAccounts</code>. If neither <code>targetServiceAccounts</code> nor <code>targetSecureTag</code> are specified, the firewall rule applies to all instances on the specified network. Maximum number of target label tags allowed is 256.
@@ -206,6 +210,10 @@ The `layer4_configs` block supports:
 * `target_service_accounts` -
   (Optional)
   A list of service accounts indicating the sets of instances that are applied with this rule.
+  
+* `tls_inspect` -
+  (Optional)
+  Boolean flag indicating if the traffic should be TLS decrypted. It can be set only if action = 'apply_security_profile_group' and cannot be set for other actions.
   
 
 

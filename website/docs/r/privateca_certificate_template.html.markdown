@@ -45,6 +45,8 @@ resource "google_privateca_certificate_template" "primary" {
     }
   }
 
+  maximum_lifetime = "86400s"
+
   passthrough_extensions {
     additional_extensions {
       object_id_path = [1, 6]
@@ -148,6 +150,10 @@ The `object_id` block supports:
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field `effective_labels` for all of the labels present on the resource.
+  
+* `maximum_lifetime` -
+  (Optional)
+  Optional. The maximum lifetime allowed for all issued certificates that use this template. If the issuing CaPool's IssuancePolicy specifies a maximum lifetime the minimum of the two durations will be the maximum lifetime for issued. Note that if the issuing CertificateAuthority expires before a Certificate's requested maximum_lifetime, the effective lifetime will be explicitly truncated to match it.
   
 * `passthrough_extensions` -
   (Optional)
