@@ -20,6 +20,7 @@ package compute
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -249,6 +250,12 @@ using PARTNER type this will be managed upstream.`,
 				Description: `IPv4 address + prefix length to be configured on Cloud Router
 Interface for this interconnect attachment.`,
 			},
+			"cloud_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `IPv6 address + prefix length to be configured on Cloud Router
+Interface for this interconnect attachment.`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -258,6 +265,12 @@ Interface for this interconnect attachment.`,
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: `IPv4 address + prefix length to be configured on the customer
+router subinterface for this interconnect attachment.`,
+			},
+			"customer_router_ipv6_address": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `IPv6 address + prefix length to be configured on the customer
 router subinterface for this interconnect attachment.`,
 			},
 			"google_reference_id": {
@@ -434,6 +447,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -442,6 +456,7 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating InterconnectAttachment: %s", err)
@@ -498,12 +513,14 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeInterconnectAttachment %q", d.Id()))
@@ -576,6 +593,12 @@ func resourceComputeInterconnectAttachmentRead(d *schema.ResourceData, meta inte
 	if err := d.Set("stack_type", flattenComputeInterconnectAttachmentStackType(res["stackType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
+	if err := d.Set("cloud_router_ipv6_address", flattenComputeInterconnectAttachmentCloudRouterIpv6Address(res["cloudRouterIpv6Address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
+	if err := d.Set("customer_router_ipv6_address", flattenComputeInterconnectAttachmentCustomerRouterIpv6Address(res["customerRouterIpv6Address"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
+	}
 	if err := d.Set("region", flattenComputeInterconnectAttachmentRegion(res["region"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InterconnectAttachment: %s", err)
 	}
@@ -645,6 +668,7 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating InterconnectAttachment %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -659,6 +683,7 @@ func resourceComputeInterconnectAttachmentUpdate(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
 	})
 
 	if err != nil {
@@ -705,6 +730,7 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	if err := waitForAttachmentToBeProvisioned(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return fmt.Errorf("Error waiting for InterconnectAttachment %q to be provisioned: %q", d.Get("name").(string), err)
 	}
@@ -718,6 +744,7 @@ func resourceComputeInterconnectAttachmentDelete(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "InterconnectAttachment")
@@ -890,6 +917,14 @@ func flattenComputeInterconnectAttachmentEncryption(v interface{}, d *schema.Res
 }
 
 func flattenComputeInterconnectAttachmentStackType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCloudRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectAttachmentCustomerRouterIpv6Address(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

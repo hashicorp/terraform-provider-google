@@ -461,6 +461,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Integrationconnectors",
         "path" to "./google/services/integrationconnectors"
     ),
+    "integrations" to mapOf(
+        "name" to "integrations",
+        "displayName" to "Applicationintegration",
+        "path" to "./google/services/integrations"
+    ),
     "kms" to mapOf(
         "name" to "kms",
         "displayName" to "Kms",
@@ -541,10 +546,20 @@ var ServicesListGa = mapOf(
         "displayName" to "Oslogin",
         "path" to "./google/services/oslogin"
     ),
+    "parallelstore" to mapOf(
+        "name" to "parallelstore",
+        "displayName" to "Parallelstore",
+        "path" to "./google/services/parallelstore"
+    ),
     "privateca" to mapOf(
         "name" to "privateca",
         "displayName" to "Privateca",
         "path" to "./google/services/privateca"
+    ),
+    "privilegedaccessmanager" to mapOf(
+        "name" to "privilegedaccessmanager",
+        "displayName" to "Privilegedaccessmanager",
+        "path" to "./google/services/privilegedaccessmanager"
     ),
     "publicca" to mapOf(
         "name" to "publicca",

@@ -391,10 +391,11 @@ func TestBigQueryTableSchemaDiffSuppress(t *testing.T) {
 }
 
 type testUnitBigQueryDataTableJSONChangeableTestCase struct {
-	name       string
-	jsonOld    string
-	jsonNew    string
-	changeable bool
+	name            string
+	jsonOld         string
+	jsonNew         string
+	isExternalTable bool
+	changeable      bool
 }
 
 func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testing.T) {
@@ -405,7 +406,7 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 	if err := json.Unmarshal([]byte(testcase.jsonNew), &new); err != nil {
 		t.Fatalf("unable to unmarshal json - %v", err)
 	}
-	changeable, err := resourceBigQueryTableSchemaIsChangeable(old, new)
+	changeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, testcase.isExternalTable, true)
 	if err != nil {
 		t.Errorf("%s failed unexpectedly: %s", testcase.name, err)
 	}
@@ -421,6 +422,11 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 	d.Before["schema"] = testcase.jsonOld
 	d.After["schema"] = testcase.jsonNew
 
+	if testcase.isExternalTable {
+		d.Before["external_data_configuration"] = ""
+		d.After["external_data_configuration"] = ""
+	}
+
 	err = resourceBigQueryTableSchemaCustomizeDiffFunc(d)
 	if err != nil {
 		t.Errorf("error on testcase %s - %v", testcase.name, err)
@@ -430,7 +436,7 @@ func (testcase *testUnitBigQueryDataTableJSONChangeableTestCase) check(t *testin
 	}
 }
 
-var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJSONChangeableTestCase{
+var testUnitBigQueryDataTableIsChangeableTestCases = []testUnitBigQueryDataTableJSONChangeableTestCase{
 	{
 		name:       "defaultEquality",
 		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
@@ -447,7 +453,14 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		name:       "arraySizeDecreases",
 		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"asomeValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
 		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
-		changeable: false,
+		changeable: true,
+	},
+	{
+		name:            "externalArraySizeDecreases",
+		jsonOld:         "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }, {\"name\": \"asomeValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:         "[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		isExternalTable: true,
+		changeable:      false,
 	},
 	{
 		name:       "descriptionChanges",
@@ -526,6 +539,24 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 		changeable: false,
 	},
 	{
+		name:       "renameRequiredColumn",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"REQUIRED\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value3\", \"type\" : \"INTEGER\", \"mode\" : \"REQUIRED\", \"description\" : \"someVal\" }]",
+		changeable: false,
+	},
+	{
+		name:       "renameNullableColumn",
+		jsonOld:    "[{\"name\": \"value1\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"value3\", \"type\" : \"INTEGER\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		changeable: false,
+	},
+	{
+		name:       "typeModeReqToNullAndColumnDropped",
+		jsonOld:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"mode\" : \"REQUIRED\", \"description\" : \"someVal\" }, {\"name\": \"someValue2\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"someVal\" }]",
+		jsonNew:    "[{\"name\": \"someValue\", \"type\" : \"BOOLEAN\", \"mode\" : \"NULLABLE\", \"description\" : \"some new value\" }]",
+		changeable: true,
+	},
+	{
 		name: "policyTags",
 		jsonOld: `[
 			{
@@ -550,15 +581,29 @@ var testUnitBigQueryDataTableIsChangableTestCases = []testUnitBigQueryDataTableJ
 	},
 }
 
-func TestUnitBigQueryDataTable_schemaIsChangable(t *testing.T) {
+func TestUnitBigQueryDataTable_schemaIsChangeable(t *testing.T) {
 	t.Parallel()
-	for _, testcase := range testUnitBigQueryDataTableIsChangableTestCases {
+	for _, testcase := range testUnitBigQueryDataTableIsChangeableTestCases {
 		testcase.check(t)
+	}
+}
+
+func TestUnitBigQueryDataTable_schemaIsChangeableNested(t *testing.T) {
+	t.Parallel()
+	// Only top level column drops are changeable
+	customNestedValues := map[string]bool{"arraySizeDecreases": false, "typeModeReqToNullAndColumnDropped": false}
+	for _, testcase := range testUnitBigQueryDataTableIsChangeableTestCases {
+		changeable := testcase.changeable
+		if overrideValue, ok := customNestedValues[testcase.name]; ok {
+			changeable = overrideValue
+		}
+
 		testcaseNested := &testUnitBigQueryDataTableJSONChangeableTestCase{
 			testcase.name + "Nested",
 			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INTEGER\", \"fields\" : %s }]", testcase.jsonOld),
 			fmt.Sprintf("[{\"name\": \"someValue\", \"type\" : \"INT64\", \"fields\" : %s }]", testcase.jsonNew),
-			testcase.changeable,
+			testcase.isExternalTable,
+			changeable,
 		}
 		testcaseNested.check(t)
 	}

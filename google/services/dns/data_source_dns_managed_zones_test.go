@@ -14,8 +14,6 @@ import (
 
 func TestAccDataSourceDnsManagedZones_basic(t *testing.T) {
 	t.Parallel()
-	// TODO: https://github.com/hashicorp/terraform-provider-google/issues/14158
-	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
 		"name-1": fmt.Sprintf("tf-test-zone-%s", acctest.RandString(t, 10)),
@@ -27,7 +25,7 @@ func TestAccDataSourceDnsManagedZones_basic(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:     func() { acctest.AccTestPreCheck(t) },
-		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducerFramework(t),
+		CheckDestroy: testAccCheckDNSManagedZoneDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),

@@ -466,6 +466,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Integrationconnectors",
         "path" to "./google-beta/services/integrationconnectors"
     ),
+    "integrations" to mapOf(
+        "name" to "integrations",
+        "displayName" to "Applicationintegration",
+        "path" to "./google-beta/services/integrations"
+    ),
     "kms" to mapOf(
         "name" to "kms",
         "displayName" to "Kms",
@@ -546,10 +551,20 @@ var ServicesListBeta = mapOf(
         "displayName" to "Oslogin",
         "path" to "./google-beta/services/oslogin"
     ),
+    "parallelstore" to mapOf(
+        "name" to "parallelstore",
+        "displayName" to "Parallelstore",
+        "path" to "./google/services/parallelstore"
+    ),
     "privateca" to mapOf(
         "name" to "privateca",
         "displayName" to "Privateca",
         "path" to "./google-beta/services/privateca"
+    ),
+    "privilegedaccessmanager" to mapOf(
+        "name" to "privilegedaccessmanager",
+        "displayName" to "Privilegedaccessmanager",
+        "path" to "./google-beta/services/privilegedaccessmanager"
     ),
     "publicca" to mapOf(
         "name" to "publicca",

@@ -351,6 +351,53 @@ resource "google_bigquery_routine" "spark_jar" {
 `, context)
 }
 
+func TestAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryRoutineDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(context),
+			},
+			{
+				ResourceName:      "google_bigquery_routine.custom_masking_routine",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_dataset" "test" {
+	dataset_id = "tf_test_dataset_id%{random_suffix}"
+}
+
+resource "google_bigquery_routine" "custom_masking_routine" {
+	dataset_id = google_bigquery_dataset.test.dataset_id
+	routine_id     = "custom_masking_routine"
+	routine_type = "SCALAR_FUNCTION"
+	language = "SQL"
+	data_governance_type = "DATA_MASKING"
+	definition_body = "SAFE.REGEXP_REPLACE(ssn, '[0-9]', 'X')"
+	arguments {
+	  name = "ssn"
+	  data_type = "{\"typeKind\" :  \"STRING\"}"
+	} 
+	return_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+  
+`, context)
+}
+
 func testAccCheckBigQueryRoutineDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

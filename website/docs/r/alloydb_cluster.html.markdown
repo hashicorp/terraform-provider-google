@@ -349,6 +349,11 @@ The following arguments are supported:
   Configuration of the secondary cluster for Cross Region Replication. This should be set if and only if the cluster is of type SECONDARY.
   Structure is [documented below](#nested_secondary_config).
 
+* `maintenance_update_policy` -
+  (Optional)
+  MaintenanceUpdatePolicy defines the policy for system updates.
+  Structure is [documented below](#nested_maintenance_update_policy).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -522,6 +527,45 @@ Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion
   (Required)
   Name of the primary cluster must be in the format
   'projects/{project}/locations/{location}/clusters/{cluster_id}'
+
+<a name="nested_maintenance_update_policy"></a>The `maintenance_update_policy` block supports:
+
+* `maintenance_windows` -
+  (Optional)
+  Preferred windows to perform maintenance. Currently limited to 1.
+  Structure is [documented below](#nested_maintenance_windows).
+
+
+<a name="nested_maintenance_windows"></a>The `maintenance_windows` block supports:
+
+* `day` -
+  (Required)
+  Preferred day of the week for maintenance, e.g. MONDAY, TUESDAY, etc.
+  Possible values are: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+* `start_time` -
+  (Required)
+  Preferred time to start the maintenance operation on the specified day. Maintenance will start within 1 hour of this time.
+  Structure is [documented below](#nested_start_time).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Required)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Currently, only the value 0 is supported.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Currently, only the value 0 is supported.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Currently, only the value 0 is supported.
 
 ## Attributes Reference
 

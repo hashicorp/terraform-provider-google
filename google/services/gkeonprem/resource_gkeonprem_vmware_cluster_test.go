@@ -373,6 +373,7 @@ func testAccGkeonpremVmwareCluster_vmwareClusterUpdateManualLbStart(context map[
     }
     vm_tracking_enabled = true
     enable_control_plane_v2 = true
+    disable_bundled_ingress = true
     upgrade_policy {
       control_plane_only = true
     }
@@ -465,6 +466,7 @@ func testAccGkeonpremVmwareCluster_vmwareClusterUpdateManualLb(context map[strin
     }
     vm_tracking_enabled = false
     enable_control_plane_v2 = false
+    disable_bundled_ingress = false
     upgrade_policy {
       control_plane_only = true
     }

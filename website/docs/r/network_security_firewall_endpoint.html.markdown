@@ -35,15 +35,22 @@ To get more information about FirewallEndpoint, see:
     * [Firewall endpoint overview](https://cloud.google.com/firewall/docs/about-firewall-endpoints)
     * [Create and associate firewall endpoints](https://cloud.google.com/firewall/docs/configure-firewall-endpoints)
 
+~> **Warning:** If you are using User ADCs (Application Default Credentials) with this resource,
+you must specify a `billing_project_id` and set `user_project_override` to true
+in the provider configuration. Otherwise the ACM API will return a 403 error.
+Your account must have the `serviceusage.services.use` permission on the
+`billing_project_id` you defined.
+
 ## Example Usage - Network Security Firewall Endpoint Basic
 
 
 ```hcl
 resource "google_network_security_firewall_endpoint" "default" {
-  provider    = google-beta
-  name        = "my-firewall-endpoint"
-  parent      = "organizations/123456789"
-  location    = "us-central1-a"
+  provider           = google-beta
+  name               = "my-firewall-endpoint"
+  parent             = "organizations/123456789"
+  location           = "us-central1-a"
+  billing_project_id = "my-project-name"
 
   labels = {
     foo = "bar"
@@ -55,6 +62,10 @@ resource "google_network_security_firewall_endpoint" "default" {
 
 The following arguments are supported:
 
+
+* `billing_project_id` -
+  (Required)
+  Project to bill on endpoint uptime usage.
 
 * `name` -
   (Required)

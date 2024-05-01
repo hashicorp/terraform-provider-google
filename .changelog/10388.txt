@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquerydatapolicy: added `data_masking_policy.routine` to `google_bigquery_data_policy`
+```

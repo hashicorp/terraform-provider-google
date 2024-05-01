@@ -20,6 +20,7 @@ package firebaseappcheck
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -119,6 +120,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigCreate(d *schema.ResourceData, m
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -127,6 +129,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigCreate(d *schema.ResourceData, m
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating PlayIntegrityConfig: %s", err)
@@ -172,12 +175,14 @@ func resourceFirebaseAppCheckPlayIntegrityConfigRead(d *schema.ResourceData, met
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("FirebaseAppCheckPlayIntegrityConfig %q", d.Id()))
@@ -226,6 +231,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigUpdate(d *schema.ResourceData, m
 	}
 
 	log.Printf("[DEBUG] Updating PlayIntegrityConfig %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("token_ttl") {
@@ -253,6 +259,7 @@ func resourceFirebaseAppCheckPlayIntegrityConfigUpdate(d *schema.ResourceData, m
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {

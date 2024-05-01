@@ -1355,6 +1355,48 @@ func TestAccSqlDatabaseInstance_PointInTimeRecoveryEnabledForSqlServer(t *testin
 	})
 }
 
+func TestAccSqlDatabaseInstance_EnableGoogleMlIntegration(t *testing.T) {
+	t.Parallel()
+
+	masterID := acctest.RandInt(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_EnableGoogleMlIntegration(masterID, true, "POSTGRES_14", "db-custom-2-13312"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			// Test that updates to other settings work after google-ml-integration is enabled
+			{
+				Config: testGoogleSqlDatabaseInstance_EnableGoogleMlIntegration(masterID, true, "POSTGRES_14", "db-custom-2-10240"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_EnableGoogleMlIntegration(masterID, false, "POSTGRES_14", "db-custom-2-10240"),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_insights(t *testing.T) {
 	t.Parallel()
 
@@ -3857,6 +3899,22 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, dbVersion, masterID, pointInTimeRecoveryEnabled)
+}
+
+func testGoogleSqlDatabaseInstance_EnableGoogleMlIntegration(masterID int, enableGoogleMlIntegration bool, dbVersion string, tier string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+  root_password		  = "rand-pwd-%d"
+  settings {
+    tier = "%s"
+	enable_google_ml_integration = %t
+  }
+}
+`, masterID, dbVersion, masterID, tier, enableGoogleMlIntegration)
 }
 
 func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {

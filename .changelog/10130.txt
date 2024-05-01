@@ -1,0 +1,3 @@
+```release-note:Update documentation for vpcaccess min/max instances and throughput
+
+```

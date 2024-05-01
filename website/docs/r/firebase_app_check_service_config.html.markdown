@@ -75,7 +75,7 @@ resource "google_project_service" "appcheck" {
 
 resource "google_firebase_app_check_service_config" "default" {
   project = "my-project-name"
-  service_id = "firebasedatabase.googleapis.com"
+  service_id = "identitytoolkit.googleapis.com"
   enforcement_mode = "UNENFORCED"
 
   depends_on = [google_project_service.appcheck]

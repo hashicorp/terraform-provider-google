@@ -36,14 +36,14 @@ To get more information about PostureDeployment, see:
 
 ```hcl
 resource "google_securityposture_posture" "posture_1" {
-    posture_id          = "posture_1"
-    parent = "organizations/123456789"
-    location = "global"
-    state = "ACTIVE"
+    posture_id  = "posture_1"
+    parent      = "organizations/123456789"
+    location    = "global"
+    state       = "ACTIVE"
     description = "a new posture"
     policy_sets {
         policy_set_id = "org_policy_set"
-        description = "set of org policies"
+        description   = "set of org policies"
         policies {
             policy_id = "policy_1"
             constraint {
@@ -59,13 +59,13 @@ resource "google_securityposture_posture" "posture_1" {
 }
 
 resource "google_securityposture_posture_deployment" "postureDeployment" {
-    posture_deployment_id          = "posture_deployment_1"
-    parent = "organizations/123456789"
-    location = "global"
-    description = "a new posture deployment"
-    target_resource = "projects/1111111111111"
-    posture_id = google_securityposture_posture.posture_1.name
-    posture_revision_id = google_securityposture_posture.posture_1.revision_id
+    posture_deployment_id = "posture_deployment_1"
+    parent                = "organizations/123456789"
+    location              = "global"
+    description           = "a new posture deployment"
+    target_resource       = "projects/1111111111111"
+    posture_id            = google_securityposture_posture.posture_1.name
+    posture_revision_id   = google_securityposture_posture.posture_1.revision_id
 }
 ```
 

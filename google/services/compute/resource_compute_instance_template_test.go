@@ -2873,7 +2873,6 @@ resource "google_compute_instance_template" "foobar" {
 
   confidential_instance_config {
     enable_confidential_compute       = true
-    
   }
 
   scheduling {
@@ -2882,9 +2881,7 @@ resource "google_compute_instance_template" "foobar" {
 
 }
 
-
 `, suffix)
-
 }
 
 func testAccComputeInstanceTemplateAdvancedMachineFeatures(suffix string) string {

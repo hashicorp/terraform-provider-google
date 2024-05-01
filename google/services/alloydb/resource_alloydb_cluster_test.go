@@ -3,6 +3,7 @@
 package alloydb_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -1167,5 +1168,132 @@ resource "google_compute_global_address" "private_ip_alloc" {
 	network       = google_compute_network.default.id
   }
   
+`, context)
+}
+
+// Ensures cluster creation works with correctly specified maintenance update policy.
+func TestAccAlloydbCluster_withMaintenanceWindows(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withMaintenanceWindows(context),
+			},
+			{
+				ResourceName:      "google_alloydb_cluster.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withMaintenanceWindows(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+	network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  }
+  maintenance_update_policy {
+    maintenance_windows {
+      day = "WEDNESDAY"
+      start_time {
+        hours = 12
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+}
+data "google_project" "project" {}
+resource "google_compute_network" "default" {
+  name = "tf-test-alloydb-cluster%{random_suffix}"
+}
+`, context)
+}
+
+// Ensures cluster creation throws expected errors for incorrect configurations of maintenance update policy.
+func TestAccAlloydbCluster_withMaintenanceWindowsMissingFields(t *testing.T) {
+	t.Parallel()
+	acctest.SkipIfVcr(t)
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccAlloydbCluster_withMaintenanceWindowMissingStartTime(context),
+				ExpectError: regexp.MustCompile("Error: Insufficient start_time blocks"),
+			},
+			{
+				Config:      testAccAlloydbCluster_withMaintenanceWindowMissingDay(context),
+				ExpectError: regexp.MustCompile("Error: Missing required argument"),
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withMaintenanceWindowMissingStartTime(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  
+  maintenance_update_policy {
+    maintenance_windows {
+      day = "WEDNESDAY"
+    }
+  }
+}
+
+resource "google_compute_network" "default" {
+  name     = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
+`, context)
+}
+
+func testAccAlloydbCluster_withMaintenanceWindowMissingDay(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  network    = "projects/${data.google_project.project.number}/global/networks/${google_compute_network.default.name}"
+  
+  maintenance_update_policy {
+    maintenance_windows {
+      start_time {
+        hours = 12
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
+}
+
+resource "google_compute_network" "default" {
+  name     = "tf-test-alloydb-cluster%{random_suffix}"
+}
+
+data "google_project" "project" {}
 `, context)
 }

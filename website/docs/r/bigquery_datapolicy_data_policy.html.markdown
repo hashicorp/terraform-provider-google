@@ -38,24 +38,76 @@ To get more information about DataPolicy, see:
 
 ```hcl
 resource "google_bigquery_datapolicy_data_policy" "data_policy" {
-    location         = "us-central1"
-    data_policy_id   = "data_policy"
-    policy_tag       = google_data_catalog_policy_tag.policy_tag.name
-    data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
-  }
+  location         = "us-central1"
+  data_policy_id   = "data_policy"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "COLUMN_LEVEL_SECURITY_POLICY"
+}
 
-  resource "google_data_catalog_policy_tag" "policy_tag" {
-    taxonomy     = google_data_catalog_taxonomy.taxonomy.id
-    display_name = "Low security"
-    description  = "A policy tag normally associated with low security items"
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
+
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_datapolicy_data_policy_routine&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Datapolicy Data Policy Routine
+
+
+```hcl
+resource "google_bigquery_datapolicy_data_policy" "data_policy" {
+  location         = "us-central1"
+  data_policy_id   = "data_policy"
+  policy_tag       = google_data_catalog_policy_tag.policy_tag.name
+  data_policy_type = "DATA_MASKING_POLICY"  
+  data_masking_policy {
+    routine = google_bigquery_routine.custom_masking_routine.id
   }
+}
+
+resource "google_data_catalog_policy_tag" "policy_tag" {
+  taxonomy     = google_data_catalog_taxonomy.taxonomy.id
+  display_name = "Low security"
+  description  = "A policy tag normally associated with low security items"
+}
   
-  resource "google_data_catalog_taxonomy" "taxonomy" {
-    region                 = "us-central1"
-    display_name           = "taxonomy"
-    description            = "A collection of policy tags"
-    activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
-  }
+resource "google_data_catalog_taxonomy" "taxonomy" {
+  region                 = "us-central1"
+  display_name           = "taxonomy"
+  description            = "A collection of policy tags"
+  activated_policy_types = ["FINE_GRAINED_ACCESS_CONTROL"]
+}
+
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "dataset_id"
+  location   = "us-central1"
+}
+
+resource "google_bigquery_routine" "custom_masking_routine" {
+	dataset_id           = google_bigquery_dataset.test.dataset_id
+	routine_id           = "custom_masking_routine"
+	routine_type         = "SCALAR_FUNCTION"
+	language             = "SQL"
+	data_governance_type = "DATA_MASKING"
+	definition_body      = "SAFE.REGEXP_REPLACE(ssn, '[0-9]', 'X')"
+	return_type          = "{\"typeKind\" :  \"STRING\"}"
+
+	arguments {
+	  name = "ssn"
+	  data_type = "{\"typeKind\" :  \"STRING\"}"
+	} 
+}
 ```
 
 ## Argument Reference
@@ -96,9 +148,13 @@ The following arguments are supported:
 <a name="nested_data_masking_policy"></a>The `data_masking_policy` block supports:
 
 * `predefined_expression` -
-  (Required)
+  (Optional)
   The available masking rules. Learn more here: https://cloud.google.com/bigquery/docs/column-data-masking-intro#masking_options.
   Possible values are: `SHA256`, `ALWAYS_NULL`, `DEFAULT_MASKING_VALUE`, `LAST_FOUR_CHARACTERS`, `FIRST_FOUR_CHARACTERS`, `EMAIL_MASK`, `DATE_YEAR_MASK`.
+
+* `routine` -
+  (Optional)
+  The name of the BigQuery routine that contains the custom masking routine, in the format of projects/{projectNumber}/datasets/{dataset_id}/routines/{routine_id}.
 
 ## Attributes Reference
 

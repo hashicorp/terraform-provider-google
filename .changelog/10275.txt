@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `cloud_router_ipv6_address`, `customer_router_ipv6_address` fields to `google_compute_interconnect_attachment` resource
+```

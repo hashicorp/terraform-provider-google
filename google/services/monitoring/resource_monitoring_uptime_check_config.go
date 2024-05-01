@@ -20,6 +20,7 @@ package monitoring
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -150,7 +151,7 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 						"auth_info": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `The authentication information. Optional when creating an HTTP check; defaults to empty.`,
+							Description: `The authentication information using username and password. Optional when creating an HTTP check; defaults to empty. Do not use with other authentication fields.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -236,6 +237,22 @@ func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 							ValidateFunc: verify.ValidateEnum([]string{"METHOD_UNSPECIFIED", "GET", "POST", ""}),
 							Description:  `The HTTP request method to use for the check. If set to 'METHOD_UNSPECIFIED' then 'request_method' defaults to 'GET'. Default value: "GET" Possible values: ["METHOD_UNSPECIFIED", "GET", "POST"]`,
 							Default:      "GET",
+						},
+						"service_agent_authentication": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The authentication information using the Monitoring Service Agent. Optional when creating an HTTPS check; defaults to empty. Do not use with other authentication fields.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"SERVICE_AGENT_AUTHENTICATION_TYPE_UNSPECIFIED", "OIDC_TOKEN", ""}),
+										Description:  `The type of authentication to use. Possible values: ["SERVICE_AGENT_AUTHENTICATION_TYPE_UNSPECIFIED", "OIDC_TOKEN"]`,
+									},
+								},
+							},
 						},
 						"use_ssl": {
 							Type:         schema.TypeBool,
@@ -522,6 +539,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               config,
 		Method:               "POST",
@@ -530,6 +548,7 @@ func resourceMonitoringUptimeCheckConfigCreate(d *schema.ResourceData, meta inte
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
 	})
 	if err != nil {
@@ -594,12 +613,14 @@ func resourceMonitoringUptimeCheckConfigRead(d *schema.ResourceData, meta interf
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               config,
 		Method:               "GET",
 		Project:              billingProject,
 		RawURL:               url,
 		UserAgent:            userAgent,
+		Headers:              headers,
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
 	})
 	if err != nil {
@@ -734,6 +755,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating UptimeCheckConfig %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("display_name") {
@@ -789,6 +811,7 @@ func resourceMonitoringUptimeCheckConfigUpdate(d *schema.ResourceData, meta inte
 			UserAgent:            userAgent,
 			Body:                 obj,
 			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			Headers:              headers,
 			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsMonitoringConcurrentEditError},
 		})
 
@@ -974,6 +997,8 @@ func flattenMonitoringUptimeCheckConfigHttpCheck(v interface{}, d *schema.Resour
 		flattenMonitoringUptimeCheckConfigHttpCheckCustomContentType(original["customContentType"], d, config)
 	transformed["auth_info"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckAuthInfo(original["authInfo"], d, config)
+	transformed["service_agent_authentication"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthentication(original["serviceAgentAuthentication"], d, config)
 	transformed["port"] =
 		flattenMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d, config)
 	transformed["headers"] =
@@ -1026,6 +1051,23 @@ func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, 
 }
 
 func flattenMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthentication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthenticationType(original["type"], d, config)
+	return []interface{}{transformed}
+}
+func flattenMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthenticationType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1425,6 +1467,13 @@ func expandMonitoringUptimeCheckConfigHttpCheck(v interface{}, d tpgresource.Ter
 		transformed["authInfo"] = transformedAuthInfo
 	}
 
+	transformedServiceAgentAuthentication, err := expandMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthentication(original["service_agent_authentication"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAgentAuthentication); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAgentAuthentication"] = transformedServiceAgentAuthentication
+	}
+
 	transformedPort, err := expandMonitoringUptimeCheckConfigHttpCheckPort(original["port"], d, config)
 	if err != nil {
 		return nil, err
@@ -1534,6 +1583,29 @@ func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoPassword(v interface{}, d
 }
 
 func expandMonitoringUptimeCheckConfigHttpCheckAuthInfoUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthentication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthenticationType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	return transformed, nil
+}
+
+func expandMonitoringUptimeCheckConfigHttpCheckServiceAgentAuthenticationType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

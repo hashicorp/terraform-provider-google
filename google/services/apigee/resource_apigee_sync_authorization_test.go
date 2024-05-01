@@ -81,12 +81,10 @@ resource "google_service_account" "service_account" {
   display_name = "Service Account"
 }
 
-resource "google_project_iam_binding" "synchronizer-iam" {
+resource "google_project_iam_member" "synchronizer-iam" {
   project = google_project.project.project_id
   role    = "roles/apigee.synchronizerManager"
-  members = [
-    "serviceAccount:${google_service_account.service_account.email}",
-  ]
+  member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 resource "google_apigee_sync_authorization" "apigee_sync_authorization" {
@@ -94,7 +92,7 @@ resource "google_apigee_sync_authorization" "apigee_sync_authorization" {
   identities = [
     "serviceAccount:${google_service_account.service_account.email}",
   ]
-  depends_on = [google_project_iam_binding.synchronizer-iam]
+  depends_on = [google_project_iam_member.synchronizer-iam]
 }
 `, context)
 }

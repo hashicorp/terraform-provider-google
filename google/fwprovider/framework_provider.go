@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/metaschema"
@@ -15,9 +16,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	"github.com/hashicorp/terraform-provider-google/google/functions"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwtransport"
-	"github.com/hashicorp/terraform-provider-google/google/services/dns"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -26,6 +27,7 @@ import (
 // Ensure the implementation satisfies the expected interfaces
 var (
 	_ provider.ProviderWithMetaSchema = &FrameworkProvider{}
+	_ provider.ProviderWithFunctions  = &FrameworkProvider{}
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -580,6 +582,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"integrations_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"kms_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
@@ -945,14 +953,22 @@ func (p *FrameworkProvider) DataSources(_ context.Context) []func() datasource.D
 	return []func() datasource.DataSource{
 		resourcemanager.NewGoogleClientConfigDataSource,
 		resourcemanager.NewGoogleClientOpenIDUserinfoDataSource,
-		dns.NewGoogleDnsManagedZoneDataSource,
-		dns.NewGoogleDnsManagedZonesDataSource,
-		dns.NewGoogleDnsRecordSetDataSource,
-		dns.NewGoogleDnsKeysDataSource,
 	}
 }
 
 // Resources defines the resources implemented in the provider.
 func (p *FrameworkProvider) Resources(_ context.Context) []func() resource.Resource {
 	return nil
+}
+
+// Functions defines the provider functions implemented in the provider.
+func (p *FrameworkProvider) Functions(_ context.Context) []func() function.Function {
+	return []func() function.Function{
+		functions.NewLocationFromIdFunction,
+		functions.NewNameFromIdFunction,
+		functions.NewProjectFromIdFunction,
+		functions.NewRegionFromIdFunction,
+		functions.NewRegionFromZoneFunction,
+		functions.NewZoneFromIdFunction,
+	}
 }

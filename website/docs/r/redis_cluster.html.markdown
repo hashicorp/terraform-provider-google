@@ -45,8 +45,12 @@ resource "google_redis_cluster" "cluster-ha" {
   }
   region = "us-central1"
   replica_count = 1
+  node_type = "REDIS_SHARED_CORE_NANO"
   transit_encryption_mode = "TRANSIT_ENCRYPTION_MODE_DISABLED"
   authorization_mode = "AUTH_MODE_DISABLED"
+  redis_configs = {
+    maxmemory-policy	= "volatile-ttl"
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -126,9 +130,21 @@ The following arguments are supported:
   Default value is `TRANSIT_ENCRYPTION_MODE_DISABLED`.
   Possible values are: `TRANSIT_ENCRYPTION_MODE_UNSPECIFIED`, `TRANSIT_ENCRYPTION_MODE_DISABLED`, `TRANSIT_ENCRYPTION_MODE_SERVER_AUTHENTICATION`.
 
+* `node_type` -
+  (Optional)
+  The nodeType for the Redis cluster.
+  If not provided, REDIS_HIGHMEM_MEDIUM will be used as default
+  Possible values are: `REDIS_SHARED_CORE_NANO`, `REDIS_HIGHMEM_MEDIUM`, `REDIS_HIGHMEM_XLARGE`, `REDIS_STANDARD_SMALL`.
+
 * `replica_count` -
   (Optional)
   Optional. The number of replica nodes per shard.
+
+* `redis_configs` -
+  (Optional)
+  Configure Redis Cluster behavior using a subset of native Redis configuration parameters.
+  Please check Memorystore documentation for the list of supported parameters:
+  https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurations
 
 * `region` -
   (Optional)
@@ -171,6 +187,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `size_gb` -
   Output only. Redis memory size in GB for the entire cluster.
+
+* `precise_size_gb` -
+  Output only. Redis memory precise size in GB for the entire cluster.
 
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:

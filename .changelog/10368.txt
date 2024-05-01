@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed bug where some methods of authentication didn't work when using `dns` data sources
+```

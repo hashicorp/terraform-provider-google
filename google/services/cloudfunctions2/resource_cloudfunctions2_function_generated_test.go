@@ -484,6 +484,122 @@ resource "google_cloudfunctions2_function" "function" {
 `, context)
 }
 
+func TestAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"zip_path":      "./test-fixtures/function-source.zip",
+		"location":      "us-central1",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+			"time":   {},
+		},
+		CheckDestroy: testAccCheckCloudfunctions2functionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(context),
+			},
+			{
+				ResourceName:            "google_cloudfunctions2_function.function",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+locals {
+  project = "%{project}" # Google Cloud Platform Project ID
+}
+
+resource "google_service_account" "account" {
+  account_id = "tf-test-gcf-sa%{random_suffix}"
+  display_name = "Test Service Account"
+}
+
+resource "google_project_iam_member" "log_writer" {
+  project = google_service_account.account.project
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "artifact_registry_writer" {
+  project = google_service_account.account.project
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_project_iam_member" "storage_object_admin" {
+  project = google_service_account.account.project
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.account.email}"
+}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "${local.project}-tf-test-gcf-source%{random_suffix}"  # Every bucket name must be globally unique
+  location = "US"
+  uniform_bucket_level_access = true
+}
+ 
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"  # Add path to the zipped function source code
+}
+
+# builder permissions need to stablize before it can pull the source zip
+resource "time_sleep" "wait_60s" {
+  create_duration = "60s"
+
+  depends_on = [
+    google_project_iam_member.log_writer,
+    google_project_iam_member.artifact_registry_writer,
+    google_project_iam_member.storage_object_admin,
+  ]
+}
+ 
+resource "google_cloudfunctions2_function" "function" {
+  name = "tf-test-function-v2%{random_suffix}"
+  location = "us-central1"
+  description = "a new function"
+ 
+  build_config {
+    runtime = "nodejs16"
+    entry_point = "helloHttp"  # Set the entry point 
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+    service_account = google_service_account.account.id
+  }
+ 
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "256M"
+    timeout_seconds     = 60
+  }
+
+  depends_on = [time_sleep.wait_60s]
+}
+
+output "function_uri" { 
+  value = google_cloudfunctions2_function.function.service_config[0].uri
+}
+`, context)
+}
+
 func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T) {
 	t.Parallel()
 

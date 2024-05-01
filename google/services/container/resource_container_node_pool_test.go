@@ -484,7 +484,6 @@ func TestAccContainerNodePool_withWorkloadIdentityConfig(t *testing.T) {
 }
 
 func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
-	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -498,7 +497,7 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100us", networkName, subnetworkName, true, 2048),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, true, 2048),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
@@ -544,7 +543,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, true, 1024),
-				ExpectError: regexp.MustCompile(`.*to be one of \[static none \].*`),
+				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
 	})
@@ -766,7 +765,6 @@ resource "google_container_node_pool" "with_enable_private_nodes" {
 }
 
 func TestAccContainerNodePool_withUpgradeSettings(t *testing.T) {
-	t.Skipf("Skipping test %s due to https://github.com/hashicorp/terraform-provider-google/issues/16064", t.Name())
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -1491,6 +1489,64 @@ resource "google_container_node_pool" "np" {
     machine_type = "n1-standard-1"
     local_nvme_ssd_block_config {
       local_ssd_count = 1
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np)
+}
+
+func TestAccContainerNodePool_secondaryBootDisks(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_secondaryBootDisks(cluster, np, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_secondaryBootDisks(cluster, np, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  min_master_version = "1.28"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-8"
+    image_type = "COS_CONTAINERD"
+	gcfs_config {
+  		enabled = true
+	}
+    secondary_boot_disks {
+      disk_image = ""
+      mode = "CONTAINER_IMAGE_CACHE"
     }
   }
 }
@@ -3847,31 +3903,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
@@ -3963,31 +4023,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 
@@ -4080,31 +4144,35 @@ data "google_project" "project" {
   project_id = "%[1]s"
 }
 
-resource "google_project_iam_binding" "tagHoldAdmin" {
+resource "google_project_iam_member" "tagHoldAdmin" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagHoldAdmin"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 }
 
-resource "google_project_iam_binding" "tagUser" {
+resource "google_project_iam_member" "tagUser1" {
   project = "%[1]s"
   role    = "roles/resourcemanager.tagUser"
-  members = [
-    "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com",
-    "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com",
-  ]
+  member = "serviceAccount:service-${data.google_project.project.number}@container-engine-robot.iam.gserviceaccount.com"
 
-  depends_on = [google_project_iam_binding.tagHoldAdmin]
+  depends_on = [google_project_iam_member.tagHoldAdmin]
+}
+
+resource "google_project_iam_member" "tagUser2" {
+  project = "%[1]s"
+  role    = "roles/resourcemanager.tagUser"
+  member = "serviceAccount:${data.google_project.project.number}@cloudservices.gserviceaccount.com"
+
+  depends_on = [google_project_iam_member.tagHoldAdmin]
 }
 
 resource "time_sleep" "wait_120_seconds" {
   create_duration = "120s"
 
   depends_on = [
-    google_project_iam_binding.tagHoldAdmin,
-    google_project_iam_binding.tagUser
+    google_project_iam_member.tagHoldAdmin,
+    google_project_iam_member.tagUser1,
+    google_project_iam_member.tagUser2,
   ]
 }
 

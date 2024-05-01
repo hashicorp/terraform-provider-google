@@ -20,6 +20,7 @@ package apigee
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -96,6 +97,11 @@ Creating, updating, or deleting target servers. Possible values: ["DEPLOYMENT_TY
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Display name of the environment.`,
+			},
+			"forward_proxy_uri": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Optional. URI of the forward proxy to be applied to the runtime instances in this environment. Must be in the format of {scheme}://{hostname}:{port}. Note that the scheme must be one of "http" or "https", and the port must be supplied.`,
 			},
 			"node_config": {
 				Type:        schema.TypeList,
@@ -193,6 +199,12 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	forwardProxyUriProp, err := expandApigeeEnvironmentForwardProxyUri(d.Get("forward_proxy_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardProxyUriProp)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
+		obj["forwardProxyUri"] = forwardProxyUriProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments")
 	if err != nil {
@@ -207,6 +219,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -215,6 +228,7 @@ func resourceApigeeEnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Environment: %s", err)
@@ -275,12 +289,14 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeEnvironment %q", d.Id()))
@@ -305,6 +321,9 @@ func resourceApigeeEnvironmentRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 	if err := d.Set("type", flattenApigeeEnvironmentType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Environment: %s", err)
+	}
+	if err := d.Set("forward_proxy_uri", flattenApigeeEnvironmentForwardProxyUri(res["forwardProxyUri"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Environment: %s", err)
 	}
 
@@ -333,6 +352,12 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	forwardProxyUriProp, err := expandApigeeEnvironmentForwardProxyUri(d.Get("forward_proxy_uri"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("forward_proxy_uri"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardProxyUriProp)) {
+		obj["forwardProxyUri"] = forwardProxyUriProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/environments/{{name}}")
 	if err != nil {
@@ -340,6 +365,7 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	log.Printf("[DEBUG] Updating Environment %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("node_config") {
@@ -348,6 +374,10 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("type") {
 		updateMask = append(updateMask, "type")
+	}
+
+	if d.HasChange("forward_proxy_uri") {
+		updateMask = append(updateMask, "forwardProxyUri")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -371,6 +401,7 @@ func resourceApigeeEnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -412,6 +443,8 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting Environment %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -421,6 +454,7 @@ func resourceApigeeEnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Environment")
@@ -536,6 +570,10 @@ func flattenApigeeEnvironmentType(v interface{}, d *schema.ResourceData, config 
 	return v
 }
 
+func flattenApigeeEnvironmentForwardProxyUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandApigeeEnvironmentName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -602,5 +640,9 @@ func expandApigeeEnvironmentNodeConfigCurrentAggregateNodeCount(v interface{}, d
 }
 
 func expandApigeeEnvironmentType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandApigeeEnvironmentForwardProxyUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

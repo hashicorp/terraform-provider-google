@@ -258,17 +258,15 @@ func bigQueryTableNormalizePolicyTags(val interface{}) interface{} {
 
 // Compares two existing schema implementations and decides if
 // it is changeable.. pairs with a force new on not changeable
-func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error) {
+func resourceBigQueryTableSchemaIsChangeable(old, new interface{}, isExternalTable bool, topLevel bool) (bool, error) {
 	switch old.(type) {
 	case []interface{}:
 		arrayOld := old.([]interface{})
 		arrayNew, ok := new.([]interface{})
+		sameNameColumns := 0
+		droppedColumns := 0
 		if !ok {
 			// if not both arrays not changeable
-			return false, nil
-		}
-		if len(arrayOld) > len(arrayNew) {
-			// if not growing not changeable
 			return false, nil
 		}
 		if err := bigQueryTablecheckNameExists(arrayOld); err != nil {
@@ -291,16 +289,28 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 			}
 		}
 		for key := range mapOld {
-			// all old keys should be represented in the new config
+			// dropping top level columns can happen in-place
+			// but this doesn't apply to external tables
 			if _, ok := mapNew[key]; !ok {
-				return false, nil
+				if !topLevel || isExternalTable {
+					return false, nil
+				}
+				droppedColumns += 1
+				continue
 			}
-			if isChangable, err :=
-				resourceBigQueryTableSchemaIsChangeable(mapOld[key], mapNew[key]); err != nil || !isChangable {
+
+			isChangable, err := resourceBigQueryTableSchemaIsChangeable(mapOld[key], mapNew[key], isExternalTable, false)
+			if err != nil || !isChangable {
 				return false, err
+			} else if isChangable && topLevel {
+				// top level column that exists in the new schema
+				sameNameColumns += 1
 			}
 		}
-		return true, nil
+		// in-place column dropping alongside column additions is not allowed
+		// as of now because user intention can be ambiguous (e.g. column renaming)
+		newColumns := len(arrayNew) - sameNameColumns
+		return (droppedColumns == 0) || (newColumns == 0), nil
 	case map[string]interface{}:
 		objectOld := old.(map[string]interface{})
 		objectNew, ok := new.(map[string]interface{})
@@ -339,7 +349,7 @@ func resourceBigQueryTableSchemaIsChangeable(old, new interface{}) (bool, error)
 					return false, nil
 				}
 			case "fields":
-				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew)
+				return resourceBigQueryTableSchemaIsChangeable(valOld, valNew, isExternalTable, false)
 
 				// other parameters: description, policyTags and
 				// policyTags.names[] are changeable
@@ -378,7 +388,8 @@ func resourceBigQueryTableSchemaCustomizeDiffFunc(d tpgresource.TerraformResourc
 			// same as above
 			log.Printf("[DEBUG] unable to unmarshal json customized diff - %v", err)
 		}
-		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new)
+		_, isExternalTable := d.GetOk("external_data_configuration")
+		isChangeable, err := resourceBigQueryTableSchemaIsChangeable(old, new, isExternalTable, true)
 		if err != nil {
 			return err
 		}
@@ -622,6 +633,13 @@ func ResourceBigQueryTable() *schema.Resource {
 									},
 								},
 							},
+						},
+
+						"json_extension": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"GEOJSON"}, false),
+							Description:  `Load option to be used together with sourceFormat newline-delimited JSON to indicate that a variant of JSON is being loaded. To load newline-delimited GeoJSON, specify GEOJSON (and sourceFormat must be set to NEWLINE_DELIMITED_JSON).`,
 						},
 
 						"parquet_options": {
@@ -1705,6 +1723,12 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+type TableReference struct {
+	project   string
+	datasetID string
+	tableID   string
+}
+
 func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1727,6 +1751,16 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	datasetID := d.Get("dataset_id").(string)
 	tableID := d.Get("table_id").(string)
 
+	tableReference := &TableReference{
+		project:   project,
+		datasetID: datasetID,
+		tableID:   tableID,
+	}
+
+	if err = resourceBigQueryTableColumnDrop(config, userAgent, table, tableReference); err != nil {
+		return err
+	}
+
 	if _, err = config.NewBigQueryClient(userAgent).Tables.Update(project, datasetID, tableID, table).Do(); err != nil {
 		return err
 	}
@@ -1734,9 +1768,52 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 	return resourceBigQueryTableRead(d, meta)
 }
 
+func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent string, table *bigquery.Table, tableReference *TableReference) error {
+	oldTable, err := config.NewBigQueryClient(userAgent).Tables.Get(tableReference.project, tableReference.datasetID, tableReference.tableID).Do()
+	if err != nil {
+		return err
+	}
+
+	if table.Schema == nil {
+		return nil
+	}
+
+	newTableFields := map[string]bool{}
+	for _, field := range table.Schema.Fields {
+		newTableFields[field.Name] = true
+	}
+
+	droppedColumns := []string{}
+	for _, field := range oldTable.Schema.Fields {
+		if !newTableFields[field.Name] {
+			droppedColumns = append(droppedColumns, field.Name)
+		}
+	}
+
+	if len(droppedColumns) > 0 {
+		droppedColumnsString := strings.Join(droppedColumns, ", DROP COLUMN ")
+
+		dropColumnsDDL := fmt.Sprintf("ALTER TABLE `%s.%s.%s` DROP COLUMN %s", tableReference.project, tableReference.datasetID, tableReference.tableID, droppedColumnsString)
+		log.Printf("[INFO] Dropping columns in-place: %s", dropColumnsDDL)
+
+		useLegacySQL := false
+		req := &bigquery.QueryRequest{
+			Query:        dropColumnsDDL,
+			UseLegacySql: &useLegacySQL,
+		}
+
+		_, err = config.NewBigQueryClient(userAgent).Jobs.Query(tableReference.project, req).Do()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
 	if d.Get("deletion_protection").(bool) {
-		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
+		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
 	}
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -1784,6 +1861,10 @@ func expandExternalDataConfiguration(cfg interface{}) (*bigquery.ExternalDataCon
 
 	if v, ok := raw["compression"]; ok {
 		edc.Compression = v.(string)
+	}
+
+	if v, ok := raw["json_extension"]; ok {
+		edc.JsonExtension = v.(string)
 	}
 
 	if v, ok := raw["csv_options"]; ok {
@@ -1851,6 +1932,10 @@ func flattenExternalDataConfiguration(edc *bigquery.ExternalDataConfiguration) (
 
 	if edc.Compression != "" {
 		result["compression"] = edc.Compression
+	}
+
+	if edc.JsonExtension != "" {
+		result["json_extension"] = edc.JsonExtension
 	}
 
 	if edc.CsvOptions != nil {
@@ -2342,6 +2427,11 @@ func expandPrimaryKey(configured interface{}) *bigquery.TableConstraintsPrimaryK
 
 	columns := []string{}
 	for _, rawColumn := range raw["columns"].([]interface{}) {
+		if rawColumn == nil {
+			// Terraform reads "" as nil, which ends up crashing when we cast below
+			// sending "" to the API triggers a 400, which is okay.
+			rawColumn = ""
+		}
 		columns = append(columns, rawColumn.(string))
 	}
 	if len(columns) > 0 {

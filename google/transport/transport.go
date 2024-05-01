@@ -26,12 +26,16 @@ type SendRequestOptions struct {
 	UserAgent            string
 	Body                 map[string]any
 	Timeout              time.Duration
+	Headers              http.Header
 	ErrorRetryPredicates []RetryErrorPredicateFunc
 	ErrorAbortPredicates []RetryErrorPredicateFunc
 }
 
 func SendRequest(opt SendRequestOptions) (map[string]interface{}, error) {
-	reqHeaders := make(http.Header)
+	reqHeaders := opt.Headers
+	if reqHeaders == nil {
+		reqHeaders = make(http.Header)
+	}
 	reqHeaders.Set("User-Agent", opt.UserAgent)
 	reqHeaders.Set("Content-Type", "application/json")
 

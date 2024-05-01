@@ -491,6 +491,42 @@ func TestAccComposerEnvironment_ComposerV2(t *testing.T) {
 	})
 }
 
+func TestAccComposerEnvironment_UpdateComposerV2ImageVersion(t *testing.T) {
+	t.Parallel()
+
+	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
+	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
+	subnetwork := network + "-1"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccComposerEnvironmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComposerEnvironment_composerV250(envName, network, subnetwork),
+			},
+			{
+				Config: testAccComposerEnvironment_composerV260(envName, network, subnetwork),
+			},
+			{
+				ResourceName:      "google_composer_environment.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// This is a terrible clean-up step in order to get destroy to succeed,
+			// due to dangling firewall rules left by the Composer Environment blocking network deletion.
+			// TODO(dzarmola): Remove this check if firewall rules bug gets fixed by Composer.
+			{
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+				Config:             testAccComposerEnvironment_composerV260(envName, network, subnetwork),
+				Check:              testAccCheckClearComposerEnvironmentFirewalls(t, network),
+			},
+		},
+	})
+}
+
 func TestAccComposerEnvironment_UpdateComposerV2ResilienceMode(t *testing.T) {
 	t.Parallel()
 
@@ -1767,6 +1803,74 @@ resource "google_composer_environment" "test" {
       }
     }
 
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-east1"
+   network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+
+`, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_composerV250(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-east1"
+
+    config {
+      node_config {
+        network          = google_compute_network.test.self_link
+        subnetwork       = google_compute_subnetwork.test.self_link
+      }
+
+      software_config {
+        image_version = "composer-2.5.0-airflow-2.6.3"
+      }
+    }
+}
+
+resource "google_compute_network" "test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "%s"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-east1"
+   network       = google_compute_network.test.self_link
+  private_ip_google_access = true
+}
+
+`, envName, network, subnetwork)
+}
+
+func testAccComposerEnvironment_composerV260(envName, network, subnetwork string) string {
+	return fmt.Sprintf(`
+resource "google_composer_environment" "test" {
+  name   = "%s"
+  region = "us-east1"
+
+    config {
+      node_config {
+        network          = google_compute_network.test.self_link
+        subnetwork       = google_compute_subnetwork.test.self_link
+      }
+
+      software_config {
+        image_version = "composer-2.6.0-airflow-2.6.3"
+      }
+    }
 }
 
 resource "google_compute_network" "test" {

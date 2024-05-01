@@ -35,6 +35,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudidentity"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudids"
+	"github.com/hashicorp/terraform-provider-google/google/services/cloudquotas"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrun"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudscheduler"
@@ -77,6 +78,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/iap"
 	"github.com/hashicorp/terraform-provider-google/google/services/identityplatform"
 	"github.com/hashicorp/terraform-provider-google/google/services/integrationconnectors"
+	"github.com/hashicorp/terraform-provider-google/google/services/integrations"
 	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 	"github.com/hashicorp/terraform-provider-google/google/services/looker"
@@ -125,8 +127,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataflow"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	"github.com/hashicorp/terraform-provider-google/google/tpgiamresource"
-	// https://github.com/hashicorp/terraform-provider-google/issues/15633 for details
-	"github.com/hashicorp/terraform-provider-google/google/services/cloudquotas"
 )
 
 // Datasources
@@ -141,6 +141,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_artifact_registry_repository":                 artifactregistry.DataSourceArtifactRegistryRepository(),
 	"google_apphub_discovered_workload":                   apphub.DataSourceApphubDiscoveredWorkload(),
 	"google_app_engine_default_service_account":           appengine.DataSourceGoogleAppEngineDefaultServiceAccount(),
+	"google_apphub_application":                           apphub.DataSourceGoogleApphubApplication(),
 	"google_apphub_discovered_service":                    apphub.DataSourceApphubDiscoveredService(),
 	"google_beyondcorp_app_connection":                    beyondcorp.DataSourceGoogleBeyondcorpAppConnection(),
 	"google_beyondcorp_app_connector":                     beyondcorp.DataSourceGoogleBeyondcorpAppConnector(),
@@ -215,6 +216,10 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_container_registry_repository":                containeranalysis.DataSourceGoogleContainerRepo(),
 	"google_dataproc_metastore_service":                   dataprocmetastore.DataSourceDataprocMetastoreService(),
 	"google_datastream_static_ips":                        datastream.DataSourceGoogleDatastreamStaticIps(),
+	"google_dns_keys":                                     dns.DataSourceDNSKeys(),
+	"google_dns_managed_zone":                             dns.DataSourceDnsManagedZone(),
+	"google_dns_managed_zones":                            dns.DataSourceDnsManagedZones(),
+	"google_dns_record_set":                               dns.DataSourceDnsRecordSet(),
 	"google_filestore_instance":                           filestore.DataSourceGoogleFilestoreInstance(),
 	"google_iam_policy":                                   resourcemanager.DataSourceGoogleIamPolicy(),
 	"google_iam_role":                                     resourcemanager.DataSourceGoogleIamRole(),
@@ -269,13 +274,17 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_sql_database_instances":                       sql.DataSourceSqlDatabaseInstances(),
 	"google_service_networking_peered_dns_domain":         servicenetworking.DataSourceGoogleServiceNetworkingPeeredDNSDomain(),
 	"google_storage_bucket":                               storage.DataSourceGoogleStorageBucket(),
+	"google_storage_buckets":                              storage.DataSourceGoogleStorageBuckets(),
 	"google_storage_bucket_object":                        storage.DataSourceGoogleStorageBucketObject(),
+	"google_storage_bucket_objects":                       storage.DataSourceGoogleStorageBucketObjects(),
 	"google_storage_bucket_object_content":                storage.DataSourceGoogleStorageBucketObjectContent(),
 	"google_storage_object_signed_url":                    storage.DataSourceGoogleSignedUrl(),
 	"google_storage_project_service_account":              storage.DataSourceGoogleStorageProjectServiceAccount(),
 	"google_storage_transfer_project_service_account":     storagetransfer.DataSourceGoogleStorageTransferProjectServiceAccount(),
 	"google_tags_tag_key":                                 tags.DataSourceGoogleTagsTagKey(),
+	"google_tags_tag_keys":                                tags.DataSourceGoogleTagsTagKeys(),
 	"google_tags_tag_value":                               tags.DataSourceGoogleTagsTagValue(),
+	"google_tags_tag_values":                              tags.DataSourceGoogleTagsTagValues(),
 	"google_tpu_tensorflow_versions":                      tpu.DataSourceTpuTensorflowVersions(),
 	"google_vpc_access_connector":                         vpcaccess.DataSourceVPCAccessConnector(),
 	"google_redis_instance":                               redis.DataSourceGoogleRedisInstance(),
@@ -396,9 +405,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 395
+// Generated resources: 403
 // Generated IAM resources: 234
-// Total generated resources: 629
+// Total generated resources: 637
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -537,6 +546,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_cloud_identity_group":                                      cloudidentity.ResourceCloudIdentityGroup(),
 	"google_cloud_identity_group_membership":                           cloudidentity.ResourceCloudIdentityGroupMembership(),
 	"google_cloud_ids_endpoint":                                        cloudids.ResourceCloudIdsEndpoint(),
+	"google_cloud_quotas_quota_preference":                             cloudquotas.ResourceCloudQuotasQuotaPreference(),
 	"google_cloud_run_domain_mapping":                                  cloudrun.ResourceCloudRunDomainMapping(),
 	"google_cloud_run_service":                                         cloudrun.ResourceCloudRunService(),
 	"google_cloud_run_service_iam_binding":                             tpgiamresource.ResourceIamBinding(cloudrun.CloudRunServiceIamSchema, cloudrun.CloudRunServiceIamUpdaterProducer, cloudrun.CloudRunServiceIdParseFunc),
@@ -586,6 +596,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_instance_iam_policy":                               tpgiamresource.ResourceIamPolicy(compute.ComputeInstanceIamSchema, compute.ComputeInstanceIamUpdaterProducer, compute.ComputeInstanceIdParseFunc),
 	"google_compute_instance_group_membership":                         compute.ResourceComputeInstanceGroupMembership(),
 	"google_compute_instance_group_named_port":                         compute.ResourceComputeInstanceGroupNamedPort(),
+	"google_compute_instance_settings":                                 compute.ResourceComputeInstanceSettings(),
 	"google_compute_interconnect_attachment":                           compute.ResourceComputeInterconnectAttachment(),
 	"google_compute_managed_ssl_certificate":                           compute.ResourceComputeManagedSslCertificate(),
 	"google_compute_network":                                           compute.ResourceComputeNetwork(),
@@ -624,6 +635,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_compute_route":                                             compute.ResourceComputeRoute(),
 	"google_compute_router":                                            compute.ResourceComputeRouter(),
 	"google_compute_router_nat":                                        compute.ResourceComputeRouterNat(),
+	"google_compute_security_policy_rule":                              compute.ResourceComputeSecurityPolicyRule(),
 	"google_compute_service_attachment":                                compute.ResourceComputeServiceAttachment(),
 	"google_compute_snapshot":                                          compute.ResourceComputeSnapshot(),
 	"google_compute_snapshot_iam_binding":                              tpgiamresource.ResourceIamBinding(compute.ComputeSnapshotIamSchema, compute.ComputeSnapshotIamUpdaterProducer, compute.ComputeSnapshotIdParseFunc),
@@ -676,6 +688,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_data_fusion_instance_iam_member":                           tpgiamresource.ResourceIamMember(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer, datafusion.DataFusionInstanceIdParseFunc),
 	"google_data_fusion_instance_iam_policy":                           tpgiamresource.ResourceIamPolicy(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer, datafusion.DataFusionInstanceIdParseFunc),
 	"google_data_loss_prevention_deidentify_template":                  datalossprevention.ResourceDataLossPreventionDeidentifyTemplate(),
+	"google_data_loss_prevention_discovery_config":                     datalossprevention.ResourceDataLossPreventionDiscoveryConfig(),
 	"google_data_loss_prevention_inspect_template":                     datalossprevention.ResourceDataLossPreventionInspectTemplate(),
 	"google_data_loss_prevention_job_trigger":                          datalossprevention.ResourceDataLossPreventionJobTrigger(),
 	"google_data_loss_prevention_stored_info_type":                     datalossprevention.ResourceDataLossPreventionStoredInfoType(),
@@ -846,6 +859,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_identity_platform_tenant_oauth_idp_config":                 identityplatform.ResourceIdentityPlatformTenantOauthIdpConfig(),
 	"google_integration_connectors_connection":                         integrationconnectors.ResourceIntegrationConnectorsConnection(),
 	"google_integration_connectors_endpoint_attachment":                integrationconnectors.ResourceIntegrationConnectorsEndpointAttachment(),
+	"google_integrations_auth_config":                                  integrations.ResourceIntegrationsAuthConfig(),
+	"google_integrations_client":                                       integrations.ResourceIntegrationsClient(),
 	"google_kms_crypto_key":                                            kms.ResourceKMSCryptoKey(),
 	"google_kms_crypto_key_version":                                    kms.ResourceKMSCryptoKeyVersion(),
 	"google_kms_ekm_connection":                                        kms.ResourceKMSEkmConnection(),
@@ -879,6 +894,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_netapp_backup_vault":                                       netapp.ResourceNetappbackupVault(),
 	"google_netapp_kmsconfig":                                          netapp.ResourceNetappkmsconfig(),
 	"google_netapp_storage_pool":                                       netapp.ResourceNetappstoragePool(),
+	"google_network_connectivity_internal_range":                       networkconnectivity.ResourceNetworkConnectivityInternalRange(),
 	"google_network_connectivity_policy_based_route":                   networkconnectivity.ResourceNetworkConnectivityPolicyBasedRoute(),
 	"google_network_connectivity_service_connection_policy":            networkconnectivity.ResourceNetworkConnectivityServiceConnectionPolicy(),
 	"google_network_management_connectivity_test":                      networkmanagement.ResourceNetworkManagementConnectivityTest(),
@@ -986,6 +1002,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_tags_tag_value_iam_policy":                                 tpgiamresource.ResourceIamPolicy(tags.TagsTagValueIamSchema, tags.TagsTagValueIamUpdaterProducer, tags.TagsTagValueIdParseFunc),
 	"google_tpu_node":                                                  tpu.ResourceTPUNode(),
 	"google_vertex_ai_dataset":                                         vertexai.ResourceVertexAIDataset(),
+	"google_vertex_ai_deployment_resource_pool":                        vertexai.ResourceVertexAIDeploymentResourcePool(),
 	"google_vertex_ai_endpoint":                                        vertexai.ResourceVertexAIEndpoint(),
 	"google_vertex_ai_feature_group":                                   vertexai.ResourceVertexAIFeatureGroup(),
 	"google_vertex_ai_feature_group_feature":                           vertexai.ResourceVertexAIFeatureGroupFeature(),
@@ -1081,6 +1098,7 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_project_default_service_accounts":       resourcemanager.ResourceGoogleProjectDefaultServiceAccounts(),
 	"google_project_service":                        resourcemanager.ResourceGoogleProjectService(),
 	"google_project_iam_custom_role":                resourcemanager.ResourceGoogleProjectIamCustomRole(),
+	"google_project_iam_member_remove":              resourcemanager.ResourceGoogleProjectIamMemberRemove(),
 	"google_project_organization_policy":            resourcemanager.ResourceGoogleProjectOrganizationPolicy(),
 	"google_project_usage_export_bucket":            compute.ResourceProjectUsageBucket(),
 	"google_service_account":                        resourcemanager.ResourceGoogleServiceAccount(),

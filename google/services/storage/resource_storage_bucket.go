@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -58,10 +60,11 @@ func ResourceStorageBucket() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the bucket.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The name of the bucket.`,
+				ValidateFunc: verify.ValidateGCSName,
 			},
 
 			"encryption": {
@@ -94,10 +97,11 @@ func ResourceStorageBucket() *schema.Resource {
 			},
 
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `A set of key/value label pairs to assign to the bucket.`,
+				Type:         schema.TypeMap,
+				ValidateFunc: labelKeyValidator,
+				Optional:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				Description:  `A set of key/value label pairs to assign to the bucket.`,
 			},
 
 			"terraform_labels": {
@@ -130,6 +134,12 @@ func ResourceStorageBucket() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `The ID of the project in which the resource belongs. If it is not provided, the provider project is used.`,
+			},
+
+			"project_number": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The project number of the project in which the resource belongs.`,
 			},
 
 			"self_link": {
@@ -513,6 +523,22 @@ func ResourceStorageBucket() *schema.Resource {
 const resourceDataplexGoogleLabelPrefix = "goog-dataplex"
 const resourceDataplexGoogleProvidedLabelPrefix = "labels." + resourceDataplexGoogleLabelPrefix
 
+var labelKeyRegex = regexp.MustCompile(`^[a-z0-9_-]{1,63}$`)
+
+func labelKeyValidator(val interface{}, key string) (warns []string, errs []error) {
+	if val == nil {
+		return
+	}
+
+	m := val.(map[string]interface{})
+	for k := range m {
+		if !labelKeyRegex.MatchString(k) {
+			errs = append(errs, fmt.Errorf("%q is an invalid label key. See https://cloud.google.com/storage/docs/tags-and-labels#bucket-labels", k))
+		}
+	}
+	return
+}
+
 func resourceDataplexLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if strings.HasPrefix(k, resourceDataplexGoogleProvidedLabelPrefix) && new == "" {
 		return true
@@ -555,9 +581,6 @@ func resourceStorageBucketCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get the bucket and location
 	bucket := d.Get("name").(string)
-	if err := tpgresource.CheckGCSName(bucket); err != nil {
-		return err
-	}
 	location := d.Get("location").(string)
 
 	// Create a bucket, setting the labels, location and name.
@@ -1718,6 +1741,9 @@ func setStorageBucket(d *schema.ResourceData, config *transport_tpg.Config, res 
 	}
 	if err := d.Set("url", fmt.Sprintf("gs://%s", bucket)); err != nil {
 		return fmt.Errorf("Error setting url: %s", err)
+	}
+	if err := d.Set("project_number", res.ProjectNumber); err != nil {
+		return fmt.Errorf("Error setting project_number: %s", err)
 	}
 	if err := d.Set("storage_class", res.StorageClass); err != nil {
 		return fmt.Errorf("Error setting storage_class: %s", err)

@@ -230,12 +230,14 @@ func activateSubCAWithFirstPartyIssuer(config *transport_tpg.Config, d *schema.R
 		return fmt.Errorf("Error creating Certificate: %s", err)
 	}
 	signedCACert := res["pemCertificate"]
+	signerCertChain := res["pemCertificateChain"]
 
 	// 4. activate sub CA with the signed CA cert.
 	activateObj := make(map[string]interface{})
 	activateObj["pemCaCertificate"] = signedCACert
 	activateObj["subordinateConfig"] = make(map[string]interface{})
-	activateObj["subordinateConfig"].(map[string]interface{})["certificateAuthority"] = issuer
+	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"] = make(map[string]interface{})
+	activateObj["subordinateConfig"].(map[string]interface{})["pemIssuerChain"].(map[string]interface{})["pemCertificates"] = signerCertChain
 
 	activateUrl, err := tpgresource.ReplaceVars(d, config, "{{PrivatecaBasePath}}projects/{{project}}/locations/{{location}}/caPools/{{pool}}/certificateAuthorities/{{certificate_authority_id}}:activate")
 	if err != nil {

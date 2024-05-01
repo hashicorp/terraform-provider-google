@@ -178,6 +178,7 @@ resource "google_gkeonprem_vmware_cluster" "cluster-f5lb" {
   }
   vm_tracking_enabled = true
   enable_control_plane_v2 = true
+  disable_bundled_ingress = true
   authorization {
     admin_users {
       username = "testuser@gmail.com"

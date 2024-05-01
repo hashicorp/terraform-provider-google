@@ -21,6 +21,18 @@ var CredsEnvVars = []string{
 	"GOOGLE_USE_DEFAULT_CREDENTIALS",
 }
 
+// CredsEnvVarsExcludingAdcs returns the contents of CredsEnvVars excluding GOOGLE_APPLICATION_CREDENTIALS
+func CredsEnvVarsExcludingAdcs() []string {
+	envs := CredsEnvVars
+	var filtered []string
+	for _, e := range envs {
+		if e != "GOOGLE_APPLICATION_CREDENTIALS" {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
+}
+
 var ProjectNumberEnvVars = []string{
 	"GOOGLE_PROJECT_NUMBER",
 }

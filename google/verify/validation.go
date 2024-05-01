@@ -76,6 +76,16 @@ var (
 	Rfc6996Asn32BitMin  = int64(4200000000)
 	Rfc6996Asn32BitMax  = int64(4294967294)
 	GcpRouterPartnerAsn = int64(16550)
+
+	// Format of GCS Bucket Name
+	// https://cloud.google.com/storage/docs/naming-buckets
+	GCSNameValidChars     = "^[a-z0-9_.-]*$"
+	GCSNameStartEndChars  = "^[a-z|0-9].*[a-z|0-9]$"
+	GCSNameLength         = "^.{3,222}"
+	GCSNameLengthSplit    = "^.{1,63}$"
+	GCSNameCidr           = "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$"
+	GCSNameGoogPrefix     = "^goog.*$"
+	GCSNameContainsGoogle = "^.*google.*$"
 )
 
 var Rfc1918Networks = []string{
@@ -89,6 +99,44 @@ var Rfc1918Networks = []string{
 func ValidateGCEName(v interface{}, k string) (ws []string, errors []error) {
 	re := `^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$`
 	return ValidateRegexp(re)(v, k)
+}
+
+// validateGCSName ensures the name of a gcs bucket matches the requirements for GCS Buckets
+// https://cloud.google.com/storage/docs/naming-buckets
+func ValidateGCSName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if !regexp.MustCompile(GCSNameValidChars).MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q name value can only contain lowercase letters, numeric characters, dashes (-), underscores (_), and dots (.)", value))
+	}
+
+	if !regexp.MustCompile(GCSNameStartEndChars).MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q name value must start and end with a number or letter", value))
+	}
+
+	if !regexp.MustCompile(GCSNameLength).MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q name value must contain 3-63 characters. Names containing dots can contain up to 222 characters, but each dot-separated component can be no longer than 63 characters", value))
+	}
+
+	for _, str := range strings.Split(value, ".") {
+		if !regexp.MustCompile(GCSNameLengthSplit).MatchString(str) {
+			errors = append(errors, fmt.Errorf("%q name value must contain 3-63 characters. Names containing dots can contain up to 222 characters, but each dot-separated component can be no longer than 63 characters", value))
+		}
+	}
+
+	if regexp.MustCompile(GCSNameCidr).MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q name value cannot be represented as an IP address in dotted-decimal notation (for example, 192.168.5.4)", value))
+	}
+
+	if regexp.MustCompile(GCSNameGoogPrefix).MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q name value cannot begin with the \"goog\" prefix", value))
+	}
+
+	if regexp.MustCompile(GCSNameContainsGoogle).MatchString(strings.ReplaceAll(value, "0", "o")) {
+		errors = append(errors, fmt.Errorf("%q name value cannot contain \"google\" or close misspellings, such as \"g00gle\"", value))
+	}
+
+	return
 }
 
 // Ensure that the BGP ASN value of Cloud Router is a valid value as per RFC6996 or a value of 16550

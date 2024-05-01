@@ -194,6 +194,144 @@ resource "google_gke_backup_backup_plan" "full" {
   }
 }
 ```
+## Example Usage - Gkebackup Backupplan Rpo Daily Window
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "rpo-daily-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "true"
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "rpo_daily_window" {
+  name = "rpo-daily-window"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    paused = true
+    rpo_config {
+      target_rpo_minutes=1440
+      exclusion_windows {
+        start_time  {
+          hours = 12
+        }
+        duration = "7200s"
+        daily = true
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 8
+          minutes = 40
+          seconds = 1
+          nanos = 100
+        }
+        duration = "3600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 16
+        }
+      }
+    }
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+```
+## Example Usage - Gkebackup Backupplan Rpo Weekly Window
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "rpo-weekly-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "true"
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "rpo_weekly_window" {
+  name = "rpo-weekly-window"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    paused = true
+    rpo_config {
+      target_rpo_minutes=1440
+      exclusion_windows {
+        start_time  {
+          hours = 1
+          minutes = 23
+        }
+        duration = "1800s"
+        days_of_week {
+          days_of_week = ["MONDAY", "THURSDAY"]
+        }
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 12
+        }
+        duration = "3600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 17
+        }
+      }
+      exclusion_windows {
+        start_time  {
+          hours = 8
+          minutes = 40
+        }
+        duration = "600s"
+        single_occurrence_date {
+          year = 2024
+          month = 3
+          day = 18
+        }
+      }
+    }
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+```
 
 ## Argument Reference
 
@@ -277,7 +415,9 @@ The following arguments are supported:
   existing Backups under it. Backups created AFTER a successful update
   will automatically pick up the new value.
   NOTE: backupRetainDays must be >= backupDeleteLockDays.
-  If cronSchedule is defined, then this must be <= 360 * the creation interval.]
+  If cronSchedule is defined, then this must be <= 360 * the creation interval.
+  If rpo_config is defined, then this must be
+  <= 360 * targetRpoMinutes/(1440minutes/day)
 
 * `locked` -
   (Optional)
@@ -291,11 +431,117 @@ The following arguments are supported:
   (Optional)
   A standard cron string that defines a repeating schedule for
   creating Backups via this BackupPlan.
+  This is mutually exclusive with the rpoConfig field since at most one
+  schedule can be defined for a BackupPlan.
   If this is defined, then backupRetainDays must also be defined.
 
 * `paused` -
   (Optional)
   This flag denotes whether automatic Backup creation is paused for this BackupPlan.
+
+* `rpo_config` -
+  (Optional)
+  Defines the RPO schedule configuration for this BackupPlan. This is mutually
+  exclusive with the cronSchedule field since at most one schedule can be defined
+  for a BackupPLan. If this is defined, then backupRetainDays must also be defined.
+  Structure is [documented below](#nested_rpo_config).
+
+
+<a name="nested_rpo_config"></a>The `rpo_config` block supports:
+
+* `target_rpo_minutes` -
+  (Required)
+  Defines the target RPO for the BackupPlan in minutes, which means the target
+  maximum data loss in time that is acceptable for this BackupPlan. This must be
+  at least 60, i.e., 1 hour, and at most 86400, i.e., 60 days.
+
+* `exclusion_windows` -
+  (Optional)
+  User specified time windows during which backup can NOT happen for this BackupPlan.
+  Backups should start and finish outside of any given exclusion window. Note: backup
+  jobs will be scheduled to start and finish outside the duration of the window as
+  much as possible, but running jobs will not get canceled when it runs into the window.
+  All the time and date values in exclusionWindows entry in the API are in UTC. We
+  only allow <=1 recurrence (daily or weekly) exclusion window for a BackupPlan while no
+  restriction on number of single occurrence windows.
+  Structure is [documented below](#nested_exclusion_windows).
+
+
+<a name="nested_exclusion_windows"></a>The `exclusion_windows` block supports:
+
+* `start_time` -
+  (Required)
+  Specifies the start time of the window using time of the day in UTC.
+  Structure is [documented below](#nested_start_time).
+
+* `duration` -
+  (Required)
+  Specifies duration of the window in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s". Restrictions for duration based on the
+  recurrence type to allow some time for backup to happen:
+    - single_occurrence_date:  no restriction
+    - daily window: duration < 24 hours
+    - weekly window:
+      - days of week includes all seven days of a week: duration < 24 hours
+      - all other weekly window: duration < 168 hours (i.e., 24 * 7 hours)
+
+* `single_occurrence_date` -
+  (Optional)
+  No recurrence. The exclusion window occurs only once and on this date in UTC.
+  Only one of singleOccurrenceDate, daily and daysOfWeek may be set.
+  Structure is [documented below](#nested_single_occurrence_date).
+
+* `daily` -
+  (Optional)
+  The exclusion window occurs every day if set to "True".
+  Specifying this field to "False" is an error.
+  Only one of singleOccurrenceDate, daily and daysOfWeek may be set.
+
+* `days_of_week` -
+  (Optional)
+  The exclusion window occurs on these days of each week in UTC.
+  Only one of singleOccurrenceDate, daily and daysOfWeek may be set.
+  Structure is [documented below](#nested_days_of_week).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds.
+
+<a name="nested_single_occurrence_date"></a>The `single_occurrence_date` block supports:
+
+* `year` -
+  (Optional)
+  Year of the date.
+
+* `month` -
+  (Optional)
+  Month of a year.
+
+* `day` -
+  (Optional)
+  Day of a month.
+
+<a name="nested_days_of_week"></a>The `days_of_week` block supports:
+
+* `days_of_week` -
+  (Optional)
+  A list of days of week.
+  Each value may be one of: `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
 
 <a name="nested_backup_config"></a>The `backup_config` block supports:
 

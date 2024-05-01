@@ -209,6 +209,30 @@ func TestAccDNSRecordSet_secondaryNS(t *testing.T) {
 	})
 }
 
+// tracks fix for https://github.com/hashicorp/terraform-provider-google/issues/12827
+func TestAccDNSRecordSet_deletionSOA(t *testing.T) {
+	t.Parallel()
+
+	zoneName := fmt.Sprintf("dnszone-test-soa-%s", acctest.RandString(t, 10))
+	recordSetName := "google_dns_managed_zone.parent-zone.dns_name"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDnsRecordSetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDnsRecordSet_SOA(zoneName, recordSetName, 300),
+			},
+			{
+				ResourceName:      "google_dns_record_set.foobar",
+				ImportStateId:     fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s.hashicorptest.com./SOA", envvar.GetTestProjectFromEnv(), zoneName, zoneName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccDNSRecordSet_quotedTXT(t *testing.T) {
 	t.Parallel()
 
@@ -678,6 +702,24 @@ resource "google_dns_record_set" "foobar" {
   ttl          = %d
 }
 `, zoneName, zoneName, zoneName, ttl)
+}
+
+func testAccDnsRecordSet_SOA(name string, recordSetName string, ttl int) string {
+	return fmt.Sprintf(`
+resource "google_dns_managed_zone" "parent-zone" {
+  name        = "%s"
+  dns_name    = "%s.hashicorptest.com."
+  description = "Test Description"
+}
+
+resource "google_dns_record_set" "foobar" {
+  managed_zone = google_dns_managed_zone.parent-zone.name
+  name         = %s
+  type         = "SOA"
+  rrdatas      = ["ns-cloud-a1.googledomains.com. cloud-dns-hostmaster.google.com. 629010464 900 900 1800 60"]
+  ttl          = %d
+}
+`, name, name, recordSetName, ttl)
 }
 
 func testAccDnsRecordSet_quotedTXT(name string, ttl int) string {

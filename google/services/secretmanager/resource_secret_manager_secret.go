@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -286,6 +287,15 @@ An object containing a list of "key": value pairs. Example:
 { "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"version_destroy_ttl": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Secret Version TTL after destruction request.
+This is a part of the delayed delete feature on Secret Version.
+For secret with versionDestroyTtl>0, version destruction doesn't happen immediately
+on calling destroy instead the version goes to a disabled state and
+the actual destruction happens after this TTL expires.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -340,6 +350,12 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("version_aliases"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionAliasesProp)) && (ok || !reflect.DeepEqual(v, versionAliasesProp)) {
 		obj["versionAliases"] = versionAliasesProp
+	}
+	versionDestroyTtlProp, err := expandSecretManagerSecretVersionDestroyTtl(d.Get("version_destroy_ttl"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version_destroy_ttl"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionDestroyTtlProp)) && (ok || !reflect.DeepEqual(v, versionDestroyTtlProp)) {
+		obj["versionDestroyTtl"] = versionDestroyTtlProp
 	}
 	replicationProp, err := expandSecretManagerSecretReplication(d.Get("replication"), d, config)
 	if err != nil {
@@ -403,6 +419,7 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -411,6 +428,7 @@ func resourceSecretManagerSecretCreate(d *schema.ResourceData, meta interface{})
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Secret: %s", err)
@@ -456,12 +474,14 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecretManagerSecret %q", d.Id()))
@@ -484,6 +504,9 @@ func resourceSecretManagerSecretRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
 	if err := d.Set("version_aliases", flattenSecretManagerSecretVersionAliases(res["versionAliases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Secret: %s", err)
+	}
+	if err := d.Set("version_destroy_ttl", flattenSecretManagerSecretVersionDestroyTtl(res["versionDestroyTtl"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Secret: %s", err)
 	}
 	if err := d.Set("replication", flattenSecretManagerSecretReplication(res["replication"], d, config)); err != nil {
@@ -533,6 +556,12 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("version_aliases"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionAliasesProp)) {
 		obj["versionAliases"] = versionAliasesProp
 	}
+	versionDestroyTtlProp, err := expandSecretManagerSecretVersionDestroyTtl(d.Get("version_destroy_ttl"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version_destroy_ttl"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionDestroyTtlProp)) {
+		obj["versionDestroyTtl"] = versionDestroyTtlProp
+	}
 	topicsProp, err := expandSecretManagerSecretTopics(d.Get("topics"), d, config)
 	if err != nil {
 		return err
@@ -576,10 +605,15 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Updating Secret %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("version_aliases") {
 		updateMask = append(updateMask, "versionAliases")
+	}
+
+	if d.HasChange("version_destroy_ttl") {
+		updateMask = append(updateMask, "versionDestroyTtl")
 	}
 
 	if d.HasChange("topics") {
@@ -650,6 +684,7 @@ func resourceSecretManagerSecretUpdate(d *schema.ResourceData, meta interface{})
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -690,6 +725,8 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting Secret %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -699,6 +736,7 @@ func resourceSecretManagerSecretDelete(d *schema.ResourceData, meta interface{})
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Secret")
@@ -767,6 +805,10 @@ func flattenSecretManagerSecretAnnotations(v interface{}, d *schema.ResourceData
 }
 
 func flattenSecretManagerSecretVersionAliases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenSecretManagerSecretVersionDestroyTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -946,6 +988,10 @@ func expandSecretManagerSecretVersionAliases(v interface{}, d tpgresource.Terraf
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandSecretManagerSecretVersionDestroyTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandSecretManagerSecretReplication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

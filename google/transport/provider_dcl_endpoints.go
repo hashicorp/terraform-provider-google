@@ -212,15 +212,15 @@ func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_sc
 }
 
 func ProviderDCLConfigure(d *schema.ResourceData, config *Config) interface{} {
-	config.ApikeysBasePath = d.Get(ApikeysEndpointEntryKey).(string)
+	// networkConnectivity uses mmv1 basePath, assuredworkloads has a location variable in the basepath, can't be defined here.
+	config.ApikeysBasePath = "https://apikeys.googleapis.com/v2/"
 	config.AssuredWorkloadsBasePath = d.Get(AssuredWorkloadsEndpointEntryKey).(string)
-	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
-	config.CloudResourceManagerBasePath = d.Get(CloudResourceManagerEndpointEntryKey).(string)
-	config.EventarcBasePath = d.Get(EventarcEndpointEntryKey).(string)
-	config.FirebaserulesBasePath = d.Get(FirebaserulesEndpointEntryKey).(string)
-	config.GKEHubFeatureBasePath = d.Get(GKEHubFeatureEndpointEntryKey).(string)
-	config.OrgPolicyBasePath = d.Get(OrgPolicyEndpointEntryKey).(string)
-	config.RecaptchaEnterpriseBasePath = d.Get(RecaptchaEnterpriseEndpointEntryKey).(string)
-	config.CloudBuildWorkerPoolBasePath = d.Get(CloudBuildWorkerPoolEndpointEntryKey).(string)
+	config.CloudBuildWorkerPoolBasePath = "https://cloudbuild.googleapis.com/v1/"
+	config.CloudResourceManagerBasePath = "https://cloudresourcemanager.googleapis.com/"
+	config.EventarcBasePath = "https://eventarc.googleapis.com/v1/"
+	config.FirebaserulesBasePath = "https://firebaserules.googleapis.com/v1/"
+	config.GKEHubFeatureBasePath = "https://gkehub.googleapis.com/v1beta1/"
+	config.RecaptchaEnterpriseBasePath = "https://recaptchaenterprise.googleapis.com/v1/"
+
 	return config
 }

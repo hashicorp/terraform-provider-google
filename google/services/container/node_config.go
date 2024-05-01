@@ -226,6 +226,30 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
+				"secondary_boot_disks": {
+					Type:        schema.TypeList,
+					Optional:    true,
+					MaxItems:    127,
+					Description: `Secondary boot disks for preloading data or container images.`,
+					ForceNew:    true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"disk_image": {
+								Type:        schema.TypeString,
+								Required:    true,
+								ForceNew:    true,
+								Description: `Disk image to create the secondary boot disk from`,
+							},
+							"mode": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								ForceNew:    true,
+								Description: `Mode for how the secondary boot disk is used.`,
+							},
+						},
+					},
+				},
+
 				"gcfs_config": schemaGcfsConfig(true),
 
 				"gvnic": {
@@ -743,6 +767,14 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		}
 	}
 
+	if v, ok := nodeConfig["secondary_boot_disks"]; ok && len(v.([]interface{})) > 0 {
+		conf := v.([]interface{})[0].(map[string]interface{})
+		nc.SecondaryBootDisks = append(nc.SecondaryBootDisks, &container.SecondaryBootDisk{
+			DiskImage: conf["disk_image"].(string),
+			Mode:      conf["mode"].(string),
+		})
+	}
+
 	if v, ok := nodeConfig["gcfs_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.GcfsConfig = &container.GcfsConfig{
@@ -1108,6 +1140,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"resource_labels":                    c.ResourceLabels,
 		"tags":                               c.Tags,
 		"preemptible":                        c.Preemptible,
+		"secondary_boot_disks":               flattenSecondaryBootDisks(c.SecondaryBootDisks),
 		"spot":                               c.Spot,
 		"min_cpu_platform":                   c.MinCpuPlatform,
 		"shielded_instance_config":           flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),
@@ -1140,7 +1173,6 @@ func flattenResourceManagerTags(c *container.ResourceManagerTags) map[string]int
 		for k, v := range c.Tags {
 			rmt[k] = v
 		}
-
 	}
 
 	return rmt
@@ -1211,6 +1243,20 @@ func flattenEphemeralStorageLocalSsdConfig(c *container.EphemeralStorageLocalSsd
 		result = append(result, map[string]interface{}{
 			"local_ssd_count": c.LocalSsdCount,
 		})
+	}
+	return result
+}
+
+func flattenSecondaryBootDisks(c []*container.SecondaryBootDisk) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		for _, disk := range c {
+			secondaryBootDisk := map[string]interface{}{
+				"disk_image": disk.DiskImage,
+				"mode":       disk.Mode,
+			}
+			result = append(result, secondaryBootDisk)
+		}
 	}
 	return result
 }

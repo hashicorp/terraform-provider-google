@@ -242,6 +242,11 @@ The following arguments are supported:
   Client connection specific configurations.
   Structure is [documented below](#nested_client_connection_config).
 
+* `network_config` -
+  (Optional)
+  Instance level network configuration.
+  Structure is [documented below](#nested_network_config).
+
 
 <a name="nested_query_insights_config"></a>The `query_insights_config` block supports:
 
@@ -292,6 +297,28 @@ The following arguments are supported:
   SSL mode. Specifies client-server SSL/TLS connection behavior.
   Possible values are: `ENCRYPTED_ONLY`, `ALLOW_UNENCRYPTED_AND_ENCRYPTED`.
 
+<a name="nested_network_config"></a>The `network_config` block supports:
+
+* `authorized_external_networks` -
+  (Optional)
+  A list of external networks authorized to access this instance. This
+  field is only allowed to be set when `enable_public_ip` is set to
+  true.
+  Structure is [documented below](#nested_authorized_external_networks).
+
+* `enable_public_ip` -
+  (Optional)
+  Enabling public ip for the instance. If a user wishes to disable this,
+  please also clear the list of the authorized external networks set on
+  the same instance.
+
+
+<a name="nested_authorized_external_networks"></a>The `authorized_external_networks` block supports:
+
+* `cidr_range` -
+  (Optional)
+  CIDR range for one authorized network of the instance.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -318,6 +345,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `ip_address` -
   The IP address for the Instance. This is the connection endpoint for an end-user application.
+
+* `public_ip_address` -
+  The public IP addresses for the Instance. This is available ONLY when
+  networkConfig.enablePublicIp is set to true. This is the connection
+  endpoint for an end-user application.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

@@ -1,0 +1,3 @@
+```release-note:enhancement
+integrations: added deletion of `google_integrations_client` resource
+```

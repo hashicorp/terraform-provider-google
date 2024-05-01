@@ -8,13 +8,15 @@
 package tests
 
 import builds.AllContextParameters
+import jetbrains.buildServer.BuildProject
+import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
 import org.junit.Assert
 
 const val gaProjectName = "Google"
 const val betaProjectName = "Google Beta"
 const val nightlyTestsProjectName = "Nightly Tests"
-const val mmUpstreamProjectName = "MM Upstream Testing"
+const val mmUpstreamProjectName = "Upstream MM Testing"
 const val projectSweeperProjectName = "Project Sweeper"
 
 fun testContextParameters(): AllContextParameters {
@@ -56,15 +58,24 @@ fun testContextParameters(): AllContextParameters {
 
 fun getSubProject(rootProject: Project, parentProjectName: String, subProjectName: String): Project {
     // Find parent project within root
-    var parentProject: Project? =  rootProject.subProjects.find { p->  p.name == parentProjectName}
+    val parentProject: Project? =  rootProject.subProjects.find { p->  p.name == parentProjectName}
     if (parentProject == null) {
         Assert.fail("Could not find the $parentProjectName project")
     }
     // Find subproject within parent identified above
-    var subProject: Project?  = parentProject!!.subProjects.find { p->  p.name == subProjectName}
+    val subProject: Project?  = parentProject!!.subProjects.find { p->  p.name == subProjectName}
     if (subProject == null) {
         Assert.fail("Could not find the $subProjectName project")
     }
 
     return subProject!!
+}
+
+fun getBuildFromProject(parentProject: Project, buildName: String): BuildType {
+    val buildType: BuildType?  = parentProject!!.buildTypes.find { p->  p.name == buildName}
+    if (buildType == null) {
+        Assert.fail("Could not find the '$buildName' build in project ${parentProject.name}")
+    }
+
+    return buildType!!
 }

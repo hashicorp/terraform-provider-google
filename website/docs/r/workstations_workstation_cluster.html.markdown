@@ -270,6 +270,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `uid` -
   The system-generated UID of the resource.
 
+* `control_plane_ip` -
+  The private IP address of the control plane for this workstation cluster.
+  Workstation VMs need access to this IP address to work with the service, so make sure that your firewall rules allow egress from the workstation VMs to this address.
+
 * `degraded` -
   Whether this resource is in degraded mode, in which case it may require user action to restore full functionality.
   Details can be found in the conditions field.

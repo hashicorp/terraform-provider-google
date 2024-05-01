@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed `google_container_cluster` permadiff when `master_ipv4_cidr_block` is set for a private flexible cluster
+```

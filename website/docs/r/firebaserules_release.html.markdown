@@ -28,7 +28,7 @@ For more information, see:
 Creates a Firebase Rules Release to Cloud Firestore
 ```hcl
 resource "google_firebaserules_release" "primary" {
-  name         = "cloud.firestore"
+  name         = "cloud.firestore/database"
   ruleset_name = "projects/my-project-name/rulesets/${google_firebaserules_ruleset.firestore.name}"
   project      = "my-project-name"
 

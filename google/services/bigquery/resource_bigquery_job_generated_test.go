@@ -490,9 +490,13 @@ func TestAccBigQueryJob_bigqueryJobCopyExample(t *testing.T) {
 
 func testAccBigQueryJob_bigqueryJobCopyExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+locals {
+  count = 2
+}
+
 resource "google_bigquery_table" "source" {
   deletion_protection = false
-  count = length(google_bigquery_dataset.source)
+  count = local.count
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
   table_id   = "tf_test_job_copy%{random_suffix}_${count.index}_table"
@@ -519,7 +523,7 @@ EOF
 }
 
 resource "google_bigquery_dataset" "source" {
-  count = 2
+  count = local.count
 
   dataset_id                  = "tf_test_job_copy%{random_suffix}_${count.index}_dataset"
   friendly_name               = "test"
@@ -645,9 +649,13 @@ func TestAccBigQueryJob_bigqueryJobCopyTableReferenceExample(t *testing.T) {
 
 func testAccBigQueryJob_bigqueryJobCopyTableReferenceExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+locals {
+  count = 2
+}
+
 resource "google_bigquery_table" "source" {
   deletion_protection = false
-  count = length(google_bigquery_dataset.source)
+  count = local.count
 
   dataset_id = google_bigquery_dataset.source[count.index].dataset_id
   table_id   = "tf_test_job_copy%{random_suffix}_${count.index}_table"
@@ -671,10 +679,12 @@ resource "google_bigquery_table" "source" {
   }
 ]
 EOF
+
+  depends_on = [google_bigquery_dataset.source]
 }
 
 resource "google_bigquery_dataset" "source" {
-  count = 2
+  count = local.count
 
   dataset_id                  = "tf_test_job_copy%{random_suffix}_${count.index}_dataset"
   friendly_name               = "test"

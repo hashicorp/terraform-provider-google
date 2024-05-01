@@ -1,0 +1,3 @@
+```release-note:enhancement
+redis: added `node_type` and `precise_size_gb` fields to `google_redis_cluster`
+```

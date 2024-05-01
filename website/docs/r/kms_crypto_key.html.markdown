@@ -134,6 +134,11 @@ The following arguments are supported:
   (Optional)
   Whether this key may contain imported versions only.
 
+* `crypto_key_backend` -
+  (Optional)
+  The resource name of the backend environment associated with all CryptoKeyVersions within this CryptoKey.
+  The resource name is in the format "projects/*/locations/*/ekmConnections/*" and only applies to "EXTERNAL_VPC" keys.
+
 * `skip_initial_version_creation` -
   (Optional)
   If set to true, the request will create a CryptoKey without any CryptoKeyVersions.

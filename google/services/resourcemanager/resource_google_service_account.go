@@ -268,21 +268,16 @@ func resourceGoogleServiceAccountUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-
-		if len(updateMask) == 0 {
-			return nil
-		}
-
 	} else if d.HasChange("disabled") && d.Get("disabled").(bool) {
 		_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Disable(d.Id(),
 			&iam.DisableServiceAccountRequest{}).Do()
 		if err != nil {
 			return err
 		}
+	}
 
-		if len(updateMask) == 0 {
-			return nil
-		}
+	if len(updateMask) == 0 {
+		return nil
 	}
 
 	_, err = config.NewIamClient(userAgent).Projects.ServiceAccounts.Patch(d.Id(),

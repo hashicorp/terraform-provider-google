@@ -222,7 +222,7 @@ resource "google_compute_network" "custom_test" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
-  launch_stage = "BETA"
+  launch_stage = "GA"
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -233,7 +233,6 @@ resource "google_cloud_run_v2_service" "default" {
         subnetwork = "default"
         tags = ["tag1", "tag2", "tag3"]
       }
-      egress = "ALL_TRAFFIC"
     }
   }
 }

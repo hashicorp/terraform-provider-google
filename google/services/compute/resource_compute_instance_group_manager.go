@@ -5,7 +5,6 @@ package compute
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 	"time"
 
@@ -1289,54 +1288,29 @@ func flattenStatefulPolicyStatefulExternalIps(d *schema.ResourceData, statefulPo
 }
 
 func flattenStatefulPolicyStatefulIps(d *schema.ResourceData, ipfieldName string, ips map[string]compute.StatefulPolicyPreservedStateNetworkIp) []map[string]interface{} {
-
 	// statefulPolicy.PreservedState.ExternalIPs and statefulPolicy.PreservedState.InternalIPs are affected by API-side reordering
 	// of external/internal IPs, where ordering is done by the interface_name value.
-	// Below we intend to reorder the IPs to match the order in the config.
+	// Below we reorder the IPs to match the order in the config.
 	// Also, data is converted from a map (client library's statefulPolicy.PreservedState.ExternalIPs, or .InternalIPs) to a slice (stored in state).
 	// Any IPs found from the API response that aren't in the config are appended to the end of the slice.
-
-	configIpOrder := d.Get(ipfieldName).([]interface{})
-	order := map[string]int{} // record map of interface name to index
-	for i, el := range configIpOrder {
-		ip := el.(map[string]interface{})
-		interfaceName := ip["interface_name"].(string)
-		order[interfaceName] = i
+	configData := []map[string]interface{}{}
+	for _, item := range d.Get(ipfieldName).([]interface{}) {
+		configData = append(configData, item.(map[string]interface{}))
 	}
-
-	orderedResult := make([]map[string]interface{}, len(configIpOrder))
-	unexpectedIps := []map[string]interface{}{}
+	apiData := []map[string]interface{}{}
 	for interfaceName, ip := range ips {
 		data := map[string]interface{}{
 			"interface_name": interfaceName,
 			"delete_rule":    ip.AutoDelete,
 		}
-
-		index, found := order[interfaceName]
-		if !found {
-			unexpectedIps = append(unexpectedIps, data)
-			continue
-		}
-		orderedResult[index] = data // Put elements from API response in order that matches the config
+		apiData = append(apiData, data)
 	}
-	sort.Slice(unexpectedIps, func(i, j int) bool {
-		return unexpectedIps[i]["interface_name"].(string) < unexpectedIps[j]["interface_name"].(string)
-	})
-
-	// Remove any nils from the ordered list. This can occur if the API doesn't include an interface present in the config.
-	finalResult := []map[string]interface{}{}
-	for _, item := range orderedResult {
-		if item != nil {
-			finalResult = append(finalResult, item)
-		}
+	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "interface_name")
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response for %s: %s", ipfieldName, err)
+		return apiData
 	}
-
-	if len(unexpectedIps) > 0 {
-		// Additional IPs returned from API but not in the config are appended to the end of the slice
-		finalResult = append(finalResult, unexpectedIps...)
-	}
-
-	return finalResult
+	return sorted
 }
 
 func flattenUpdatePolicy(updatePolicy *compute.InstanceGroupManagerUpdatePolicy) []map[string]interface{} {

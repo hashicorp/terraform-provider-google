@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a crash when `google_bigquery_table` had a `primary_key.columns` entry set to `""`
+```

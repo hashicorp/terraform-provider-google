@@ -54,6 +54,17 @@ func SetMetadataAnnotationsDiff(_ context.Context, d *schema.ResourceDiff, meta 
 		return nil
 	}
 
+	// Fix the bug that the computed and nested "annotations" field disappears from the terraform plan.
+	// https://github.com/hashicorp/terraform-provider-google/issues/17756
+	// The bug is introduced by SetNew on "metadata" field with the object including "effective_annotations".
+	// "effective_annotations" cannot be set directly due to a bug that SetNew doesn't work on nested fields
+	// in terraform sdk.
+	// https://github.com/hashicorp/terraform-plugin-sdk/issues/459
+	values := d.GetRawPlan().GetAttr("metadata").AsValueSlice()
+	if len(values) > 0 && !values[0].GetAttr("annotations").IsWhollyKnown() {
+		return nil
+	}
+
 	raw := d.Get("metadata.0.annotations")
 	if raw == nil {
 		return nil

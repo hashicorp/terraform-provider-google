@@ -20,6 +20,7 @@ package privateca
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -620,6 +621,23 @@ leading period (like '.example.com')`,
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+						"subject_key_id": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `When specified this provides a custom SKI to be used in the certificate. This should only be used to maintain a SKI of an existing CA originally created outside CA service, which was not generated using method (1) described in RFC 5280 section 4.2.1.2..`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `The value of the KeyId in lowercase hexidecimal.`,
 									},
 								},
 							},
@@ -1340,6 +1358,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	// Only include linked certificate authority if the user specified it
 	if p, ok := d.GetOk("certificate_authority"); ok {
 		url, err = transport_tpg.AddQueryParams(url, map[string]string{"issuingCertificateAuthorityId": p.(string)})
@@ -1355,6 +1374,7 @@ func resourcePrivatecaCertificateCreate(d *schema.ResourceData, meta interface{}
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating Certificate: %s", err)
@@ -1397,12 +1417,14 @@ func resourcePrivatecaCertificateRead(d *schema.ResourceData, meta interface{}) 
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("PrivatecaCertificate %q", d.Id()))
@@ -1487,6 +1509,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	log.Printf("[DEBUG] Updating Certificate %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("effective_labels") {
@@ -1514,6 +1537,7 @@ func resourcePrivatecaCertificateUpdate(d *schema.ResourceData, meta interface{}
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -1554,6 +1578,8 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting Certificate %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -1563,6 +1589,7 @@ func resourcePrivatecaCertificateDelete(d *schema.ResourceData, meta interface{}
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "Certificate")
@@ -2310,6 +2337,8 @@ func flattenPrivatecaCertificateConfig(v interface{}, d *schema.ResourceData, co
 		flattenPrivatecaCertificateConfigX509Config(original["x509Config"], d, config)
 	transformed["subject_config"] =
 		flattenPrivatecaCertificateConfigSubjectConfig(original["subjectConfig"], d, config)
+	transformed["subject_key_id"] =
+		flattenPrivatecaCertificateConfigSubjectKeyId(original["subjectKeyId"], d, config)
 	transformed["public_key"] =
 		flattenPrivatecaCertificateConfigPublicKey(original["publicKey"], d, config)
 	return []interface{}{transformed}
@@ -2444,6 +2473,23 @@ func flattenPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v i
 	return v
 }
 
+func flattenPrivatecaCertificateConfigSubjectKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key_id"] =
+		flattenPrivatecaCertificateConfigSubjectKeyIdKeyId(original["keyId"], d, config)
+	return []interface{}{transformed}
+}
+func flattenPrivatecaCertificateConfigSubjectKeyIdKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenPrivatecaCertificateConfigPublicKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -2519,6 +2565,13 @@ func expandPrivatecaCertificateConfig(v interface{}, d tpgresource.TerraformReso
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSubjectConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["subjectConfig"] = transformedSubjectConfig
+	}
+
+	transformedSubjectKeyId, err := expandPrivatecaCertificateConfigSubjectKeyId(original["subject_key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSubjectKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["subjectKeyId"] = transformedSubjectKeyId
 	}
 
 	transformedPublicKey, err := expandPrivatecaCertificateConfigPublicKey(original["public_key"], d, config)
@@ -2763,6 +2816,29 @@ func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameEmailAddresses(v
 }
 
 func expandPrivatecaCertificateConfigSubjectConfigSubjectAltNameIpAddresses(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPrivatecaCertificateConfigSubjectKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKeyId, err := expandPrivatecaCertificateConfigSubjectKeyIdKeyId(original["key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["keyId"] = transformedKeyId
+	}
+
+	return transformed, nil
+}
+
+func expandPrivatecaCertificateConfigSubjectKeyIdKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

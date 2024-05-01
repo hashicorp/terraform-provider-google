@@ -20,6 +20,7 @@ package certificatemanager
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -209,6 +210,7 @@ func resourceCertificateManagerTrustConfigCreate(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -217,6 +219,7 @@ func resourceCertificateManagerTrustConfigCreate(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating TrustConfig: %s", err)
@@ -269,12 +272,14 @@ func resourceCertificateManagerTrustConfigRead(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CertificateManagerTrustConfig %q", d.Id()))
@@ -344,6 +349,7 @@ func resourceCertificateManagerTrustConfigUpdate(d *schema.ResourceData, meta in
 	}
 
 	log.Printf("[DEBUG] Updating TrustConfig %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "*"})
 	if err != nil {
 		return err
@@ -362,6 +368,7 @@ func resourceCertificateManagerTrustConfigUpdate(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
 	})
 
 	if err != nil {
@@ -408,6 +415,8 @@ func resourceCertificateManagerTrustConfigDelete(d *schema.ResourceData, meta in
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting TrustConfig %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -417,6 +426,7 @@ func resourceCertificateManagerTrustConfigDelete(d *schema.ResourceData, meta in
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "TrustConfig")

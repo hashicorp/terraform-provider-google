@@ -59,6 +59,34 @@ resource "google_firebase_hosting_release" "default" {
   message      = "Redirect to Google"
 }
 ```
+## Example Usage - Firebasehosting Version Path
+
+
+```hcl
+resource "google_firebase_hosting_site" "default" {
+  provider = google-beta
+  project  = "my-project-name"
+  site_id  = "site-id"
+}
+
+resource "google_firebase_hosting_version" "default" {
+  provider = google-beta
+  site_id  = google_firebase_hosting_site.default.site_id
+  config {
+    rewrites {
+      glob = "**"
+      path = "/index.html"
+    }
+  }
+}
+
+resource "google_firebase_hosting_release" "default" {
+  provider     = google-beta
+  site_id      = google_firebase_hosting_site.default.site_id
+  version_name = google_firebase_hosting_version.default.name
+  message      = "Path Rewrite"
+}
+```
 ## Example Usage - Firebasehosting Version Cloud Run
 
 
@@ -208,6 +236,10 @@ The following arguments are supported:
 * `regex` -
   (Optional)
   The user-supplied RE2 regular expression to match against the request URL path.
+
+* `path` -
+  (Optional)
+  The URL path to rewrite the request to.
 
 * `function` -
   (Optional)

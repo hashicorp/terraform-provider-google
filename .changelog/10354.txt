@@ -1,0 +1,3 @@
+```release-note:bug
+privateca: fixed permission issues when activating a sub-CA in a different region
+```

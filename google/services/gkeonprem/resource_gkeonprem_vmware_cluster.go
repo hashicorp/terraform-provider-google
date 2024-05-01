@@ -20,6 +20,7 @@ package gkeonprem
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -254,6 +255,11 @@ full access to the cluster.`,
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `A human readable description of this VMware User Cluster.`,
+			},
+			"disable_bundled_ingress": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Disable bundled ingress.`,
 			},
 			"enable_control_plane_v2": {
 				Type:        schema.TypeBool,
@@ -980,6 +986,12 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_control_plane_v2"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableControlPlaneV2Prop)) && (ok || !reflect.DeepEqual(v, enableControlPlaneV2Prop)) {
 		obj["enableControlPlaneV2"] = enableControlPlaneV2Prop
 	}
+	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_bundled_ingress"); !tpgresource.IsEmptyValue(reflect.ValueOf(disableBundledIngressProp)) && (ok || !reflect.DeepEqual(v, disableBundledIngressProp)) {
+		obj["disableBundledIngress"] = disableBundledIngressProp
+	}
 	upgradePolicyProp, err := expandGkeonpremVmwareClusterUpgradePolicy(d.Get("upgrade_policy"), d, config)
 	if err != nil {
 		return err
@@ -1018,6 +1030,7 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -1026,6 +1039,7 @@ func resourceGkeonpremVmwareClusterCreate(d *schema.ResourceData, meta interface
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating VmwareCluster: %s", err)
@@ -1085,12 +1099,14 @@ func resourceGkeonpremVmwareClusterRead(d *schema.ResourceData, meta interface{}
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("GkeonpremVmwareCluster %q", d.Id()))
@@ -1143,6 +1159,9 @@ func resourceGkeonpremVmwareClusterRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
 	if err := d.Set("enable_control_plane_v2", flattenGkeonpremVmwareClusterEnableControlPlaneV2(res["enableControlPlaneV2"], d, config)); err != nil {
+		return fmt.Errorf("Error reading VmwareCluster: %s", err)
+	}
+	if err := d.Set("disable_bundled_ingress", flattenGkeonpremVmwareClusterDisableBundledIngress(res["disableBundledIngress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading VmwareCluster: %s", err)
 	}
 	if err := d.Set("upgrade_policy", flattenGkeonpremVmwareClusterUpgradePolicy(res["upgradePolicy"], d, config)); err != nil {
@@ -1279,6 +1298,12 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_control_plane_v2"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableControlPlaneV2Prop)) {
 		obj["enableControlPlaneV2"] = enableControlPlaneV2Prop
 	}
+	disableBundledIngressProp, err := expandGkeonpremVmwareClusterDisableBundledIngress(d.Get("disable_bundled_ingress"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disable_bundled_ingress"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, disableBundledIngressProp)) {
+		obj["disableBundledIngress"] = disableBundledIngressProp
+	}
 	upgradePolicyProp, err := expandGkeonpremVmwareClusterUpgradePolicy(d.Get("upgrade_policy"), d, config)
 	if err != nil {
 		return err
@@ -1304,6 +1329,7 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 	}
 
 	log.Printf("[DEBUG] Updating VmwareCluster %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("description") {
@@ -1354,6 +1380,10 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "enableControlPlaneV2")
 	}
 
+	if d.HasChange("disable_bundled_ingress") {
+		updateMask = append(updateMask, "disableBundledIngress")
+	}
+
 	if d.HasChange("upgrade_policy") {
 		updateMask = append(updateMask, "upgradePolicy")
 	}
@@ -1387,6 +1417,7 @@ func resourceGkeonpremVmwareClusterUpdate(d *schema.ResourceData, meta interface
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -1434,6 +1465,8 @@ func resourceGkeonpremVmwareClusterDelete(d *schema.ResourceData, meta interface
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting VmwareCluster %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -1443,6 +1476,7 @@ func resourceGkeonpremVmwareClusterDelete(d *schema.ResourceData, meta interface
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "VmwareCluster")
@@ -2243,6 +2277,10 @@ func flattenGkeonpremVmwareClusterValidationCheckScenario(v interface{}, d *sche
 }
 
 func flattenGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGkeonpremVmwareClusterDisableBundledIngress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3323,6 +3361,10 @@ func expandGkeonpremVmwareClusterAuthorizationAdminUsersUsername(v interface{}, 
 }
 
 func expandGkeonpremVmwareClusterEnableControlPlaneV2(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGkeonpremVmwareClusterDisableBundledIngress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

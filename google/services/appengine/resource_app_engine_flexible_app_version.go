@@ -20,6 +20,7 @@ package appengine
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -1067,6 +1068,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               config,
 		Method:               "POST",
@@ -1075,6 +1077,7 @@ func resourceAppEngineFlexibleAppVersionCreate(d *schema.ResourceData, meta inte
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutCreate),
+		Headers:              headers,
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsAppEngineRetryableError},
 	})
 	if err != nil {
@@ -1128,12 +1131,14 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               config,
 		Method:               "GET",
 		Project:              billingProject,
 		RawURL:               url,
 		UserAgent:            userAgent,
+		Headers:              headers,
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsAppEngineRetryableError},
 	})
 	if err != nil {
@@ -1207,9 +1212,6 @@ func resourceAppEngineFlexibleAppVersionRead(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
 	if err := d.Set("nobuild_files_regex", flattenAppEngineFlexibleAppVersionNobuildFilesRegex(res["nobuildFilesRegex"], d, config)); err != nil {
-		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
-	}
-	if err := d.Set("deployment", flattenAppEngineFlexibleAppVersionDeployment(res["deployment"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FlexibleAppVersion: %s", err)
 	}
 	if err := d.Set("endpoints_api_service", flattenAppEngineFlexibleAppVersionEndpointsApiService(res["endpointsApiService"], d, config)); err != nil {
@@ -1413,6 +1415,7 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 	}
 
 	log.Printf("[DEBUG] Updating FlexibleAppVersion %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
@@ -1427,6 +1430,7 @@ func resourceAppEngineFlexibleAppVersionUpdate(d *schema.ResourceData, meta inte
 		UserAgent:            userAgent,
 		Body:                 obj,
 		Timeout:              d.Timeout(schema.TimeoutUpdate),
+		Headers:              headers,
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsAppEngineRetryableError},
 	})
 
@@ -2013,61 +2017,6 @@ func flattenAppEngineFlexibleAppVersionLivenessCheckInitialDelay(v interface{}, 
 }
 
 func flattenAppEngineFlexibleAppVersionNobuildFilesRegex(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeployment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	original := v.(map[string]interface{})
-	transformed := make(map[string]interface{})
-	transformed["zip"] = d.Get("deployment.0.zip")
-	transformed["files"] = d.Get("deployment.0.files")
-	transformed["container"] =
-		flattenAppEngineFlexibleAppVersionDeploymentContainer(original["container"], d, config)
-	transformed["cloud_build_options"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptions(original["cloudBuildOptions"], d, config)
-
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentContainer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["image"] =
-		flattenAppEngineFlexibleAppVersionDeploymentContainerImage(original["image"], d, config)
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentContainerImage(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return nil
-	}
-	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
-	transformed := make(map[string]interface{})
-	transformed["app_yaml_path"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsAppYamlPath(original["appYamlPath"], d, config)
-	transformed["cloud_build_timeout"] =
-		flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsCloudBuildTimeout(original["cloudBuildTimeout"], d, config)
-	return []interface{}{transformed}
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsAppYamlPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAppEngineFlexibleAppVersionDeploymentCloudBuildOptionsCloudBuildTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

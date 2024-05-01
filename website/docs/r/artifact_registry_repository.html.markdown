@@ -255,49 +255,258 @@ resource "google_artifact_registry_repository" "my-repo" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_custom&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_dockerhub_auth&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Artifact Registry Repository Remote Custom
+## Example Usage - Artifact Registry Repository Remote Dockerhub Auth
 
 
 ```hcl
 data "google_project" "project" {}
 
-resource "google_secret_manager_secret" "example-custom-remote-secret" {
+resource "google_secret_manager_secret" "example-remote-secret" {
   secret_id = "example-secret"
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret_version" "example-custom-remote-secret_version" {
-  secret = google_secret_manager_secret.example-custom-remote-secret.id
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
   secret_data = "remote-password"
 }
 
 resource "google_secret_manager_secret_iam_member" "secret-access" {
-  secret_id = google_secret_manager_secret.example-custom-remote-secret.id
+  secret_id = google_secret_manager_secret.example-remote-secret.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "example-custom-remote"
-  description   = "example remote docker repository with credentials"
+  repository_id = "example-dockerhub-remote"
+  description   = "example remote dockerhub repository with credentials"
   format        = "DOCKER"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
     description = "docker hub with custom credentials"
+    disable_upstream_validation = true
     docker_repository {
       public_repository = "DOCKER_HUB"
     }
     upstream_credentials {
       username_password_credentials {
         username = "remote-username"
-        password_secret_version = google_secret_manager_secret_version.example-custom-remote-secret_version.name
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_docker_custom_with_auth&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Docker Custom With Auth
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "example-remote-secret" {
+  secret_id = "example-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
+  secret_data = "remote-password"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.example-remote-secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-docker-custom-remote"
+  description   = "example remote custom docker repository with credentials"
+  format        = "DOCKER"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom docker remote with credentials"
+    disable_upstream_validation = true
+    docker_repository {
+      custom_repository {
+        uri = "https://registry-1.docker.io"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "remote-username"
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_maven_custom_with_auth&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Maven Custom With Auth
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "example-remote-secret" {
+  secret_id = "example-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
+  secret_data = "remote-password"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.example-remote-secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-maven-custom-remote"
+  description   = "example remote custom maven repository with credentials"
+  format        = "MAVEN"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom maven remote with credentials"
+    disable_upstream_validation = true
+    maven_repository {
+      custom_repository {
+        uri = "https://my.maven.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "remote-username"
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_npm_custom_with_auth&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Npm Custom With Auth
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "example-remote-secret" {
+  secret_id = "example-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
+  secret_data = "remote-password"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.example-remote-secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-npm-custom-remote"
+  description   = "example remote custom npm repository with credentials"
+  format        = "NPM"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom npm with credentials"
+    disable_upstream_validation = true
+    npm_repository {
+      custom_repository {
+        uri = "https://my.npm.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "remote-username"
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=artifact_registry_repository_remote_python_custom_with_auth&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Artifact Registry Repository Remote Python Custom With Auth
+
+
+```hcl
+data "google_project" "project" {}
+
+resource "google_secret_manager_secret" "example-remote-secret" {
+  secret_id = "example-secret"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "example-remote-secret_version" {
+  secret = google_secret_manager_secret.example-remote-secret.id
+  secret_data = "remote-password"
+}
+
+resource "google_secret_manager_secret_iam_member" "secret-access" {
+  secret_id = google_secret_manager_secret.example-remote-secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+}
+
+resource "google_artifact_registry_repository" "my-repo" {
+  location      = "us-central1"
+  repository_id = "example-python-custom-remote"
+  description   = "example remote custom python repository with credentials"
+  format        = "PYTHON"
+  mode          = "REMOTE_REPOSITORY"
+  remote_repository_config {
+    description = "custom npm with credentials"
+    disable_upstream_validation = true
+    python_repository {
+      custom_repository {
+        uri = "https://my.python.registry"
+      }
+    }
+    upstream_credentials {
+      username_password_credentials {
+        username = "remote-username"
+        password_secret_version = google_secret_manager_secret_version.example-remote-secret_version.name
       }
     }
   }
@@ -539,6 +748,11 @@ The following arguments are supported:
   The credentials used to access the remote repository.
   Structure is [documented below](#nested_upstream_credentials).
 
+* `disable_upstream_validation` -
+  (Optional)
+  If true, the remote repository upstream and upstream credentials will
+  not be validated.
+
 
 <a name="nested_apt_repository"></a>The `apt_repository` block supports:
 
@@ -567,6 +781,18 @@ The following arguments are supported:
   Default value is `DOCKER_HUB`.
   Possible values are: `DOCKER_HUB`.
 
+* `custom_repository` -
+  (Optional)
+  Settings for a remote repository with a custom uri.
+  Structure is [documented below](#nested_custom_repository).
+
+
+<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+
+* `uri` -
+  (Optional)
+  Specific uri to the registry, e.g. `"https://registry-1.docker.io"`
+
 <a name="nested_maven_repository"></a>The `maven_repository` block supports:
 
 * `public_repository` -
@@ -574,6 +800,18 @@ The following arguments are supported:
   Address of the remote repository.
   Default value is `MAVEN_CENTRAL`.
   Possible values are: `MAVEN_CENTRAL`.
+
+* `custom_repository` -
+  (Optional)
+  Settings for a remote repository with a custom uri.
+  Structure is [documented below](#nested_custom_repository).
+
+
+<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+
+* `uri` -
+  (Optional)
+  Specific uri to the registry, e.g. `"https://repo.maven.apache.org/maven2"`
 
 <a name="nested_npm_repository"></a>The `npm_repository` block supports:
 
@@ -583,6 +821,18 @@ The following arguments are supported:
   Default value is `NPMJS`.
   Possible values are: `NPMJS`.
 
+* `custom_repository` -
+  (Optional)
+  Settings for a remote repository with a custom uri.
+  Structure is [documented below](#nested_custom_repository).
+
+
+<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+
+* `uri` -
+  (Optional)
+  Specific uri to the registry, e.g. `"https://registry.npmjs.org"`
+
 <a name="nested_python_repository"></a>The `python_repository` block supports:
 
 * `public_repository` -
@@ -590,6 +840,18 @@ The following arguments are supported:
   Address of the remote repository.
   Default value is `PYPI`.
   Possible values are: `PYPI`.
+
+* `custom_repository` -
+  (Optional)
+  Settings for a remote repository with a custom uri.
+  Structure is [documented below](#nested_custom_repository).
+
+
+<a name="nested_custom_repository"></a>The `custom_repository` block supports:
+
+* `uri` -
+  (Optional)
+  Specific uri to the registry, e.g. `"https://pypi.io"`
 
 <a name="nested_yum_repository"></a>The `yum_repository` block supports:
 

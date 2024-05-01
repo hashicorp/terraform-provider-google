@@ -1,0 +1,3 @@
+```release-note:enhancement
+secretmanager: added `version_destroy_ttl` field to `google_secret_manager_secret` resource
+```

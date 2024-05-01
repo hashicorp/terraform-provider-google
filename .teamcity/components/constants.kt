@@ -16,13 +16,16 @@ const val DefaultStartHour = 4
 const val DefaultParallelism = 6
 
 // specifies the default version of Terraform Core which should be used for testing
-const val DefaultTerraformCoreVersion = "1.2.5"
+const val DefaultTerraformCoreVersion = "1.8.0"
 
 // This represents a cron view of days of the week
 const val DefaultDaysOfWeek = "*"
 
 // Cron value for any day of month
 const val DefaultDaysOfMonth = "*"
+
+// This represents the default branch to be used for testing
+const val DefaultBranchName = "refs/heads/main"
 
 // Value used to make long-running builds fail due to a timeout
 const val DefaultBuildTimeoutDuration = 60 * 12 // 12 hours in minutes

@@ -54,8 +54,8 @@ resource "google_access_context_manager_access_policy" "access-policy" {
 
 ```hcl
 resource "google_project" "project" {
-  project_id      = "acm-test-proj-123"
-  name            = "acm-test-proj-123"
+  project_id      = "my-project-name"
+  name            = "my-project-name"
   org_id          = "123456789"
 }
 

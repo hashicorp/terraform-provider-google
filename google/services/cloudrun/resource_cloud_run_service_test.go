@@ -555,6 +555,76 @@ func TestAccCloudRunServiceMigration_withLabels(t *testing.T) {
 	})
 }
 
+func TestAccCloudRunService_withComputedLabels(t *testing.T) {
+	// Skip it in VCR test because of the randomness of uuid in "labels" field
+	// which causes the replaying mode after recording mode failing in VCR test
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+	project := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck: func() { acctest.AccTestPreCheck(t) },
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {},
+		},
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_withComputedLabels(name, project, "10", "600"),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_withComputedLabels(name, project, concurrency, timeoutSeconds string) string {
+	return fmt.Sprintf(`
+resource "random_uuid" "test" {
+}
+
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+    annotations = {
+      env = "${random_uuid.test.result}"
+    }
+    labels = {
+      key1 = "${random_uuid.test.result}"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        ports {
+          container_port = 8080
+        }
+      }
+      container_concurrency = %s
+      timeout_seconds = %s
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+    tag             = "magic-module"
+  }
+}
+`, name, project, concurrency, timeoutSeconds)
+}
+
 func testAccCloudRunService_withProviderDefaultLabels(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 provider "google" {

@@ -20,6 +20,7 @@ package cloudfunctions2
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -103,6 +104,12 @@ function exported by the module specified in source_location.`,
 							Optional: true,
 							Description: `The runtime in which to run the function. Required when deploying a new
 function, optional when updating an existing function.`,
+						},
+						"service_account": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							Description: `The fully-qualified name of the service account to be used for building the container.`,
 						},
 						"source": {
 							Type:        schema.TypeList,
@@ -607,6 +614,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",
@@ -615,6 +623,7 @@ func resourceCloudfunctions2functionCreate(d *schema.ResourceData, meta interfac
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating function: %s", err)
@@ -678,12 +687,14 @@ func resourceCloudfunctions2functionRead(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Cloudfunctions2function %q", d.Id()))
@@ -795,6 +806,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] Updating function %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 	updateMask := []string{}
 
 	if d.HasChange("description") {
@@ -842,6 +854,7 @@ func resourceCloudfunctions2functionUpdate(d *schema.ResourceData, meta interfac
 			UserAgent: userAgent,
 			Body:      obj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
 		})
 
 		if err != nil {
@@ -889,6 +902,8 @@ func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interfac
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting function %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -898,6 +913,7 @@ func resourceCloudfunctions2functionDelete(d *schema.ResourceData, meta interfac
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "function")
@@ -981,6 +997,8 @@ func flattenCloudfunctions2functionBuildConfig(v interface{}, d *schema.Resource
 		flattenCloudfunctions2functionBuildConfigEnvironmentVariables(original["environmentVariables"], d, config)
 	transformed["docker_repository"] =
 		flattenCloudfunctions2functionBuildConfigDockerRepository(original["dockerRepository"], d, config)
+	transformed["service_account"] =
+		flattenCloudfunctions2functionBuildConfigServiceAccount(original["serviceAccount"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudfunctions2functionBuildConfigBuild(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1141,6 +1159,10 @@ func flattenCloudfunctions2functionBuildConfigEnvironmentVariables(v interface{}
 }
 
 func flattenCloudfunctions2functionBuildConfigDockerRepository(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudfunctions2functionBuildConfigServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1587,6 +1609,13 @@ func expandCloudfunctions2functionBuildConfig(v interface{}, d tpgresource.Terra
 		transformed["dockerRepository"] = transformedDockerRepository
 	}
 
+	transformedServiceAccount, err := expandCloudfunctions2functionBuildConfigServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
 	return transformed, nil
 }
 
@@ -1778,6 +1807,10 @@ func expandCloudfunctions2functionBuildConfigEnvironmentVariables(v interface{},
 }
 
 func expandCloudfunctions2functionBuildConfigDockerRepository(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudfunctions2functionBuildConfigServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

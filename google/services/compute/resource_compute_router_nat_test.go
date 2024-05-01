@@ -357,6 +357,66 @@ func TestAccComputeRouterNat_withNatRules(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
+	t.Parallel()
+
+	testId := acctest.RandString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-nat-%s", testId)
+	testResourceName := "google_compute_router_nat.foobar"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatBasic(routerName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResourceName, "endpoint_types.0", "ENDPOINT_TYPE_VM"),
+				),
+			},
+			{
+				ResourceName:      testResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_SWG"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResourceName, "endpoint_types.0", "ENDPOINT_TYPE_SWG"),
+				),
+			},
+			{
+				ResourceName:      testResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_VM"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResourceName, "endpoint_types.0", "ENDPOINT_TYPE_VM"),
+				),
+			},
+			{
+				ResourceName:      testResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeRouterNatUpdateEndpointType(routerName, "ENDPOINT_TYPE_MANAGED_PROXY_LB"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(testResourceName, "endpoint_types.0", "ENDPOINT_TYPE_MANAGED_PROXY_LB"),
+				),
+			},
+			{
+				ResourceName:      testResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -557,6 +617,40 @@ resource "google_compute_router_nat" "foobar" {
   }
 }
 `, routerName, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatUpdateEndpointType(routerName string, endpointType string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name = "%[1]s-net"
+}
+
+resource "google_compute_subnetwork" "foobar" {
+  name          = "%[1]s-subnet"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "%[1]s"
+  region  = google_compute_subnetwork.foobar.region
+  network = google_compute_network.foobar.self_link
+}
+
+resource "google_compute_router_nat" "foobar" {
+  name                               = "%[1]s"
+  router                             = google_compute_router.foobar.name
+  region                             = google_compute_router.foobar.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  endpoint_types                     = [ "%[2]s" ]
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
+}
+`, routerName, endpointType)
 }
 
 func testAccComputeRouterNatUpdateToNatIPsId(routerName string) string {

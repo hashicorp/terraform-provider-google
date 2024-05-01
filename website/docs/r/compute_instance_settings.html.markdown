@@ -21,8 +21,6 @@ description: |-
 
 Represents an Instance Settings resource. Instance settings are centralized configuration parameters that allow users to configure the default values for specific VM parameters that are normally set using GCE instance API methods.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about InstanceSettings, see:
 
@@ -41,7 +39,6 @@ To get more information about InstanceSettings, see:
 ```hcl
 
 resource "google_compute_instance_settings" "gce_instance_settings" {
-  provider = google-beta
   zone = "us-east7-b"
   metadata {
     items = {

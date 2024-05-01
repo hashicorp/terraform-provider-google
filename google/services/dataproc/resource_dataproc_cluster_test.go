@@ -152,7 +152,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 	var cluster dataproc.Cluster
 
 	project := envvar.GetTestProjectFromEnv()
-	acceleratorType := "nvidia-tesla-k80"
+	acceleratorType := "nvidia-tesla-t4"
 	zone := "us-central1-c"
 	networkName := acctest.BootstrapSharedTestNetwork(t, "dataproc-cluster")
 	subnetworkName := acctest.BootstrapSubnet(t, "dataproc-cluster", networkName)
@@ -176,7 +176,7 @@ func TestAccDataprocCluster_withAccelerators(t *testing.T) {
 
 func testAccCheckDataprocAuxiliaryNodeGroupAccelerator(cluster *dataproc.Cluster, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-k80", project)
+		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-t4", project)
 		r := regexp.MustCompile(expectedUri)
 
 		nodeGroup := cluster.Config.AuxiliaryNodeGroups[0].NodeGroup.NodeGroupConfig.Accelerators
@@ -194,7 +194,7 @@ func testAccCheckDataprocAuxiliaryNodeGroupAccelerator(cluster *dataproc.Cluster
 
 func testAccCheckDataprocClusterAccelerator(cluster *dataproc.Cluster, project string, masterCount int, workerCount int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-k80", project)
+		expectedUri := fmt.Sprintf("projects/%s/zones/.*/acceleratorTypes/nvidia-tesla-t4", project)
 		r := regexp.MustCompile(expectedUri)
 
 		master := cluster.Config.MasterConfig.Accelerators
@@ -551,7 +551,7 @@ func TestAccDataprocCluster_spotWithAuxiliaryNodeGroups(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.roles.0", "DRIVER"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.num_instances", "2"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.machine_type", "n1-standard-2"),
-					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.min_cpu_platform", "AMD Rome"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.min_cpu_platform", "Intel Haswell"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_size_gb", "35"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_type", "pd-standard"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.num_local_ssds", "1"),
@@ -702,7 +702,10 @@ func TestAccDataprocCluster_withServiceAcc(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDataprocClusterDestroy(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckDataprocClusterDestroy(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataprocCluster_withServiceAcc(sa, rnd, subnetworkName),
@@ -1959,7 +1962,7 @@ resource "google_dataproc_cluster" "with_auxiliary_node_groups" {
         node_group_config{
           num_instances=2
           machine_type="n1-standard-2"
-          min_cpu_platform = "AMD Rome"
+          min_cpu_platform = "Intel Haswell"
           disk_config {
             boot_disk_size_gb = 35
             boot_disk_type = "pd-standard"
@@ -1967,7 +1970,7 @@ resource "google_dataproc_cluster" "with_auxiliary_node_groups" {
           }
           accelerators {
             accelerator_count = 1
-            accelerator_type  = "nvidia-tesla-k80"
+            accelerator_type  = "nvidia-tesla-t4"
           }
         }
       }
@@ -2222,6 +2225,13 @@ resource "google_project_iam_member" "service_account" {
   member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
+# Wait for IAM propagation
+resource "time_sleep" "wait_120_seconds" {
+  depends_on = [google_project_iam_member.service_account]
+
+  create_duration = "120s"
+}
+
 resource "google_dataproc_cluster" "with_service_account" {
   name   = "dproc-cluster-test-%s"
   region = "us-central1"
@@ -2259,7 +2269,7 @@ resource "google_dataproc_cluster" "with_service_account" {
     }
   }
 
-  depends_on = [google_project_iam_member.service_account]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 `, sa, rnd, subnetworkName)
 }

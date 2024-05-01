@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
@@ -248,6 +249,20 @@ Mutually exclusive with enableEndpointIndependentMapping.`,
 				Optional: true,
 				Description: `Enable endpoint independent mapping.
 For more information see the [official documentation](https://cloud.google.com/nat/docs/overview#specs-rfcs).`,
+			},
+			"endpoint_types": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+				Description: `Specifies the endpoint Types supported by the NAT Gateway.
+Supported values include:
+      'ENDPOINT_TYPE_VM', 'ENDPOINT_TYPE_SWG',
+      'ENDPOINT_TYPE_MANAGED_PROXY_LB'.`,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"icmp_idle_timeout_sec": {
 				Type:        schema.TypeInt,
@@ -575,6 +590,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("log_config"); ok || !reflect.DeepEqual(v, logConfigProp) {
 		obj["logConfig"] = logConfigProp
 	}
+	endpointTypesProp, err := expandNestedComputeRouterNatEndpointTypes(d.Get("endpoint_types"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("endpoint_types"); !tpgresource.IsEmptyValue(reflect.ValueOf(endpointTypesProp)) && (ok || !reflect.DeepEqual(v, endpointTypesProp)) {
+		obj["endpointTypes"] = endpointTypesProp
+	}
 	rulesProp, err := expandNestedComputeRouterNatRules(d.Get("rules"), d, config)
 	if err != nil {
 		return err
@@ -619,6 +640,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -627,6 +649,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutCreate),
+		Headers:   headers,
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating RouterNat: %s", err)
@@ -679,12 +702,14 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",
 		Project:   billingProject,
 		RawURL:    url,
 		UserAgent: userAgent,
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRouterNat %q", d.Id()))
@@ -749,6 +774,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("log_config", flattenNestedComputeRouterNatLogConfig(res["logConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
+	if err := d.Set("endpoint_types", flattenNestedComputeRouterNatEndpointTypes(res["endpointTypes"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
 	if err := d.Set("rules", flattenNestedComputeRouterNatRules(res["rules"], d, config)); err != nil {
@@ -887,6 +915,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("[DEBUG] Updating RouterNat %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
 
 	obj, err = resourceComputeRouterNatPatchUpdateEncoder(d, meta, obj)
 	if err != nil {
@@ -906,6 +935,7 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
 	})
 
 	if err != nil {
@@ -964,6 +994,8 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 		billingProject = bp
 	}
 
+	headers := make(http.Header)
+
 	log.Printf("[DEBUG] Deleting RouterNat %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -973,6 +1005,7 @@ func resourceComputeRouterNatDelete(d *schema.ResourceData, meta interface{}) er
 		UserAgent: userAgent,
 		Body:      obj,
 		Timeout:   d.Timeout(schema.TimeoutDelete),
+		Headers:   headers,
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "RouterNat")
@@ -1206,6 +1239,10 @@ func flattenNestedComputeRouterNatLogConfigEnable(v interface{}, d *schema.Resou
 }
 
 func flattenNestedComputeRouterNatLogConfigFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterNatEndpointTypes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1452,6 +1489,10 @@ func expandNestedComputeRouterNatLogConfigEnable(v interface{}, d tpgresource.Te
 }
 
 func expandNestedComputeRouterNatLogConfigFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatEndpointTypes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

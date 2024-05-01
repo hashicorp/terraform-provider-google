@@ -49,7 +49,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionBasic
 				ResourceName:            "google_integration_connectors_connection.pubsubconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -96,7 +96,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionAdvan
 				ResourceName:            "google_integration_connectors_connection.zendeskconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -358,7 +358,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionSaExa
 				ResourceName:            "google_integration_connectors_connection.zendeskconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -618,7 +618,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauth
 				ResourceName:            "google_integration_connectors_connection.boxconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -705,7 +705,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauth
 				ResourceName:            "google_integration_connectors_connection.boxconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -791,7 +791,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauth
 				ResourceName:            "google_integration_connectors_connection.boxconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -908,7 +908,7 @@ func TestAccIntegrationConnectorsConnection_integrationConnectorsConnectionOauth
 				ResourceName:            "google_integration_connectors_connection.boxconnection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"location", "name", "status.0.description", "labels", "terraform_labels"},
 			},
 		},
 	})
