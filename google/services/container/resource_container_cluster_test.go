@@ -1265,6 +1265,31 @@ func TestAccContainerCluster_withLoggingVariantUpdates(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAdvancedMachineFeaturesInNodePool(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAdvancedMachineFeaturesInNodePool(clusterName, nodePoolName, networkName, subnetworkName, true),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_advanced_machine_features_in_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	t.Parallel()
 
@@ -5479,6 +5504,30 @@ resource "google_container_cluster" "with_logging_variant_node_pool_default" {
   subnetwork    = "%s"
 }
 `, clusterName, loggingVariant, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAdvancedMachineFeaturesInNodePool(clusterName, nodePoolName, networkName, subnetworkName string, nvEnabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_advanced_machine_features_in_node_pool" {
+  name               = "%s"
+  location           = "us-central1-f"
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "c2-standard-4"
+      advanced_machine_features {
+        threads_per_core = 1
+        enable_nested_virtualization = "%t"
+	    }
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, nodePoolName, nvEnabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withNodeConfigUpdate(clusterName, networkName, subnetworkName string) string {
