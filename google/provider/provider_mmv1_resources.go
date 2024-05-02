@@ -1042,6 +1042,7 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_bigtable_gc_policy":                     bigtable.ResourceBigtableGCPolicy(),
 	"google_bigtable_instance":                      bigtable.ResourceBigtableInstance(),
 	"google_bigtable_table":                         bigtable.ResourceBigtableTable(),
+	"google_bigtable_authorized_view":               bigtable.ResourceBigtableAuthorizedView(),
 	"google_billing_subaccount":                     resourcemanager.ResourceBillingSubaccount(),
 	"google_cloudfunctions_function":                cloudfunctions.ResourceCloudFunctionsFunction(),
 	"google_composer_environment":                   composer.ResourceComposerEnvironment(),
