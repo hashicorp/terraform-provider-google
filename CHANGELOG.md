@@ -1,5 +1,27 @@
 ## 5.27.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+* Update CHANGELOG 5.26.0 ([#17971](https://github.com/hashicorp/terraform-provider-google/pull/17971))
+NOTES:
+* compute: added documentation for md5_authentication_key field in google_compute_router_peer resource ([#17991](https://github.com/hashicorp/terraform-provider-google/pull/17991))
+
+FEATURES:
+* **New Data Source:** `google_storage_buckets` ([#17960](https://github.com/hashicorp/terraform-provider-google/pull/17960))
+* **New Resource:** `google_compute_security_policy_rule` ([#17937](https://github.com/hashicorp/terraform-provider-google/pull/17937))
+* **New Resource:** `google_privileged_access_manager_entitlement` (beta) ([#17940](https://github.com/hashicorp/terraform-provider-google/pull/17940))
+
+IMPROVEMENTS:
+* alloydb: added `maintenance_update_policy` field to `google_alloydb_cluster` resource ([#17954](https://github.com/hashicorp/terraform-provider-google/pull/17954))
+* bigquery: promoted `external_dataset_reference` in `bigquery_dataset` to GA ([#17944](https://github.com/hashicorp/terraform-provider-google/pull/17944))
+* composer: promoted `config.0.software_config.0.image_version` in-place updates to GA in resource `google_composer_environment` ([#17986](https://github.com/hashicorp/terraform-provider-google/pull/17986))
+* container: added `node_config.secondary_boot_disks` field to `google_container_node_pool` ([#17962](https://github.com/hashicorp/terraform-provider-google/pull/17962))
+* integrations: Deprecated `create_sample_workflows` and `provision_gmek` fields and added `create_sample_integrations` in `google_integrations_client` to keep it consistent with terminology. ([#17945](https://github.com/hashicorp/terraform-provider-google/pull/17945))
+* redis: added `redis_configs` field to `google_redis_cluster` resource ([#17956](https://github.com/hashicorp/terraform-provider-google/pull/17956))
+
+BUG FIXES:
+* dns: fixed bug where the deletion of manages zones that have a SOA-Record set with terraform did not work ([#17989](https://github.com/hashicorp/terraform-provider-google/pull/17989))
+* storage: fixed an issue where `google_storage_bucket_object` and `google_storage_bucket_objects` data sources would ignore custom endpoints ([#17952](https://github.com/hashicorp/terraform-provider-google/pull/17952))
+
 ## 5.26.0 (Apr 22, 2024)
 
 FEATURES:
