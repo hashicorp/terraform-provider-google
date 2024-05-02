@@ -22,6 +22,11 @@ body:
       description: |
         Please run [`terraform version`](https://developer.hashicorp.com/terraform/cli/commands/version) to show the Terraform core version and provider version(s) and paste the output here.
         If you are not running the latest version of Terraform or the provider, please upgrade because your issue may have already been fixed.
+      value: |
+        Terraform vX.X.X
+        on <architecture>
+        + provider registry.terraform.io/hashicorp/google vX.X.X
+        + provider registry.terraform.io/hashicorp/google-beta vX.X.X
     validations:
       required: true
   - type: textarea
