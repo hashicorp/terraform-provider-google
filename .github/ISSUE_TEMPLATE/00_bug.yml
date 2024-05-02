@@ -18,7 +18,7 @@ body:
   - type: textarea
     id: terraform-version
     attributes:
-      label: Terraform Version & Provider Version
+      label: Terraform Version & Provider Version(s)
       description: |
         Please run [`terraform version`](https://developer.hashicorp.com/terraform/cli/commands/version) to show the Terraform core version and provider version(s) and paste the output here.
         If you are not running the latest version of Terraform or the provider, please upgrade because your issue may have already been fixed.
