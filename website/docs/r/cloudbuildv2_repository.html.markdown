@@ -98,7 +98,7 @@ resource "google_cloudbuildv2_connection" "my-connection" {
 resource "google_cloudbuildv2_repository" "my-repository" {
   name = "my-terraform-ghe-repo"
   location = "us-central1"
-  parent_connection = google_cloudbuildv2_connection.my-connection.id
+  parent_connection = google_cloudbuildv2_connection.my-connection.name
   remote_uri = "https://ghe.com/hashicorp/terraform-provider-google.git"
 }
 ```
