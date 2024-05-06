@@ -405,9 +405,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 404
+// Generated resources: 409
 // Generated IAM resources: 234
-// Total generated resources: 638
+// Total generated resources: 643
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -900,11 +900,16 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_connectivity_service_connection_policy":            networkconnectivity.ResourceNetworkConnectivityServiceConnectionPolicy(),
 	"google_network_management_connectivity_test":                      networkmanagement.ResourceNetworkManagementConnectivityTest(),
 	"google_network_security_address_group":                            networksecurity.ResourceNetworkSecurityAddressGroup(),
+	"google_network_security_firewall_endpoint":                        networksecurity.ResourceNetworkSecurityFirewallEndpoint(),
+	"google_network_security_firewall_endpoint_association":            networksecurity.ResourceNetworkSecurityFirewallEndpointAssociation(),
 	"google_network_security_gateway_security_policy":                  networksecurity.ResourceNetworkSecurityGatewaySecurityPolicy(),
 	"google_network_security_gateway_security_policy_rule":             networksecurity.ResourceNetworkSecurityGatewaySecurityPolicyRule(),
 	"google_network_security_address_group_iam_binding":                tpgiamresource.ResourceIamBinding(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
 	"google_network_security_address_group_iam_member":                 tpgiamresource.ResourceIamMember(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
 	"google_network_security_address_group_iam_policy":                 tpgiamresource.ResourceIamPolicy(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer, networksecurity.NetworkSecurityProjectAddressGroupIdParseFunc),
+	"google_network_security_security_profile":                         networksecurity.ResourceNetworkSecuritySecurityProfile(),
+	"google_network_security_security_profile_group":                   networksecurity.ResourceNetworkSecuritySecurityProfileGroup(),
+	"google_network_security_tls_inspection_policy":                    networksecurity.ResourceNetworkSecurityTlsInspectionPolicy(),
 	"google_network_security_url_lists":                                networksecurity.ResourceNetworkSecurityUrlLists(),
 	"google_network_services_edge_cache_keyset":                        networkservices.ResourceNetworkServicesEdgeCacheKeyset(),
 	"google_network_services_edge_cache_origin":                        networkservices.ResourceNetworkServicesEdgeCacheOrigin(),

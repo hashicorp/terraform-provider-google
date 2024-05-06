@@ -21,12 +21,10 @@ description: |-
 
 A security profile group defines a container for security profiles.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about SecurityProfileGroup, see:
 
-* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.securityProfileGroups)
+* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1/organizations.locations.securityProfileGroups)
 * How-to Guides
     * [Security profile groups overview](https://cloud.google.com/firewall/docs/about-security-profile-groups)
     * [Create and manage security profile groups](https://cloud.google.com/firewall/docs/configure-security-profile-groups)
@@ -36,7 +34,6 @@ To get more information about SecurityProfileGroup, see:
 
 ```hcl
 resource "google_network_security_security_profile_group" "default" {
-  provider                  = google-beta
   name                      = "sec-profile-group"
   parent                    = "organizations/123456789"
   description               = "my description"
@@ -48,7 +45,6 @@ resource "google_network_security_security_profile_group" "default" {
 }
 
 resource "google_network_security_security_profile" "security_profile" {
-    provider    = google-beta
     name        = "sec-profile"
     type        = "THREAT_PREVENTION"
     parent      = "organizations/123456789"

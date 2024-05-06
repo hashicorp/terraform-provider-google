@@ -25,12 +25,10 @@ A Firewall endpoint is a Cloud Firewall resource that enables
 layer 7 advanced protection capabilities, such as intrusion prevention,
 in your network.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FirewallEndpoint, see:
 
-* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/organizations.locations.firewallEndpoints)
+* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1/organizations.locations.firewallEndpoints)
 * How-to Guides
     * [Firewall endpoint overview](https://cloud.google.com/firewall/docs/about-firewall-endpoints)
     * [Create and associate firewall endpoints](https://cloud.google.com/firewall/docs/configure-firewall-endpoints)
@@ -46,7 +44,6 @@ Your account must have the `serviceusage.services.use` permission on the
 
 ```hcl
 resource "google_network_security_firewall_endpoint" "default" {
-  provider           = google-beta
   name               = "my-firewall-endpoint"
   parent             = "organizations/123456789"
   location           = "us-central1-a"
