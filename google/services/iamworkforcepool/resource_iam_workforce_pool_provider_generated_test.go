@@ -311,6 +311,145 @@ resource "google_iam_workforce_pool_provider" "example" {
 `, context)
 }
 
+func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "workforce_pool_id", "provider_id", "oidc.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text"},
+			},
+		},
+	})
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://accounts.thirdparty.com"
+    client_id         = "client-id"
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+  }
+  extra_attributes_oauth2_client {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_MAIL"
+  }
+}
+`, context)
+}
+
+func TestAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "workforce_pool_id", "provider_id", "oidc.0.client_secret.0.value.0.plain_text", "extra_attributes_oauth2_client.0.client_secret.0.value.0.plain_text"},
+			},
+		},
+	})
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_iamWorkforcePoolProviderExtraAttributesOauth2ConfigClientFullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "tf-test-example-pool%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "tf-test-example-prvdr%{random_suffix}"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://accounts.thirdparty.com"
+    client_id         = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+  }
+  extra_attributes_oauth2_client {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_MAIL"
+    query_parameters {
+        filter      = "mail:gcp"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckIAMWorkforcePoolWorkforcePoolProviderDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
