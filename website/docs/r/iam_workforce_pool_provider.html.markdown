@@ -152,6 +152,93 @@ resource "google_iam_workforce_pool_provider" "example" {
   attribute_condition = "true"
 }
 ```
+## Example Usage - Iam Workforce Pool Provider Extra Attributes Oauth2 Config Client Basic
+
+
+```hcl
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "example-pool"
+  parent            = "organizations/123456789"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "example-prvdr"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://accounts.thirdparty.com"
+    client_id         = "client-id"
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+  }
+  extra_attributes_oauth2_client {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_MAIL"
+  }
+}
+```
+## Example Usage - Iam Workforce Pool Provider Extra Attributes Oauth2 Config Client Full
+
+
+```hcl
+resource "google_iam_workforce_pool" "pool" {
+  workforce_pool_id = "example-pool"
+  parent            = "organizations/123456789"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "example" {
+  workforce_pool_id  = google_iam_workforce_pool.pool.workforce_pool_id
+  location           = google_iam_workforce_pool.pool.location
+  provider_id        = "example-prvdr"
+  attribute_mapping  = {
+    "google.subject" = "assertion.sub"
+  }
+  oidc {
+    issuer_uri        = "https://accounts.thirdparty.com"
+    client_id         = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+    }
+  }
+  extra_attributes_oauth2_client {
+    issuer_uri       = "https://accounts.thirdparty.com"
+    client_id        = "client-id"
+    client_secret {
+        value {
+          plain_text = "client-secret"
+        }
+      }
+    attributes_type = "AZURE_AD_GROUPS_MAIL"
+    query_parameters {
+        filter      = "mail:gcp"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -265,6 +352,14 @@ The following arguments are supported:
   Represents an OpenId Connect 1.0 identity provider.
   Structure is [documented below](#nested_oidc).
 
+* `extra_attributes_oauth2_client` -
+  (Optional)
+  The configuration for OAuth 2.0 client used to get the additional user
+  attributes. This should be used when users can't get the desired claims
+  in authentication credentials. Currently this configuration is only
+  supported with OIDC protocol.
+  Structure is [documented below](#nested_extra_attributes_oauth2_client).
+
 
 <a name="nested_saml"></a>The `saml` block supports:
 
@@ -371,6 +466,62 @@ The following arguments are supported:
   (Optional)
   Additional scopes to request for in the OIDC authentication request on top of scopes requested by default. By default, the `openid`, `profile` and `email` scopes that are supported by the identity provider are requested.
   Each additional scope may be at most 256 characters. A maximum of 10 additional scopes may be configured.
+
+<a name="nested_extra_attributes_oauth2_client"></a>The `extra_attributes_oauth2_client` block supports:
+
+* `issuer_uri` -
+  (Required)
+  The OIDC identity provider's issuer URI. Must be a valid URI using the `https` scheme. Required to get the OIDC discovery document.
+
+* `client_id` -
+  (Required)
+  The OAuth 2.0 client ID for retrieving extra attributes from the identity provider. Required to get the Access Token using client credentials grant flow.
+
+* `client_secret` -
+  (Required)
+  The OAuth 2.0 client secret for retrieving extra attributes from the identity provider. Required to get the Access Token using client credentials grant flow.
+  Structure is [documented below](#nested_client_secret).
+
+* `attributes_type` -
+  (Required)
+  Represents the IdP and type of claims that should be fetched.
+  * AZURE_AD_GROUPS_MAIL: Used to get the user's group claims from the Azure AD identity provider using configuration provided
+  in ExtraAttributesOAuth2Client and `mail` property of the `microsoft.graph.group` object is used for claim mapping.
+  See https://learn.microsoft.com/en-us/graph/api/resources/group?view=graph-rest-1.0#properties for more details on
+  `microsoft.graph.group` properties. The attributes obtained from idntity provider are mapped to `assertion.groups`.
+  Possible values are: `AZURE_AD_GROUPS_MAIL`.
+
+* `query_parameters` -
+  (Optional)
+  Represents the parameters to control which claims are fetched from an IdP.
+  Structure is [documented below](#nested_query_parameters).
+
+
+<a name="nested_client_secret"></a>The `client_secret` block supports:
+
+* `value` -
+  (Optional)
+  The value of the client secret.
+  Structure is [documented below](#nested_value).
+
+
+<a name="nested_value"></a>The `value` block supports:
+
+* `plain_text` -
+  (Required)
+  The plain text of the client secret value.
+
+* `thumbprint` -
+  (Output)
+  A thumbprint to represent the current client secret value.
+
+<a name="nested_query_parameters"></a>The `query_parameters` block supports:
+
+* `filter` -
+  (Optional)
+  The filter used to request specific records from IdP. In case of attributes type as AZURE_AD_GROUPS_MAIL, it represents the
+  filter used to request specific groups for users from IdP. By default, all of the groups associated with the user are fetched. The
+  groups should be mail enabled and security enabled. See https://learn.microsoft.com/en-us/graph/search-query-parameter for more details.
 
 ## Attributes Reference
 
