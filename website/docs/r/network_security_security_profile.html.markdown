@@ -21,12 +21,10 @@ description: |-
 
 A security profile defines the behavior associated to a profile type.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about SecurityProfile, see:
 
-* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/projects.locations.securityProfiles)
+* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1/projects.locations.securityProfiles)
 * How-to Guides
     * [Create and manage security profiles](https://cloud.google.com/firewall/docs/configure-security-profiles)
 
@@ -35,7 +33,6 @@ To get more information about SecurityProfile, see:
 
 ```hcl
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "organizations/123456789"
   description = "my description"
@@ -51,7 +48,6 @@ resource "google_network_security_security_profile" "default" {
 
 ```hcl
 resource "google_network_security_security_profile" "default" {
-  provider    = google-beta
   name        = "my-security-profile"
   parent      = "organizations/123456789"
   description = "my description"

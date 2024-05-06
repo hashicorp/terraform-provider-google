@@ -25,12 +25,10 @@ the same zone. After you define this association, Cloud Firewall forwards the
 zonal workload traffic in your VPC network that requires layer 7 inspection to
 the attached firewall endpoint.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about FirewallEndpointAssociation, see:
 
-* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1beta1/projects.locations.firewallEndpointAssociations#FirewallEndpointAssociation)
+* [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1/projects.locations.firewallEndpointAssociations#FirewallEndpointAssociation)
 * How-to Guides
     * [Firewall endpoint overview](https://cloud.google.com/firewall/docs/about-firewall-endpoints)
     * [Create and associate firewall endpoints](https://cloud.google.com/firewall/docs/configure-firewall-endpoints)
@@ -40,7 +38,6 @@ To get more information about FirewallEndpointAssociation, see:
 
 ```hcl
 resource "google_network_security_firewall_endpoint" "default" {
-  provider    = google-beta
   name        = "my-firewall-endpoint"
   parent      = "organizations/123456789"
   location    = "us-central1-a"
@@ -51,7 +48,6 @@ resource "google_network_security_firewall_endpoint" "default" {
 }
 
 resource "google_network_security_firewall_endpoint_association" "default_association" {
-  provider    = google-beta
   name        = "my-firewall-endpoint-association"
   parent      = "projects/my-project-name"
   location    = "us-central1-a"

@@ -21,12 +21,10 @@ description: |-
 
 The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about TlsInspectionPolicy, see:
 
-* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1beta1/projects.locations.tlsInspectionPolicies)
+* [API documentation](https://cloud.google.com/secure-web-proxy/docs/reference/network-security/rest/v1/projects.locations.tlsInspectionPolicies)
 * How-to Guides
     * [Use TlsInspectionPolicy](https://cloud.google.com/secure-web-proxy/docs/tls-inspection-overview)
 
@@ -40,7 +38,6 @@ To get more information about TlsInspectionPolicy, see:
 
 ```hcl
 resource "google_privateca_ca_pool" "default" {
-  provider = google-beta
   name      = "my-basic-ca-pool"
   location  = "us-central1"
   tier     = "DEVOPS"
@@ -64,22 +61,20 @@ resource "google_privateca_ca_pool" "default" {
   }
 }
 
-
 resource "google_privateca_certificate_authority" "default" {
-  provider = google-beta
-  pool = google_privateca_ca_pool.default.name
-  certificate_authority_id = "my-basic-certificate-authority"
-  location = "us-central1"
-  lifetime = "86400s"
-  type = "SELF_SIGNED"
-  deletion_protection = false
-  skip_grace_period = true
+  pool                                   = google_privateca_ca_pool.default.name
+  certificate_authority_id               = "my-basic-certificate-authority"
+  location                               = "us-central1"
+  lifetime                               = "86400s"
+  type                                   = "SELF_SIGNED"
+  deletion_protection                    = false
+  skip_grace_period                      = true
   ignore_active_certificates_on_deletion = true
   config {
     subject_config {
       subject {
         organization = "Test LLC"
-        common_name = "my-ca"
+        common_name  = "my-ca"
       }
     }
     x509_config {
@@ -89,7 +84,7 @@ resource "google_privateca_certificate_authority" "default" {
       key_usage {
         base_key_usage {
           cert_sign = true
-          crl_sign = true
+          crl_sign  = true
         }
         extended_key_usage {
           server_auth = false
@@ -103,26 +98,21 @@ resource "google_privateca_certificate_authority" "default" {
 }
 
 resource "google_project_service_identity" "ns_sa" {
-  provider = google-beta
-
   service = "networksecurity.googleapis.com"
 }
 
 resource "google_privateca_ca_pool_iam_member" "tls_inspection_permission" {
-  provider = google-beta
-
   ca_pool = google_privateca_ca_pool.default.id
-  role = "roles/privateca.certificateManager"
-  member = "serviceAccount:${google_project_service_identity.ns_sa.email}"
+  role    = "roles/privateca.certificateManager"
+  member  = "serviceAccount:${google_project_service_identity.ns_sa.email}"
 }
 
 resource "google_network_security_tls_inspection_policy" "default" {
-  provider = google-beta
-  name     = "my-tls-inspection-policy"
-  location = "us-central1"
-  ca_pool  = google_privateca_ca_pool.default.id
+  name                  = "my-tls-inspection-policy"
+  location              = "us-central1"
+  ca_pool               = google_privateca_ca_pool.default.id
   exclude_public_ca_set = false
-  depends_on = [google_privateca_ca_pool.default, google_privateca_certificate_authority.default, google_privateca_ca_pool_iam_member.tls_inspection_permission]
+  depends_on            = [google_privateca_ca_pool.default, google_privateca_certificate_authority.default, google_privateca_ca_pool_iam_member.tls_inspection_permission]
 }
 ```
 
