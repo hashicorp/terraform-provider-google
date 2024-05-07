@@ -1166,11 +1166,6 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	// Restrict modification of cluster_type from PRIMARY to SECONDARY as it is an invalid operation
-	if d.HasChange("cluster_type") && d.Get("cluster_type") == "SECONDARY" {
-		return fmt.Errorf("Can not convert a primary cluster to a secondary cluster.")
-	}
-
 	// Restrict setting secondary_config if cluster_type is PRIMARY
 	if d.Get("cluster_type") == "PRIMARY" && !tpgresource.IsEmptyValue(reflect.ValueOf(d.Get("secondary_config"))) {
 		return fmt.Errorf("Can not set secondary config for primary cluster.")
