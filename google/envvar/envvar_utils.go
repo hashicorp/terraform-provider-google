@@ -43,10 +43,6 @@ var ProjectEnvVars = []string{
 	"CLOUDSDK_CORE_PROJECT",
 }
 
-var FirestoreProjectEnvVars = []string{
-	"GOOGLE_FIRESTORE_PROJECT",
-}
-
 var RegionEnvVars = []string{
 	"GOOGLE_REGION",
 	"GCLOUD_REGION",
@@ -152,13 +148,6 @@ func GetTestCustIdFromEnv(t *testing.T) string {
 func GetTestIdentityUserFromEnv(t *testing.T) string {
 	SkipIfEnvNotSet(t, IdentityUserEnvVars...)
 	return transport_tpg.MultiEnvSearch(IdentityUserEnvVars)
-}
-
-// Firestore can't be enabled at the same time as Datastore, so we need a new
-// project to manage it until we can enable Firestore programmatically.
-func GetTestFirestoreProjectFromEnv(t *testing.T) string {
-	SkipIfEnvNotSet(t, FirestoreProjectEnvVars...)
-	return transport_tpg.MultiEnvSearch(FirestoreProjectEnvVars)
 }
 
 // Returns the raw organization id like 1234567890, skipping the test if one is

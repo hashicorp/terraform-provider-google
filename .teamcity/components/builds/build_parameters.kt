@@ -46,11 +46,6 @@ class AllContextParameters(
     val identityUserBeta: String,
     val identityUserVcr: String,
 
-    // GOOGLE_FIRESTORE_PROJECT
-    val firestoreProjectGa: String,
-    val firestoreProjectBeta: String,
-    val firestoreProjectVcr: String,
-
     // GOOGLE_MASTER_BILLING_ACCOUNT
     val masterBillingAccountGa: String,
     val masterBillingAccountBeta: String,
@@ -81,7 +76,6 @@ class AccTestConfiguration(
     val billingAccount2: String,
     val credentials: String,
     val custId: String,
-    val firestoreProject: String,
     val identityUser: String,
     val masterBillingAccount: String,
     val org: String,
@@ -104,7 +98,6 @@ fun getGaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigura
         allConfig.billingAccount2,
         allConfig.credentialsGa,
         allConfig.custId,
-        allConfig.firestoreProjectGa,
         allConfig.identityUserGa,
         allConfig.masterBillingAccountGa,
         allConfig.org,
@@ -126,7 +119,6 @@ fun getBetaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigu
         allConfig.billingAccount2,
         allConfig.credentialsBeta,
         allConfig.custId,
-        allConfig.firestoreProjectBeta,
         allConfig.identityUserBeta,
         allConfig.masterBillingAccountBeta,
         allConfig.org,
@@ -148,7 +140,6 @@ fun getVcrAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigur
         allConfig.billingAccount2,
         allConfig.credentialsVcr,
         allConfig.custId,
-        allConfig.firestoreProjectVcr,
         allConfig.identityUserVcr,
         allConfig.masterBillingAccountVcr,
         allConfig.org,
@@ -179,7 +170,6 @@ fun ParametrizedWithType.configureGoogleSpecificTestParameters(config: AccTestCo
     hiddenVariable("env.GOOGLE_REGION", config.region, "The google region to use")
     hiddenVariable("env.GOOGLE_SERVICE_ACCOUNT", config.serviceAccount, "The service account")
     hiddenVariable("env.GOOGLE_ZONE", config.zone, "The google zone to use")
-    hiddenVariable("env.GOOGLE_FIRESTORE_PROJECT", config.firestoreProject, "The project to use for firestore")
     hiddenVariable("env.GOOGLE_IDENTITY_USER", config.identityUser, "The user for the identity platform")
     hiddenPasswordVariable("env.GOOGLE_CREDENTIALS", config.credentials, "The Google credentials for this test runner")
 }
