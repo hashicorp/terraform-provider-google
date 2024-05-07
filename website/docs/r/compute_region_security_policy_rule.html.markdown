@@ -117,6 +117,69 @@ resource "google_compute_region_security_policy_rule" "policy_rule_two" {
   preview         = true
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=region_security_policy_rule_with_preconfigured_waf_config&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Security Policy Rule With Preconfigured Waf Config
+
+
+```hcl
+resource "google_compute_region_security_policy" "default" {
+  provider    = google-beta
+
+  region      = "asia-southeast1"
+  name        = "policyruletest"
+  description = "basic region security policy"
+  type        = "CLOUD_ARMOR"
+}
+
+resource "google_compute_region_security_policy_rule" "policy_rule" {
+  provider    = google-beta
+
+  region          = "asia-southeast1"
+  security_policy = google_compute_region_security_policy.default.name
+  description     = "new rule"
+  priority        = 100
+  match {
+    versioned_expr = "SRC_IPS_V1"
+    config {
+      src_ip_ranges = ["10.10.0.0/16"]
+    }
+  }
+  preconfigured_waf_config {
+    exclusion {
+      request_uri {
+        operator = "STARTS_WITH"
+        value = "/admin"
+      }
+      target_rule_set = "rce-stable"
+    }
+    exclusion {
+      request_query_param {
+        operator = "CONTAINS"
+        value = "password"
+      }
+      request_query_param {
+        operator = "STARTS_WITH"
+        value = "freeform"
+      }
+      request_query_param {
+        operator = "EQUALS"
+        value = "description"
+      }
+      target_rule_set = "xss-stable"
+      target_rule_ids = [
+        "owasp-crs-v030001-id941330-xss",
+        "owasp-crs-v030001-id941340-xss",
+      ]
+    }
+  }
+  action          = "allow"
+  preview         = true
+}
+```
 ## Example Usage - Region Security Policy Rule With Network Match
 
 
@@ -222,6 +285,17 @@ The following arguments are supported:
   If it evaluates to true, the corresponding 'action' is enforced.
   Structure is [documented below](#nested_match).
 
+* `preconfigured_waf_config` -
+  (Optional)
+  Preconfigured WAF configuration to be applied for the rule.
+  If the rule does not evaluate preconfigured WAF rules, i.e., if evaluatePreconfiguredWaf() is not used, this field will have no effect.
+  Structure is [documented below](#nested_preconfigured_waf_config).
+
+* `rate_limit_options` -
+  (Optional)
+  Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.
+  Structure is [documented below](#nested_rate_limit_options).
+
 * `preview` -
   (Optional)
   If set to true, the specified action is not enforced.
@@ -262,6 +336,220 @@ The following arguments are supported:
 * `src_ip_ranges` -
   (Optional)
   CIDR IP address range. Maximum number of srcIpRanges allowed is 10.
+
+<a name="nested_preconfigured_waf_config"></a>The `preconfigured_waf_config` block supports:
+
+* `exclusion` -
+  (Optional)
+  An exclusion to apply during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_exclusion).
+
+
+<a name="nested_exclusion"></a>The `exclusion` block supports:
+
+* `target_rule_set` -
+  (Required)
+  Target WAF rule set to apply the preconfigured WAF exclusion.
+
+* `target_rule_ids` -
+  (Optional)
+  A list of target rule IDs under the WAF rule set to apply the preconfigured WAF exclusion.
+  If omitted, it refers to all the rule IDs under the WAF rule set.
+
+* `request_header` -
+  (Optional)
+  Request header whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_request_header).
+
+* `request_cookie` -
+  (Optional)
+  Request cookie whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Structure is [documented below](#nested_request_cookie).
+
+* `request_uri` -
+  (Optional)
+  Request URI from the request line to be excluded from inspection during preconfigured WAF evaluation.
+  When specifying this field, the query or fragment part should be excluded.
+  Structure is [documented below](#nested_request_uri).
+
+* `request_query_param` -
+  (Optional)
+  Request query parameter whose value will be excluded from inspection during preconfigured WAF evaluation.
+  Note that the parameter can be in the query string or in the POST body.
+  Structure is [documented below](#nested_request_query_param).
+
+
+<a name="nested_request_header"></a>The `request_header` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_request_cookie"></a>The `request_cookie` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_request_uri"></a>The `request_uri` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_request_query_param"></a>The `request_query_param` block supports:
+
+* `operator` -
+  (Required)
+  You can specify an exact match or a partial match by using a field operator and a field value.
+  Available options:
+  EQUALS: The operator matches if the field value equals the specified value.
+  STARTS_WITH: The operator matches if the field value starts with the specified value.
+  ENDS_WITH: The operator matches if the field value ends with the specified value.
+  CONTAINS: The operator matches if the field value contains the specified value.
+  EQUALS_ANY: The operator matches if the field value is any value.
+  Possible values are: `CONTAINS`, `ENDS_WITH`, `EQUALS`, `EQUALS_ANY`, `STARTS_WITH`.
+
+* `value` -
+  (Optional)
+  A request field matching the specified value will be excluded from inspection during preconfigured WAF evaluation.
+  The field value must be given if the field operator is not EQUALS_ANY, and cannot be given if the field operator is EQUALS_ANY.
+
+<a name="nested_rate_limit_options"></a>The `rate_limit_options` block supports:
+
+* `rate_limit_threshold` -
+  (Optional)
+  Threshold at which to begin ratelimiting.
+  Structure is [documented below](#nested_rate_limit_threshold).
+
+* `conform_action` -
+  (Optional)
+  Action to take for requests that are under the configured rate limit threshold.
+  Valid option is "allow" only.
+
+* `exceed_action` -
+  (Optional)
+  Action to take for requests that are above the configured rate limit threshold, to deny with a specified HTTP response code.
+  Valid options are deny(STATUS), where valid values for STATUS are 403, 404, 429, and 502.
+
+* `enforce_on_key` -
+  (Optional)
+  Determines the key to enforce the rateLimitThreshold on. Possible values are:
+  * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKey" is not configured.
+  * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
+  * HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
+  * XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key defaults to the source IP address of the request i.e. key type IP.
+  * HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
+  * HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes.
+  * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
+  * REGION_CODE: The country/region from which the request originates.
+  * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+  * USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP.
+  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `USER_IP`.
+
+* `enforce_on_key_name` -
+  (Optional)
+  Rate limit key name applicable only for the following key types:
+  HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
+  HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
+
+* `enforce_on_key_configs` -
+  (Optional)
+  If specified, any combination of values of enforceOnKeyType/enforceOnKeyName is treated as the key on which ratelimit threshold/action is enforced.
+  You can specify up to 3 enforceOnKeyConfigs.
+  If enforceOnKeyConfigs is specified, enforceOnKey must not be specified.
+  Structure is [documented below](#nested_enforce_on_key_configs).
+
+* `ban_threshold` -
+  (Optional)
+  Can only be specified if the action for the rule is "rate_based_ban".
+  If specified, the key will be banned for the configured 'banDurationSec' when the number of requests that exceed the 'rateLimitThreshold' also exceed this 'banThreshold'.
+  Structure is [documented below](#nested_ban_threshold).
+
+* `ban_duration_sec` -
+  (Optional)
+  Can only be specified if the action for the rule is "rate_based_ban".
+  If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.
+
+
+<a name="nested_rate_limit_threshold"></a>The `rate_limit_threshold` block supports:
+
+* `count` -
+  (Optional)
+  Number of HTTP(S) requests for calculating the threshold.
+
+* `interval_sec` -
+  (Optional)
+  Interval over which the threshold is computed.
+
+<a name="nested_enforce_on_key_configs"></a>The `enforce_on_key_configs` block supports:
+
+* `enforce_on_key_type` -
+  (Optional)
+  Determines the key to enforce the rateLimitThreshold on. Possible values are:
+  * ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKeyConfigs" is not configured.
+  * IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
+  * HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
+  * XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key defaults to the source IP address of the request i.e. key type IP.
+  * HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
+  * HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes.
+  * SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
+  * REGION_CODE: The country/region from which the request originates.
+  * TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+  * USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP.
+  Possible values are: `ALL`, `IP`, `HTTP_HEADER`, `XFF_IP`, `HTTP_COOKIE`, `HTTP_PATH`, `SNI`, `REGION_CODE`, `TLS_JA3_FINGERPRINT`, `USER_IP`.
+
+* `enforce_on_key_name` -
+  (Optional)
+  Rate limit key name applicable only for the following key types:
+  HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
+  HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.
+
+<a name="nested_ban_threshold"></a>The `ban_threshold` block supports:
+
+* `count` -
+  (Optional)
+  Number of HTTP(S) requests for calculating the threshold.
+
+* `interval_sec` -
+  (Optional)
+  Interval over which the threshold is computed.
 
 <a name="nested_network_match"></a>The `network_match` block supports:
 
