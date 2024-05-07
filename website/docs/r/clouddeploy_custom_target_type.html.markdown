@@ -110,6 +110,33 @@ resource "google_clouddeploy_custom_target_type" "custom-target-type" {
     }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=clouddeploy_custom_target_type_gcb_repo_skaffold_modules&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Clouddeploy Custom Target Type Gcb Repo Skaffold Modules
+
+
+```hcl
+resource "google_clouddeploy_custom_target_type" "custom-target-type" {
+    location = "us-central1"
+    name = "my-custom-target-type"
+    description = "My custom target type"
+    custom_actions {
+      render_action = "renderAction"
+      deploy_action = "deployAction"
+      include_skaffold_modules {
+        configs = ["my-config"]
+        google_cloud_build_repo {
+            repository = "projects/example/locations/us-central1/connections/git/repositories/example-repo"
+            path = "configs/skaffold.yaml"
+            ref = "main"
+        }
+      }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -185,6 +212,11 @@ The following arguments are supported:
   Cloud Storage bucket containing Skaffold Config modules.
   Structure is [documented below](#nested_google_cloud_storage).
 
+* `google_cloud_build_repo` -
+  (Optional)
+  Cloud Build 2nd gen repository containing the Skaffold Config modules.
+  Structure is [documented below](#nested_google_cloud_build_repo).
+
 
 <a name="nested_git"></a>The `git` block supports:
 
@@ -209,6 +241,20 @@ The following arguments are supported:
 * `path` -
   (Optional)
   Relative path from the source to the Skaffold file.
+
+<a name="nested_google_cloud_build_repo"></a>The `google_cloud_build_repo` block supports:
+
+* `repository` -
+  (Required)
+  Cloud Build 2nd gen repository in the format of 'projects/<project>/locations/<location>/connections/<connection>/repositories/<repository>'.
+
+* `path` -
+  (Optional)
+  Relative path from the repository root to the Skaffold file.
+
+* `ref` -
+  (Optional)
+  Branch or tag to use when cloning the repository.
 
 ## Attributes Reference
 
