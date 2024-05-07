@@ -136,7 +136,7 @@ provided, the provider project is used.
 
 * `sdk_container_image` - (Optional) Docker registry location of container image to use for the 'worker harness. Default is the container for the version of the SDK. Note this field is only valid for portable pipelines.
 
-* `service_account_email` - (Optional) Service account email to run the workers as.
+* `service_account_email` - (Optional) Service account email to run the workers as. This should be just an email e.g. `myserviceaccount@myproject.iam.gserviceaccount.com`. Do not include any `serviceAccount:` or other prefix.
 
 * `skip_wait_on_job_termination` - (Optional)  If set to `true`, terraform will
 treat `DRAINING` and `CANCELLING` as terminal states when deleting the resource,
