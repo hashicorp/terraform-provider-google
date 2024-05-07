@@ -37,10 +37,6 @@ val projectNumberVcr  = DslContext.getParameter("projectNumberVcr", "")
 val identityUserGa   = DslContext.getParameter("identityUserGa", "")
 val identityUserBeta = DslContext.getParameter("identityUserBeta", "")
 val identityUserVcr  = DslContext.getParameter("identityUserVcr", "")
-// GOOGLE_FIRESTORE_PROJECT
-val firestoreProjectGa   = DslContext.getParameter("firestoreProjectGa", "")
-val firestoreProjectBeta = DslContext.getParameter("firestoreProjectBeta", "")
-val firestoreProjectVcr  = DslContext.getParameter("firestoreProjectVcr", "")
 // GOOGLE_MASTER_BILLING_ACCOUNT
 val masterBillingAccountGa   = DslContext.getParameter("masterBillingAccountGa", "")
 val masterBillingAccountBeta = DslContext.getParameter("masterBillingAccountBeta", "")
@@ -80,9 +76,6 @@ var allContextParams = AllContextParameters(
     identityUserGa,
     identityUserBeta,
     identityUserVcr,
-    firestoreProjectGa,
-    firestoreProjectBeta,
-    firestoreProjectVcr,
     masterBillingAccountGa,
     masterBillingAccountBeta,
     masterBillingAccountVcr,
