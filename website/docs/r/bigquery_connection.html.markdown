@@ -278,6 +278,53 @@ resource "google_dataproc_cluster" "basic" {
    }   
  }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=bigquery_connection_kms&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Connection Kms
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+    name             = "my-database-instance"
+    database_version = "POSTGRES_11"
+    region           = "us-central1"
+    settings {
+		tier = "db-f1-micro"
+	}
+
+    deletion_protection  = "true"
+}
+
+resource "google_sql_database" "db" {
+    instance = google_sql_database_instance.instance.name
+    name     = "db"
+}
+
+resource "google_sql_user" "user" {
+    name = "user"
+    instance = google_sql_database_instance.instance.name
+    password = "tf-test-my-password%{random_suffix}"
+}
+
+resource "google_bigquery_connection" "bq-connection-cmek" {
+    friendly_name = "👋"
+    description   = "a riveting description"
+    location      = "US"
+    kms_key_name  = "projects/project/locations/us-central1/keyRings/us-central1/cryptoKeys/bq-key"
+    cloud_sql {
+        instance_id = google_sql_database_instance.instance.connection_name
+        database    = google_sql_database.db.name
+        type        = "POSTGRES"
+        credential {
+          username = google_sql_user.user.name
+          password = google_sql_user.user.password
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -309,6 +356,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A descriptive description for the connection
+
+* `kms_key_name` -
+  (Optional)
+  Optional. The Cloud KMS key that is used for encryption.
+  Example: projects/[kms_project_id]/locations/[region]/keyRings/[key_region]/cryptoKeys/[key]
 
 * `cloud_sql` -
   (Optional)
