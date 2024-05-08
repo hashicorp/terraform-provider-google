@@ -68,7 +68,7 @@ class VcrDetails(private val providerName: String, private val buildId: String, 
                 configureGoogleSpecificTestParameters(environmentVariables)
                 vcrEnvironmentVariables(environmentVariables, providerName)
                 acceptanceTestBuildParams(parallelism, testPrefix, testTimeout)
-                terraformLoggingParameters(providerName)
+                terraformLoggingParameters(environmentVariables, providerName)
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()

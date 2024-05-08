@@ -62,4 +62,35 @@ class BuildConfigurationFeatureTests {
             }
         }
     }
+
+    @Test
+    fun nonVCRBuildShouldHaveSaveArtifactsToGCS() {
+        val project = googleCloudRootProject(testContextParameters())
+
+        // Find GA nightly test project
+        var gaNightlyTestProject = getSubProject(project, gaProjectName, nightlyTestsProjectName)
+
+        // Find GA MM Upstream project
+        var gaMMUpstreamProject = getSubProject(project, gaProjectName, mmUpstreamProjectName)
+
+        // Find Beta nightly test project
+        var betaNightlyTestProject = getSubProject(project, betaProjectName, nightlyTestsProjectName)
+
+        // Find Beta MM Upstream project
+        var betaMMUpstreamProject = getSubProject(project, betaProjectName, mmUpstreamProjectName)
+
+        (gaNightlyTestProject.buildTypes + gaMMUpstreamProject.buildTypes + betaNightlyTestProject.buildTypes + betaMMUpstreamProject.buildTypes).forEach{bt ->
+            var found: Boolean = false
+            for (item in bt.steps.items) {
+                if (item.name == "Tasks after running nightly tests: push artifacts(debug logs) to GCS") {
+                    found = true
+                    break
+                }
+            }
+            // service sweeper does not contain push artifacts to GCS step
+            if (bt.name != "Service Sweeper") {
+                assertTrue("Build configuration `${bt.name}` contains a build step that pushes artifacts to GCS", found)
+            }
+        }
+    }
 }

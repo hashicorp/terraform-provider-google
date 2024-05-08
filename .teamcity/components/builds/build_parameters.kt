@@ -68,6 +68,9 @@ class AllContextParameters(
     // VCR specific
     val infraProject: String,     // GOOGLE_INFRA_PROJECT
     val vcrBucketName: String,    // VCR_BUCKET_NAME
+
+    // GCS specific (for nightly + upstream MM logs)
+    val credentialsGCS: String,   // GOOGLE_CREDENTIALS_GCS
     )
 
 // AccTestConfiguration is used to easily pass values set via Context Parameters into build configurations.
@@ -90,6 +93,9 @@ class AccTestConfiguration(
     // VCR specific
     val infraProject: String,
     val vcrBucketName: String,
+
+    // GCS specific (for nightly + upstream MM logs)
+    val credentialsGCS: String,
     )
 
 fun getGaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfiguration {
@@ -109,7 +115,8 @@ fun getGaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigura
         allConfig.serviceAccountGa,
         allConfig.zone,
         allConfig.infraProject,
-        allConfig.vcrBucketName
+        allConfig.vcrBucketName,
+        allConfig.credentialsGCS
     )
 }
 
@@ -130,7 +137,8 @@ fun getBetaAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigu
         allConfig.serviceAccountBeta,
         allConfig.zone,
         allConfig.infraProject,
-        allConfig.vcrBucketName
+        allConfig.vcrBucketName,
+        allConfig.credentialsGCS
     )
 }
 
@@ -151,7 +159,8 @@ fun getVcrAcceptanceTestConfig(allConfig: AllContextParameters): AccTestConfigur
         allConfig.serviceAccountVcr,
         allConfig.zone,
         allConfig.infraProject,
-        allConfig.vcrBucketName
+        allConfig.vcrBucketName,
+        allConfig.credentialsGCS
     )
 }
 
@@ -226,7 +235,7 @@ fun ParametrizedWithType.vcrEnvironmentVariables(config: AccTestConfiguration, p
 
 // ParametrizedWithType.terraformLoggingParameters sets environment variables and build parameters that
 // affect which logs are shown and allows them to be saved
-fun ParametrizedWithType.terraformLoggingParameters(providerName: String) {
+fun ParametrizedWithType.terraformLoggingParameters(config: AccTestConfiguration, providerName: String) {
     // Set logging levels to match old projects
     text("env.TF_LOG", "DEBUG")
     text("env.TF_LOG_CORE", "WARN")
@@ -234,7 +243,9 @@ fun ParametrizedWithType.terraformLoggingParameters(providerName: String) {
 
     // Set where logs are sent
     text("PROVIDER_NAME", providerName)
-    text("env.TF_LOG_PATH_MASK", "%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.txt") // .txt extension used to make artifacts open in browser, instead of download
+    text("env.TF_LOG_PATH_MASK", "%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%teamcity.build.id%-%s.txt") // .txt extension used to make artifacts open in browser, instead of download
+
+    hiddenPasswordVariable("env.GOOGLE_CREDENTIALS_GCS", config.credentialsGCS, "The Google credentials for copying debug logs to the GCS bucket")
 }
 
 fun ParametrizedWithType.readOnlySettings() {
