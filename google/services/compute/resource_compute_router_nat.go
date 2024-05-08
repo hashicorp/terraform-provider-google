@@ -220,6 +220,15 @@ contains ALL_SUBNETWORKS_ALL_IP_RANGES or
 ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES, then there should not be any
 other RouterNat section in any Router for this network in this region. Possible values: ["ALL_SUBNETWORKS_ALL_IP_RANGES", "ALL_SUBNETWORKS_ALL_PRIMARY_IP_RANGES", "LIST_OF_SUBNETWORKS"]`,
 			},
+			"auto_network_tier": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "STANDARD", ""}),
+				Description: `The network tier to use when automatically reserving NAT IP addresses.
+Must be one of: PREMIUM, STANDARD. If not specified, then the current
+project-level default tier is used. Possible values: ["PREMIUM", "STANDARD"]`,
+			},
 			"drain_nat_ips": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -608,6 +617,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
 	}
+	autoNetworkTierProp, err := expandNestedComputeRouterNatAutoNetworkTier(d.Get("auto_network_tier"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auto_network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoNetworkTierProp)) && (ok || !reflect.DeepEqual(v, autoNetworkTierProp)) {
+		obj["autoNetworkTier"] = autoNetworkTierProp
+	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
 	if err != nil {
@@ -785,6 +800,9 @@ func resourceComputeRouterNatRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("enable_endpoint_independent_mapping", flattenNestedComputeRouterNatEnableEndpointIndependentMapping(res["enableEndpointIndependentMapping"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterNat: %s", err)
 	}
+	if err := d.Set("auto_network_tier", flattenNestedComputeRouterNatAutoNetworkTier(res["autoNetworkTier"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterNat: %s", err)
+	}
 
 	return nil
 }
@@ -900,6 +918,12 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("enable_endpoint_independent_mapping"); ok || !reflect.DeepEqual(v, enableEndpointIndependentMappingProp) {
 		obj["enableEndpointIndependentMapping"] = enableEndpointIndependentMappingProp
+	}
+	autoNetworkTierProp, err := expandNestedComputeRouterNatAutoNetworkTier(d.Get("auto_network_tier"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("auto_network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoNetworkTierProp)) {
+		obj["autoNetworkTier"] = autoNetworkTierProp
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
@@ -1325,6 +1349,10 @@ func flattenNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}
 	return v
 }
 
+func flattenNestedComputeRouterNatAutoNetworkTier(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandNestedComputeRouterNatName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1613,6 +1641,10 @@ func expandNestedComputeRouterNatRulesActionSourceNatDrainIps(v interface{}, d t
 }
 
 func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterNatAutoNetworkTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -417,6 +417,31 @@ func TestAccComputeRouterNat_withEndpointTypes(t *testing.T) {
 	})
 }
 
+func TestAccComputeRouterNat_AutoNetworkTier(t *testing.T) {
+	t.Parallel()
+
+	testId := acctest.RandString(t, 10)
+	routerName := fmt.Sprintf("tf-test-router-private-nat-%s", testId)
+	hubName := fmt.Sprintf("%s-hub", routerName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRouterNatDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRouterNatWitAutoNetworkTier(routerName, hubName),
+			},
+			{
+				// implicitly full ImportStateId
+				ResourceName:      "google_compute_router_nat.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckComputeRouterNatDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1302,4 +1327,88 @@ resource "google_compute_router_nat" "foobar" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 `, routerName, routerName, routerName, routerName)
+}
+
+func testAccComputeRouterNatBaseResourcesWithPrivateNatSubnetworks(routerName, hubName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s-net"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name          = "%s-subnet1"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  purpose       = "PRIVATE_NAT"
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name          = "%s-subnet2"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.10.1.0/24"
+  region        = "us-central1"
+  purpose       = "PRIVATE_NAT"
+}
+
+resource "google_compute_subnetwork" "subnet3" {
+  name          = "%s-subnet3"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.158.1.0/24"
+  region        = "us-central1"
+  purpose       = "PRIVATE_NAT"
+}
+
+resource "google_compute_subnetwork" "subnet4" {
+  name          = "%s-subnet4"
+  network       = google_compute_network.foobar.self_link
+  ip_cidr_range = "10.168.1.0/24"
+  region        = "us-central1"
+  purpose       = "PRIVATE_NAT"
+}
+
+resource "google_network_connectivity_hub" "foobar" {
+  name        = "%s"
+  description = "vpc hub for inter vpc nat"
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name        = "%s-spoke"
+  location    = "global"
+  description = "vpc spoke for inter vpc nat"
+  hub =  google_network_connectivity_hub.foobar.id
+  linked_vpc_network {
+    exclude_export_ranges = [
+      "10.10.0.0/16"
+    ]
+    uri = google_compute_network.foobar.self_link
+  }
+}
+
+resource "google_compute_router" "foobar" {
+  name     = "%s"
+  region   = google_compute_subnetwork.subnet1.region
+  network  = google_compute_network.foobar.self_link
+  depends_on = [
+    google_network_connectivity_spoke.primary
+  ]
+}
+`, routerName, routerName, routerName, routerName, routerName, hubName, routerName, routerName)
+}
+
+func testAccComputeRouterNatWitAutoNetworkTier(routerName, hubName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "google_compute_router_nat" "foobar" {
+  name                                = "%s"
+  router                              = google_compute_router.foobar.name
+  region                              = google_compute_router.foobar.region
+
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  auto_network_tier                  = "PREMIUM"
+}
+`, testAccComputeRouterNatBaseResourcesWithPrivateNatSubnetworks(routerName, hubName), routerName)
 }

@@ -377,6 +377,13 @@ The following arguments are supported:
   Default value is `PUBLIC`.
   Possible values are: `PUBLIC`, `PRIVATE`.
 
+* `auto_network_tier` -
+  (Optional)
+  The network tier to use when automatically reserving NAT IP addresses.
+  Must be one of: PREMIUM, STANDARD. If not specified, then the current
+  project-level default tier is used.
+  Possible values are: `PREMIUM`, `STANDARD`.
+
 * `region` -
   (Optional)
   Region where the router and NAT reside.
