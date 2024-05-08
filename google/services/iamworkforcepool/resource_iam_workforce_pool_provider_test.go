@@ -443,8 +443,8 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "assertion.sub"
   }
   oidc {
-    issuer_uri        = "https://accounts.thirdparty.com"
-    client_id         = "client-id"
+    issuer_uri        = "https://sts.windows.net/826602fe-2101-470c-9d71-ee1343668989/"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
     client_secret {
       value {
         plain_text = "client-secret"
@@ -457,7 +457,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     }
   }
   extra_attributes_oauth2_client {
-    issuer_uri       = "https://accounts.thirdparty.com"
+    issuer_uri       = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
     client_id        = "client-id"
     client_secret {
         value {
@@ -493,8 +493,8 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "false"
   }
   oidc {
-    issuer_uri        = "https://accounts.thirdparty.com"
-    client_id         = "client-id"
+    issuer_uri        = "https://sts.windows.net/826602fe-2101-470c-9d71-ee1343668989/"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
     client_secret {
       value {
         plain_text = "client-secret"
@@ -507,7 +507,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     }
   }
   extra_attributes_oauth2_client {
-    issuer_uri       = "https://accounts.thirdparty.com/new"
+    issuer_uri       = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0/"
     client_id        = "new-client-id"
     client_secret {
         value {
@@ -543,8 +543,8 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "false"
   }
   oidc {
-    issuer_uri        = "https://accounts.thirdparty.com"
-    client_id         = "client-id"
+    issuer_uri        = "https://sts.windows.net/826602fe-2101-470c-9d71-ee1343668989/"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
     client_secret {
       value {
         plain_text = "client-secret"
@@ -580,8 +580,8 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     "google.subject"  = "false"
   }
   oidc {
-    issuer_uri        = "https://accounts.thirdparty.com"
-    client_id         = "client-id"
+    issuer_uri        = "https://sts.windows.net/826602fe-2101-470c-9d71-ee1343668989/"
+    client_id         = "https://analysis.windows.net/powerbi/connector/GoogleBigQuery"
     client_secret {
       value {
         plain_text = "client-secret"
@@ -594,7 +594,7 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
     }
   }
   extra_attributes_oauth2_client {
-    issuer_uri       = "https://accounts.thirdparty.com"
+    issuer_uri       = "https://login.microsoftonline.com/826602fe-2101-470c-9d71-ee1343668989/v2.0"
     client_id        = "client-id"
     client_secret {
         value {
