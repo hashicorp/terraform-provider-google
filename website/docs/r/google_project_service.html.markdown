@@ -1,12 +1,12 @@
 ---
 subcategory: "Cloud Platform"
 description: |-
- Allows management of a single API service for a Google Cloud Platform project.
+ Allows management of a single API service for a Google Cloud project.
 ---
 
 # google\_project\_service
 
-Allows management of a single API service for a Google Cloud Platform project. 
+Allows management of a single API service for a Google Cloud project. 
 
 For a list of services available, visit the [API library page](https://console.cloud.google.com/apis/library)
 or run `gcloud services list --available`.
@@ -19,6 +19,8 @@ To get more information about `google_project_service`, see:
 * [API documentation](https://cloud.google.com/service-usage/docs/reference/rest/v1/services)
 * How-to Guides
     * [Enabling and Disabling Services](https://cloud.google.com/service-usage/docs/enable-disable)
+* Terraform guidance
+    * [User Guide - google_project_service](/docs/providers/google/guides/google_project_service.html)
 
 ## Example Usage
 
@@ -32,7 +34,7 @@ resource "google_project_service" "project" {
     update = "40m"
   }
 
-  disable_dependent_services = true
+  disable_on_destroy = false
 }
 ```
 
@@ -45,15 +47,16 @@ The following arguments are supported:
 * `project` - (Optional) The project ID. If not provided, the provider project
 is used.
 
+* `disable_on_destroy` - (Optional) If `true` or unset, disable the service when the
+Terraform resource is destroyed. If `false`, the service will be left enabled when
+the Terraform resource is destroyed. Defaults to `true`. Most configurations should
+set this to `false`; it should generally only be `true` or unset in configurations
+that manage the `google_project` resource itself.
+
 * `disable_dependent_services` - (Optional) If `true`, services that are enabled
 and which depend on this service should also be disabled when this service is
-destroyed. If `false` or unset, an error will be generated if any enabled
-services depend on this service when destroying it.
-
-* `disable_on_destroy` - (Optional) If true, disable the service when the
-Terraform resource is destroyed. Defaults to true. May be useful in the event
-that a project is long-lived but the infrastructure running in that project
-changes frequently.
+destroyed. If `false` or unset, an error will be returned if any enabled
+services depend on this service when attempting to destroy it.
 
 ## Attributes Reference
 
@@ -98,8 +101,6 @@ Note that unlike other resources that fail if they already exist,
 This means that when importing existing resources into Terraform, you can either
 import the `google_project_service` resources or treat them as new
 infrastructure and run `terraform apply` to add them to state.
-
-
 
 ## User Project Overrides
 
