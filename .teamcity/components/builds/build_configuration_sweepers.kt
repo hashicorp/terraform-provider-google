@@ -93,7 +93,7 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
                 configureGoogleSpecificTestParameters(environmentVariables)
                 acceptanceTestBuildParams(parallelism, testPrefix, testTimeout)
                 sweeperParameters(sweeperRegions, sweeperRun)
-                terraformLoggingParameters(providerName)
+                terraformLoggingParameters(environmentVariables, providerName)
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()

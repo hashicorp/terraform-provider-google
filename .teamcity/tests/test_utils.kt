@@ -50,7 +50,8 @@ fun testContextParameters(): AllContextParameters {
         "region",
         "zone",
         "infraProject",
-        "vcrBucketName")
+        "vcrBucketName",
+        "credentialsGCS")
 }
 
 fun getSubProject(rootProject: Project, parentProjectName: String, subProjectName: String): Project {
