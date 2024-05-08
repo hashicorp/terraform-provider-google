@@ -69,6 +69,28 @@ resource "google_storage_bucket" "auto-expire" {
 }
 ```
 
+## Example Usage - Life cycle settings for storage bucket objects with `no_age` enabled
+When creating a life cycle condition that does not also include an `age` field, a default `age` of 0 will be set. Set the `no_age` flag to `true` to prevent this and avoid any potentially unintended interactions.
+
+```hcl
+resource "google_storage_bucket" "no-age-enabled" {
+  provider = google-beta
+  name          = "no-age-enabled-bucket"
+  location      = "US"
+  force_destroy = true
+
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      days_since_noncurrent_time = 3
+      no_age = true
+    }
+  }
+}
+```
+
 ## Example Usage - Enabling public access prevention
 
 ```hcl
@@ -149,9 +171,9 @@ The following arguments are supported:
 
 <a name="nested_condition"></a>The `condition` block supports the following elements, and requires at least one to be defined. If you specify multiple conditions in a rule, an object has to match all of the conditions for the action to be taken:
 
-* `age` - (Optional) Minimum age of an object in days to satisfy this condition.
+* `age` - (Optional) Minimum age of an object in days to satisfy this condition. If not supplied alongside another condition and without setting `no_age` to `true`, a default `age` of 0 will be set. 
 
-* `no_age` - (Optional) While set `true`, `age` value will be omitted. **Note** Required to set `true` when `age` is unset in the config file.  
+* `no_age` - (Optional) While set `true`, `age` value will be omitted from requests. This prevents a default age of `0` from being applied, and if you do not have an `age` value set, setting this to `true` is strongly recommended. When unset and other conditions are set to zero values, this can result in a rule that applies your action to all files in the bucket.
 
 * `created_before` - (Optional) A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied when an object is created before midnight of the specified date in UTC.
 
@@ -163,15 +185,15 @@ The following arguments are supported:
 
 * `matches_suffix` - (Optional) One or more matching name suffixes to satisfy this condition.
 
-* `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition.
+* `num_newer_versions` - (Optional) Relevant only for versioned objects. The number of newer versions of an object to satisfy this condition. Due to a current bug you are unable to set this value to `0` within Terraform. When set to `0` it will be ignored and your state will treat it as though you supplied no `num_newer_versions` condition.
 
 * `custom_time_before` - (Optional) A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied when the customTime metadata for the object is set to an earlier date than the date used in this lifecycle condition.
 
-* `days_since_custom_time` - (Optional)	Days since the date set in the `customTime` metadata for the object. This condition is satisfied when the current date and time is at least the specified number of days after the `customTime`.
+* `days_since_custom_time` - (Optional)	Days since the date set in the `customTime` metadata for the object. This condition is satisfied when the current date and time is at least the specified number of days after the `customTime`. Due to a current bug you are unable to set this value to `0` within Terraform. When set to `0` it will be ignored, and your state will treat it as though you supplied no `days_since_custom_time` condition. 
 
-* `days_since_noncurrent_time` - (Optional) Relevant only for versioned objects. Number of days elapsed since the noncurrent timestamp of an object.
+* `days_since_noncurrent_time` - (Optional) Relevant only for versioned objects. Number of days elapsed since the noncurrent timestamp of an object. Due to a current bug you are unable to set this value to `0` within Terraform. When set to `0` it will be ignored, and your state will treat it as though you supplied no `days_since_noncurrent_time` condition.
 
-* `noncurrent_time_before` - (Optional) Relevant only for versioned objects. The date in RFC 3339 (e.g. `2017-06-13`) when the object became nonconcurrent.
+* `noncurrent_time_before` - (Optional) Relevant only for versioned objects. The date in RFC 3339 (e.g. `2017-06-13`) when the object became nonconcurrent. Due to a current bug you are unable to set this value to `0` within Terraform. When set to `0` it will be ignored, and your state will treat it as though you supplied no `noncurrent_time_before` condition.
 
 <a name="nested_autoclass"></a>The `autoclass` block supports:
 
