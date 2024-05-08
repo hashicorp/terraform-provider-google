@@ -172,7 +172,7 @@ The following arguments are supported:
   The default is 20.
 
 * `identifier_range` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Explicitly specifies a range of valid BGP Identifiers for this Router.
   It is provided as a link-local IPv4 range (from 169.254.0.0/16), of
   size at least /30, even if the BGP sessions are over IPv6. It must

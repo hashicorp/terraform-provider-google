@@ -208,6 +208,12 @@ The default is true.`,
 				Description: `Enable IPv6 traffic over BGP Peer. If not specified, it is disabled by default.`,
 				Default:     false,
 			},
+			"enable_ipv4": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Enable IPv4 traffic over BGP Peer. It is enabled by default if the peerIpAddress is version 4.`,
+				Computed:    true,
+			},
 			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -226,6 +232,13 @@ The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
 If you do not specify the next hop addresses, Google Cloud automatically
 assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.`,
 			},
+			"ipv4_nexthop_address": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateIpAddress,
+				Description:  `IPv4 address of the interface inside Google Cloud Platform.`,
+			},
 			"peer_ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -243,6 +256,13 @@ Only IPv4 is supported. Required if 'ip_address' is set.`,
 The address must be in the range 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64.
 If you do not specify the next hop addresses, Google Cloud automatically
 assigns unused addresses from the 2600:2d00:0:2::/64 or 2600:2d00:0:3::/64 range for you.`,
+			},
+			"peer_ipv4_nexthop_address": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateIpAddress,
+				Description:  `IPv4 address of the BGP interface outside Google Cloud Platform.`,
 			},
 			"region": {
 				Type:             schema.TypeString,
@@ -395,6 +415,24 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("enable_ipv6"); ok || !reflect.DeepEqual(v, enableIpv6Prop) {
 		obj["enableIpv6"] = enableIpv6Prop
+	}
+	enableIpv4Prop, err := expandNestedComputeRouterBgpPeerEnableIpv4(d.Get("enable_ipv4"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_ipv4"); ok || !reflect.DeepEqual(v, enableIpv4Prop) {
+		obj["enableIpv4"] = enableIpv4Prop
+	}
+	ipv4NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv4NexthopAddress(d.Get("ipv4_nexthop_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv4_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipv4NexthopAddressProp)) && (ok || !reflect.DeepEqual(v, ipv4NexthopAddressProp)) {
+		obj["ipv4NexthopAddress"] = ipv4NexthopAddressProp
+	}
+	peerIpv4NexthopAddressProp, err := expandNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(d.Get("peer_ipv4_nexthop_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_ipv6_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(peerIpv4NexthopAddressProp)) && (ok || !reflect.DeepEqual(v, peerIpv4NexthopAddressProp)) {
+		obj["peerIpv4NexthopAddress"] = peerIpv4NexthopAddressProp
 	}
 	ipv6NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv6NexthopAddress(d.Get("ipv6_nexthop_address"), d, config)
 	if err != nil {
@@ -587,6 +625,15 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("enable_ipv6", flattenNestedComputeRouterBgpPeerEnableIpv6(res["enableIpv6"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	if err := d.Set("enable_ipv4", flattenNestedComputeRouterBgpPeerEnableIpv4(res["enableIpv4"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
+	if err := d.Set("ipv4_nexthop_address", flattenNestedComputeRouterBgpPeerIpv4NexthopAddress(res["ipv4NexthopAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
+	if err := d.Set("peer_ipv4_nexthop_address", flattenNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(res["peerIpv4NexthopAddress"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
 	if err := d.Set("ipv6_nexthop_address", flattenNestedComputeRouterBgpPeerIpv6NexthopAddress(res["ipv6NexthopAddress"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
@@ -681,6 +728,24 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("enable_ipv6"); ok || !reflect.DeepEqual(v, enableIpv6Prop) {
 		obj["enableIpv6"] = enableIpv6Prop
+	}
+	enableIpv4Prop, err := expandNestedComputeRouterBgpPeerEnableIpv4(d.Get("enable_ipv4"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_ipv4"); ok || !reflect.DeepEqual(v, enableIpv4Prop) {
+		obj["enableIpv4"] = enableIpv4Prop
+	}
+	ipv4NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv4NexthopAddress(d.Get("ipv4_nexthop_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ipv4_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipv4NexthopAddressProp)) && (ok || !reflect.DeepEqual(v, ipv4NexthopAddressProp)) {
+		obj["ipv4NexthopAddress"] = ipv4NexthopAddressProp
+	}
+	peerIpv4NexthopAddressProp, err := expandNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(d.Get("peer_ipv4_nexthop_address"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("peer_ipv4_nexthop_address"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, peerIpv4NexthopAddressProp)) {
+		obj["peerIpv4NexthopAddress"] = peerIpv4NexthopAddressProp
 	}
 	ipv6NexthopAddressProp, err := expandNestedComputeRouterBgpPeerIpv6NexthopAddress(d.Get("ipv6_nexthop_address"), d, config)
 	if err != nil {
@@ -1055,6 +1120,18 @@ func flattenNestedComputeRouterBgpPeerEnableIpv6(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenNestedComputeRouterBgpPeerEnableIpv4(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterBgpPeerIpv4NexthopAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNestedComputeRouterBgpPeerIpv6NexthopAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1239,6 +1316,18 @@ func expandNestedComputeRouterBgpPeerRouterApplianceInstance(v interface{}, d tp
 }
 
 func expandNestedComputeRouterBgpPeerEnableIpv6(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerEnableIpv4(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerIpv4NexthopAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerPeerIpv4NexthopAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
