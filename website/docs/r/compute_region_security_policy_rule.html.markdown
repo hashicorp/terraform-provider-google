@@ -324,12 +324,23 @@ The following arguments are supported:
   Available preconfigured expressions along with their requirements are: SRC_IPS_V1 - must specify the corresponding srcIpRange field in config.
   Possible values are: `SRC_IPS_V1`.
 
+* `expr` -
+  (Optional)
+  User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.
+  Structure is [documented below](#nested_expr).
+
 * `config` -
   (Optional)
   The configuration options available when specifying versionedExpr.
   This field must be specified if versionedExpr is specified and cannot be specified if versionedExpr is not specified.
   Structure is [documented below](#nested_config).
 
+
+<a name="nested_expr"></a>The `expr` block supports:
+
+* `expression` -
+  (Required)
+  Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
 
 <a name="nested_config"></a>The `config` block supports:
 
