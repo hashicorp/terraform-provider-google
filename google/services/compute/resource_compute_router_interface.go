@@ -14,6 +14,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 	"google.golang.org/api/googleapi"
 
 	"google.golang.org/api/compute/v1"
@@ -76,6 +77,14 @@ func ResourceComputeRouterInterface() *schema.Resource {
 				Computed:     true,
 				AtLeastOneOf: []string{"ip_range", "interconnect_attachment", "subnetwork", "vpn_tunnel"},
 				Description:  `The IP address and range of the interface. The IP range must be in the RFC3927 link-local IP space. Changing this forces a new interface to be created.`,
+			},
+			"ip_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6"}),
+				Description:  `IP version of this interface.`,
 			},
 			"private_ip_address": {
 				Type:        schema.TypeString,
@@ -175,6 +184,10 @@ func resourceComputeRouterInterfaceCreate(d *schema.ResourceData, meta interface
 		iface.IpRange = ipRangeVal.(string)
 	}
 
+	if ipVersionVal, ok := d.GetOk("ip_version"); ok {
+		iface.IpVersion = ipVersionVal.(string)
+	}
+
 	if privateIpVal, ok := d.GetOk("private_ip_address"); ok {
 		iface.PrivateIpAddress = privateIpVal.(string)
 	}
@@ -265,6 +278,9 @@ func resourceComputeRouterInterfaceRead(d *schema.ResourceData, meta interface{}
 			}
 			if err := d.Set("ip_range", iface.IpRange); err != nil {
 				return fmt.Errorf("Error setting ip_range: %s", err)
+			}
+			if err := d.Set("ip_version", iface.IpVersion); err != nil {
+				return fmt.Errorf("Error setting ip_version: %s", err)
 			}
 			if err := d.Set("private_ip_address", iface.PrivateIpAddress); err != nil {
 				return fmt.Errorf("Error setting private_ip_address: %s", err)

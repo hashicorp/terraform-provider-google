@@ -154,6 +154,16 @@ CIDR-formatted string.`,
 								},
 							},
 						},
+						"identifier_range": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+							Description: `Explicitly specifies a range of valid BGP Identifiers for this Router.
+It is provided as a link-local IPv4 range (from 169.254.0.0/16), of
+size at least /30, even if the BGP sessions are over IPv6. It must
+not overlap with any IPv4 BGP session ranges. Other vendors commonly
+call this router ID.`,
+						},
 						"keepalive_interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -589,6 +599,8 @@ func flattenComputeRouterBgp(v interface{}, d *schema.ResourceData, config *tran
 		flattenComputeRouterBgpAdvertisedIpRanges(original["advertisedIpRanges"], d, config)
 	transformed["keepalive_interval"] =
 		flattenComputeRouterBgpKeepaliveInterval(original["keepaliveInterval"], d, config)
+	transformed["identifier_range"] =
+		flattenComputeRouterBgpIdentifierRange(original["identifierRange"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeRouterBgpAsn(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -658,6 +670,10 @@ func flattenComputeRouterBgpKeepaliveInterval(v interface{}, d *schema.ResourceD
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRouterBgpIdentifierRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRouterEncryptedInterconnectRouter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -731,6 +747,13 @@ func expandComputeRouterBgp(v interface{}, d tpgresource.TerraformResourceData, 
 		transformed["keepaliveInterval"] = transformedKeepaliveInterval
 	}
 
+	transformedIdentifierRange, err := expandComputeRouterBgpIdentifierRange(original["identifier_range"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIdentifierRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["identifierRange"] = transformedIdentifierRange
+	}
+
 	return transformed, nil
 }
 
@@ -784,6 +807,10 @@ func expandComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d tpgres
 }
 
 func expandComputeRouterBgpKeepaliveInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRouterBgpIdentifierRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

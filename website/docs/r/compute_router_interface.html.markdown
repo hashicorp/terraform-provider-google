@@ -40,7 +40,7 @@ In addition to the above required fields, a router interface must have specified
 * `ip_range` - (Optional) IP address and range of the interface. The IP range must be
     in the RFC3927 link-local IP space. Changing this forces a new interface to be created.
 
-* `ip_version` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `ip_version` - (Optional)
     IP version of this interface. Can be either IPV4 or IPV6.
 
 * `vpn_tunnel` - (Optional) The name or resource link to the VPN tunnel this
