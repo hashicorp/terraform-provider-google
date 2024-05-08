@@ -74,6 +74,13 @@ data "google_iam_policy" "admin" {
 
 ## google\_project\_iam\_binding
 
+!> **Be careful!** Note that this resource will remove the role 
+   from any accounts not explicitly declared in the configuration. 
+   Always ensure that all required accounts are included to avoid unintended access removal. 
+   Alternatively, consider using the `google_project_iam_member` resource, 
+   which allows for non-exclusive role assignments, 
+   adding specified members to a role without affecting others.
+
 ```hcl
 resource "google_project_iam_binding" "project" {
   project = "your-project-id"
