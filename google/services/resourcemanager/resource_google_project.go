@@ -122,7 +122,7 @@ func ResourceGoogleProject() *schema.Resource {
 			"terraform_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
-				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
+				Description: `(ReadOnly) The combination of labels configured directly on the resource and default labels configured on the provider.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
