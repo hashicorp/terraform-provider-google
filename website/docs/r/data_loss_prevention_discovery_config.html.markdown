@@ -292,6 +292,89 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+## Example Usage - Dlp Discovery Config Cloud Sql
+
+
+```hcl
+resource "google_data_loss_prevention_discovery_config" "cloud_sql" {
+	parent = "projects/my-project-name/locations/us"
+    location = "us"
+    status = "RUNNING"
+
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = ".*"
+                            database_resource_name_regex = "mytable.*"
+                        }
+                    }
+                }
+            }
+            conditions {
+                database_engines = ["ALL_SUPPORTED_DATABASE_ENGINES"]
+                types = ["DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES"]
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS", "REMOVED_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = "do-not-scan.*"
+                            database_resource_name_regex = ".*"
+                        }
+                    }
+                }
+            }
+            disabled {}
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                others {}
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_MONTHLY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+
+    }
+    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"] 
+}
+
+resource "google_data_loss_prevention_inspect_template" "basic" {
+    parent = "projects/my-project-name"
+    description = "My description"
+    display_name = "display_name"
+
+    inspect_config {
+        info_types {
+            name = "EMAIL_ADDRESS"
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -460,6 +543,11 @@ The following arguments are supported:
   BigQuery target for Discovery. The first target to match a table will be the one applied.
   Structure is [documented below](#nested_big_query_target).
 
+* `cloud_sql_target` -
+  (Optional)
+  Cloud SQL target for Discovery. The first target to match a table will be the one applied.
+  Structure is [documented below](#nested_cloud_sql_target).
+
 
 <a name="nested_big_query_target"></a>The `big_query_target` block supports:
 
@@ -599,6 +687,111 @@ The following arguments are supported:
 * `frequency` -
   (Optional)
   How frequently data profiles can be updated when tables are modified. Defaults to never.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+<a name="nested_cloud_sql_target"></a>The `cloud_sql_target` block supports:
+
+* `filter` -
+  (Required)
+  Required. The tables the discovery cadence applies to. The first target with a matching filter will be the one to apply to a table.
+  Structure is [documented below](#nested_filter).
+
+* `conditions` -
+  (Optional)
+  In addition to matching the filter, these conditions must be true before a profile is generated.
+  Structure is [documented below](#nested_conditions).
+
+* `generation_cadence` -
+  (Optional)
+  How often and when to update profiles. New tables that match both the filter and conditions are scanned as quickly as possible depending on system capacity.
+  Structure is [documented below](#nested_generation_cadence).
+
+* `disabled` -
+  (Optional)
+  Disable profiling for database resources that match this filter.
+
+
+<a name="nested_filter"></a>The `filter` block supports:
+
+* `collection` -
+  (Optional)
+  A specific set of database resources for this filter to apply to.
+  Structure is [documented below](#nested_collection).
+
+* `others` -
+  (Optional)
+  Catch-all. This should always be the last target in the list because anything above it will apply first. Should only appear once in a configuration. If none is specified, a default one will be added automatically.
+
+
+<a name="nested_collection"></a>The `collection` block supports:
+
+* `include_regexes` -
+  (Optional)
+  A collection of regular expressions to match a database resource against.
+  Structure is [documented below](#nested_include_regexes).
+
+
+<a name="nested_include_regexes"></a>The `include_regexes` block supports:
+
+* `patterns` -
+  (Optional)
+  A group of regular expression patterns to match against one or more database resources. Maximum of 100 entries. The sum of all regular expressions' length can't exceed 10 KiB.
+  Structure is [documented below](#nested_patterns).
+
+
+<a name="nested_patterns"></a>The `patterns` block supports:
+
+* `project_id_regex` -
+  (Optional)
+  For organizations, if unset, will match all projects. Has no effect for data profile configurations created within a project.
+
+* `instance_regex` -
+  (Optional)
+  Regex to test the instance name against. If empty, all instances match.
+
+* `database_regex` -
+  (Optional)
+  Regex to test the database name against. If empty, all databases match.
+
+* `database_resource_name_regex` -
+  (Optional)
+  Regex to test the database resource's name against. An example of a database resource name is a table's name. Other database resource names like view names could be included in the future. If empty, all database resources match.'
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `database_engines` -
+  (Optional)
+  Database engines that should be profiled. Optional. Defaults to ALL_SUPPORTED_DATABASE_ENGINES if unspecified.
+  Each value may be one of: `ALL_SUPPORTED_DATABASE_ENGINES`, `MYSQL`, `POSTGRES`.
+
+* `types` -
+  (Optional)
+  Data profiles will only be generated for the database resource types specified in this field. If not specified, defaults to [DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES].
+  Each value may be one of: `DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES`, `DATABASE_RESOURCE_TYPE_TABLE`.
+
+<a name="nested_generation_cadence"></a>The `generation_cadence` block supports:
+
+* `schema_modified_cadence` -
+  (Optional)
+  Governs when to update data profiles when a schema is modified
+  Structure is [documented below](#nested_schema_modified_cadence).
+
+* `refresh_frequency` -
+  (Optional)
+  Data changes (non-schema changes) in Cloud SQL tables can't trigger reprofiling. If you set this field, profiles are refreshed at this frequency regardless of whether the underlying tables have changes. Defaults to never.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+
+<a name="nested_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
+
+* `types` -
+  (Optional)
+  The types of schema modifications to consider. Defaults to NEW_COLUMNS.
+  Each value may be one of: `NEW_COLUMNS`, `REMOVED_COLUMNS`.
+
+* `frequency` -
+  (Optional)
+  Frequency to regenerate data profiles when the schema is modified. Defaults to monthly.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
 ## Attributes Reference

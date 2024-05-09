@@ -454,6 +454,115 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 `, context)
 }
 
+func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigCloudSqlExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDiscoveryConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigCloudSqlExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_discovery_config.cloud_sql",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "location"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigCloudSqlExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_discovery_config" "cloud_sql" {
+	parent = "projects/%{project}/locations/us"
+    location = "us"
+    status = "RUNNING"
+
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = ".*"
+                            database_resource_name_regex = "mytable.*"
+                        }
+                    }
+                }
+            }
+            conditions {
+                database_engines = ["ALL_SUPPORTED_DATABASE_ENGINES"]
+                types = ["DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES"]
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS", "REMOVED_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = "do-not-scan.*"
+                            database_resource_name_regex = ".*"
+                        }
+                    }
+                }
+            }
+            disabled {}
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                others {}
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_MONTHLY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+
+    }
+    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"] 
+}
+
+resource "google_data_loss_prevention_inspect_template" "basic" {
+    parent = "projects/%{project}"
+    description = "My description"
+    display_name = "display_name"
+
+    inspect_config {
+        info_types {
+            name = "EMAIL_ADDRESS"
+        }
+    }
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionDiscoveryConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
