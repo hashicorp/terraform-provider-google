@@ -123,7 +123,7 @@ resource "google_compute_forwarding_rule" "psc_ilb_consumer" {
   target                = google_compute_service_attachment.psc_ilb_service_attachment.id
   load_balancing_scheme = "" # need to override EXTERNAL default when target is a service attachment
   network               = "default"
-  ip_address            = google_compute_address.psc_ilb_consumer_address.id
+  ip_address            = google_compute_address.psc_ilb_consumer_address.address
 
   project = google_project.project.project_id
 }

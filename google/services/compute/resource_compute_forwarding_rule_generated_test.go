@@ -477,7 +477,7 @@ func testAccComputeForwardingRule_forwardingRuleRegionalSteeringExample(context 
 resource "google_compute_forwarding_rule" "steering" {
   name = "tf-test-steering-rule%{random_suffix}"
   region = "us-central1"
-  ip_address = google_compute_address.basic.self_link
+  ip_address = google_compute_address.basic.address
   backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
   source_ip_ranges = ["34.121.88.0/24", "35.187.239.137"]
@@ -498,7 +498,7 @@ resource "google_compute_region_backend_service" "external" {
 resource "google_compute_forwarding_rule" "external" {
   name = "tf-test-external-forwarding-rule%{random_suffix}"
   region = "us-central1"
-  ip_address = google_compute_address.basic.self_link
+  ip_address = google_compute_address.basic.address
   backend_service = google_compute_region_backend_service.external.self_link
   load_balancing_scheme = "EXTERNAL"
 }
