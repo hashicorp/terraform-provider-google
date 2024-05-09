@@ -1,8 +1,5 @@
 ## 5.29.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-* Update CHANGELOG.md on main to include v5.27.0 release notes ([#18012](https://github.com/hashicorp/terraform-provider-google/pull/18012))
-* Update bug issue template to include "provider version" in section title ([#18003](https://github.com/hashicorp/terraform-provider-google/pull/18003))
 NOTES:
 * compute: added documentation for md5_authentication_key field in google_compute_router_peer resource ([#17991](https://github.com/hashicorp/terraform-provider-google/pull/17991))
 * dataflow: updated dataflow job docs with usage and an example for `service_account_email` ([#18037](https://github.com/hashicorp/terraform-provider-google/pull/18037))
@@ -11,19 +8,22 @@ FEATURES:
 * **New Resource:** `google_bigtable_authorized_view` ([#18006](https://github.com/hashicorp/terraform-provider-google/pull/18006))
 * **New Resource:** `google_integration_connectors_managed_zone` ([#18029](https://github.com/hashicorp/terraform-provider-google/pull/18029))
 * **New Resource:** `google_network_connectivity_regional_endpoint` ([#18014](https://github.com/hashicorp/terraform-provider-google/pull/18014))
+* **New Resource:** `google_network_security_security_profile` ([#18025](https://github.com/hashicorp/terraform-provider-google/pull/18025))
+* **New Resource:** `google_network_security_security_profile_group` ([#18025](https://github.com/hashicorp/terraform-provider-google/pull/18025))
+* **New Resource:** `google_network_security_firewall_endpoint` ([#18025](https://github.com/hashicorp/terraform-provider-google/pull/18025))
+* **New Resource:** `google_network_security_firewall_endpoint_association` ([#18025](https://github.com/hashicorp/terraform-provider-google/pull/18025))
 
 IMPROVEMENTS:
 * clouddeploy: added `custom_target` field to  `google_clouddeploy_target` resource ([#18000](https://github.com/hashicorp/terraform-provider-google/pull/18000))
 * clouddeploy: added `google_cloud_build_repo` to `custom_target_type` resource ([#18040](https://github.com/hashicorp/terraform-provider-google/pull/18040))
-* compute: Added 'preconfiguredWafConfig' field to 'google_compute_region_security_policy_rule' resource; ([#18039](https://github.com/hashicorp/terraform-provider-google/pull/18039))
-* compute: Added 'rateLimitOptions' field to 'google_compute_region_security_policy_rule' resource; ([#18039](https://github.com/hashicorp/terraform-provider-google/pull/18039))
+* compute: added `preconfigured_waf_config` field to `google_compute_region_security_policy_rule` resource; ([#18039](https://github.com/hashicorp/terraform-provider-google/pull/18039))
+* compute: added `rate_limit_options` field to `google_compute_region_security_policy_rule` resource; ([#18039](https://github.com/hashicorp/terraform-provider-google/pull/18039))
 * compute: added `security_profile_group`, `tls_inspect` to `google_compute_firewall_policy_rule` ([#18000](https://github.com/hashicorp/terraform-provider-google/pull/18000))
 * compute: added `security_profile_group`, `tls_inspect` to `google_compute_network_firewall_policy_rule` ([#18000](https://github.com/hashicorp/terraform-provider-google/pull/18000))
-* compute: added fields `reserved_internal_range` and `secondary_ip_ranges[].reserved_internal_range` to `google_compute_subnetwork` resource ([#18026](https://github.com/hashicorp/terraform-provider-google/pull/18026))
-* container: added `additive_vpc_scope_dns_domain` field inside of the `dns_config` section of `google_container_cluster` resource ([#18031](https://github.com/hashicorp/terraform-provider-google/pull/18031))
+* compute: added fields `reserved_internal_range` and `secondary_ip_ranges.reserved_internal_range` to `google_compute_subnetwork` resource ([#18026](https://github.com/hashicorp/terraform-provider-google/pull/18026))
+* container: added `dns_config.additive_vpc_scope_dns_domain` field to `google_container_cluster` resource ([#18031](https://github.com/hashicorp/terraform-provider-google/pull/18031))
 * container: added `enable_nested_virtualization` field to `google_container_node_pool` and `google_container_cluster` resource. ([#18015](https://github.com/hashicorp/terraform-provider-google/pull/18015))
 * iam: added `extra_attributes_oauth2_client` field to `google_iam_workforce_pool_provider` resource ([#18027](https://github.com/hashicorp/terraform-provider-google/pull/18027))
-* networksecurity: promoted `google_network_security_security_profile`, `google_network_security_security_profile_group`, `google_network_security_firewall_endpoint`, and `google_network_security_firewall_endpoint_association` resources to GA. ([#18025](https://github.com/hashicorp/terraform-provider-google/pull/18025))
 * privateca: added `maximum_lifetime` field to  `google_privateca_certificate_template` resource ([#18000](https://github.com/hashicorp/terraform-provider-google/pull/18000))
 
 ## 5.28.0 (May 6, 2024)
