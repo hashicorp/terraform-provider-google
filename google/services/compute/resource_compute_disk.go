@@ -639,7 +639,7 @@ encryption key that protects this resource.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description: `URL of the disk type resource describing which disk type to use to
 create the disk. Provide this when creating the disk.`,
 				Default: "pd-standard",

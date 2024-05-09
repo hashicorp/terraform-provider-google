@@ -333,13 +333,14 @@ func TestAccComputeDisk_update(t *testing.T) {
 	t.Parallel()
 
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	diskType := "pd-ssd"
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_basic(diskName),
+				Config: testAccComputeDisk_basic(diskName, diskType),
 			},
 			{
 				ResourceName:            "google_compute_disk.foobar",
@@ -348,7 +349,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
-				Config: testAccComputeDisk_updated(diskName),
+				Config: testAccComputeDisk_updated(diskName, diskType),
 			},
 			{
 				ResourceName:            "google_compute_disk.foobar",
@@ -359,6 +360,30 @@ func TestAccComputeDisk_update(t *testing.T) {
 		},
 	})
 }
+
+func TestAccComputeDisk_fromTypeUrl(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	diskType := fmt.Sprintf("projects/%s/zones/us-central1-a/diskTypes/pd-ssd", envvar.GetTestProjectFromEnv())
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_basic(diskName, diskType),
+			},
+			{
+				ResourceName:            "google_compute_disk.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
 func TestAccComputeDisk_pdHyperDiskProvisionedIopsLifeCycle(t *testing.T) {
 	t.Parallel()
 
@@ -815,7 +840,7 @@ func TestAccComputeDisk_featuresUpdated(t *testing.T) {
 	})
 }
 
-func testAccComputeDisk_basic(diskName string) string {
+func testAccComputeDisk_basic(diskName string, diskType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
@@ -826,16 +851,16 @@ resource "google_compute_disk" "foobar" {
   name  = "%s"
   image = data.google_compute_image.my_image.self_link
   size  = 50
-  type  = "pd-ssd"
+  type  = "%s"
   zone  = "us-central1-a"
   labels = {
     my-label = "my-label-value"
   }
 }
-`, diskName)
+`, diskName, diskType)
 }
 
-func testAccComputeDisk_updated(diskName string) string {
+func testAccComputeDisk_updated(diskName string, diskType string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
@@ -846,14 +871,14 @@ resource "google_compute_disk" "foobar" {
   name  = "%s"
   image = data.google_compute_image.my_image.self_link
   size  = 100
-  type  = "pd-ssd"
+  type  = "%s"
   zone  = "us-central1-a"
   labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"
   }
 }
-`, diskName)
+`, diskName, diskType)
 }
 
 func testAccComputeDisk_fromSnapshot(projectName, firstDiskName, snapshotName, diskName, ref_selector string) string {
