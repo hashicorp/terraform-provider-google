@@ -679,7 +679,7 @@ resource "google_compute_forwarding_rule" "default" {
   region                = "europe-west1"
   depends_on            = [google_compute_subnetwork.proxy_subnet]
   ip_protocol           = "TCP"
-  ip_address            = google_compute_address.default.id
+  ip_address            = google_compute_address.default.address
   load_balancing_scheme = "INTERNAL_MANAGED"
   port_range            = "443"
   target                = google_compute_region_target_https_proxy.default.id
@@ -879,7 +879,7 @@ resource "google_compute_forwarding_rule" "redirect" {
   name                  = "l7-ilb-redirect"
   region                = "europe-west1"
   ip_protocol           = "TCP"
-  ip_address            = google_compute_address.default.id # Same as HTTPS load balancer
+  ip_address            = google_compute_address.default.address # Same as HTTPS load balancer
   load_balancing_scheme = "INTERNAL_MANAGED"
   port_range            = "80"
   target                = google_compute_region_target_http_proxy.default.id
