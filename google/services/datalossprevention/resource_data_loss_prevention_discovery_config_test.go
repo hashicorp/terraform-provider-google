@@ -17,6 +17,7 @@ func TestAccDataLossPreventionDiscoveryConfig_Update(t *testing.T) {
 		"actions":    testAccDataLossPreventionDiscoveryConfig_ActionsUpdate,
 		"conditions": testAccDataLossPreventionDiscoveryConfig_ConditionsCadenceUpdate,
 		"filter":     testAccDataLossPreventionDiscoveryConfig_FilterUpdate,
+		"cloud_sql":  testAccDataLossPreventionDiscoveryConfig_CloudSqlUpdate,
 	}
 	for name, tc := range testCases {
 		// shadow the tc variable into scope so that when
@@ -215,6 +216,41 @@ func testAccDataLossPreventionDiscoveryConfig_FilterUpdate(t *testing.T) {
 	})
 }
 
+func testAccDataLossPreventionDiscoveryConfig_CloudSqlUpdate(t *testing.T) {
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"location":      envvar.GetTestRegionFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionDiscoveryConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigStartCloudSql(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+			},
+			{
+				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigUpdateCloudSql(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+			},
+		},
+	})
+}
+
 func testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigStart(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_data_loss_prevention_inspect_template" "basic" {
@@ -328,7 +364,7 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 	actions {
         export_data {
             profile_table {
-                project_id = "project"
+                project_id = "%{project}"
                 dataset_id = "dataset"
                 table_id = "table"
             }
@@ -579,6 +615,124 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
         big_query_target {
             filter {
                 other_tables {}
+            }
+        }
+    }
+    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
+}
+`, context)
+}
+
+func testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigStartCloudSql(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+    parent = "projects/%{project}"
+    description = "Description"
+    display_name = "Display"
+    inspect_config {
+        info_types {
+            name = "EMAIL_ADDRESS"
+        }
+    }
+}
+resource "google_data_loss_prevention_discovery_config" "basic" {
+    parent = "projects/%{project}/locations/%{location}"
+    location = "%{location}"
+    status = "RUNNING"
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = "do-not-scan.*"
+                            database_resource_name_regex = ".*"
+                        }
+                    }
+                }
+            }
+            conditions {
+                database_engines = ["MYSQL", "POSTGRES"]
+                types = ["DATABASE_RESOURCE_TYPE_ALL_SUPPORTED_TYPES"]
+            }
+            disabled {}
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                others {}
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_MONTHLY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+    }
+    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
+}
+`, context)
+}
+
+func testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigUpdateCloudSql(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "basic" {
+    parent = "projects/%{project}"
+    description = "Description"
+    display_name = "Display"
+    inspect_config {
+        info_types {
+            name = "EMAIL_ADDRESS"  
+        }
+    }
+}
+resource "google_data_loss_prevention_discovery_config" "basic" {
+    parent = "projects/%{project}/locations/%{location}"
+    location = "%{location}"
+    status = "RUNNING"
+    targets {
+        cloud_sql_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            project_id_regex = ".*"
+                            instance_regex = ".*"
+                            database_regex = ".*"
+                            database_resource_name_regex = "mytable.*"
+                        }
+                    }
+                }
+            }
+            conditions {
+                database_engines = ["ALL_SUPPORTED_DATABASE_ENGINES"]
+                types = ["DATABASE_RESOURCE_TYPE_TABLE"]
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS", "REMOVED_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+    }
+    targets {
+        cloud_sql_target {
+            filter {
+                others {}
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS", "REMOVED_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_DAILY"
             }
         }
     }
