@@ -49,7 +49,7 @@ func TestAccIntegrationConnectorsEndpointAttachment_integrationConnectorsEndpoin
 				ResourceName:            "google_integration_connectors_endpoint_attachment.sampleendpointattachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

@@ -49,7 +49,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeBasicExample(
 				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -96,7 +96,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGitSkaffoldMo
 				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -143,7 +143,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcsSkaffoldMo
 				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -189,7 +189,7 @@ func TestAccClouddeployCustomTargetType_clouddeployCustomTargetTypeGcbRepoSkaffo
 				ResourceName:            "google_clouddeploy_custom_target_type.custom-target-type",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

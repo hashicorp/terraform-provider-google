@@ -49,7 +49,7 @@ func TestAccNetappkmsconfig_kmsConfigCreateExample(t *testing.T) {
 				ResourceName:            "google_netapp_kmsconfig.kmsConfig",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

@@ -51,7 +51,7 @@ func TestAccGKEHub2ScopeRBACRoleBinding_gkehubScopeRbacRoleBindingBasicExample(t
 				ResourceName:            "google_gke_hub_scope_rbac_role_binding.scope_rbac_role_binding",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"scope_rbac_role_binding_id", "scope_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "scope_id", "scope_rbac_role_binding_id", "terraform_labels"},
 			},
 		},
 	})

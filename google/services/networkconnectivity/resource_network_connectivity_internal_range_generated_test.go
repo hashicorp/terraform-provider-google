@@ -49,7 +49,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesBa
 				ResourceName:            "google_network_connectivity_internal_range.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
 		},
 	})
@@ -96,7 +96,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesAu
 				ResourceName:            "google_network_connectivity_internal_range.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
 		},
 	})
@@ -141,7 +141,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesEx
 				ResourceName:            "google_network_connectivity_internal_range.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
 		},
 	})
@@ -187,7 +187,7 @@ func TestAccNetworkConnectivityInternalRange_networkConnectivityInternalRangesRe
 				ResourceName:            "google_network_connectivity_internal_range.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "network", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
 			},
 		},
 	})

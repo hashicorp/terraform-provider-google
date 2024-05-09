@@ -50,7 +50,7 @@ func TestAccNetworkConnectivityServiceConnectionPolicy_networkConnectivityPolicy
 				ResourceName:            "google_network_connectivity_service_connection_policy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

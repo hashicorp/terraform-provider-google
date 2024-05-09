@@ -53,7 +53,7 @@ func TestAccFirestoreField_firestoreFieldBasicExample(t *testing.T) {
 				ResourceName:            "google_firestore_field.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
 		},
 	})
@@ -111,7 +111,7 @@ func TestAccFirestoreField_firestoreFieldTimestampExample(t *testing.T) {
 				ResourceName:            "google_firestore_field.timestamp",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
 		},
 	})
@@ -165,7 +165,7 @@ func TestAccFirestoreField_firestoreFieldMatchOverrideExample(t *testing.T) {
 				ResourceName:            "google_firestore_field.match_override",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ImportStateVerifyIgnore: []string{"collection", "database", "field"},
 			},
 		},
 	})

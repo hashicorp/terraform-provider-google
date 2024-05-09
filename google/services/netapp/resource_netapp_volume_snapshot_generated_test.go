@@ -50,7 +50,7 @@ func TestAccNetappVolumeSnapshot_volumeSnapshotCreateExample(t *testing.T) {
 				ResourceName:            "google_netapp_volume_snapshot.test_snapshot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "volume_name", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels", "volume_name"},
 			},
 		},
 	})

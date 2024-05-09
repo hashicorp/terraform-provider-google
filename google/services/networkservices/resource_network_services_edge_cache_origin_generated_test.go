@@ -49,7 +49,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginBasicEx
 				ResourceName:            "google_network_services_edge_cache_origin.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "timeout", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels", "timeout"},
 			},
 		},
 	})
@@ -84,7 +84,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginAdvance
 				ResourceName:            "google_network_services_edge_cache_origin.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "timeout", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels", "timeout"},
 			},
 		},
 	})
@@ -171,7 +171,7 @@ func TestAccNetworkServicesEdgeCacheOrigin_networkServicesEdgeCacheOriginV4authE
 				ResourceName:            "google_network_services_edge_cache_origin.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "timeout", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels", "timeout"},
 			},
 		},
 	})

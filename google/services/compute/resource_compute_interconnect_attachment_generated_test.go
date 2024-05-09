@@ -49,7 +49,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 				ResourceName:            "google_compute_interconnect_attachment.on_prem",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"router", "candidate_subnets", "region"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router"},
 			},
 		},
 	})
@@ -99,7 +99,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 				ResourceName:            "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"router", "candidate_subnets", "region"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router"},
 			},
 		},
 	})

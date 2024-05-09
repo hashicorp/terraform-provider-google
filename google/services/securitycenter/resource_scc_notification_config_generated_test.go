@@ -51,7 +51,7 @@ func TestAccSecurityCenterNotificationConfig_sccNotificationConfigBasicExample(t
 				ResourceName:            "google_scc_notification_config.custom_notification_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"organization", "config_id"},
+				ImportStateVerifyIgnore: []string{"config_id", "organization"},
 			},
 		},
 	})

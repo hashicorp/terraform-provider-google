@@ -49,7 +49,7 @@ func TestAccDialogflowCXEntityType_dialogflowcxEntityTypeFullExample(t *testing.
 				ResourceName:            "google_dialogflow_cx_entity_type.basic_entity_type",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "language_code"},
+				ImportStateVerifyIgnore: []string{"language_code", "parent"},
 			},
 		},
 	})

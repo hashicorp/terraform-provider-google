@@ -49,7 +49,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 				ResourceName:            "google_discovery_engine_data_store.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search"},
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
 			},
 		},
 	})

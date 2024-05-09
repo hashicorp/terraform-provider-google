@@ -50,7 +50,7 @@ func TestAccRedisInstance_redisInstanceBasicExample(t *testing.T) {
 				ResourceName:            "google_redis_instance.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"reserved_ip_range", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})
@@ -90,7 +90,7 @@ func TestAccRedisInstance_redisInstanceFullExample(t *testing.T) {
 				ResourceName:            "google_redis_instance.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"reserved_ip_range", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})
@@ -169,7 +169,7 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 				ResourceName:            "google_redis_instance.cache-persis",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"reserved_ip_range", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})
@@ -217,7 +217,7 @@ func TestAccRedisInstance_redisInstancePrivateServiceTestExample(t *testing.T) {
 				ResourceName:            "google_redis_instance.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"reserved_ip_range", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})
@@ -279,7 +279,7 @@ func TestAccRedisInstance_redisInstanceMrrExample(t *testing.T) {
 				ResourceName:            "google_redis_instance.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"reserved_ip_range", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "region", "reserved_ip_range", "terraform_labels"},
 			},
 		},
 	})

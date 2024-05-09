@@ -49,7 +49,7 @@ func TestAccNetworkSecurityTlsInspectionPolicy_networkSecurityTlsInspectionPolic
 				ResourceName:            "google_network_security_tls_inspection_policy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
 		},
 	})

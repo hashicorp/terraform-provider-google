@@ -53,7 +53,7 @@ func TestAccApigeeKeystoresAliasesSelfSignedCert_apigeeEnvKeystoreAliasSelfSigne
 				ResourceName:            "google_apigee_keystores_aliases_self_signed_cert.apigee_environment_keystore_ss_alias",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"org_id", "environment", "keystore", "key_size", "sig_alg", "subject", "cert_validity_in_days"},
+				ImportStateVerifyIgnore: []string{"cert_validity_in_days", "environment", "key_size", "keystore", "org_id", "sig_alg", "subject"},
 			},
 		},
 	})

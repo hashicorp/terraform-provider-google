@@ -51,7 +51,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 				ResourceName:            "google_data_loss_prevention_inspect_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -186,7 +186,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 				ResourceName:            "google_data_loss_prevention_inspect_template.custom",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -279,7 +279,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeSurrog
 				ResourceName:            "google_data_loss_prevention_inspect_template.custom_type_surrogate",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -370,7 +370,7 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateWithTemplateIdEx
 				ResourceName:            "google_data_loss_prevention_inspect_template.with_template_id",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})

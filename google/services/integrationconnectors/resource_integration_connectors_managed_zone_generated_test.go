@@ -53,7 +53,7 @@ func TestAccIntegrationConnectorsManagedZone_integrationConnectorsManagedZoneExa
 				ResourceName:            "google_integration_connectors_managed_zone.testmanagedzone",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "terraform_labels"},
 			},
 		},
 	})

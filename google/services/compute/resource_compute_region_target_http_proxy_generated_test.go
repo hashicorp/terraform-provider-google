@@ -49,7 +49,7 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyBasicExample(t *te
 				ResourceName:            "google_compute_region_target_http_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"url_map", "region"},
+				ImportStateVerifyIgnore: []string{"region", "url_map"},
 			},
 		},
 	})
@@ -123,7 +123,7 @@ func TestAccComputeRegionTargetHttpProxy_regionTargetHttpProxyHttpsRedirectExamp
 				ResourceName:            "google_compute_region_target_http_proxy.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"url_map", "region"},
+				ImportStateVerifyIgnore: []string{"region", "url_map"},
 			},
 		},
 	})

@@ -49,7 +49,7 @@ func TestAccIntegrationsClient_integrationsClientBasicExample(t *testing.T) {
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "create_sample_workflows", "location", "provision_gmek", "run_as_service_account"},
 			},
 		},
 	})
@@ -83,7 +83,7 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "create_sample_workflows", "location", "provision_gmek", "run_as_service_account"},
 			},
 		},
 	})
@@ -148,7 +148,7 @@ func TestAccIntegrationsClient_integrationsClientDeprecatedFieldsExample(t *test
 				ResourceName:            "google_integrations_client.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_workflows", "create_sample_integrations", "provision_gmek", "run_as_service_account", "location"},
+				ImportStateVerifyIgnore: []string{"cloud_kms_config", "create_sample_integrations", "create_sample_workflows", "location", "provision_gmek", "run_as_service_account"},
 			},
 		},
 	})

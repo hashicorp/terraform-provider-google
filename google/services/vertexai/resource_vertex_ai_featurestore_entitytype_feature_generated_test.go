@@ -49,7 +49,7 @@ func TestAccVertexAIFeaturestoreEntitytypeFeature_vertexAiFeaturestoreEntitytype
 				ResourceName:            "google_vertex_ai_featurestore_entitytype_feature.feature",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "etag", "entitytype", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"entitytype", "etag", "labels", "name", "terraform_labels"},
 			},
 		},
 	})

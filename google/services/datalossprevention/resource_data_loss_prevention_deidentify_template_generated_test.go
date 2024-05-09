@@ -51,7 +51,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateBasicExamp
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -178,7 +178,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateSkipCharac
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -305,7 +305,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateImageTrans
 				ResourceName:            "google_data_loss_prevention_deidentify_template.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})
@@ -367,7 +367,7 @@ func TestAccDataLossPreventionDeidentifyTemplate_dlpDeidentifyTemplateWithTempla
 				ResourceName:            "google_data_loss_prevention_deidentify_template.with_template_id",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"template_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
 			},
 		},
 	})

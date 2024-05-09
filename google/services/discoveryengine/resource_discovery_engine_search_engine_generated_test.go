@@ -49,7 +49,7 @@ func TestAccDiscoveryEngineSearchEngine_discoveryengineSearchengineBasicExample(
 				ResourceName:            "google_discovery_engine_search_engine.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"engine_id", "collection_id", "location"},
+				ImportStateVerifyIgnore: []string{"collection_id", "engine_id", "location"},
 			},
 		},
 	})

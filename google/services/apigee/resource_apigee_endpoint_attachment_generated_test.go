@@ -53,7 +53,7 @@ func TestAccApigeeEndpointAttachment_apigeeEndpointAttachmentBasicTestExample(t 
 				ResourceName:            "google_apigee_endpoint_attachment.apigee_endpoint_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"org_id", "endpoint_attachment_id"},
+				ImportStateVerifyIgnore: []string{"endpoint_attachment_id", "org_id"},
 			},
 		},
 	})

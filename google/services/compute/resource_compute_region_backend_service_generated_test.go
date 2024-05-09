@@ -96,7 +96,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceExternalIapExample(t
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region", "iap.0.oauth2_client_secret"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})

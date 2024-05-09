@@ -49,7 +49,7 @@ func TestAccComputeSnapshot_snapshotBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_snapshot.snapshot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"source_disk", "zone", "source_disk_encryption_key", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "source_disk", "source_disk_encryption_key", "terraform_labels", "zone"},
 			},
 		},
 	})
@@ -101,7 +101,7 @@ func TestAccComputeSnapshot_snapshotChainnameExample(t *testing.T) {
 				ResourceName:            "google_compute_snapshot.snapshot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"source_disk", "zone", "source_disk_encryption_key", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "source_disk", "source_disk_encryption_key", "terraform_labels", "zone"},
 			},
 		},
 	})

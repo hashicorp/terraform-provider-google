@@ -49,7 +49,7 @@ func TestAccComputeImage_imageBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_image.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk", "source_disk", "source_image", "source_snapshot", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "raw_disk", "source_disk", "source_image", "source_snapshot", "terraform_labels"},
 			},
 		},
 	})
@@ -86,7 +86,7 @@ func TestAccComputeImage_imageGuestOsExample(t *testing.T) {
 				ResourceName:            "google_compute_image.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk", "source_disk", "source_image", "source_snapshot", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "raw_disk", "source_disk", "source_image", "source_snapshot", "terraform_labels"},
 			},
 		},
 	})
@@ -131,7 +131,7 @@ func TestAccComputeImage_imageBasicStorageLocationExample(t *testing.T) {
 				ResourceName:            "google_compute_image.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"raw_disk", "source_disk", "source_image", "source_snapshot", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "raw_disk", "source_disk", "source_image", "source_snapshot", "terraform_labels"},
 			},
 		},
 	})

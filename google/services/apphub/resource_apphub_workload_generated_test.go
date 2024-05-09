@@ -56,7 +56,7 @@ func TestAccApphubWorkload_apphubWorkloadBasicExample(t *testing.T) {
 				ResourceName:            "google_apphub_workload.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "application_id", "workload_id"},
+				ImportStateVerifyIgnore: []string{"application_id", "location", "workload_id"},
 			},
 		},
 	})
@@ -218,7 +218,7 @@ func TestAccApphubWorkload_apphubWorkloadFullExample(t *testing.T) {
 				ResourceName:            "google_apphub_workload.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "application_id", "workload_id"},
+				ImportStateVerifyIgnore: []string{"application_id", "location", "workload_id"},
 			},
 		},
 	})

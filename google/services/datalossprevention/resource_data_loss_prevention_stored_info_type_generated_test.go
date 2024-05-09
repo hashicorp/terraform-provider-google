@@ -51,7 +51,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeBasicExample(t *te
 				ResourceName:            "google_data_loss_prevention_stored_info_type.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"stored_info_type_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "stored_info_type_id"},
 			},
 		},
 	})
@@ -92,7 +92,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeDictionaryExample(
 				ResourceName:            "google_data_loss_prevention_stored_info_type.dictionary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"stored_info_type_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "stored_info_type_id"},
 			},
 		},
 	})
@@ -134,7 +134,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeLargeCustomDiction
 				ResourceName:            "google_data_loss_prevention_stored_info_type.large",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"stored_info_type_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "stored_info_type_id"},
 			},
 		},
 	})
@@ -191,7 +191,7 @@ func TestAccDataLossPreventionStoredInfoType_dlpStoredInfoTypeWithIdExample(t *t
 				ResourceName:            "google_data_loss_prevention_stored_info_type.with_stored_info_type_id",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"stored_info_type_id", "parent"},
+				ImportStateVerifyIgnore: []string{"parent", "stored_info_type_id"},
 			},
 		},
 	})

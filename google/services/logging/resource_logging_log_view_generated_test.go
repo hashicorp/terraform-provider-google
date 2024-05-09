@@ -51,7 +51,7 @@ func TestAccLoggingLogView_loggingLogViewBasicExample(t *testing.T) {
 				ResourceName:            "google_logging_log_view.logging_log_view",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "parent", "location", "bucket"},
+				ImportStateVerifyIgnore: []string{"bucket", "location", "name", "parent"},
 			},
 		},
 	})
@@ -95,7 +95,7 @@ func TestAccLoggingLogView_loggingLogViewLongNameExample(t *testing.T) {
 				ResourceName:            "google_logging_log_view.logging_log_view",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "parent", "location", "bucket"},
+				ImportStateVerifyIgnore: []string{"bucket", "location", "name", "parent"},
 			},
 		},
 	})

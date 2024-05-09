@@ -55,7 +55,7 @@ func TestAccFirestoreIndex_firestoreIndexBasicExample(t *testing.T) {
 				ResourceName:            "google_firestore_index.my-index",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection"},
+				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
 		},
 	})
@@ -111,7 +111,7 @@ func TestAccFirestoreIndex_firestoreIndexDatastoreModeExample(t *testing.T) {
 				ResourceName:            "google_firestore_index.my-index",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection"},
+				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
 		},
 	})
@@ -170,7 +170,7 @@ func TestAccFirestoreIndex_firestoreIndexVectorExample(t *testing.T) {
 				ResourceName:            "google_firestore_index.my-index",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection"},
+				ImportStateVerifyIgnore: []string{"collection", "database"},
 			},
 		},
 	})

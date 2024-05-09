@@ -49,7 +49,7 @@ func TestAccBiglakeTable_biglakeTableExample(t *testing.T) {
 				ResourceName:            "google_biglake_table.table",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "database"},
+				ImportStateVerifyIgnore: []string{"database", "name"},
 			},
 		},
 	})

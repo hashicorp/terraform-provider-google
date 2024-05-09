@@ -49,7 +49,7 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorBasicExample(t 
 				ResourceName:            "google_monitoring_metric_descriptor.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"launch_stage", "metadata"},
 			},
 		},
 	})
@@ -97,7 +97,7 @@ func TestAccMonitoringMetricDescriptor_monitoringMetricDescriptorAlertExample(t 
 				ResourceName:            "google_monitoring_metric_descriptor.with_alert",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"metadata", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"launch_stage", "metadata"},
 			},
 		},
 	})

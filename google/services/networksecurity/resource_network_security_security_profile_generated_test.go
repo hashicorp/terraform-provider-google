@@ -51,7 +51,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileBasicEx
 				ResourceName:            "google_network_security_security_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "parent", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
 			},
 		},
 	})
@@ -92,7 +92,7 @@ func TestAccNetworkSecuritySecurityProfile_networkSecuritySecurityProfileOverrid
 				ResourceName:            "google_network_security_security_profile.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "parent", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "parent", "terraform_labels"},
 			},
 		},
 	})

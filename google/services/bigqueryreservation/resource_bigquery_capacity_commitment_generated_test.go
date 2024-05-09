@@ -53,7 +53,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 				ResourceName:            "google_bigquery_capacity_commitment.commitment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "location", "enforce_single_admin_project_per_org"},
+				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "enforce_single_admin_project_per_org", "location"},
 			},
 		},
 	})
@@ -102,7 +102,7 @@ func TestAccBigqueryReservationCapacityCommitment_bigqueryReservationCapacityCom
 				ResourceName:            "google_bigquery_capacity_commitment.commitment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "location", "enforce_single_admin_project_per_org"},
+				ImportStateVerifyIgnore: []string{"capacity_commitment_id", "enforce_single_admin_project_per_org", "location"},
 			},
 		},
 	})

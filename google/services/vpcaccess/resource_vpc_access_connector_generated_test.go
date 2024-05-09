@@ -49,7 +49,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 				ResourceName:            "google_vpc_access_connector.connector",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_link", "region"},
+				ImportStateVerifyIgnore: []string{"region", "self_link"},
 			},
 		},
 	})
@@ -84,7 +84,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) 
 				ResourceName:            "google_vpc_access_connector.connector",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"self_link", "region"},
+				ImportStateVerifyIgnore: []string{"region", "self_link"},
 			},
 		},
 	})

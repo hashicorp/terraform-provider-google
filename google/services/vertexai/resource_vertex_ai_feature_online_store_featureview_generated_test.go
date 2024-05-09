@@ -49,7 +49,7 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ResourceName:            "google_vertex_ai_feature_online_store_featureview.featureview",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "feature_online_store", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"feature_online_store", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})
@@ -148,7 +148,7 @@ func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeat
 				ResourceName:            "google_vertex_ai_feature_online_store_featureview.featureview_featureregistry",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "feature_online_store", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"feature_online_store", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})

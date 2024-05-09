@@ -50,7 +50,7 @@ func TestAccAlloydbUser_alloydbUserBuiltinTestExample(t *testing.T) {
 				ResourceName:            "google_alloydb_user.user1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password", "cluster", "user_id", "password"},
+				ImportStateVerifyIgnore: []string{"cluster", "password", "password", "user_id"},
 			},
 		},
 	})
@@ -113,7 +113,7 @@ func TestAccAlloydbUser_alloydbUserIamTestExample(t *testing.T) {
 				ResourceName:            "google_alloydb_user.user2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password", "cluster", "user_id"},
+				ImportStateVerifyIgnore: []string{"cluster", "password", "user_id"},
 			},
 		},
 	})

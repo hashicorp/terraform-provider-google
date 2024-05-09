@@ -49,7 +49,7 @@ func TestAccPubsubLiteTopic_pubsubLiteTopicBasicExample(t *testing.T) {
 				ResourceName:            "google_pubsub_lite_topic.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "zone", "name"},
+				ImportStateVerifyIgnore: []string{"name", "region", "zone"},
 			},
 		},
 	})

@@ -49,7 +49,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ResourceName:            "google_database_migration_service_connection_profile.cloudsqlprofile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "mysql.0.password", "mysql.0.ssl.0.ca_certificate", "mysql.0.ssl.0.client_certificate", "mysql.0.ssl.0.client_key", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "mysql.0.password", "mysql.0.ssl.0.ca_certificate", "mysql.0.ssl.0.client_certificate", "mysql.0.ssl.0.client_key", "terraform_labels"},
 			},
 		},
 	})
@@ -164,7 +164,7 @@ func TestAccDatabaseMigrationServiceConnectionProfile_databaseMigrationServiceCo
 				ResourceName:            "google_database_migration_service_connection_profile.postgresprofile",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"connection_profile_id", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"connection_profile_id", "labels", "location", "postgresql.0.password", "postgresql.0.ssl.0.ca_certificate", "postgresql.0.ssl.0.client_certificate", "postgresql.0.ssl.0.client_key", "terraform_labels"},
 			},
 		},
 	})

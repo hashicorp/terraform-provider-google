@@ -49,7 +49,7 @@ func TestAccCloudbuildv2Connection_cloudbuildv2ConnectionExample(t *testing.T) {
 				ResourceName:            "google_cloudbuildv2_connection.my-connection",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name"},
 			},
 		},
 	})
