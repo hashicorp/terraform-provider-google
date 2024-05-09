@@ -273,6 +273,30 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_machineTypeUrl(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	var machineTypeUrl = "zones/us-central1-a/machineTypes/e2-medium"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_machineType(instanceName, machineTypeUrl),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "description", "old_desc"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_descriptionUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -3690,6 +3714,32 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance)
+}
+
+func testAccComputeInstance_machineType(instance string, machineType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+  name         = "%s"
+  machine_type = "%s"
+  zone         = "us-central1-a"
+  description  = "old_desc"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, instance, machineType)
 }
 
 func testAccComputeInstance_description(instance string) string {
