@@ -416,6 +416,119 @@ resource "google_datastream_stream" "stream5" {
     }
 }
 ```
+## Example Usage - Datastream Stream Sql Server
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+    provider            = google-beta
+    name                = "sql-server"
+    database_version    = "SQLSERVER_2019_STANDARD"
+    region              = "us-central1"
+    root_password       = "root-password"
+    deletion_protection = "true"
+
+    settings {
+        tier = "db-custom-2-4096"
+        ip_configuration {
+            // Datastream IPs will vary by region.
+            // https://cloud.google.com/datastream/docs/ip-allowlists-and-regions
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+}
+
+resource "google_sql_database" "db" {
+    provider   = google-beta
+    name       = "db"
+    instance   = google_sql_database_instance.instance.name
+    depends_on = [google_sql_user.user]
+}
+
+resource "google_sql_user" "user" {
+    provider = google-beta
+    name     = "user"
+    instance = google_sql_database_instance.instance.name
+    password = "password"
+}
+
+resource "google_datastream_connection_profile" "source" {
+    provider              = google-beta
+    display_name          = "SQL Server Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    sql_server_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        port     = 1433
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+        database = google_sql_database.db.name
+    }
+}
+
+resource "google_datastream_connection_profile" "destination" {
+    provider              = google-beta
+    display_name          = "BigQuery Destination"
+    location              = "us-central1"
+    connection_profile_id = "destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default" {
+    provider     = google-beta
+    display_name = "SQL Server to BigQuery"
+    location     = "us-central1"
+    stream_id    = "stream"
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source.id
+        sql_server_source_config {
+            include_objects {
+                schemas {
+                    schema = "schema"
+                    tables {
+                        table = "table"
+                    }
+                }
+            }
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination.id
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_none {}
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=datastream_stream_postgresql_bigquery_dataset_id&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -705,6 +818,11 @@ The following arguments are supported:
   (Optional)
   PostgreSQL data source configuration.
   Structure is [documented below](#nested_postgresql_source_config).
+
+* `sql_server_source_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  SQL Server data source configuration.
+  Structure is [documented below](#nested_sql_server_source_config).
 
 
 <a name="nested_mysql_source_config"></a>The `mysql_source_config` block supports:
@@ -1191,6 +1309,161 @@ The following arguments are supported:
   (Optional)
   The ordinal position of the column in the table.
 
+<a name="nested_sql_server_source_config"></a>The `sql_server_source_config` block supports:
+
+* `include_objects` -
+  (Optional)
+  SQL Server objects to retrieve from the source.
+  Structure is [documented below](#nested_include_objects).
+
+* `exclude_objects` -
+  (Optional)
+  SQL Server objects to exclude from the stream.
+  Structure is [documented below](#nested_exclude_objects).
+
+* `max_concurrent_cdc_tasks` -
+  (Optional)
+  Max concurrent CDC tasks.
+
+* `max_concurrent_backfill_tasks` -
+  (Optional)
+  Max concurrent backfill tasks.
+
+
+<a name="nested_include_objects"></a>The `include_objects` block supports:
+
+* `schemas` -
+  (Required)
+  SQL Server schemas/databases in the database server
+  Structure is [documented below](#nested_schemas).
+
+
+<a name="nested_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_tables).
+
+
+<a name="nested_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_columns).
+
+
+<a name="nested_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The SQL Server data type. Full data types list can be found here:
+  https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver16
+
+* `length` -
+  (Output)
+  Column length.
+
+* `precision` -
+  (Output)
+  Column precision.
+
+* `scale` -
+  (Output)
+  Column scale.
+
+* `primary_key` -
+  (Output)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Output)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
+<a name="nested_exclude_objects"></a>The `exclude_objects` block supports:
+
+* `schemas` -
+  (Required)
+  SQL Server schemas/databases in the database server
+  Structure is [documented below](#nested_schemas).
+
+
+<a name="nested_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_tables).
+
+
+<a name="nested_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_columns).
+
+
+<a name="nested_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The SQL Server data type. Full data types list can be found here:
+  https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver16
+
+* `length` -
+  (Output)
+  Column length.
+
+* `precision` -
+  (Output)
+  Column precision.
+
+* `scale` -
+  (Output)
+  Column scale.
+
+* `primary_key` -
+  (Output)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Output)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
 <a name="nested_destination_config"></a>The `destination_config` block supports:
 
 * `destination_connection_profile` -
@@ -1344,6 +1617,11 @@ The following arguments are supported:
   (Optional)
   PostgreSQL data source objects to avoid backfilling.
   Structure is [documented below](#nested_oracle_excluded_objects).
+
+* `sql_server_excluded_objects` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  SQL Server data source objects to avoid backfilling.
+  Structure is [documented below](#nested_sql_server_excluded_objects).
 
 
 <a name="nested_mysql_excluded_objects"></a>The `mysql_excluded_objects` block supports:
@@ -1534,6 +1812,73 @@ The following arguments are supported:
 * `encoding` -
   (Output)
   Column encoding.
+
+* `primary_key` -
+  (Output)
+  Whether or not the column represents a primary key.
+
+* `nullable` -
+  (Output)
+  Whether or not the column can accept a null value.
+
+* `ordinal_position` -
+  (Output)
+  The ordinal position of the column in the table.
+
+<a name="nested_sql_server_excluded_objects"></a>The `sql_server_excluded_objects` block supports:
+
+* `schemas` -
+  (Required)
+  SQL Server schemas/databases in the database server
+  Structure is [documented below](#nested_schemas).
+
+
+<a name="nested_schemas"></a>The `schemas` block supports:
+
+* `schema` -
+  (Required)
+  Schema name.
+
+* `tables` -
+  (Optional)
+  Tables in the database.
+  Structure is [documented below](#nested_tables).
+
+
+<a name="nested_tables"></a>The `tables` block supports:
+
+* `table` -
+  (Required)
+  Table name.
+
+* `columns` -
+  (Optional)
+  SQL Server columns in the schema. When unspecified as part of include/exclude objects, includes/excludes everything.
+  Structure is [documented below](#nested_columns).
+
+
+<a name="nested_columns"></a>The `columns` block supports:
+
+* `column` -
+  (Optional)
+  Column name.
+
+* `data_type` -
+  (Optional)
+  The SQL Server data type. Full data types list can be found here:
+  https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver16
+
+* `length` -
+  (Output)
+  Column length.
+
+* `precision` -
+  (Output)
+  Column precision.
+
+* `scale` -
+  (Output)
+  Column scale.
 
 * `primary_key` -
   (Output)
