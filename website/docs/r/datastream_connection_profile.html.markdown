@@ -29,7 +29,7 @@ To get more information about ConnectionProfile, see:
     * [Official Documentation](https://cloud.google.com/datastream/docs/create-connection-profiles)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
+values will be stored in the raw state as plain text: `oracle_profile.password`, `mysql_profile.password`, `mysql_profile.ssl_config.client_key`, `mysql_profile.ssl_config.client_certificate`, `mysql_profile.ssl_config.ca_certificate`, `postgresql_profile.password`, `sql_server_profile.password`, `forward_ssh_connectivity.password`, `forward_ssh_connectivity.private_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -246,6 +246,74 @@ resource "google_datastream_connection_profile" "default" {
     }
 }
 ```
+## Example Usage - Datastream Connection Profile Sql Server
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+	provider            = google-beta
+    name                = "sql-server"
+    database_version    = "SQLSERVER_2019_STANDARD"
+    region              = "us-central1"
+    root_password       = "root-password"
+    deletion_protection = "true"
+
+    settings {
+        tier = "db-custom-2-4096"
+        ip_configuration {
+            // Datastream IPs will vary by region.
+            // https://cloud.google.com/datastream/docs/ip-allowlists-and-regions
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+}
+
+resource "google_sql_database" "db" {
+	provider   = google-beta
+    name       = "db"
+    instance   = google_sql_database_instance.instance.name
+}
+
+resource "google_sql_user" "user" {
+    provider = google-beta
+    name     = "user"
+    instance = google_sql_database_instance.instance.name
+    password = "password"
+}
+
+resource "google_datastream_connection_profile" "default" {
+    provider              = google-beta
+    display_name          = "SQL Server Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    sql_server_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        port     = 1433
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+        database = google_sql_database.db.name
+    }
+}
+```
 
 ## Argument Reference
 
@@ -297,6 +365,11 @@ The following arguments are supported:
   (Optional)
   PostgreSQL database profile.
   Structure is [documented below](#nested_postgresql_profile).
+
+* `sql_server_profile` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  SQL Server database profile.
+  Structure is [documented below](#nested_sql_server_profile).
 
 * `forward_ssh_connectivity` -
   (Optional)
@@ -431,6 +504,29 @@ The following arguments are supported:
 * `database` -
   (Required)
   Database for the PostgreSQL connection.
+
+<a name="nested_sql_server_profile"></a>The `sql_server_profile` block supports:
+
+* `hostname` -
+  (Required)
+  Hostname for the SQL Server connection.
+
+* `port` -
+  (Optional)
+  Port for the SQL Server connection.
+
+* `username` -
+  (Required)
+  Username for the SQL Server connection.
+
+* `password` -
+  (Required)
+  Password for the SQL Server connection.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `database` -
+  (Required)
+  Database for the SQL Server connection.
 
 <a name="nested_forward_ssh_connectivity"></a>The `forward_ssh_connectivity` block supports:
 
