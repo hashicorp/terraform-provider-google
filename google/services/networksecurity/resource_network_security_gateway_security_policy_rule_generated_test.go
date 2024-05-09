@@ -49,7 +49,7 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 				ResourceName:            "google_network_security_gateway_security_policy_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "gateway_security_policy"},
+				ImportStateVerifyIgnore: []string{"gateway_security_policy", "location", "name"},
 			},
 		},
 	})
@@ -95,7 +95,7 @@ func TestAccNetworkSecurityGatewaySecurityPolicyRule_networkSecurityGatewaySecur
 				ResourceName:            "google_network_security_gateway_security_policy_rule.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "gateway_security_policy"},
+				ImportStateVerifyIgnore: []string{"gateway_security_policy", "location", "name"},
 			},
 		},
 	})

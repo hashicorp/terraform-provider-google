@@ -53,7 +53,7 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreExample(t *testing.T) {
 				ResourceName:            "google_vertex_ai_featurestore.featurestore",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"etag", "force_destroy", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})
@@ -100,7 +100,7 @@ func TestAccVertexAIFeaturestore_vertexAiFeaturestoreScalingExample(t *testing.T
 				ResourceName:            "google_vertex_ai_featurestore.featurestore",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "etag", "region", "force_destroy", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"etag", "force_destroy", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})

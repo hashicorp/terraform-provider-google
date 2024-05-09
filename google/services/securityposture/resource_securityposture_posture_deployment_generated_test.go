@@ -52,7 +52,7 @@ func TestAccSecurityposturePostureDeployment_securityposturePostureDeploymentBas
 				ResourceName:            "google_securityposture_posture_deployment.postureDeployment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location", "posture_deployment_id"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "posture_deployment_id"},
 			},
 		},
 	})

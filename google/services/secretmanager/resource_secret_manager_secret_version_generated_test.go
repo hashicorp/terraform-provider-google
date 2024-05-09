@@ -97,7 +97,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyAbandonExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
 			},
 		},
 	})
@@ -145,7 +145,7 @@ func TestAccSecretManagerSecretVersion_secretVersionDeletionPolicyDisableExample
 				ResourceName:            "google_secret_manager_secret_version.secret-version-deletion-policy",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "secret"},
 			},
 		},
 	})
@@ -194,7 +194,7 @@ func TestAccSecretManagerSecretVersion_secretVersionWithBase64StringSecretDataEx
 				ResourceName:            "google_secret_manager_secret_version.secret-version-base64",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"secret", "is_secret_data_base64"},
+				ImportStateVerifyIgnore: []string{"is_secret_data_base64", "secret"},
 			},
 		},
 	})

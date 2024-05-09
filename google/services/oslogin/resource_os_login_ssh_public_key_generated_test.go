@@ -49,7 +49,7 @@ func TestAccOSLoginSSHPublicKey_osLoginSshKeyBasicExample(t *testing.T) {
 				ResourceName:            "google_os_login_ssh_public_key.cache",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"user", "project"},
+				ImportStateVerifyIgnore: []string{"project", "user"},
 			},
 		},
 	})

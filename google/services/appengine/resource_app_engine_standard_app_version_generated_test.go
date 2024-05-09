@@ -49,7 +49,7 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 				ResourceName:            "google_app_engine_standard_app_version.myapp_v1",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"threadsafe", "env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
+				ImportStateVerifyIgnore: []string{"delete_service_on_destroy", "deployment", "entrypoint", "env_variables", "service", "threadsafe"},
 			},
 		},
 	})

@@ -49,7 +49,7 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupBasicExample(t *testing.T
 				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
+				ImportStateVerifyIgnore: []string{"entry_group_id", "region"},
 			},
 		},
 	})
@@ -82,7 +82,7 @@ func TestAccDataCatalogEntryGroup_dataCatalogEntryGroupFullExample(t *testing.T)
 				ResourceName:            "google_data_catalog_entry_group.basic_entry_group",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "entry_group_id"},
+				ImportStateVerifyIgnore: []string{"entry_group_id", "region"},
 			},
 		},
 	})

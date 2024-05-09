@@ -50,7 +50,7 @@ func TestAccNetappVolume_netappVolumeBasicExample(t *testing.T) {
 				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "location", "name", "restore_parameters", "terraform_labels"},
 			},
 		},
 	})

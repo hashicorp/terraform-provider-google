@@ -51,7 +51,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
 		},
 	})
@@ -182,7 +182,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
 		},
 	})
@@ -345,7 +345,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
 		},
 	})
@@ -432,7 +432,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
 		},
 	})
@@ -551,7 +551,7 @@ func TestAccPrivatecaCertificate_privatecaCertificateCustomSkiExample(t *testing
 				ResourceName:            "google_privateca_certificate.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"pool", "name", "location", "certificate_authority", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"certificate_authority", "labels", "location", "name", "pool", "terraform_labels"},
 			},
 		},
 	})

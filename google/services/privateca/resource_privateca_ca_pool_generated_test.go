@@ -49,7 +49,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolBasicExample(t *testing.T) {
 				ResourceName:            "google_privateca_ca_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccPrivatecaCaPool_privatecaCapoolAllFieldsExample(t *testing.T) {
 				ResourceName:            "google_privateca_ca_pool.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

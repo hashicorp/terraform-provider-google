@@ -49,7 +49,7 @@ func TestAccNotebooksEnvironment_notebookEnvironmentBasicExample(t *testing.T) {
 				ResourceName:            "google_notebooks_environment.environment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"location", "name"},
 			},
 		},
 	})

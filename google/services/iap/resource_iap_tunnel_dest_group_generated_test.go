@@ -53,7 +53,7 @@ func TestAccIapTunnelDestGroup_iapDestgroupExample(t *testing.T) {
 				ResourceName:            "google_iap_tunnel_dest_group.dest_group",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "group_name"},
+				ImportStateVerifyIgnore: []string{"group_name", "region"},
 			},
 		},
 	})

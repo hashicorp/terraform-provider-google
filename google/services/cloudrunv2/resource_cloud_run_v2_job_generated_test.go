@@ -49,7 +49,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobBasicExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobLimitsExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -146,7 +146,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSqlExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -246,7 +246,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobVpcaccessExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -313,7 +313,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobDirectvpcExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -362,7 +362,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobSecretExample(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

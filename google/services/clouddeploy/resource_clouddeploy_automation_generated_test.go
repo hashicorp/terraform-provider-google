@@ -51,7 +51,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationBasicExample(t *testing.T
 				ResourceName:            "google_clouddeploy_automation.b-automation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "delivery_pipeline", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "delivery_pipeline", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -111,7 +111,7 @@ func TestAccClouddeployAutomation_clouddeployAutomationFullExample(t *testing.T)
 				ResourceName:            "google_clouddeploy_automation.f-automation",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "delivery_pipeline", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "delivery_pipeline", "labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

@@ -49,7 +49,7 @@ func TestAccNetappbackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 				ResourceName:            "google_netapp_backup_policy.test_backup_policy_full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

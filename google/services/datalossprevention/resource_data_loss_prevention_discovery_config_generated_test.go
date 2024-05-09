@@ -52,7 +52,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigBasicExample(t *
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -109,7 +109,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigActionsExample(t
 				ResourceName:            "google_data_loss_prevention_discovery_config.actions",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -195,7 +195,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgRunningExampl
 				ResourceName:            "google_data_loss_prevention_discovery_config.org_running",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -259,7 +259,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPausedE
 				ResourceName:            "google_data_loss_prevention_discovery_config.org_folder_paused",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -322,7 +322,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigConditionsCadenc
 				ResourceName:            "google_data_loss_prevention_discovery_config.conditions_cadence",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -392,7 +392,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigFilterRegexesAnd
 				ResourceName:            "google_data_loss_prevention_discovery_config.filter_regexes_and_conditions",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})
@@ -474,7 +474,7 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigCloudSqlExample(
 				ResourceName:            "google_data_loss_prevention_discovery_config.cloud_sql",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"parent", "location"},
+				ImportStateVerifyIgnore: []string{"location", "parent"},
 			},
 		},
 	})

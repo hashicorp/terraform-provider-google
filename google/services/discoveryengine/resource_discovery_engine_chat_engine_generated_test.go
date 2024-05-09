@@ -49,7 +49,7 @@ func TestAccDiscoveryEngineChatEngine_discoveryengineChatEngineBasicExample(t *t
 				ResourceName:            "google_discovery_engine_chat_engine.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"chat_engine_config", "engine_id", "collection_id", "location"},
+				ImportStateVerifyIgnore: []string{"chat_engine_config", "collection_id", "engine_id", "location"},
 			},
 		},
 	})

@@ -51,7 +51,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileAnyclusterExample(t *testing.T)
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "ignore_warnings", "ignore_warnings", "instance"},
 			},
 		},
 	})
@@ -116,7 +116,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileSingleclusterExample(t *testing
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "ignore_warnings", "ignore_warnings", "instance"},
 			},
 		},
 	})
@@ -172,7 +172,7 @@ func TestAccBigtableAppProfile_bigtableAppProfileMulticlusterExample(t *testing.
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "ignore_warnings", "ignore_warnings", "instance"},
 			},
 		},
 	})
@@ -238,7 +238,7 @@ func TestAccBigtableAppProfile_bigtableAppProfilePriorityExample(t *testing.T) {
 				ResourceName:            "google_bigtable_app_profile.ap",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"app_profile_id", "instance", "ignore_warnings", "ignore_warnings"},
+				ImportStateVerifyIgnore: []string{"app_profile_id", "ignore_warnings", "ignore_warnings", "instance"},
 			},
 		},
 	})

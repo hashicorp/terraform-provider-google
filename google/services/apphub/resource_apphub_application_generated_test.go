@@ -49,7 +49,7 @@ func TestAccApphubApplication_applicationBasicExample(t *testing.T) {
 				ResourceName:            "google_apphub_application.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "application_id"},
+				ImportStateVerifyIgnore: []string{"application_id", "location"},
 			},
 		},
 	})
@@ -86,7 +86,7 @@ func TestAccApphubApplication_applicationFullExample(t *testing.T) {
 				ResourceName:            "google_apphub_application.example2",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "application_id"},
+				ImportStateVerifyIgnore: []string{"application_id", "location"},
 			},
 		},
 	})

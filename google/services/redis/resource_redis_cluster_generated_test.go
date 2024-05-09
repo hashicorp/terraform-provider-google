@@ -50,7 +50,7 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 				ResourceName:            "google_redis_cluster.cluster-ha",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"psc_configs", "name", "region"},
+				ImportStateVerifyIgnore: []string{"name", "psc_configs", "region"},
 			},
 		},
 	})

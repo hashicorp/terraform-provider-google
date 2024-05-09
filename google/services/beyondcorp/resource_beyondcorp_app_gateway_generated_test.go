@@ -49,7 +49,7 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayBasicExample(t *testing.T) 
 				ResourceName:            "google_beyondcorp_app_gateway.app_gateway",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})
@@ -85,7 +85,7 @@ func TestAccBeyondcorpAppGateway_beyondcorpAppGatewayFullExample(t *testing.T) {
 				ResourceName:            "google_beyondcorp_app_gateway.app_gateway",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})

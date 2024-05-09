@@ -50,7 +50,7 @@ func TestAccDataCatalogTagTemplate_dataCatalogTagTemplateBasicExample(t *testing
 				ResourceName:            "google_data_catalog_tag_template.basic_tag_template",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "tag_template_id", "force_delete"},
+				ImportStateVerifyIgnore: []string{"force_delete", "region", "tag_template_id"},
 			},
 		},
 	})

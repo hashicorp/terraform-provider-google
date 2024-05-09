@@ -49,7 +49,7 @@ func TestAccEdgecontainerCluster_edgecontainerClusterExample(t *testing.T) {
 				ResourceName:            "google_edgecontainer_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -105,7 +105,7 @@ func TestAccEdgecontainerCluster_edgecontainerClusterWithMaintenanceWindowExampl
 				ResourceName:            "google_edgecontainer_cluster.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
 			},
 		},
 	})

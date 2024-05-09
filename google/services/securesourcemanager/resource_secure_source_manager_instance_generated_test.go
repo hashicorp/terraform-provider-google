@@ -49,7 +49,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "instance_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -86,7 +86,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "instance_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -148,7 +148,7 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 				ResourceName:            "google_secure_source_manager_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "instance_id", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"instance_id", "labels", "location", "terraform_labels"},
 			},
 		},
 	})

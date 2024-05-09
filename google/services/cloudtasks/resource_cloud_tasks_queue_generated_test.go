@@ -83,7 +83,7 @@ func TestAccCloudTasksQueue_cloudTasksQueueAdvancedExample(t *testing.T) {
 				ResourceName:            "google_cloud_tasks_queue.advanced_configuration",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "app_engine_routing_override.0.instance"},
+				ImportStateVerifyIgnore: []string{"app_engine_routing_override.0.instance", "app_engine_routing_override.0.service", "app_engine_routing_override.0.version", "location"},
 			},
 		},
 	})

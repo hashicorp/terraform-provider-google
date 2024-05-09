@@ -49,7 +49,7 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureExample(t *te
 				ResourceName:            "google_vertex_ai_feature_group_feature.feature_group_feature",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "feature_group", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"feature_group", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})
@@ -138,7 +138,7 @@ func TestAccVertexAIFeatureGroupFeature_vertexAiFeatureGroupFeatureWithVersionCo
 				ResourceName:            "google_vertex_ai_feature_group_feature.feature_group_feature",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "feature_group", "region", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"feature_group", "labels", "name", "region", "terraform_labels"},
 			},
 		},
 	})

@@ -50,7 +50,7 @@ func TestAccNetappVolumeReplication_netappVolumeReplicationCreateExample(t *test
 				ResourceName:            "google_netapp_volume_replication.test_replication",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"destination_volume_parameters", "location", "volume_name", "name", "delete_destination_volume", "replication_enabled", "force_stopping", "wait_for_mirror", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"delete_destination_volume", "destination_volume_parameters", "force_stopping", "labels", "location", "name", "replication_enabled", "terraform_labels", "volume_name", "wait_for_mirror"},
 			},
 		},
 	})

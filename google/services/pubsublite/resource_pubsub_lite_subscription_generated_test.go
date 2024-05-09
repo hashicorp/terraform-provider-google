@@ -49,7 +49,7 @@ func TestAccPubsubLiteSubscription_pubsubLiteSubscriptionBasicExample(t *testing
 				ResourceName:            "google_pubsub_lite_subscription.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"topic", "region", "zone", "name"},
+				ImportStateVerifyIgnore: []string{"name", "region", "topic", "zone"},
 			},
 		},
 	})

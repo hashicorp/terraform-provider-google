@@ -55,7 +55,7 @@ func TestAccFirestoreDocument_firestoreDocumentBasicExample(t *testing.T) {
 				ResourceName:            "google_firestore_document.mydoc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "document_id"},
+				ImportStateVerifyIgnore: []string{"collection", "database", "document_id"},
 			},
 		},
 	})
@@ -126,7 +126,7 @@ func TestAccFirestoreDocument_firestoreDocumentNestedDocumentExample(t *testing.
 				ResourceName:            "google_firestore_document.mydoc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "document_id"},
+				ImportStateVerifyIgnore: []string{"collection", "database", "document_id"},
 			},
 		},
 	})

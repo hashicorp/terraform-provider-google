@@ -50,7 +50,7 @@ func TestAccAlloydbInstance_alloydbInstanceBasicTestExample(t *testing.T) {
 				ResourceName:            "google_alloydb_instance.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"display_name", "cluster", "instance_id", "reconciling", "update_time", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster", "display_name", "instance_id", "labels", "reconciling", "terraform_labels", "update_time"},
 			},
 		},
 	})
@@ -106,7 +106,7 @@ func TestAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(t *testing.
 				ResourceName:            "google_alloydb_instance.secondary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"display_name", "cluster", "instance_id", "reconciling", "update_time", "labels", "annotations", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"annotations", "cluster", "display_name", "instance_id", "labels", "reconciling", "terraform_labels", "update_time"},
 			},
 		},
 	})

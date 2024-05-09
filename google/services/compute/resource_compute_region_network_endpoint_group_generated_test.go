@@ -50,7 +50,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupFunction
 				ResourceName:            "google_compute_region_network_endpoint_group.function_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -113,7 +113,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupCloudrun
 				ResourceName:            "google_compute_region_network_endpoint_group.cloudrun_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -170,7 +170,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -270,7 +270,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupAppengin
 				ResourceName:            "google_compute_region_network_endpoint_group.appengine_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -308,7 +308,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscExamp
 				ResourceName:            "google_compute_region_network_endpoint_group.psc_neg",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -345,7 +345,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupPscServi
 				ResourceName:            "google_compute_region_network_endpoint_group.psc_neg_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -442,7 +442,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_ip_port",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})
@@ -483,7 +483,7 @@ func TestAccComputeRegionNetworkEndpointGroup_regionNetworkEndpointGroupInternet
 				ResourceName:            "google_compute_region_network_endpoint_group.region_network_endpoint_group_internet_fqdn_port",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "subnetwork", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "subnetwork"},
 			},
 		},
 	})

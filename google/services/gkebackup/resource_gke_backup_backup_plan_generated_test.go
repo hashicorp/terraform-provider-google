@@ -54,7 +54,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanBasicExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -114,7 +114,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanAutopilotExample(t *testing.T
 				ResourceName:            "google_gke_backup_backup_plan.autopilot",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -177,7 +177,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanCmekExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.cmek",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -253,7 +253,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanFullExample(t *testing.T) {
 				ResourceName:            "google_gke_backup_backup_plan.full",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -330,7 +330,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *test
 				ResourceName:            "google_gke_backup_backup_plan.rpo_daily_window",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})
@@ -422,7 +422,7 @@ func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoWeeklyWindowExample(t *tes
 				ResourceName:            "google_gke_backup_backup_plan.rpo_weekly_window",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
 			},
 		},
 	})

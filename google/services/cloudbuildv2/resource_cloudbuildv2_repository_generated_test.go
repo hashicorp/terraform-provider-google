@@ -49,7 +49,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGheExample(t *testing.T
 				ResourceName:            "google_cloudbuildv2_repository.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "parent_connection", "annotations"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
 			},
 		},
 	})
@@ -104,7 +104,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGithubExample(t *testin
 				ResourceName:            "google_cloudbuildv2_repository.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "parent_connection", "annotations"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
 			},
 		},
 	})
@@ -161,7 +161,7 @@ func TestAccCloudbuildv2Repository_cloudbuildv2RepositoryGleExample(t *testing.T
 				ResourceName:            "google_cloudbuildv2_repository.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "parent_connection", "annotations"},
+				ImportStateVerifyIgnore: []string{"annotations", "location", "name", "parent_connection"},
 			},
 		},
 	})

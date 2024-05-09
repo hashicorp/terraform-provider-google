@@ -50,7 +50,7 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 				ResourceName:            "google_database_migration_service_private_connection.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"private_connection_id", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "private_connection_id", "terraform_labels"},
 			},
 		},
 	})

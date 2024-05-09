@@ -49,7 +49,7 @@ func TestAccDialogflowCXAgent_dialogflowcxAgentFullExample(t *testing.T) {
 				ResourceName:            "google_dialogflow_cx_agent.full_agent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "git_integration_settings.0.github_settings.0.access_token"},
+				ImportStateVerifyIgnore: []string{"git_integration_settings.0.github_settings.0.access_token", "location"},
 			},
 		},
 	})

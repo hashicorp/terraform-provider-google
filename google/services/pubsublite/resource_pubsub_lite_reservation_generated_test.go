@@ -49,7 +49,7 @@ func TestAccPubsubLiteReservation_pubsubLiteReservationBasicExample(t *testing.T
 				ResourceName:            "google_pubsub_lite_reservation.example",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "name"},
+				ImportStateVerifyIgnore: []string{"name", "region"},
 			},
 		},
 	})

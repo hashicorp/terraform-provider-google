@@ -55,7 +55,7 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 				ResourceName:            "google_gke_hub_membership_binding.membership_binding",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"membership_binding_id", "scope", "membership_id", "location", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"labels", "location", "membership_binding_id", "membership_id", "scope", "terraform_labels"},
 			},
 		},
 	})

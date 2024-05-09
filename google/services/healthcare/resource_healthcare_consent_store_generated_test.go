@@ -49,7 +49,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreBasicExample(t *testing
 				ResourceName:            "google_healthcare_consent_store.my-consent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "dataset", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"dataset", "labels", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -88,7 +88,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreFullExample(t *testing.
 				ResourceName:            "google_healthcare_consent_store.my-consent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "dataset", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"dataset", "labels", "name", "terraform_labels"},
 			},
 		},
 	})
@@ -135,7 +135,7 @@ func TestAccHealthcareConsentStore_healthcareConsentStoreIamExample(t *testing.T
 				ResourceName:            "google_healthcare_consent_store.my-consent",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "dataset", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"dataset", "labels", "name", "terraform_labels"},
 			},
 		},
 	})
