@@ -1,4 +1,23 @@
-## 5.28.0 (Unreleased)
+## 5.28.0 (May 6, 2024)
+
+DEPRECATIONS:
+* integrations: deprecated `create_sample_workflows` and `provision_gmek` fields in `google_integrations_client`.  ([#17945](https://github.com/hashicorp/terraform-provider-google/pull/17945))
+
+FEATURES:
+* **New Data Source:** `google_storage_buckets` ([#17960](https://github.com/hashicorp/terraform-provider-google/pull/17960))
+* **New Resource:** `google_compute_security_policy_rule` ([#17937](https://github.com/hashicorp/terraform-provider-google/pull/17937))
+
+IMPROVEMENTS:
+* alloydb: added `maintenance_update_policy` field to `google_alloydb_cluster` resource ([#17954](https://github.com/hashicorp/terraform-provider-google/pull/17954))
+* bigquery: promoted `external_dataset_reference` in `google_bigquery_dataset` to GA ([#17944](https://github.com/hashicorp/terraform-provider-google/pull/17944))
+* composer: promoted `config.software_config.image_version` in-place update to GA in resource `google_composer_environment` ([#17986](https://github.com/hashicorp/terraform-provider-google/pull/17986))
+* container: added `node_config.secondary_boot_disks` field to `google_container_node_pool` ([#17962](https://github.com/hashicorp/terraform-provider-google/pull/17962))
+* integrations: added `create_sample_integrations` field to `google_integrations_client`, replacing deprecated field `create_sample_workflows`. ([#17945](https://github.com/hashicorp/terraform-provider-google/pull/17945))
+* redis: added `redis_configs` field to `google_redis_cluster` resource ([#17956](https://github.com/hashicorp/terraform-provider-google/pull/17956))
+
+BUG FIXES:
+* dns: fixed bug where the deletion of `google_dns_managed_zone` resources was blocked by any associated SOA-type `google_dns_record_set` resources ([#17989](https://github.com/hashicorp/terraform-provider-google/pull/17989))
+* storage: fixed an issue where `google_storage_bucket_object` and `google_storage_bucket_objects` data sources would ignore custom endpoints ([#17952](https://github.com/hashicorp/terraform-provider-google/pull/17952))
 
 ## 5.27.0 (Apr 30, 2024)
 
