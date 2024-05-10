@@ -20,8 +20,6 @@ description: |-
 
 # `google_dataproc_metastore_federation_iam_policy`
 Retrieves the current IAM policy data for federation
-~> **Warning:** This datasource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 
@@ -29,7 +27,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 data "google_dataproc_metastore_federation_iam_policy" "policy" {
-  provider = google-beta
   project = google_dataproc_metastore_federation.default.project
   location = google_dataproc_metastore_federation.default.location
   federation_id = google_dataproc_metastore_federation.default.federation_id
