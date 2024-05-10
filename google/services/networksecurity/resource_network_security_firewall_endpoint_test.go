@@ -26,7 +26,7 @@ func TestAccNetworkSecurityFirewallEndpoints_basic(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -54,8 +54,6 @@ func TestAccNetworkSecurityFirewallEndpoints_basic(t *testing.T) {
 func testAccNetworkSecurityFirewallEndpoints_basic(orgId string, billingProjectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  provider = google-beta
-
   name     = "tf-test-my-firewall-endpoint%[1]s"
   parent   = "organizations/%[2]s"
   location = "us-central1-a"
@@ -71,8 +69,6 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 func testAccNetworkSecurityFirewallEndpoints_update(orgId string, billingProjectId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_firewall_endpoint" "foobar" {
-  provider = google-beta
-
   name     = "tf-test-my-firewall-endpoint%[1]s"
   parent   = "organizations/%[2]s"
   location = "us-central1-a"

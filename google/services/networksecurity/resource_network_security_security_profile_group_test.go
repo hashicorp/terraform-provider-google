@@ -19,7 +19,7 @@ func TestAccNetworkSecuritySecurityProfileGroups_update(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileGroupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -47,7 +47,6 @@ func TestAccNetworkSecuritySecurityProfileGroups_update(t *testing.T) {
 func testAccNetworkSecuritySecurityProfileGroups_basic(orgId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_security_profile" "foobar" {
-    provider    = google-beta
     name        = "tf-test-my-security-profile%s"
     type        = "THREAT_PREVENTION"
     parent      = "organizations/%s"
@@ -55,7 +54,6 @@ resource "google_network_security_security_profile" "foobar" {
 }
 
 resource "google_network_security_security_profile_group" "foobar" {
-    provider                  = google-beta
     name                      = "tf-test-my-security-profile-group%s"
     parent                    = "organizations/%s"
     location                  = "global"
@@ -72,7 +70,6 @@ resource "google_network_security_security_profile_group" "foobar" {
 func testAccNetworkSecuritySecurityProfileGroups_update(orgId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_security_profile" "foobar" {
-    provider    = google-beta
     name        = "tf-test-my-security-profile%s"
     type        = "THREAT_PREVENTION"
     parent      = "organizations/%s"
@@ -80,7 +77,6 @@ resource "google_network_security_security_profile" "foobar" {
 }
 
 resource "google_network_security_security_profile" "foobar_updated" {
-    provider    = google-beta
     name        = "tf-test-my-security-profile-updated%s"
     type        = "THREAT_PREVENTION"
     parent      = "organizations/%s"
@@ -88,7 +84,6 @@ resource "google_network_security_security_profile" "foobar_updated" {
 }
 
 resource "google_network_security_security_profile_group" "foobar" {
-    provider                  = google-beta
     name                      = "tf-test-my-security-profile-group%s"
     parent                    = "organizations/%s"
     location                  = "global"

@@ -31,7 +31,7 @@ func TestAccNetworkSecurityFirewallEndpointAssociations_basic(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -69,7 +69,7 @@ func TestAccNetworkSecurityFirewallEndpointAssociations_disabled(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkSecurityFirewallEndpointDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -120,13 +120,11 @@ func testContextMapDisabledField(context map[string]interface{}, disabled bool) 
 func testAccNetworkSecurityFirewallEndpointAssociation_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "foobar" {
-  provider                = google-beta
   name                    = "tf-test-my-vpc%{randomSuffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_firewall_endpoint" "foobar" {
-  provider           = google-beta
   name               = "tf-test-my-firewall-endpoint%{randomSuffix}"
   parent             = "organizations/%{orgId}"
   location           = "us-central1-a"
@@ -135,7 +133,6 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 
 # TODO: add tlsInspectionPolicy once resource is ready
 resource "google_network_security_firewall_endpoint_association" "foobar" {
-  provider          = google-beta
   name              = "tf-test-my-firewall-endpoint-association%{randomSuffix}"
   parent            = "projects/%{billingProjectId}"
   location          = "us-central1-a"
@@ -152,13 +149,11 @@ resource "google_network_security_firewall_endpoint_association" "foobar" {
 func testAccNetworkSecurityFirewallEndpointAssociation_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_network" "foobar" {
-  provider                = google-beta
   name                    = "tf-test-my-vpc%{randomSuffix}"
   auto_create_subnetworks = false
 }
 
 resource "google_network_security_firewall_endpoint" "foobar" {
-  provider           = google-beta
   name               = "tf-test-my-firewall-endpoint%{randomSuffix}"
   parent             = "organizations/%{orgId}"
   location           = "us-central1-a"
@@ -167,7 +162,6 @@ resource "google_network_security_firewall_endpoint" "foobar" {
 
 # TODO: add tlsInspectionPolicy once resource is ready
 resource "google_network_security_firewall_endpoint_association" "foobar" {
-  provider          = google-beta
   name              = "tf-test-my-firewall-endpoint-association%{randomSuffix}"
   parent            = "projects/%{billingProjectId}"
   location          = "us-central1-a"

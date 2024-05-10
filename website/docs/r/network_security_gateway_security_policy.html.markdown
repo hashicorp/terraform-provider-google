@@ -113,10 +113,8 @@ resource "google_privateca_certificate_authority" "default" {
   }
 }
 
-resource "google_project_service_identity" "ns_sa" {
+data "google_project" "project" {
   provider = google-beta
-
-  service = "networksecurity.googleapis.com"
 }
 
 resource "google_privateca_ca_pool_iam_member" "tls_inspection_permission" {
@@ -124,7 +122,7 @@ resource "google_privateca_ca_pool_iam_member" "tls_inspection_permission" {
 
   ca_pool = google_privateca_ca_pool.default.id
   role = "roles/privateca.certificateManager"
-  member = "serviceAccount:${google_project_service_identity.ns_sa.email}"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-networksecurity.iam.gserviceaccount.com"
 }
 
 resource "google_network_security_tls_inspection_policy" "default" {
