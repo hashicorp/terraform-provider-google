@@ -209,7 +209,6 @@ Gateways of type 'OPEN_MESH' listen on 0.0.0.0.`,
 			"certificate_urls": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Description: `A fully-qualified Certificates URL reference. The proxy presents a Certificate (selected based on SNI) when establishing a TLS connection.
 This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.`,
 				Elem: &schema.Schema{
@@ -224,7 +223,6 @@ This feature only applies to gateways of type 'SECURE_WEB_GATEWAY'.`,
 			"gateway_security_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Description: `A fully-qualified GatewaySecurityPolicy URL reference. Defines how a server should apply security policy to inbound (VM to Proxy) initiated connections.
 For example: 'projects/*/locations/*/gatewaySecurityPolicies/swg-policy'.
 This policy is specific to gateways of type 'SECURE_WEB_GATEWAY'.`,
@@ -581,6 +579,18 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
 		obj["serverTlsPolicy"] = serverTlsPolicyProp
 	}
+	gatewaySecurityPolicyProp, err := expandNetworkServicesGatewayGatewaySecurityPolicy(d.Get("gateway_security_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gateway_security_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, gatewaySecurityPolicyProp)) {
+		obj["gatewaySecurityPolicy"] = gatewaySecurityPolicyProp
+	}
+	certificateUrlsProp, err := expandNetworkServicesGatewayCertificateUrls(d.Get("certificate_urls"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("certificate_urls"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, certificateUrlsProp)) {
+		obj["certificateUrls"] = certificateUrlsProp
+	}
 	labelsProp, err := expandNetworkServicesGatewayEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -605,6 +615,14 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 		updateMask = append(updateMask, "serverTlsPolicy")
 	}
 
+	if d.HasChange("gateway_security_policy") {
+		updateMask = append(updateMask, "gatewaySecurityPolicy")
+	}
+
+	if d.HasChange("certificate_urls") {
+		updateMask = append(updateMask, "certificateUrls")
+	}
+
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
 	}
@@ -613,6 +631,10 @@ func resourceNetworkServicesGatewayUpdate(d *schema.ResourceData, meta interface
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
 	if err != nil {
 		return err
+	}
+	if d.Get("type") == "SECURE_WEB_GATEWAY" {
+		obj["name"] = d.Get("name")
+		obj["type"] = d.Get("type")
 	}
 
 	// err == nil indicates that the billing_project value was found
