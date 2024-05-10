@@ -19,7 +19,7 @@ func TestAccNetworkSecuritySecurityProfiles_update(t *testing.T) {
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderBetaFactories(t),
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetworkSecuritySecurityProfileDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
@@ -47,7 +47,6 @@ func TestAccNetworkSecuritySecurityProfiles_update(t *testing.T) {
 func testAccNetworkSecuritySecurityProfiles_basic(orgId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_security_profile" "foobar" {
-    provider    = google-beta
     name        = "tf-test-my-security-profile%s"
     parent      = "organizations/%s"
     location    = "global"
@@ -64,7 +63,6 @@ resource "google_network_security_security_profile" "foobar" {
 func testAccNetworkSecuritySecurityProfiles_update(orgId string, randomSuffix string) string {
 	return fmt.Sprintf(`
 resource "google_network_security_security_profile" "foobar" {
-    provider    = google-beta
     name        = "tf-test-my-security-profile%s"
     parent      = "organizations/%s"
     location    = "global"
