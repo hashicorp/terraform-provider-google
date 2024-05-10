@@ -84,8 +84,8 @@ func ResourceNetappstoragePool() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "EXTREME", "STANDARD"}),
-				Description:  `Service level of the storage pool. Possible values: ["PREMIUM", "EXTREME", "STANDARD"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"PREMIUM", "EXTREME", "STANDARD", "FLEX"}),
+				Description:  `Service level of the storage pool. Possible values: ["PREMIUM", "EXTREME", "STANDARD", "FLEX"]`,
 			},
 			"active_directory": {
 				Type:     schema.TypeString,

@@ -472,7 +472,7 @@ Format for SMB volumes: '\\\\netbios_prefix-four_random_hex_letters.domain_name\
 			"service_level": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Service level of the volume. Inherited from storage pool.`,
+				Description: `Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTERME, STANDARD, FLEX.`,
 			},
 			"state": {
 				Type:        schema.TypeString,

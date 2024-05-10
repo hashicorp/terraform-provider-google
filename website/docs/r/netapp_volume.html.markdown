@@ -341,7 +341,7 @@ In addition to the arguments listed above, the following computed attributes are
   VPC network name with format: `projects/{{project}}/global/networks/{{network}}`. Inherited from storage pool.
 
 * `service_level` -
-  Service level of the volume. Inherited from storage pool.
+  Service level of the volume. Inherited from storage pool. Supported values are : PREMIUM, EXTERME, STANDARD, FLEX.
 
 * `used_gib` -
   Used capacity of the volume (in GiB). This is computed periodically and it does not represent the realtime usage.

@@ -100,7 +100,7 @@ The following arguments are supported:
 * `service_level` -
   (Required)
   Service level of the storage pool.
-  Possible values are: `PREMIUM`, `EXTREME`, `STANDARD`.
+  Possible values are: `PREMIUM`, `EXTREME`, `STANDARD`, `FLEX`.
 
 * `capacity_gib` -
   (Required)
