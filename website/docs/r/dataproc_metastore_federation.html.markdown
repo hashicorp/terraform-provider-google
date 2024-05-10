@@ -21,8 +21,6 @@ description: |-
 
 A managed metastore federation.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Dataproc Metastore Federation Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_dataproc_metastore_federation" "default" {
-  provider      = google-beta
   location      = "us-central1"
   federation_id = ""
   version       = "3.1.2"
@@ -43,7 +40,6 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  provider   = google-beta
   service_id = ""
   location   = "us-central1"
   tier       = "DEVELOPER"
@@ -60,7 +56,6 @@ resource "google_dataproc_metastore_service" "default" {
 
 ```hcl
 resource "google_dataproc_metastore_federation" "default" {
-  provider      = google-beta
   location      = "us-central1"
   federation_id = ""
   version       = "3.1.2"
@@ -79,7 +74,6 @@ resource "google_dataproc_metastore_federation" "default" {
 }
 
 resource "google_dataproc_metastore_service" "default" {
-  provider   = google-beta
   service_id = ""
   location   = "us-central1"
   tier       = "DEVELOPER"
@@ -91,9 +85,7 @@ resource "google_dataproc_metastore_service" "default" {
   }
 }
 
-data "google_project" "project" {
-  provider      = google-beta
-}
+data "google_project" "project" {}
 ```
 
 ## Argument Reference
