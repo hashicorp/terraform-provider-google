@@ -19,12 +19,25 @@ import (
 )
 
 func diffSuppressIamUserName(_, old, new string, d *schema.ResourceData) bool {
-	strippedName := strings.Split(new, "@")[0]
+	// IAM users of type `CLOUD_IAM_USER` and `CLOUD_IAM_SERVICE_ACCOUNT` are created based on
+	// email addresses, but do not include the domain in the generated user. So we need
+	// to strip the domain in order to compare incoming values with old values.
+	// Group users of type `CLOUD_IAM_GROUP`, however, retain their domains as a part of their username,
+	// so we need to compare these directly
+	truncated_iam_types := []string{"CLOUD_IAM_USER", "CLOUD_IAM_SERVICE_ACCOUNT"}
+	untruncated_iam_types := []string{"CLOUD_IAM_GROUP"}
 
 	userType := d.Get("type").(string)
 
-	if old == strippedName && strings.Contains(userType, "IAM") {
-		return true
+	if slices.Contains(untruncated_iam_types, userType) {
+		// We compare old and new directly for untruncated entries
+		return old == new
+	}
+
+	if slices.Contains(truncated_iam_types, userType) {
+		// For truncated types, We strip the domain from the new value use it for comparison
+		strippedName := strings.Split(new, "@")[0]
+		return old == strippedName
 	}
 
 	return false
@@ -351,6 +364,8 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, currentUser := range users.Items {
+		// `CLOUD_IAM_GROUP` users are created with the domain name in the username, unlike
+		// the other `CLOUD_IAM_*` user types.
 		if !(strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") || currentUser.Type == "CLOUD_IAM_GROUP") {
 			name = strings.Split(name, "@")[0]
 		}
