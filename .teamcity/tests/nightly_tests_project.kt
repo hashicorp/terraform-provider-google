@@ -7,27 +7,25 @@
 
 package tests
 
+import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
-import org.junit.Assert
 import projects.googleCloudRootProject
 
 class NightlyTestProjectsTests {
     @Test
     fun allBuildsShouldHaveTrigger() {
-        val project = googleCloudRootProject(testContextParameters())
+        val root = googleCloudRootProject(testContextParameters())
 
         // Find GA nightly test project
-        var gaNightlyTestProject = getSubProject(project, gaProjectName, nightlyTestsProjectName)
+        var gaNightlyTestProject = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
 
         // Find Beta nightly test project
-        var betaNightlyTestProject = getSubProject(project, betaProjectName, nightlyTestsProjectName)
+        var betaNightlyTestProject = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
 
         // Make assertions about builds in both nightly test projects
         (gaNightlyTestProject.buildTypes + betaNightlyTestProject.buildTypes).forEach{bt ->
-            assertTrue("Build configuration `${bt.name}` contains at least one trigger", bt.triggers.items.isNotEmpty())
+            assertTrue("Build configuration `${bt.name}` should contain at least one trigger", bt.triggers.items.isNotEmpty())
              // Look for at least one CRON trigger
             var found: Boolean = false
             lateinit var schedulingTrigger: ScheduleTrigger
@@ -38,7 +36,8 @@ class NightlyTestProjectsTests {
                     break
                 }
             }
-            assertTrue("Build configuration `${bt.name}` contains a CRON trigger", found)
+
+            assertTrue("Build configuration `${bt.name}` should contain a CRON/'schedulingTrigger' trigger", found)
 
             // Check that nightly test is being ran on main branch
             var isDefault: Boolean = false

@@ -11,7 +11,7 @@ import builds.AccTestConfiguration
 import builds.getBetaAcceptanceTestConfig
 import builds.getGaAcceptanceTestConfig
 import builds.getVcrAcceptanceTestConfig
-import org.junit.Assert
+import org.junit.Assert.fail
 import org.junit.Test
 import kotlin.reflect.full.memberProperties
 
@@ -22,7 +22,7 @@ class ContextParameterHandlingTests {
         for (prop in AccTestConfiguration::class.memberProperties) {
             val value = prop.get(config).toString()
             if (value.contains("Beta")||value.contains("Vcr")) {
-                Assert.fail("Found config value $value which isn't a GA value")
+                fail("Found config value $value which isn't a GA value")
             }
         }
     }
@@ -33,7 +33,7 @@ class ContextParameterHandlingTests {
         for (prop in AccTestConfiguration::class.memberProperties) {
             val value = prop.get(config).toString()
             if (value.contains("Ga")||value.contains("Vcr")) {
-                Assert.fail("Found config value $value which isn't a Beta value")
+                fail("Found config value $value which isn't a Beta value")
             }
         }
     }
@@ -44,7 +44,7 @@ class ContextParameterHandlingTests {
         for (prop in AccTestConfiguration::class.memberProperties) {
             val value = prop.get(config).toString()
             if (value.contains("Ga")||value.contains("Beta")) {
-                Assert.fail("Found config value $value which isn't a VCR value")
+                fail("Found config value $value which isn't a VCR value")
             }
         }
     }
