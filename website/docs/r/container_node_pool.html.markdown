@@ -4,7 +4,7 @@ description: |-
   Manages a GKE NodePool resource.
 ---
 
-# google\_container\_node\_pool
+# google_container_node_pool
 
 -> See the [Using GKE with Terraform](/docs/providers/google/guides/using_gke_with_terraform.html)
 guide for more information about using GKE with Terraform.

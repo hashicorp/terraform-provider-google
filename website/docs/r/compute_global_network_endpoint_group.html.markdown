@@ -17,7 +17,7 @@ description: |-
   A global network endpoint group contains endpoints that reside outside of Google Cloud.
 ---
 
-# google\_compute\_global\_network\_endpoint\_group
+# google_compute_global_network_endpoint_group
 
 A global network endpoint group contains endpoints that reside outside of Google Cloud.
 Currently a global network endpoint group can only support a single endpoint.

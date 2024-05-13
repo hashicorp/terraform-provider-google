@@ -18,7 +18,7 @@ description: |-
   traffic for load balancing.
 ---
 
-# google\_compute\_backend\_service
+# google_compute_backend_service
 
 A Backend Service defines a group of virtual machines that will serve
 traffic for load balancing. This resource is a global backend service,

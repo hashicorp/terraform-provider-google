@@ -17,7 +17,7 @@ description: |-
   An Integration connectors Connection.
 ---
 
-# google\_integration\_connectors\_connection
+# google_integration_connectors_connection
 
 An Integration connectors Connection.
 

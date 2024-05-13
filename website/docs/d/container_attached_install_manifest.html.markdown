@@ -4,7 +4,7 @@ description: |-
   Generates a YAML manifest for boot-strapping an Attached cluster registration.
 ---
 
-# google\_container\_attached\_install_manifest
+# google_container_attached_install_manifest
 
 Provides access to available platform versions in a location for a given project.
 

@@ -4,7 +4,7 @@ description: |-
   Provide access to a Reservation's attributes
 ---
 
-# google\_compute\_reservation
+# google_compute_reservation
 
 Provides access to available Google Compute Reservation Resources for a given project.
 See more about [Reservations of Compute Engine resources](https://cloud.google.com/compute/docs/instances/reservations-overview) in the upstream docs.

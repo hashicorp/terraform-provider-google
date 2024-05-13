@@ -17,7 +17,7 @@ description: |-
   EdgeCacheKeyset represents a collection of public keys used for validating signed requests.
 ---
 
-# google\_network\_services\_edge\_cache\_keyset
+# google_network_services_edge_cache_keyset
 
 EdgeCacheKeyset represents a collection of public keys used for validating signed requests.
 

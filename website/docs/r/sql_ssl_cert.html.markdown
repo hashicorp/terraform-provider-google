@@ -4,7 +4,7 @@ description: |-
   Creates a new SQL Ssl Cert in Google Cloud SQL.
 ---
 
-# google\_sql\_ssl\_cert
+# google_sql_ssl_cert
 
 Creates a new Google SQL SSL Cert on a Google SQL Instance. For more information, see the [official documentation](https://cloud.google.com/sql/), or the [JSON API](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/sslCerts).
 

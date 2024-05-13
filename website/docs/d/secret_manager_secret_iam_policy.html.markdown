@@ -22,7 +22,6 @@ description: |-
 Retrieves the current IAM policy data for secret
 
 
-
 ## example
 
 ```hcl

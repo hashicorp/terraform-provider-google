@@ -18,7 +18,7 @@ description: |-
   forwarding rules to route incoming HTTPS requests to a URL map.
 ---
 
-# google\_compute\_region\_target\_https\_proxy
+# google_compute_region_target_https_proxy
 
 Represents a RegionTargetHttpsProxy resource, which is used by one or more
 forwarding rules to route incoming HTTPS requests to a URL map.

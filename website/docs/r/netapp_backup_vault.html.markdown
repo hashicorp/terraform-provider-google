@@ -17,7 +17,7 @@ description: |-
   A backup vault is the location where backups are stored.
 ---
 
-# google\_netapp\_backup\_vault
+# google_netapp_backup_vault
 
 A backup vault is the location where backups are stored. You can only create one backup vault per region.
 A vault can hold multiple backups for multiple volumes in that region.

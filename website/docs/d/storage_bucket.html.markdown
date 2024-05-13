@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Storage bucket.
 ---
 
-# google\_storage\_bucket
+# google_storage_bucket
 
 Gets an existing bucket in Google Cloud Storage service (GCS).
 See [the official documentation](https://cloud.google.com/storage/docs/key-terms#buckets)

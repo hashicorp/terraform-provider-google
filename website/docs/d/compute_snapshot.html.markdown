@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Compute Snapshot.
 ---
 
-# google\_compute\_snapshot
+# google_compute_snapshot
 
 To get more information about Snapshot, see:
 

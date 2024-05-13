@@ -17,7 +17,7 @@ description: |-
   A Cloud Function that contains user computation executed in response to an event.
 ---
 
-# google\_cloudfunctions2\_function
+# google_cloudfunctions2_function
 
 A Cloud Function that contains user computation executed in response to an event.
 

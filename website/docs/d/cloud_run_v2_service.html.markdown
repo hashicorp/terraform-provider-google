@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Run v2 Service.
 ---
 
-# google\_cloud\_run\_v2\_service
+# google_cloud_run_v2_service
 
 Get information about a Google Cloud Run v2 Service. For more information see
 the [official documentation](https://cloud.google.com/run/docs/)

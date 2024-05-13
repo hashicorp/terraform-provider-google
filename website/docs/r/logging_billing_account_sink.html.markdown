@@ -4,7 +4,7 @@ description: |-
   Manages a billing account logging sink.
 ---
 
-# google\_logging\_billing\_account\_sink
+# google_logging_billing_account_sink
 
 * [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/billingAccounts.sinks)
 * How-to Guides

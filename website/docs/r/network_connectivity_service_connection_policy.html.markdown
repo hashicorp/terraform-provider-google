@@ -17,7 +17,7 @@ description: |-
   Manage Service Connection Policies.
 ---
 
-# google\_network\_connectivity\_service\_connection\_policy
+# google_network_connectivity_service_connection_policy
 
 Manage Service Connection Policies.
 

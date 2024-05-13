@@ -17,7 +17,7 @@ description: |-
   Represents a table.
 ---
 
-# google\_biglake\_table
+# google_biglake_table
 
 Represents a table.
 

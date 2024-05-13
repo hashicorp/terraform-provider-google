@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Filestore backup.
 ---
 
-# google\_filestore\_backup
+# google_filestore_backup
 
 A Google Cloud Filestore backup.
 

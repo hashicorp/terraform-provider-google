@@ -17,7 +17,7 @@ description: |-
   Describes a Cloud Asset Inventory feed used to to listen to asset updates.
 ---
 
-# google\_cloud\_asset\_project\_feed
+# google_cloud_asset_project_feed
 
 Describes a Cloud Asset Inventory feed used to to listen to asset updates.
 

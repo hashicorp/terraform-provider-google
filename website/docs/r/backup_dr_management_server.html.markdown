@@ -17,7 +17,7 @@ description: |-
   A Backup and DR Management Server (Also referred as Management Console)
 ---
 
-# google\_backup\_dr\_management\_server
+# google_backup_dr_management_server
 
 A Backup and DR Management Server (Also referred as Management Console)
 

@@ -18,7 +18,7 @@ description: |-
   a configuration file
 ---
 
-# google\_deployment\_manager\_deployment
+# google_deployment_manager_deployment
 
 A collection of resources that are deployed and managed together using
 a configuration file

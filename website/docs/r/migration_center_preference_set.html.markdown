@@ -17,7 +17,7 @@ description: |-
   Manages the PreferenceSet resource.
 ---
 
-# google\_migration\_center\_preference\_set
+# google_migration_center_preference_set
 
 Manages the PreferenceSet resource.
 

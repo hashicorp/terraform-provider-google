@@ -4,7 +4,7 @@ description: |-
   An alias from a pkcs12 file.
 ---
 
-# google\_apigee\_keystores\_aliases\_pkcs12
+# google_apigee_keystores_aliases_pkcs12
 
 An alias from a pkcs12 file.
 

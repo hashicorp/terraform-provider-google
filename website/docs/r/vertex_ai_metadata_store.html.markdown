@@ -17,7 +17,7 @@ description: |-
   Instance of a metadata store.
 ---
 
-# google\_vertex\_ai\_metadata\_store
+# google_vertex_ai_metadata_store
 
 Instance of a metadata store. Contains a set of metadata that can be queried.
 

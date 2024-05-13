@@ -4,7 +4,7 @@ description: |-
   Get a DNS record set within Google Cloud DNS
 ---
 
-# google\_dns\_record\_set
+# google_dns_record_set
 
 Get a DNS record set within Google Cloud DNS
 For more information see

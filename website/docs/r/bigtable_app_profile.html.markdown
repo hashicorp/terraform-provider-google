@@ -17,7 +17,7 @@ description: |-
   App profile is a configuration object describing how Cloud Bigtable should treat traffic from a particular end user application.
 ---
 
-# google\_bigtable\_app\_profile
+# google_bigtable_app_profile
 
 App profile is a configuration object describing how Cloud Bigtable should treat traffic from a particular end user application.
 

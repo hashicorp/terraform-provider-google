@@ -4,7 +4,7 @@ description: |-
   Provides a list of available Google Compute regions
 ---
 
-# google\_compute\_regions
+# google_compute_regions
 
 Provides access to available Google Compute regions for a given project.
 See more about [regions and zones](https://cloud.google.com/compute/docs/regions-zones/) in the upstream docs.

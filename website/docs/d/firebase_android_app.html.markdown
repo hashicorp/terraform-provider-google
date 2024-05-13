@@ -4,7 +4,7 @@ description: |-
   A Google Cloud Firebase Android application instance
 ---
 
-# google\_firebase\_android\_app
+# google_firebase_android_app
 
 A Google Cloud Firebase Android application instance
 

@@ -18,7 +18,7 @@ description: |-
   machines that will serve traffic for load balancing.
 ---
 
-# google\_compute\_region\_backend\_service
+# google_compute_region_backend_service
 
 A Region Backend Service defines a regionally-scoped group of virtual
 machines that will serve traffic for load balancing.

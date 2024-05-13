@@ -4,7 +4,7 @@ description: |-
   Get information about the configuration of the Google Cloud provider.
 ---
 
-# google\_client\_config
+# google_client_config
 
 Use this data source to access the configuration of the Google Cloud provider.
 

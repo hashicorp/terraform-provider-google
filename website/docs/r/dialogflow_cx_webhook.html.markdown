@@ -17,7 +17,7 @@ description: |-
   Webhooks host the developer's business logic.
 ---
 
-# google\_dialogflow\_cx\_webhook
+# google_dialogflow_cx_webhook
 
 Webhooks host the developer's business logic. During a session, webhooks allow the developer to use the data extracted by Dialogflow's natural language processing to generate dynamic responses, validate collected data, or trigger actions on the backend.
 

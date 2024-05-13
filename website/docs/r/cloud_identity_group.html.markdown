@@ -17,7 +17,7 @@ description: |-
   A Cloud Identity resource representing a Group.
 ---
 
-# google\_cloud\_identity\_group
+# google_cloud_identity_group
 
 A Cloud Identity resource representing a Group.
 

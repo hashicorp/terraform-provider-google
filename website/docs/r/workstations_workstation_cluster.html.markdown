@@ -17,7 +17,7 @@ description: |-
   A grouping of workstation configurations and the associated workstations in that region.
 ---
 
-# google\_workstations\_workstation\_cluster
+# google_workstations_workstation_cluster
 
 A grouping of workstation configurations and the associated workstations in that region.
 

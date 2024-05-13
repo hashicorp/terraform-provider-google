@@ -18,7 +18,7 @@ description: |-
   an app.
 ---
 
-# google\_firebase\_app\_check\_debug\_token
+# google_firebase_app_check_debug_token
 
 A debug token is a secret used during the development or integration testing of
 an app. It essentially allows the development or integration testing to bypass

@@ -17,7 +17,7 @@ description: |-
   The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 ---
 
-# google\_network\_security\_gateway\_security\_policy
+# google_network_security_gateway_security_policy
 
 The GatewaySecurityPolicy resource contains a collection of GatewaySecurityPolicyRules and associated metadata.
 

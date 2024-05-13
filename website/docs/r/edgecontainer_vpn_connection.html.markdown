@@ -17,7 +17,7 @@ description: |-
   A VPN connection
 ---
 
-# google\_edgecontainer\_vpn\_connection
+# google_edgecontainer_vpn_connection
 
 A VPN connection
 

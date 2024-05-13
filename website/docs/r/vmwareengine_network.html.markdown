@@ -17,7 +17,7 @@ description: |-
   Provides connectivity for VMware Engine private clouds.
 ---
 
-# google\_vmwareengine\_network
+# google_vmwareengine_network
 
 Provides connectivity for VMware Engine private clouds.
 

@@ -18,7 +18,7 @@ description: |-
   BackendService resource.
 ---
 
-# google\_network\_services\_service\_binding
+# google_network_services_service_binding
 
 ServiceBinding is the resource that defines a Service Directory Service to be used in a
 BackendService resource.

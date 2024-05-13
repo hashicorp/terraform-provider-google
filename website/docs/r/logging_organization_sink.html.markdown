@@ -4,7 +4,7 @@ description: |-
   Manages a organization-level logging sink.
 ---
 
-# google\_logging\_organization\_sink
+# google_logging_organization_sink
 
 Manages a organization-level logging sink. For more information see:
 * [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/organizations.sinks)

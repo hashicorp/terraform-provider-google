@@ -18,7 +18,7 @@ description: |-
   Cloud Deploy `Target` in order to facilitate deploying to other systems besides the supported runtimes.
 ---
 
-# google\_clouddeploy\_custom\_target\_type
+# google_clouddeploy_custom_target_type
 
 A Cloud Deploy `CustomTargetType` defines a type of custom target that can be referenced in a
 Cloud Deploy `Target` in order to facilitate deploying to other systems besides the supported runtimes.

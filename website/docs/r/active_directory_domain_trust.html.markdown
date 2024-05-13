@@ -17,7 +17,7 @@ description: |-
   Adds a trust between Active Directory domains
 ---
 
-# google\_active\_directory\_domain\_trust
+# google_active_directory_domain_trust
 
 Adds a trust between Active Directory domains
 

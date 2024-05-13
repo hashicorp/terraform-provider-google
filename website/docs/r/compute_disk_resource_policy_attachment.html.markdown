@@ -17,7 +17,7 @@ description: |-
   Adds existing resource policies to a disk.
 ---
 
-# google\_compute\_disk\_resource\_policy\_attachment
+# google_compute_disk_resource_policy_attachment
 
 Adds existing resource policies to a disk. You can only add one policy
 which will be applied to this disk for scheduling snapshot creation.

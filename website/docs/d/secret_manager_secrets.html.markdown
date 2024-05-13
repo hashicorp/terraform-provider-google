@@ -4,7 +4,7 @@ description: |-
   List the Secret Manager Secrets.
 ---
 
-# google\_secret\_manager\_secrets
+# google_secret_manager_secrets
 
 Use this data source to list the Secret Manager Secrets
 

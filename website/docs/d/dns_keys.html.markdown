@@ -4,7 +4,7 @@ description: |-
   Get DNSKEY and DS records of DNSSEC-signed managed zones.
 ---
 
-# google\_dns\_keys
+# google_dns_keys
 
 Get the DNSKEY and DS records of DNSSEC-signed managed zones.
 

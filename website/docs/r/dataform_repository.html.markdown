@@ -17,7 +17,7 @@ description: |-
   A resource represents a Dataform Git repository
 ---
 
-# google\_dataform\_repository
+# google_dataform_repository
 
 A resource represents a Dataform Git repository
 

@@ -18,7 +18,7 @@ description: |-
   part of a specific network endpoint group (NEG).
 ---
 
-# google\_compute\_network\_endpoint
+# google_compute_network_endpoint
 
 A Network endpoint represents a IP address and port combination that is
 part of a specific network endpoint group (NEG). NEGs are zonal

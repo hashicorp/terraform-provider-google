@@ -4,7 +4,7 @@ description: |-
   Manages a folder-level logging exclusion.
 ---
 
-# google\_logging\_folder\_exclusion
+# google_logging_folder_exclusion
 
 Manages a folder-level logging exclusion. For more information see:
 

@@ -4,7 +4,7 @@ description: |-
  Provides access to KMS key data with Google Cloud KMS.
 ---
 
-# google\_kms\_crypto\_key
+# google_kms_crypto_key
 
 Provides access to a Google Cloud Platform KMS CryptoKey. For more information see
 [the official documentation](https://cloud.google.com/kms/docs/object-hierarchy#key)

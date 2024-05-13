@@ -17,7 +17,7 @@ description: |-
   The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 ---
 
-# google\_network\_security\_tls\_inspection\_policy
+# google_network_security_tls_inspection_policy
 
 The TlsInspectionPolicy resource contains references to CA pools in Certificate Authority Service and associated metadata.
 

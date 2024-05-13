@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_network\_security\_address\_group\_iam\_policy
+## google_network_security_address_group_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -55,7 +54,7 @@ name = google_network_security_address_group.default.name
 }
 ```
 
-## google\_network\_security\_address\_group\_iam\_binding
+## google_network_security_address_group_iam_binding
 
 ```hcl
 resource "google_network_security_address_group_iam_binding" "binding" {
@@ -69,7 +68,7 @@ name = google_network_security_address_group.default.name
 }
 ```
 
-## google\_network\_security\_address\_group\_iam\_member
+## google_network_security_address_group_iam_member
 
 ```hcl
 resource "google_network_security_address_group_iam_member" "member" {

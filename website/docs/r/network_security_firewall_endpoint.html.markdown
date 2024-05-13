@@ -19,7 +19,7 @@ description: |-
   in your network.
 ---
 
-# google\_network\_security\_firewall\_endpoint
+# google_network_security_firewall_endpoint
 
 A Firewall endpoint is a Cloud Firewall resource that enables
 layer 7 advanced protection capabilities, such as intrusion prevention,

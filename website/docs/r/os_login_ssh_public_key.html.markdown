@@ -17,7 +17,7 @@ description: |-
   The SSH public key information associated with a Google account.
 ---
 
-# google\_os\_login\_ssh\_public\_key
+# google_os_login_ssh_public_key
 
 The SSH public key information associated with a Google account.
 

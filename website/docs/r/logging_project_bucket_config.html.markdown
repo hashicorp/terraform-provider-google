@@ -4,7 +4,7 @@ description: |-
   Manages a project-level logging bucket config.
 ---
 
-# google\_logging\_project\_bucket\_config
+# google_logging_project_bucket_config
 
 Manages a project-level logging bucket config. For more information see
 [the official logging documentation](https://cloud.google.com/logging/docs/) and

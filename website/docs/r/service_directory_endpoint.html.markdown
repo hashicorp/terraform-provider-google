@@ -17,7 +17,7 @@ description: |-
   An individual endpoint that provides a service.
 ---
 
-# google\_service\_directory\_endpoint
+# google_service_directory_endpoint
 
 An individual endpoint that provides a service.
 

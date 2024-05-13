@@ -4,7 +4,7 @@ description: |-
   Get a Compute Instance Group within GCE.
 ---
 
-# google\_compute\_instance\_group
+# google_compute_instance_group
 
 Get a Compute Instance Group within GCE.
 For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/#unmanaged_instance_groups)

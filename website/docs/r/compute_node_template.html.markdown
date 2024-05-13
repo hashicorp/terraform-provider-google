@@ -17,7 +17,7 @@ description: |-
   Represents a NodeTemplate resource.
 ---
 
-# google\_compute\_node\_template
+# google_compute_node_template
 
 Represents a NodeTemplate resource. Node templates specify properties
 for creating sole-tenant nodes, such as node type, vCPU and memory

@@ -4,7 +4,7 @@ description: |-
  Verify the API service for the Google Cloud Platform project to see if it is enabled or not.
 ---
 
-# google\_project\_service
+# google_project_service
 
 Verify the API service for the Google Cloud Platform project to see if it is enabled or not.
 

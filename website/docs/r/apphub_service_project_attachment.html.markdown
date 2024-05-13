@@ -17,7 +17,7 @@ description: |-
   Represents a Service project attachment to the Host Project.
 ---
 
-# google\_apphub\_service\_project\_attachment
+# google_apphub_service_project_attachment
 
 Represents a Service project attachment to the Host Project.
 

@@ -17,7 +17,7 @@ description: |-
   Represents a GlobalForwardingRule resource.
 ---
 
-# google\_compute\_global\_forwarding\_rule
+# google_compute_global_forwarding_rule
 
 Represents a GlobalForwardingRule resource. Global forwarding rules are
 used to forward traffic to the correct load balancer for HTTP load

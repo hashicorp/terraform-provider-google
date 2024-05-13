@@ -18,7 +18,7 @@ description: |-
   whose underlying specification consists of dedicated resources.
 ---
 
-# google\_vertex\_ai\_deployment\_resource\_pool
+# google_vertex_ai_deployment_resource_pool
 
 'DeploymentResourcePool can be shared by multiple deployed models,
 whose underlying specification consists of dedicated resources.'

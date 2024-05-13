@@ -17,7 +17,7 @@ description: |-
   An SslCertificate resource, used for HTTPS load balancing.
 ---
 
-# google\_compute\_managed\_ssl\_certificate
+# google_compute_managed_ssl_certificate
 
 An SslCertificate resource, used for HTTPS load balancing.  This resource
 represents a certificate for which the certificate secrets are created and

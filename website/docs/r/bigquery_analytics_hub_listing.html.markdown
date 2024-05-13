@@ -17,7 +17,7 @@ description: |-
   A Bigquery Analytics Hub data exchange listing
 ---
 
-# google\_bigquery\_analytics\_hub\_listing
+# google_bigquery_analytics_hub_listing
 
 A Bigquery Analytics Hub data exchange listing
 

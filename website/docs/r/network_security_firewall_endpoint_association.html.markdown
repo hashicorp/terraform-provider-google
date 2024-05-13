@@ -18,7 +18,7 @@ description: |-
   the same zone.
 ---
 
-# google\_network\_security\_firewall\_endpoint\_association
+# google_network_security_firewall_endpoint_association
 
 Firewall endpoint association links a firewall endpoint to a VPC network in
 the same zone. After you define this association, Cloud Firewall forwards the

@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Pub/Sub Subscription.
 ---
 
-# google\_pubsub\_subscription
+# google_pubsub_subscription
 
 Get information about a Google Cloud Pub/Sub Subscription. For more information see
 the [official documentation](https://cloud.google.com/pubsub/docs/)

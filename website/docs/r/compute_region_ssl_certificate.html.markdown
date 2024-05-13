@@ -17,7 +17,7 @@ description: |-
   A RegionSslCertificate resource, used for HTTPS load balancing.
 ---
 
-# google\_compute\_region\_ssl\_certificate
+# google_compute_region_ssl_certificate
 
 A RegionSslCertificate resource, used for HTTPS load balancing. This resource
 provides a mechanism to upload an SSL key and certificate to

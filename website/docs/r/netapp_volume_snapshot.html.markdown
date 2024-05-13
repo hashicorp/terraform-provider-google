@@ -17,7 +17,7 @@ description: |-
   NetApp Volumes helps you manage your data usage with snapshots that can quickly restore lost data.
 ---
 
-# google\_netapp\_volume\_snapshot
+# google_netapp_volume_snapshot
 
 NetApp Volumes helps you manage your data usage with snapshots that can quickly restore lost data.
 Snapshots are point-in-time versions of your volume's content. They are resources of volumes and are

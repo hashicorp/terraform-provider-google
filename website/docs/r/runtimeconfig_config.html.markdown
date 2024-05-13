@@ -4,7 +4,7 @@ description: |-
   Manages a RuntimeConfig resource in Google Cloud.
 ---
 
-# google\_runtimeconfig\_config
+# google_runtimeconfig_config
 
 Manages a RuntimeConfig resource in Google Cloud.
 

@@ -17,7 +17,7 @@ description: |-
   A container for `services`.
 ---
 
-# google\_service\_directory\_namespace
+# google_service_directory_namespace
 
 A container for `services`. Namespaces allow administrators to group services
 together and define permissions for a collection of services.

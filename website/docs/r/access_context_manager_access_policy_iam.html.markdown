@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_access\_context\_manager\_access\_policy\_iam\_policy
+## google_access_context_manager_access_policy_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -53,7 +52,7 @@ resource "google_access_context_manager_access_policy_iam_policy" "policy" {
 }
 ```
 
-## google\_access\_context\_manager\_access\_policy\_iam\_binding
+## google_access_context_manager_access_policy_iam_binding
 
 ```hcl
 resource "google_access_context_manager_access_policy_iam_binding" "binding" {
@@ -65,7 +64,7 @@ resource "google_access_context_manager_access_policy_iam_binding" "binding" {
 }
 ```
 
-## google\_access\_context\_manager\_access\_policy\_iam\_member
+## google_access_context_manager_access_policy_iam_member
 
 ```hcl
 resource "google_access_context_manager_access_policy_iam_member" "member" {

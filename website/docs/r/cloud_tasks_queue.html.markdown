@@ -17,7 +17,7 @@ description: |-
   A named resource to which messages are sent by publishers.
 ---
 
-# google\_cloud\_tasks\_queue
+# google_cloud_tasks_queue
 
 A named resource to which messages are sent by publishers.
 

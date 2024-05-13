@@ -17,7 +17,7 @@ description: |-
   Represents a ServiceAttachment resource.
 ---
 
-# google\_compute\_service\_attachment
+# google_compute_service_attachment
 
 Represents a ServiceAttachment resource.
 

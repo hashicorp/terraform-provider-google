@@ -17,7 +17,7 @@ description: |-
   A security profile defines the behavior associated to a profile type.
 ---
 
-# google\_network\_security\_security\_profile
+# google_network_security_security_profile
 
 A security profile defines the behavior associated to a profile type.
 

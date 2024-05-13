@@ -17,7 +17,7 @@ description: |-
   Cluster contains information about a Google Distributed Cloud Edge Kubernetes cluster.
 ---
 
-# google\_edgecontainer\_cluster
+# google_edgecontainer_cluster
 
 Cluster contains information about a Google Distributed Cloud Edge Kubernetes cluster.
 

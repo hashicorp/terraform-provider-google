@@ -17,7 +17,7 @@ description: |-
   BitbucketServerConfig represents the configuration for a Bitbucket Server.
 ---
 
-# google\_cloudbuild\_bitbucket\_server\_config
+# google_cloudbuild_bitbucket_server_config
 
 BitbucketServerConfig represents the configuration for a Bitbucket Server.
 

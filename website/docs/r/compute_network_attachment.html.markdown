@@ -17,7 +17,7 @@ description: |-
   A network attachment is a resource that lets a producer Virtual Private Cloud (VPC) network initiate connections to a consumer VPC network through a Private Service Connect interface.
 ---
 
-# google\_compute\_network\_attachment
+# google_compute_network_attachment
 
 A network attachment is a resource that lets a producer Virtual Private Cloud (VPC) network initiate connections to a consumer VPC network through a Private Service Connect interface.
 

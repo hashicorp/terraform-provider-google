@@ -17,7 +17,7 @@ description: |-
   Service is a network/api interface that exposes some functionality to clients for consumption over the network.
 ---
 
-# google\_apphub\_service
+# google_apphub_service
 
 Service is a network/api interface that exposes some functionality to clients for consumption over the network. Service typically has one or more Workloads behind it. It registers identified service to the Application.
 

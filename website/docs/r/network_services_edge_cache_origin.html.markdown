@@ -17,7 +17,7 @@ description: |-
   EdgeCacheOrigin represents a HTTP-reachable backend for an EdgeCacheService.
 ---
 
-# google\_network\_services\_edge\_cache\_origin
+# google_network_services_edge_cache_origin
 
 EdgeCacheOrigin represents a HTTP-reachable backend for an EdgeCacheService.
 

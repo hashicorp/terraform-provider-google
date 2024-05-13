@@ -17,7 +17,7 @@ description: |-
   An app's App Attest configuration object.
 ---
 
-# google\_firebase\_app\_check\_app\_attest\_config
+# google_firebase_app_check_app_attest_config
 
 An app's App Attest configuration object. Note that the Team ID registered with your
 app is used as part of the validation process. Make sure your `google_firebase_apple_app` has a team_id present.

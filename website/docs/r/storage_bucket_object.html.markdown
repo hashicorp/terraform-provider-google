@@ -4,7 +4,7 @@ description: |-
   Creates a new object inside a specified bucket
 ---
 
-# google\_storage\_bucket\_object
+# google_storage_bucket_object
 
 Creates a new object inside an existing bucket in Google cloud storage service (GCS). 
 [ACLs](https://cloud.google.com/storage/docs/access-control/lists) can be applied using the `google_storage_object_acl` resource.

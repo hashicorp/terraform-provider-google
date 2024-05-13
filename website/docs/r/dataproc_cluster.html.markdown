@@ -4,7 +4,7 @@ description: |-
   Manages a Cloud Dataproc cluster resource.
 ---
 
-# google\_dataproc\_cluster
+# google_dataproc_cluster
 
 Manages a Cloud Dataproc cluster resource within GCP.
 

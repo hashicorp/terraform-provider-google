@@ -21,7 +21,7 @@ Four different resources help you manage your IAM policy for a folder. Each of t
 ~> **Note:** The underlying API method `projects.setIamPolicy` has constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, 
    IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning a 400 error code so please review these if you encounter errors with this resource.
 
-## google\_folder\_iam\_policy
+## google_folder_iam_policy
 
 !> **Be careful!** You can accidentally lock yourself out of your folder
    using this resource. Deleting a `google_folder_iam_policy` removes access
@@ -73,7 +73,7 @@ data "google_iam_policy" "admin" {
 }
 ```
 
-## google\_folder\_iam\_binding
+## google_folder_iam_binding
 
 ```hcl
 resource "google_folder_iam_binding" "folder" {
@@ -105,7 +105,7 @@ resource "google_folder_iam_binding" "folder" {
 }
 ```
 
-## google\_folder\_iam\_member
+## google_folder_iam_member
 
 ```hcl
 resource "google_folder_iam_member" "folder" {
@@ -131,7 +131,7 @@ resource "google_folder_iam_member" "folder" {
 }
 ```
 
-## google\_folder\_iam\_audit\_config
+## google_folder_iam_audit_config
 
 ```hcl
 resource "google_folder_iam_audit_config" "folder" {
@@ -153,14 +153,14 @@ resource "google_folder_iam_audit_config" "folder" {
 
 The following arguments are supported:
 
-* `member/members` - (Required except for google\_folder\_iam\_audit\_config) Identities that will be granted the privilege in `role`.
+* `member/members` - (Required except for google_folder_iam_audit_config) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
-* `role` - (Required except for google\_folder\_iam\_audit\_config) The role that should be applied. Only one
+* `role` - (Required except for google_folder_iam_audit_config) The role that should be applied. Only one
     `google_folder_iam_binding` can be used per role. Note that custom roles must be of the format
     `organizations/{{org_id}}/roles/{{role_id}}`.
 
@@ -175,9 +175,9 @@ The following arguments are supported:
 
 * `folder` - (Required) The resource name of the folder the policy is attached to. Its format is folders/{folder_id}.
 
-* `service` - (Required only by google\_folder\_iam\_audit\_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google\_folder\_iam\_audit\_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
+* `service` - (Required only by google_folder_iam_audit_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google_folder_iam_audit_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
 
-* `audit_log_config` - (Required only by google\_folder\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
+* `audit_log_config` - (Required only by google_folder_iam_audit_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
   Structure is [documented below](#nested_condition).

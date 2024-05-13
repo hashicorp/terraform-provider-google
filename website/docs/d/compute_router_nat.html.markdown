@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Compute Router NAT.
 ---
 
-# google\_compute\_router\_nat
+# google_compute_router_nat
 
 To get more information about Snapshot, see:
 

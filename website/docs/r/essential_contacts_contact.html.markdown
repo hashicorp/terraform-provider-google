@@ -17,7 +17,7 @@ description: |-
   A contact that will receive notifications from Google Cloud.
 ---
 
-# google\_essential\_contacts\_contact
+# google_essential_contacts_contact
 
 A contact that will receive notifications from Google Cloud.
 

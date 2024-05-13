@@ -17,7 +17,7 @@ description: |-
   Manages a VPC network or legacy network resource on GCP.
 ---
 
-# google\_compute\_network
+# google_compute_network
 
 Manages a VPC network or legacy network resource on GCP.
 

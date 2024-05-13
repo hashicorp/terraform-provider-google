@@ -17,7 +17,7 @@ description: |-
   EgressPolicies match requests based on egressFrom and egressTo stanzas.
 ---
 
-# google\_access\_context\_manager\_service\_perimeter\_egress\_policy
+# google_access_context_manager_service_perimeter_egress_policy
 
 EgressPolicies match requests based on egressFrom and egressTo stanzas.
 For an EgressPolicy to match, both egressFrom and egressTo stanzas must be matched.

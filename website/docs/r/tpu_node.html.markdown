@@ -17,7 +17,7 @@ description: |-
   A Cloud TPU instance.
 ---
 
-# google\_tpu\_node
+# google_tpu_node
 
 A Cloud TPU instance.
 

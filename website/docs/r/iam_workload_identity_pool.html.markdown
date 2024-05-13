@@ -17,7 +17,7 @@ description: |-
   Represents a collection of external workload identities.
 ---
 
-# google\_iam\_workload\_identity\_pool
+# google_iam_workload_identity_pool
 
 Represents a collection of external workload identities. You can define IAM policies to
 grant these identities access to Google Cloud resources.

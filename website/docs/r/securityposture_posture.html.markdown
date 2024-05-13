@@ -18,7 +18,7 @@ description: |-
   and policy sets.
 ---
 
-# google\_securityposture\_posture
+# google_securityposture_posture
 
 A Posture represents a collection of policy set including its name, state, description
 and policy sets. A policy set includes set of policies along with their definition.

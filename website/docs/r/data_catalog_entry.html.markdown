@@ -17,7 +17,7 @@ description: |-
   Entry Metadata.
 ---
 
-# google\_data\_catalog\_entry
+# google_data_catalog_entry
 
 Entry Metadata. A Data Catalog Entry resource represents another resource in Google Cloud Platform
 (such as a BigQuery dataset or a Pub/Sub topic) or outside of Google Cloud Platform. Clients can use

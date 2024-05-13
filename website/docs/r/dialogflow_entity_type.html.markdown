@@ -17,7 +17,7 @@ description: |-
   Represents an entity type.
 ---
 
-# google\_dialogflow\_entity\_type
+# google_dialogflow_entity_type
 
 Represents an entity type. Entity types serve as a tool for extracting parameter values from natural language queries.
 

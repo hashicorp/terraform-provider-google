@@ -17,7 +17,7 @@ description: |-
   Represents a collection of external workforces.
 ---
 
-# google\_iam\_workforce\_pool
+# google_iam_workforce_pool
 
 Represents a collection of external workforces. Provides namespaces for
 federated users that can be referenced in IAM policies.

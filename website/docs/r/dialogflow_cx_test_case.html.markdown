@@ -17,7 +17,7 @@ description: |-
   You can use the built-in test feature to uncover bugs and prevent regressions.
 ---
 
-# google\_dialogflow\_cx\_test\_case
+# google_dialogflow_cx_test_case
 
 You can use the built-in test feature to uncover bugs and prevent regressions. A test execution verifies that agent responses have not changed for end-user inputs defined in the test case.
 

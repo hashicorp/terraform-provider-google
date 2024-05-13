@@ -4,7 +4,7 @@ description: |-
   Retrieve all the resources within a given accessible CRM scope (project/folder/organization).
 ---
 
-# google\_cloud\_asset\_resources\_search\_all
+# google_cloud_asset_resources_search_all
 
 Retrieve all the resources within a given accessible CRM scope (project/folder/organization). See the
 [REST API](https://cloud.google.com/asset-inventory/docs/reference/rest/v1p1beta1/resources/searchAll)

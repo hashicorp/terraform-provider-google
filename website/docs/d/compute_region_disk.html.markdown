@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Compute Regional Persistent disks.
 ---
 
-# google\_compute\_region\_disk
+# google_compute_region_disk
 
 Get information about a Google Compute Regional Persistent disks.
 

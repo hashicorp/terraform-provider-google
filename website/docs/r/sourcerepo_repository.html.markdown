@@ -17,7 +17,7 @@ description: |-
   A repository (or repo) is a Git repository storing versioned source content.
 ---
 
-# google\_sourcerepo\_repository
+# google_sourcerepo_repository
 
 A repository (or repo) is a Git repository storing versioned source content.
 

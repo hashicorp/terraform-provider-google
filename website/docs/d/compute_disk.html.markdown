@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Compute Persistent disks.
 ---
 
-# google\_compute\_disk
+# google_compute_disk
 
 Get information about a Google Compute Persistent disks.
 

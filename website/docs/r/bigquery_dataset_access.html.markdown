@@ -17,7 +17,7 @@ description: |-
   Gives dataset access for a single entity.
 ---
 
-# google\_bigquery\_dataset\_access
+# google_bigquery_dataset_access
 
 Gives dataset access for a single entity. This resource is intended to be used in cases where
 it is not possible to compile a full list of access blocks to include in a

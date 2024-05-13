@@ -17,7 +17,7 @@ description: |-
   Vertex AI Feature Group Feature is feature metadata information.
 ---
 
-# google\_vertex\_ai\_feature\_group\_feature
+# google_vertex_ai_feature_group_feature
 
 Vertex AI Feature Group Feature is feature metadata information.
 

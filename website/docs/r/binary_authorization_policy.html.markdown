@@ -17,7 +17,7 @@ description: |-
   A policy for container image binary authorization.
 ---
 
-# google\_binary\_authorization\_policy
+# google_binary_authorization_policy
 
 A policy for container image binary authorization.
 

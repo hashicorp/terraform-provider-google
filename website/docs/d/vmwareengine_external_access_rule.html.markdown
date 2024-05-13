@@ -4,7 +4,7 @@ description: |-
   Get information about a external access rule.
 ---
 
-# google\_vmwareengine\_external_access_rule
+# google_vmwareengine_external_access_rule
 
 Use this data source to get details about a external access rule resource.
 

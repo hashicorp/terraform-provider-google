@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_apigee\_environment\_iam\_policy
+## google_apigee_environment_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -54,7 +53,7 @@ resource "google_apigee_environment_iam_policy" "policy" {
 }
 ```
 
-## google\_apigee\_environment\_iam\_binding
+## google_apigee_environment_iam_binding
 
 ```hcl
 resource "google_apigee_environment_iam_binding" "binding" {
@@ -67,7 +66,7 @@ resource "google_apigee_environment_iam_binding" "binding" {
 }
 ```
 
-## google\_apigee\_environment\_iam\_member
+## google_apigee_environment_iam_member
 
 ```hcl
 resource "google_apigee_environment_iam_member" "member" {

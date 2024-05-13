@@ -4,7 +4,7 @@ description: |-
   Get a HA VPN Gateway within GCE.
 ---
 
-# google\_compute\_forwarding\_rule
+# google_compute_forwarding_rule
 
 Get a HA VPN Gateway within GCE from its name.
 

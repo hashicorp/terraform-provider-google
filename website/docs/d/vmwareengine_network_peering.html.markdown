@@ -4,7 +4,7 @@ description: |-
   Get information about a network peering.
 ---
 
-# google\_vmwareengine\_network_peering
+# google_vmwareengine_network_peering
 
 Use this data source to get details about a network peering resource.
 

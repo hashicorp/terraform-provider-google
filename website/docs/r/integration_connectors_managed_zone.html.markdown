@@ -17,7 +17,7 @@ description: |-
   An Integration connectors Managed Zone.
 ---
 
-# google\_integration\_connectors\_managed\_zone
+# google_integration_connectors_managed_zone
 
 An Integration connectors Managed Zone.
 

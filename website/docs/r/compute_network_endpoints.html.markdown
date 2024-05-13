@@ -17,7 +17,7 @@ description: |-
   A set of network endpoints belonging to a network endpoint group (NEG).
 ---
 
-# google\_compute\_network\_endpoints
+# google_compute_network_endpoints
 
 A set of network endpoints belonging to a network endpoint group (NEG). A
 single network endpoint represents a IP address and port combination that is

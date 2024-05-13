@@ -17,7 +17,7 @@ description: |-
   MembershipBinding is a subresource of a Membership, representing what Fleet Scopes (or other, future Fleet resources) a Membership is bound to.
 ---
 
-# google\_gke\_hub\_membership\_binding
+# google_gke_hub_membership_binding
 
 MembershipBinding is a subresource of a Membership, representing what Fleet Scopes (or other, future Fleet resources) a Membership is bound to.
 

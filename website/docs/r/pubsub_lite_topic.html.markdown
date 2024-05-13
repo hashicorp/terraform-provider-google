@@ -17,7 +17,7 @@ description: |-
   A named resource to which messages are sent by publishers.
 ---
 
-# google\_pubsub\_lite\_topic
+# google_pubsub_lite_topic
 
 A named resource to which messages are sent by publishers.
 

@@ -17,7 +17,7 @@ description: |-
   Represents a VPN gateway managed outside of GCP.
 ---
 
-# google\_compute\_external\_vpn\_gateway
+# google_compute_external_vpn_gateway
 
 Represents a VPN gateway managed outside of GCP.
 

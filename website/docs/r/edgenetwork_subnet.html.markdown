@@ -17,7 +17,7 @@ description: |-
   A Distributed Cloud Edge subnet, which provides L2 isolation within a network.
 ---
 
-# google\_edgenetwork\_subnet
+# google_edgenetwork_subnet
 
 A Distributed Cloud Edge subnet, which provides L2 isolation within a network.
 

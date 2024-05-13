@@ -18,7 +18,7 @@ description: |-
   part of a specific network endpoint group (NEG).
 ---
 
-# google\_compute\_region\_network\_endpoint
+# google_compute_region_network_endpoint
 
 A Region network endpoint represents a IP address/FQDN and port combination that is
 part of a specific network endpoint group (NEG).

@@ -17,7 +17,7 @@ description: |-
   Represents a Route resource.
 ---
 
-# google\_compute\_route
+# google_compute_route
 
 Represents a Route resource.
 

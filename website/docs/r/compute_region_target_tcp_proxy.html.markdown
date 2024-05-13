@@ -19,7 +19,7 @@ description: |-
   balancer.
 ---
 
-# google\_compute\_region\_target\_tcp\_proxy
+# google_compute_region_target_tcp_proxy
 
 Represents a RegionTargetTcpProxy resource, which is used by one or more
 forwarding rules to route incoming TCP requests to a regional TCP proxy load

@@ -4,7 +4,7 @@ description: |-
   Get information of a specified compute network peering.
 ---
 
-# google\_compute\_network\_peering
+# google_compute_network_peering
 
 Get information of a specified compute network peering. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/vpc/vpc-peering)

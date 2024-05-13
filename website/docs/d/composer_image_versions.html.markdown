@@ -4,7 +4,7 @@ description: |-
   Provides available Cloud Composer versions.
 ---
 
-# google\_composer\_image\_versions
+# google_composer_image_versions
 
 Provides access to available Cloud Composer versions in a region for a given project.
 

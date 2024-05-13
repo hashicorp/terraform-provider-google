@@ -4,7 +4,7 @@ description: |-
   Provides lists of available Google Kubernetes Engine versions for masters and nodes.
 ---
 
-# google\_container\_engine\_versions
+# google_container_engine_versions
 
 Provides access to available Google Kubernetes Engine versions in a zone or region for a given project.
 

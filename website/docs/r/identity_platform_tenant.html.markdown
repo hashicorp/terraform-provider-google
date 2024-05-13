@@ -17,7 +17,7 @@ description: |-
   Tenant configuration in a multi-tenant project.
 ---
 
-# google\_identity\_platform\_tenant
+# google_identity_platform_tenant
 
 Tenant configuration in a multi-tenant project.
 

@@ -17,7 +17,7 @@ description: |-
   Represents a PublicAdvertisedPrefix for use with bring your own IP addresses (BYOIP).
 ---
 
-# google\_compute\_public\_advertised\_prefix
+# google_compute_public_advertised_prefix
 
 Represents a PublicAdvertisedPrefix for use with bring your own IP addresses (BYOIP).
 

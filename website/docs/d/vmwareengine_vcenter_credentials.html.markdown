@@ -4,7 +4,7 @@ description: |-
   Get Vcenter Credentials of a Private Cloud.
 ---
 
-# google\_vmwareengine\_vcenter_credentials
+# google_vmwareengine_vcenter_credentials
 
 Use this data source to get Vcenter credentials for a Private Cloud.
 

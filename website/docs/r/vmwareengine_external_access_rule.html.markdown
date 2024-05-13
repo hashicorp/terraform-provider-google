@@ -17,7 +17,7 @@ description: |-
   External access firewall rules for filtering incoming traffic destined to `ExternalAddress` resources.
 ---
 
-# google\_vmwareengine\_external\_access\_rule
+# google_vmwareengine_external_access_rule
 
 External access firewall rules for filtering incoming traffic destined to `ExternalAddress` resources.
 

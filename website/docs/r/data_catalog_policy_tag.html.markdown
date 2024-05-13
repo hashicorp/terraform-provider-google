@@ -17,7 +17,7 @@ description: |-
   Denotes one policy tag in a taxonomy.
 ---
 
-# google\_data\_catalog\_policy\_tag
+# google_data_catalog_policy_tag
 
 Denotes one policy tag in a taxonomy.
 

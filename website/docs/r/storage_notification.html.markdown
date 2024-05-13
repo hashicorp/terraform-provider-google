@@ -4,7 +4,7 @@ description: |-
   Creates a new notification configuration on a specified bucket.
 ---
 
-# google\_storage\_notification
+# google_storage_notification
 
 Creates a new notification configuration on a specified bucket, establishing a flow of event notifications from GCS to a Cloud Pub/Sub topic.
  For more information see

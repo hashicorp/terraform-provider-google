@@ -4,7 +4,7 @@ description: |-
   Get info about a Regional Google Compute SSL Certificate.
 ---
 
-# google\_compute\_region\_ssl\_certificate
+# google_compute_region_ssl_certificate
 
 Get info about a Region Google Compute SSL Certificate from its name.
 

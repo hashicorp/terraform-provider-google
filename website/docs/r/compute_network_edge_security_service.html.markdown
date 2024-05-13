@@ -17,7 +17,7 @@ description: |-
   Google Cloud Armor network edge security service resource.
 ---
 
-# google\_compute\_network\_edge\_security\_service
+# google_compute_network_edge_security_service
 
 Google Cloud Armor network edge security service resource.
 

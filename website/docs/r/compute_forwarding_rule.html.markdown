@@ -17,7 +17,7 @@ description: |-
   A ForwardingRule resource.
 ---
 
-# google\_compute\_forwarding\_rule
+# google_compute_forwarding_rule
 
 A ForwardingRule resource. A ForwardingRule resource specifies which pool
 of target virtual machines to forward a packet to if it matches the given

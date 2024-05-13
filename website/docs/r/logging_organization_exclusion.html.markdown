@@ -4,7 +4,7 @@ description: |-
   Manages a organization-level logging exclusion.
 ---
 
-# google\_logging\_organization\_exclusion
+# google_logging_organization_exclusion
 
 Manages an organization-level logging exclusion. For more information see:
 

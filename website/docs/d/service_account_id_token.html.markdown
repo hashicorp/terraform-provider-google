@@ -4,7 +4,7 @@ description: |-
   Produces OpenID Connect token for service accounts
 ---
 
-# google\_service\_account\_id\_token
+# google_service_account_id_token
 
 This data source provides a Google OpenID Connect (`oidc`) `id_token`.  Tokens issued from this data source are typically used to call external services that accept OIDC tokens for authentication (e.g. [Google Cloud Run](https://cloud.google.com/run/docs/authenticating/service-to-service)).
 

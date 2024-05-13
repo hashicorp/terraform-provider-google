@@ -17,7 +17,7 @@ description: |-
   Represents a Router resource.
 ---
 
-# google\_compute\_router
+# google_compute_router
 
 Represents a Router resource.
 

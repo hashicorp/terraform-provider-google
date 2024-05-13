@@ -17,7 +17,7 @@ description: |-
   Represents a user-visible job which provides the insights for the related data source.
 ---
 
-# google\_dataplex\_datascan
+# google_dataplex_datascan
 
 Represents a user-visible job which provides the insights for the related data source.
 

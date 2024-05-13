@@ -4,7 +4,7 @@ description: |-
   Manages creating a private VPC connection to a service provider.
 ---
 
-# google\_service\_networking\_connection
+# google_service_networking_connection
 
 Manages a private VPC connection with a GCP service provider. For more information see
 [the official documentation](https://cloud.google.com/vpc/docs/configure-private-services-access#creating-connection)

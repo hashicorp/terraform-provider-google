@@ -17,7 +17,7 @@ description: |-
   A Cloud AI Platform Notebook instance.
 ---
 
-# google\_notebooks\_instance
+# google_notebooks_instance
 ~> **Warning:** `google_notebook_instance` is deprecated and will be removed in a future major release. Use `google_workbench_instance` instead.
 
 A Cloud AI Platform Notebook instance.

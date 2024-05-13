@@ -17,7 +17,7 @@ description: |-
   Certificate represents a HTTP-reachable backend for a Certificate.
 ---
 
-# google\_certificate\_manager\_certificate
+# google_certificate_manager_certificate
 
 Certificate represents a HTTP-reachable backend for a Certificate.
 

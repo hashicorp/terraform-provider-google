@@ -18,7 +18,7 @@ description: |-
   every X interval of time, using a crontab format string.
 ---
 
-# google\_cloud\_scheduler\_job
+# google_cloud_scheduler_job
 
 A scheduled job that can publish a PubSub message or an HTTP request
 every X interval of time, using a crontab format string.

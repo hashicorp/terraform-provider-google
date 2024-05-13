@@ -17,7 +17,7 @@ description: |-
   A resource that represents an asset group.
 ---
 
-# google\_migration\_center\_group
+# google_migration_center_group
 
 A resource that represents an asset group. The purpose of an asset group is to bundle a set of assets that have something in common, while allowing users to add annotations to the group.
 

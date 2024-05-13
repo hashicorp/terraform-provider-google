@@ -17,7 +17,7 @@ description: |-
   Manages Custom Domains for Firebase Hosting.
 ---
 
-# google\_firebase\_hosting\_custom\_domain
+# google_firebase_hosting_custom_domain
 
 Manages Custom Domains for Firebase Hosting. Custom Domains link your
 domain names with Firebase Hosting sites, allowing Hosting to serve content

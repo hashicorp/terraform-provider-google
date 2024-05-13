@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Filestore snapshot.
 ---
 
-# google\_filestore\_snapshot
+# google_filestore_snapshot
 
 A Google Cloud Filestore snapshot.
 

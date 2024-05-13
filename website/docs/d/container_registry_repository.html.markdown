@@ -4,7 +4,7 @@ description: |-
   Get URLs for a given project's container registry repository.
 ---
 
-# google\_container\_registry\_repository
+# google_container_registry_repository
 
 This data source fetches the project name, and provides the appropriate URLs to use for container registry for this project.
 

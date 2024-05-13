@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Artifact Registry Repository.
 ---
 
-# google\_artifact\_registry\_repository
+# google_artifact_registry_repository
 
 Get information about a Google Artifact Registry Repository. For more information see
 the [official documentation](https://cloud.google.com/artifact-registry/docs/)

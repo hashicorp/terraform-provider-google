@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Billing Account.
 ---
 
-# google\_billing\_account
+# google_billing_account
 
 Use this data source to get information about a Google Billing Account.
 

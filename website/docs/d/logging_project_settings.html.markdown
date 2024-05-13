@@ -4,7 +4,7 @@ description: |-
   Describes the settings associated with a project.
 ---
 
-# google\_logging\_project\_settings
+# google_logging_project_settings
 
 Describes the settings associated with a project.
 

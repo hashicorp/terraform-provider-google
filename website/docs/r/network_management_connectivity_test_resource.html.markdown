@@ -19,7 +19,7 @@ description: |-
   resources in your Virtual Private Cloud (VPC) network.
 ---
 
-# google\_network\_management\_connectivity\_test
+# google_network_management_connectivity_test
 
 A connectivity test are a static analysis of your resource configurations
 that enables you to evaluate connectivity to and from Google Cloud

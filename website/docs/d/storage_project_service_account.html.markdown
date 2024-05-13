@@ -4,7 +4,7 @@ description: |-
   Get the email address of the project's Google Cloud Storage service account
 ---
 
-# google\_storage\_project\_service\_account
+# google_storage_project_service_account
 
 Get the email address of a project's unique [automatic Google Cloud Storage service account](https://cloud.google.com/storage/docs/projects#service-accounts).
 

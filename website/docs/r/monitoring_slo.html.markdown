@@ -18,7 +18,7 @@ description: |-
   service.
 ---
 
-# google\_monitoring\_slo
+# google_monitoring_slo
 
 A Service-Level Objective (SLO) describes the level of desired good
 service. It consists of a service-level indicator (SLI), a performance

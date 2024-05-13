@@ -17,7 +17,7 @@ description: |-
   A Dialogflow agent is a virtual agent that handles conversations with your end-users.
 ---
 
-# google\_dialogflow\_agent
+# google_dialogflow_agent
 
 A Dialogflow agent is a virtual agent that handles conversations with your end-users. It is a natural language
 understanding module that understands the nuances of human language. Dialogflow translates end-user text or audio

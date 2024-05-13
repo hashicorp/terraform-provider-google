@@ -4,7 +4,7 @@ description: |-
   Get available accelerator types.
 ---
 
-# google\_tpu\_v2\_accelerator\_types
+# google_tpu_v2_accelerator_types
 
 Get accelerator types available for a project. For more information see the [official documentation](https://cloud.google.com/tpu/docs/) and [API](https://cloud.google.com/tpu/docs/reference/rest/v2/projects.locations.acceleratorTypes).
 

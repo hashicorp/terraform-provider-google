@@ -5,7 +5,7 @@ description: |-
   Get a list of databases in a Cloud SQL database instance.
 ---
 
-# google\_sql\_databases
+# google_sql_databases
 
 Use this data source to get information about a list of databases in a Cloud SQL instance.
 ## Example Usage

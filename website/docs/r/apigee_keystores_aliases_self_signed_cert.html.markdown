@@ -17,7 +17,7 @@ description: |-
   An Environment Keystore Alias for Self Signed Certificate Format in Apigee
 ---
 
-# google\_apigee\_keystores\_aliases\_self\_signed\_cert
+# google_apigee_keystores_aliases_self_signed_cert
 
 An Environment Keystore Alias for Self Signed Certificate Format in Apigee
 

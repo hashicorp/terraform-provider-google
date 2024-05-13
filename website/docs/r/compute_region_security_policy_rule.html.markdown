@@ -17,7 +17,7 @@ description: |-
   A rule for the RegionSecurityPolicy.
 ---
 
-# google\_compute\_region\_security\_policy\_rule
+# google_compute_region_security_policy_rule
 
 A rule for the RegionSecurityPolicy.
 

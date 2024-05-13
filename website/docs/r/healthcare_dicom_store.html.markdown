@@ -18,7 +18,7 @@ description: |-
   (https://www.
 ---
 
-# google\_healthcare\_dicom\_store
+# google_healthcare_dicom_store
 
 A DicomStore is a datastore inside a Healthcare dataset that conforms to the DICOM
 (https://www.dicomstandard.org/about/) standard for Healthcare information exchange

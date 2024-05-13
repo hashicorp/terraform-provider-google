@@ -17,7 +17,7 @@ description: |-
   An endpoint indexes are deployed into.
 ---
 
-# google\_vertex\_ai\_index\_endpoint
+# google_vertex_ai_index_endpoint
 
 An endpoint indexes are deployed into. An index endpoint can have multiple deployed indexes.
 

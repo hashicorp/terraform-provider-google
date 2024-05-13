@@ -4,7 +4,7 @@ description: |-
   Returns the list of IP addresses Stackdriver Monitoring uses for uptime checking.
 ---
 
-# google\_monitoring\_uptime\_check\_ips
+# google_monitoring_uptime_check_ips
 
 Returns the list of IP addresses that checkers run from. For more information see
 the [official documentation](https://cloud.google.com/monitoring/uptime-checks#get-ips).

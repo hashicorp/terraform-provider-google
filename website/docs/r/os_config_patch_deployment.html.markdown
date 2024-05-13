@@ -17,7 +17,7 @@ description: |-
   Patch deployments are configurations that individual patch jobs use to complete a patch.
 ---
 
-# google\_os\_config\_patch\_deployment
+# google_os_config_patch_deployment
 
 Patch deployments are configurations that individual patch jobs use to complete a patch.
 These configurations include instance filter, package repository settings, and a schedule.

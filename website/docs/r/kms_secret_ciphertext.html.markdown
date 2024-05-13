@@ -17,7 +17,7 @@ description: |-
   Encrypts secret data with Google Cloud KMS and provides access to the ciphertext.
 ---
 
-# google\_kms\_secret\_ciphertext
+# google_kms_secret_ciphertext
 
 Encrypts secret data with Google Cloud KMS and provides access to the ciphertext.
 

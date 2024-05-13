@@ -17,7 +17,7 @@ description: |-
   A Google Bare Metal User Cluster.
 ---
 
-# google\_gkeonprem\_bare\_metal\_cluster
+# google_gkeonprem_bare_metal_cluster
 
 A Google Bare Metal User Cluster.
 

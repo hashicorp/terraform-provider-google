@@ -17,7 +17,7 @@ description: |-
   A Cloud AI Platform Notebook runtime.
 ---
 
-# google\_notebooks\_runtime
+# google_notebooks_runtime
 
 A Cloud AI Platform Notebook runtime.
 

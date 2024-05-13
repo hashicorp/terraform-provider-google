@@ -16,7 +16,7 @@ Three different resources help you manage IAM policies on dataproc clusters. Eac
 
 ~> **Note:** `google_dataproc_cluster_iam_binding` resources **can be** used in conjunction with `google_dataproc_cluster_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_dataproc\_cluster\_iam\_policy
+## google_dataproc_cluster_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -36,7 +36,7 @@ resource "google_dataproc_cluster_iam_policy" "editor" {
 }
 ```
 
-## google\_dataproc\_cluster\_iam\_binding
+## google_dataproc_cluster_iam_binding
 
 ```hcl
 resource "google_dataproc_cluster_iam_binding" "editor" {
@@ -48,7 +48,7 @@ resource "google_dataproc_cluster_iam_binding" "editor" {
 }
 ```
 
-## google\_dataproc\_cluster\_iam\_member
+## google_dataproc_cluster_iam_member
 
 ```hcl
 resource "google_dataproc_cluster_iam_member" "editor" {

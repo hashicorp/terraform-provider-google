@@ -17,7 +17,7 @@ description: |-
   Budget configuration for a billing account.
 ---
 
-# google\_billing\_budget
+# google_billing_budget
 
 Budget configuration for a billing account.
 

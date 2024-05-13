@@ -17,7 +17,7 @@ description: |-
   Represents a Persistent Disk Snapshot resource.
 ---
 
-# google\_compute\_snapshot
+# google_compute_snapshot
 
 Represents a Persistent Disk Snapshot resource.
 

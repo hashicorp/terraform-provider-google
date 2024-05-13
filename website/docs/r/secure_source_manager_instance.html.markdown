@@ -17,7 +17,7 @@ description: |-
   Instances are deployed to an available Google Cloud region and are accessible via their web interface.
 ---
 
-# google\_secure\_source\_manager\_instance
+# google_secure_source_manager_instance
 
 Instances are deployed to an available Google Cloud region and are accessible via their web interface.
 

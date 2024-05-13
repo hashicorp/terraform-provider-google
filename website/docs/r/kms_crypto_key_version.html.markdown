@@ -17,7 +17,7 @@ description: |-
   A `CryptoKeyVersion` represents an individual cryptographic key, and the associated key material.
 ---
 
-# google\_kms\_crypto\_key\_version
+# google_kms_crypto_key_version
 
 A `CryptoKeyVersion` represents an individual cryptographic key, and the associated key material.
 

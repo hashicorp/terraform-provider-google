@@ -4,7 +4,7 @@ description: |-
   Manages a billing account level logging bucket config.
 ---
 
-# google\_logging\_billing_account\_bucket\_config
+# google_logging_billing_account_bucket_config
 
 Manages a billing account level logging bucket config. For more information see
 [the official logging documentation](https://cloud.google.com/logging/docs/) and

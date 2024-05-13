@@ -17,7 +17,7 @@ description: |-
   A NetworkSettings resource is a container for ingress settings for a version or service.
 ---
 
-# google\_app\_engine\_service\_network\_settings
+# google_app_engine_service_network_settings
 
 A NetworkSettings resource is a container for ingress settings for a version or service.
 

@@ -17,7 +17,7 @@ description: |-
   A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 ---
 
-# google\_kms\_key\_ring
+# google_kms_key_ring
 
 A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 

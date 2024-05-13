@@ -17,7 +17,7 @@ description: |-
   The PrivateConnection resource is used to establish private connectivity between Datastream and a customer's network.
 ---
 
-# google\_datastream\_private\_connection
+# google_datastream_private_connection
 
 The PrivateConnection resource is used to establish private connectivity between Datastream and a customer's network.
 

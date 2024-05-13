@@ -18,7 +18,7 @@ description: |-
   made against one or more Virtual Private Cloud networks.
 ---
 
-# google\_dns\_response\_policy
+# google_dns_response_policy
 
 A Response Policy is a collection of selectors that apply to queries
 made against one or more Virtual Private Cloud networks.

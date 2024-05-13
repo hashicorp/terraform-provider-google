@@ -17,7 +17,7 @@ description: |-
   Allows configuring a single GCP resource that should be inside of the `spec` block of a dry run service perimeter.
 ---
 
-# google\_access\_context\_manager\_service\_perimeter\_dry\_run\_resource
+# google_access_context_manager_service_perimeter_dry_run_resource
 
 Allows configuring a single GCP resource that should be inside of the `spec` block of a dry run service perimeter.
 This resource is intended to be used in cases where it is not possible to compile a full list

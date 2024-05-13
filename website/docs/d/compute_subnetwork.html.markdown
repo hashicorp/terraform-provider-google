@@ -4,7 +4,7 @@ description: |-
   Get a subnetwork within GCE.
 ---
 
-# google\_compute\_subnetwork
+# google_compute_subnetwork
 
 Get a subnetwork within GCE from its name and region.
 

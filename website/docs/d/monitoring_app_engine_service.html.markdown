@@ -5,7 +5,7 @@ description: |-
   App Engine service.
 ---
 
-# google\_monitoring\_app\_engine\_service
+# google_monitoring_app_engine_service
 
 A Monitoring Service is the root resource under which operational aspects of a
 generic service are accessible. A service is some discrete, autonomous, and

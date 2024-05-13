@@ -17,7 +17,7 @@ description: |-
   Membership contains information about a member cluster.
 ---
 
-# google\_gke\_hub\_membership
+# google_gke_hub_membership
 
 Membership contains information about a member cluster.
 

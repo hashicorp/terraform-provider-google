@@ -17,7 +17,7 @@ description: |-
   A rule for the OrganizationSecurityPolicy.
 ---
 
-# google\_compute\_organization\_security\_policy\_rule
+# google_compute_organization_security_policy_rule
 
 A rule for the OrganizationSecurityPolicy.
 

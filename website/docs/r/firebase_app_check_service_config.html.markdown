@@ -17,7 +17,7 @@ description: |-
   The enforcement configuration for a service supported by App Check.
 ---
 
-# google\_firebase\_app\_check\_service\_config
+# google_firebase_app_check_service_config
 
 The enforcement configuration for a service supported by App Check.
 

@@ -4,7 +4,7 @@ description: |-
   Get a VM instance within GCE.
 ---
 
-# google\_compute\_instance
+# google_compute_instance
 
 Get information about a VM instance resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instances)

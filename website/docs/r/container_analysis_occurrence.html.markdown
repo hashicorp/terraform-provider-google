@@ -18,7 +18,7 @@ description: |-
   can be done for a resource.
 ---
 
-# google\_container\_analysis\_occurrence
+# google_container_analysis_occurrence
 
 An occurrence is an instance of a Note, or type of analysis that
 can be done for a resource.

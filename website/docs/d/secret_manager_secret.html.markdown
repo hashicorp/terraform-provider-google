@@ -4,7 +4,7 @@ description: |-
   Get information about a Secret Manager Secret
 ---
 
-# google\_secret\_manager\_secret
+# google_secret_manager_secret
 
 Use this data source to get information about a Secret Manager Secret
 

@@ -17,7 +17,7 @@ description: |-
   Represents a network policy resource.
 ---
 
-# google\_vmwareengine\_network\_policy
+# google_vmwareengine_network_policy
 
 Represents a network policy resource. Network policies are regional resources.
 

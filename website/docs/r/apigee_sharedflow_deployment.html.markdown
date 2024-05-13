@@ -4,7 +4,7 @@ description: |-
   Deploys a revision of a sharedflow.
 ---
 
-# google\_apigee\_sharedflow\_deployment
+# google_apigee_sharedflow_deployment
 
 Deploys a revision of a sharedflow.
 

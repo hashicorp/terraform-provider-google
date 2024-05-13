@@ -17,7 +17,7 @@ description: |-
   A Google Bare Metal Node Pool.
 ---
 
-# google\_gkeonprem\_bare\_metal\_node\_pool
+# google_gkeonprem_bare_metal_node_pool
 
 A Google Bare Metal Node Pool.
 

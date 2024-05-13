@@ -17,7 +17,7 @@ description: |-
   Namespace represents a namespace across the Fleet.
 ---
 
-# google\_gke\_hub\_namespace
+# google_gke_hub_namespace
 
 Namespace represents a namespace across the Fleet.
 

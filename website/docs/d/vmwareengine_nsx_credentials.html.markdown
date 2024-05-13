@@ -4,7 +4,7 @@ description: |-
   Get NSX Credentials of a Private Cloud.
 ---
 
-# google\_vmwareengine\_nsx_credentials
+# google_vmwareengine_nsx_credentials
 
 Use this data source to get NSX credentials for a Private Cloud.
 

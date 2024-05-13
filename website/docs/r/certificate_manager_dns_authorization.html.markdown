@@ -17,7 +17,7 @@ description: |-
   DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 ---
 
-# google\_certificate\_manager\_dns\_authorization
+# google_certificate_manager_dns_authorization
 
 DnsAuthorization represents a HTTP-reachable backend for a DnsAuthorization.
 

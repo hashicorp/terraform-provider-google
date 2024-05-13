@@ -4,7 +4,7 @@ description: |-
   Get info about a private cloud subnet.
 ---
 
-# google\_vmwareengine\_subnet
+# google_vmwareengine_subnet
 
 Use this data source to get details about a subnet. Management subnets support only read operations and should be configured through this data source. User defined subnets can be configured using the resource as well as the datasource.
 

@@ -4,7 +4,7 @@ description: |-
   Retrieve default service account used by VMs running in this project
 ---
 
-# google\_compute\_default\_service\_account
+# google_compute_default_service_account
 
 Use this data source to retrieve default service account for this project
 

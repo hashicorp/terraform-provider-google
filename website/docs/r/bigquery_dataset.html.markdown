@@ -17,7 +17,7 @@ description: |-
   Datasets allow you to organize and control access to your tables.
 ---
 
-# google\_bigquery\_dataset
+# google_bigquery_dataset
 
 Datasets allow you to organize and control access to your tables.
 

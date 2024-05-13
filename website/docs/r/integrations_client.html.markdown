@@ -17,7 +17,7 @@ description: |-
   Application Integration Client.
 ---
 
-# google\_integrations\_client
+# google_integrations_client
 
 Application Integration Client.
 

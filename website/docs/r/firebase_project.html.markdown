@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Firebase instance.
 ---
 
-# google\_firebase\_project
+# google_firebase_project
 
 A Google Cloud Firebase instance. This enables Firebase resources on a given google project.
 Since a FirebaseProject is actually also a GCP Project, a FirebaseProject uses underlying GCP

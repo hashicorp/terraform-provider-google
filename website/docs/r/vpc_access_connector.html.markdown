@@ -17,7 +17,7 @@ description: |-
   Serverless VPC Access connector resource.
 ---
 
-# google\_vpc\_access\_connector
+# google_vpc_access_connector
 
 Serverless VPC Access connector resource.
 

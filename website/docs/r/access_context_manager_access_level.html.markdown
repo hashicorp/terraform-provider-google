@@ -18,7 +18,7 @@ description: |-
   along with a list of requirements necessary for the label to be applied.
 ---
 
-# google\_access\_context\_manager\_access\_level
+# google_access_context_manager_access_level
 
 An AccessLevel is a label that can be applied to requests to GCP services,
 along with a list of requirements necessary for the label to be applied.

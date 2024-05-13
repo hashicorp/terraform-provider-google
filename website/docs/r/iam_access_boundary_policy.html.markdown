@@ -17,7 +17,7 @@ description: |-
   Represents a collection of access boundary policies to apply to a given resource.
 ---
 
-# google\_iam\_access\_boundary\_policy
+# google_iam_access_boundary_policy
 
 Represents a collection of access boundary policies to apply to a given resource.
 **NOTE**: This is a private feature and users should contact GCP support

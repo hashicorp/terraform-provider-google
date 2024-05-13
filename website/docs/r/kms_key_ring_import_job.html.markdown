@@ -18,7 +18,7 @@ description: |-
   key material, generated outside of Cloud KMS.
 ---
 
-# google\_kms\_key\_ring\_import\_job
+# google_kms_key_ring_import_job
 
 A `KeyRingImportJob` can be used to create `CryptoKeys` and `CryptoKeyVersions` using pre-existing
 key material, generated outside of Cloud KMS. A `KeyRingImportJob` expires 3 days after it is created.

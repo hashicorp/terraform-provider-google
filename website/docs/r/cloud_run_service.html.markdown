@@ -17,7 +17,7 @@ description: |-
   A Cloud Run service has a unique endpoint and autoscales containers.
 ---
 
-# google\_cloud\_run\_service
+# google_cloud_run_service
 
 A Cloud Run service has a unique endpoint and autoscales containers.
 

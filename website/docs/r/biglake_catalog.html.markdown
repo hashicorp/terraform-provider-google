@@ -17,7 +17,7 @@ description: |-
   Catalogs are top-level containers for Databases and Tables.
 ---
 
-# google\_biglake\_catalog
+# google_biglake_catalog
 
 Catalogs are top-level containers for Databases and Tables.
 

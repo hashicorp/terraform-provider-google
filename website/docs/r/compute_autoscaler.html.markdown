@@ -17,7 +17,7 @@ description: |-
   Represents an Autoscaler resource.
 ---
 
-# google\_compute\_autoscaler
+# google_compute_autoscaler
 
 Represents an Autoscaler resource.
 

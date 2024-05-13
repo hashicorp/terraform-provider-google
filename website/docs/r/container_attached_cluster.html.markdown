@@ -17,7 +17,7 @@ description: |-
   An Anthos cluster running on customer owned infrastructure.
 ---
 
-# google\_container\_attached\_cluster
+# google_container_attached_cluster
 
 An Anthos cluster running on customer owned infrastructure.
 

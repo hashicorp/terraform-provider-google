@@ -17,7 +17,7 @@ description: |-
   A Hl7V2Store is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---
 
-# google\_healthcare\_hl7\_v2\_store
+# google_healthcare_hl7_v2_store
 
 A Hl7V2Store is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.hl7.org/hl7V2/STU3/)
 standard for Healthcare information exchange

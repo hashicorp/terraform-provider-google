@@ -17,7 +17,7 @@ description: |-
   Flexible App Version resource to create a new version of flexible GAE Application.
 ---
 
-# google\_app\_engine\_flexible\_app\_version
+# google_app_engine_flexible_app_version
 
 Flexible App Version resource to create a new version of flexible GAE Application. Based on Google Compute Engine,
 the App Engine flexible environment automatically scales your app up and down while also balancing the load.

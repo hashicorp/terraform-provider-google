@@ -17,7 +17,7 @@ description: |-
   Represents a network peering resource.
 ---
 
-# google\_vmwareengine\_network\_peering
+# google_vmwareengine_network_peering
 
 Represents a network peering resource. Network peerings are global resources.
 

@@ -5,7 +5,7 @@ description: |-
   A Google Cloud Firebase Hosting Channel instance
 ---
 
-# google\_firebase\_hosting\_channel
+# google_firebase_hosting_channel
 
 A Google Cloud Firebase Hosting Channel instance
 

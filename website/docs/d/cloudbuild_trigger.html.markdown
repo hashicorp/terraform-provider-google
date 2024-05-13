@@ -4,7 +4,7 @@ description: |-
   Get information about a Google CloudBuild Trigger.
 ---
 
-# google\_cloudbuild\_trigger
+# google_cloudbuild_trigger
 
 To get more information about Cloudbuild Trigger, see:
 

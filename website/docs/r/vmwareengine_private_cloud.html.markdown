@@ -17,7 +17,7 @@ description: |-
   Represents a private cloud resource.
 ---
 
-# google\_vmwareengine\_private\_cloud
+# google_vmwareengine_private_cloud
 
 Represents a private cloud resource. Private clouds are zonal resources.
 

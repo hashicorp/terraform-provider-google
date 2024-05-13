@@ -17,7 +17,7 @@ description: |-
   An entity type is a type of object in a system that needs to be modeled and have stored information about.
 ---
 
-# google\_vertex\_ai\_featurestore\_entitytype
+# google_vertex_ai_featurestore_entitytype
 
 An entity type is a type of object in a system that needs to be modeled and have stored information about. For example, driver is an entity type, and driver0 is an instance of an entity type driver.
 

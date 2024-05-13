@@ -17,7 +17,7 @@ description: |-
   An inspect job template.
 ---
 
-# google\_data\_loss\_prevention\_inspect\_template
+# google_data_loss_prevention_inspect_template
 
 An inspect job template.
 

@@ -17,7 +17,7 @@ description: |-
   Configurations options for the tenant for authenticating with a the standard set of Identity Toolkit-trusted IDPs.
 ---
 
-# google\_identity\_platform\_tenant\_default\_supported\_idp\_config
+# google_identity_platform_tenant_default_supported_idp_config
 
 Configurations options for the tenant for authenticating with a the standard set of Identity Toolkit-trusted IDPs.
 

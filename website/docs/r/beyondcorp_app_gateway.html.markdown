@@ -17,7 +17,7 @@ description: |-
   A BeyondCorp AppGateway resource represents a BeyondCorp protected AppGateway to a remote application.
 ---
 
-# google\_beyondcorp\_app\_gateway
+# google_beyondcorp_app_gateway
 
 A BeyondCorp AppGateway resource represents a BeyondCorp protected AppGateway to a remote application. It creates 
 all the necessary GCP components needed for creating a BeyondCorp protected AppGateway. Multiple connectors can be 

@@ -17,7 +17,7 @@ description: |-
   A ScanConfig resource contains the configurations to launch a scan.
 ---
 
-# google\_security\_scanner\_scan\_config
+# google_security_scanner_scan_config
 
 A ScanConfig resource contains the configurations to launch a scan.
 

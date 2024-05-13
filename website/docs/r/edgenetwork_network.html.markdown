@@ -17,7 +17,7 @@ description: |-
   A Distributed Cloud Edge network, which provides L3 isolation within a zone.
 ---
 
-# google\_edgenetwork\_network
+# google_edgenetwork_network
 
 A Distributed Cloud Edge network, which provides L3 isolation within a zone.
 

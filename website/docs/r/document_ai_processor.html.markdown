@@ -17,7 +17,7 @@ description: |-
   The first-class citizen for Document AI.
 ---
 
-# google\_document\_ai\_processor
+# google_document_ai_processor
 
 The first-class citizen for Document AI. Each processor defines how to extract structural information from a document.
 

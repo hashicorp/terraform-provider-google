@@ -17,7 +17,7 @@ description: |-
   A repository associated to a parent connection.
 ---
 
-# google\_cloudbuildv2\_repository
+# google_cloudbuildv2_repository
 
 A repository associated to a parent connection.
 

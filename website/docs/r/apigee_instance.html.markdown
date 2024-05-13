@@ -17,7 +17,7 @@ description: |-
   An `Instance` is the runtime dataplane in Apigee.
 ---
 
-# google\_apigee\_instance
+# google_apigee_instance
 
 An `Instance` is the runtime dataplane in Apigee.
 

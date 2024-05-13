@@ -4,7 +4,7 @@ description: |-
   Manages a job resource within a Dataproc cluster.
 ---
 
-# google\_dataproc\_job
+# google_dataproc_job
 
 Manages a job resource within a Dataproc cluster within GCE. For more information see
 [the official dataproc documentation](https://cloud.google.com/dataproc/).

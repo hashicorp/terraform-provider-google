@@ -17,7 +17,7 @@ description: |-
   You can create multiple versions of your agent flows and deploy them to separate serving environments.
 ---
 
-# google\_dialogflow\_cx\_version
+# google_dialogflow_cx_version
 
 You can create multiple versions of your agent flows and deploy them to separate serving environments.
 When you edit a flow, you are editing a draft flow. At any point, you can save a draft flow as a flow version. A flow version is an immutable snapshot of your flow data and associated agent data like intents, entities, webhooks, pages, route groups, etc.

@@ -4,7 +4,7 @@ description: |-
   Gets an SSL Policy within GCE, for use with Target HTTPS and Target SSL Proxies.
 ---
 
-# google\_compute\_ssl\_policy
+# google_compute_ssl_policy
 
 Gets an SSL Policy within GCE from its name, for use with Target HTTPS and Target SSL Proxies.
     For more information see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/ssl-policies).

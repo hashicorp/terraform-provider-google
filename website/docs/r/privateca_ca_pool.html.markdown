@@ -17,7 +17,7 @@ description: |-
   A CaPool represents a group of CertificateAuthorities that form a trust anchor.
 ---
 
-# google\_privateca\_ca\_pool
+# google_privateca_ca_pool
 
 A CaPool represents a group of CertificateAuthorities that form a trust anchor. A CaPool can be used to manage
 issuance policies for one or more CertificateAuthority resources and to rotate CA certificates in and out of the

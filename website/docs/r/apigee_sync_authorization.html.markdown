@@ -17,7 +17,7 @@ description: |-
   Authorize the Synchronizer to download environment data from the control plane.
 ---
 
-# google\_apigee\_sync\_authorization
+# google_apigee_sync_authorization
 
 Authorize the Synchronizer to download environment data from the control plane.
 

@@ -17,7 +17,7 @@ description: |-
   A Cloud Security Command Center's (Cloud SCC) finding source.
 ---
 
-# google\_scc\_source
+# google_scc_source
 
 A Cloud Security Command Center's (Cloud SCC) finding source. A finding
 source is an entity or a mechanism that can produce a finding. A source is

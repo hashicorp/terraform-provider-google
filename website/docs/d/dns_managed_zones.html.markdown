@@ -4,7 +4,7 @@ description: |-
   Provides access to a list of zones within Google Cloud DNS
 ---
 
-# google\_dns\_managed\_zones
+# google_dns_managed_zones
 
 Provides access to a list of zones within Google Cloud DNS.
 For more information see

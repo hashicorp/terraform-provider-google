@@ -4,7 +4,7 @@ description: |-
   An environment for running orchestration tasks.
 ---
 
-# google\_composer\_environment
+# google_composer_environment
 
 An environment for running orchestration tasks.
 

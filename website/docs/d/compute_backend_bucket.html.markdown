@@ -4,7 +4,7 @@ description: |-
   Get information about a BackendBucket.
 ---
 
-# google\_compute\_backend\_bucket
+# google_compute_backend_bucket
 
 Get information about a BackendBucket.
 

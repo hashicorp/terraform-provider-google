@@ -4,7 +4,7 @@ description: |-
   Manages an Instance Group within GCE.
 ---
 
-# google\_compute\_instance\_group\_manager
+# google_compute_instance_group_manager
 
 The Google Compute Engine Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance

@@ -4,7 +4,7 @@ description: |-
   Get a VM instance template within GCE.
 ---
 
-# google\_compute\_region\_instance\_template
+# google_compute_region_instance_template
 
 Get information about a VM instance template resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instance-templates)

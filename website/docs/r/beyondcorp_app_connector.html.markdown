@@ -18,7 +18,7 @@ description: |-
   and with direct access to the application instances.
 ---
 
-# google\_beyondcorp\_app\_connector
+# google_beyondcorp_app_connector
 
 A BeyondCorp AppConnector resource represents an application facing component deployed proximal to 
 and with direct access to the application instances. It is used to establish connectivity between the 

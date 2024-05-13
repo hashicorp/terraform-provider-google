@@ -17,7 +17,7 @@ description: |-
   Policy-based Routes are more powerful routes that route L4 network traffic based on not just destination IP, but also source IP, protocol and more.
 ---
 
-# google\_network\_connectivity\_policy\_based\_route
+# google_network_connectivity_policy_based_route
 
 Policy-based Routes are more powerful routes that route L4 network traffic based on not just destination IP, but also source IP, protocol and more. A Policy-based Route always take precedence when it conflicts with other types of routes.
 

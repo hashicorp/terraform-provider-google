@@ -17,7 +17,7 @@ description: |-
   A NAT service created in a router.
 ---
 
-# google\_compute\_router\_nat
+# google_compute_router_nat
 
 A NAT service created in a router.
 

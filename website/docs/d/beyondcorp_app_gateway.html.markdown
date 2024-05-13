@@ -4,7 +4,7 @@ description: |-
   Get information about a Google BeyondCorp App Gateway.
 ---
 
-# google\_beyondcorp\_app\_gateway
+# google_beyondcorp_app_gateway
 
 Get information about a Google BeyondCorp App Gateway.
 

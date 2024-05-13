@@ -4,7 +4,7 @@ description: |-
   Describes the settings associated with a folder.
 ---
 
-# google\_logging\_folder\_settings
+# google_logging_folder_settings
 
 Describes the settings associated with a folder.
 

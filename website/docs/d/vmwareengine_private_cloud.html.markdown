@@ -4,7 +4,7 @@ description: |-
   Get information about a private cloud.
 ---
 
-# google\_vmwareengine\_private_cloud
+# google_vmwareengine_private_cloud
 
 Use this data source to get details about a private cloud resource.
 

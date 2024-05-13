@@ -4,7 +4,7 @@ description: |-
  Allows management of a Google Cloud Billing Subaccount.
 ---
 
-# google\_billing\_subaccount
+# google_billing_subaccount
 
 Allows creation and management of a Google Cloud Billing Subaccount.
 

@@ -17,7 +17,7 @@ description: |-
   Health Checks determine whether instances are responsive and able to do work.
 ---
 
-# google\_compute\_region\_health\_check
+# google_compute_region_health_check
 
 Health Checks determine whether instances are responsive and able to do work.
 They are an important part of a comprehensive load balancing configuration,

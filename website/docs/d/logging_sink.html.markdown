@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Logging Sink.
 ---
 
-# google\_logging\_sink
+# google_logging_sink
 
 Use this data source to get a project, folder, organization or billing account logging sink details.
 To get more information about Service, see:

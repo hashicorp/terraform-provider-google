@@ -17,7 +17,7 @@ description: |-
   A Cloud AI Platform Notebook environment.
 ---
 
-# google\_notebooks\_environment
+# google_notebooks_environment
 
 A Cloud AI Platform Notebook environment.
 

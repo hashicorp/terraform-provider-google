@@ -4,7 +4,7 @@ description: |-
  Allows management of a single peered DNS domain on a project.
 ---
 
-# google\_project\_service\_peered\_dns\_domain
+# google_project_service_peered_dns_domain
 
 Allows management of a single peered DNS domain for an existing Google Cloud Platform project.
 

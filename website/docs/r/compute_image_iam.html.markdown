@@ -35,8 +35,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 ~> **Note:**  This resource supports IAM Conditions but they have some known limitations which can be found [here](https://cloud.google.com/iam/docs/conditions-overview#limitations). Please review this article if you are having issues with IAM Conditions.
 
 
-
-## google\_compute\_image\_iam\_policy
+## google_compute_image_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -79,7 +78,7 @@ resource "google_compute_image_iam_policy" "policy" {
   policy_data = data.google_iam_policy.admin.policy_data
 }
 ```
-## google\_compute\_image\_iam\_binding
+## google_compute_image_iam_binding
 
 ```hcl
 resource "google_compute_image_iam_binding" "binding" {
@@ -110,7 +109,7 @@ resource "google_compute_image_iam_binding" "binding" {
   }
 }
 ```
-## google\_compute\_image\_iam\_member
+## google_compute_image_iam_member
 
 ```hcl
 resource "google_compute_image_iam_member" "member" {

@@ -17,7 +17,7 @@ description: |-
   A representation of an ExternalAccountKey used for external account binding within ACME.
 ---
 
-# google\_public\_ca\_external\_account\_key
+# google_public_ca_external_account_key
 
 A representation of an ExternalAccountKey used for external account binding within ACME.
 

@@ -19,7 +19,7 @@ Three different resources help you manage your IAM policy for Healthcare dataset
 
 ~> **Note:** `google_healthcare_dataset_iam_binding` resources **can be** used in conjunction with `google_healthcare_dataset_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_healthcare\_dataset\_iam\_policy
+## google_healthcare_dataset_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -38,7 +38,7 @@ resource "google_healthcare_dataset_iam_policy" "dataset" {
 }
 ```
 
-## google\_healthcare\_dataset\_iam\_binding
+## google_healthcare_dataset_iam_binding
 
 ```hcl
 resource "google_healthcare_dataset_iam_binding" "dataset" {
@@ -51,7 +51,7 @@ resource "google_healthcare_dataset_iam_binding" "dataset" {
 }
 ```
 
-## google\_healthcare\_dataset\_iam\_member
+## google_healthcare_dataset_iam_member
 
 ```hcl
 resource "google_healthcare_dataset_iam_member" "dataset" {

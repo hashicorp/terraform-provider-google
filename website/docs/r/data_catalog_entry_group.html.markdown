@@ -17,7 +17,7 @@ description: |-
   An EntryGroup resource represents a logical grouping of zero or more Data Catalog Entry resources.
 ---
 
-# google\_data\_catalog\_entry\_group
+# google_data_catalog_entry_group
 
 An EntryGroup resource represents a logical grouping of zero or more Data Catalog Entry resources.
 

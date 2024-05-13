@@ -18,7 +18,7 @@ description: |-
   Private Cloud resources.
 ---
 
-# google\_dns\_policy
+# google_dns_policy
 
 A policy is a collection of DNS rules applied to one or more Virtual
 Private Cloud resources.

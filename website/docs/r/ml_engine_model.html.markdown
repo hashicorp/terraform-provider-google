@@ -17,7 +17,7 @@ description: |-
   Represents a machine learning solution.
 ---
 
-# google\_ml\_engine\_model
+# google_ml_engine_model
 
 Represents a machine learning solution.
 

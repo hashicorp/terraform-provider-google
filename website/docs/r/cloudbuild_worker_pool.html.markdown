@@ -4,7 +4,7 @@ description: |-
   Configuration for custom WorkerPool to run builds
 ---
 
-# google\_cloudbuild\_worker\_pool
+# google_cloudbuild_worker_pool
 
 Definition of custom Cloud Build WorkerPools for running jobs with custom configuration and custom networking.
 

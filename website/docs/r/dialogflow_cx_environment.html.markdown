@@ -17,7 +17,7 @@ description: |-
   Represents an environment for an agent.
 ---
 
-# google\_dialogflow\_cx\_environment
+# google_dialogflow_cx_environment
 
 Represents an environment for an agent. You can create multiple versions of your agent and publish them to separate environments.
 When you edit an agent, you are editing the draft agent. At any point, you can save the draft agent as an agent version, which is an immutable snapshot of your agent.

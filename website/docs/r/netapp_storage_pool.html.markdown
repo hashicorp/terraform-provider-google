@@ -17,7 +17,7 @@ description: |-
   Storage pools act as containers for volumes.
 ---
 
-# google\_netapp\_storage\_pool
+# google_netapp_storage_pool
 
 Storage pools act as containers for volumes. All volumes in a storage pool share the following information:
 * Location

@@ -17,7 +17,7 @@ description: |-
   Represents a single field in the database.
 ---
 
-# google\_firestore\_field
+# google_firestore_field
 
 Represents a single field in the database.
 Fields are grouped by their "Collection Group", which represent all collections

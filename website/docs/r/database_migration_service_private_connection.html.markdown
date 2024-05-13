@@ -17,7 +17,7 @@ description: |-
   The PrivateConnection resource is used to establish private connectivity between Database Migration Service and a customer's network.
 ---
 
-# google\_database\_migration\_service\_private\_connection
+# google_database_migration_service_private_connection
 
 The PrivateConnection resource is used to establish private connectivity between Database Migration Service and a customer's network.
 

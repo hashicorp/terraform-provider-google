@@ -17,7 +17,7 @@ description: |-
   Represents a VPN gateway running in GCP.
 ---
 
-# google\_compute\_ha\_vpn\_gateway
+# google_compute_ha_vpn_gateway
 
 Represents a VPN gateway running in GCP. This virtual device is managed
 by Google, but used only by you. This type of VPN Gateway allows for the creation

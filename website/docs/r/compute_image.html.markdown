@@ -17,7 +17,7 @@ description: |-
   Represents an Image resource.
 ---
 
-# google\_compute\_image
+# google_compute_image
 
 Represents an Image resource.
 

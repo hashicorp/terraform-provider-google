@@ -17,7 +17,7 @@ description: |-
   Inbound SAML configuration for a Identity Toolkit tenant.
 ---
 
-# google\_identity\_platform\_tenant\_inbound\_saml\_config
+# google_identity_platform_tenant_inbound_saml_config
 
 Inbound SAML configuration for a Identity Toolkit tenant.
 

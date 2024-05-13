@@ -17,7 +17,7 @@ description: |-
   Represents an inventory report configuration.
 ---
 
-# google\_storage\_insights\_report\_config
+# google_storage_insights_report_config
 
 Represents an inventory report configuration.
 

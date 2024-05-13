@@ -4,7 +4,7 @@ description: |-
   Get the email address of an organization's Access Approval service account.
 ---
 
-# google\_access\_approval\_organization\_service\_account
+# google_access_approval_organization_service_account
 
 Get the email address of an organization's Access Approval service account.
 

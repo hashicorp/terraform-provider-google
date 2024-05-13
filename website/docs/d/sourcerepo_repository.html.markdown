@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Source Repository.
 ---
 
-# google\_sourcerepo\_repository
+# google_sourcerepo_repository
 
 Get infomation about an existing Google Cloud Source Repository.
 For more information see [the official documentation](https://cloud.google.com/source-repositories)

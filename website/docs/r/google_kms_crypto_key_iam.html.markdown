@@ -16,7 +16,7 @@ Three different resources help you manage your IAM policy for KMS crypto key. Ea
 
 ~> **Note:** `google_kms_crypto_key_iam_binding` resources **can be** used in conjunction with `google_kms_crypto_key_iam_member` resources **only if** they do not grant privilege to the same role.
 
-# google\_kms\_crypto\_key\_iam\_policy
+# google_kms_crypto_key_iam_policy
 
 ```hcl
 resource "google_kms_key_ring" "keyring" {
@@ -68,7 +68,7 @@ data "google_iam_policy" "admin" {
 }
 ```
 
-# google\_kms\_crypto\_key\_iam\_binding
+# google_kms_crypto_key_iam_binding
 
 ```hcl
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
@@ -100,7 +100,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 }
 ```
 
-# google\_kms\_crypto\_key\_iam\_member
+# google_kms_crypto_key_iam_member
 
 ```hcl
 resource "google_kms_crypto_key_iam_member" "crypto_key" {

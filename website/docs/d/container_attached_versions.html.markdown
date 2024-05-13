@@ -4,7 +4,7 @@ description: |-
   Provides lists of available platform versions for the Container Attached resources.
 ---
 
-# google\_container\_attached\_versions
+# google_container_attached_versions
 
 Provides access to available platform versions in a location for a given project.
 

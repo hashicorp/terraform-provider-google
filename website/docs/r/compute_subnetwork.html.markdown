@@ -18,7 +18,7 @@ description: |-
   that exist within and between physical data centers.
 ---
 
-# google\_compute\_subnetwork
+# google_compute_subnetwork
 
 A VPC network is a virtual version of the traditional physical networks
 that exist within and between physical data centers. A VPC network

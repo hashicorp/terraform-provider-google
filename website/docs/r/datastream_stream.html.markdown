@@ -17,7 +17,7 @@ description: |-
   A resource representing streaming data from a source to a destination.
 ---
 
-# google\_datastream\_stream
+# google_datastream_stream
 
 A resource representing streaming data from a source to a destination.
 

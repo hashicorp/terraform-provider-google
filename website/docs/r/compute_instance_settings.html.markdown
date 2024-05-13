@@ -17,7 +17,7 @@ description: |-
   Represents an Instance Settings resource.
 ---
 
-# google\_compute\_instance\_settings
+# google_compute_instance_settings
 
 Represents an Instance Settings resource. Instance settings are centralized configuration parameters that allow users to configure the default values for specific VM parameters that are normally set using GCE instance API methods.
 

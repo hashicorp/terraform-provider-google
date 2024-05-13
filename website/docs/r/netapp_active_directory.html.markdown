@@ -17,7 +17,7 @@ description: |-
   ActiveDirectory is the public representation of the active directory config.
 ---
 
-# google\_netapp\_active\_directory
+# google_netapp_active_directory
 
 ActiveDirectory is the public representation of the active directory config.
 

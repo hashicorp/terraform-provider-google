@@ -4,7 +4,7 @@ description: |-
   Describes the settings associated with a organization.
 ---
 
-# google\_logging\_organization\_settings
+# google_logging_organization_settings
 
 Describes the settings associated with a organization.
 

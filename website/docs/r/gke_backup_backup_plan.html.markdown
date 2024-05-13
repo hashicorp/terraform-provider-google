@@ -17,7 +17,7 @@ description: |-
   Represents a Backup Plan instance.
 ---
 
-# google\_gke\_backup\_backup\_plan
+# google_gke_backup_backup_plan
 
 Represents a Backup Plan instance.
 

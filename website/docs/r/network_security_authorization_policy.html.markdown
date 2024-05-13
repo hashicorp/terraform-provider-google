@@ -17,7 +17,7 @@ description: |-
   AuthorizationPolicy is a resource that specifies how a server should authorize incoming connections.
 ---
 
-# google\_network\_security\_authorization\_policy
+# google_network_security_authorization_policy
 
 AuthorizationPolicy is a resource that specifies how a server should authorize incoming connections. This resource in itself does not change the configuration unless it's attached to a target https proxy or endpoint config selector resource.
 

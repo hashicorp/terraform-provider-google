@@ -17,7 +17,7 @@ description: |-
   Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency.
 ---
 
-# google\_vertex\_ai\_feature\_online\_store
+# google_vertex_ai_feature_online_store
 
 Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency. The Feature Online Store is a top-level container.
 

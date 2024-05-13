@@ -17,7 +17,7 @@ description: |-
   Packet Mirroring mirrors traffic to and from particular VM instances.
 ---
 
-# google\_compute\_packet\_mirroring
+# google_compute_packet_mirroring
 
 Packet Mirroring mirrors traffic to and from particular VM instances.
 You can use the collected traffic to help you detect security threats

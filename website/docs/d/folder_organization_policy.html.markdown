@@ -4,7 +4,7 @@ description: |-
   Retrieve Organization policies for a Google Folder
 ---
 
-# google\_folder\_organization\_policy
+# google_folder_organization_policy
 
 Allows management of Organization policies for a Google Folder. For more information see
 [the official

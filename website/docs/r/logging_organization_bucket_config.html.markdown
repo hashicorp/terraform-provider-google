@@ -4,7 +4,7 @@ description: |-
   Manages a organization-level logging bucket config.
 ---
 
-# google\_logging\_organization\_bucket\_config
+# google_logging_organization_bucket_config
 
 Manages a organization-level logging bucket config. For more information see
 [the official logging documentation](https://cloud.google.com/logging/docs/) and

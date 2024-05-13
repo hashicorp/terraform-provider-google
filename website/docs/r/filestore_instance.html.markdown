@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Filestore instance.
 ---
 
-# google\_filestore\_instance
+# google_filestore_instance
 
 A Google Cloud Filestore instance.
 

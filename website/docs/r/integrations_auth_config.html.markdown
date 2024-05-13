@@ -17,7 +17,7 @@ description: |-
   The AuthConfig resource use to hold channels and connection config data.
 ---
 
-# google\_integrations\_auth\_config
+# google_integrations_auth_config
 
 The AuthConfig resource use to hold channels and connection config data.
 

@@ -17,7 +17,7 @@ description: |-
   This resource has been deprecated, please refer to ServicePerimeterIngressPolicy.
 ---
 
-# google\_access\_context\_manager\_ingress\_policy
+# google_access_context_manager_ingress_policy
 
 This resource has been deprecated, please refer to ServicePerimeterIngressPolicy.
 

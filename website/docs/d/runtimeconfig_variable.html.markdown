@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud RuntimeConfig variable.
 ---
 
-# google\_runtimeconfig\_variable
+# google_runtimeconfig_variable
 
 To get more information about RuntimeConfigs, see:
 

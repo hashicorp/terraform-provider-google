@@ -4,7 +4,7 @@ description: |-
   Manages a RuntimeConfig variable in Google Cloud.
 ---
 
-# google\_runtimeconfig\_variable
+# google_runtimeconfig_variable
 
 Manages a RuntimeConfig variable in Google Cloud. For more information, see the
 [official documentation](https://cloud.google.com/deployment-manager/runtime-configurator/),

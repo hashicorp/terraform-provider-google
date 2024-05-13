@@ -4,7 +4,7 @@ description: |-
   Get all of the trusted Certificate Authorities (CAs) for the specified SQL database instance.
 ---
 
-# google\_sql\_ca\_certs
+# google_sql_ca_certs
 
 Get all of the trusted Certificate Authorities (CAs) for the specified SQL database instance. For more information see the
 [official documentation](https://cloud.google.com/sql/)

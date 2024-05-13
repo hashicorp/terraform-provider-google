@@ -17,7 +17,7 @@ description: |-
   A TagKey, used to group a set of TagValues.
 ---
 
-# google\_tags\_tag\_key
+# google_tags_tag_key
 
 A TagKey, used to group a set of TagValues.
 

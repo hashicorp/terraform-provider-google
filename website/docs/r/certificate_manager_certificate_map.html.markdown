@@ -18,7 +18,7 @@ description: |-
   which are usable by any associated target proxies
 ---
 
-# google\_certificate\_manager\_certificate\_map
+# google_certificate_manager_certificate_map
 
 CertificateMap defines a collection of certificate configurations,
 which are usable by any associated target proxies

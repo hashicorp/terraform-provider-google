@@ -18,7 +18,7 @@ description: |-
   responsibility.
 ---
 
-# google\_dns\_managed\_zone
+# google_dns_managed_zone
 
 A zone is a subtree of the DNS namespace under one administrative
 responsibility. A ManagedZone is a resource that represents a DNS zone

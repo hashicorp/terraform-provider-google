@@ -17,7 +17,7 @@ description: |-
   EndpointPolicy is a resource that helps apply desired configuration on the endpoints that match specific criteria.
 ---
 
-# google\_network\_services\_endpoint\_policy
+# google_network_services_endpoint_policy
 
 EndpointPolicy is a resource that helps apply desired configuration on the endpoints that match specific criteria.
 

@@ -17,7 +17,7 @@ description: |-
   Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer content.
 ---
 
-# google\_organization\_access\_approval\_settings
+# google_organization_access_approval_settings
 
 Access Approval enables you to require your explicit approval whenever Google support and engineering need to access your customer content.
 

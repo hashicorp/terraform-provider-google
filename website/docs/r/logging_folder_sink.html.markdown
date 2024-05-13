@@ -4,7 +4,7 @@ description: |-
   Manages a folder-level logging sink.
 ---
 
-# google\_logging\_folder\_sink
+# google_logging_folder_sink
 
 Manages a folder-level logging sink. For more information see:
 * [API documentation](https://cloud.google.com/logging/docs/reference/v2/rest/v2/folders.sinks)

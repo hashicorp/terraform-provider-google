@@ -4,7 +4,7 @@ description: |-
   Get available TensorFlow versions.
 ---
 
-# google\_tpu\_tensorflow\_versions
+# google_tpu_tensorflow_versions
 
 Get TensorFlow versions available for a project. For more information see the [official documentation](https://cloud.google.com/tpu/docs/) and [API](https://cloud.google.com/tpu/docs/reference/rest/v1/projects.locations.tensorflowVersions).
 

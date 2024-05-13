@@ -17,7 +17,7 @@ description: |-
   A configuration for an external identity provider.
 ---
 
-# google\_iam\_workload\_identity\_pool\_provider
+# google_iam_workload_identity_pool_provider
 
 A configuration for an external identity provider.
 

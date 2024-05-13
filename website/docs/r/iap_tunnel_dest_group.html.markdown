@@ -17,7 +17,7 @@ description: |-
   Tunnel destination groups represent resources that have the same tunnel access restrictions.
 ---
 
-# google\_iap\_tunnel\_dest\_group
+# google_iap_tunnel_dest_group
 
 Tunnel destination groups represent resources that have the same tunnel access restrictions.
 

@@ -17,7 +17,7 @@ description: |-
   IngressPolicies match requests based on ingressFrom and ingressTo stanzas.
 ---
 
-# google\_access\_context\_manager\_service\_perimeter\_ingress\_policy
+# google_access_context_manager_service_perimeter_ingress_policy
 
 IngressPolicies match requests based on ingressFrom and ingressTo stanzas. For an ingress policy to match,
 both the ingressFrom and ingressTo stanzas must be matched. If an IngressPolicy matches a request,

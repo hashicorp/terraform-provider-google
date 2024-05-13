@@ -17,7 +17,7 @@ description: |-
   OIDC IdP configuration for a Identity Toolkit project.
 ---
 
-# google\_identity\_platform\_oauth\_idp\_config
+# google_identity_platform_oauth_idp_config
 
 OIDC IdP configuration for a Identity Toolkit project.
 

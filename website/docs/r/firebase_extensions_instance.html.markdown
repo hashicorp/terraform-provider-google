@@ -17,7 +17,7 @@ description: |-
   An Instance is an installation of an Extension into a user's project.
 ---
 
-# google\_firebase\_extensions\_instance
+# google_firebase_extensions_instance
 
 An Instance is an installation of an Extension into a user's project.
 

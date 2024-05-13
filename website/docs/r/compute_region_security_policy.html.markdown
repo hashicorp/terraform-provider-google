@@ -17,7 +17,7 @@ description: |-
   Represents a Region Cloud Armor Security Policy resource.
 ---
 
-# google\_compute\_region\_security\_policy
+# google_compute_region_security_policy
 
 Represents a Region Cloud Armor Security Policy resource.
 

@@ -4,7 +4,7 @@ description: |-
   Get information about a network policy.
 ---
 
-# google\_vmwareengine\_network_policy
+# google_vmwareengine_network_policy
 
 Use this data source to get details about a network policy resource.
 

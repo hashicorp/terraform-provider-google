@@ -17,7 +17,7 @@ description: |-
   A backup schedule for a Cloud Firestore Database.
 ---
 
-# google\_firestore\_backup\_schedule
+# google_firestore_backup_schedule
 
 A backup schedule for a Cloud Firestore Database.
 This resource is owned by the database it is backing up, and is deleted along with the database.

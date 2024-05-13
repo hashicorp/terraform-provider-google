@@ -17,7 +17,7 @@ description: |-
   Creates a Microsoft AD domain
 ---
 
-# google\_active\_directory\_domain
+# google_active_directory_domain
 
 Creates a Microsoft AD domain
 

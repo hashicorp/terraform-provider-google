@@ -4,7 +4,7 @@ description: |-
   A Google Stackdriver dashboard.
 ---
 
-# google\_monitoring\_dashboard
+# google_monitoring_dashboard
 
 A Google Stackdriver dashboard. Dashboards define the content and layout of pages in the Stackdriver web application.
 

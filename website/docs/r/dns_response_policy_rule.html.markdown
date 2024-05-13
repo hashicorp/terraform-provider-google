@@ -17,7 +17,7 @@ description: |-
   A Response Policy Rule is a selector that applies its behavior to queries that match the selector.
 ---
 
-# google\_dns\_response\_policy\_rule
+# google_dns_response_policy_rule
 
 A Response Policy Rule is a selector that applies its behavior to queries that match the selector.
 Selectors are DNS names, which may be wildcards or exact matches.

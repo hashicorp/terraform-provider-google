@@ -17,7 +17,7 @@ description: |-
   An `Automation` enables the automation of manually driven actions for a Delivery Pipeline, which includes Release promotion amongst Targets, Rollout repair and Rollout deployment strategy advancement.
 ---
 
-# google\_clouddeploy\_automation
+# google_clouddeploy_automation
 
 An `Automation` enables the automation of manually driven actions for a Delivery Pipeline, which includes Release promotion amongst Targets, Rollout repair and Rollout deployment strategy advancement.
 

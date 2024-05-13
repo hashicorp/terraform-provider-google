@@ -22,7 +22,6 @@ description: |-
 Retrieves the current IAM policy data for lake
 
 
-
 ## example
 
 ```hcl

@@ -4,7 +4,7 @@ description: |-
   Get a  SQL backup run in Google Cloud SQL.
 ---
 
-# google\_sql\_backup\_run
+# google_sql_backup_run
 
 Use this data source to get information about a Cloud SQL instance backup run.
 

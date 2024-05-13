@@ -17,7 +17,7 @@ description: |-
   Describes an autoscaling policy for Dataproc cluster autoscaler.
 ---
 
-# google\_dataproc\_autoscaling\_policy
+# google_dataproc_autoscaling_policy
 
 Describes an autoscaling policy for Dataproc cluster autoscaler.
 

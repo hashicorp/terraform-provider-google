@@ -17,7 +17,7 @@ description: |-
   Represents an On-Premises Agent pool.
 ---
 
-# google\_storage\_transfer\_agent\_pool
+# google_storage_transfer_agent_pool
 
 Represents an On-Premises Agent pool.
 

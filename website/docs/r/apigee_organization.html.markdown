@@ -17,7 +17,7 @@ description: |-
   An `Organization` is the top-level container in Apigee.
 ---
 
-# google\_apigee\_organization
+# google_apigee_organization
 
 An `Organization` is the top-level container in Apigee.
 

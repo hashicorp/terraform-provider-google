@@ -17,7 +17,7 @@ description: |-
   TlsRoute defines how traffic should be routed based on SNI and other matching L3 attributes.
 ---
 
-# google\_network\_services\_tls\_route
+# google_network_services_tls_route
 
 TlsRoute defines how traffic should be routed based on SNI and other matching L3 attributes.
 

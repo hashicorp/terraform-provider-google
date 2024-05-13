@@ -17,7 +17,7 @@ description: |-
   A document schema is used to define document structure.
 ---
 
-# google\_document\_ai\_warehouse\_document\_schema
+# google_document_ai_warehouse_document_schema
 
 A document schema is used to define document structure.
 

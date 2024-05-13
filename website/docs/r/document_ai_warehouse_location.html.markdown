@@ -17,7 +17,7 @@ description: |-
   A location is used to initialize a project.
 ---
 
-# google\_document\_ai\_warehouse\_location
+# google_document_ai_warehouse_location
 
 A location is used to initialize a project.
 

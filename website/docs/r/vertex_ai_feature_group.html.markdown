@@ -17,7 +17,7 @@ description: |-
   Vertex AI Feature Group.
 ---
 
-# google\_vertex\_ai\_feature\_group
+# google_vertex_ai_feature_group
 
 Vertex AI Feature Group.
 

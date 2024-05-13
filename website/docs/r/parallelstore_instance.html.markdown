@@ -17,7 +17,7 @@ description: |-
   A Parallelstore Instance.
 ---
 
-# google\_parallelstore\_instance
+# google_parallelstore_instance
 
 A Parallelstore Instance.
 

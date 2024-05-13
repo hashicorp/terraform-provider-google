@@ -17,7 +17,7 @@ description: |-
   A managed alloydb cluster instance.
 ---
 
-# google\_alloydb\_instance
+# google_alloydb_instance
 
 A managed alloydb cluster instance.
 

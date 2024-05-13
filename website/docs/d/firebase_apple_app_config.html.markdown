@@ -4,7 +4,7 @@ description: |-
   A Google Cloud Firebase Apple application configuration
 ---
 
-# google\_firebase\_apple\_app\_config
+# google_firebase_apple_app_config
 
 A Google Cloud Firebase Apple application configuration
 

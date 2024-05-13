@@ -4,7 +4,7 @@ description: |-
   Provides lists of available Kubernetes versions for the Container AWS resources.
 ---
 
-# google\_container\_aws\_versions
+# google_container_aws_versions
 
 Provides access to available Kubernetes versions in a location for a given project.
 

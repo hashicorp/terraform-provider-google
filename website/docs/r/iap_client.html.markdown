@@ -17,7 +17,7 @@ description: |-
   Contains the data that describes an Identity Aware Proxy owned client.
 ---
 
-# google\_iap\_client
+# google_iap_client
 
 Contains the data that describes an Identity Aware Proxy owned client.
 

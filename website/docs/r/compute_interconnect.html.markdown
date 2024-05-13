@@ -17,7 +17,7 @@ description: |-
   Represents an Interconnect resource.
 ---
 
-# google\_compute\_interconnect
+# google_compute_interconnect
 
 Represents an Interconnect resource. The Interconnect resource is a dedicated connection between
 Google's network and your on-premises network.

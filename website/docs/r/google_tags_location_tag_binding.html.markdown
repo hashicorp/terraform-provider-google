@@ -4,7 +4,7 @@ description: |-
   A LocationTagBinding represents a connection between a TagValue and a non-global cloud resource.
 ---
 
-# google\_tags\_location\_tag\_binding
+# google_tags_location_tag_binding
 
 A LocationTagBinding represents a connection between a TagValue and a non-global target such as a Cloud Run Service or Compute Instance. Once a LocationTagBinding is created, the TagValue is applied to all the descendants of the cloud resource.
 

@@ -4,7 +4,7 @@ description: |-
   Creates a Security Policy resource for Google Compute Engine.
 ---
 
-# google\_compute\_security\_policy
+# google_compute_security_policy
 
 A Security Policy defines an IP blacklist or whitelist that protects load balanced Google Cloud services by denying or permitting traffic from specified IP ranges. For more information
 see the [official documentation](https://cloud.google.com/armor/docs/configure-security-policies)

@@ -17,7 +17,7 @@ description: |-
   Represents a Global Address resource.
 ---
 
-# google\_compute\_global\_address
+# google_compute_global_address
 
 Represents a Global Address resource. Global addresses are used for
 HTTP(S) load balancing.

@@ -17,7 +17,7 @@ description: |-
   A Cloud Spanner Database which is hosted on a Spanner instance.
 ---
 
-# google\_spanner\_database
+# google_spanner_database
 
 A Cloud Spanner Database which is hosted on a Spanner instance.
 

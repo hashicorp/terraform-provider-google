@@ -16,7 +16,7 @@ Three different resources help you manage your IAM policy for KMS key ring. Each
 
 ~> **Note:** `google_kms_key_ring_iam_binding` resources **can be** used in conjunction with `google_kms_key_ring_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_kms\_key\_ring\_iam\_policy
+## google_kms_key_ring_iam_policy
 
 ```hcl
 resource "google_kms_key_ring" "keyring" {
@@ -70,7 +70,7 @@ resource "google_kms_key_ring_iam_policy" "key_ring" {
 }
 ```
 
-## google\_kms\_key\_ring\_iam\_binding
+## google_kms_key_ring_iam_binding
 
 ```hcl
 resource "google_kms_key_ring_iam_binding" "key_ring" {
@@ -102,7 +102,7 @@ resource "google_kms_key_ring_iam_binding" "key_ring" {
 }
 ```
 
-## google\_kms\_key\_ring\_iam\_member
+## google_kms_key_ring_iam_member
 
 ```hcl
 resource "google_kms_key_ring_iam_member" "key_ring" {

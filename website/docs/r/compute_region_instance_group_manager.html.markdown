@@ -4,7 +4,7 @@ description: |-
   Manages an Regional Instance Group within GCE.
 ---
 
-# google\_compute\_region\_instance\_group\_manager
+# google_compute_region_instance_group_manager
 
 The Google Compute Engine Regional Instance Group Manager API creates and manages pools
 of homogeneous Compute Engine virtual machine instances from a common instance

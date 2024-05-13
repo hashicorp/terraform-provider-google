@@ -17,7 +17,7 @@ description: |-
   The Compute NetworkFirewallPolicy resource
 ---
 
-# google\_compute\_region\_network\_firewall\_policy
+# google_compute_region_network_firewall_policy
 
 The Compute NetworkFirewallPolicy resource
 

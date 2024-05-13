@@ -4,7 +4,7 @@ description: |-
   Get info about a Google Kubernetes Engine cluster.
 ---
 
-# google\_container\_cluster
+# google_container_cluster
 
 Get info about a GKE cluster from its name and location.
 

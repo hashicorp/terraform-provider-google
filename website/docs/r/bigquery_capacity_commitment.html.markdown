@@ -17,7 +17,7 @@ description: |-
   Capacity commitment is a way to purchase compute capacity for BigQuery jobs (in the form of slots) with some committed period of usage.
 ---
 
-# google\_bigquery\_capacity\_commitment
+# google_bigquery_capacity_commitment
 
 Capacity commitment is a way to purchase compute capacity for BigQuery jobs (in the form of slots) with some committed period of usage. Annual commitments renew by default. Commitments can be removed after their commitment end time passes.
 

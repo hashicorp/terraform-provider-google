@@ -17,7 +17,7 @@ description: |-
   Agents are best described as Natural Language Understanding (NLU) modules that transform user requests into actionable data.
 ---
 
-# google\_dialogflow\_cx\_agent
+# google_dialogflow_cx_agent
 
 Agents are best described as Natural Language Understanding (NLU) modules that transform user requests into actionable data. You can include agents in your app, product, or service to determine user intent and respond to the user in a natural way.
 

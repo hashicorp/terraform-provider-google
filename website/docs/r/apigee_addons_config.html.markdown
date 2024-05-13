@@ -17,7 +17,7 @@ description: |-
   Configures the add-ons for the Apigee organization.
 ---
 
-# google\_apigee\_addons\_config
+# google_apigee_addons_config
 
 Configures the add-ons for the Apigee organization. The existing add-on configuration will be fully replaced.
 

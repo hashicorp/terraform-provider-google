@@ -17,7 +17,7 @@ description: |-
   Vertex chat and Conversation Engine Chat type
 ---
 
-# google\_discovery\_engine\_chat\_engine
+# google_discovery_engine_chat_engine
 
 Vertex chat and Conversation Engine Chat type
 

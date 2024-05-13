@@ -17,7 +17,7 @@ description: |-
   A consumable API that can be used by multiple Gateways.
 ---
 
-# google\_api\_gateway\_api
+# google_api_gateway_api
 
 A consumable API that can be used by multiple Gateways.
 

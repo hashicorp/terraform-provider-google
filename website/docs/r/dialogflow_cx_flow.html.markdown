@@ -17,7 +17,7 @@ description: |-
   Flows represents the conversation flows when you build your chatbot agent.
 ---
 
-# google\_dialogflow\_cx\_flow
+# google_dialogflow_cx_flow
 
 Flows represents the conversation flows when you build your chatbot agent.
 

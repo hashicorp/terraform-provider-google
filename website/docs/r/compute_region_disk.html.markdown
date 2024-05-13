@@ -18,7 +18,7 @@ description: |-
   the physical disks in a desktop or a server.
 ---
 
-# google\_compute\_region\_disk
+# google_compute_region_disk
 
 Persistent disks are durable storage devices that function similarly to
 the physical disks in a desktop or a server. Compute Engine manages the

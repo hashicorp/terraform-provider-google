@@ -4,7 +4,7 @@ description: |-
   Get Latest Recovery Time for a given instance.
 ---
 
-# google\_sql\_database\_instance\_latest\_recovery\_time
+# google_sql_database_instance_latest_recovery_time
 
 Get Latest Recovery Time for a given instance. For more information see the
 [official documentation](https://cloud.google.com/sql/)

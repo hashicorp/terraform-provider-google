@@ -5,7 +5,7 @@ description: |-
   when a policy violation is detected.
 ---
 
-# google\_monitoring\_notification\_channel
+# google_monitoring_notification_channel
 
 A NotificationChannel is a medium through which an alert is delivered
 when a policy violation is detected. Examples of channels include email, SMS,

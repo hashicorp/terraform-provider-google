@@ -4,7 +4,7 @@ description: |-
   List google compute addresses.
 ---
 
-# google\_compute\_addresses
+# google_compute_addresses
 
 List IP addresses in a project. For more information see
 the official API [list](https://cloud.google.com/compute/docs/reference/latest/addresses/list) and 
