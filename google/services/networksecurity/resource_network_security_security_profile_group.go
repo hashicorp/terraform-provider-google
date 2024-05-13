@@ -113,6 +113,11 @@ Format: organizations/{organization_id}.`,
 and may be sent on update and delete requests to ensure the client has an up-to-date
 value before proceeding.`,
 			},
+			"self_link": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Server-defined URL of this resource.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -240,6 +245,9 @@ func resourceNetworkSecuritySecurityProfileGroupRead(d *schema.ResourceData, met
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkSecuritySecurityProfileGroup %q", d.Id()))
 	}
 
+	if err := d.Set("self_link", flattenNetworkSecuritySecurityProfileGroupSelfLink(res["selfLink"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
+	}
 	if err := d.Set("create_time", flattenNetworkSecuritySecurityProfileGroupCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityProfileGroup: %s", err)
 	}
@@ -428,6 +436,10 @@ func resourceNetworkSecuritySecurityProfileGroupImport(d *schema.ResourceData, m
 	d.SetId(id)
 
 	return []*schema.ResourceData{d}, nil
+}
+
+func flattenNetworkSecuritySecurityProfileGroupSelfLink(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenNetworkSecuritySecurityProfileGroupCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
