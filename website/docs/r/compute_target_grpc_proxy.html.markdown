@@ -17,7 +17,7 @@ description: |-
   Represents a Target gRPC Proxy resource.
 ---
 
-# google\_compute\_target\_grpc\_proxy
+# google_compute_target_grpc_proxy
 
 Represents a Target gRPC Proxy resource. A target gRPC proxy is a component
 of load balancers intended for load balancing gRPC traffic. Global forwarding

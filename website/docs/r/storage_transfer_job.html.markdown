@@ -4,7 +4,7 @@ description: |-
   Creates a new Transfer Job in Google Cloud Storage Transfer.
 ---
 
-# google\_storage\_transfer\_job
+# google_storage_transfer_job
 
 Creates a new Transfer Job in Google Cloud Storage Transfer.
 

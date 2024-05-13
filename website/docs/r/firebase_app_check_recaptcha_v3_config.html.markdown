@@ -17,7 +17,7 @@ description: |-
   An app's reCAPTCHA V3 configuration object.
 ---
 
-# google\_firebase\_app\_check\_recaptcha\_v3\_config
+# google_firebase_app_check_recaptcha_v3_config
 
 An app's reCAPTCHA V3 configuration object.
 

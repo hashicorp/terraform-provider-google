@@ -17,7 +17,7 @@ description: |-
   A volume is a file system container in a storage pool that stores application, database, and user data.
 ---
 
-# google\_netapp\_volume
+# google_netapp_volume
 
 A volume is a file system container in a storage pool that stores application, database, and user data.
 

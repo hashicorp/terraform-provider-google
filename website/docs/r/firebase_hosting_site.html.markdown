@@ -17,7 +17,7 @@ description: |-
   A `Site` represents a Firebase Hosting site.
 ---
 
-# google\_firebase\_hosting\_site
+# google_firebase_hosting_site
 
 A `Site` represents a Firebase Hosting site.
 

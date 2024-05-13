@@ -4,7 +4,7 @@ description: |-
   Manages a folder-level logging bucket config.
 ---
 
-# google\_logging\_folder\_bucket\_config
+# google_logging_folder_bucket_config
 
 Manages a folder-level logging bucket config. For more information see
 [the official logging documentation](https://cloud.google.com/logging/docs/) and

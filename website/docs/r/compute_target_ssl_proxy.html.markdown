@@ -19,7 +19,7 @@ description: |-
   service.
 ---
 
-# google\_compute\_target\_ssl\_proxy
+# google_compute_target_ssl_proxy
 
 Represents a TargetSslProxy resource, which is used by one or more
 global forwarding rule to route incoming SSL requests to a backend

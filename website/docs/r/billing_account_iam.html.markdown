@@ -16,7 +16,7 @@ Three different resources help you manage IAM policies on billing accounts. Each
 
 ~> **Note:** `google_billing_account_iam_binding` resources **can be** used in conjunction with `google_billing_account_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_billing\_account\_iam\_policy
+## google_billing_account_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -34,7 +34,7 @@ resource "google_billing_account_iam_policy" "editor" {
 }
 ```
 
-## google\_billing\_account\_iam\_binding
+## google_billing_account_iam_binding
 
 ```hcl
 resource "google_billing_account_iam_binding" "editor" {
@@ -46,7 +46,7 @@ resource "google_billing_account_iam_binding" "editor" {
 }
 ```
 
-## google\_billing\_account\_iam\_member
+## google_billing_account_iam_member
 
 ```hcl
 resource "google_billing_account_iam_member" "editor" {

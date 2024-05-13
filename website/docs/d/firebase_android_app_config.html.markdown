@@ -4,7 +4,7 @@ description: |-
   A Google Cloud Firebase Android application configuration
 ---
 
-# google\_firebase\_android\_app\_config
+# google_firebase_android_app_config
 
 A Google Cloud Firebase Android application configuration
 

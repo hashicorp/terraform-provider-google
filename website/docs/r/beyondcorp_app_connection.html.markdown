@@ -17,7 +17,7 @@ description: |-
   A BeyondCorp AppConnection resource represents a BeyondCorp protected AppConnection to a remote application.
 ---
 
-# google\_beyondcorp\_app\_connection
+# google_beyondcorp_app_connection
 
 A BeyondCorp AppConnection resource represents a BeyondCorp protected AppConnection to a remote application.
 It creates all the necessary GCP components needed for creating a BeyondCorp protected AppConnection. 

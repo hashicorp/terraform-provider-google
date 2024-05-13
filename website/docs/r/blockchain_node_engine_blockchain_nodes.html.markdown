@@ -17,7 +17,7 @@ description: |-
   A representation of a blockchain node.
 ---
 
-# google\_blockchain\_node\_engine\_blockchain\_nodes
+# google_blockchain_node_engine_blockchain_nodes
 
 A representation of a blockchain node.
 

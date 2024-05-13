@@ -18,7 +18,7 @@ description: |-
   a whole.
 ---
 
-# google\_compute\_network\_peering\_routes\_config
+# google_compute_network_peering_routes_config
 
 Manage a network peering's route settings without managing the peering as
 a whole. This resource is primarily intended for use with GCP-generated

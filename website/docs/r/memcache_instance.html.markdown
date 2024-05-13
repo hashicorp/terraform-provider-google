@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Memcache instance.
 ---
 
-# google\_memcache\_instance
+# google_memcache_instance
 
 A Google Cloud Memcache instance.
 

@@ -17,7 +17,7 @@ description: |-
   Cloud Firestore indexes enable simple and complex queries against documents in a database.
 ---
 
-# google\_firestore\_index
+# google_firestore_index
 
 Cloud Firestore indexes enable simple and complex queries against documents in a database.
  This resource manages composite indexes and not single

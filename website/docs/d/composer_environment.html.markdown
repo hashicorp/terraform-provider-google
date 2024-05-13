@@ -4,7 +4,7 @@ description: |-
   Provides Cloud Composer environment configuration data.
 ---
 
-# google\_composer\_environment
+# google_composer_environment
 
 Provides access to Cloud Composer environment configuration in a region for a given project.
 

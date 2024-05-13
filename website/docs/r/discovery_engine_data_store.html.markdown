@@ -18,7 +18,7 @@ description: |-
   end-user's questions in Discovery Engine (a.
 ---
 
-# google\_discovery\_engine\_data\_store
+# google_discovery_engine_data_store
 
 Data store is a collection of websites and documents used to find answers for
 end-user's questions in Discovery Engine (a.k.a. Vertex AI Search and

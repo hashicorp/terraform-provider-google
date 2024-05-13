@@ -19,7 +19,7 @@ description: |-
   regions of services able to freely pass data within a perimeter).
 ---
 
-# google\_access\_context\_manager\_access\_policy
+# google_access_context_manager_access_policy
 
 AccessPolicy is a container for AccessLevels (which define the necessary
 attributes to use GCP services) and ServicePerimeters (which define

@@ -17,7 +17,7 @@ description: |-
   Represents the settings related to security issues, such as data redaction and data retention.
 ---
 
-# google\_dialogflow\_cx\_security\_settings
+# google_dialogflow_cx_security_settings
 
 Represents the settings related to security issues, such as data redaction and data retention. It may take hours for updates on the settings to propagate to all the related components and take effect.
 Multiple security settings can be configured in each location. Each agent can specify the security settings to apply, and each setting can be applied to multiple agents in the same project and location.

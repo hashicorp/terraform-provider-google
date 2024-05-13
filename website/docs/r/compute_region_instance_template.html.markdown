@@ -4,7 +4,7 @@ description: |-
   Manages a VM instance template resource within GCE.
 ---
 
-# google\_compute\_region\_instance\_template
+# google_compute_region_instance_template
 
 Manages a VM instance template resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instance-templates)

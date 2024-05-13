@@ -4,7 +4,7 @@ description: |-
   Retrieve a set of folders based on a parent ID.
 ---
 
-# google\_folders
+# google_folders
 
 Retrieve information about a set of folders based on a parent ID. See the
 [REST API](https://cloud.google.com/resource-manager/reference/rest/v3/folders/list)

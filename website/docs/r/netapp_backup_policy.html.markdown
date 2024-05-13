@@ -17,7 +17,7 @@ description: |-
   A backup policy is used to schedule backups at regular daily, weekly, or monthly intervals.
 ---
 
-# google\_netapp\_backup\_policy
+# google_netapp_backup_policy
 
 A backup policy is used to schedule backups at regular daily, weekly, or monthly intervals.
 Backup policies allow you to attach a backup schedule to a volume.

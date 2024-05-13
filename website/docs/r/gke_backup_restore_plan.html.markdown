@@ -17,7 +17,7 @@ description: |-
   Represents a Restore Plan instance.
 ---
 
-# google\_gke\_backup\_restore\_plan
+# google_gke_backup_restore_plan
 
 Represents a Restore Plan instance.
 

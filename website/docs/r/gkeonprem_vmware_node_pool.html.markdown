@@ -17,7 +17,7 @@ description: |-
   A Google Vmware Node Pool.
 ---
 
-# google\_gkeonprem\_vmware\_node\_pool
+# google_gkeonprem_vmware_node_pool
 
 A Google Vmware Node Pool.
 

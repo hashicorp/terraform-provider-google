@@ -4,7 +4,7 @@ description: |-
   Creates a job in Dataflow according to a provided config file.
 ---
 
-# google\_dataflow\_job
+# google_dataflow_job
 
 Creates a job on Dataflow, which is an implementation of Apache Beam running on Google Compute Engine. For more information see
 the official documentation for

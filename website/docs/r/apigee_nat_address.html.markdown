@@ -17,7 +17,7 @@ description: |-
   Apigee NAT (network address translation) address.
 ---
 
-# google\_apigee\_nat\_address
+# google_apigee_nat_address
 
 Apigee NAT (network address translation) address. A NAT address is a static external IP address used for Internet egress traffic. This is not avaible for Apigee hybrid.
 Apigee NAT addresses are not automatically activated because they might require explicit allow entries on the target systems first. See https://cloud.google.com/apigee/docs/reference/apis/apigee/rest/v1/organizations.instances.natAddresses/activate

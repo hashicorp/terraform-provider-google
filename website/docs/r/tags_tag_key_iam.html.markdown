@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_tags\_tag\_key\_iam\_policy
+## google_tags_tag_key_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -53,7 +52,7 @@ resource "google_tags_tag_key_iam_policy" "policy" {
 }
 ```
 
-## google\_tags\_tag\_key\_iam\_binding
+## google_tags_tag_key_iam_binding
 
 ```hcl
 resource "google_tags_tag_key_iam_binding" "binding" {
@@ -65,7 +64,7 @@ resource "google_tags_tag_key_iam_binding" "binding" {
 }
 ```
 
-## google\_tags\_tag\_key\_iam\_member
+## google_tags_tag_key_iam_member
 
 ```hcl
 resource "google_tags_tag_key_iam_member" "member" {

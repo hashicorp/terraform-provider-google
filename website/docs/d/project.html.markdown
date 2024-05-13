@@ -4,7 +4,7 @@ description: |-
   Retrieve project details
 ---
 
-# google\_project
+# google_project
 
 Use this data source to get project details.
 For more information see

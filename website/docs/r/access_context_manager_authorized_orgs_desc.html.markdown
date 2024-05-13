@@ -21,7 +21,7 @@ description: |-
   another organization at the enforcement points.
 ---
 
-# google\_access\_context\_manager\_authorized\_orgs\_desc
+# google_access_context_manager_authorized_orgs_desc
 
 An authorized organizations description describes a list of organizations
 (1) that have been authorized to use certain asset (for example, device) data

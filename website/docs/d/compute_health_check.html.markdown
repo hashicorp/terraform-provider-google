@@ -4,7 +4,7 @@ description: |-
   Get information about a HealthCheck.
 ---
 
-# google\_compute\_health\_check
+# google_compute_health_check
 
 Get information about a HealthCheck.
 

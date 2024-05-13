@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Redis Cluster instance.
 ---
 
-# google\_redis\_cluster
+# google_redis_cluster
 
 A Google Cloud Redis Cluster instance.
 

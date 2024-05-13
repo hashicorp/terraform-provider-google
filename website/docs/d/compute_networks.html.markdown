@@ -4,7 +4,7 @@ description: |-
   List networks in a Google Cloud project.
 ---
 
-# google\_compute\_networks
+# google_compute_networks
 
 List all networks in a specified Google Cloud project.
 

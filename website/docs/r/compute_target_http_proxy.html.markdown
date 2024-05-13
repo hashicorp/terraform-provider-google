@@ -18,7 +18,7 @@ description: |-
   forwarding rule to route incoming HTTP requests to a URL map.
 ---
 
-# google\_compute\_target\_http\_proxy
+# google_compute_target_http_proxy
 
 Represents a TargetHttpProxy resource, which is used by one or more global
 forwarding rule to route incoming HTTP requests to a URL map.

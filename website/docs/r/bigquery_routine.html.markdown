@@ -17,7 +17,7 @@ description: |-
   A user-defined function or a stored procedure that belongs to a Dataset
 ---
 
-# google\_bigquery\_routine
+# google_bigquery_routine
 
 A user-defined function or a stored procedure that belongs to a Dataset
 

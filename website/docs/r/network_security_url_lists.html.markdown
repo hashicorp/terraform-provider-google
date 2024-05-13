@@ -17,7 +17,7 @@ description: |-
   UrlList proto helps users to set reusable, independently manageable lists of hosts, host patterns, URLs, URL patterns.
 ---
 
-# google\_network\_security\_url\_lists
+# google_network_security_url_lists
 
 UrlList proto helps users to set reusable, independently manageable lists of hosts, host patterns, URLs, URL patterns.
 

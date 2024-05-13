@@ -17,7 +17,7 @@ description: |-
   "A set of Kubernetes nodes in a cluster with common configuration and specification.
 ---
 
-# google\_edgecontainer\_node\_pool
+# google_edgecontainer_node_pool
 
 "A set of Kubernetes nodes in a cluster with common configuration and specification."
 

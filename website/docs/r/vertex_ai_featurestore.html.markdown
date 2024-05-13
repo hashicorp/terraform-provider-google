@@ -17,7 +17,7 @@ description: |-
   A collection of DataItems and Annotations on them.
 ---
 
-# google\_vertex\_ai\_featurestore
+# google_vertex_ai_featurestore
 
 A collection of DataItems and Annotations on them.
 

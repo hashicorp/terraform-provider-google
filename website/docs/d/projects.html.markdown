@@ -4,7 +4,7 @@ description: |-
   Retrieve a set of projects based on a filter.
 ---
 
-# google\_projects
+# google_projects
 
 Retrieve information about a set of projects based on a filter. See the
 [REST API](https://cloud.google.com/resource-manager/reference/rest/v1/projects/list)

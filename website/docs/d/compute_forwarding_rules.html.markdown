@@ -4,7 +4,7 @@ description: |-
   List forwarding rules in a region of a Google Cloud project.
 ---
 
-# google\_compute\_forwarding\_rules
+# google_compute_forwarding_rules
 
 List all networks in a specified Google Cloud project.
 

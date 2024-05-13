@@ -17,7 +17,7 @@ description: |-
   Allows configuring a single access level condition to be appended to an access level's conditions.
 ---
 
-# google\_access\_context\_manager\_access\_level\_condition
+# google_access_context_manager_access_level_condition
 
 Allows configuring a single access level condition to be appended to an access level's conditions.
 This resource is intended to be used in cases where it is not possible to compile a full list

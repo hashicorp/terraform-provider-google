@@ -17,7 +17,7 @@ description: |-
   Represents a Dialogflow intent.
 ---
 
-# google\_dialogflow\_intent
+# google_dialogflow_intent
 
 Represents a Dialogflow intent. Intents convert a number of user expressions or patterns into an action. An action
 is an extraction of a user command or sentence semantics.

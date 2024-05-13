@@ -17,7 +17,7 @@ description: |-
   Tags are used to attach custom metadata to Data Catalog resources.
 ---
 
-# google\_data\_catalog\_tag
+# google_data_catalog_tag
 
 Tags are used to attach custom metadata to Data Catalog resources. Tags conform to the specifications within their tag template.
 

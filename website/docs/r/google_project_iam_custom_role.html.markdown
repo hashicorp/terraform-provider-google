@@ -4,7 +4,7 @@ description: |-
  Allows management of a customized Cloud IAM project role.
 ---
 
-# google\_project\_iam\_custom\_role
+# google_project_iam_custom_role
 
 Allows management of a customized Cloud IAM project role. For more information see
 [the official documentation](https://cloud.google.com/iam/docs/understanding-custom-roles)

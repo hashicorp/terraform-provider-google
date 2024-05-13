@@ -17,7 +17,7 @@ description: |-
   Entities are extracted from user input and represent parameters that are meaningful to your application.
 ---
 
-# google\_dialogflow\_cx\_entity\_type
+# google_dialogflow_cx_entity_type
 
 Entities are extracted from user input and represent parameters that are meaningful to your application.
 For example, a date range, a proper name such as a geographic location or landmark, and so on. Entities represent actionable data for your application.

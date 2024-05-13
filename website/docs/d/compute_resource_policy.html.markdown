@@ -4,7 +4,7 @@ description: |-
   Provide access to a Resource Policy's attributes
 ---
 
-# google\_compute\_resource\_policy
+# google_compute_resource_policy
 
 Provide access to a Resource Policy's attributes. For more information see [the official documentation](https://cloud.google.com/compute/docs/disks/scheduled-snapshots) or the [API](https://cloud.google.com/compute/docs/reference/rest/beta/resourcePolicies).
 

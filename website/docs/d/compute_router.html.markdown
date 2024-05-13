@@ -4,7 +4,7 @@ description: |-
   Get a Cloud Router within GCE.
 ---
 
-# google\_compute\_router
+# google_compute_router
 
 Get a router within GCE from its name and VPC.
 

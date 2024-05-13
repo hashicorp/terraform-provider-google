@@ -17,7 +17,7 @@ description: |-
   An `Environment` in Apigee.
 ---
 
-# google\_apigee\_environment
+# google_apigee_environment
 
 An `Environment` in Apigee.
 

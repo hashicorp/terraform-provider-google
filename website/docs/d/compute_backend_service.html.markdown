@@ -4,7 +4,7 @@ description: |-
   Get information about a Backend Service.
 ---
 
-# google\_compute\_backend\_service
+# google_compute_backend_service
 
 Provide access to a Backend Service's attribute. For more information
 see [the official documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)

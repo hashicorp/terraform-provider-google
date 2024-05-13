@@ -4,7 +4,7 @@ description: |-
   Manages a network peering within GCE.
 ---
 
-# google\_compute\_network\_peering
+# google_compute_network_peering
 
 Manages a network peering within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/vpc/vpc-peering)

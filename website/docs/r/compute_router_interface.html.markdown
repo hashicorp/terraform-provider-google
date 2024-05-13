@@ -4,7 +4,7 @@ description: |-
   Manages a Cloud Router interface.
 ---
 
-# google\_compute\_router_interface
+# google_compute_router_interface
 
 Manages a Cloud Router interface. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/cloudrouter)

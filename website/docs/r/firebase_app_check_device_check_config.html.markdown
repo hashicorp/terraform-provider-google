@@ -17,7 +17,7 @@ description: |-
   An app's DeviceCheck configuration object.
 ---
 
-# google\_firebase\_app\_check\_device\_check\_config
+# google_firebase_app_check_device_check_config
 
 An app's DeviceCheck configuration object. Note that the Team ID registered with your
 app is used as part of the validation process. Make sure your `google_firebase_apple_app` has a team_id present.

@@ -17,7 +17,7 @@ description: |-
   A key for signing Cloud CDN signed URLs for BackendBuckets.
 ---
 
-# google\_compute\_backend\_bucket\_signed\_url\_key
+# google_compute_backend_bucket_signed_url_key
 
 A key for signing Cloud CDN signed URLs for BackendBuckets.
 

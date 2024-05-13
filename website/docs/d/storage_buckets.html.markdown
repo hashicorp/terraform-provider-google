@@ -5,7 +5,7 @@ description: |-
 ---
 
 
-# google\_storage\_buckets
+# google_storage_buckets
 
 Gets a list of existing GCS buckets.
 See [the official documentation](https://cloud.google.com/storage/docs/introduction)

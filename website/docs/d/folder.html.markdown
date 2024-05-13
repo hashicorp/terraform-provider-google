@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Folder.
 ---
 
-# google\_folder
+# google_folder
 
 Use this data source to get information about a Google Cloud Folder.
 

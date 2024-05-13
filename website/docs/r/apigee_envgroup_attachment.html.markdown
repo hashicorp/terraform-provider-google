@@ -17,7 +17,7 @@ description: |-
   An `Environment Group attachment` in Apigee.
 ---
 
-# google\_apigee\_envgroup\_attachment
+# google_apigee_envgroup_attachment
 
 An `Environment Group attachment` in Apigee.
 

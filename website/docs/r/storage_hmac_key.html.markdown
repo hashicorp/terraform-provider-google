@@ -17,7 +17,7 @@ description: |-
   The hmacKeys resource represents an HMAC key within Cloud Storage.
 ---
 
-# google\_storage\_hmac\_key
+# google_storage_hmac_key
 
 The hmacKeys resource represents an HMAC key within Cloud Storage. The resource
 consists of a secret and HMAC key metadata. HMAC keys can be used as credentials

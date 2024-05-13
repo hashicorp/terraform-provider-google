@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Run v2 Job.
 ---
 
-# google\_cloud\_run\_v2\_job
+# google_cloud_run_v2_job
 
 Get information about a Google Cloud Run v2 Job. For more information see
 the [official documentation](https://cloud.google.com/run/docs/)

@@ -17,7 +17,7 @@ description: |-
   The default version for the processor.
 ---
 
-# google\_document\_ai\_processor\_default\_version
+# google_document_ai_processor_default_version
 
 The default version for the processor. Deleting this resource is a no-op, and does not unset the default version.
 

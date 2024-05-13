@@ -4,7 +4,7 @@ description: |-
   Get information about a Google BeyondCorp App Connection.
 ---
 
-# google\_beyondcorp\_app\_connection
+# google_beyondcorp_app_connection
 
 Get information about a Google BeyondCorp App Connection.
 

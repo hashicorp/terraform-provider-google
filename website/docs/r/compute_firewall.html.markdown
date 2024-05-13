@@ -18,7 +18,7 @@ description: |-
   instances.
 ---
 
-# google\_compute\_firewall
+# google_compute_firewall
 
 Each network has its own firewall controlling access to and from the
 instances.

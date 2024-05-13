@@ -17,7 +17,7 @@ description: |-
   Rules to match an HTTP request and dispatch that request to a service.
 ---
 
-# google\_app\_engine\_application\_url\_dispatch\_rules
+# google_app_engine_application_url_dispatch_rules
 
 Rules to match an HTTP request and dispatch that request to a service.
 

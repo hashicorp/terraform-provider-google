@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_bigquery\_analytics\_hub\_listing\_iam\_policy
+## google_bigquery_analytics_hub_listing_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -56,7 +55,7 @@ resource "google_bigquery_analytics_hub_listing_iam_policy" "policy" {
 }
 ```
 
-## google\_bigquery\_analytics\_hub\_listing\_iam\_binding
+## google_bigquery_analytics_hub_listing_iam_binding
 
 ```hcl
 resource "google_bigquery_analytics_hub_listing_iam_binding" "binding" {
@@ -71,7 +70,7 @@ resource "google_bigquery_analytics_hub_listing_iam_binding" "binding" {
 }
 ```
 
-## google\_bigquery\_analytics\_hub\_listing\_iam\_member
+## google_bigquery_analytics_hub_listing_iam_member
 
 ```hcl
 resource "google_bigquery_analytics_hub_listing_iam_member" "member" {

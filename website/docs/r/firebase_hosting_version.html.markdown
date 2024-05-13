@@ -17,7 +17,7 @@ description: |-
   A `Version` is a configuration which determine how a site is displayed.
 ---
 
-# google\_firebase\_hosting\_version
+# google_firebase_hosting_version
 
 A `Version` is a configuration which determine how a site is displayed. Static files are not supported at the moment.
 

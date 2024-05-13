@@ -17,7 +17,7 @@ description: |-
   Describes a BigQuery linked dataset
 ---
 
-# google\_logging\_linked\_dataset
+# google_logging_linked_dataset
 
 Describes a BigQuery linked dataset
 

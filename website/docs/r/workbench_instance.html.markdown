@@ -17,7 +17,7 @@ description: |-
   A Workbench instance.
 ---
 
-# google\_workbench\_instance
+# google_workbench_instance
 
 A Workbench instance.
 

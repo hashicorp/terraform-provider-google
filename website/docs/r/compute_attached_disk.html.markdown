@@ -4,7 +4,7 @@ description: |-
   Resource that allows attaching existing persistent disks to compute instances.
 ---
 
-# google\_compute\_attached\_disk
+# google_compute_attached_disk
 
 Persistent disks can be attached to a compute instance using [the `attached_disk`
 section within the compute instance configuration](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_instance#attached_disk).

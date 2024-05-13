@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Filestore instance.
 ---
 
-# google\_filestore\_instance
+# google_filestore_instance
 
 Get info about a Google Cloud Filestore instance.
 

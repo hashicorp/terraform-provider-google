@@ -19,7 +19,7 @@ Three different resources help you manage your IAM policy for a Spanner database
 
 ~> **Note:** `google_spanner_database_iam_binding` resources **can be** used in conjunction with `google_spanner_database_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_spanner\_database\_iam\_policy
+## google_spanner_database_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -65,7 +65,7 @@ resource "google_spanner_database_iam_policy" "database" {
 }
 ```
 
-## google\_spanner\_database\_iam\_binding
+## google_spanner_database_iam_binding
 
 ```hcl
 resource "google_spanner_database_iam_binding" "database" {
@@ -99,7 +99,7 @@ resource "google_spanner_database_iam_binding" "database" {
 }
 ```
 
-## google\_spanner\_database\_iam\_member
+## google_spanner_database_iam_member
 
 ```hcl
 resource "google_spanner_database_iam_member" "database" {

@@ -17,7 +17,7 @@ description: |-
   Represents an Address resource.
 ---
 
-# google\_compute\_address
+# google_compute_address
 
 Represents an Address resource.
 

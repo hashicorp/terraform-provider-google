@@ -18,7 +18,7 @@ description: |-
   that have been issued for a particular hostname
 ---
 
-# google\_certificate\_manager\_certificate\_map\_entry
+# google_certificate_manager_certificate_map_entry
 
 CertificateMapEntry is a list of certificate configurations,
 that have been issued for a particular hostname

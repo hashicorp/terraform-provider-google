@@ -17,7 +17,7 @@ description: |-
   Scope represents a Scope in a Fleet.
 ---
 
-# google\_gke\_hub\_scope
+# google_gke_hub_scope
 
 Scope represents a Scope in a Fleet.
 

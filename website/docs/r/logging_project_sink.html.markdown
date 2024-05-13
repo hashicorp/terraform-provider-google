@@ -4,7 +4,7 @@ description: |-
   Manages a project-level logging sink.
 ---
 
-# google\_logging\_project\_sink
+# google_logging_project_sink
 
 Manages a project-level logging sink. For more information see:
 

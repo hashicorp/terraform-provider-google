@@ -18,7 +18,7 @@ description: |-
   its full module name, display name, enablement state, and last updated time.
 ---
 
-# google\_scc\_project\_custom\_module
+# google_scc_project_custom_module
 
 Represents an instance of a Security Health Analytics custom module, including
 its full module name, display name, enablement state, and last updated time.

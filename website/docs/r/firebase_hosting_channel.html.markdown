@@ -17,7 +17,7 @@ description: |-
   A `Channel` represents a stream of releases for a site.
 ---
 
-# google\_firebase\_hosting\_channel
+# google_firebase_hosting_channel
 
 A `Channel` represents a stream of releases for a site. All sites have a default
 `live` channel that serves content to the Firebase-provided subdomains and any

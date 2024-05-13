@@ -17,7 +17,7 @@ description: |-
   Traffic routing configuration for versions within a single service.
 ---
 
-# google\_app\_engine\_service\_split\_traffic
+# google_app_engine_service_split_traffic
 
 Traffic routing configuration for versions within a single service. Traffic splits define how traffic directed to the service is assigned to versions.
 

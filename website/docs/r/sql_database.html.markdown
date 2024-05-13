@@ -18,7 +18,7 @@ description: |-
   Google's cloud.
 ---
 
-# google\_sql\_database
+# google_sql_database
 
 Represents a SQL database inside the Cloud SQL instance, hosted in
 Google's cloud.

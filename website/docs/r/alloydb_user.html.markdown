@@ -17,7 +17,7 @@ description: |-
   A database user in an AlloyDB cluster.
 ---
 
-# google\_alloydb\_user
+# google_alloydb_user
 
 A database user in an AlloyDB cluster.
 

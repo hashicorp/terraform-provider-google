@@ -19,7 +19,7 @@ description: |-
   when no ACL was provided for that object.
 ---
 
-# google\_storage\_default\_object\_access\_control
+# google_storage_default_object_access_control
 
 The DefaultObjectAccessControls resources represent the Access Control
 Lists (ACLs) applied to a new object within a Google Cloud Storage bucket

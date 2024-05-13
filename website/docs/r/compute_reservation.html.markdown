@@ -17,7 +17,7 @@ description: |-
   Represents a reservation resource.
 ---
 
-# google\_compute\_reservation
+# google_compute_reservation
 
 Represents a reservation resource. A reservation ensures that capacity is
 held in a specific zone even if the reserved VMs are not running.

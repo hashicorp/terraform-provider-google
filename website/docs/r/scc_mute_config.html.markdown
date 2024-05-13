@@ -20,7 +20,7 @@ description: |-
   findings based on criteria you specify.
 ---
 
-# google\_scc\_mute\_config
+# google_scc_mute_config
 
 Mute Findings is a volume management feature in Security Command Center
 that lets you manually or programmatically hide irrelevant findings,

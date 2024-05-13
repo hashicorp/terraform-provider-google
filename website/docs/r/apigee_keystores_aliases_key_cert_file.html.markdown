@@ -4,7 +4,7 @@ description: |-
   An alias from a key/certificate pair.
 ---
 
-# google\_apigee\_keystores\_aliases\_key\_cert\_file
+# google_apigee_keystores_aliases_key_cert_file
 
 An alias from a key/certificate pair.
 

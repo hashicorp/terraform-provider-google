@@ -17,7 +17,7 @@ description: |-
   Cloud IDS is an intrusion detection service that provides threat detection for intrusions, malware, spyware, and command-and-control attacks on your network.
 ---
 
-# google\_cloud\_ids\_endpoint
+# google_cloud_ids_endpoint
 
 Cloud IDS is an intrusion detection service that provides threat detection for intrusions, malware, spyware, and command-and-control attacks on your network.
 

@@ -17,7 +17,7 @@ description: |-
   Restricts access to Cloud Console and Google Cloud APIs for a set of users using Context-Aware Access.
 ---
 
-# google\_access\_context\_manager\_gcp\_user\_access\_binding
+# google_access_context_manager_gcp_user_access_binding
 
 Restricts access to Cloud Console and Google Cloud APIs for a set of users using Context-Aware Access.
 

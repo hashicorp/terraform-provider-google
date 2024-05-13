@@ -17,7 +17,7 @@ description: |-
   Replace all existing Access Levels in an Access Policy with the Access Levels provided.
 ---
 
-# google\_access\_context\_manager\_access\_levels
+# google_access_context_manager_access_levels
 
 Replace all existing Access Levels in an Access Policy with the Access Levels provided. This is done atomically.
 This is a bulk edit of all Access Levels and may override existing Access Levels created by `google_access_context_manager_access_level`,

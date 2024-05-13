@@ -17,7 +17,7 @@ description: |-
   A Release is a particular collection of configurations that is set to be public at a particular time.
 ---
 
-# google\_firebase\_hosting\_release
+# google_firebase_hosting_release
 
 A Release is a particular collection of configurations that is set to be public at a particular time.
 

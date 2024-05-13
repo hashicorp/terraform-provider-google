@@ -18,7 +18,7 @@ description: |-
   that terminates traffic of certain protocols.
 ---
 
-# google\_compute\_target\_instance
+# google_compute_target_instance
 
 Represents a TargetInstance resource which defines an endpoint instance
 that terminates traffic of certain protocols. In particular, they are used

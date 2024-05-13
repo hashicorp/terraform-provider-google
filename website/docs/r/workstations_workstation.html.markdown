@@ -17,7 +17,7 @@ description: |-
   A single instance of a developer workstation with its own persistent storage.
 ---
 
-# google\_workstations\_workstation
+# google_workstations_workstation
 
 A single instance of a developer workstation with its own persistent storage.
 

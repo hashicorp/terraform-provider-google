@@ -4,7 +4,7 @@ description: |-
   A Google Cloud Firebase web application instance
 ---
 
-# google\_firebase\_web\_app
+# google_firebase_web_app
 
 A Google Cloud Firebase web application instance
 

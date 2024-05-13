@@ -17,7 +17,7 @@ description: |-
   A Cloud Security Command Center (Cloud SCC) notification configs.
 ---
 
-# google\_scc\_notification\_config
+# google_scc_notification_config
 
 A Cloud Security Command Center (Cloud SCC) notification configs. A
 notification config is a Cloud SCC resource that contains the

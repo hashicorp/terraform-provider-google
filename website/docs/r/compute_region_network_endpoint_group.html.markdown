@@ -17,7 +17,7 @@ description: |-
   A regional NEG that can support Serverless Products and proxying traffic to external backends.
 ---
 
-# google\_compute\_region\_network\_endpoint\_group
+# google_compute_region_network_endpoint_group
 
 A regional NEG that can support Serverless Products and proxying traffic to external backends.
 

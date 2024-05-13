@@ -17,7 +17,7 @@ description: |-
   Billing information for a project.
 ---
 
-# google\_billing\_project\_info
+# google_billing_project_info
 
 Billing information for a project.
 

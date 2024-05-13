@@ -17,7 +17,7 @@ description: |-
   NetApp Volumes always encrypts your data at rest using volume-specific keys.
 ---
 
-# google\_netapp\_kmsconfig
+# google_netapp_kmsconfig
 
 NetApp Volumes always encrypts your data at rest using volume-specific keys.
 

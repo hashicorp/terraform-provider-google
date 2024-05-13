@@ -17,7 +17,7 @@ description: |-
   Organization security policies are used to control incoming/outgoing traffic.
 ---
 
-# google\_compute\_organization\_security\_policy
+# google_compute_organization_security_policy
 
 Organization security policies are used to control incoming/outgoing traffic.
 

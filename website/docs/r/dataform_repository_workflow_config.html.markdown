@@ -17,7 +17,7 @@ description: |-
   A resource represents a Dataform workflow configuration
 ---
 
-# google\_dataform\_repository\_workflow\_config
+# google_dataform_repository_workflow_config
 
 A resource represents a Dataform workflow configuration
 

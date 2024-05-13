@@ -17,7 +17,7 @@ description: |-
   A CertificateAuthority represents an individual Certificate Authority.
 ---
 
-# google\_privateca\_certificate\_authority
+# google_privateca_certificate_authority
 
 A CertificateAuthority represents an individual Certificate Authority. A
 CertificateAuthority can be used to create Certificates.

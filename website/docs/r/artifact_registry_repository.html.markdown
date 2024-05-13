@@ -17,7 +17,7 @@ description: |-
   A repository for storing artifacts
 ---
 
-# google\_artifact\_registry\_repository
+# google_artifact_registry_repository
 
 A repository for storing artifacts
 

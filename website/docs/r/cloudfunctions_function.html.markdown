@@ -4,7 +4,7 @@ description: |-
   Creates a new Cloud Function.
 ---
 
-# google\_cloudfunctions\_function
+# google_cloudfunctions_function
 
 Creates a new Cloud Function. For more information see:
 

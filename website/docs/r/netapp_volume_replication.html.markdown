@@ -17,7 +17,7 @@ description: |-
   Volume replication creates an asynchronous mirror of a volume in a different location.
 ---
 
-# google\_netapp\_volume\_replication
+# google_netapp_volume_replication
 
 Volume replication creates an asynchronous mirror of a volume in a different location. This capability
 lets you use the replicated volume for critical application activity in case of a location-wide outage

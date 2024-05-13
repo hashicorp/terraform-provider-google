@@ -17,7 +17,7 @@ description: |-
   Replace all existing Service Perimeters in an Access Policy with the Service Perimeters provided.
 ---
 
-# google\_access\_context\_manager\_service\_perimeters
+# google_access_context_manager_service_perimeters
 
 Replace all existing Service Perimeters in an Access Policy with the Service Perimeters provided. This is done atomically.
 This is a bulk edit of all Service Perimeters and may override existing Service Perimeters created by `google_access_context_manager_service_perimeter`,

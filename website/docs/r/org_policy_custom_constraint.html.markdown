@@ -17,7 +17,7 @@ description: |-
   Custom constraints are created by administrators to provide more granular and customizable control over the specific fields that are restricted by your organization policies.
 ---
 
-# google\_org\_policy\_custom\_constraint
+# google_org_policy_custom_constraint
 
 Custom constraints are created by administrators to provide more granular and customizable control over the specific fields that are restricted by your organization policies.
 

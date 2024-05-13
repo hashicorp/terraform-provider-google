@@ -4,7 +4,7 @@ description: |-
   Get a Serverless VPC Access connector.
 ---
 
-# google\_vpc\_access\_connector
+# google_vpc_access_connector
 
 Get a Serverless VPC Access connector.
 

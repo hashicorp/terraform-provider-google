@@ -17,7 +17,7 @@ description: |-
   An API Configuration is an association of an API Controller Config and a Gateway Config
 ---
 
-# google\_api\_gateway\_api\_config
+# google_api_gateway_api_config
 
 An API Configuration is an association of an API Controller Config and a Gateway Config
 

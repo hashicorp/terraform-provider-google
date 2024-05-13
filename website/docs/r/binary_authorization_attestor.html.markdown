@@ -17,7 +17,7 @@ description: |-
   An attestor that attests to container image artifacts.
 ---
 
-# google\_binary\_authorization\_attestor
+# google_binary_authorization_attestor
 
 An attestor that attests to container image artifacts.
 

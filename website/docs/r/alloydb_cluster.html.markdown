@@ -17,7 +17,7 @@ description: |-
   A managed alloydb cluster.
 ---
 
-# google\_alloydb\_cluster
+# google_alloydb_cluster
 
 A managed alloydb cluster.
 

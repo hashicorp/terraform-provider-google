@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_clouddeploy\_delivery\_pipeline\_iam\_policy
+## google_clouddeploy_delivery_pipeline_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -55,7 +54,7 @@ resource "google_clouddeploy_delivery_pipeline_iam_policy" "policy" {
 }
 ```
 
-## google\_clouddeploy\_delivery\_pipeline\_iam\_binding
+## google_clouddeploy_delivery_pipeline_iam_binding
 
 ```hcl
 resource "google_clouddeploy_delivery_pipeline_iam_binding" "binding" {
@@ -69,7 +68,7 @@ resource "google_clouddeploy_delivery_pipeline_iam_binding" "binding" {
 }
 ```
 
-## google\_clouddeploy\_delivery\_pipeline\_iam\_member
+## google_clouddeploy_delivery_pipeline_iam_member
 
 ```hcl
 resource "google_clouddeploy_delivery_pipeline_iam_member" "member" {

@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud RuntimeConfig.
 ---
 
-# google\_runtimeconfig\_config
+# google_runtimeconfig_config
 
 To get more information about RuntimeConfigs, see:
 

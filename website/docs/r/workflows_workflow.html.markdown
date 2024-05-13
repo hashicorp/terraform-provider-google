@@ -17,7 +17,7 @@ description: |-
   Workflow program to be executed by Workflows.
 ---
 
-# google\_workflows\_workflow
+# google_workflows_workflow
 
 Workflow program to be executed by Workflows.
 

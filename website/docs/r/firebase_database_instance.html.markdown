@@ -17,7 +17,7 @@ description: |-
   A Firebase Realtime Database instance.
 ---
 
-# google\_firebase\_database\_instance
+# google_firebase_database_instance
 
 A Firebase Realtime Database instance.
 

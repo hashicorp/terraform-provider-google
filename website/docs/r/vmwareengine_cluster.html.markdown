@@ -17,7 +17,7 @@ description: |-
   A cluster in a private cloud.
 ---
 
-# google\_vmwareengine\_cluster
+# google_vmwareengine_cluster
 
 A cluster in a private cloud.
 

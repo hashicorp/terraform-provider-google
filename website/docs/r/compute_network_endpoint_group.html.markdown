@@ -19,7 +19,7 @@ description: |-
   single subnet.
 ---
 
-# google\_compute\_network\_endpoint\_group
+# google_compute_network_endpoint_group
 
 Network endpoint groups (NEGs) are zonal resources that represent
 collections of IP address and port combinations for GCP resources within a

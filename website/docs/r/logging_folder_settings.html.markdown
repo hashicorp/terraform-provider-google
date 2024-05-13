@@ -17,7 +17,7 @@ description: |-
   Default resource settings control whether CMEK is required for new log buckets.
 ---
 
-# google\_logging\_folder\_settings
+# google_logging_folder_settings
 
 Default resource settings control whether CMEK is required for new log buckets. These settings also determine the storage location for the _Default and _Required log buckets, and whether the _Default sink is enabled or disabled.
 

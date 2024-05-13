@@ -17,7 +17,7 @@ description: |-
   A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 ---
 
-# google\_kms\_crypto\_key
+# google_kms_crypto_key
 
 A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 

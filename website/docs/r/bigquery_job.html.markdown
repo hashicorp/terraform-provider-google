@@ -17,7 +17,7 @@ description: |-
   Jobs are actions that BigQuery runs on your behalf to load data, export data, query data, or copy data.
 ---
 
-# google\_bigquery\_job
+# google_bigquery_job
 
 Jobs are actions that BigQuery runs on your behalf to load data, export data, query data, or copy data.
 Once a BigQuery job is created, it cannot be changed or deleted.

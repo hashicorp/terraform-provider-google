@@ -17,7 +17,7 @@ description: |-
   An intent represents a user's intent to interact with a conversational agent.
 ---
 
-# google\_dialogflow\_cx\_intent
+# google_dialogflow_cx_intent
 
 An intent represents a user's intent to interact with a conversational agent.
 

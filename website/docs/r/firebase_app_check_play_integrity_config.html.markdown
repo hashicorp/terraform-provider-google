@@ -17,7 +17,7 @@ description: |-
   An app's Play Integrity configuration object.
 ---
 
-# google\_firebase\_app\_check\_play\_integrity\_config
+# google_firebase_app_check_play_integrity_config
 
 An app's Play Integrity configuration object. Note that your registered SHA-256 certificate fingerprints are used to validate tokens issued by the Play Integrity API.
 Make sure your `google_firebase_android_app` has at least one `sha256_hashes` present.

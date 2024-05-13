@@ -4,7 +4,7 @@ description: |-
   Authoritatively manages the default object ACLs for a Google Cloud Storage bucket
 ---
 
-# google\_storage\_default\_object\_acl
+# google_storage_default_object_acl
 
 Authoritatively manages the default object ACLs for a Google Cloud Storage bucket
 without managing the bucket itself.

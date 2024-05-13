@@ -17,7 +17,7 @@ description: |-
   A Cloud TPU VM instance.
 ---
 
-# google\_tpu\_v2\_vm
+# google_tpu_v2_vm
 
 A Cloud TPU VM instance.
 

@@ -4,7 +4,7 @@ description: |-
  Allows management of a Google Cloud Platform service account.
 ---
 
-# google\_service\_account
+# google_service_account
 
 Allows management of a Google Cloud service account.
 

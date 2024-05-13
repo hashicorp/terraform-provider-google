@@ -17,7 +17,7 @@ description: |-
   An association between a Firebase project and a Google Cloud Storage bucket.
 ---
 
-# google\_firebase\_storage\_bucket
+# google_firebase_storage_bucket
 
 An association between a Firebase project and a Google Cloud Storage bucket.
 This association enables integration of Cloud Storage buckets with Firebase such as Firebase SDKS, Authentication, and Security Rules.

@@ -17,7 +17,7 @@ description: |-
   A set of configuration options describing how a workstation will be run.
 ---
 
-# google\_workstations\_workstation\_config
+# google_workstations_workstation_config
 
 A set of configuration options describing how a workstation will be run. Workstation configurations are intended to be shared across multiple workstations.
 

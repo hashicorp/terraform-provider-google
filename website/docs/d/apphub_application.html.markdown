@@ -4,7 +4,7 @@ description: |-
   Application is a functional grouping of Services and Workloads that helps achieve a desired end-to-end business functionality.
 ---
 
-# google\_apphub\_application
+# google_apphub_application
 
 Application is a functional grouping of Services and Workloads that helps achieve a desired end-to-end business functionality. Services and Workloads are owned by the Application.
 

@@ -4,7 +4,7 @@ description: |-
   Creates a Google Kubernetes Engine (GKE) cluster.
 ---
 
-# google\_container\_cluster
+# google_container_cluster
 
 Manages a Google Kubernetes Engine (GKE) cluster.
 

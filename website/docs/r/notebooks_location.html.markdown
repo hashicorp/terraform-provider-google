@@ -17,7 +17,7 @@ description: |-
   Represents a Location resource.
 ---
 
-# google\_notebooks\_location
+# google_notebooks_location
 
 Represents a Location resource.
 

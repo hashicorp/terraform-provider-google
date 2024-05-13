@@ -4,7 +4,7 @@ description: |-
   Manages a billing_account-level logging exclusion.
 ---
 
-# google\_logging\_billing\_account\_exclusion
+# google_logging_billing_account_exclusion
 
 Manages a billing account logging exclusion. For more information see:
 

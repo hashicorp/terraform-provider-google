@@ -17,7 +17,7 @@ description: |-
   A named resource representing a shared pool of capacity.
 ---
 
-# google\_pubsub\_lite\_reservation
+# google_pubsub_lite_reservation
 
 A named resource representing a shared pool of capacity.
 

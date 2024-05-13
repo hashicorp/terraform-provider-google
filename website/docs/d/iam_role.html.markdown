@@ -4,7 +4,7 @@ description: |-
   Get information about a Google IAM Role.
 ---
 
-# google\_iam\_role
+# google_iam_role
 
 Use this data source to get information about a Google IAM Role.
 

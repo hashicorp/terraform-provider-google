@@ -4,7 +4,7 @@ description: |-
   Manages a Target Pool within GCE.
 ---
 
-# google\_compute\_target\_pool
+# google_compute_target_pool
 
 Manages a Target Pool within GCE. This is a collection of instances used as
 target of a network load balancer (Forwarding Rule). For more information see
@@ -47,7 +47,7 @@ The following arguments are supported:
 - - -
 
 * `backup_pool` - (Optional) URL to the backup target pool. Must also set
-    failover\_ratio.
+    failover_ratio.
 
 * `description` - (Optional) Textual description field.
 
@@ -70,8 +70,8 @@ The following arguments are supported:
     region.
 
 * `session_affinity` - (Optional) How to distribute load. Options are "NONE" (no
-    affinity). "CLIENT\_IP" (hash of the source/dest addresses / ports), and
-    "CLIENT\_IP\_PROTO" also includes the protocol (default "NONE").
+    affinity). "CLIENT_IP" (hash of the source/dest addresses / ports), and
+    "CLIENT_IP_PROTO" also includes the protocol (default "NONE").
 
 * `security_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) The resource URL for the security policy associated with this target pool.
 

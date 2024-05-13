@@ -4,7 +4,7 @@ description: |-
   Get information about a Backupdr Management server.
 ---
 
-# google\_backup\_dr\_management\_server
+# google_backup_dr_management_server
 
 Get information about a Google Backup DR Management server.
 

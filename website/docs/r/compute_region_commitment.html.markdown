@@ -17,7 +17,7 @@ description: |-
   Represents a regional Commitment resource.
 ---
 
-# google\_compute\_region\_commitment
+# google_compute_region_commitment
 
 Represents a regional Commitment resource.
 

@@ -24,7 +24,7 @@ These resources are intended to convert the permissions system for BigQuery data
 
 ~> **Note:** `google_bigquery_dataset_iam_binding` resources **can be** used in conjunction with `google_bigquery_dataset_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_bigquery\_dataset\_iam\_policy
+## google_bigquery_dataset_iam_policy
 
 ```hcl
 data "google_iam_policy" "owner" {
@@ -47,7 +47,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 ```
 
-## google\_bigquery\_dataset\_iam\_binding
+## google_bigquery_dataset_iam_binding
 
 ```hcl
 resource "google_bigquery_dataset_iam_binding" "reader" {
@@ -64,7 +64,7 @@ resource "google_bigquery_dataset" "dataset" {
 }
 ```
 
-## google\_bigquery\_dataset\_iam\_member
+## google_bigquery_dataset_iam_member
 
 ```hcl
 resource "google_bigquery_dataset_iam_member" "editor" {

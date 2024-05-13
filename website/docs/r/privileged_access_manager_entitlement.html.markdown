@@ -17,7 +17,7 @@ description: |-
   An Entitlement defines the eligibility of a set of users to obtain a predefined access for some time possibly after going through an approval workflow.
 ---
 
-# google\_privileged\_access\_manager\_entitlement
+# google_privileged_access_manager_entitlement
 
 An Entitlement defines the eligibility of a set of users to obtain a predefined access for some time possibly after going through an approval workflow.
 

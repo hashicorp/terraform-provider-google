@@ -17,7 +17,7 @@ description: |-
   Workload represents a binary deployment (such as Managed Instance Groups (MIGs), GKE deployments, etc.
 ---
 
-# google\_apphub\_workload
+# google_apphub_workload
 
 Workload represents a binary deployment (such as Managed Instance Groups (MIGs), GKE deployments, etc.) that performs the smallest logical subset of business functionality. It registers identified workload to the Application.
 

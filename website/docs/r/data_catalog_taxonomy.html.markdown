@@ -17,7 +17,7 @@ description: |-
   A collection of policy tags that classify data along a common axis.
 ---
 
-# google\_data\_catalog\_taxonomy
+# google_data_catalog_taxonomy
 
 A collection of policy tags that classify data along a common axis.
 

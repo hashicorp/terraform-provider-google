@@ -17,7 +17,7 @@ description: |-
   TrustConfig represents a resource that represents your Public Key Infrastructure (PKI) configuration in Certificate Manager for use in mutual TLS authentication scenarios.
 ---
 
-# google\_certificate\_manager\_trust\_config
+# google_certificate_manager_trust_config
 
 TrustConfig represents a resource that represents your Public Key Infrastructure (PKI) configuration in Certificate Manager for use in mutual TLS authentication scenarios.
 

@@ -4,7 +4,7 @@ description: |-
   Get information about a VMwareEngine network.
 ---
 
-# google\_vmwareengine\_network
+# google_vmwareengine_network
 
 Use this data source to get details about a VMwareEngine network resource.
 

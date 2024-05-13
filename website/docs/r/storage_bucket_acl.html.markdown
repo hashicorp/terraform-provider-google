@@ -4,7 +4,7 @@ description: |-
   Creates a new bucket ACL in Google Cloud Storage.
 ---
 
-# google\_storage\_bucket\_acl
+# google_storage_bucket_acl
 
 Authoritatively manages a bucket's ACLs in Google cloud storage service (GCS). For more information see
 [the official documentation](https://cloud.google.com/storage/docs/access-control/lists)

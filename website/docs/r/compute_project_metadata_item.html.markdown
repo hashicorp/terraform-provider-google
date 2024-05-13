@@ -4,7 +4,7 @@ description: |-
   Manages a single key/value pair on common instance metadata
 ---
 
-# google\_compute\_project\_metadata\_item
+# google_compute_project_metadata_item
 
 Manages a single key/value pair on metadata common to all instances for
 a project in GCE. Using `google_compute_project_metadata_item` lets you

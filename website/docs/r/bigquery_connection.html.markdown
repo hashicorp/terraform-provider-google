@@ -17,7 +17,7 @@ description: |-
   A connection allows BigQuery connections to external data sources.
 ---
 
-# google\_bigquery\_connection
+# google_bigquery_connection
 
 A connection allows BigQuery connections to external data sources..
 

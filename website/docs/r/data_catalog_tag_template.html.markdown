@@ -17,7 +17,7 @@ description: |-
   A tag template defines a tag, which can have one or more typed fields.
 ---
 
-# google\_data\_catalog\_tag\_template
+# google_data_catalog_tag_template
 
 A tag template defines a tag, which can have one or more typed fields.
 The template is used to create and attach the tag to GCP resources.

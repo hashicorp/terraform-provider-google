@@ -17,7 +17,7 @@ description: |-
   Represents an InterconnectAttachment (VLAN attachment) resource.
 ---
 
-# google\_compute\_interconnect\_attachment
+# google_compute_interconnect_attachment
 
 Represents an InterconnectAttachment (VLAN attachment) resource. For more
 information, see Creating VLAN Attachments.

@@ -18,7 +18,7 @@ description: |-
   of the values.
 ---
 
-# google\_logging\_metric
+# google_logging_metric
 
 Logs-based metric can also be used to extract values from logs and create a a distribution
 of the values. The distribution records the statistics of the extracted values along with

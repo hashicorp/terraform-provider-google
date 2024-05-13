@@ -17,7 +17,7 @@ description: |-
   ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service.
 ---
 
-# google\_network\_security\_server\_tls\_policy
+# google_network_security_server_tls_policy
 
 ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service. This resource itself does not affect configuration unless it is attached to a backend service resource.
 

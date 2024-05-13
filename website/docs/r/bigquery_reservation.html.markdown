@@ -17,7 +17,7 @@ description: |-
   A reservation is a mechanism used to guarantee BigQuery slots to users.
 ---
 
-# google\_bigquery\_reservation
+# google_bigquery_reservation
 
 A reservation is a mechanism used to guarantee BigQuery slots to users.
 

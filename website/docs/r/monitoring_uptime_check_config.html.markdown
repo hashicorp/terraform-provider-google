@@ -17,7 +17,7 @@ description: |-
   This message configures which resources and services to monitor for availability.
 ---
 
-# google\_monitoring\_uptime\_check\_config
+# google_monitoring_uptime_check_config
 
 This message configures which resources and services to monitor for availability.
 

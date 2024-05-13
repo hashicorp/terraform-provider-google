@@ -17,7 +17,7 @@ description: |-
   EdgeCacheService defines the IP addresses, protocols, security policies, cache policies and routing configuration.
 ---
 
-# google\_network\_services\_edge\_cache\_service
+# google_network_services_edge_cache_service
 
 EdgeCacheService defines the IP addresses, protocols, security policies, cache policies and routing configuration.
 

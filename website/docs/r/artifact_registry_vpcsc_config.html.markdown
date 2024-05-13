@@ -17,7 +17,7 @@ description: |-
   The Artifact Registry VPC SC config that applies to a Project.
 ---
 
-# google\_artifact\_registry\_vpcsc\_config
+# google_artifact_registry_vpcsc_config
 
 The Artifact Registry VPC SC config that applies to a Project.
 

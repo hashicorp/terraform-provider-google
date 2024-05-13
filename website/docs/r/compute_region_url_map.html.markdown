@@ -18,7 +18,7 @@ description: |-
   that you define for the host and path of an incoming URL.
 ---
 
-# google\_compute\_region\_url\_map
+# google_compute_region_url_map
 
 UrlMaps are used to route requests to a backend service based on rules
 that you define for the host and path of an incoming URL.

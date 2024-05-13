@@ -18,7 +18,7 @@ description: |-
   specific topic, to be delivered to the subscribing application.
 ---
 
-# google\_pubsub\_subscription
+# google_pubsub_subscription
 
 A named resource representing the stream of messages from a single,
 specific topic, to be delivered to the subscribing application.

@@ -17,7 +17,7 @@ description: |-
   Vertex AI Search and Conversation can be used to create a search engine or a chat application by connecting it with a datastore
 ---
 
-# google\_discovery\_engine\_search\_engine
+# google_discovery_engine_search_engine
 
 Vertex AI Search and Conversation can be used to create a search engine or a chat application by connecting it with a datastore
 

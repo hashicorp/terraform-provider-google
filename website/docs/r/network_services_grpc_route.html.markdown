@@ -17,7 +17,7 @@ description: |-
   GrpcRoute is the resource defining how gRPC traffic routed by a Mesh or Gateway resource is routed.
 ---
 
-# google\_network\_services\_grpc\_route
+# google_network_services_grpc_route
 
 GrpcRoute is the resource defining how gRPC traffic routed by a Mesh or Gateway resource is routed.
 

@@ -17,7 +17,7 @@ description: |-
   Apigee Endpoint Attachment.
 ---
 
-# google\_apigee\_endpoint\_attachment
+# google_apigee_endpoint_attachment
 
 Apigee Endpoint Attachment.
 

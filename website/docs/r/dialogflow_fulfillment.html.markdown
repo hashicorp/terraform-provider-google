@@ -17,7 +17,7 @@ description: |-
   By default, your agent responds to a matched intent with a static response.
 ---
 
-# google\_dialogflow\_fulfillment
+# google_dialogflow_fulfillment
 
 By default, your agent responds to a matched intent with a static response. If you're using one of the integration options, you can provide a more dynamic response by using fulfillment. When you enable fulfillment for an intent, Dialogflow responds to that intent by calling a service that you define. For example, if an end-user wants to schedule a haircut on Friday, your service can check your database and respond to the end-user with availability information for Friday.
 

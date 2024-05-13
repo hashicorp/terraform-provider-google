@@ -17,7 +17,7 @@ description: |-
   A Cloud Firestore Database.
 ---
 
-# google\_firestore\_database
+# google_firestore_database
 
 A Cloud Firestore Database.
 

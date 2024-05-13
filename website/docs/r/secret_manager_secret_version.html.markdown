@@ -17,7 +17,7 @@ description: |-
   A secret version resource.
 ---
 
-# google\_secret\_manager\_secret\_version
+# google_secret_manager_secret_version
 
 A secret version resource.
 

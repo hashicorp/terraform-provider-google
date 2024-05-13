@@ -17,7 +17,7 @@ description: |-
   The description of a dynamic collection of monitored resources.
 ---
 
-# google\_monitoring\_group
+# google_monitoring_group
 
 The description of a dynamic collection of monitored resources. Each group
 has a filter that is matched against monitored resources and their

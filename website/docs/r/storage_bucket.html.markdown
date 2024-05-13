@@ -4,7 +4,7 @@ description: |-
   Creates a new bucket in Google Cloud Storage.
 ---
 
-# google\_storage\_bucket
+# google_storage_bucket
 
 Creates a new bucket in Google cloud storage service (GCS).
 Once a bucket has been created, its location can't be changed.

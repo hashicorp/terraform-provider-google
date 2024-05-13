@@ -4,7 +4,7 @@ description: |-
  Allows management of a Google Cloud Platform folder.
 ---
 
-# google\_folder
+# google_folder
 
 Allows management of a Google Cloud Platform folder. For more information see 
 [the official documentation](https://cloud.google.com/resource-manager/docs/creating-managing-folders)

@@ -18,7 +18,7 @@ description: |-
   designed to solve an individual concern.
 ---
 
-# google\_monitoring\_custom\_service
+# google_monitoring_custom_service
 
 A Service is a discrete, autonomous, and network-accessible unit,
 designed to solve an individual concern. In Cloud Monitoring,

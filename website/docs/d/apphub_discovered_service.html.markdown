@@ -4,7 +4,7 @@ description: |-
   Get information about a discovered service.
 ---
 
-# google\_apphub\_discovered_service
+# google_apphub_discovered_service
 
 Get information about a discovered service from its uri.
 

@@ -17,7 +17,7 @@ description: |-
   An association for the OrganizationSecurityPolicy.
 ---
 
-# google\_compute\_organization\_security\_policy\_association
+# google_compute_organization_security_policy_association
 
 An association for the OrganizationSecurityPolicy.
 

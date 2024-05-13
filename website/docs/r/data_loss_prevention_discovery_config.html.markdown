@@ -17,7 +17,7 @@ description: |-
   Configuration for discovery to scan resources for profile generation.
 ---
 
-# google\_data\_loss\_prevention\_discovery\_config
+# google_data_loss_prevention_discovery_config
 
 Configuration for discovery to scan resources for profile generation. Only one discovery configuration may exist per organization, folder, or project.
 

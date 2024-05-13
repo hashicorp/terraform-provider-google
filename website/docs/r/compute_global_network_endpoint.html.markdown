@@ -17,7 +17,7 @@ description: |-
   A Global Network endpoint represents a IP address and port combination that exists outside of GCP.
 ---
 
-# google\_compute\_global\_network\_endpoint
+# google_compute_global_network_endpoint
 
 A Global Network endpoint represents a IP address and port combination that exists outside of GCP.
 **NOTE**: Global network endpoints cannot be created outside of a

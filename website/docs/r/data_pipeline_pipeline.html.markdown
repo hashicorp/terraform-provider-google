@@ -17,7 +17,7 @@ description: |-
   The main pipeline entity and all the necessary metadata for launching and managing linked jobs.
 ---
 
-# google\_data\_pipeline\_pipeline
+# google_data_pipeline_pipeline
 
 The main pipeline entity and all the necessary metadata for launching and managing linked jobs.
 

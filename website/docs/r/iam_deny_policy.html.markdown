@@ -17,7 +17,7 @@ description: |-
   Represents a collection of denial policies to apply to a given resource.
 ---
 
-# google\_iam\_deny\_policy
+# google_iam_deny_policy
 
 Represents a collection of denial policies to apply to a given resource.
 

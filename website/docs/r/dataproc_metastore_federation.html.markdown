@@ -17,7 +17,7 @@ description: |-
   A managed metastore federation.
 ---
 
-# google\_dataproc\_metastore\_federation
+# google_dataproc_metastore_federation
 
 A managed metastore federation.
 

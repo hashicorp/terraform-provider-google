@@ -17,7 +17,7 @@ description: |-
   Regional Private Service Connect (PSC) endpoint resource.
 ---
 
-# google\_network\_connectivity\_regional\_endpoint
+# google_network_connectivity_regional_endpoint
 
 Regional Private Service Connect (PSC) endpoint resource.
 

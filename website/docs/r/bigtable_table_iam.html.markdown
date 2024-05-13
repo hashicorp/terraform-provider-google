@@ -16,7 +16,7 @@ Three different resources help you manage IAM policies on bigtable tables. Each 
 
 ~> **Note:** `google_bigtable_table_iam_binding` resources **can be** used in conjunction with `google_bigtable_table_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_bigtable\_table\_iam\_policy
+## google_bigtable_table_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -36,7 +36,7 @@ resource "google_bigtable_table_iam_policy" "editor" {
 }
 ```
 
-## google\_bigtable\_table\_iam\_binding
+## google_bigtable_table_iam_binding
 
 ```hcl
 resource "google_bigtable_table_iam_binding" "editor" {
@@ -49,7 +49,7 @@ resource "google_bigtable_table_iam_binding" "editor" {
 }
 ```
 
-## google\_bigtable\_table\_iam\_member
+## google_bigtable_table_iam_member
 
 ```hcl
 resource "google_bigtable_table_iam_member" "editor" {

@@ -4,7 +4,7 @@ description: |-
  Allows management of a Google Cloud Platform project.
 ---
 
-# google\_project
+# google_project
 
 Allows creation and management of a Google Cloud Platform project.
 

@@ -19,7 +19,7 @@ description: |-
   about this state.
 ---
 
-# google\_monitoring\_alert\_policy
+# google_monitoring_alert_policy
 
 A description of the conditions under which some aspect of your system is
 considered to be "unhealthy" and the ways to notify people or services

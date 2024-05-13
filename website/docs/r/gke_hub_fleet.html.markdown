@@ -17,7 +17,7 @@ description: |-
   Fleet contains information about a group of clusters.
 ---
 
-# google\_gke\_hub\_fleet
+# google_gke_hub_fleet
 
 Fleet contains information about a group of clusters.
 

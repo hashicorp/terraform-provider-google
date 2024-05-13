@@ -17,7 +17,7 @@ description: |-
   TcpRoute is the resource defining how TCP traffic should be routed by a Mesh/Gateway resource.
 ---
 
-# google\_network\_services\_tcp\_route
+# google_network_services_tcp_route
 
 TcpRoute is the resource defining how TCP traffic should be routed by a Mesh/Gateway resource.
 

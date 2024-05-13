@@ -17,7 +17,7 @@ description: |-
   A BigQuery Data Policy
 ---
 
-# google\_bigquery\_datapolicy\_data\_policy
+# google_bigquery_datapolicy_data_policy
 
 A BigQuery Data Policy
 

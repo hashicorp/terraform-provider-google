@@ -4,7 +4,7 @@ description: |-
   Get a network within GCE.
 ---
 
-# google\_compute\_network
+# google_compute_network
 
 Get a network within GCE from its name.
 

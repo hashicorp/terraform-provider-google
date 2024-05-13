@@ -17,7 +17,7 @@ description: |-
   A Google VMware User Cluster.
 ---
 
-# google\_gkeonprem\_vmware\_cluster
+# google_gkeonprem_vmware_cluster
 
 A Google VMware User Cluster.
 

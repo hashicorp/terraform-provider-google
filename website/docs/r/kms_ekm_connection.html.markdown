@@ -17,7 +17,7 @@ description: |-
   `Ekm Connections` are used to control the connection settings for an `EXTERNAL_VPC` CryptoKey.
 ---
 
-# google\_kms\_ekm\_connection
+# google_kms_ekm_connection
 
 `Ekm Connections` are used to control the connection settings for an `EXTERNAL_VPC` CryptoKey.
 It is used to connect customer's external key manager to Google Cloud EKM.

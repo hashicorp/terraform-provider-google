@@ -18,7 +18,7 @@ description: |-
   a traffic matching condition and associated action to perform.
 ---
 
-# google\_network\_security\_gateway\_security\_policy\_rule
+# google_network_security_gateway_security_policy_rule
 
 The GatewaySecurityPolicyRule resource is in a nested collection within a GatewaySecurityPolicy and represents
 a traffic matching condition and associated action to perform.

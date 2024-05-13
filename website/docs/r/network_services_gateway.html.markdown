@@ -17,7 +17,7 @@ description: |-
   Gateway represents the configuration for a proxy, typically a load balancer.
 ---
 
-# google\_network\_services\_gateway
+# google_network_services_gateway
 
 Gateway represents the configuration for a proxy, typically a load balancer.
 It captures the ip:port over which the services are exposed by the proxy,

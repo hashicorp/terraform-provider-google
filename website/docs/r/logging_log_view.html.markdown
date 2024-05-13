@@ -17,7 +17,7 @@ description: |-
   Describes a view over log entries in a bucket.
 ---
 
-# google\_logging\_log\_view
+# google_logging_log_view
 
 Describes a view over log entries in a bucket.
 

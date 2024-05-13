@@ -17,7 +17,7 @@ description: |-
   A Google Bare Metal Admin Cluster.
 ---
 
-# google\_gkeonprem\_bare\_metal\_admin\_cluster
+# google_gkeonprem_bare_metal_admin_cluster
 
 A Google Bare Metal Admin Cluster.
 

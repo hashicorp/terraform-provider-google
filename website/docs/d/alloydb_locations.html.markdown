@@ -4,7 +4,7 @@ description: |-
   Fetches the details of available locations.
 ---
 
-# google\_alloydb\_locations
+# google_alloydb_locations
 
 Use this data source to get information about the available locations. For more details refer the [API docs](https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations).
 

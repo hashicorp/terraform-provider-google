@@ -17,7 +17,7 @@ description: |-
   Allows creation of custom info types.
 ---
 
-# google\_data\_loss\_prevention\_stored\_info\_type
+# google_data_loss_prevention_stored_info_type
 
 Allows creation of custom info types.
 

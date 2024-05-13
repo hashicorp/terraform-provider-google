@@ -18,7 +18,7 @@ description: |-
   global forwarding rule to route incoming HTTPS requests to a URL map.
 ---
 
-# google\_compute\_target\_https\_proxy
+# google_compute_target_https_proxy
 
 Represents a TargetHttpsProxy resource, which is used by one or more
 global forwarding rule to route incoming HTTPS requests to a URL map.

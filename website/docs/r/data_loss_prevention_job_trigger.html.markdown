@@ -17,7 +17,7 @@ description: |-
   A job trigger configuration.
 ---
 
-# google\_data\_loss\_prevention\_job\_trigger
+# google_data_loss_prevention_job_trigger
 
 A job trigger configuration.
 

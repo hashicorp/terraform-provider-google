@@ -17,7 +17,7 @@ description: |-
   Tensorboard is a physical database that stores users' training metrics.
 ---
 
-# google\_vertex\_ai\_tensorboard
+# google_vertex_ai_tensorboard
 
 Tensorboard is a physical database that stores users' training metrics. A default Tensorboard is provided in each region of a GCP project. If needed users can also create extra Tensorboards in their projects.
 

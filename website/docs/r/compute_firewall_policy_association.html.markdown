@@ -18,7 +18,7 @@ description: |-
   Applies a hierarchical firewall policy to a target resource
 ---
 
-# google\_compute\_firewall\_policy\_association
+# google_compute_firewall_policy_association
 
 Allows associating hierarchical firewall policies with the target where they are applied. This allows creating policies and rules in a different location than they are applied.
 

@@ -4,7 +4,7 @@ description: |-
   Manages an Instance Group within GCE.
 ---
 
-# google\_compute\_instance\_group
+# google_compute_instance_group
 
 Creates a group of dissimilar Compute Engine virtual machine instances.
 For more information, see [the official documentation](https://cloud.google.com/compute/docs/instance-groups/#unmanaged_instance_groups)

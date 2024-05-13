@@ -17,7 +17,7 @@ description: |-
   Feature represents the settings and status of any Hub Feature.
 ---
 
-# google\_gke\_hub\_feature
+# google_gke_hub_feature
 
 Feature represents the settings and status of any Hub Feature.
 

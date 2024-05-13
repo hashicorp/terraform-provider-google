@@ -17,7 +17,7 @@ description: |-
   A Certificate corresponds to a signed X.
 ---
 
-# google\_privateca\_certificate
+# google_privateca_certificate
 
 A Certificate corresponds to a signed X.509 certificate issued by a Certificate.
 

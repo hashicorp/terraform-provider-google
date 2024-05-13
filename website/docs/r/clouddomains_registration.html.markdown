@@ -17,7 +17,7 @@ description: |-
   Registers a new domain name and creates a corresponding Registration resource.
 ---
 
-# google\_clouddomains\_registration
+# google_clouddomains_registration
 
 Registers a new domain name and creates a corresponding Registration resource.
 

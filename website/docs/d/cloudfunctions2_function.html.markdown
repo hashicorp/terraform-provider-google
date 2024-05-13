@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Function (2nd gen).
 ---
 
-# google\_cloudfunctions2\_function
+# google_cloudfunctions2_function
 
 Get information about a Google Cloud Function (2nd gen). For more information see:
 

@@ -4,7 +4,7 @@ description: |-
   Get a database in a Cloud SQL database instance.
 ---
 
-# google\_sql\_database
+# google_sql_database
 
 Use this data source to get information about a database in a Cloud SQL instance.
 

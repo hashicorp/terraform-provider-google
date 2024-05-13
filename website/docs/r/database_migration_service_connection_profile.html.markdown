@@ -17,7 +17,7 @@ description: |-
   A connection profile definition.
 ---
 
-# google\_database\_migration\_service\_connection\_profile
+# google_database_migration_service_connection_profile
 
 A connection profile definition.
 

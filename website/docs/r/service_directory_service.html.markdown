@@ -17,7 +17,7 @@ description: |-
   An individual service.
 ---
 
-# google\_service\_directory\_service
+# google_service_directory_service
 
 An individual service. A service contains a name and optional metadata.
 

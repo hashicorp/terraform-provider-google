@@ -17,7 +17,7 @@ description: |-
   Represents a Machine Image resource.
 ---
 
-# google\_compute\_machine\_image
+# google_compute_machine_image
 
 Represents a Machine Image resource. Machine images store all the configuration,
 metadata, permissions, and data from one or more disks required to create a

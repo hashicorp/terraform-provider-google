@@ -17,7 +17,7 @@ description: |-
   Resource to hold the state and status of a user's domain mapping.
 ---
 
-# google\_cloud\_run\_domain\_mapping
+# google_cloud_run_domain_mapping
 
 Resource to hold the state and status of a user's domain mapping.
 

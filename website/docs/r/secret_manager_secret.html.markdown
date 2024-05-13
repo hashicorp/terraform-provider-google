@@ -17,7 +17,7 @@ description: |-
   A Secret is a logical secret whose value and versions can be accessed.
 ---
 
-# google\_secret\_manager\_secret
+# google_secret_manager_secret
 
 A Secret is a logical secret whose value and versions can be accessed.
 

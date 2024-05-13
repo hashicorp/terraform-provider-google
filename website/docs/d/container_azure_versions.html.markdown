@@ -4,7 +4,7 @@ description: |-
   Provides lists of available Kubernetes versions for the Container Azure resources.
 ---
 
-# google\_container\_azure\_versions
+# google_container_azure_versions
 
 Provides access to available Kubernetes versions in a location for a given project.
 

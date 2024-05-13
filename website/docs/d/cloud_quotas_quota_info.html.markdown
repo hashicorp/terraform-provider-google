@@ -2,7 +2,7 @@
 subcategory: "Cloud Quotas"
 ---
 
-# google\_cloud\_quotas\_quota\_info
+# google_cloud_quotas_quota_info
 
 Provides information about a particular quota for a given project, folder or organization.
 

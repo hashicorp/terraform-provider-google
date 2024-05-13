@@ -17,7 +17,7 @@ description: |-
   An AlloyDB Backup.
 ---
 
-# google\_alloydb\_backup
+# google_alloydb_backup
 
 An AlloyDB Backup.
 

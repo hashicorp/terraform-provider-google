@@ -17,7 +17,7 @@ description: |-
   A set of reusable connection configurations to be used as a source or destination for a stream.
 ---
 
-# google\_datastream\_connection\_profile
+# google_datastream_connection_profile
 
 A set of reusable connection configurations to be used as a source or destination for a stream.
 

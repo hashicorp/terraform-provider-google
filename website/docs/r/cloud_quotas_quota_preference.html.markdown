@@ -17,7 +17,7 @@ description: |-
   QuotaPreference represents the preferred quota configuration specified for a project, folder or organization.
 ---
 
-# google\_cloud\_quotas\_quota\_preference
+# google_cloud_quotas_quota_preference
 
 QuotaPreference represents the preferred quota configuration specified for a project, folder or organization. There is only one QuotaPreference resource for a quota value targeting a unique set of dimensions.
 

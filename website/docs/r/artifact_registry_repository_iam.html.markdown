@@ -34,8 +34,7 @@ A data source can be used to retrieve policy data in advent you do not need crea
 
 
 
-
-## google\_artifact\_registry\_repository\_iam\_policy
+## google_artifact_registry_repository_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -55,7 +54,7 @@ resource "google_artifact_registry_repository_iam_policy" "policy" {
 }
 ```
 
-## google\_artifact\_registry\_repository\_iam\_binding
+## google_artifact_registry_repository_iam_binding
 
 ```hcl
 resource "google_artifact_registry_repository_iam_binding" "binding" {
@@ -69,7 +68,7 @@ resource "google_artifact_registry_repository_iam_binding" "binding" {
 }
 ```
 
-## google\_artifact\_registry\_repository\_iam\_member
+## google_artifact_registry_repository_iam_member
 
 ```hcl
 resource "google_artifact_registry_repository_iam_member" "member" {

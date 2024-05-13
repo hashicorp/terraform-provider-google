@@ -4,7 +4,7 @@ description: |-
  Allows management of Organization policies for a Google Project.
 ---
 
-# google\_project\_organization\_policy
+# google_project_organization_policy
 
 Allows management of Organization Policies for a Google Cloud Project.
 

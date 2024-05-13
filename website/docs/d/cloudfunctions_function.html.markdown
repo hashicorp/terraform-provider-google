@@ -4,7 +4,7 @@ description: |-
   Get information about a Google Cloud Function.
 ---
 
-# google\_cloudfunctions\_function
+# google_cloudfunctions_function
 
 Get information about a Google Cloud Function. For more information see
 the [official documentation](https://cloud.google.com/functions/docs/)

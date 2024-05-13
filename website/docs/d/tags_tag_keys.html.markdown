@@ -4,7 +4,7 @@ description: |-
   Get tag keys within a GCP organization or project.
 ---
 
-# google\_tags\_tag\_keys
+# google_tags_tag_keys
 
 Get tag keys by org or project `parent`.
 

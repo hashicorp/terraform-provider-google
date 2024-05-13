@@ -17,7 +17,7 @@ description: |-
   An `Environment Reference` in Apigee.
 ---
 
-# google\_apigee\_env\_references
+# google_apigee_env_references
 
 An `Environment Reference` in Apigee.
 

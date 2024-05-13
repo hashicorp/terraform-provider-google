@@ -17,7 +17,7 @@ description: |-
   An `Environment KeyStore` in Apigee.
 ---
 
-# google\_apigee\_env\_keystore
+# google_apigee_env_keystore
 
 An `Environment KeyStore` in Apigee.
 

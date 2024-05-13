@@ -17,7 +17,7 @@ description: |-
   Represents a data transfer configuration.
 ---
 
-# google\_bigquery\_data\_transfer\_config
+# google_bigquery_data_transfer_config
 
 Represents a data transfer configuration. A transfer configuration
 contains all metadata needed to perform a data transfer.

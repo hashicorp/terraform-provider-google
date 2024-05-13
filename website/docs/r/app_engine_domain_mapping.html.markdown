@@ -17,7 +17,7 @@ description: |-
   A domain serving an App Engine application.
 ---
 
-# google\_app\_engine\_domain\_mapping
+# google_app_engine_domain_mapping
 
 A domain serving an App Engine application.
 

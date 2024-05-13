@@ -17,7 +17,7 @@ description: |-
   A TagValue is a child of a particular TagKey.
 ---
 
-# google\_tags\_tag\_value
+# google_tags_tag_value
 
 A TagValue is a child of a particular TagKey. TagValues are used to group cloud resources for the purpose of controlling them using policies.
 

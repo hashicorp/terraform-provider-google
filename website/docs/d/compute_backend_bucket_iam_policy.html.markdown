@@ -24,7 +24,6 @@ Retrieves the current IAM policy data for backendbucket
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
-
 ## example
 
 ```hcl

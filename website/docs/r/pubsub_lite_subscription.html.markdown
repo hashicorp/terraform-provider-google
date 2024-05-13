@@ -18,7 +18,7 @@ description: |-
   specific topic, to be delivered to the subscribing application.
 ---
 
-# google\_pubsub\_lite\_subscription
+# google_pubsub_lite_subscription
 
 A named resource representing the stream of messages from a single,
 specific topic, to be delivered to the subscribing application.

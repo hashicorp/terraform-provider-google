@@ -19,7 +19,7 @@ Three different resources help you manage your IAM policy for a Spanner instance
 
 ~> **Note:** `google_spanner_instance_iam_binding` resources **can be** used in conjunction with `google_spanner_instance_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_spanner\_instance\_iam\_policy
+## google_spanner_instance_iam_policy
 
 ```hcl
 data "google_iam_policy" "admin" {
@@ -38,7 +38,7 @@ resource "google_spanner_instance_iam_policy" "instance" {
 }
 ```
 
-## google\_spanner\_instance\_iam\_binding
+## google_spanner_instance_iam_binding
 
 ```hcl
 resource "google_spanner_instance_iam_binding" "instance" {
@@ -51,7 +51,7 @@ resource "google_spanner_instance_iam_binding" "instance" {
 }
 ```
 
-## google\_spanner\_instance\_iam\_member
+## google_spanner_instance_iam_member
 
 ```hcl
 resource "google_spanner_instance_iam_member" "instance" {

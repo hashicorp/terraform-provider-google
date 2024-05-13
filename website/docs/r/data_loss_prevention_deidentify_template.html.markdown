@@ -17,7 +17,7 @@ description: |-
   Allows creation of templates to de-identify content.
 ---
 
-# google\_data\_loss\_prevention\_deidentify\_template
+# google_data_loss_prevention_deidentify_template
 
 Allows creation of templates to de-identify content.
 

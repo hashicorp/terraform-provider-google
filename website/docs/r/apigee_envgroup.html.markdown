@@ -17,7 +17,7 @@ description: |-
   An `Environment group` in Apigee.
 ---
 
-# google\_apigee\_envgroup
+# google_apigee_envgroup
 
 An `Environment group` in Apigee.
 

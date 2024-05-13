@@ -17,7 +17,7 @@ description: |-
   Represents a NodeGroup resource to manage a group of sole-tenant nodes.
 ---
 
-# google\_compute\_node\_group
+# google_compute_node_group
 
 Represents a NodeGroup resource to manage a group of sole-tenant nodes.
 

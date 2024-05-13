@@ -18,7 +18,7 @@ description: |-
   describes a type of analysis that can be done for a resource.
 ---
 
-# google\_container\_analysis\_note
+# google_container_analysis_note
 
 A Container Analysis note is a high-level piece of metadata that
 describes a type of analysis that can be done for a resource.

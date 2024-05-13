@@ -17,7 +17,7 @@ description: |-
   Represents a deployment of a security posture on a resource.
 ---
 
-# google\_securityposture\_posture\_deployment
+# google_securityposture_posture_deployment
 
 Represents a deployment of a security posture on a resource. A posture contains user curated policy sets. A posture can
 be deployed on a project or on a folder or on an organization. To deploy a posture we need to populate the posture's name

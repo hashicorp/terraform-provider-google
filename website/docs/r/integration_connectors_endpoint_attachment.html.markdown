@@ -17,7 +17,7 @@ description: |-
   An Integration connectors Endpoint Attachment.
 ---
 
-# google\_integration\_connectors\_endpoint\_attachment
+# google_integration_connectors_endpoint_attachment
 
 An Integration connectors Endpoint Attachment.
 

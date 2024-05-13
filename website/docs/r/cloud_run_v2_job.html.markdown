@@ -17,7 +17,7 @@ description: |-
   A Cloud Run Job resource that references a container image which is run to completion.
 ---
 
-# google\_cloud\_run\_v2\_job
+# google_cloud_run_v2_job
 
 A Cloud Run Job resource that references a container image which is run to completion.
 

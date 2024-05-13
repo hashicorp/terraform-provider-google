@@ -17,7 +17,7 @@ description: |-
   VPN tunnel resource.
 ---
 
-# google\_compute\_vpn\_tunnel
+# google_compute_vpn_tunnel
 
 VPN tunnel resource.
 

@@ -17,7 +17,7 @@ description: |-
   An app's reCAPTCHA Enterprise configuration object.
 ---
 
-# google\_firebase\_app\_check\_recaptcha\_enterprise\_config
+# google_firebase_app_check_recaptcha_enterprise_config
 
 An app's reCAPTCHA Enterprise configuration object.
 

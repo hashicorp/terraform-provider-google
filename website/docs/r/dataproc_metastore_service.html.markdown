@@ -17,7 +17,7 @@ description: |-
   A managed metastore service that serves metadata queries.
 ---
 
-# google\_dataproc\_metastore\_service
+# google_dataproc_metastore_service
 
 A managed metastore service that serves metadata queries.
 

@@ -17,7 +17,7 @@ description: |-
   A security profile group defines a container for security profiles.
 ---
 
-# google\_network\_security\_security\_profile\_group
+# google_network_security_security_profile_group
 
 A security profile group defines a container for security profiles.
 

@@ -17,7 +17,7 @@ description: |-
   OAuth brand data.
 ---
 
-# google\_iap\_brand
+# google_iap_brand
 
 OAuth brand data. Only "Organization Internal" brands can be created
 programmatically via API. To convert it into an external brands

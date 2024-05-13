@@ -17,7 +17,7 @@ description: |-
   An allocated external IP address and its corresponding internal IP address in a private cloud.
 ---
 
-# google\_vmwareengine\_external\_address
+# google_vmwareengine_external_address
 
 An allocated external IP address and its corresponding internal IP address in a private cloud.
 

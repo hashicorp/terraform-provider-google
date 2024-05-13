@@ -4,7 +4,7 @@ description: |-
   Provides access to secret data encrypted with Google Cloud KMS asymmetric key
 ---
 
-# google\_kms\_secret\_asymmetric
+# google_kms_secret_asymmetric
 
 This data source allows you to use data encrypted with a Google Cloud KMS asymmetric key
 within your resource definitions.

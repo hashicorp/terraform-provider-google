@@ -18,7 +18,7 @@ description: |-
   creating a contract between publisher and subscriber that Pub/Sub will enforce.
 ---
 
-# google\_pubsub\_schema
+# google_pubsub_schema
 
 A schema is a format that messages must follow,
 creating a contract between publisher and subscriber that Pub/Sub will enforce.

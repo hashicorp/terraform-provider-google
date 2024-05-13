@@ -17,7 +17,7 @@ description: |-
   The internal range resource for IPAM operations within a VPC network.
 ---
 
-# google\_network\_connectivity\_internal\_range
+# google_network_connectivity_internal_range
 
 The internal range resource for IPAM operations within a VPC network. Used to represent a private address range along with behavioral characterstics of that range (its usage and peering behavior). Networking resources can link to this range if they are created as belonging to it.
 

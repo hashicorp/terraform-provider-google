@@ -17,7 +17,7 @@ description: |-
   Identity Platform configuration for a Cloud project.
 ---
 
-# google\_identity\_platform\_config
+# google_identity_platform_config
 
 Identity Platform configuration for a Cloud project. Identity Platform is an
 end-to-end authentication system for third-party users to access apps

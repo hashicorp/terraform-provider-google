@@ -17,7 +17,7 @@ description: |-
   Represents a BI Reservation.
 ---
 
-# google\_bigquery\_bi\_reservation
+# google_bigquery_bi_reservation
 
 Represents a BI Reservation.
 

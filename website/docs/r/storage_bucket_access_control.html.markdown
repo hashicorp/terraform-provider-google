@@ -18,7 +18,7 @@ description: |-
   [`storage_bucket_acl`](https://registry.
 ---
 
-# google\_storage\_bucket\_access\_control
+# google_storage_bucket_access_control
 
 Bucket ACLs can be managed authoritatively using the
 [`storage_bucket_acl`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_acl)

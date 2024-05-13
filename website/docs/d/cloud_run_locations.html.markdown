@@ -4,7 +4,7 @@ description: |-
   Get Cloud Run locations available for a project.
 ---
 
-# google\_cloud\_run\_locations
+# google_cloud_run_locations
 
 Get Cloud Run locations available for a project. 
 

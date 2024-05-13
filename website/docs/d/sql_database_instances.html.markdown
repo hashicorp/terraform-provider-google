@@ -4,7 +4,7 @@ description: |-
   Get a list of SQL database instances in a project in Google Cloud SQL.
 ---
 
-# google\_sql\_database\_instances
+# google_sql_database_instances
 
 Use this data source to get information about a list of Cloud SQL instances in a project. You can also apply some filters over this list to get a more filtered list of Cloud SQL instances.
 

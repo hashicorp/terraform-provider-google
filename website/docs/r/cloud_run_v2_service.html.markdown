@@ -17,7 +17,7 @@ description: |-
   Service acts as a top-level container that manages a set of configurations and revision templates which implement a network service.
 ---
 
-# google\_cloud\_run\_v2\_service
+# google_cloud_run_v2_service
 
 Service acts as a top-level container that manages a set of configurations and revision templates which implement a network service. Service exists to provide a singular abstraction which can be access controlled, reasoned about, and which encapsulates software lifecycle decisions such as rollout policy and team resource ownership.
 

@@ -17,7 +17,7 @@ description: |-
   Represents the Instance membership to the Instance Group.
 ---
 
-# google\_compute\_instance\_group\_membership
+# google_compute_instance_group_membership
 
 Represents the Instance membership to the Instance Group.
 

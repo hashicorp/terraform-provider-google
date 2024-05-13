@@ -17,7 +17,7 @@ description: |-
   Standard App Version resource to create a new version of standard GAE Application.
 ---
 
-# google\_app\_engine\_standard\_app\_version
+# google_app_engine_standard_app_version
 
 Standard App Version resource to create a new version of standard GAE Application.
 Learn about the differences between the standard environment and the flexible environment

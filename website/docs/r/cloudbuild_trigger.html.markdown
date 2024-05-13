@@ -17,7 +17,7 @@ description: |-
   Configuration for an automated build in response to source repository changes.
 ---
 
-# google\_cloudbuild\_trigger
+# google_cloudbuild_trigger
 
 Configuration for an automated build in response to source repository changes.
 

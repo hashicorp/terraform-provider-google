@@ -17,7 +17,7 @@ description: |-
   Represents a PublicDelegatedPrefix for use with bring your own IP addresses (BYOIP).
 ---
 
-# google\_compute\_public\_delegated\_prefix
+# google_compute_public_delegated_prefix
 
 Represents a PublicDelegatedPrefix for use with bring your own IP addresses (BYOIP).
 

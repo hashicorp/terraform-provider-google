@@ -17,7 +17,7 @@ description: |-
   Subnet in a private cloud.
 ---
 
-# google\_vmwareengine\_subnet
+# google_vmwareengine_subnet
 
 Subnet in a private cloud. A Private Cloud contains two types of subnets: `management` subnets (such as vMotion) that
 are read-only,and `userDefined`, which can also be updated. This resource should be used to read and update `userDefined`

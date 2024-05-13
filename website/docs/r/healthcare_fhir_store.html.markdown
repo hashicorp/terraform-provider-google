@@ -17,7 +17,7 @@ description: |-
   A FhirStore is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.
 ---
 
-# google\_healthcare\_fhir\_store
+# google_healthcare_fhir_store
 
 A FhirStore is a datastore inside a Healthcare dataset that conforms to the FHIR (https://www.hl7.org/fhir/STU3/)
 standard for Healthcare information exchange

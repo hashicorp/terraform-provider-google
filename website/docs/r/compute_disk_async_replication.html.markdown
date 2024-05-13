@@ -4,7 +4,7 @@ description: |-
   Manage asynchronous Persistent Disk replication.
 ---
 
-# google\_compute\_disk\_async\_replication
+# google_compute_disk_async_replication
 
 Starts and stops asynchronous persistent disk replication. For more information
 see [the official documentation](https://cloud.google.com/compute/docs/disks/async-pd/about)

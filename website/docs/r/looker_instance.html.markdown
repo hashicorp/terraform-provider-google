@@ -17,7 +17,7 @@ description: |-
   A Google Cloud Looker instance.
 ---
 
-# google\_looker\_instance
+# google_looker_instance
 
 A Google Cloud Looker instance.
 

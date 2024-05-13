@@ -4,7 +4,7 @@ description: |-
   Retrieve Region Network Endpoint Group's details.
 ---
 
-# google\_compute\_region\_network\_endpoint\_group
+# google_compute_region_network_endpoint_group
 
 Use this data source to access a Region Network Endpoint Group's attributes.
 
@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `region` - (Optional) A reference to the region where the Serverless REGs Reside. Provide either this or a `self_link`.
 
-* `self_link` - (Optional) The Network Endpoint Group self\_link.
+* `self_link` - (Optional) The Network Endpoint Group self_link.
 
 ## Attributes Reference
 

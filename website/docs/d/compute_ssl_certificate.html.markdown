@@ -4,7 +4,7 @@ description: |-
   Get info about a Google Compute SSL Certificate.
 ---
 
-# google\_compute\_ssl\_certificate
+# google_compute_ssl_certificate
 
 Get info about a Google Compute SSL Certificate from its name.
 

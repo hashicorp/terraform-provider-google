@@ -17,7 +17,7 @@ description: |-
   A Dataplex task represents the work that you want Dataplex to do on a schedule.
 ---
 
-# google\_dataplex\_task
+# google_dataplex_task
 
 A Dataplex task represents the work that you want Dataplex to do on a schedule. It encapsulates code, parameters, and the schedule.
 

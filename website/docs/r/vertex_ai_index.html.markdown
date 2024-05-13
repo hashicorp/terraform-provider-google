@@ -17,7 +17,7 @@ description: |-
   A representation of a collection of database items organized in a way that allows for approximate nearest neighbor (a.
 ---
 
-# google\_vertex\_ai\_index
+# google_vertex_ai_index
 
 A representation of a collection of database items organized in a way that allows for approximate nearest neighbor (a.k.a ANN) algorithms search.
 

@@ -4,7 +4,7 @@ description: |-
   Represents a sharedflow attachment to a flowhook point.
 ---
 
-# google\_apigee\_flowhook
+# google_apigee_flowhook
 
 Represents a sharedflow attachment to a flowhook point.
 

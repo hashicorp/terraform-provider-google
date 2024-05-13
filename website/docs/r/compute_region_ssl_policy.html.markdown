@@ -17,7 +17,7 @@ description: |-
   Represents a Regional SSL policy.
 ---
 
-# google\_compute\_region\_ssl\_policy
+# google_compute_region_ssl_policy
 
 Represents a Regional SSL policy. SSL policies give you the ability to control the
 features of SSL that your SSL proxy or HTTPS load balancer negotiates.

@@ -17,7 +17,7 @@ description: |-
   A rule for the SecurityPolicy.
 ---
 
-# google\_compute\_security\_policy\_rule
+# google_compute_security_policy_rule
 
 A rule for the SecurityPolicy.
 

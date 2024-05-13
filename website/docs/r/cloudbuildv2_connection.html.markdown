@@ -17,7 +17,7 @@ description: |-
   A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center or GitLab.
 ---
 
-# google\_cloudbuildv2\_connection
+# google_cloudbuildv2_connection
 
 A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center or GitLab.
 

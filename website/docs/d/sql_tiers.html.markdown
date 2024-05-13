@@ -4,7 +4,7 @@ description: |-
   Get all available Cloud SQL tiers for the given project.
 ---
 
-# google\_sql\_tiers
+# google_sql_tiers
 
 Get all available machine types (tiers) for a project, for example, db-custom-1-3840. For more information see the
 [official documentation](https://cloud.google.com/sql/)

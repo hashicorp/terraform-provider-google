@@ -4,7 +4,7 @@ description: |-
   Contains information about a GKEHub Feature Memberships.
 ---
 
-# google\_gkehub\_feature\_membership
+# google_gkehub_feature_membership
 
 Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. The google_gke_hub is the Fleet API.
 

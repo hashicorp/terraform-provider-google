@@ -4,7 +4,7 @@ description: |-
   Get info about a private cloud cluster.
 ---
 
-# google\_vmwareengine\_cluster
+# google_vmwareengine_cluster
 
 Use this data source to get details about a cluster resource.
 

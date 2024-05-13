@@ -17,7 +17,7 @@ description: |-
   HttpRoute is the resource defining how HTTP traffic should be routed by a Mesh or Gateway resource.
 ---
 
-# google\_network\_services\_http\_route
+# google_network_services_http_route
 
 HttpRoute is the resource defining how HTTP traffic should be routed by a Mesh or Gateway resource.
 

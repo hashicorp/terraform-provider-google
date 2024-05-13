@@ -19,7 +19,7 @@ description: |-
   ServicePerimeter.
 ---
 
-# google\_access\_context\_manager\_service\_perimeter
+# google_access_context_manager_service_perimeter
 
 ServicePerimeter describes a set of GCP resources which can freely import
 and export data amongst themselves, but not export outside of the

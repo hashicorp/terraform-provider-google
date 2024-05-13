@@ -4,7 +4,7 @@ description: |-
   Creates a job in Dataflow based on a Flex Template.
 ---
 
-# google\_dataflow\_flex\_template\_job
+# google_dataflow_flex_template_job
 
 Creates a [Flex Template](https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates)
 job on Dataflow, which is an implementation of Apache Beam running on Google

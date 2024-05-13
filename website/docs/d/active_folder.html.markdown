@@ -4,7 +4,7 @@ description: |-
   Get a folder within GCP.
 ---
 
-# google\_active\_folder
+# google_active_folder
 
 Get an active folder within GCP by `display_name` and `parent`.
 

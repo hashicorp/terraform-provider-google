@@ -18,7 +18,7 @@ description: |-
   Creates a hierarchical firewall policy
 ---
 
-# google\_compute\_firewall\_policy
+# google_compute_firewall_policy
 
 Hierarchical firewall policy rules let you create and enforce a consistent firewall policy across your organization. Rules can explicitly allow or deny connections or delegate evaluation to lower level policies. Policies can be created within organizations or folders.
 

@@ -4,7 +4,7 @@ description: |-
   Manages a VM instance resource within GCE.
 ---
 
-# google\_compute\_instance\_from\_template
+# google_compute_instance_from_template
 
 Manages a VM instance resource within GCE. For more information see
 [the official documentation](https://cloud.google.com/compute/docs/instances)

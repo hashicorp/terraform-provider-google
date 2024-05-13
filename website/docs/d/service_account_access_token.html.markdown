@@ -4,7 +4,7 @@ description: |-
   Produces access_token for impersonated service accounts
 ---
 
-# google\_service\_account\_access\_token
+# google_service_account_access_token
 
 This data source provides a google `oauth2` `access_token` for a different service account than the one initially running the script.
 

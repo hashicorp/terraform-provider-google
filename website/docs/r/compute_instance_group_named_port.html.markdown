@@ -18,7 +18,7 @@ description: |-
   managing the group as whole.
 ---
 
-# google\_compute\_instance\_group\_named\_port
+# google_compute_instance_group_named_port
 
 Mange the named ports setting for a managed instance group without
 managing the group as whole. This resource is primarily intended for use

@@ -18,7 +18,7 @@ Four different resources help you manage your IAM policy for a organization. Eac
 
 ~> **Note:** `google_organization_iam_binding` resources **can be** used in conjunction with `google_organization_iam_member` resources **only if** they do not grant privilege to the same role.
 
-## google\_organization\_iam\_policy
+## google_organization_iam_policy
 
 !> **Warning:** New organizations have several default policies which will,
    without extreme caution, be **overwritten** by use of this resource.
@@ -74,7 +74,7 @@ data "google_iam_policy" "admin" {
 }
 ```
 
-## google\_organization\_iam\_binding
+## google_organization_iam_binding
 
 ~> **Note:** If `role` is set to `roles/owner` and you don't specify a user or service account you have access to in `members`, you can lock yourself out of your organization.
 
@@ -108,7 +108,7 @@ resource "google_organization_iam_binding" "organization" {
 }
 ```
 
-## google\_organization\_iam\_member
+## google_organization_iam_member
 
 ```hcl
 resource "google_organization_iam_member" "organization" {
@@ -134,7 +134,7 @@ resource "google_organization_iam_member" "organization" {
 }
 ```
 
-## google\_organization\_iam\_audit\_config
+## google_organization_iam_audit_config
 
 ```hcl
 resource "google_organization_iam_audit_config" "organization" {
@@ -156,14 +156,14 @@ resource "google_organization_iam_audit_config" "organization" {
 
 The following arguments are supported:
 
-* `member/members` - (Required except for google\_organization\_iam\_audit\_config) Identities that will be granted the privilege in `role`.
+* `member/members` - (Required except for google_organization_iam_audit_config) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **user:{emailid}**: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
   * **serviceAccount:{emailid}**: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   * **group:{emailid}**: An email address that represents a Google group. For example, admins@example.com.
   * **domain:{domain}**: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
 
-* `role` - (Required except for google\_organization\_iam\_audit\_config) The role that should be applied. Only one
+* `role` - (Required except for google_organization_iam_audit_config) The role that should be applied. Only one
     `google_organization_iam_binding` can be used per role. Note that custom roles must be of the format
     `organizations/{{org_id}}/roles/{{role_id}}`.
 
@@ -178,9 +178,9 @@ The following arguments are supported:
 
 * `org_id` - (Required) The organization id of the target organization.
 
-* `service` - (Required only by google\_organization\_iam\_audit\_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google\_organization\_iam\_audit\_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
+* `service` - (Required only by google_organization_iam_audit_config) Service which will be enabled for audit logging.  The special value `allServices` covers all services.  Note that if there are google_organization_iam_audit_config resources covering both `allServices` and a specific service then the union of the two AuditConfigs is used for that service: the `log_types` specified in each `audit_log_config` are enabled, and the `exempted_members` in each `audit_log_config` are exempted.
 
-* `audit_log_config` - (Required only by google\_organization\_iam\_audit\_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
+* `audit_log_config` - (Required only by google_organization_iam_audit_config) The configuration for logging of each type of permission.  This can be specified multiple times.  Structure is [documented below](#nested_audit_log_config).
 
 * `condition` - (Optional) An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.
   Structure is [documented below](#nested_condition).

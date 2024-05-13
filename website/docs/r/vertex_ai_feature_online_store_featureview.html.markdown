@@ -17,7 +17,7 @@ description: |-
   FeatureView is representation of values that the FeatureOnlineStore will serve based on its syncConfig.
 ---
 
-# google\_vertex\_ai\_feature\_online\_store\_featureview
+# google_vertex_ai_feature_online_store_featureview
 
 FeatureView is representation of values that the FeatureOnlineStore will serve based on its syncConfig.
 

@@ -17,7 +17,7 @@ description: |-
   A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 ---
 
-# google\_cloud\_identity\_group\_membership
+# google_cloud_identity_group_membership
 
 A Membership defines a relationship between a Group and an entity belonging to that Group, referred to as a "member".
 

@@ -17,7 +17,7 @@ description: |-
   Inbound SAML configuration for a Identity Toolkit project.
 ---
 
-# google\_identity\_platform\_inbound\_saml\_config
+# google_identity_platform_inbound_saml_config
 
 Inbound SAML configuration for a Identity Toolkit project.
 

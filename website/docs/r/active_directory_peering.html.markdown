@@ -17,7 +17,7 @@ description: |-
   Creates a Peering for Managed AD instance.
 ---
 
-# google\_active\_directory\_peering
+# google_active_directory_peering
 
 Creates a Peering for Managed AD instance.
 

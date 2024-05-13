@@ -17,7 +17,7 @@ description: |-
   Represents a Data Fusion instance.
 ---
 
-# google\_data\_fusion\_instance
+# google_data_fusion_instance
 
 Represents a Data Fusion instance.
 

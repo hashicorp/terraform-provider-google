@@ -17,7 +17,7 @@ description: |-
   Models are deployed into it, and afterwards Endpoint is called to obtain predictions and explanations.
 ---
 
-# google\_vertex\_ai\_endpoint
+# google_vertex_ai_endpoint
 
 Models are deployed into it, and afterwards Endpoint is called to obtain predictions and explanations.
 

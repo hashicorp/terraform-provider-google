@@ -17,7 +17,7 @@ description: |-
   Describes a composite index for Cloud Datastore.
 ---
 
-# google\_datastore\_index
+# google_datastore_index
 
 Describes a composite index for Cloud Datastore.
 

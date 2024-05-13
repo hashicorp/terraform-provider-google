@@ -17,7 +17,7 @@ description: |-
   Databases are containers of tables.
 ---
 
-# google\_biglake\_database
+# google_biglake_database
 
 Databases are containers of tables.
 

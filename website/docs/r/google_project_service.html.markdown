@@ -4,7 +4,7 @@ description: |-
  Allows management of a single API service for a Google Cloud project.
 ---
 
-# google\_project\_service
+# google_project_service
 
 Allows management of a single API service for a Google Cloud project. 
 

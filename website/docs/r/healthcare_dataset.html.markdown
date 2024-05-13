@@ -17,7 +17,7 @@ description: |-
   A Healthcare `Dataset` is a toplevel logical grouping of `dicomStores`, `fhirStores` and `hl7V2Stores`.
 ---
 
-# google\_healthcare\_dataset
+# google_healthcare_dataset
 
 A Healthcare `Dataset` is a toplevel logical grouping of `dicomStores`, `fhirStores` and `hl7V2Stores`.
 

@@ -18,7 +18,7 @@ description: |-
   service mesh.
 ---
 
-# google\_network\_services\_mesh
+# google_network_services_mesh
 
 Mesh represents a logical configuration grouping for workload to workload communication within a
 service mesh. Routes that point to mesh dictate how requests are routed within this logical

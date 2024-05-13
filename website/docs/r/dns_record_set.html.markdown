@@ -4,7 +4,7 @@ description: |-
   Manages a set of DNS records within Google Cloud DNS.
 ---
 
-# google\_dns\_record\_set
+# google_dns_record_set
 
 Manages a set of DNS records within Google Cloud DNS. For more information see [the official documentation](https://cloud.google.com/dns/records/) and
 [API](https://cloud.google.com/dns/api/v1/resourceRecordSets).

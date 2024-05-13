@@ -18,7 +18,7 @@ description: |-
   (ACLs) for objects within Google Cloud Storage.
 ---
 
-# google\_storage\_object\_access\_control
+# google_storage_object_access_control
 
 The ObjectAccessControls resources represent the Access Control Lists
 (ACLs) for objects within Google Cloud Storage. ACLs let you specify

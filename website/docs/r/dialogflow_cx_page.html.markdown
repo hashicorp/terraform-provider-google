@@ -17,7 +17,7 @@ description: |-
   A Dialogflow CX conversation (session) can be described and visualized as a state machine.
 ---
 
-# google\_dialogflow\_cx\_page
+# google_dialogflow_cx_page
 
 A Dialogflow CX conversation (session) can be described and visualized as a state machine. The states of a CX session are represented by pages.
 

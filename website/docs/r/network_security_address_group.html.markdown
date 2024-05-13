@@ -17,7 +17,7 @@ description: |-
   AddressGroup is a resource that specifies how a collection of IP/DNS used in Firewall Policy.
 ---
 
-# google\_network\_security\_address\_group
+# google_network_security_address_group
 
 AddressGroup is a resource that specifies how a collection of IP/DNS used in Firewall Policy.
 

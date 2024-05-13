@@ -17,7 +17,7 @@ description: |-
   A policy that can be attached to a resource to specify or schedule actions on that resource.
 ---
 
-# google\_compute\_resource\_policy
+# google_compute_resource_policy
 
 A policy that can be attached to a resource to specify or schedule actions on that resource.
 

@@ -17,7 +17,7 @@ description: |-
   Feature Metadata information that describes an attribute of an entity type.
 ---
 
-# google\_vertex\_ai\_featurestore\_entitytype\_feature
+# google_vertex_ai_featurestore_entitytype_feature
 
 Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature that describes apple.
 

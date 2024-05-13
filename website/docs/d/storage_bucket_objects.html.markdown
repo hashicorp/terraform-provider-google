@@ -5,7 +5,7 @@ description: |-
 ---
 
 
-# google\_storage\_bucket\_objects
+# google_storage_bucket_objects
 
 Gets existing objects inside an existing bucket in Google Cloud Storage service (GCS).
 See [the official documentation](https://cloud.google.com/storage/docs/key-terms#objects)

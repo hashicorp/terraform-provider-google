@@ -4,7 +4,7 @@ description: |-
   Manages a project-level logging exclusion.
 ---
 
-# google\_logging\_project\_exclusion
+# google_logging_project_exclusion
 
 Manages a project-level logging exclusion. For more information see:
 

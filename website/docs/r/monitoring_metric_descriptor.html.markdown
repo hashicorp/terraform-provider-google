@@ -17,7 +17,7 @@ description: |-
   Defines a metric type and its schema.
 ---
 
-# google\_monitoring\_metric\_descriptor
+# google_monitoring_metric_descriptor
 
 Defines a metric type and its schema. Once a metric descriptor is created, deleting or altering it stops data collection and makes the metric type's existing data unusable.
 

@@ -17,7 +17,7 @@ description: |-
   An OS Config resource representing a guest configuration policy.
 ---
 
-# google\_os\_config\_guest\_policies
+# google_os_config_guest_policies
 
 An OS Config resource representing a guest configuration policy. These policies represent
 the desired state for VM instance guest environments including packages to install or remove,

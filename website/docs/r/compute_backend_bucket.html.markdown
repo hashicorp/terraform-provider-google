@@ -18,7 +18,7 @@ description: |-
   load balancing.
 ---
 
-# google\_compute\_backend\_bucket
+# google_compute_backend_bucket
 
 Backend buckets allow you to use Google Cloud Storage buckets with HTTP(S)
 load balancing.

@@ -4,7 +4,7 @@ description: |-
   Get tag values from the parent key.
 ---
 
-# google\_tags\_tag\_values
+# google_tags_tag_values
 
 Get tag values from a `parent` key.
 

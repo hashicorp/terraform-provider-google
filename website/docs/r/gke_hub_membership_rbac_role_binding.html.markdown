@@ -17,7 +17,7 @@ description: |-
   RBACRoleBinding represents a rbacrolebinding across the Fleet.
 ---
 
-# google\_gke\_hub\_membership\_rbac\_role\_binding
+# google_gke_hub_membership_rbac_role_binding
 
 RBACRoleBinding represents a rbacrolebinding across the Fleet.
 

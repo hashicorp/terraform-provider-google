@@ -17,7 +17,7 @@ description: |-
   A resource represents a Dataform release configuration
 ---
 
-# google\_dataform\_repository\_release\_config
+# google_dataform_repository_release_config
 
 A resource represents a Dataform release configuration
 

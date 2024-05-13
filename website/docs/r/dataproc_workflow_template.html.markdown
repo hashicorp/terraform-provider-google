@@ -4,7 +4,7 @@ description: |-
   A Workflow Template is a reusable workflow configuration.
 ---
 
-# google\_dataproc\_workflow\_template
+# google_dataproc_workflow_template
 
 A Workflow Template is a reusable workflow configuration. It defines a graph of jobs with information on where to run those jobs.
 

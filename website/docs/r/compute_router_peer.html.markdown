@@ -5,7 +5,7 @@ description: |-
   establish BGP peering.
 ---
 
-# google\_compute\_router\_peer
+# google_compute_router_peer
 
 BGP information that must be configured into the routing stack to
 establish BGP peering. This information must specify the peer ASN

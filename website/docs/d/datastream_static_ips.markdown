@@ -4,7 +4,7 @@ description: |-
   Returns the list of IP addresses that Datastream connects from.
 ---
 
-# google\_datastream\_static\_ips
+# google_datastream_static_ips
 
 Returns the list of IP addresses that Datastream connects from. For more information see
 the [official documentation](https://cloud.google.com/datastream/docs/ip-allowlists-and-regions).

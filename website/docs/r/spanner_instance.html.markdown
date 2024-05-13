@@ -18,7 +18,7 @@ description: |-
   hosted.
 ---
 
-# google\_spanner\_instance
+# google_spanner_instance
 
 An isolated set of Cloud Spanner resources on which databases can be
 hosted.

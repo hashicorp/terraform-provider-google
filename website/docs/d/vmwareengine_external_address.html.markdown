@@ -4,7 +4,7 @@ description: |-
   Get information about a external address.
 ---
 
-# google\_vmwareengine\_external_address
+# google_vmwareengine_external_address
 
 Use this data source to get details about a external address resource.
 
