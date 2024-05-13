@@ -598,8 +598,7 @@ The following arguments are supported:
   (Optional)
   Configures the installation of the Template Library. Structure is [documented below](#nested_template_library).
 
-<a name="nested_bundles"></a>The `template_library` block supports:
-The `bundles` block supports:
+<a name="nested_bundles"></a>The `bundles` block supports:
     
 * `bundle_name` -
   (Required)
