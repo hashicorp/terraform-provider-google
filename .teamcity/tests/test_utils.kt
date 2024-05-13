@@ -8,10 +8,9 @@
 package tests
 
 import builds.AllContextParameters
-import jetbrains.buildServer.BuildProject
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
-import org.junit.Assert
+import org.junit.Assert.fail
 
 const val gaProjectName = "Google"
 const val betaProjectName = "Google Beta"
@@ -54,26 +53,31 @@ fun testContextParameters(): AllContextParameters {
         "credentialsGCS")
 }
 
-fun getSubProject(rootProject: Project, parentProjectName: String, subProjectName: String): Project {
+// getNestedProjectFromRoot allows you to retrieve a project that's 2 levels deep from the root project,
+// Using the names of the parent and desired project.
+// E.g. Root > Project A > Project B - you need to supply the inputs "Project A" and "Project B"
+fun getNestedProjectFromRoot(root: Project, parentName: String, nestedProjectName: String): Project {
     // Find parent project within root
-    val parentProject: Project? =  rootProject.subProjects.find { p->  p.name == parentProjectName}
-    if (parentProject == null) {
-        Assert.fail("Could not find the $parentProjectName project")
-    }
+    val parent: Project = getSubProject(root, parentName)
     // Find subproject within parent identified above
-    val subProject: Project?  = parentProject!!.subProjects.find { p->  p.name == subProjectName}
-    if (subProject == null) {
-        Assert.fail("Could not find the $subProjectName project")
-    }
+    return getSubProject(parent, nestedProjectName)
+}
 
+// getSubProject allows you to retrieve a project nested inside a given project you've already identified,
+// using its name.
+fun getSubProject(parent: Project, subProjectName: String): Project {
+    val subProject: Project? =  parent.subProjects.find { p->  p.name == subProjectName}
+    if (subProject == null) {
+        fail("Could not find the $subProjectName project inside ${parent.name}")
+    }
     return subProject!!
 }
 
+// getBuildFromProject allows you to retrieve a build configuration from an identified project using its name
 fun getBuildFromProject(parentProject: Project, buildName: String): BuildType {
-    val buildType: BuildType?  = parentProject!!.buildTypes.find { p->  p.name == buildName}
+    val buildType: BuildType?  = parentProject.buildTypes.find { p->  p.name == buildName}
     if (buildType == null) {
-        Assert.fail("Could not find the '$buildName' build in project ${parentProject.name}")
+        fail("Could not find the '$buildName' build in project ${parentProject.name}")
     }
-
     return buildType!!
 }

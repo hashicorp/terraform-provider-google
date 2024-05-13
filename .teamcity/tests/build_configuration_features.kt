@@ -8,7 +8,6 @@
 package tests
 
 import builds.UseTeamCityGoTest
-import jetbrains.buildServer.configs.kotlin.Project
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -17,19 +16,13 @@ import projects.googleCloudRootProject
 class BuildConfigurationFeatureTests {
     @Test
     fun buildShouldFailOnError() {
-        val project = googleCloudRootProject(testContextParameters())
-        // Find Google (GA) project
-        var gaProject: Project? =  project.subProjects.find { p->  p.name == gaProjectName}
-        if (gaProject == null) {
-            fail("Could not find the Google (GA) project")
-        }
-        // Find Google Beta project
-        var betaProject: Project? =  project.subProjects.find { p->  p.name == betaProjectName}
-        if (betaProject == null) {
-            fail("Could not find the Google (GA) project")
-        }
+        val root = googleCloudRootProject(testContextParameters())
 
-        (gaProject!!.subProjects + betaProject!!.subProjects).forEach{p ->
+        val gaProject = getSubProject(root, gaProjectName)
+        val betaProject = getSubProject(root, betaProjectName)
+        val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
+
+        (gaProject.subProjects + betaProject.subProjects + projectSweeperProject.subProjects).forEach{p ->
             p.buildTypes.forEach{bt ->
                 assertTrue("Build '${bt.id}' should fail on errors!", bt.failureConditions.errorMessage)
             }
@@ -38,19 +31,13 @@ class BuildConfigurationFeatureTests {
 
     @Test
     fun buildShouldHaveGoTestFeature() {
-        val project = googleCloudRootProject(testContextParameters())
-        // Find Google (GA) project
-        var gaProject: Project? =  project.subProjects.find { p->  p.name == gaProjectName}
-        if (gaProject == null) {
-            fail("Could not find the Google (GA) project")
-        }
-        // Find Google Beta project
-        var betaProject: Project? =  project.subProjects.find { p->  p.name == betaProjectName}
-        if (betaProject == null) {
-            fail("Could not find the Google (GA) project")
-        }
+        val root = googleCloudRootProject(testContextParameters())
 
-        (gaProject!!.subProjects + betaProject!!.subProjects).forEach{p ->
+        val gaProject = getSubProject(root, gaProjectName)
+        val betaProject = getSubProject(root, betaProjectName)
+        val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
+
+        (gaProject.subProjects + betaProject.subProjects + projectSweeperProject.subProjects).forEach{p ->
             var exists: ArrayList<Boolean> = arrayListOf()
             p.buildTypes.forEach{bt ->
                 bt.features.items.forEach { f ->
@@ -65,19 +52,19 @@ class BuildConfigurationFeatureTests {
 
     @Test
     fun nonVCRBuildShouldHaveSaveArtifactsToGCS() {
-        val project = googleCloudRootProject(testContextParameters())
+        val root = googleCloudRootProject(testContextParameters())
 
         // Find GA nightly test project
-        var gaNightlyTestProject = getSubProject(project, gaProjectName, nightlyTestsProjectName)
+        var gaNightlyTestProject = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
 
         // Find GA MM Upstream project
-        var gaMMUpstreamProject = getSubProject(project, gaProjectName, mmUpstreamProjectName)
+        var gaMMUpstreamProject = getNestedProjectFromRoot(root, gaProjectName, mmUpstreamProjectName)
 
         // Find Beta nightly test project
-        var betaNightlyTestProject = getSubProject(project, betaProjectName, nightlyTestsProjectName)
+        var betaNightlyTestProject = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
 
         // Find Beta MM Upstream project
-        var betaMMUpstreamProject = getSubProject(project, betaProjectName, mmUpstreamProjectName)
+        var betaMMUpstreamProject = getNestedProjectFromRoot(root, betaProjectName, mmUpstreamProjectName)
 
         (gaNightlyTestProject.buildTypes + gaMMUpstreamProject.buildTypes + betaNightlyTestProject.buildTypes + betaMMUpstreamProject.buildTypes).forEach{bt ->
             var found: Boolean = false
