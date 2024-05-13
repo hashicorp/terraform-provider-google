@@ -2,7 +2,6 @@
 
 NOTES:
 * compute: added documentation for `md5_authentication_key` field in `google_compute_router_peer` resource. The field was introduced in [v5.12.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.12.0), but documentation was unintentionally omitted at that time. ([#17991](https://github.com/hashicorp/terraform-provider-google/pull/17991))
-* dataflow: updated dataflow job docs with usage and an example for `service_account_email` ([#18037](https://github.com/hashicorp/terraform-provider-google/pull/18037))
 
 FEATURES:
 * **New Resource:** `google_bigtable_authorized_view` ([#18006](https://github.com/hashicorp/terraform-provider-google/pull/18006))
