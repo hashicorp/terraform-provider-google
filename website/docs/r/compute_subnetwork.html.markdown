@@ -235,46 +235,18 @@ resource "google_compute_network" "net-cidr-overlap" {
   auto_create_subnetworks = false
 }
 ```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_working_dir=subnetwork_reserved_internal_range&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&open_in_editor=main.tf&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Subnetwork Reserved Internal Range
-
-
-```hcl
-resource "google_compute_subnetwork" "subnetwork-reserved-internal-range" {
-  provider                = google-beta
-  name                    = "subnetwork-reserved-internal-range"
-  region                  = "us-central1"
-  network                 = google_compute_network.default.id
-  reserved_internal_range = "networkconnectivity.googleapis.com/${google_network_connectivity_internal_range.reserved.id}"
-}
-
-resource "google_compute_network" "default" {
-  provider                = google-beta
-  name                    = "network-reserved-internal-range"
-  auto_create_subnetworks = false
-}
-
-resource "google_network_connectivity_internal_range" "reserved" {
-  provider          = google-beta
-  name              = "reserved"
-  network           = google_compute_network.default.id
-  usage             = "FOR_VPC"
-  peering           = "FOR_SELF"
-  prefix_length     = 24
-  target_cidr_range = [
-    "10.0.0.0/8"
-  ]
-}
-```
 
 ## Argument Reference
 
 The following arguments are supported:
 
+
+* `ip_cidr_range` -
+  (Required)
+  The range of internal addresses that are owned by this subnetwork.
+  Provide this property when you create the subnetwork. For example,
+  10.0.0.0/8 or 192.168.0.0/16. Ranges must be unique and
+  non-overlapping within a network. Only IPv4 is supported.
 
 * `name` -
   (Required)
@@ -300,19 +272,6 @@ The following arguments are supported:
   An optional description of this resource. Provide this property when
   you create the resource. This field can be set only at resource
   creation time.
-
-* `ip_cidr_range` -
-  (Optional)
-  The range of internal addresses that are owned by this subnetwork.
-  Provide this property when you create the subnetwork. For example,
-  10.0.0.0/8 or 192.168.0.0/16. Ranges must be unique and
-  non-overlapping within a network. Only IPv4 is supported.
-  Field is optional when `reserved_internal_range` is defined, otherwise required.
-
-* `reserved_internal_range` -
-  (Optional)
-  The ID of the reserved internal range. Must be prefixed with `networkconnectivity.googleapis.com`
-  E.g. `networkconnectivity.googleapis.com/projects/{project}/locations/global/internalRanges/{rangeId}`
 
 * `purpose` -
   (Optional)
@@ -405,17 +364,11 @@ The following arguments are supported:
   must be unique within the subnetwork.
 
 * `ip_cidr_range` -
-  (Optional)
+  (Required)
   The range of IP addresses belonging to this subnetwork secondary
   range. Provide this property when you create the subnetwork.
   Ranges must be unique and non-overlapping with all primary and
   secondary IP ranges within a network. Only IPv4 is supported.
-  Field is optional when `reserved_internal_range` is defined, otherwise required.
-
-* `reserved_internal_range` -
-  (Optional)
-  The ID of the reserved internal range. Must be prefixed with `networkconnectivity.googleapis.com`
-  E.g. `networkconnectivity.googleapis.com/projects/{project}/locations/global/internalRanges/{rangeId}`
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
