@@ -5352,7 +5352,8 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
   name               = "%s"
   location           = "us-central1-a"
-  min_master_version = data.google_container_engine_versions.central1a.valid_master_versions[3]
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_default_version["STABLE"]
+  node_version       = data.google_container_engine_versions.central1a.release_channel_default_version["STABLE"]
   initial_node_count = 1
   deletion_protection = false
   network    = "%s"
@@ -5388,8 +5389,8 @@ data "google_container_engine_versions" "central1a" {
 resource "google_container_cluster" "with_version" {
   name               = "%s"
   location           = "us-central1-a"
-  min_master_version = data.google_container_engine_versions.central1a.latest_master_version
-  node_version       = data.google_container_engine_versions.central1a.valid_node_versions[1]
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["STABLE"]
+  node_version       = data.google_container_engine_versions.central1a.release_channel_latest_version["STABLE"]
   initial_node_count = 1
   deletion_protection = false
   network    = "%s"
