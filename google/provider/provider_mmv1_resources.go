@@ -407,9 +407,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 412
+// Generated resources: 413
 // Generated IAM resources: 237
-// Total generated resources: 649
+// Total generated resources: 650
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -923,6 +923,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_network_services_edge_cache_origin":                        networkservices.ResourceNetworkServicesEdgeCacheOrigin(),
 	"google_network_services_edge_cache_service":                       networkservices.ResourceNetworkServicesEdgeCacheService(),
 	"google_network_services_gateway":                                  networkservices.ResourceNetworkServicesGateway(),
+	"google_network_services_lb_traffic_extension":                     networkservices.ResourceNetworkServicesLbTrafficExtension(),
 	"google_notebooks_environment":                                     notebooks.ResourceNotebooksEnvironment(),
 	"google_notebooks_instance":                                        notebooks.ResourceNotebooksInstance(),
 	"google_notebooks_instance_iam_binding":                            tpgiamresource.ResourceIamBinding(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer, notebooks.NotebooksInstanceIdParseFunc),
