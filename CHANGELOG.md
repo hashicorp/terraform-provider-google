@@ -3,7 +3,7 @@
 ## 5.29.1 (May 14, 2024)
 
 BREAKING CHANGES:
-* compute: removed `secondary_ip_range.reserved_internal_range` field from `google_compute_subnetwork`
+* compute: removed `secondary_ip_range.reserved_internal_range` field from `google_compute_subnetwork` ([18133](https://github.com/hashicorp/terraform-provider-google/pull/18133))
 
 ## 5.29.0 (May 13, 2024)
 
