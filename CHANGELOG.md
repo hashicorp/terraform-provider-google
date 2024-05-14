@@ -8,7 +8,7 @@ BREAKING CHANGES:
 ## 5.29.0 (May 13, 2024)
 
 BREAKING CHANGES:
-* compute: added required `reserved_internal_range` subfield to `reserved_internal_range` in `google_compute_subnetwork`. This field can be set to `null` as an equivalent to leaving it unspecified.
+* compute: added required `reserved_internal_range` subfield to `reserved_internal_range` in `google_compute_subnetwork`. This field can be set to `null` as an equivalent to leaving it unspecified. Upgrading directly to 5.29.1 will avoid this issue.
 
 NOTES:
 * compute: added documentation for `md5_authentication_key` field in `google_compute_router_peer` resource. The field was introduced in [v5.12.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.12.0), but documentation was unintentionally omitted at that time. ([#17991](https://github.com/hashicorp/terraform-provider-google/pull/17991))
