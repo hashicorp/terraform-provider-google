@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func ResourceNetworkSecurityTlsInspectionPolicy() *schema.Resource {
@@ -64,6 +65,14 @@ func ResourceNetworkSecurityTlsInspectionPolicy() *schema.Resource {
 				Required:    true,
 				Description: `Short name of the TlsInspectionPolicy resource to be created.`,
 			},
+			"custom_tls_features": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `List of custom TLS cipher suites selected. This field is valid only if the selected tls_feature_profile is CUSTOM. The compute.SslPoliciesService.ListAvailableFeatures method returns the set of features that can be specified in this list. Note that Secure Web Proxy does not yet honor this field.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -78,6 +87,24 @@ func ResourceNetworkSecurityTlsInspectionPolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The location of the tls inspection policy.`,
+			},
+			"min_tls_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"TLS_VERSION_UNSPECIFIED", "TLS_1_0", "TLS_1_1", "TLS_1_2", "TLS_1_3", ""}),
+				Description:  `Minimum TLS version that the firewall should use when negotiating connections with both clients and servers. If this is not set, then the default value is to allow the broadest set of clients and servers (TLS 1.0 or higher). Setting this to more restrictive values may improve security, but may also prevent the firewall from connecting to some clients or servers. Note that Secure Web Proxy does not yet honor this field. Possible values: ["TLS_VERSION_UNSPECIFIED", "TLS_1_0", "TLS_1_1", "TLS_1_2", "TLS_1_3"]`,
+			},
+			"tls_feature_profile": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PROFILE_UNSPECIFIED", "PROFILE_COMPATIBLE", "PROFILE_MODERN", "PROFILE_RESTRICTED", "PROFILE_CUSTOM", ""}),
+				Description:  `The selected Profile. If this is not set, then the default value is to allow the broadest set of clients and servers (\"PROFILE_COMPATIBLE\"). Setting this to more restrictive values may improve security, but may also prevent the TLS inspection proxy from connecting to some clients or servers. Note that Secure Web Proxy does not yet honor this field. Possible values: ["PROFILE_UNSPECIFIED", "PROFILE_COMPATIBLE", "PROFILE_MODERN", "PROFILE_RESTRICTED", "PROFILE_CUSTOM"]`,
+			},
+			"trust_config": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
+				Description:      `A TrustConfig resource used when making a connection to the TLS server. This is a relative resource path following the form \"projects/{project}/locations/{location}/trustConfigs/{trust_config}\". This is necessary to intercept TLS connections to servers with certificates signed by a private CA or self-signed certificates. Trust config and the TLS inspection policy must be in the same region. Note that Secure Web Proxy does not yet honor this field.`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -119,6 +146,30 @@ func resourceNetworkSecurityTlsInspectionPolicyCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("ca_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(caPoolProp)) && (ok || !reflect.DeepEqual(v, caPoolProp)) {
 		obj["caPool"] = caPoolProp
+	}
+	trustConfigProp, err := expandNetworkSecurityTlsInspectionPolicyTrustConfig(d.Get("trust_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("trust_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(trustConfigProp)) && (ok || !reflect.DeepEqual(v, trustConfigProp)) {
+		obj["trustConfig"] = trustConfigProp
+	}
+	minTlsVersionProp, err := expandNetworkSecurityTlsInspectionPolicyMinTlsVersion(d.Get("min_tls_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("min_tls_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(minTlsVersionProp)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
+		obj["minTlsVersion"] = minTlsVersionProp
+	}
+	tlsFeatureProfileProp, err := expandNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(d.Get("tls_feature_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_feature_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(tlsFeatureProfileProp)) && (ok || !reflect.DeepEqual(v, tlsFeatureProfileProp)) {
+		obj["tlsFeatureProfile"] = tlsFeatureProfileProp
+	}
+	customTlsFeaturesProp, err := expandNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(d.Get("custom_tls_features"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_tls_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(customTlsFeaturesProp)) && (ok || !reflect.DeepEqual(v, customTlsFeaturesProp)) {
+		obj["customTlsFeatures"] = customTlsFeaturesProp
 	}
 	excludePublicCaSetProp, err := expandNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(d.Get("exclude_public_ca_set"), d, config)
 	if err != nil {
@@ -237,6 +288,18 @@ func resourceNetworkSecurityTlsInspectionPolicyRead(d *schema.ResourceData, meta
 	if err := d.Set("ca_pool", flattenNetworkSecurityTlsInspectionPolicyCaPool(res["caPool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
 	}
+	if err := d.Set("trust_config", flattenNetworkSecurityTlsInspectionPolicyTrustConfig(res["trustConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err := d.Set("min_tls_version", flattenNetworkSecurityTlsInspectionPolicyMinTlsVersion(res["minTlsVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err := d.Set("tls_feature_profile", flattenNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(res["tlsFeatureProfile"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
+	if err := d.Set("custom_tls_features", flattenNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(res["customTlsFeatures"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
+	}
 	if err := d.Set("exclude_public_ca_set", flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(res["excludePublicCaSet"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TlsInspectionPolicy: %s", err)
 	}
@@ -272,6 +335,30 @@ func resourceNetworkSecurityTlsInspectionPolicyUpdate(d *schema.ResourceData, me
 	} else if v, ok := d.GetOkExists("ca_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, caPoolProp)) {
 		obj["caPool"] = caPoolProp
 	}
+	trustConfigProp, err := expandNetworkSecurityTlsInspectionPolicyTrustConfig(d.Get("trust_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("trust_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, trustConfigProp)) {
+		obj["trustConfig"] = trustConfigProp
+	}
+	minTlsVersionProp, err := expandNetworkSecurityTlsInspectionPolicyMinTlsVersion(d.Get("min_tls_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("min_tls_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, minTlsVersionProp)) {
+		obj["minTlsVersion"] = minTlsVersionProp
+	}
+	tlsFeatureProfileProp, err := expandNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(d.Get("tls_feature_profile"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_feature_profile"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, tlsFeatureProfileProp)) {
+		obj["tlsFeatureProfile"] = tlsFeatureProfileProp
+	}
+	customTlsFeaturesProp, err := expandNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(d.Get("custom_tls_features"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_tls_features"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customTlsFeaturesProp)) {
+		obj["customTlsFeatures"] = customTlsFeaturesProp
+	}
 	excludePublicCaSetProp, err := expandNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(d.Get("exclude_public_ca_set"), d, config)
 	if err != nil {
 		return err
@@ -294,6 +381,22 @@ func resourceNetworkSecurityTlsInspectionPolicyUpdate(d *schema.ResourceData, me
 
 	if d.HasChange("ca_pool") {
 		updateMask = append(updateMask, "caPool")
+	}
+
+	if d.HasChange("trust_config") {
+		updateMask = append(updateMask, "trustConfig")
+	}
+
+	if d.HasChange("min_tls_version") {
+		updateMask = append(updateMask, "minTlsVersion")
+	}
+
+	if d.HasChange("tls_feature_profile") {
+		updateMask = append(updateMask, "tlsFeatureProfile")
+	}
+
+	if d.HasChange("custom_tls_features") {
+		updateMask = append(updateMask, "customTlsFeatures")
 	}
 
 	if d.HasChange("exclude_public_ca_set") {
@@ -434,6 +537,22 @@ func flattenNetworkSecurityTlsInspectionPolicyCaPool(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenNetworkSecurityTlsInspectionPolicyTrustConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityTlsInspectionPolicyMinTlsVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkSecurityTlsInspectionPolicyExcludePublicCaSet(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -443,6 +562,22 @@ func expandNetworkSecurityTlsInspectionPolicyDescription(v interface{}, d tpgres
 }
 
 func expandNetworkSecurityTlsInspectionPolicyCaPool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityTlsInspectionPolicyTrustConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityTlsInspectionPolicyMinTlsVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityTlsInspectionPolicyTlsFeatureProfile(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkSecurityTlsInspectionPolicyCustomTlsFeatures(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
