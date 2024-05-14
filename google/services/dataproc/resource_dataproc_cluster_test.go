@@ -555,6 +555,7 @@ func TestAccDataprocCluster_spotWithAuxiliaryNodeGroups(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_size_gb", "35"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.boot_disk_type", "pd-standard"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.num_local_ssds", "1"),
+					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.disk_config.0.local_ssd_interface", "nvme"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group.0.node_group_config.0.accelerators.0.accelerator_count", "1"),
 					resource.TestCheckResourceAttr("google_dataproc_cluster.with_auxiliary_node_groups", "cluster_config.0.auxiliary_node_groups.0.node_group_id", "node-group-id"),
 					testAccCheckDataprocAuxiliaryNodeGroupAccelerator(&cluster, project),
@@ -1227,6 +1228,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.master_config.0.disk_config.0.num_local_ssds", "0", strconv.Itoa(int(cluster.Config.MasterConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.master_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.MasterConfig.DiskConfig.BootDiskType},
+			{"cluster_config.0.master_config.0.disk_config.0.local_ssd_interface", "nvme", cluster.Config.MasterConfig.DiskConfig.LocalSsdInterface},
 			{"cluster_config.0.master_config.0.machine_type", "n1-standard-2", tpgresource.GetResourceNameFromSelfLink(cluster.Config.MasterConfig.MachineTypeUri)},
 			{"cluster_config.0.master_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.MasterConfig.InstanceNames))},
 			{"cluster_config.0.master_config.0.min_cpu_platform", "Intel Skylake", cluster.Config.MasterConfig.MinCpuPlatform},
@@ -1235,6 +1237,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.WorkerConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type", "pd-standard", cluster.Config.WorkerConfig.DiskConfig.BootDiskType},
+			{"cluster_config.0.worker_config.0.disk_config.0.local_ssd_interface", "scsi", cluster.Config.WorkerConfig.DiskConfig.LocalSsdInterface},
 			{"cluster_config.0.worker_config.0.machine_type", "n1-standard-2", tpgresource.GetResourceNameFromSelfLink(cluster.Config.WorkerConfig.MachineTypeUri)},
 			{"cluster_config.0.worker_config.0.instance_names.#", "3", strconv.Itoa(len(cluster.Config.WorkerConfig.InstanceNames))},
 			{"cluster_config.0.worker_config.0.min_cpu_platform", "Intel Broadwell", cluster.Config.WorkerConfig.MinCpuPlatform},
@@ -1243,6 +1246,7 @@ func validateDataprocCluster_withConfigOverrides(n string, cluster *dataproc.Clu
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb", "35", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskSizeGb))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.num_local_ssds", "1", strconv.Itoa(int(cluster.Config.SecondaryWorkerConfig.DiskConfig.NumLocalSsds))},
 			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type", "pd-ssd", cluster.Config.SecondaryWorkerConfig.DiskConfig.BootDiskType},
+			{"cluster_config.0.preemptible_worker_config.0.disk_config.0.local_ssd_interface", "nvme", cluster.Config.SecondaryWorkerConfig.DiskConfig.LocalSsdInterface},
 			{"cluster_config.0.preemptible_worker_config.0.instance_names.#", "1", strconv.Itoa(len(cluster.Config.SecondaryWorkerConfig.InstanceNames))},
 		}
 
@@ -1695,6 +1699,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
       disk_config {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 35
+        local_ssd_interface = "nvme"
       }
       min_cpu_platform = "Intel Skylake"
     }
@@ -1706,6 +1711,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
         boot_disk_type    = "pd-standard"
         boot_disk_size_gb = 35
         num_local_ssds    = 1
+        local_ssd_interface = "scsi"
       }
 
       min_cpu_platform = "Intel Broadwell"
@@ -1717,6 +1723,7 @@ resource "google_dataproc_cluster" "with_config_overrides" {
         boot_disk_type    = "pd-ssd"
         boot_disk_size_gb = 35
         num_local_ssds    = 1
+        local_ssd_interface = "nvme"
       }
     }
   }
@@ -1967,6 +1974,7 @@ resource "google_dataproc_cluster" "with_auxiliary_node_groups" {
             boot_disk_size_gb = 35
             boot_disk_type = "pd-standard"
             num_local_ssds = 1
+            local_ssd_interface = "nvme"
           }
           accelerators {
             accelerator_count = 1

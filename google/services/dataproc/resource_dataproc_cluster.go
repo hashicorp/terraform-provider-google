@@ -78,11 +78,9 @@ var (
 		"cluster_config.0.gce_cluster_config.0.reservation_affinity.0.values",
 	}
 
-	preemptibleWorkerDiskConfigKeys = []string{
-		"cluster_config.0.preemptible_worker_config.0.disk_config.0.num_local_ssds",
-		"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_size_gb",
-		"cluster_config.0.preemptible_worker_config.0.disk_config.0.boot_disk_type",
-	}
+	masterDiskConfigKeys            = diskConfigKeys("master_config")
+	workerDiskConfigKeys            = diskConfigKeys("worker_config")
+	preemptibleWorkerDiskConfigKeys = diskConfigKeys("preemptible_worker_config")
 
 	clusterSoftwareConfigKeys = []string{
 		"cluster_config.0.software_config.0.image_version",
@@ -121,6 +119,18 @@ var (
 
 const resourceDataprocGoogleLabelPrefix = "goog-dataproc"
 const resourceDataprocGoogleProvidedLabelPrefix = "labels." + resourceDataprocGoogleLabelPrefix
+
+// The keys inside a DiskConfig. configName is the name of the field this disk
+// config is inside. E.g. 'master_config', 'worker_config', or
+// 'preemptible_worker_config'.
+func diskConfigKeys(configName string) []string {
+	return []string{
+		"cluster_config.0." + configName + ".0.disk_config.0.num_local_ssds",
+		"cluster_config.0." + configName + ".0.disk_config.0.boot_disk_size_gb",
+		"cluster_config.0." + configName + ".0.disk_config.0.boot_disk_type",
+		"cluster_config.0." + configName + ".0.disk_config.0.local_ssd_interface",
+	}
+}
 
 func resourceDataprocLabelDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	if strings.HasPrefix(k, resourceDataprocGoogleProvidedLabelPrefix) && new == "" {
@@ -821,43 +831,39 @@ func ResourceDataprocCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"num_local_ssds": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Computed:    true,
-													Description: `The amount of local SSD disks that will be attached to each master cluster node. Defaults to 0.`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.master_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_type",
-													},
-													ForceNew: true,
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													Description:  `The amount of local SSD disks that will be attached to each master cluster node. Defaults to 0.`,
+													AtLeastOneOf: masterDiskConfigKeys,
+													ForceNew:     true,
 												},
 
 												"boot_disk_size_gb": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Computed:    true,
-													Description: `Size of the primary disk attached to each node, specified in GB. The primary disk contains the boot volume and system libraries, and the smallest allowed disk size is 10GB. GCP will default to a predetermined computed value if not set (currently 500GB). Note: If SSDs are not attached, it also contains the HDFS data blocks and Hadoop working directories.`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.master_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_type",
-													},
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													Description:  `Size of the primary disk attached to each node, specified in GB. The primary disk contains the boot volume and system libraries, and the smallest allowed disk size is 10GB. GCP will default to a predetermined computed value if not set (currently 500GB). Note: If SSDs are not attached, it also contains the HDFS data blocks and Hadoop working directories.`,
+													AtLeastOneOf: masterDiskConfigKeys,
 													ForceNew:     true,
 													ValidateFunc: validation.IntAtLeast(10),
 												},
 
 												"boot_disk_type": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard". Defaults to "pd-standard".`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.master_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.master_config.0.disk_config.0.boot_disk_type",
-													},
-													ForceNew: true,
-													Default:  "pd-standard",
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard". Defaults to "pd-standard".`,
+													AtLeastOneOf: masterDiskConfigKeys,
+													ForceNew:     true,
+													Default:      "pd-standard",
+												},
+
+												"local_ssd_interface": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Interface type of local SSDs (default is "scsi"). Valid values: "scsi" (Small Computer System Interface), "nvme" (Non-Volatile Memory Express).`,
+													AtLeastOneOf: masterDiskConfigKeys,
+													ForceNew:     true,
 												},
 											},
 										},
@@ -970,43 +976,39 @@ func ResourceDataprocCluster() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"num_local_ssds": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Computed:    true,
-													Description: `The amount of local SSD disks that will be attached to each master cluster node. Defaults to 0.`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type",
-													},
-													ForceNew: true,
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													Description:  `The amount of local SSD disks that will be attached to each master cluster node. Defaults to 0.`,
+													AtLeastOneOf: workerDiskConfigKeys,
+													ForceNew:     true,
 												},
 
 												"boot_disk_size_gb": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Computed:    true,
-													Description: `Size of the primary disk attached to each node, specified in GB. The primary disk contains the boot volume and system libraries, and the smallest allowed disk size is 10GB. GCP will default to a predetermined computed value if not set (currently 500GB). Note: If SSDs are not attached, it also contains the HDFS data blocks and Hadoop working directories.`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type",
-													},
+													Type:         schema.TypeInt,
+													Optional:     true,
+													Computed:     true,
+													Description:  `Size of the primary disk attached to each node, specified in GB. The primary disk contains the boot volume and system libraries, and the smallest allowed disk size is 10GB. GCP will default to a predetermined computed value if not set (currently 500GB). Note: If SSDs are not attached, it also contains the HDFS data blocks and Hadoop working directories.`,
+													AtLeastOneOf: workerDiskConfigKeys,
 													ForceNew:     true,
 													ValidateFunc: validation.IntAtLeast(10),
 												},
 
 												"boot_disk_type": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard". Defaults to "pd-standard".`,
-													AtLeastOneOf: []string{
-														"cluster_config.0.worker_config.0.disk_config.0.num_local_ssds",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_size_gb",
-														"cluster_config.0.worker_config.0.disk_config.0.boot_disk_type",
-													},
-													ForceNew: true,
-													Default:  "pd-standard",
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `The disk type of the primary disk attached to each node. Such as "pd-ssd" or "pd-standard". Defaults to "pd-standard".`,
+													AtLeastOneOf: workerDiskConfigKeys,
+													ForceNew:     true,
+													Default:      "pd-standard",
+												},
+
+												"local_ssd_interface": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Description:  `Interface type of local SSDs (default is "scsi"). Valid values: "scsi" (Small Computer System Interface), "nvme" (Non-Volatile Memory Express).`,
+													AtLeastOneOf: workerDiskConfigKeys,
+													ForceNew:     true,
 												},
 											},
 										},
@@ -1131,6 +1133,14 @@ func ResourceDataprocCluster() *schema.Resource {
 													ForceNew:     true,
 													Default:      "pd-standard",
 													Description:  `The disk type of the primary disk attached to each preemptible worker node. Such as "pd-ssd" or "pd-standard". Defaults to "pd-standard".`,
+												},
+
+												"local_ssd_interface": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													AtLeastOneOf: preemptibleWorkerDiskConfigKeys,
+													ForceNew:     true,
+													Description:  `Interface type of local SSDs (default is "scsi"). Valid values: "scsi" (Small Computer System Interface), "nvme" (Non-Volatile Memory Express).`,
 												},
 											},
 										},
@@ -1616,6 +1626,13 @@ by Dataproc`,
 																			ForceNew:    true,
 																			Default:     "pd-standard",
 																		},
+
+																		"local_ssd_interface": {
+																			Type:        schema.TypeString,
+																			Optional:    true,
+																			Description: `Interface type of local SSDs (default is "scsi"). Valid values: "scsi" (Small Computer System Interface), "nvme" (Non-Volatile Memory Express).`,
+																			ForceNew:    true,
+																		},
 																	},
 																},
 															},
@@ -2096,6 +2113,9 @@ func expandNodeGroupConfig(cfg map[string]interface{}) *dataproc.InstanceGroupCo
 			if v, ok := dcfg["boot_disk_type"]; ok {
 				icg.DiskConfig.BootDiskType = v.(string)
 			}
+			if v, ok := dcfg["local_ssd_interface"]; ok {
+				icg.DiskConfig.LocalSsdInterface = v.(string)
+			}
 		}
 	}
 
@@ -2368,6 +2388,9 @@ func expandPreemptibleInstanceGroupConfig(cfg map[string]interface{}) *dataproc.
 			if v, ok := dcfg["boot_disk_type"]; ok {
 				icg.DiskConfig.BootDiskType = v.(string)
 			}
+			if v, ok := dcfg["local_ssd_interface"]; ok {
+				icg.DiskConfig.LocalSsdInterface = v.(string)
+			}
 		}
 	}
 
@@ -2441,6 +2464,9 @@ func expandMasterInstanceGroupConfig(cfg map[string]interface{}) *dataproc.Insta
 			if v, ok := dcfg["boot_disk_type"]; ok {
 				icg.DiskConfig.BootDiskType = v.(string)
 			}
+			if v, ok := dcfg["local_ssd_interface"]; ok {
+				icg.DiskConfig.LocalSsdInterface = v.(string)
+			}
 		}
 	}
 
@@ -2481,6 +2507,9 @@ func expandWorkerInstanceGroupConfig(cfg map[string]interface{}) *dataproc.Insta
 			}
 			if v, ok := dcfg["boot_disk_type"]; ok {
 				icg.DiskConfig.BootDiskType = v.(string)
+			}
+			if v, ok := dcfg["local_ssd_interface"]; ok {
+				icg.DiskConfig.LocalSsdInterface = v.(string)
 			}
 		}
 	}
@@ -3048,6 +3077,7 @@ func flattenNodeGroupConfig(icg *dataproc.InstanceGroupConfig) []map[string]inte
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
 			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
+			disk["local_ssd_interface"] = icg.DiskConfig.LocalSsdInterface
 		}
 		data["accelerators"] = flattenAccelerators(icg.Accelerators)
 
@@ -3137,6 +3167,7 @@ func flattenPreemptibleInstanceGroupConfig(d *schema.ResourceData, icg *dataproc
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
 			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
+			disk["local_ssd_interface"] = icg.DiskConfig.LocalSsdInterface
 		}
 		if icg.InstanceFlexibilityPolicy != nil {
 			instanceFlexibilityPolicy["instance_selection_list"] = flattenInstanceSelectionList(icg.InstanceFlexibilityPolicy.InstanceSelectionList)
@@ -3191,6 +3222,7 @@ func flattenMasterInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.Inst
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
 			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
+			disk["local_ssd_interface"] = icg.DiskConfig.LocalSsdInterface
 		}
 
 		data["accelerators"] = flattenAccelerators(icg.Accelerators)
@@ -3215,6 +3247,7 @@ func flattenWorkerInstanceGroupConfig(d *schema.ResourceData, icg *dataproc.Inst
 			disk["boot_disk_size_gb"] = icg.DiskConfig.BootDiskSizeGb
 			disk["num_local_ssds"] = icg.DiskConfig.NumLocalSsds
 			disk["boot_disk_type"] = icg.DiskConfig.BootDiskType
+			disk["local_ssd_interface"] = icg.DiskConfig.LocalSsdInterface
 		}
 
 		data["accelerators"] = flattenAccelerators(icg.Accelerators)
