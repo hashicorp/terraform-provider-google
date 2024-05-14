@@ -153,6 +153,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_cloudbuild_trigger":                           cloudbuild.DataSourceGoogleCloudBuildTrigger(),
 	"google_cloudfunctions_function":                      cloudfunctions.DataSourceGoogleCloudFunctionsFunction(),
 	"google_cloudfunctions2_function":                     cloudfunctions2.DataSourceGoogleCloudFunctions2Function(),
+	"google_cloud_asset_search_all_resources":             cloudasset.DataSourceGoogleCloudAssetSearchAllResources(),
 	"google_cloud_identity_groups":                        cloudidentity.DataSourceGoogleCloudIdentityGroups(),
 	"google_cloud_identity_group_memberships":             cloudidentity.DataSourceGoogleCloudIdentityGroupMemberships(),
 	"google_cloud_identity_group_lookup":                  cloudidentity.DataSourceGoogleCloudIdentityGroupLookup(),

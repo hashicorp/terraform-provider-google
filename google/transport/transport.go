@@ -129,6 +129,19 @@ func AddQueryParams(rawurl string, params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
+func AddArrayQueryParams(rawurl string, param string, values []interface{}) (string, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return "", err
+	}
+	q := u.Query()
+	for _, v := range values {
+		q.Add(param, v.(string))
+	}
+	u.RawQuery = q.Encode()
+	return u.String(), nil
+}
+
 func HandleNotFoundError(err error, d *schema.ResourceData, resource string) error {
 	if IsGoogleApiErrorWithCode(err, 404) {
 		log.Printf("[WARN] Removing %s because it's gone", resource)
