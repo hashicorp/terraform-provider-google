@@ -140,6 +140,12 @@ fun BuildSteps.saveArtifactsToGCS() {
             #!/bin/bash
             echo "Post-test step - storge artifacts(debug logs) to GCS"
 
+            export TEST_COUNT=${'$'}(./test-binary -test.list="%TEST_PREFIX%" | wc -l)
+            if test ${'$'}TEST_COUNT -le "0"; then
+                echo "Skipping upload to GCS; no tests were run, so no artifacts were generated"
+                exit 0
+            fi
+
             # Authenticate gcloud CLI
             echo "${'$'}{GOOGLE_CREDENTIALS_GCS}" > google-account.json
             chmod 600 google-account.json
