@@ -327,7 +327,7 @@ The following arguments are supported:
 * `type` -
   (Required)
   Type of TPU.
-  Possible values are: `V2`, `V3`, `V4`.
+  Possible values are: `V2`, `V3`, `V4`, `V5P`.
 
 * `topology` -
   (Required)
