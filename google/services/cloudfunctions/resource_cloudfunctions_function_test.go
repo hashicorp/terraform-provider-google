@@ -825,6 +825,18 @@ resource "google_cloudfunctions_function" "function" {
 func testAccCloudFunctionsFunction_firestore(functionName string, bucketName string,
 	zipFilePath string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_firestore_database" "database" {
+  project     = data.google_project.project.project_id
+  name        = "(default)"
+  location_id = "nam5"
+  type        = "FIRESTORE_NATIVE"
+
+  delete_protection_state = "DELETE_PROTECTION_DISABLED"
+  deletion_policy         = "DELETE"
+}
+
 resource "google_storage_bucket" "bucket" {
   name     = "%s"
   location = "US"
