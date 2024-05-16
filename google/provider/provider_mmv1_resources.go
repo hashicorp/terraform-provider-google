@@ -205,6 +205,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_ssl_certificate":                      compute.DataSourceGoogleComputeSslCertificate(),
 	"google_compute_ssl_policy":                           compute.DataSourceGoogleComputeSslPolicy(),
 	"google_compute_subnetwork":                           compute.DataSourceGoogleComputeSubnetwork(),
+	"google_compute_subnetworks":                          compute.DataSourceGoogleComputeSubnetworks(),
 	"google_compute_vpn_gateway":                          compute.DataSourceGoogleComputeVpnGateway(),
 	"google_compute_zones":                                compute.DataSourceGoogleComputeZones(),
 	"google_container_azure_versions":                     containerazure.DataSourceGoogleContainerAzureVersions(),
