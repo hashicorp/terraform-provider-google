@@ -1,13 +1,20 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
+# See https://github.com/kentaro-m/auto-assign-action?tab=readme-ov-file#single-reviewers-list
 
-groups:
-  - name: devs
-    reviewers: 1
-    usernames:
-      - rileykarson
-      - slevenick
-      - c2thorn
-      - scottsuarez
-      - melinath
-      - shuyama1
+addReviewers: true # add reviewers to pull requests
+
+addAssignees: false # don't add assignees to pull requests
+
+# A list of reviewers to be added to pull requests (GitHub user name)
+reviewers:
+  - rileykarson
+  - slevenick
+  - c2thorn
+  - scottsuarez
+  - melinath
+  - shuyama1
+  - SarahFrench
+  - BBBmau
+
+# A number of reviewers added to the pull request
+# Set 0 to add all the reviewers (default: 0)
+numberOfReviewers: 1
