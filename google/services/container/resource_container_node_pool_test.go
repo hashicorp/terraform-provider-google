@@ -4315,3 +4315,119 @@ resource "google_container_node_pool" "primary_nodes" {
 }
 `, projectID, randomSuffix, clusterName, networkName, subnetworkName)
 }
+
+func TestAccContainerNodePool_privateRegistry(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodepool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	secretID := fmt.Sprintf("tf-test-secret-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.private_registry_access_config.0.enabled",
+						"true",
+					),
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.private_registry_access_config.0.certificate_authority_domain_config.#",
+						"2",
+					),
+					// First CA config
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.private_registry_access_config.0.certificate_authority_domain_config.0.fqdns.0",
+						"my.custom.domain",
+					),
+					// Second CA config
+					resource.TestCheckResourceAttr(
+						"google_container_node_pool.np",
+						"node_config.0.containerd_config.0.private_registry_access_config.0.certificate_authority_domain_config.1.fqdns.0",
+						"10.1.2.32",
+					),
+				),
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_privateRegistryEnabled(secretID, cluster, nodepool, network, subnetwork string) string {
+	return fmt.Sprintf(`
+data "google_project" "test_project" { 
+	}
+
+resource "google_secret_manager_secret" "secret-basic" { 
+	secret_id     = "%s" 
+	replication { 
+		user_managed { 
+		replicas { 
+			location = "us-central1" 
+		} 
+		} 
+	} 
+}
+
+resource "google_secret_manager_secret_version" "secret-version-basic" { 
+	secret = google_secret_manager_secret.secret-basic.id 
+	secret_data = "dummypassword" 
+  } 
+   
+resource "google_secret_manager_secret_iam_member" "secret_iam" { 
+	secret_id  = google_secret_manager_secret.secret-basic.id 
+	role       = "roles/secretmanager.admin" 
+	member     = "serviceAccount:${data.google_project.test_project.number}-compute@developer.gserviceaccount.com" 
+	depends_on = [google_secret_manager_secret_version.secret-version-basic] 
+  }
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+	
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+	
+  node_config {
+	oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    machine_type = "n1-standard-8"
+    image_type = "COS_CONTAINERD"
+    containerd_config {
+      private_registry_access_config {
+        enabled = true
+        certificate_authority_domain_config {
+          fqdns = [ "my.custom.domain", "10.0.0.127:8888" ]
+          gcp_secret_manager_certificate_config {
+            secret_uri = google_secret_manager_secret_version.secret-version-basic.name
+          }
+        }
+        certificate_authority_domain_config {
+          fqdns = [ "10.1.2.32" ]
+          gcp_secret_manager_certificate_config {
+            secret_uri = google_secret_manager_secret_version.secret-version-basic.name
+          }
+        }
+      }
+    }
+  }
+}
+`, secretID, cluster, network, subnetwork, nodepool)
+}
