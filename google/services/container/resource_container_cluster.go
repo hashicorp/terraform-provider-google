@@ -141,7 +141,8 @@ func clusterSchemaNodePoolDefaults() *schema.Schema {
 					MaxItems:    1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
-							"logging_variant": schemaLoggingVariant(),
+							"containerd_config": schemaContainerdConfig(),
+							"logging_variant":   schemaLoggingVariant(),
 						},
 					},
 				},
@@ -3843,6 +3844,21 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		log.Printf("[INFO] GKE cluster %s Security Posture Config has been updated to %#v", d.Id(), req.Update.DesiredSecurityPostureConfig)
+	}
+
+	if d.HasChange("node_pool_defaults") && d.HasChange("node_pool_defaults.0.node_config_defaults.0.containerd_config") {
+		if v, ok := d.GetOk("node_pool_defaults.0.node_config_defaults.0.containerd_config"); ok {
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredContainerdConfig: expandContainerdConfig(v),
+				},
+			}
+			updateF := updateFunc(req, "updating GKE cluster containerd config")
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+			log.Printf("[INFO] GKE cluster %s containerd config has been updated to %#v", d.Id(), req.Update.DesiredContainerdConfig)
+		}
 	}
 
 	if d.HasChange("node_pool_auto_config.0.network_tags.0.tags") {

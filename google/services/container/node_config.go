@@ -21,6 +21,56 @@ var defaultOauthScopes = []string{
 	"https://www.googleapis.com/auth/trace.append",
 }
 
+func schemaContainerdConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		Description: "Parameters for containerd configuration.",
+		MaxItems:    1,
+		Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+			"private_registry_access_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Parameters for private container registries configuration.",
+				MaxItems:    1,
+				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+					"enabled": {
+						Type:        schema.TypeBool,
+						Required:    true,
+						Description: "Whether or not private registries are configured.",
+					},
+					"certificate_authority_domain_config": {
+						Type:        schema.TypeList,
+						Optional:    true,
+						Description: "Parameters for configuring CA certificate and domains.",
+						Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+							"fqdns": {
+								Type:        schema.TypeList,
+								Required:    true,
+								Description: "List of fully-qualified-domain-names. IPv4s and port specification are supported.",
+								Elem:        &schema.Schema{Type: schema.TypeString},
+							},
+							"gcp_secret_manager_certificate_config": {
+								Type:        schema.TypeList,
+								Required:    true,
+								Description: "Parameters for configuring a certificate hosted in GCP SecretManager.",
+								MaxItems:    1,
+								Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+									"secret_uri": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "URI for the secret that hosts a certificate. Must be in the format 'projects/PROJECT_NUM/secrets/SECRET_NAME/versions/VERSION_OR_LATEST'.",
+									},
+								}},
+							},
+						}},
+					},
+				}},
+			},
+		}},
+	}
+}
+
 func schemaLoggingVariant() *schema.Schema {
 	return &schema.Schema{
 		Type:         schema.TypeString,
@@ -61,6 +111,7 @@ func schemaNodeConfig() *schema.Schema {
 		MaxItems:    1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"containerd_config": schemaContainerdConfig(),
 				"disk_size_gb": {
 					Type:         schema.TypeInt,
 					Optional:     true,
@@ -679,6 +730,7 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 	config := configs[0].(map[string]interface{})
 
 	nodeConfigDefaults := &container.NodeConfigDefaults{}
+	nodeConfigDefaults.ContainerdConfig = expandContainerdConfig(config["containerd_config"])
 	if variant, ok := config["logging_variant"]; ok {
 		nodeConfigDefaults.LoggingConfig = &container.NodePoolLoggingConfig{
 			VariantConfig: &container.LoggingVariantConfig{
@@ -700,6 +752,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	}
 
 	nodeConfig := nodeConfigs[0].(map[string]interface{})
+
+	if v, ok := nodeConfig["containerd_config"]; ok {
+		nc.ContainerdConfig = expandContainerdConfig(v)
+	}
 
 	if v, ok := nodeConfig["machine_type"]; ok {
 		nc.MachineType = v.(string)
@@ -1057,6 +1113,92 @@ func expandCgroupMode(cfg map[string]interface{}) string {
 	return cgroupMode.(string)
 }
 
+func expandContainerdConfig(v interface{}) *container.ContainerdConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.ContainerdConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	cc := &container.ContainerdConfig{}
+	cc.PrivateRegistryAccessConfig = expandPrivateRegistryAccessConfig(cfg["private_registry_access_config"])
+	return cc
+}
+
+func expandPrivateRegistryAccessConfig(v interface{}) *container.PrivateRegistryAccessConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.PrivateRegistryAccessConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	pracc := &container.PrivateRegistryAccessConfig{}
+	if enabled, ok := cfg["enabled"]; ok {
+		pracc.Enabled = enabled.(bool)
+	}
+	if caCfgRaw, ok := cfg["certificate_authority_domain_config"]; ok {
+		ls := caCfgRaw.([]interface{})
+		pracc.CertificateAuthorityDomainConfig = make([]*container.CertificateAuthorityDomainConfig, len(ls))
+		for i, caCfg := range ls {
+			pracc.CertificateAuthorityDomainConfig[i] = expandCADomainConfig(caCfg)
+		}
+	}
+
+	return pracc
+}
+
+func expandCADomainConfig(v interface{}) *container.CertificateAuthorityDomainConfig {
+	if v == nil {
+		return nil
+	}
+	cfg := v.(map[string]interface{})
+
+	caConfig := &container.CertificateAuthorityDomainConfig{}
+	if v, ok := cfg["fqdns"]; ok {
+		fqdns := v.([]interface{})
+		caConfig.Fqdns = make([]string, len(fqdns))
+		for i, dn := range fqdns {
+			caConfig.Fqdns[i] = dn.(string)
+		}
+	}
+
+	caConfig.GcpSecretManagerCertificateConfig = expandGCPSecretManagerCertificateConfig(cfg["gcp_secret_manager_certificate_config"])
+
+	return caConfig
+}
+
+func expandGCPSecretManagerCertificateConfig(v interface{}) *container.GCPSecretManagerCertificateConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.GCPSecretManagerCertificateConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	gcpSMConfig := &container.GCPSecretManagerCertificateConfig{}
+	if v, ok := cfg["secret_uri"]; ok {
+		gcpSMConfig.SecretUri = v.(string)
+	}
+	return gcpSMConfig
+}
+
 func expandSoleTenantConfig(v interface{}) *container.SoleTenantConfig {
 	if v == nil {
 		return nil
@@ -1105,6 +1247,8 @@ func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]int
 
 	result = append(result, map[string]interface{}{})
 
+	result[0]["containerd_config"] = flattenContainerdConfig(c.ContainerdConfig)
+
 	result[0]["logging_variant"] = flattenLoggingVariant(c.LoggingConfig)
 
 	return result
@@ -1130,6 +1274,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 
 	config = append(config, map[string]interface{}{
 		"machine_type":                       c.MachineType,
+		"containerd_config":                  flattenContainerdConfig(c.ContainerdConfig),
 		"disk_size_gb":                       c.DiskSizeGb,
 		"disk_type":                          c.DiskType,
 		"guest_accelerator":                  flattenContainerGuestAccelerators(c.Accelerators),
@@ -1378,6 +1523,74 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 		})
 	}
 	return result
+}
+
+func flattenContainerdConfig(c *container.ContainerdConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	r := map[string]interface{}{}
+	if c.PrivateRegistryAccessConfig != nil {
+		r["private_registry_access_config"] = flattenPrivateRegistryAccessConfig(c.PrivateRegistryAccessConfig)
+	}
+	return append(result, r)
+}
+
+func flattenPrivateRegistryAccessConfig(c *container.PrivateRegistryAccessConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	r := map[string]interface{}{
+		"enabled": c.Enabled,
+	}
+	if c.CertificateAuthorityDomainConfig != nil {
+		caConfigs := make([]interface{}, len(c.CertificateAuthorityDomainConfig))
+		for i, caCfg := range c.CertificateAuthorityDomainConfig {
+			caConfigs[i] = flattenCADomainConfig(caCfg)
+		}
+		r["certificate_authority_domain_config"] = caConfigs
+	}
+	return append(result, r)
+}
+
+//  func flattenCADomainConfig(c *container.CertificateAuthorityDomainConfig) []map[string]interface{} {
+//  	result := []map[string]interface{}{}
+//  	if c == nil {
+//  		return result
+//  	}
+//  	r := map[string]interface{}{
+//  		"fqdns": c.Fqdns,
+//  	}
+//  	if c.GcpSecretManagerCertificateConfig != nil {
+//  		r["gcp_secret_manager_certificate_config"] = flattenGCPSecretManagerCertificateConfig(c.GcpSecretManagerCertificateConfig)
+//  	}
+//  	return append(result, r)
+//  }
+
+func flattenCADomainConfig(c *container.CertificateAuthorityDomainConfig) map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	r := map[string]interface{}{
+		"fqdns": c.Fqdns,
+	}
+	if c.GcpSecretManagerCertificateConfig != nil {
+		r["gcp_secret_manager_certificate_config"] = flattenGCPSecretManagerCertificateConfig(c.GcpSecretManagerCertificateConfig)
+	}
+	return r
+}
+
+func flattenGCPSecretManagerCertificateConfig(c *container.GCPSecretManagerCertificateConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c == nil {
+		return result
+	}
+	r := map[string]interface{}{
+		"secret_uri": c.SecretUri,
+	}
+	return append(result, r)
 }
 
 func flattenConfidentialNodes(c *container.ConfidentialNodes) []map[string]interface{} {

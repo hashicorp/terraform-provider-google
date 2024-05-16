@@ -940,6 +940,8 @@ kubelet_config {
 
 * `linux_node_config` - (Optional) Parameters that can be configured on Linux nodes. Structure is [documented below](#nested_linux_node_config).
 
+* `containerd_config` - (Optional) Parameters to customize containerd runtime. Structure is [documented below](#nested_containerd_config).
+
 * `node_group` - (Optional) Setting this field will assign instances of this pool to run on the specified node group. This is useful for running workloads on [sole tenant nodes](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes).
 
 * `sole_tenant_config` (Optional)  Allows specifying multiple [node affinities](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes#node_affinity_and_anti-affinity) useful for running workloads on [sole tenant nodes](https://cloud.google.com/kubernetes-engine/docs/how-to/sole-tenancy). `node_affinity` structure is [documented below](#nested_node_affinity).
@@ -1280,6 +1282,26 @@ linux_node_config {
     * `CGROUP_MODE_UNSPECIFIED`: CGROUP_MODE_UNSPECIFIED is when unspecified cgroup configuration is used. The default for the GKE node OS image will be used.
     * `CGROUP_MODE_V1`: CGROUP_MODE_V1 specifies to use cgroupv1 for the cgroup configuration on the node image.
     * `CGROUP_MODE_V2`: CGROUP_MODE_V2 specifies to use cgroupv2 for the cgroup configuration on the node image.
+
+<a name="nested_containerd_config"></a>The `containerd_config` block supports:
+
+* `private_registry_access_config` (Optional) - Configuration for private container registries. There are two fields in this config:
+
+  * `enabled` (Required) - Enables private registry config. If set to false, all other fields in this object must not be set.
+
+  * `certificate_authority_domain_config` (Optional) - List of configuration objects for CA and domains. Each object identifies a certificate and its assigned domains. See [how to configure for private container registries](https://cloud.google.com/kubernetes-engine/docs/how-to/access-private-registries-private-certificates) for more detail. Example: 
+  ```hcl
+  certificate_authority_domain_config {
+    fqdns = [
+      "my.custom.domain",
+      "10.4.5.6",
+      "127.0.0.1:8888",
+    ]
+    gcp_secret_manager_certificate_config {
+      secret_uri = "projects/99999/secrets/my-ca-cert/versions/1"
+    }
+  }
+  ```
 
 <a name="nested_vertical_pod_autoscaling"></a>The `vertical_pod_autoscaling` block supports:
 
