@@ -1616,9 +1616,8 @@ func ResourceContainerCluster() *schema.Resource {
 				// Computed is unsafe to remove- this API may return `"workloadIdentityConfig": {},` or omit the key entirely
 				// and both will be valid. Note that we don't handle the case where the API returns nothing & the user has defined
 				// workload_identity_config today.
-				Computed:      true,
-				Description:   `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
-				ConflictsWith: []string{"enable_autopilot"},
+				Computed:    true,
+				Description: `Configuration for the use of Kubernetes Service Accounts in GCP IAM policies.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"workload_pool": {
