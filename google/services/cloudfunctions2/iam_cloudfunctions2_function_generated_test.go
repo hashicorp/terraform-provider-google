@@ -176,10 +176,6 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
-}
-
 resource "google_cloudfunctions2_function_iam_member" "foo" {
   project = google_cloudfunctions2_function.function.project
   location = google_cloudfunctions2_function.function.location
@@ -229,10 +225,6 @@ resource "google_cloudfunctions2_function" "function" {
     available_memory    = "256M"
     timeout_seconds     = 60
   }
-}
-
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
 }
 
 data "google_iam_policy" "foo" {
@@ -301,10 +293,6 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
-}
-
 data "google_iam_policy" "foo" {
 }
 
@@ -358,10 +346,6 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
-}
-
 resource "google_cloudfunctions2_function_iam_binding" "foo" {
   project = google_cloudfunctions2_function.function.project
   location = google_cloudfunctions2_function.function.location
@@ -411,10 +395,6 @@ resource "google_cloudfunctions2_function" "function" {
     available_memory    = "256M"
     timeout_seconds     = 60
   }
-}
-
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
 }
 
 resource "google_cloudfunctions2_function_iam_binding" "foo" {

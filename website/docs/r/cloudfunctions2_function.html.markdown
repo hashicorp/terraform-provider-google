@@ -68,10 +68,6 @@ resource "google_cloudfunctions2_function" "function" {
     timeout_seconds     = 60
   }
 }
-
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
-}
 ```
 ## Example Usage - Cloudfunctions2 Full
 
@@ -524,10 +520,6 @@ resource "google_cloudfunctions2_function" "function" {
   }
 
   depends_on = [time_sleep.wait_60s]
-}
-
-output "function_uri" { 
-  value = google_cloudfunctions2_function.function.service_config[0].uri
 }
 ```
 ## Example Usage - Cloudfunctions2 Secret Env
