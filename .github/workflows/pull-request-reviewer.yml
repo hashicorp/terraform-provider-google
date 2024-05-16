@@ -7,11 +7,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
+  add-reviewer:
     if: ${{ github.actor != 'modular-magician' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-    - uses: uesteibar/reviewer-lottery@c291d74388da1cb583aff994b8be945e8eefbcd5 # v3.1.0
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: kentaro-m/auto-assign-action@f4648c0a9fdb753479e9e75fc251f507ce17bb7e # v2.0.0
+        with:
+          configuration-path: ".github/reviewer-lottery.yml"
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
