@@ -2725,6 +2725,30 @@ func TestAccContainerCluster_withWorkloadIdentityConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withWorkloadIdentityConfigAutopilot(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	pid := envvar.GetTestProjectFromEnv()
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withWorkloadIdentityConfigEnabledAutopilot(pid, clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_workload_identity_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withIdentityServiceConfig(t *testing.T) {
 	t.Parallel()
 
@@ -7326,6 +7350,26 @@ resource "google_container_cluster" "with_workload_identity_config" {
   subnetwork    = "%s"
 }
 `, projectID, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withWorkloadIdentityConfigEnabledAutopilot(projectID string, clusterName string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+  project_id = "%s"
+}
+
+resource "google_container_cluster" "with_workload_identity_config" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  workload_identity_config {
+    workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
+  }
+  enable_autopilot = true
+  deletion_protection = false
+}
+`, projectID, clusterName)
 }
 
 func testAccContainerCluster_updateWorkloadIdentityConfig(projectID, clusterName, networkName, subnetworkName string, enable bool) string {
