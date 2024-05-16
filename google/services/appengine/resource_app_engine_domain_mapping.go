@@ -33,20 +33,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func sslSettingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// If certificate id is empty, and ssl management type is `MANUAL`, then
-	// ssl settings will not be configured, and ssl_settings block is not returned
-
-	if k == "ssl_settings.#" &&
-		old == "0" && new == "1" &&
-		d.Get("ssl_settings.0.certificate_id") == "" &&
-		d.Get("ssl_settings.0.ssl_management_type") == "MANUAL" {
-		return true
-	}
-
-	return false
-}
-
 func ResourceAppEngineDomainMapping() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAppEngineDomainMappingCreate,
@@ -84,11 +70,11 @@ By default, overrides are rejected. Default value: "STRICT" Possible values: ["S
 				Default: "STRICT",
 			},
 			"ssl_settings": {
-				Type:             schema.TypeList,
-				Optional:         true,
-				DiffSuppressFunc: sslSettingsDiffSuppress,
-				Description:      `SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.`,
-				MaxItems:         1,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `SSL configuration for this domain. If unconfigured, this domain will not serve with SSL.`,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ssl_management_type": {
@@ -245,6 +231,14 @@ func resourceAppEngineDomainMappingCreate(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error waiting to create DomainMapping: %s", err)
 	}
 
+	opRes, err = resourceAppEngineDomainMappingDecoder(d, meta, opRes)
+	if err != nil {
+		return fmt.Errorf("Error decoding response from operation: %s", err)
+	}
+	if opRes == nil {
+		return fmt.Errorf("Error decoding response from operation, could not find object")
+	}
+
 	if err := d.Set("name", flattenAppEngineDomainMappingName(opRes["name"], d, config)); err != nil {
 		return err
 	}
@@ -297,6 +291,18 @@ func resourceAppEngineDomainMappingRead(d *schema.ResourceData, meta interface{}
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AppEngineDomainMapping %q", d.Id()))
+	}
+
+	res, err = resourceAppEngineDomainMappingDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing AppEngineDomainMapping because it no longer exists.")
+		d.SetId("")
+		return nil
 	}
 
 	if err := d.Set("project", project); err != nil {
@@ -604,4 +610,25 @@ func expandAppEngineDomainMappingSslSettingsPendingManagedCertificateId(v interf
 
 func expandAppEngineDomainMappingDomainName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceAppEngineDomainMappingDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	// sslManagementType does not get returned with the beta endpoint. Hence, if sslSettings is set
+	// and sslManagementType is set, we return that value. Otherwise, we carry over the old value
+	// from state by calling d.Get("ssl_settings.0.ssl_management_type")
+	if v, ok := res["sslSettings"]; ok {
+		original := v.(map[string]interface{})
+		if _, ok := original["sslManagementType"]; !ok {
+			original["sslManagementType"] = d.Get("ssl_settings.0.ssl_management_type")
+		}
+		res["sslSettings"] = original
+	} else {
+		// If ssl_settings is not set, we call d.Get("ssl_settings.0.ssl_management_type"), create sslSettings,
+		// and store the retrieved value in sslManagementType
+		transformed := make(map[string]interface{})
+		transformed["sslManagementType"] = d.Get("ssl_settings.0.ssl_management_type")
+		res["sslSettings"] = transformed
+	}
+
+	return res, nil
 }

@@ -40,7 +40,7 @@ func TestAccAppEngineFlexibleAppVersion_update(t *testing.T) {
 				ResourceName:            "google_app_engine_flexible_app_version.foo",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "noop_on_destroy"},
+				ImportStateVerifyIgnore: []string{"env_variables", "deployment", "entrypoint", "service", "delete_service_on_destroy"},
 			},
 		},
 	})
@@ -55,28 +55,79 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_app_engine_application" "app" {
-  project     = google_project.my_project.project_id
-  location_id = "us-central"
+resource "google_project_service" "compute" {
+  project = google_project.my_project.project_id
+  service = "compute.googleapis.com"
+
+  disable_dependent_services = false
 }
 
-resource "google_project_service" "project" {
+resource "google_project_service" "appengineflex" {
   project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
 }
 
+resource "google_compute_network" "network" {
+  project                 = google_project_service.compute.project
+  name                    = "custom"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  project                  = google_project_service.compute.project
+  name                     = "custom"
+  region                   = "us-central1"
+  network                  = google_compute_network.network.id
+  ip_cidr_range            = "10.0.0.0/16"
+  private_ip_google_access = true
+}
+
+resource "google_app_engine_application" "app" {
+  project     = google_project.my_project.project_id
+  location_id = "us-central"
+}
+
 resource "google_project_iam_member" "gae_api" {
-  project = google_project_service.project.project
+  project = google_project_service.appengineflex.project
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
+}
+
+resource "google_app_engine_standard_app_version" "foo" {
+  project    = google_project_iam_member.gae_api.project
+  version_id = "v1"
+  service    = "default"
+  runtime    = "python38"
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
+
+  deployment {
+    files {
+      name = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+
+    files {
+      name = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  env_variables = {
+    port = "8000"
+  }
+
+  noop_on_destroy = true
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {
   project    = google_project_iam_member.gae_api.project
   version_id = "v1"
-  service    = "default"
+  service    = "custom"
   runtime    = "python"
 
   runtime_api_version = "1"
@@ -121,8 +172,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
   }
 
   network {
-    name       = "default"
-    subnetwork = "default"
+    name             = google_compute_network.network.name
+    subnetwork       = google_compute_subnetwork.subnetwork.name
+    instance_ip_mode = "EXTERNAL"
   }
 
   instance_class = "B1"
@@ -132,6 +184,8 @@ resource "google_app_engine_flexible_app_version" "foo" {
   }
 
   noop_on_destroy = true
+
+  depends_on = [google_app_engine_standard_app_version.foo]
 }
 
 resource "google_storage_bucket" "bucket" {
@@ -168,28 +222,79 @@ resource "google_project" "my_project" {
   billing_account = "%{billing_account}"
 }
 
-resource "google_app_engine_application" "app" {
-  project     = google_project.my_project.project_id
-  location_id = "us-central"
+resource "google_project_service" "compute" {
+  project = google_project.my_project.project_id
+  service = "compute.googleapis.com"
+
+  disable_dependent_services = false
 }
 
-resource "google_project_service" "project" {
+resource "google_project_service" "appengineflex" {
   project = google_project.my_project.project_id
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
 }
 
+resource "google_compute_network" "network" {
+  project                 = google_project_service.compute.project
+  name                    = "custom"
+  auto_create_subnetworks = "false"
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  project                  = google_project_service.compute.project
+  name                     = "custom"
+  region                   = "us-central1"
+  network                  = google_compute_network.network.id
+  ip_cidr_range            = "10.0.0.0/16"
+  private_ip_google_access = true
+}
+
+resource "google_app_engine_application" "app" {
+  project     = google_project.my_project.project_id
+  location_id = "us-central"
+}
+
 resource "google_project_iam_member" "gae_api" {
-  project = google_project_service.project.project
+  project = google_project_service.appengineflex.project
   role    = "roles/compute.networkUser"
   member  = "serviceAccount:service-${google_project.my_project.number}@gae-api-prod.google.com.iam.gserviceaccount.com"
+}
+
+resource "google_app_engine_standard_app_version" "foo" {
+  project    = google_project_iam_member.gae_api.project
+  version_id = "v1"
+  service    = "default"
+  runtime    = "python38"
+
+  entrypoint {
+    shell = "gunicorn -b :$PORT main:app"
+  }
+
+  deployment {
+    files {
+      name = "main.py"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.main.name}"
+    }
+
+    files {
+      name = "requirements.txt"
+      source_url = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/${google_storage_bucket_object.requirements.name}"
+    }
+  }
+
+  env_variables = {
+    port = "8000"
+  }
+
+  noop_on_destroy = true
 }
 
 resource "google_app_engine_flexible_app_version" "foo" {
   project    = google_project_iam_member.gae_api.project
   version_id = "v1"
-  service    = "default"
+  service    = "custom"
   runtime    = "python"
 
   runtime_api_version = "1"
@@ -234,8 +339,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
   }
 
   network {
-    name       = "default"
-    subnetwork = "default"
+    name             = google_compute_network.network.name
+    subnetwork       = google_compute_subnetwork.subnetwork.name
+    instance_ip_mode = "INTERNAL"
   }
 
   instance_class = "B2"
@@ -244,7 +350,9 @@ resource "google_app_engine_flexible_app_version" "foo" {
     instances = 2
   }
 
-  noop_on_destroy = true
+  delete_service_on_destroy = true
+  
+  depends_on = [google_app_engine_standard_app_version.foo]
 }
 
 resource "google_storage_bucket" "bucket" {
