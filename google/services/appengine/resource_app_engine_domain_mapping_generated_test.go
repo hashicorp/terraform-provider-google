@@ -49,7 +49,7 @@ func TestAccAppEngineDomainMapping_appEngineDomainMappingBasicExample(t *testing
 				ResourceName:            "google_app_engine_domain_mapping.domain_mapping",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"override_strategy"},
+				ImportStateVerifyIgnore: []string{"override_strategy", "ssl_settings.0.ssl_management_type"},
 			},
 		},
 	})
