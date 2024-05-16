@@ -291,6 +291,152 @@ If omitted, it refers to all the rule IDs under the WAF rule set.`,
 				Optional:    true,
 				Description: `If set to true, the specified action is not enforced.`,
 			},
+			"rate_limit_options": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Must be specified if the action is "rate_based_ban" or "throttle". Cannot be specified for any other actions.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ban_duration_sec": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Description: `Can only be specified if the action for the rule is "rate_based_ban".
+If specified, determines the time (in seconds) the traffic will continue to be banned by the rate limit after the rate falls below the threshold.`,
+						},
+						"ban_threshold": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Can only be specified if the action for the rule is "rate_based_ban".
+If specified, the key will be banned for the configured 'banDurationSec' when the number of requests that exceed the 'rateLimitThreshold' also exceed this 'banThreshold'.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"count": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Number of HTTP(S) requests for calculating the threshold.`,
+									},
+									"interval_sec": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Interval over which the threshold is computed.`,
+									},
+								},
+							},
+						},
+						"conform_action": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Action to take for requests that are under the configured rate limit threshold.
+Valid option is "allow" only.`,
+						},
+						"enforce_on_key": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+							Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
+* ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKey" is not configured.
+* IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
+* HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
+* XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key defaults to the source IP address of the request i.e. key type IP.
+* HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
+* HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes.
+* SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
+* REGION_CODE: The country/region from which the request originates.
+* TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+						},
+						"enforce_on_key_configs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `If specified, any combination of values of enforceOnKeyType/enforceOnKeyName is treated as the key on which ratelimit threshold/action is enforced.
+You can specify up to 3 enforceOnKeyConfigs.
+If enforceOnKeyConfigs is specified, enforceOnKey must not be specified.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enforce_on_key_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Rate limit key name applicable only for the following key types:
+HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
+HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
+									},
+									"enforce_on_key_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP", ""}),
+										Description: `Determines the key to enforce the rateLimitThreshold on. Possible values are:
+* ALL: A single rate limit threshold is applied to all the requests matching this rule. This is the default value if "enforceOnKeyConfigs" is not configured.
+* IP: The source IP address of the request is the key. Each IP has this limit enforced separately.
+* HTTP_HEADER: The value of the HTTP header whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the header value. If no such header is present in the request, the key type defaults to ALL.
+* XFF_IP: The first IP address (i.e. the originating client IP address) specified in the list of IPs under X-Forwarded-For HTTP header. If no such header is present or the value is not a valid IP, the key defaults to the source IP address of the request i.e. key type IP.
+* HTTP_COOKIE: The value of the HTTP cookie whose name is configured under "enforceOnKeyName". The key value is truncated to the first 128 bytes of the cookie value. If no such cookie is present in the request, the key type defaults to ALL.
+* HTTP_PATH: The URL path of the HTTP request. The key value is truncated to the first 128 bytes.
+* SNI: Server name indication in the TLS session of the HTTPS request. The key value is truncated to the first 128 bytes. The key type defaults to ALL on a HTTP session.
+* REGION_CODE: The country/region from which the request originates.
+* TLS_JA3_FINGERPRINT: JA3 TLS/SSL fingerprint if the client connects using HTTPS, HTTP/2 or HTTP/3. If not available, the key type defaults to ALL.
+* USER_IP: The IP address of the originating client, which is resolved based on "userIpRequestHeaders" configured with the security policy. If there is no "userIpRequestHeaders" configuration or an IP address cannot be resolved from it, the key type defaults to IP. Possible values: ["ALL", "IP", "HTTP_HEADER", "XFF_IP", "HTTP_COOKIE", "HTTP_PATH", "SNI", "REGION_CODE", "TLS_JA3_FINGERPRINT", "USER_IP"]`,
+									},
+								},
+							},
+						},
+						"enforce_on_key_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Rate limit key name applicable only for the following key types:
+HTTP_HEADER -- Name of the HTTP header whose value is taken as the key value.
+HTTP_COOKIE -- Name of the HTTP cookie whose value is taken as the key value.`,
+						},
+						"exceed_action": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `Action to take for requests that are above the configured rate limit threshold, to either deny with a specified HTTP response code, or redirect to a different endpoint.
+Valid options are deny(STATUS), where valid values for STATUS are 403, 404, 429, and 502.`,
+						},
+						"exceed_redirect_options": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Parameters defining the redirect action that is used as the exceed action. Cannot be specified if the exceed action is not redirect. This field is only supported in Global Security Policies of type CLOUD_ARMOR.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"target": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Target for the redirect action. This is required if the type is EXTERNAL_302 and cannot be specified for GOOGLE_RECAPTCHA.`,
+									},
+									"type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Type of the redirect action.`,
+									},
+								},
+							},
+						},
+						"rate_limit_threshold": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Threshold at which to begin ratelimiting.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"count": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Number of HTTP(S) requests for calculating the threshold.`,
+									},
+									"interval_sec": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Description: `Interval over which the threshold is computed.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -339,6 +485,12 @@ func resourceComputeSecurityPolicyRuleCreate(d *schema.ResourceData, meta interf
 		return err
 	} else if v, ok := d.GetOkExists("action"); !tpgresource.IsEmptyValue(reflect.ValueOf(actionProp)) && (ok || !reflect.DeepEqual(v, actionProp)) {
 		obj["action"] = actionProp
+	}
+	rateLimitOptionsProp, err := expandComputeSecurityPolicyRuleRateLimitOptions(d.Get("rate_limit_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("rate_limit_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(rateLimitOptionsProp)) && (ok || !reflect.DeepEqual(v, rateLimitOptionsProp)) {
+		obj["rateLimitOptions"] = rateLimitOptionsProp
 	}
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
@@ -460,6 +612,9 @@ func resourceComputeSecurityPolicyRuleRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("action", flattenComputeSecurityPolicyRuleAction(res["action"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
+	if err := d.Set("rate_limit_options", flattenComputeSecurityPolicyRuleRateLimitOptions(res["rateLimitOptions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
+	}
 	if err := d.Set("preview", flattenComputeSecurityPolicyRulePreview(res["preview"], d, config)); err != nil {
 		return fmt.Errorf("Error reading SecurityPolicyRule: %s", err)
 	}
@@ -513,6 +668,12 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 	} else if v, ok := d.GetOkExists("action"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, actionProp)) {
 		obj["action"] = actionProp
 	}
+	rateLimitOptionsProp, err := expandComputeSecurityPolicyRuleRateLimitOptions(d.Get("rate_limit_options"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("rate_limit_options"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, rateLimitOptionsProp)) {
+		obj["rateLimitOptions"] = rateLimitOptionsProp
+	}
 	previewProp, err := expandComputeSecurityPolicyRulePreview(d.Get("preview"), d, config)
 	if err != nil {
 		return err
@@ -547,6 +708,18 @@ func resourceComputeSecurityPolicyRuleUpdate(d *schema.ResourceData, meta interf
 
 	if d.HasChange("action") {
 		updateMask = append(updateMask, "action")
+	}
+
+	if d.HasChange("rate_limit_options") {
+		updateMask = append(updateMask, "rateLimitOptions.rateLimitThreshold",
+			"rateLimitOptions.conformAction",
+			"rateLimitOptions.exceedRedirectOptions",
+			"rateLimitOptions.exceedAction",
+			"rateLimitOptions.enforceOnKey",
+			"rateLimitOptions.enforceOnKeyName",
+			"rateLimitOptions.enforceOnKeyConfigs",
+			"rateLimitOptions.banThreshold",
+			"rateLimitOptions.banDurationSec")
 	}
 
 	if d.HasChange("preview") {
@@ -903,6 +1076,216 @@ func flattenComputeSecurityPolicyRuleAction(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenComputeSecurityPolicyRuleRateLimitOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["rate_limit_threshold"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThreshold(original["rateLimitThreshold"], d, config)
+	transformed["conform_action"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsConformAction(original["conformAction"], d, config)
+	transformed["exceed_redirect_options"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptions(original["exceedRedirectOptions"], d, config)
+	transformed["exceed_action"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsExceedAction(original["exceedAction"], d, config)
+	transformed["enforce_on_key"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKey(original["enforceOnKey"], d, config)
+	transformed["enforce_on_key_name"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyName(original["enforceOnKeyName"], d, config)
+	transformed["enforce_on_key_configs"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigs(original["enforceOnKeyConfigs"], d, config)
+	transformed["ban_threshold"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsBanThreshold(original["banThreshold"], d, config)
+	transformed["ban_duration_sec"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(original["banDurationSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["count"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdCount(original["count"], d, config)
+	transformed["interval_sec"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdIntervalSec(original["intervalSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdIntervalSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsConformAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["type"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsType(original["type"], d, config)
+	transformed["target"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsTarget(original["target"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsExceedAction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"enforce_on_key_type": flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyType(original["enforceOnKeyType"], d, config),
+			"enforce_on_key_name": flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyName(original["enforceOnKeyName"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsBanThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["count"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsBanThresholdCount(original["count"], d, config)
+	transformed["interval_sec"] =
+		flattenComputeSecurityPolicyRuleRateLimitOptionsBanThresholdIntervalSec(original["intervalSec"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeSecurityPolicyRuleRateLimitOptionsBanThresholdCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsBanThresholdIntervalSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeSecurityPolicyRulePreview(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1231,6 +1614,240 @@ func expandComputeSecurityPolicyRulePreconfiguredWafConfigExclusionTargetRuleIds
 }
 
 func expandComputeSecurityPolicyRuleAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedRateLimitThreshold, err := expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThreshold(original["rate_limit_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRateLimitThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["rateLimitThreshold"] = transformedRateLimitThreshold
+	}
+
+	transformedConformAction, err := expandComputeSecurityPolicyRuleRateLimitOptionsConformAction(original["conform_action"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedConformAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["conformAction"] = transformedConformAction
+	}
+
+	transformedExceedRedirectOptions, err := expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptions(original["exceed_redirect_options"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExceedRedirectOptions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exceedRedirectOptions"] = transformedExceedRedirectOptions
+	}
+
+	transformedExceedAction, err := expandComputeSecurityPolicyRuleRateLimitOptionsExceedAction(original["exceed_action"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedExceedAction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["exceedAction"] = transformedExceedAction
+	}
+
+	transformedEnforceOnKey, err := expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKey(original["enforce_on_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforceOnKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforceOnKey"] = transformedEnforceOnKey
+	}
+
+	transformedEnforceOnKeyName, err := expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyName(original["enforce_on_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforceOnKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforceOnKeyName"] = transformedEnforceOnKeyName
+	}
+
+	transformedEnforceOnKeyConfigs, err := expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigs(original["enforce_on_key_configs"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnforceOnKeyConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enforceOnKeyConfigs"] = transformedEnforceOnKeyConfigs
+	}
+
+	transformedBanThreshold, err := expandComputeSecurityPolicyRuleRateLimitOptionsBanThreshold(original["ban_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBanThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["banThreshold"] = transformedBanThreshold
+	}
+
+	transformedBanDurationSec, err := expandComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(original["ban_duration_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBanDurationSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["banDurationSec"] = transformedBanDurationSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCount, err := expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdCount(original["count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["count"] = transformedCount
+	}
+
+	transformedIntervalSec, err := expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdIntervalSec(original["interval_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntervalSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["intervalSec"] = transformedIntervalSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsRateLimitThresholdIntervalSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsConformAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedType, err := expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsType(original["type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["type"] = transformedType
+	}
+
+	transformedTarget, err := expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsTarget(original["target"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTarget); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["target"] = transformedTarget
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsExceedRedirectOptionsTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsExceedAction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedEnforceOnKeyType, err := expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyType(original["enforce_on_key_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEnforceOnKeyType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["enforceOnKeyType"] = transformedEnforceOnKeyType
+		}
+
+		transformedEnforceOnKeyName, err := expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyName(original["enforce_on_key_name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedEnforceOnKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["enforceOnKeyName"] = transformedEnforceOnKeyName
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsEnforceOnKeyConfigsEnforceOnKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsBanThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCount, err := expandComputeSecurityPolicyRuleRateLimitOptionsBanThresholdCount(original["count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["count"] = transformedCount
+	}
+
+	transformedIntervalSec, err := expandComputeSecurityPolicyRuleRateLimitOptionsBanThresholdIntervalSec(original["interval_sec"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntervalSec); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["intervalSec"] = transformedIntervalSec
+	}
+
+	return transformed, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsBanThresholdCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsBanThresholdIntervalSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeSecurityPolicyRuleRateLimitOptionsBanDurationSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
