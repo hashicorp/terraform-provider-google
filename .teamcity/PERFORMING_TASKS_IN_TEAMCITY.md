@@ -61,9 +61,25 @@ To view all the failed tests for a given commit:
 
 ### Ad-hoc testing of branches in the downstream repositories
 
-In preparation for a release you may need to run tests on a release branch present in the downstream hashicorp/terraform-provider-google(-beta) repos. To do this you should navigate to [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) or [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) and run a Custom Build. The resulting build will still use the terraform-provider-google(-beta) repo and the appropriate nightly testing GCP project, but you can change which branch is used and can limit which tests are run. See the official TeamCity documentation for [information on how to run a Custom Build](https://www.jetbrains.com/help/teamcity/running-custom-build.html).
+In preparation for a release you may need to run tests on a release branch present in the downstream hashicorp/terraform-provider-google(-beta) repos.
 
-To use a release branch, or any other branch that isn't main, use [the `Build branch` dropdown menu](https://www.jetbrains.com/help/teamcity/running-custom-build.html#Build+Branch) in the `Run Custom Build` modal. Changing branches is no longer controlled by a parameter.
+To do this you should:
+
+* Navigate to [`Google > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects) or [`Google Beta > Nightly Tests`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects) depending on which provider you want to test
+* Click on the build configuration for the service you want to test, e.g. [`Accessapproval - Acceptance Tests`](https://hashicorp.teamcity.com/buildConfiguration/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS_GOOGLE_PACKAGE_ACCESSAPPROVAL?branch=%3Cdefault%3E&buildTypeTab=overview&mode=builds)
+* On the page for the service's build configuation, look in the top right of the page for two buttons, one with the text "Run" and the other containing "...". Click on the righthand-side "..." button to launch the Custom Build modal.
+* Launching a [Custom Build](https://www.jetbrains.com/help/teamcity/running-custom-build.html):
+  * Select which branch to test
+     * By default the `Nightly Tests` projects will use `main`.
+     * To change to a different branch, open the `Changes` tab, and select the branch from the `Build branch` dropdown. For more info [see the documentation on build branches](https://www.jetbrains.com/help/teamcity/running-custom-build.html#Build+Branch).
+  * Change parameters for the Custom Build you're preparing to launch
+    * Click the `Parameters` tab
+    * Edit the value of configuration parameters or environment variables as needed.
+      * `TEST_PREFIX` - change this to restrict which tests are run
+      * `PARALLELISM` - controls the number of tests run in parallel
+      * `The version of Terraform Core which should be...` - change this to a valid version number of Terraform to be downloaded and used in the build.
+* When you've finished customising your build, click "Run Build" at the bottom of the modal.
+
 
 
 ### Ad-hoc testing of branches in the upstream repositories, while reviewing a PR
@@ -76,7 +92,7 @@ To do this you should navigate to either of these projects and run a custom buil
 
 Builds in these projects will test the code present in the Modular Magician's forks and will run tests against the VCR testing project in GCP.
 
-See the section above about how to run a Custom Build.
+See the section above about how to customise and run a Custom Build.
 
 
 ### Triggering VCR tests to record new cassettes
