@@ -1595,6 +1595,10 @@ The following arguments are supported:
   A reference to a KMS encryption key. If provided, it will be used to encrypt the data. If left blank, data
   will be encrypted using an internal Stream-specific encryption key provisioned through KMS.
 
+* `create_without_validation` -
+  (Optional)
+  Create the stream without validating it.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

@@ -141,6 +141,13 @@ Format: projects/{project}/global/{networks}/{name}`,
 					},
 				},
 			},
+			"create_without_validation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `If set to true, will skip validations.`,
+				Default:     false,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -232,7 +239,7 @@ func resourceDatastreamPrivateConnectionCreate(d *schema.ResourceData, meta inte
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/privateConnections?privateConnectionId={{private_connection_id}}&force={{create_without_validation}}")
 	if err != nil {
 		return err
 	}
