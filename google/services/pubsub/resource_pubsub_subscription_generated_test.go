@@ -393,11 +393,12 @@ resource "google_pubsub_subscription" "example" {
 
     filename_prefix = "pre-"
     filename_suffix = "-%{random_suffix}"
-  
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
     max_bytes = 1000
     max_duration = "300s"
   }
-  depends_on = [ 
+  depends_on = [
     google_storage_bucket.example,
     google_storage_bucket_iam_member.admin,
   ]
@@ -460,15 +461,16 @@ resource "google_pubsub_subscription" "example" {
 
     filename_prefix = "pre-"
     filename_suffix = "-%{random_suffix}"
-  
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
     max_bytes = 1000
     max_duration = "300s"
-  
+
     avro_config {
       write_metadata = true
     }
   }
-  depends_on = [ 
+  depends_on = [
     google_storage_bucket.example,
     google_storage_bucket_iam_member.admin,
   ]

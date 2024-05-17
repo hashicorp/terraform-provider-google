@@ -278,11 +278,12 @@ resource "google_pubsub_subscription" "example" {
 
     filename_prefix = "pre-"
     filename_suffix = "-%{random_suffix}"
-  
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
     max_bytes = 1000
     max_duration = "300s"
   }
-  depends_on = [ 
+  depends_on = [
     google_storage_bucket.example,
     google_storage_bucket_iam_member.admin,
   ]
@@ -325,15 +326,16 @@ resource "google_pubsub_subscription" "example" {
 
     filename_prefix = "pre-"
     filename_suffix = "-%{random_suffix}"
-  
+    filename_datetime_format = "YYYY-MM-DD/hh_mm_ssZ"
+
     max_bytes = 1000
     max_duration = "300s"
-  
+
     avro_config {
       write_metadata = true
     }
   }
-  depends_on = [ 
+  depends_on = [
     google_storage_bucket.example,
     google_storage_bucket_iam_member.admin,
   ]
@@ -527,6 +529,10 @@ The following arguments are supported:
 * `filename_suffix` -
   (Optional)
   User-provided suffix for Cloud Storage filename. Must not end in "/".
+
+* `filename_datetime_format` -
+  (Optional)
+  User-provided format string specifying how to represent datetimes in Cloud Storage filenames.
 
 * `max_duration` -
   (Optional)
