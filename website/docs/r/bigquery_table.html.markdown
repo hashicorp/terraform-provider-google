@@ -198,6 +198,9 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `csv_options` (Optional) - Additional properties to set if
     `source_format` is set to "CSV". Structure is [documented below](#nested_csv_options).
 
+* `bigtable_options` (Optional) - Additional properties to set if
+    `source_format` is set to "BIGTABLE". Structure is [documented below](#nested_bigtable_options).
+
 * `json_options` (Optional) - Additional properties to set if
     `source_format` is set to "JSON". Structure is [documented below](#nested_json_options).
 
@@ -286,6 +289,30 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 * `skip_leading_rows` (Optional) - The number of rows at the top of a CSV
     file that BigQuery will skip when reading the data.
+
+<a name="nested_bigtable_options"></a>The `bigtable_options` block supports:
+
+* `column_family` (Optional) - A list of column families to expose in the table schema along with their types. This list restricts the column families that can be referenced in queries and specifies their value types. You can use this list to do type conversions - see the 'type' field for more details. If you leave this list empty, all column families are present in the table schema and their values are read as BYTES. During a query only the column families referenced in that query are read from Bigtable.  Structure is [documented below](#nested_column_family).
+* `ignore_unspecified_column_families` (Optional) - If field is true, then the column families that are not specified in columnFamilies list are not exposed in the table schema. Otherwise, they are read with BYTES type values. The default value is false.
+* `read_rowkey_as_string` (Optional) - If field is true, then the rowkey column families will be read and converted to string. Otherwise they are read with BYTES type values and users need to manually cast them with CAST if necessary. The default value is false.
+* `output_column_families_as_json` (Optional) - If field is true, then each column family will be read as a single JSON column. Otherwise they are read as a repeated cell structure containing timestamp/value tuples. The default value is false.
+
+<a name="nested_column_family"></a>The `column_family` block supports:
+
+* `column` (Optional) - A List of columns that should be exposed as individual fields as opposed to a list of (column name, value) pairs. All columns whose qualifier matches a qualifier in this list can be accessed as Other columns can be accessed as a list through column field.  Structure is [documented below](#nested_column).
+* `family_id` (Optional) - Identifier of the column family.
+* `type` (Optional) - The type to convert the value in cells of this column family. The values are expected to be encoded using HBase Bytes.toBytes function when using the BINARY encoding value. Following BigQuery types are allowed (case-sensitive): "BYTES", "STRING", "INTEGER", "FLOAT", "BOOLEAN", "JSON". Default type is BYTES. This can be overridden for a specific column by listing that column in 'columns' and specifying a type for it.
+* `encoding` (Optional) - The encoding of the values when the type is not STRING. Acceptable encoding values are: TEXT - indicates values are alphanumeric text strings. BINARY - indicates values are encoded using HBase Bytes.toBytes family of functions. This can be overridden for a specific column by listing that column in 'columns' and specifying an encoding for it.
+* `only_read_latest` (Optional) - If this is set only the latest version of value are exposed for all columns in this column family. This can be overridden for a specific column by listing that column in 'columns' and specifying a different setting for that column.
+
+<a name="nested_column"></a>The `column` block supports:
+
+* `qualifier_encoded` (Optional) - Qualifier of the column. Columns in the parent column family that has this exact qualifier are exposed as . field. If the qualifier is valid UTF-8 string, it can be specified in the qualifierString field. Otherwise, a base-64 encoded value must be set to qualifierEncoded. The column field name is the same as the column qualifier. However, if the qualifier is not a valid BigQuery field identifier i.e. does not match [a-zA-Z][a-zA-Z0-9_]*, a valid identifier must be provided as fieldName.
+* `qualifier_string` (Optional) - Qualifier string.
+* `field_name` (Optional) - If the qualifier is not a valid BigQuery field identifier i.e. does not match [a-zA-Z][a-zA-Z0-9_]*, a valid identifier must be provided as the column field name and is used as field name in queries.
+* `type` (Optional) - The type to convert the value in cells of this column. The values are expected to be encoded using HBase Bytes.toBytes function when using the BINARY encoding value. Following BigQuery types are allowed (case-sensitive): "BYTES", "STRING", "INTEGER", "FLOAT", "BOOLEAN", "JSON", Default type is "BYTES". 'type' can also be set at the column family level. However, the setting at this level takes precedence if 'type' is set at both levels.
+* `encoding` (Optional) - The encoding of the values when the type is not STRING. Acceptable encoding values are: TEXT - indicates values are alphanumeric text strings. BINARY - indicates values are encoded using HBase Bytes.toBytes family of functions. 'encoding' can also be set at the column family level. However, the setting at this level takes precedence if 'encoding' is set at both levels.
+* `only_read_latest` (Optional) - If this is set, only the latest version of value in this column are exposed. 'onlyReadLatest' can also be set at the column family level. However, the setting at this level takes precedence if 'onlyReadLatest' is set at both levels.
 
 <a name="nested_json_options"></a>The `json_options` block supports:
 
