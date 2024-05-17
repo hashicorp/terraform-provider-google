@@ -28,7 +28,7 @@ network endpoint group.
 
 -> **NOTE** In case the Endpoint's Instance is recreated, it's needed to
 perform `apply` twice. To avoid situations like this, please use this resource
-with the lifecycle `update_triggered_by` method, with the passed Instance's ID.
+with the lifecycle `replace_triggered_by` method, with the passed Instance's ID.
 
 
 To get more information about NetworkEndpoint, see:
