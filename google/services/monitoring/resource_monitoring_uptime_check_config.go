@@ -38,6 +38,15 @@ func resourceMonitoringUptimeCheckConfigHttpCheckPathDiffSuppress(k, old, new st
 	return old == "/"+new
 }
 
+func resourceMonitoringUptimeCheckConfigMonitoredResourceLabelsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// GCP adds the project_id to the labels if unset.
+	// We want to suppress the diff if not set in the config.
+	if strings.HasSuffix(k, "project_id") && new == "" && old != "" {
+		return true
+	}
+	return false
+}
+
 func ResourceMonitoringUptimeCheckConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceMonitoringUptimeCheckConfigCreate,
@@ -287,11 +296,12 @@ uptime checks:
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"labels": {
-							Type:        schema.TypeMap,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Values for all of the labels listed in the associated monitored resource descriptor. For example, Compute Engine VM instances use the labels 'project_id', 'instance_id', and 'zone'.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:             schema.TypeMap,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: resourceMonitoringUptimeCheckConfigMonitoredResourceLabelsDiffSuppress,
+							Description:      `Values for all of the labels listed in the associated monitored resource descriptor. For example, Compute Engine VM instances use the labels 'project_id', 'instance_id', and 'zone'.`,
+							Elem:             &schema.Schema{Type: schema.TypeString},
 						},
 						"type": {
 							Type:        schema.TypeString,
