@@ -1119,6 +1119,37 @@ func TestAccBigQueryDataTable_bigtable(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDataTable_bigtable_options(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 8),
+		"project":       envvar.GetTestProjectFromEnv(),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryTableFromBigtableOptions(context),
+			},
+			{
+				ResourceName:            "google_bigquery_table.table",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccBigQueryTableFromBigtable(context),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryDataTable_sheet(t *testing.T) {
 	t.Parallel()
 
@@ -3228,6 +3259,77 @@ resource "google_bigquery_dataset" "dataset" {
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "EU"
+  default_table_expiration_ms = 3600000
+  labels = {
+    env = "default"
+  }
+}
+`, context)
+}
+
+func testAccBigQueryTableFromBigtableOptions(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "tf-test-bigtable-inst-%{random_suffix}"
+  cluster {
+    cluster_id = "tf-test-bigtable-%{random_suffix}"
+    zone       = "us-central1-b"
+  }
+  instance_type = "DEVELOPMENT"
+  deletion_protection = false
+}
+resource "google_bigtable_table" "table" {
+  name          = "%{random_suffix}"
+  instance_name = google_bigtable_instance.instance.name
+  column_family {
+    family = "cf-%{random_suffix}-first"
+  }
+  column_family {
+    family = "cf-%{random_suffix}-second"
+  }
+}
+resource "google_bigquery_table" "table" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.dataset.dataset_id
+  table_id   = "tf_test_bigtable_%{random_suffix}"
+  external_data_configuration {
+    autodetect            = true
+    source_format         = "BIGTABLE"
+    ignore_unknown_values = true
+    source_uris = [
+    "https://googleapis.com/bigtable/${google_bigtable_table.table.id}",
+    ]
+	bigtable_options {
+      column_family {
+        family_id        = "cf-%{random_suffix}-first"
+		column {
+			field_name       = "cf-%{random_suffix}-first"
+			type             = "STRING"
+			encoding         = "TEXT"
+			only_read_latest = true
+		  }
+		type             = "STRING"
+		encoding         = "TEXT"
+		only_read_latest = true
+	  }
+      column_family {
+        family_id        = "cf-%{random_suffix}-second"
+		type             = "STRING"
+		encoding         = "TEXT"
+		only_read_latest = false
+	  }
+      ignore_unspecified_column_families = true
+      read_rowkey_as_string              = true
+      output_column_families_as_json     = true
+	}
+  }
+}
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "tf_test_ds_%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "EU"
+  delete_contents_on_destroy  = true
   default_table_expiration_ms = 3600000
   labels = {
     env = "default"
