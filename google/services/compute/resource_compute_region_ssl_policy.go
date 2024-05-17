@@ -85,13 +85,6 @@ first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
-			"region": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `The region where the regional SSL policy resides.`,
-			},
 			"custom_features": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -135,6 +128,14 @@ See the [official documentation](https://cloud.google.com/compute/docs/load-bala
 for information on what cipher suites each profile provides. If
 'CUSTOM' is used, the 'custom_features' attribute **must be set**. Default value: "COMPATIBLE" Possible values: ["COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM"]`,
 				Default: "COMPATIBLE",
+			},
+			"region": {
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description:      `The region where the regional SSL policy resides.`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -555,7 +556,7 @@ func flattenComputeRegionSslPolicyRegion(v interface{}, d *schema.ResourceData, 
 	if v == nil {
 		return v
 	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
+	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
 func expandComputeRegionSslPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
