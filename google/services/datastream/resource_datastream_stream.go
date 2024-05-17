@@ -1261,6 +1261,13 @@ https://www.postgresql.org/docs/current/datatype.html`,
 				},
 				ExactlyOneOf: []string{"backfill_all", "backfill_none"},
 			},
+			"create_without_validation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Create the stream without validating it.`,
+				Default:     false,
+			},
 			"customer_managed_encryption_key": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1373,7 +1380,7 @@ func resourceDatastreamStreamCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/streams?streamId={{stream_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/streams?streamId={{stream_id}}&force={{create_without_validation}}")
 	if err != nil {
 		return err
 	}

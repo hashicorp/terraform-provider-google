@@ -82,6 +82,13 @@ func ResourceDatastreamConnectionProfile() *schema.Resource {
 				},
 				ExactlyOneOf: []string{"oracle_profile", "gcs_profile", "mysql_profile", "bigquery_profile", "postgresql_profile"},
 			},
+			"create_without_validation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Create the connection profile without validating it.`,
+				Default:     false,
+			},
 			"forward_ssh_connectivity": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -430,7 +437,7 @@ func resourceDatastreamConnectionProfileCreate(d *schema.ResourceData, meta inte
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DatastreamBasePath}}projects/{{project}}/locations/{{location}}/connectionProfiles?connectionProfileId={{connection_profile_id}}&force={{create_without_validation}}")
 	if err != nil {
 		return err
 	}

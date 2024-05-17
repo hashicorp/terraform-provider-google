@@ -55,7 +55,7 @@ func TestAccDatastreamStream_datastreamStreamBasicExample(t *testing.T) {
 				ResourceName:            "google_datastream_stream.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "stream_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
 		},
 	})
@@ -218,7 +218,7 @@ func TestAccDatastreamStream_datastreamStreamFullExample(t *testing.T) {
 				ResourceName:            "google_datastream_stream.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "stream_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
 		},
 	})
@@ -451,7 +451,7 @@ func TestAccDatastreamStream_datastreamStreamPostgresqlBigqueryDatasetIdExample(
 				ResourceName:            "google_datastream_stream.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "stream_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
 		},
 	})
@@ -594,7 +594,7 @@ func TestAccDatastreamStream_datastreamStreamBigqueryExample(t *testing.T) {
 				ResourceName:            "google_datastream_stream.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"labels", "location", "stream_id", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"create_without_validation", "labels", "location", "stream_id", "terraform_labels"},
 			},
 		},
 	})
