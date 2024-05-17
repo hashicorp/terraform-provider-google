@@ -818,6 +818,13 @@ The following arguments are supported:
   A filesystem specified by the Container Storage Interface (CSI).
   Structure is [documented below](#nested_csi).
 
+* `nfs` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A filesystem backed by a Network File System share. This filesystem requires the
+  run.googleapis.com/execution-environment annotation to be set to "gen2" and
+  run.googleapis.com/launch-stage set to "BETA" or "ALPHA".
+  Structure is [documented below](#nested_nfs).
+
 
 <a name="nested_secret"></a>The `secret` block supports:
 
@@ -899,6 +906,20 @@ The following arguments are supported:
   Driver-specific attributes. The following options are supported for available drivers:
     * gcsfuse.run.googleapis.com
       * bucketName: The name of the Cloud Storage Bucket that backs this volume. The Cloud Run Service identity must have access to this bucket.
+
+<a name="nested_nfs"></a>The `nfs` block supports:
+
+* `server` -
+  (Required)
+  IP address or hostname of the NFS server
+
+* `path` -
+  (Required)
+  Path exported by the NFS server
+
+* `read_only` -
+  (Optional)
+  If true, mount the NFS volume as read only in all mounts. Defaults to false.
 
 - - -
 
