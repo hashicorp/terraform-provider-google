@@ -631,7 +631,7 @@ func testAccCloudRunV2Service_cloudRunServiceWithDirectVPC(context map[string]in
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
-  launch_stage = "BETA"
+  launch_stage = "GA"
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
@@ -651,7 +651,7 @@ func testAccCloudRunV2Service_cloudRunServiceWithDirectVPCUpdate(context map[str
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
-  launch_stage = "BETA"
+  launch_stage = "GA"
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
