@@ -88,6 +88,11 @@ resource "google_network_security_server_tls_policy" "default" {
   location               = "global"
   allow_open             = "false"
   mtls_policy {
+    client_validation_ca {
+      grpc_endpoint {
+        target_uri = "unix:mypath"
+      }
+    }
     client_validation_mode = "ALLOW_INVALID_OR_MISSING_CLIENT_CERT"
   }
 }
