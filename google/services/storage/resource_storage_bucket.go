@@ -332,6 +332,14 @@ func ResourceStorageBucket() *schema.Resource {
 							return true
 						}
 					}
+					if new == "0" && old == "1" {
+						n := d.Get(strings.TrimSuffix(k, ".#"))
+						l = n.([]interface{})
+						contents := l[0].(map[string]interface{})
+						if contents["enabled"] == false {
+							return true
+						}
+					}
 					return false
 				},
 			},
@@ -755,6 +763,11 @@ func resourceStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error
 	if d.HasChange("autoclass") {
 		if v, ok := d.GetOk("autoclass"); ok {
 			sb.Autoclass = expandBucketAutoclass(v)
+		} else {
+			sb.Autoclass = &storage.BucketAutoclass{
+				Enabled:         false,
+				ForceSendFields: []string{"Enabled"},
+			}
 		}
 	}
 
