@@ -7284,7 +7284,7 @@ resource "google_compute_instance" "foobar" {
 `, instance)
 }
 
-func testAccComputeInstance_spotVM_maxRunDuration(instance string) string {
+func testAccComputeInstance_spotVM_maxRunDuration(instance string, instanceTerminationAction string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family    = "ubuntu-2004-lts"
@@ -7310,10 +7310,10 @@ resource "google_compute_instance" "foobar" {
     provisioning_model = "SPOT"
     automatic_restart = false
     preemptible = true
-    instance_termination_action = "DELETE"
+    instance_termination_action = "%s"
   }
 }
-`, instance)
+`, instance, instanceTerminationAction)
 }
 
 func testAccComputeInstance_localSsdRecoveryTimeout(instance string) string {
