@@ -340,6 +340,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_data_fusion_instance_iam_policy":                 tpgiamresource.DataSourceIamPolicy(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer),
 	"google_dataplex_asset_iam_policy":                       tpgiamresource.DataSourceIamPolicy(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer),
 	"google_dataplex_datascan_iam_policy":                    tpgiamresource.DataSourceIamPolicy(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer),
+	"google_dataplex_entry_group_iam_policy":                 tpgiamresource.DataSourceIamPolicy(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer),
 	"google_dataplex_lake_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer),
 	"google_dataplex_task_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexTaskIamSchema, dataplex.DataplexTaskIamUpdaterProducer),
 	"google_dataplex_zone_iam_policy":                        tpgiamresource.DataSourceIamPolicy(dataplex.DataplexZoneIamSchema, dataplex.DataplexZoneIamUpdaterProducer),
@@ -408,9 +409,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 413
-// Generated IAM resources: 237
-// Total generated resources: 650
+// Generated resources: 414
+// Generated IAM resources: 240
+// Total generated resources: 654
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -704,6 +705,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataplex_datascan_iam_binding":                             tpgiamresource.ResourceIamBinding(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer, dataplex.DataplexDatascanIdParseFunc),
 	"google_dataplex_datascan_iam_member":                              tpgiamresource.ResourceIamMember(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer, dataplex.DataplexDatascanIdParseFunc),
 	"google_dataplex_datascan_iam_policy":                              tpgiamresource.ResourceIamPolicy(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer, dataplex.DataplexDatascanIdParseFunc),
+	"google_dataplex_entry_group":                                      dataplex.ResourceDataplexEntryGroup(),
+	"google_dataplex_entry_group_iam_binding":                          tpgiamresource.ResourceIamBinding(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer, dataplex.DataplexEntryGroupIdParseFunc),
+	"google_dataplex_entry_group_iam_member":                           tpgiamresource.ResourceIamMember(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer, dataplex.DataplexEntryGroupIdParseFunc),
+	"google_dataplex_entry_group_iam_policy":                           tpgiamresource.ResourceIamPolicy(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer, dataplex.DataplexEntryGroupIdParseFunc),
 	"google_dataplex_lake_iam_binding":                                 tpgiamresource.ResourceIamBinding(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
 	"google_dataplex_lake_iam_member":                                  tpgiamresource.ResourceIamMember(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
 	"google_dataplex_lake_iam_policy":                                  tpgiamresource.ResourceIamPolicy(dataplex.DataplexLakeIamSchema, dataplex.DataplexLakeIamUpdaterProducer, dataplex.DataplexLakeIdParseFunc),
