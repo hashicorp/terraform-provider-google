@@ -7,7 +7,6 @@ FEATURES:
 
 IMPROVEMENTS:
 * compute:  added `kms_key_name` field to `google_bigquery_connection` resource ([#18057](https://github.com/hashicorp/terraform-provider-google/pull/18057))
-* compute: added `match.expr.expression` field to `google_compute_region_security_policy_rule` resource ([#18048](https://github.com/hashicorp/terraform-provider-google/pull/18048))
 * compute: added `auto_network_tier` field to `google_compute_router_nat` resource ([#18055](https://github.com/hashicorp/terraform-provider-google/pull/18055))
 * compute: promoted `enable_ipv4`, `ipv4_nexthop_address` and `peer_ipv4_nexthop_address` fields in `google_compute_router_peer` resource to GA ([#18056](https://github.com/hashicorp/terraform-provider-google/pull/18056))
 * compute: promoted `identifier_range` field in `google_compute_router` resource to GA ([#18056](https://github.com/hashicorp/terraform-provider-google/pull/18056))
