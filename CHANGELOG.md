@@ -1,6 +1,38 @@
 ## 5.30.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `google_cloud_asset_resources_search_all` ([#18129](https://github.com/hashicorp/terraform-provider-google/pull/18129))
+* **New Resource:** `google_compute_interconnect` ([#18064](https://github.com/hashicorp/terraform-provider-google/pull/18064))
+* **New Resource:** `google_network_services_lb_traffic_extension` ([#18138](https://github.com/hashicorp/terraform-provider-google/pull/18138))
+
+IMPROVEMENTS:
+* compute:  added `kms_key_name` field to `google_bigquery_connection` resource ([#18057](https://github.com/hashicorp/terraform-provider-google/pull/18057))
+* compute: added `auto_network_tier` field to `google_compute_router_nat` resource ([#18055](https://github.com/hashicorp/terraform-provider-google/pull/18055))
+* compute: promoted `enable_ipv4`, `ipv4_nexthop_address` and `peer_ipv4_nexthop_address` fields in `google_compute_router_peer` resource to GA ([#18056](https://github.com/hashicorp/terraform-provider-google/pull/18056))
+* compute: promoted `identifier_range` field in `google_compute_router` resource to GA ([#18056](https://github.com/hashicorp/terraform-provider-google/pull/18056))
+* compute: promoted `ip_version` field in `google_compute_router_interface` resource to GA ([#18056](https://github.com/hashicorp/terraform-provider-google/pull/18056))
+* container: added `KUBELET` and `CADVISOR` options to `monitoring_config.enable_components` in `google_container_cluster` resource ([#18090](https://github.com/hashicorp/terraform-provider-google/pull/18090))
+* dataproc: added `local_ssd_interface` to `google_dataproc_cluster` resource ([#18137](https://github.com/hashicorp/terraform-provider-google/pull/18137))
+* dataprocmetastore: promoted `google_dataproc_metastore_federation` to GA ([#18084](https://github.com/hashicorp/terraform-provider-google/pull/18084))
+* dlp: added `cloud_sql_target` field to `google_data_loss_prevention_discovery_config` resource ([#18063](https://github.com/hashicorp/terraform-provider-google/pull/18063))
+* netapp: added `FLEX` value to field `service_level` in `google_netapp_storage_pool` resource ([#18088](https://github.com/hashicorp/terraform-provider-google/pull/18088))
+* networksecurity: added `trust_config`, `min_tls_version`, `tls_feature_profile` and `custom_tls_features` fields to `google_network_security_tls_inspection_policy` resource ([#18139](https://github.com/hashicorp/terraform-provider-google/pull/18139))
+* networkservices: supported in-place update for `gateway_security_policy` and `certificate_urls` fields in `google_network_services_gateway` resource ([#18082](https://github.com/hashicorp/terraform-provider-google/pull/18082))
+
+BUG FIXES:
+* compute: fixed a perma-diff on `machine_type` field in `google_compute_instance` resource ([#18071](https://github.com/hashicorp/terraform-provider-google/pull/18071))
+* compute: fixed a perma-diff on `type` field in `google_compute_disk` resource ([#18071](https://github.com/hashicorp/terraform-provider-google/pull/18071))
+* storage: fixed update issue for `lifecycle_rule.condition.custom_time_before` and `lifecycle_rule.condition.noncurrent_time_before` in `google_storage_bucket` resource ([#18127](https://github.com/hashicorp/terraform-provider-google/pull/18127))
+
+## 5.29.1 (May 14, 2024)
+
+BREAKING CHANGES:
+* compute: removed `secondary_ip_range.reserved_internal_range` field from `google_compute_subnetwork` ([18133](https://github.com/hashicorp/terraform-provider-google/pull/18133))
+
 ## 5.29.0 (May 13, 2024)
+
+BREAKING CHANGES:
+* compute: added required `reserved_internal_range` subfield to `reserved_internal_range` in `google_compute_subnetwork`. This field can be set to `null` as an equivalent to leaving it unspecified. Upgrading directly to 5.29.1 will avoid this issue.
 
 NOTES:
 * compute: added documentation for `md5_authentication_key` field in `google_compute_router_peer` resource. The field was introduced in [v5.12.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.12.0), but documentation was unintentionally omitted at that time. ([#17991](https://github.com/hashicorp/terraform-provider-google/pull/17991))
