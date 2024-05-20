@@ -3231,7 +3231,7 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix)
 }
 
-func testAccComputeInstanceTemplate_spot_maxRunDuration(suffix string) string {
+func testAccComputeInstanceTemplate_spot_maxRunDuration(suffix string, instanceTerminationAction string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
   family  = "debian-11"
@@ -3258,7 +3258,7 @@ resource "google_compute_instance_template" "foobar" {
     preemptible       = true
     automatic_restart = false
     provisioning_model = "SPOT"
-    instance_termination_action = "DELETE"
+    instance_termination_action = "%s"
 
   }
 
@@ -3270,7 +3270,7 @@ resource "google_compute_instance_template" "foobar" {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
 }
-`, suffix)
+`, suffix, instanceTerminationAction)
 }
 
 func testAccComputeInstanceTemplate_localSsdRecoveryTimeout(suffix string) string {
