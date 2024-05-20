@@ -154,11 +154,9 @@ domain. If not specified, the value will default to AVAILABILITY_DOMAIN_ANY.`,
 				Description: `Indicates the user-supplied encryption option of this interconnect
 attachment. Can only be specified at attachment creation for PARTNER or
 DEDICATED attachments.
-
 * NONE - This is the default value, which means that the VLAN attachment
 carries unencrypted traffic. VMs are able to send traffic to, or receive
 traffic from, such a VLAN attachment.
-
 * IPSEC - The VLAN attachment carries only encrypted traffic that is
 encrypted by an IPsec device, such as an HA VPN gateway or third-party
 IPsec VPN. VMs cannot directly send traffic to, or receive traffic from,
@@ -182,17 +180,14 @@ be set if type is PARTNER.`,
 				Description: `URL of addresses that have been reserved for the interconnect attachment,
 Used only for interconnect attachment that has the encryption option as
 IPSEC.
-
 The addresses must be RFC 1918 IP address ranges. When creating HA VPN
 gateway over the interconnect attachment, if the attachment is configured
 to use an RFC 1918 IP address, then the VPN gateway's IP address will be
 allocated from the IP address range specified here.
-
 For example, if the HA VPN gateway's interface 0 is paired to this
 interconnect attachment, then an RFC 1918 IP address for the VPN gateway
 interface 0 will be allocated from the IP address specified for this
 interconnect attachment.
-
 If this field is not specified for interconnect attachment that has
 encryption option as IPSEC, later on when creating HA VPN gateway on this
 interconnect attachment, the HA VPN gateway's IP address will be
@@ -223,9 +218,19 @@ this interconnect attachment. Currently, only 1440 and 1500 are allowed. If not 
 				ValidateFunc: verify.ValidateEnum([]string{"IPV4_IPV6", "IPV4_ONLY", ""}),
 				Description: `The stack type for this interconnect attachment to identify whether the IPv6
 feature is enabled or not. If not specified, IPV4_ONLY will be used.
-
 This field can be both set at interconnect attachments creation and update
 interconnect attachment operations. Possible values: ["IPV4_IPV6", "IPV4_ONLY"]`,
+			},
+			"subnet_length": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Description: `Length of the IPv4 subnet mask. Allowed values: 29 (default), 30. The default value is 29,
+except for Cross-Cloud Interconnect connections that use an InterconnectRemoteLocation with a
+constraints.subnetLengthRange.min equal to 30. For example, connections that use an Azure
+remote location fall into this category. In these cases, the default value is 30, and
+requesting 29 returns an error. Where both 29 and 30 are allowed, 29 is preferred, because it
+gives Google Cloud Support more debugging visibility.`,
 			},
 			"type": {
 				Type:         schema.TypeString,
@@ -420,6 +425,12 @@ func resourceComputeInterconnectAttachmentCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("stack_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
 		obj["stackType"] = stackTypeProp
+	}
+	subnetLengthProp, err := expandComputeInterconnectAttachmentSubnetLength(d.Get("subnet_length"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subnet_length"); !tpgresource.IsEmptyValue(reflect.ValueOf(subnetLengthProp)) && (ok || !reflect.DeepEqual(v, subnetLengthProp)) {
+		obj["subnetLength"] = subnetLengthProp
 	}
 	regionProp, err := expandComputeInterconnectAttachmentRegion(d.Get("region"), d, config)
 	if err != nil {
@@ -1004,6 +1015,10 @@ func expandComputeInterconnectAttachmentEncryption(v interface{}, d tpgresource.
 }
 
 func expandComputeInterconnectAttachmentStackType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectAttachmentSubnetLength(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

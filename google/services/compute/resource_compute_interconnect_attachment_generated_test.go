@@ -49,7 +49,7 @@ func TestAccComputeInterconnectAttachment_interconnectAttachmentBasicExample(t *
 				ResourceName:            "google_compute_interconnect_attachment.on_prem",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router", "subnet_length"},
 			},
 		},
 	})
@@ -68,6 +68,72 @@ resource "google_compute_interconnect_attachment" "on_prem" {
 resource "google_compute_router" "foobar" {
   name    = "tf-test-router-1%{random_suffix}"
   network = google_compute_network.foobar.name
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_network" "foobar" {
+  name                    = "tf-test-network-1%{random_suffix}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
+func TestAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInterconnectAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample(context),
+			},
+			{
+				ResourceName:            "google_compute_interconnect_attachment.on_prem",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router", "subnet_length"},
+			},
+		},
+	})
+}
+
+func testAccComputeInterconnectAttachment_interconnectAttachmentDedicatedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {}
+
+resource "google_compute_interconnect" "foobar" {
+  name                 = "tf-test-interconenct-1%{random_suffix}"
+  customer_name        = "internal_customer" # Special customer only available for Google testing.
+  interconnect_type    = "IT_PRIVATE"        # Special type only available for Google testing.
+  link_type            = "LINK_TYPE_ETHERNET_10G_LR"
+  requested_link_count = 1
+  location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-a" # Special location only available for Google testing.
+}
+
+resource "google_compute_interconnect_attachment" "on_prem" {
+  name                     = "tf-test-on-prem-attachment%{random_suffix}"
+  type                     = "DEDICATED"
+  interconnect             = google_compute_interconnect.foobar.id
+  router                   = google_compute_router.foobar.id
+  mtu                      = 1500
+  subnet_length            = 29
+  vlan_tag8021q            = 1000
+  region                   = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/regions/us-east4"
+  stack_type               = "IPV4_ONLY"
+}
+
+resource "google_compute_router" "foobar" {
+  name    = "tf-test-router-1%{random_suffix}"
+  network = google_compute_network.foobar.name
+  region  = "us-east4"
   bgp {
     asn = 16550
   }
@@ -99,7 +165,7 @@ func TestAccComputeInterconnectAttachment_computeInterconnectAttachmentIpsecEncr
 				ResourceName:            "google_compute_interconnect_attachment.ipsec-encrypted-interconnect-attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router"},
+				ImportStateVerifyIgnore: []string{"candidate_subnets", "region", "router", "subnet_length"},
 			},
 		},
 	})
