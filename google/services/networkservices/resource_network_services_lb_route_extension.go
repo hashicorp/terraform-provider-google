@@ -33,15 +33,15 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func ResourceNetworkServicesLbTrafficExtension() *schema.Resource {
+func ResourceNetworkServicesLbRouteExtension() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkServicesLbTrafficExtensionCreate,
-		Read:   resourceNetworkServicesLbTrafficExtensionRead,
-		Update: resourceNetworkServicesLbTrafficExtensionUpdate,
-		Delete: resourceNetworkServicesLbTrafficExtensionDelete,
+		Create: resourceNetworkServicesLbRouteExtensionCreate,
+		Read:   resourceNetworkServicesLbRouteExtensionRead,
+		Update: resourceNetworkServicesLbRouteExtensionUpdate,
+		Delete: resourceNetworkServicesLbRouteExtensionDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceNetworkServicesLbTrafficExtensionImport,
+			State: resourceNetworkServicesLbRouteExtensionImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -111,18 +111,6 @@ If omitted, all headers are sent. Each element is a string indicating the header
 											Type: schema.TypeString,
 										},
 									},
-									"supported_events": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Description: `A set of events during request or response processing for which this extension is called.
-This field is required for the LbTrafficExtension resource. It's not relevant for the LbRouteExtension
-resource. Possible values:'EVENT_TYPE_UNSPECIFIED', 'REQUEST_HEADERS', 'REQUEST_BODY', 'RESPONSE_HEADERS',
-'RESPONSE_BODY', 'RESPONSE_BODY' and 'RESPONSE_BODY'.`,
-										MinItems: 1,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 									"timeout": {
 										Type:             schema.TypeString,
 										Optional:         true,
@@ -154,7 +142,7 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 							Description: `The name for this extension chain. The name is logged as part of the HTTP request logs.
 The name must conform with RFC-1034, is restricted to lower-cased letters, numbers and hyphens,
 and can have a maximum length of 63 characters. Additionally, the first character must be a letter
-and the last a letter or a number.`,
+and the last character must be a letter or a number.`,
 						},
 					},
 				},
@@ -164,22 +152,31 @@ and the last a letter or a number.`,
 				Required:         true,
 				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 				Description: `A list of references to the forwarding rules to which this service extension is attached to.
-At least one forwarding rule is required. There can be only one LBTrafficExtension resource per forwarding rule.`,
+At least one forwarding rule is required. There can be only one LbRouteExtension resource per forwarding rule.`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"load_balancing_scheme": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED"}),
+				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
 			},
 			"location": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `The location of the traffic extension`,
+				Description: `The location of the route extension`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Name of the LbTrafficExtension resource in the following format: projects/{project}/locations/{location}/lbTrafficExtensions/{lbTrafficExtension}.`,
+				Description: `Name of the LbRouteExtension resource in the following format: projects/{project}/locations/{location}/lbRouteExtensions/{lbRouteExtension}`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -189,20 +186,11 @@ At least one forwarding rule is required. There can be only one LBTrafficExtensi
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Description: `Set of labels associated with the LbTrafficExtension resource.
+				Description: `Set of labels associated with the LbRouteExtension resource.
 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
-			},
-			"load_balancing_scheme": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL_MANAGED", "EXTERNAL_MANAGED", ""}),
-				Description: `All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-[Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs). Possible values: ["INTERNAL_MANAGED", "EXTERNAL_MANAGED"]`,
 			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
@@ -228,7 +216,7 @@ For more information, refer to [Choosing a load balancer](https://cloud.google.c
 	}
 }
 
-func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkServicesLbRouteExtensionCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -236,48 +224,48 @@ func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, met
 	}
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandNetworkServicesLbTrafficExtensionDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetworkServicesLbRouteExtensionDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	forwardingRulesProp, err := expandNetworkServicesLbTrafficExtensionForwardingRules(d.Get("forwarding_rules"), d, config)
+	forwardingRulesProp, err := expandNetworkServicesLbRouteExtensionForwardingRules(d.Get("forwarding_rules"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(forwardingRulesProp)) && (ok || !reflect.DeepEqual(v, forwardingRulesProp)) {
 		obj["forwardingRules"] = forwardingRulesProp
 	}
-	extensionChainsProp, err := expandNetworkServicesLbTrafficExtensionExtensionChains(d.Get("extension_chains"), d, config)
+	extensionChainsProp, err := expandNetworkServicesLbRouteExtensionExtensionChains(d.Get("extension_chains"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("extension_chains"); !tpgresource.IsEmptyValue(reflect.ValueOf(extensionChainsProp)) && (ok || !reflect.DeepEqual(v, extensionChainsProp)) {
 		obj["extensionChains"] = extensionChainsProp
 	}
-	loadBalancingSchemeProp, err := expandNetworkServicesLbTrafficExtensionLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
+	loadBalancingSchemeProp, err := expandNetworkServicesLbRouteExtensionLoadBalancingScheme(d.Get("load_balancing_scheme"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
 	}
-	labelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetworkServicesLbRouteExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions?lbTrafficExtensionId={{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbRouteExtensions?lbRouteExtensionId={{name}}")
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new LbTrafficExtension: %#v", obj)
+	log.Printf("[DEBUG] Creating new LbRouteExtension: %#v", obj)
 	billingProject := ""
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error fetching project for LbRouteExtension: %s", err)
 	}
 	billingProject = project
 
@@ -298,39 +286,39 @@ func resourceNetworkServicesLbTrafficExtensionCreate(d *schema.ResourceData, met
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error creating LbRouteExtension: %s", err)
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
 
 	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Creating LbTrafficExtension", userAgent,
+		config, res, project, "Creating LbRouteExtension", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error waiting to create LbRouteExtension: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating LbTrafficExtension %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating LbRouteExtension %q: %#v", d.Id(), res)
 
-	return resourceNetworkServicesLbTrafficExtensionRead(d, meta)
+	return resourceNetworkServicesLbRouteExtensionRead(d, meta)
 }
 
-func resourceNetworkServicesLbTrafficExtensionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkServicesLbRouteExtensionRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
 		return err
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -339,7 +327,7 @@ func resourceNetworkServicesLbTrafficExtensionRead(d *schema.ResourceData, meta 
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error fetching project for LbRouteExtension: %s", err)
 	}
 	billingProject = project
 
@@ -358,39 +346,39 @@ func resourceNetworkServicesLbTrafficExtensionRead(d *schema.ResourceData, meta 
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesLbTrafficExtension %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetworkServicesLbRouteExtension %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
 
-	if err := d.Set("description", flattenNetworkServicesLbTrafficExtensionDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("description", flattenNetworkServicesLbRouteExtensionDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("labels", flattenNetworkServicesLbTrafficExtensionLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("labels", flattenNetworkServicesLbRouteExtensionLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("forwarding_rules", flattenNetworkServicesLbTrafficExtensionForwardingRules(res["forwardingRules"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("forwarding_rules", flattenNetworkServicesLbRouteExtensionForwardingRules(res["forwardingRules"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("extension_chains", flattenNetworkServicesLbTrafficExtensionExtensionChains(res["extensionChains"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("extension_chains", flattenNetworkServicesLbRouteExtensionExtensionChains(res["extensionChains"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("load_balancing_scheme", flattenNetworkServicesLbTrafficExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("load_balancing_scheme", flattenNetworkServicesLbRouteExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("terraform_labels", flattenNetworkServicesLbTrafficExtensionTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("terraform_labels", flattenNetworkServicesLbRouteExtensionTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
-	if err := d.Set("effective_labels", flattenNetworkServicesLbTrafficExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading LbTrafficExtension: %s", err)
+	if err := d.Set("effective_labels", flattenNetworkServicesLbRouteExtensionEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
 
 	return nil
 }
 
-func resourceNetworkServicesLbTrafficExtensionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkServicesLbRouteExtensionUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -401,42 +389,42 @@ func resourceNetworkServicesLbTrafficExtensionUpdate(d *schema.ResourceData, met
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error fetching project for LbRouteExtension: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	descriptionProp, err := expandNetworkServicesLbTrafficExtensionDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetworkServicesLbRouteExtensionDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	forwardingRulesProp, err := expandNetworkServicesLbTrafficExtensionForwardingRules(d.Get("forwarding_rules"), d, config)
+	forwardingRulesProp, err := expandNetworkServicesLbRouteExtensionForwardingRules(d.Get("forwarding_rules"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("forwarding_rules"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, forwardingRulesProp)) {
 		obj["forwardingRules"] = forwardingRulesProp
 	}
-	extensionChainsProp, err := expandNetworkServicesLbTrafficExtensionExtensionChains(d.Get("extension_chains"), d, config)
+	extensionChainsProp, err := expandNetworkServicesLbRouteExtensionExtensionChains(d.Get("extension_chains"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("extension_chains"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extensionChainsProp)) {
 		obj["extensionChains"] = extensionChainsProp
 	}
-	labelsProp, err := expandNetworkServicesLbTrafficExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetworkServicesLbRouteExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
 		obj["labels"] = labelsProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}")
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Updating LbTrafficExtension %q: %#v", d.Id(), obj)
+	log.Printf("[DEBUG] Updating LbRouteExtension %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
 
@@ -481,13 +469,13 @@ func resourceNetworkServicesLbTrafficExtensionUpdate(d *schema.ResourceData, met
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error updating LbTrafficExtension %q: %s", d.Id(), err)
+			return fmt.Errorf("Error updating LbRouteExtension %q: %s", d.Id(), err)
 		} else {
-			log.Printf("[DEBUG] Finished updating LbTrafficExtension %q: %#v", d.Id(), res)
+			log.Printf("[DEBUG] Finished updating LbRouteExtension %q: %#v", d.Id(), res)
 		}
 
 		err = NetworkServicesOperationWaitTime(
-			config, res, project, "Updating LbTrafficExtension", userAgent,
+			config, res, project, "Updating LbRouteExtension", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -495,10 +483,10 @@ func resourceNetworkServicesLbTrafficExtensionUpdate(d *schema.ResourceData, met
 		}
 	}
 
-	return resourceNetworkServicesLbTrafficExtensionRead(d, meta)
+	return resourceNetworkServicesLbRouteExtensionRead(d, meta)
 }
 
-func resourceNetworkServicesLbTrafficExtensionDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkServicesLbRouteExtensionDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -509,11 +497,11 @@ func resourceNetworkServicesLbTrafficExtensionDelete(d *schema.ResourceData, met
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for LbTrafficExtension: %s", err)
+		return fmt.Errorf("Error fetching project for LbRouteExtension: %s", err)
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{NetworkServicesBasePath}}projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -527,7 +515,7 @@ func resourceNetworkServicesLbTrafficExtensionDelete(d *schema.ResourceData, met
 
 	headers := make(http.Header)
 
-	log.Printf("[DEBUG] Deleting LbTrafficExtension %q", d.Id())
+	log.Printf("[DEBUG] Deleting LbRouteExtension %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -539,25 +527,25 @@ func resourceNetworkServicesLbTrafficExtensionDelete(d *schema.ResourceData, met
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "LbTrafficExtension")
+		return transport_tpg.HandleNotFoundError(err, d, "LbRouteExtension")
 	}
 
 	err = NetworkServicesOperationWaitTime(
-		config, res, project, "Deleting LbTrafficExtension", userAgent,
+		config, res, project, "Deleting LbRouteExtension", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting LbTrafficExtension %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting LbRouteExtension %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceNetworkServicesLbTrafficExtensionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNetworkServicesLbRouteExtensionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lbTrafficExtensions/(?P<name>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/lbRouteExtensions/(?P<name>[^/]+)$",
 		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
 		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
 	}, d, config); err != nil {
@@ -565,7 +553,7 @@ func resourceNetworkServicesLbTrafficExtensionImport(d *schema.ResourceData, met
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -574,11 +562,11 @@ func resourceNetworkServicesLbTrafficExtensionImport(d *schema.ResourceData, met
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNetworkServicesLbTrafficExtensionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -593,11 +581,11 @@ func flattenNetworkServicesLbTrafficExtensionLabels(v interface{}, d *schema.Res
 	return transformed
 }
 
-func flattenNetworkServicesLbTrafficExtensionForwardingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionForwardingRules(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChains(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -610,18 +598,18 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d *s
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":            flattenNetworkServicesLbTrafficExtensionExtensionChainsName(original["name"], d, config),
-			"match_condition": flattenNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(original["matchCondition"], d, config),
-			"extensions":      flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensions(original["extensions"], d, config),
+			"name":            flattenNetworkServicesLbRouteExtensionExtensionChainsName(original["name"], d, config),
+			"match_condition": flattenNetworkServicesLbRouteExtensionExtensionChainsMatchCondition(original["matchCondition"], d, config),
+			"extensions":      flattenNetworkServicesLbRouteExtensionExtensionChainsExtensions(original["extensions"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsMatchCondition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -631,14 +619,14 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v int
 	}
 	transformed := make(map[string]interface{})
 	transformed["cel_expression"] =
-		flattenNetworkServicesLbTrafficExtensionExtensionChainsMatchConditionCelExpression(original["celExpression"], d, config)
+		flattenNetworkServicesLbRouteExtensionExtensionChainsMatchConditionCelExpression(original["celExpression"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsMatchConditionCelExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsMatchConditionCelExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -651,50 +639,45 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfa
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":             flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(original["name"], d, config),
-			"authority":        flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
-			"service":          flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(original["service"], d, config),
-			"timeout":          flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
-			"fail_open":        flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
-			"forward_headers":  flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
-			"supported_events": flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
+			"name":            flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(original["name"], d, config),
+			"authority":       flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
+			"service":         flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(original["service"], d, config),
+			"timeout":         flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
+			"fail_open":       flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
+			"forward_headers": flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetworkServicesLbTrafficExtensionLoadBalancingScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenNetworkServicesLbTrafficExtensionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -709,19 +692,19 @@ func flattenNetworkServicesLbTrafficExtensionTerraformLabels(v interface{}, d *s
 	return transformed
 }
 
-func flattenNetworkServicesLbTrafficExtensionEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetworkServicesLbRouteExtensionEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNetworkServicesLbTrafficExtensionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionForwardingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionForwardingRules(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChains(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -731,21 +714,21 @@ func expandNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d tpg
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedName, err := expandNetworkServicesLbTrafficExtensionExtensionChainsName(original["name"], d, config)
+		transformedName, err := expandNetworkServicesLbRouteExtensionExtensionChainsName(original["name"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
-		transformedMatchCondition, err := expandNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(original["match_condition"], d, config)
+		transformedMatchCondition, err := expandNetworkServicesLbRouteExtensionExtensionChainsMatchCondition(original["match_condition"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedMatchCondition); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["matchCondition"] = transformedMatchCondition
 		}
 
-		transformedExtensions, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(original["extensions"], d, config)
+		transformedExtensions, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensions(original["extensions"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedExtensions); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -757,11 +740,11 @@ func expandNetworkServicesLbTrafficExtensionExtensionChains(v interface{}, d tpg
 	return req, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsMatchCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -770,7 +753,7 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v inte
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedCelExpression, err := expandNetworkServicesLbTrafficExtensionExtensionChainsMatchConditionCelExpression(original["cel_expression"], d, config)
+	transformedCelExpression, err := expandNetworkServicesLbRouteExtensionExtensionChainsMatchConditionCelExpression(original["cel_expression"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedCelExpression); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -780,11 +763,11 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchCondition(v inte
 	return transformed, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsMatchConditionCelExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsMatchConditionCelExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -794,53 +777,46 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfac
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedName, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(original["name"], d, config)
+		transformedName, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(original["name"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["name"] = transformedName
 		}
 
-		transformedAuthority, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config)
+		transformedAuthority, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedAuthority); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["authority"] = transformedAuthority
 		}
 
-		transformedService, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(original["service"], d, config)
+		transformedService, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(original["service"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedService); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["service"] = transformedService
 		}
 
-		transformedTimeout, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config)
+		transformedTimeout, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedTimeout); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["timeout"] = transformedTimeout
 		}
 
-		transformedFailOpen, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(original["fail_open"], d, config)
+		transformedFailOpen, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(original["fail_open"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedFailOpen); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["failOpen"] = transformedFailOpen
 		}
 
-		transformedForwardHeaders, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(original["forward_headers"], d, config)
+		transformedForwardHeaders, err := expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(original["forward_headers"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedForwardHeaders); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["forwardHeaders"] = transformedForwardHeaders
-		}
-
-		transformedSupportedEvents, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(original["supported_events"], d, config)
-		if err != nil {
-			return nil, err
-		} else if val := reflect.ValueOf(transformedSupportedEvents); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-			transformed["supportedEvents"] = transformedSupportedEvents
 		}
 
 		req = append(req, transformed)
@@ -848,39 +824,35 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfac
 	return req, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsAuthority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsTimeout(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsFailOpen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionExtensionChainsExtensionsForwardHeaders(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetworkServicesLbRouteExtensionLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetworkServicesLbTrafficExtensionLoadBalancingScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandNetworkServicesLbTrafficExtensionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetworkServicesLbRouteExtensionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

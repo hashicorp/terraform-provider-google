@@ -14,26 +14,26 @@
 # ----------------------------------------------------------------------------
 subcategory: "Network services"
 description: |-
-  LbTrafficExtension is a resource that lets the extension service modify the headers and payloads of both requests and responses without impacting the choice of backend services or any other security policies associated with the backend service.
+  LbRouteExtension is a resource that lets you control where traffic is routed to for a given request.
 ---
 
-# google_network_services_lb_traffic_extension
+# google_network_services_lb_route_extension
 
-LbTrafficExtension is a resource that lets the extension service modify the headers and payloads of both requests and responses without impacting the choice of backend services or any other security policies associated with the backend service.
+LbRouteExtension is a resource that lets you control where traffic is routed to for a given request.
 
 
-To get more information about LbTrafficExtension, see:
+To get more information about LbRouteExtension, see:
 
-* [API documentation](https://cloud.google.com/service-extensions/docs/reference/rest/v1beta1/projects.locations.lbTrafficExtensions)
+* [API documentation](https://cloud.google.com/service-extensions/docs/reference/rest/v1beta1/projects.locations.lbRouteExtensions)
 * How-to Guides
-    * [Configure a traffic extension](https://cloud.google.com/service-extensions/docs/configure-callout#configure_a_traffic_extension)
+    * [Configure a route extension](https://cloud.google.com/service-extensions/docs/configure-callout#configure_a_route_extension)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_lb_traffic_extension_basic&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_lb_route_extension_basic&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Network Services Lb Traffic Extension Basic
+## Example Usage - Network Services Lb Route Extension Basic
 
 
 ```hcl
@@ -92,9 +92,19 @@ resource "google_compute_region_target_http_proxy" "default" {
 
 # URL map
 resource "google_compute_region_url_map" "default" {
-  name            = "l7-ilb-regional-url-map"
+  name            = "tf-test-l7-ilb-regional-url-map%{random_suffix}"
   region          = "us-west1"
   default_service = google_compute_region_backend_service.default.id
+
+  host_rule {
+    hosts        = ["service-extensions.com"]
+    path_matcher = "callouts"
+  }
+
+  path_matcher {
+    name            = "callouts"
+    default_service = google_compute_region_backend_service.callouts_backend.id
+  }
 }
 
 # backend service
@@ -213,35 +223,33 @@ resource "google_compute_firewall" "fw_ilb_to_backends" {
   }
 
   depends_on = [
-	  google_compute_firewall.fw_iap
+    google_compute_firewall.fw_iap
   ]
 }
 
-resource "google_network_services_lb_traffic_extension" "default" {
-  name     = "l7-ilb-traffic-ext"
-  description = "my traffic extension"
-  location = "us-west1"
-
+resource "google_network_services_lb_route_extension" "default" {
+  name                  = "l7-ilb-route-ext"
+  description           = "my route extension"
+  location              = "us-west1"
   load_balancing_scheme = "INTERNAL_MANAGED"
   forwarding_rules      = [google_compute_forwarding_rule.default.self_link]
 
   extension_chains {
-      name = "chain1"
+    name = "chain1"
 
-      match_condition {
-          cel_expression = "request.host == 'example.com'"
-      }
+    match_condition {
+        cel_expression = "request.path.startsWith('/extensions')"
+    }
 
-      extensions {
-          name      = "ext11"
-          authority = "ext11.com"
-          service   = google_compute_region_backend_service.callouts_backend.self_link
-          timeout   = "0.1s"
-          fail_open = false
+    extensions {
+        name      = "ext11"
+        authority = "ext11.com"
+        service   = google_compute_region_backend_service.callouts_backend.self_link
+        timeout   = "0.1s"
+        fail_open = false
 
-          supported_events = ["REQUEST_HEADERS"]
-          forward_headers = ["custom-header"]
-      }
+        forward_headers  = ["custom-header"]
+    }
   }
 
   labels = {
@@ -267,7 +275,7 @@ resource "google_compute_instance" "vm_test" {
   }
 }
 
-# Traffic Extension Backend Instance
+# Route Extension Backend Instance
 resource "google_compute_instance" "callouts_instance" {
   name         = "l7-ilb-callouts-ins"
   zone         = "us-west1-a"
@@ -277,7 +285,7 @@ resource "google_compute_instance" "callouts_instance" {
     "container-vm" = "cos-stable-109-17800-147-54"
   }
 
-  tags         = ["allow-ssh","load-balanced-backend"]
+  tags = ["allow-ssh","load-balanced-backend"]
 
   network_interface {
     network    = google_compute_network.ilb_network.id
@@ -286,7 +294,6 @@ resource "google_compute_instance" "callouts_instance" {
     access_config {
       # add external ip to fetch packages
     }
-
   }
 
   boot_disk {
@@ -301,8 +308,15 @@ resource "google_compute_instance" "callouts_instance" {
 
   # Initialize an Envoy's Ext Proc gRPC API based on a docker container
   metadata = {
-    gce-container-declaration = "# DISCLAIMER:\n# This container declaration format is not a public API and may change without\n# notice. Please use gcloud command-line tool or Google Cloud Console to run\n# Containers on Google Compute Engine.\n\nspec:\n  containers:\n  - image: us-docker.pkg.dev/service-extensions/ext-proc/service-callout-basic-example-python:latest\n    name: callouts-vm\n    securityContext:\n      privileged: false\n    stdin: false\n    tty: false\n    volumeMounts: []\n  restartPolicy: Always\n  volumes: []\n"
-    google-logging-enabled = "true"
+    startup-script = <<-EOF1
+      #! /bin/bash
+      apt-get update
+      apt-get install apache2 -y
+      a2ensite default-ssl
+      a2enmod ssl
+      echo "Page served from second backend service" | tee /var/www/html/index.html
+      systemctl restart apache2'
+    EOF1
   }
 
   lifecycle {
@@ -312,7 +326,7 @@ resource "google_compute_instance" "callouts_instance" {
   deletion_protection = false
 
   depends_on = [
-	  google_compute_instance.vm_test
+    google_compute_instance.vm_test
   ]
 }
 
@@ -347,7 +361,7 @@ resource "google_compute_region_health_check" "callouts_health_check" {
   }
 
   depends_on = [
-	google_compute_region_health_check.default
+    google_compute_region_health_check.default
   ]
 }
 
@@ -368,7 +382,7 @@ resource "google_compute_region_backend_service" "callouts_backend" {
   }
 
   depends_on = [
-	  google_compute_region_backend_service.default
+    google_compute_region_backend_service.default
   ]
 }
 ```
@@ -381,7 +395,7 @@ The following arguments are supported:
 * `forwarding_rules` -
   (Required)
   A list of references to the forwarding rules to which this service extension is attached to.
-  At least one forwarding rule is required. There can be only one LBTrafficExtension resource per forwarding rule.
+  At least one forwarding rule is required. There can be only one LbRouteExtension resource per forwarding rule.
 
 * `extension_chains` -
   (Required)
@@ -391,13 +405,20 @@ The following arguments are supported:
   Any subsequent extension chains do not execute. Limited to 5 extension chains per resource.
   Structure is [documented below](#nested_extension_chains).
 
+* `load_balancing_scheme` -
+  (Required)
+  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
+  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
+  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
+  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
+
 * `location` -
   (Required)
-  The location of the traffic extension
+  The location of the route extension
 
 * `name` -
   (Required)
-  Name of the LbTrafficExtension resource in the following format: projects/{project}/locations/{location}/lbTrafficExtensions/{lbTrafficExtension}.
+  Name of the LbRouteExtension resource in the following format: projects/{project}/locations/{location}/lbRouteExtensions/{lbRouteExtension}
 
 
 <a name="nested_extension_chains"></a>The `extension_chains` block supports:
@@ -407,7 +428,7 @@ The following arguments are supported:
   The name for this extension chain. The name is logged as part of the HTTP request logs.
   The name must conform with RFC-1034, is restricted to lower-cased letters, numbers and hyphens,
   and can have a maximum length of 63 characters. Additionally, the first character must be a letter
-  and the last a letter or a number.
+  and the last character must be a letter or a number.
 
 * `match_condition` -
   (Required)
@@ -464,13 +485,6 @@ The following arguments are supported:
   List of the HTTP headers to forward to the extension (from the client or backend).
   If omitted, all headers are sent. Each element is a string indicating the header name.
 
-* `supported_events` -
-  (Optional)
-  A set of events during request or response processing for which this extension is called.
-  This field is required for the LbTrafficExtension resource. It's not relevant for the LbRouteExtension
-  resource. Possible values:`EVENT_TYPE_UNSPECIFIED`, `REQUEST_HEADERS`, `REQUEST_BODY`, `RESPONSE_HEADERS`,
-  `RESPONSE_BODY`, `RESPONSE_BODY` and `RESPONSE_BODY`.
-
 - - -
 
 
@@ -480,16 +494,9 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Set of labels associated with the LbTrafficExtension resource.
+  Set of labels associated with the LbRouteExtension resource.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
-
-* `load_balancing_scheme` -
-  (Optional)
-  All backend services and forwarding rules referenced by this extension must share the same load balancing scheme.
-  For more information, refer to [Choosing a load balancer](https://cloud.google.com/load-balancing/docs/backend-service) and
-  [Supported application load balancers](https://cloud.google.com/service-extensions/docs/callouts-overview#supported-lbs).
-  Possible values are: `INTERNAL_MANAGED`, `EXTERNAL_MANAGED`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -499,7 +506,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}`
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
@@ -521,28 +528,28 @@ This resource provides the following
 ## Import
 
 
-LbTrafficExtension can be imported using any of these accepted formats:
+LbRouteExtension can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}`
+* `projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}`
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import LbTrafficExtension using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import LbRouteExtension using one of the formats above. For example:
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}"
-  to = google_network_services_lb_traffic_extension.default
+  id = "projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}"
+  to = google_network_services_lb_route_extension.default
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), LbTrafficExtension can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), LbRouteExtension can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_network_services_lb_traffic_extension.default projects/{{project}}/locations/{{location}}/lbTrafficExtensions/{{name}}
-$ terraform import google_network_services_lb_traffic_extension.default {{project}}/{{location}}/{{name}}
-$ terraform import google_network_services_lb_traffic_extension.default {{location}}/{{name}}
+$ terraform import google_network_services_lb_route_extension.default projects/{{project}}/locations/{{location}}/lbRouteExtensions/{{name}}
+$ terraform import google_network_services_lb_route_extension.default {{project}}/{{location}}/{{name}}
+$ terraform import google_network_services_lb_route_extension.default {{location}}/{{name}}
 ```
 
 ## User Project Overrides
