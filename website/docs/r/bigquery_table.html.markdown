@@ -175,8 +175,8 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     expected to be the short name, for example "Production".
 
 * `allow_resource_tags_on_deletion` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-    This field is in beta. Whether or not to allow table deletion when there are
-    still resource tags attached. The default value is false.
+    This field is in beta. If set to true, it allows table deletion when there
+    are still resource tags attached. The default value is false.
 
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 
