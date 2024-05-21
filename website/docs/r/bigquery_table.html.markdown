@@ -167,6 +167,11 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 * `table_constraints` - (Optional) Defines the primary key and foreign keys. 
     Structure is [documented below](#nested_table_constraints).
 
+* `table_replication_info` - (Optional) Replication info of a table created
+    using "AS REPLICA" DDL like:
+    `CREATE MATERIALIZED VIEW mv1 AS REPLICA OF src_mv`.
+    Structure is [documented below](#nested_table_replication_info).
+
 * `resource_tags` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
     This field is in beta. The tags attached to this table. Tag keys are
     globally unique. Tag key is expected to be in the namespaced format, for
@@ -470,6 +475,17 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
 
 * `referenced_column`: (Required) The column in the primary key that are
     referenced by the referencingColumn
+
+<a name="nested_table_replication_info"></a>The `table_replication_info` block supports:
+
+* `source_project_id` (Required) - The ID of the source project.
+
+* `source_dataset_id` (Required) - The ID of the source dataset.
+
+* `source_table_id` (Required) - The ID of the source materialized view.
+
+* `replication_interval_ms` (Optional) - The interval at which the source
+    materialized view is polled for updates. The default is 300000.
 
 ## Attributes Reference
 
