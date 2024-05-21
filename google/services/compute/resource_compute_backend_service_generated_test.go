@@ -46,9 +46,10 @@ func TestAccComputeBackendService_backendServiceBasicExample(t *testing.T) {
 				Config: testAccComputeBackendService_backendServiceBasicExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -125,9 +126,10 @@ func TestAccComputeBackendService_backendServiceCacheSimpleExample(t *testing.T)
 				Config: testAccComputeBackendService_backendServiceCacheSimpleExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -169,9 +171,10 @@ func TestAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(t
 				Config: testAccComputeBackendService_backendServiceCacheIncludeHttpHeadersExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -211,9 +214,10 @@ func TestAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(
 				Config: testAccComputeBackendService_backendServiceCacheIncludeNamedCookiesExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -256,9 +260,10 @@ func TestAccComputeBackendService_backendServiceCacheExample(t *testing.T) {
 				Config: testAccComputeBackendService_backendServiceCacheExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -305,9 +310,10 @@ func TestAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeaders
 				Config: testAccComputeBackendService_backendServiceCacheBypassCacheOnRequestHeadersExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
@@ -362,9 +368,10 @@ func TestAccComputeBackendService_backendServiceExternalManagedExample(t *testin
 				Config: testAccComputeBackendService_backendServiceExternalManagedExample(context),
 			},
 			{
-				ResourceName:      "google_compute_backend_service.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
 			},
 		},
 	})
