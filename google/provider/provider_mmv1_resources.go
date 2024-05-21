@@ -338,6 +338,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_data_catalog_tag_template_iam_policy":            tpgiamresource.DataSourceIamPolicy(datacatalog.DataCatalogTagTemplateIamSchema, datacatalog.DataCatalogTagTemplateIamUpdaterProducer),
 	"google_data_catalog_taxonomy_iam_policy":                tpgiamresource.DataSourceIamPolicy(datacatalog.DataCatalogTaxonomyIamSchema, datacatalog.DataCatalogTaxonomyIamUpdaterProducer),
 	"google_data_fusion_instance_iam_policy":                 tpgiamresource.DataSourceIamPolicy(datafusion.DataFusionInstanceIamSchema, datafusion.DataFusionInstanceIamUpdaterProducer),
+	"google_dataplex_aspect_type_iam_policy":                 tpgiamresource.DataSourceIamPolicy(dataplex.DataplexAspectTypeIamSchema, dataplex.DataplexAspectTypeIamUpdaterProducer),
 	"google_dataplex_asset_iam_policy":                       tpgiamresource.DataSourceIamPolicy(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer),
 	"google_dataplex_datascan_iam_policy":                    tpgiamresource.DataSourceIamPolicy(dataplex.DataplexDatascanIamSchema, dataplex.DataplexDatascanIamUpdaterProducer),
 	"google_dataplex_entry_group_iam_policy":                 tpgiamresource.DataSourceIamPolicy(dataplex.DataplexEntryGroupIamSchema, dataplex.DataplexEntryGroupIamUpdaterProducer),
@@ -409,9 +410,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 415
-// Generated IAM resources: 240
-// Total generated resources: 655
+// Generated resources: 416
+// Generated IAM resources: 243
+// Total generated resources: 659
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -698,6 +699,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_data_loss_prevention_job_trigger":                          datalossprevention.ResourceDataLossPreventionJobTrigger(),
 	"google_data_loss_prevention_stored_info_type":                     datalossprevention.ResourceDataLossPreventionStoredInfoType(),
 	"google_data_pipeline_pipeline":                                    datapipeline.ResourceDataPipelinePipeline(),
+	"google_dataplex_aspect_type":                                      dataplex.ResourceDataplexAspectType(),
+	"google_dataplex_aspect_type_iam_binding":                          tpgiamresource.ResourceIamBinding(dataplex.DataplexAspectTypeIamSchema, dataplex.DataplexAspectTypeIamUpdaterProducer, dataplex.DataplexAspectTypeIdParseFunc),
+	"google_dataplex_aspect_type_iam_member":                           tpgiamresource.ResourceIamMember(dataplex.DataplexAspectTypeIamSchema, dataplex.DataplexAspectTypeIamUpdaterProducer, dataplex.DataplexAspectTypeIdParseFunc),
+	"google_dataplex_aspect_type_iam_policy":                           tpgiamresource.ResourceIamPolicy(dataplex.DataplexAspectTypeIamSchema, dataplex.DataplexAspectTypeIamUpdaterProducer, dataplex.DataplexAspectTypeIdParseFunc),
 	"google_dataplex_asset_iam_binding":                                tpgiamresource.ResourceIamBinding(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
 	"google_dataplex_asset_iam_member":                                 tpgiamresource.ResourceIamMember(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
 	"google_dataplex_asset_iam_policy":                                 tpgiamresource.ResourceIamPolicy(dataplex.DataplexAssetIamSchema, dataplex.DataplexAssetIamUpdaterProducer, dataplex.DataplexAssetIdParseFunc),
