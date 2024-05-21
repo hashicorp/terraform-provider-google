@@ -49,7 +49,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBasicExample(t *test
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})
@@ -136,7 +136,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRoundRobinExample
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})
@@ -181,7 +181,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceExternalWeightedExam
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})
@@ -228,7 +228,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceIlbRingHashExample(t
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})
@@ -289,7 +289,7 @@ func TestAccComputeRegionBackendService_regionBackendServiceBalancingModeExample
 				ResourceName:            "google_compute_region_backend_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret", "network", "region"},
 			},
 		},
 	})

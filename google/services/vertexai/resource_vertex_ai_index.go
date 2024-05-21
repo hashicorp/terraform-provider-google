@@ -811,7 +811,7 @@ func flattenVertexAIIndexMetadataConfigDistanceMeasureType(v interface{}, d *sch
 }
 
 func flattenVertexAIIndexMetadataConfigFeatureNormType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("metadata.0.config.0.feature_norm_type")
 }
 
 func flattenVertexAIIndexMetadataConfigAlgorithmConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
