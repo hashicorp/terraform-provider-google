@@ -53,7 +53,7 @@ resource "google_sql_database_instance" "main" {
     tier = "db-f1-micro"
 
     database_flags {
-      name  = "cloudsql.iam_authentication"
+      name  = "cloudsql_iam_authentication"
       value = "on"
     }
   }
@@ -89,7 +89,7 @@ resource "google_sql_database_instance" "main" {
     tier = "db-f1-micro"
 
     database_flags {
-      name  = "cloudsql.iam_authentication"
+      name  = "cloudsql_iam_authentication"
       value = "on"
     }
   }
@@ -124,7 +124,7 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) The deletion policy for the user.
     Setting `ABANDON` allows the resource to be abandoned rather than deleted. This is useful
     for Postgres, where users cannot be deleted from the API if they have been granted SQL roles.
-    
+
     Possible values are: `ABANDON`.
 
 - - -
