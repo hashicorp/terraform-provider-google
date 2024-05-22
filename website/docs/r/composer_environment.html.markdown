@@ -1400,6 +1400,10 @@ The `dag_processor` block supports:
   (Optional)
   Storage (GB) request and limit for DAG processor.
 
+* `count` -
+  (Required)
+  The number of Airflow DAG processors.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
