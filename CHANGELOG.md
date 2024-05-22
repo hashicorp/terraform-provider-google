@@ -11,7 +11,7 @@ FEATURES:
 IMPROVEMENTS:
 * appengine: added field `instance_ip_mode` to resource `google_app_engine_flexible_app_version` resource (beta) ([#18168](https://github.com/hashicorp/terraform-provider-google/pull/18168))
 * bigquery: added `external_data_configuration.bigtable_options` to `google_bigquery_table` ([#18181](https://github.com/hashicorp/terraform-provider-google/pull/18181))
-* compute: Added 'TLS_JA3_FINGERPRINT' and 'USER_IP' options in field 'rateLimitOptions.enforceOnKey' to 'google_compute_security_policy' resource; ([#18167](https://github.com/hashicorp/terraform-provider-google/pull/18167))
+* compute: Added `TLS_JA3_FINGERPRINT` and `USER_IP` options in field `rateLimitOptions.enforceOnKey` to `google_compute_security_policy` resource; ([#18167](https://github.com/hashicorp/terraform-provider-google/pull/18167))
 * compute: Added 'rateLimitOptions' field to 'google_compute_security_policy_rule' resource; ([#18167](https://github.com/hashicorp/terraform-provider-google/pull/18167))
 * compute: Changed `google_compute_region_ssl_policy`'s `region` field to optional and allow to be inferred from environment ([#18178](https://github.com/hashicorp/terraform-provider-google/pull/18178))
 * compute: added `on_instance_stop_action` field to `google_compute_instance`, `google_compute_instance_template`, and `google_compute_instance_from_machine_image ` resources (beta) ([#18191](https://github.com/hashicorp/terraform-provider-google/pull/18191))
