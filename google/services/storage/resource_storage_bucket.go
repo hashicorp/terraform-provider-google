@@ -263,6 +263,21 @@ func ResourceStorageBucket() *schema.Resource {
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `One or more matching name suffixes to satisfy this condition.`,
 									},
+									"send_days_since_noncurrent_time_if_zero": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `While set true, days_since_noncurrent_time value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the days_since_noncurrent_time field. It can be used alone or together with days_since_noncurrent_time.`,
+									},
+									"send_days_since_custom_time_if_zero": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `While set true, days_since_custom_time value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the days_since_custom_time field. It can be used alone or together with days_since_custom_time.`,
+									},
+									"send_num_newer_versions_if_zero": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `While set true, num_newer_versions value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the num_newer_versions field. It can be used alone or together with num_newer_versions.`,
+									},
 								},
 							},
 							Description: `The Lifecycle Rule's condition configuration.`,
@@ -1377,6 +1392,9 @@ func flattenBucketLifecycleRuleCondition(index int, d *schema.ResourceData, cond
 	if v, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.condition", index)); ok {
 		state_condition := v.(*schema.Set).List()[0].(map[string]interface{})
 		ruleCondition["no_age"] = state_condition["no_age"].(bool)
+		ruleCondition["send_days_since_noncurrent_time_if_zero"] = state_condition["send_days_since_noncurrent_time_if_zero"].(bool)
+		ruleCondition["send_days_since_custom_time_if_zero"] = state_condition["send_days_since_custom_time_if_zero"].(bool)
+		ruleCondition["send_num_newer_versions_if_zero"] = state_condition["send_num_newer_versions_if_zero"].(bool)
 	}
 
 	return ruleCondition
@@ -1569,6 +1587,9 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	if v, ok := condition["num_newer_versions"]; ok {
 		transformed.NumNewerVersions = int64(v.(int))
+		if u, ok := condition["send_num_newer_versions_if_zero"]; ok && u.(bool) {
+			transformed.ForceSendFields = append(transformed.ForceSendFields, "NumNewerVersions")
+		}
 	}
 
 	if v, ok := condition["custom_time_before"]; ok {
@@ -1577,10 +1598,16 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	if v, ok := condition["days_since_custom_time"]; ok {
 		transformed.DaysSinceCustomTime = int64(v.(int))
+		if u, ok := condition["send_days_since_custom_time_if_zero"]; ok && u.(bool) {
+			transformed.ForceSendFields = append(transformed.ForceSendFields, "DaysSinceCustomTime")
+		}
 	}
 
 	if v, ok := condition["days_since_noncurrent_time"]; ok {
 		transformed.DaysSinceNoncurrentTime = int64(v.(int))
+		if u, ok := condition["send_days_since_noncurrent_time_if_zero"]; ok && u.(bool) {
+			transformed.ForceSendFields = append(transformed.ForceSendFields, "DaysSinceNoncurrentTime")
+		}
 	}
 
 	if v, ok := condition["noncurrent_time_before"]; ok {
@@ -1681,6 +1708,18 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 
 	if v, ok := m["num_newer_versions"]; ok {
 		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+	}
+
+	if v, ok := m["send_days_since_noncurrent_time_if_zero"]; ok {
+		buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
+	}
+
+	if v, ok := m["send_days_since_custom_time_if_zero"]; ok {
+		buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
+	}
+
+	if v, ok := m["send_num_newer_versions_if_zero"]; ok {
+		buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
 	}
 
 	if v, ok := m["matches_prefix"]; ok {
