@@ -545,7 +545,7 @@ func TestAccStorageBucket_lifecycleRuleStateAny(t *testing.T) {
 	})
 }
 
-func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
+func TestAccStorageBucket_lifecycleRulesVirtualFields(t *testing.T) {
 	t.Parallel()
 	var bucket storage.Bucket
 	bucketName := acctest.TestBucketName(t)
@@ -569,7 +569,7 @@ func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"force_destroy"},
 			},
 			{
-				Config: testAccStorageBucket_customAttributes_withLifecycleNoAge(bucketName),
+				Config: testAccStorageBucket_customAttributes_withLifecycleVirtualFieldsUpdate1(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
@@ -580,10 +580,10 @@ func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age", "lifecycle_rule.1.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.1.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.1.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.2.condition.0.send_num_newer_versions_if_zero"},
 			},
 			{
-				Config: testAccStorageBucket_customAttributes_withLifecycleNoAgeAndAge(bucketName),
+				Config: testAccStorageBucket_customAttributes_withLifecycleVirtualFieldsUpdate2(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
@@ -594,7 +594,7 @@ func TestAccStorageBucket_lifecycleRulesNoAge(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age", "lifecycle_rule.0.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.0.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.0.condition.0.send_num_newer_versions_if_zero"},
 			},
 			{
 				Config: testAccStorageBucket_customAttributes_withLifecycle1(bucketName),
@@ -1814,7 +1814,7 @@ resource "google_storage_bucket" "bucket" {
 `, bucketName)
 }
 
-func testAccStorageBucket_customAttributes_withLifecycleNoAge(bucketName string) string {
+func testAccStorageBucket_customAttributes_withLifecycleVirtualFieldsUpdate1(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
@@ -1822,11 +1822,17 @@ resource "google_storage_bucket" "bucket" {
   force_destroy = "true"
   lifecycle_rule {
      action {
-       type = "Delete"
+      type = "Delete"
      }
      condition {
-        age = 10
-        no_age = false
+      age = 10
+      no_age = false
+      days_since_noncurrent_time = 0
+      send_days_since_noncurrent_time_if_zero = false
+      days_since_custom_time = 0
+      send_days_since_custom_time_if_zero = false
+      num_newer_versions = 0
+      send_num_newer_versions_if_zero = false
      }
   }
   lifecycle_rule {
@@ -1834,15 +1840,30 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
-      num_newer_versions = 2
       no_age = true
+      days_since_noncurrent_time = 0
+      send_days_since_noncurrent_time_if_zero = true
+      days_since_custom_time = 0
+      send_days_since_custom_time_if_zero = true
+      num_newer_versions = 0
+      send_num_newer_versions_if_zero = true
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      send_days_since_noncurrent_time_if_zero = true
+      send_days_since_custom_time_if_zero = true
+      send_num_newer_versions_if_zero = true
     }
   }
 }
 `, bucketName)
 }
 
-func testAccStorageBucket_customAttributes_withLifecycleNoAgeAndAge(bucketName string) string {
+func testAccStorageBucket_customAttributes_withLifecycleVirtualFieldsUpdate2(bucketName string) string {
 	return fmt.Sprintf(`
 resource "google_storage_bucket" "bucket" {
   name          = "%s"
@@ -1850,11 +1871,17 @@ resource "google_storage_bucket" "bucket" {
   force_destroy = "true"
   lifecycle_rule {
      action {
-       type = "Delete"
+      type = "Delete"
      }
      condition {
-       age = 10
-       no_age = false
+      age = 10
+      no_age = false
+      days_since_noncurrent_time = 0
+      send_days_since_noncurrent_time_if_zero = true
+      days_since_custom_time = 0
+      send_days_since_custom_time_if_zero = true
+      num_newer_versions = 0
+      send_num_newer_versions_if_zero = true
      }
   }
   lifecycle_rule {
@@ -1862,9 +1889,26 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
-      num_newer_versions = 2
       age = 10
       no_age = true
+      custom_time_before = "2022-09-01"
+      days_since_noncurrent_time = 0
+      send_days_since_noncurrent_time_if_zero = false
+      days_since_custom_time = 0
+      send_days_since_custom_time_if_zero = false
+      num_newer_versions = 0
+      send_num_newer_versions_if_zero = false
+    }
+  }
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      custom_time_before = "2022-09-01"
+      send_days_since_noncurrent_time_if_zero = false
+      send_days_since_custom_time_if_zero = false
+      send_num_newer_versions_if_zero = false
     }
   }
 }
