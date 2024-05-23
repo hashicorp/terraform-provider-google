@@ -633,26 +633,30 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.Resource
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	apiData := make([]map[string]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
-			"range":       flattenComputeRouterBgpAdvertisedIpRangesRange(original["range"], d, config),
-			"description": flattenComputeRouterBgpAdvertisedIpRangesDescription(original["description"], d, config),
+		apiData = append(apiData, map[string]interface{}{
+			"description": original["description"],
+			"range":       original["range"],
 		})
 	}
-	return transformed
-}
-func flattenComputeRouterBgpAdvertisedIpRangesRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenComputeRouterBgpAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	configData := []map[string]interface{}{}
+	if v, ok := d.GetOk("advertised_ip_ranges"); ok {
+		for _, item := range v.([]interface{}) {
+			configData = append(configData, item.(map[string]interface{}))
+		}
+	}
+	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "range")
+	if err != nil {
+		log.Printf("[ERROR] Could not support API response for advertisedIpRanges.0.range: %s", err)
+		return apiData
+	}
+	return sorted
 }
 
 func flattenComputeRouterBgpKeepaliveInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
