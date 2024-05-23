@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -299,10 +300,11 @@ func ResourceComputeInstance() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: `The name of the instance. One of name or self_link must be provided.`,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				Description:  `The name of the instance. One of name or self_link must be provided.`,
+				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[a-z][-a-z0-9]{0,61}[a-z0-9]?"), `The name can be 1-63 characters in length. The first character must be a lowercase letter, and all the following characters must be hyphens, lowercase letters, or digits, except the last character, which cannot be a hyphen.`),
 			},
 
 			"network_interface": {
