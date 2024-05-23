@@ -48,7 +48,9 @@ values will be stored in the raw state as plain text: `initial_user.password`.
 resource "google_alloydb_cluster" "default" {
   cluster_id = "alloydb-cluster"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network_config {
+    network = google_compute_network.default.id
+  }
 }
 
 data "google_project" "project" {}
@@ -67,9 +69,11 @@ resource "google_compute_network" "default" {
 
 ```hcl
 resource "google_alloydb_cluster" "full" {
-  cluster_id   = "alloydb-cluster-full"
-  location     = "us-central1"
-  network      = google_compute_network.default.id
+  cluster_id = "alloydb-cluster-full"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
   database_version = "POSTGRES_15"
 
   initial_user {
@@ -155,7 +159,9 @@ resource "google_alloydb_backup" "source" {
 resource "google_alloydb_cluster" "restored_from_backup" {
   cluster_id            = "alloydb-backup-restored"
   location              = "us-central1"
-  network               = data.google_compute_network.default.id
+  network_config {
+    network = data.google_compute_network.default.id
+  }
   restore_backup_source {
     backup_name = google_alloydb_backup.source.name
   }
