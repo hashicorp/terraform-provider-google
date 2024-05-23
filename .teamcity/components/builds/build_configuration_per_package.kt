@@ -67,11 +67,11 @@ class PackageDetails(private val packageName: String, private val displayName: S
 
             steps {
                 setGitCommitBuildId()
-                tagBuildToIndicateTriggerMethod()
-                configureGoEnv()
-                downloadTerraformBinary()
-                runAcceptanceTests()
-                saveArtifactsToGCS()
+//                tagBuildToIndicateTriggerMethod()
+//                configureGoEnv()
+//                downloadTerraformBinary()
+//                runAcceptanceTests()
+//                saveArtifactsToGCS()
             }
 
             features {

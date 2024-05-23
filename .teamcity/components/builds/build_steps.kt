@@ -37,6 +37,21 @@ fun BuildSteps.setGitCommitBuildId() {
     })
 }
 
+fun BuildSteps.masterCommitCheck() {
+    step(ScriptBuildStep {
+        name = "Set build id as shortened git commit hash"
+        scriptContent = """
+            #!/bin/bash
+            GIT_HASH=%system.build.vcs.number%
+            GIT_HASH_SHORT=${'$'}{GIT_HASH:0:7}
+            echo "##teamcity[buildNumber '${'$'}{GIT_HASH_SHORT}']"
+        """.trimIndent()
+        // ${'$'} is required to allow creating a script in TeamCity that contains
+        // parts like ${GIT_HASH_SHORT} without having Kotlin syntax issues. For more info see:
+        // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
+    })
+}
+
 fun BuildSteps.tagBuildToIndicateTriggerMethod() {
     step(ScriptBuildStep {
         name = "Set build tag to indicate if build is run automatically or manually triggered"
