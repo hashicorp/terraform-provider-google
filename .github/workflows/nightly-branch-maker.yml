@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Create Nightly Test Branch
