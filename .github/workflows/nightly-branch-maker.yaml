@@ -9,8 +9,7 @@ on:
      - cron: '10 3 * * *'
 jobs:
   create-branch:
-    permissions:
-      actions: write
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Get current date
