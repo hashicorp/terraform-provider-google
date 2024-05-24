@@ -1,4 +1,7 @@
-name: nightly-test branch creation
+name: TeamCity: Create empty branch off tip of main to aid nightly-testing
+
+
+# Comment here about why this GHA exists...
 
 on:
     schedule:
