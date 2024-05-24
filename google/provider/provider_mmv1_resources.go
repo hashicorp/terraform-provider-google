@@ -412,8 +412,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 418
-// Generated IAM resources: 246
-// Total generated resources: 664
+// Generated IAM resources: 249
+// Total generated resources: 667
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                           accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                     accessapproval.ResourceAccessApprovalOrganizationSettings(),
