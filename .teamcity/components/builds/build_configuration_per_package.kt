@@ -67,6 +67,7 @@ class PackageDetails(private val packageName: String, private val displayName: S
 
             steps {
                 setGitCommitBuildId()
+                helloWorld()
 //                tagBuildToIndicateTriggerMethod()
 //                configureGoEnv()
 //                downloadTerraformBinary()

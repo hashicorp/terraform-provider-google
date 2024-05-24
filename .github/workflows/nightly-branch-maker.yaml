@@ -1,0 +1,24 @@
+name: nightly-test branch creation
+# To help with triage, if we're waiting for a response from a
+# user we label the issue waiting-response.
+# When a user comments on the issue the label is removed.
+
+on:
+  workflow_dispatch:
+  schedule:
+     - cron: '10 3 * * *'
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Checkout Repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Create Nightly Test Branch
+        uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'nightly-test-${{ steps.date.outputs.date }}'
