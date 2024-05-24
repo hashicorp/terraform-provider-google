@@ -5,8 +5,7 @@ name: nightly-test branch creation
 
 on:
   workflow_dispatch:
-  schedule:
-     - cron: '10 3 * * *'
+
 jobs:
   create-branch:
     permissions: write-all

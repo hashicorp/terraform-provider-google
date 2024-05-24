@@ -29,7 +29,7 @@ class NightlyTriggerConfiguration(
 
 fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
 
-    val nightlyTestDate = LocalDate.parse(LocalDate.now().toString(), DateTimeFormatter.ofPattern("yyyy-mm-DD", Locale.US)).toString()
+    val nightlyTestDate = LocalDate.parse(LocalDate.now().toString(), DateTimeFormatter.ofPattern("y-MM-d", Locale.US)).toString()
     schedule{
         enabled = config.nightlyTestsEnabled
         branchFilter = "+:/refs/heads/nightly-test-$nightlyTestDate"  // returns "+:/refs/heads/main" if default
