@@ -1,7 +1,4 @@
 name: nightly-test branch creation
-# To help with triage, if we're waiting for a response from a
-# user we label the issue waiting-response.
-# When a user comments on the issue the label is removed.
 
 on:
     schedule:
