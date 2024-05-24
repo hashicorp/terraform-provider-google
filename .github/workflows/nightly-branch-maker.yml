@@ -22,4 +22,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          branch: 'nightly-test-${{ steps.date.outputs.date }}'
+          branch: 'UTC-nightly-test-${{ steps.date.outputs.date }}'
