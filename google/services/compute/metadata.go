@@ -86,7 +86,7 @@ func BetaMetadataUpdate(oldMDMap map[string]interface{}, newMDMap map[string]int
 }
 
 func expandComputeMetadata(m map[string]interface{}) []*compute.MetadataItems {
-	metadata := make([]*compute.MetadataItems, len(m))
+	metadata := make([]*compute.MetadataItems, 0, len(m))
 	var keys []string
 	for key := range m {
 		keys = append(keys, key)
