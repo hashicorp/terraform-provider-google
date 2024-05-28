@@ -27,7 +27,7 @@ func TestAccKmsKeyRingImportJob_basic(t *testing.T) {
 				ResourceName:            "google_kms_key_ring_import_job.import-job",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"key_ring", "import_job_id", "stateß"},
+				ImportStateVerifyIgnore: []string{"key_ring", "import_job_id", "state"},
 			},
 		},
 	})

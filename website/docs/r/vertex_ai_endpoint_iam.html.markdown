@@ -88,7 +88,9 @@ resource "google_vertex_ai_endpoint_iam_member" "member" {
 The following arguments are supported:
 
 * `endpoint` - (Required) Used to find the parent resource to bind the IAM policy to
-* `location` - (Required) The location for the resource Used to find the parent resource to bind the IAM policy to
+* `location` - (Optional) The location for the resource Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
+  location is specified, it is taken from the provider configuration.
 * `region` - (Optional) The region for the resource Used to find the parent resource to bind the IAM policy to. If not specified,
   the value will be parsed from the identifier of the parent resource. If no region is provided in the parent identifier and no
   region is specified, it is taken from the provider configuration.
