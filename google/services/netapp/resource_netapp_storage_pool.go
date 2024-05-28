@@ -65,7 +65,7 @@ func ResourceNetappstoragePool() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Name of the location. Usually a region name, expect for some STANDARD service level pools which require a zone name.`,
+				Description: `Name of the location. Usually a region name, expect for some FLEX service level pools which require a zone name.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
