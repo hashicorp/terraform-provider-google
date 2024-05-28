@@ -1,3 +1,37 @@
+## 5.31.0 (Unreleased)
+
+FEATURES:
+* **New Data Source:** `google_compute_subnetworks` ([#18159](https://github.com/hashicorp/terraform-provider-google/pull/18159))
+* **New Resource:** `google_dataplex_aspect_type` ([#18201](https://github.com/hashicorp/terraform-provider-google/pull/18201))
+* **New Resource:** `google_dataplex_entry_group` ([#18188](https://github.com/hashicorp/terraform-provider-google/pull/18188))
+* **New Resource:** `google_kms_autokey_config` ([#18179](https://github.com/hashicorp/terraform-provider-google/pull/18179))
+* **New Resource:** `google_kms_key_handle` ([#18179](https://github.com/hashicorp/terraform-provider-google/pull/18179))
+* **New Resource:** `google_network_services_lb_route_extension` ([#18195](https://github.com/hashicorp/terraform-provider-google/pull/18195))
+
+IMPROVEMENTS:
+* appengine: added field `instance_ip_mode` to resource `google_app_engine_flexible_app_version` resource (beta) ([#18168](https://github.com/hashicorp/terraform-provider-google/pull/18168))
+* bigquery: added `external_data_configuration.bigtable_options` to `google_bigquery_table` ([#18181](https://github.com/hashicorp/terraform-provider-google/pull/18181))
+* composer: added support for importing `google_composer_user_workloads_secret` via the "{{environment}}/{{name}}" format. ([#7390](https://github.com/hashicorp/terraform-provider-google-beta/pull/7390))
+* composer: improved timeouts for `google_composer_user_workloads_secret`. ([#7390](https://github.com/hashicorp/terraform-provider-google-beta/pull/7390))
+* compute: added `TLS_JA3_FINGERPRINT` and `USER_IP` options in field `rate_limit_options.enforce_on_key` to `google_compute_security_policy` resource ([#18167](https://github.com/hashicorp/terraform-provider-google/pull/18167))
+* compute: added 'rateLimitOptions' field to 'google_compute_security_policy_rule' resource ([#18167](https://github.com/hashicorp/terraform-provider-google/pull/18167))
+* compute: changed `google_compute_region_ssl_policy`'s `region` field to optional and allow to be inferred from environment ([#18178](https://github.com/hashicorp/terraform-provider-google/pull/18178))
+* compute: added `subnet_length` field to `google_compute_interconnect_attachment` resource ([#18187](https://github.com/hashicorp/terraform-provider-google/pull/18187))
+* container: added `containerd_config` field and subfields to `google_container_cluster` and `google_container_node_pool` resources, to allow those resources to access private image registries. ([#18160](https://github.com/hashicorp/terraform-provider-google/pull/18160))
+* container: allowed both `enable_autopilot` and `workload_identity_config` to be set in `google_container_cluster` resource. ([#18166](https://github.com/hashicorp/terraform-provider-google/pull/18166))
+* datastream: added `create_without_validation` field to `google_datastream_connection_profile`, `google_datastream_private_connection` and `google_datastream_stream` resources ([#18176](https://github.com/hashicorp/terraform-provider-google/pull/18176))
+* network-security: added `trust_config`, `min_tls_version`, `tls_feature_profile` and `custom_tls_features` fields to `google_network_security_tls_inspection_policy` resource ([#18139](https://github.com/hashicorp/terraform-provider-google/pull/18139))
+* networkservices: made field `load_balancing_scheme` immutable in resource `google_network_services_lb_traffic_extension`, as in-place updating is always failing ([#18195](https://github.com/hashicorp/terraform-provider-google/pull/18195))
+* networkservices: made required fields `extension_chains.extensions.authority ` and `extension_chains.extensions.timeout` optional in resource `google_network_services_lb_traffic_extension` ([#18195](https://github.com/hashicorp/terraform-provider-google/pull/18195))
+* networkservices: removed unsupported load balancing scheme `LOAD_BALANCING_SCHEME_UNSPECIFIED` from the field `load_balancing_scheme` in resource `google_network_services_lb_traffic_extension` ([#18195](https://github.com/hashicorp/terraform-provider-google/pull/18195))
+* pubsub: added `cloud_storage_config.filename_datetime_format` field to `google_pubsub_subscription` resource ([#18180](https://github.com/hashicorp/terraform-provider-google/pull/18180))
+* tpu: added `type` of `accelerator_config` to `google_tpu_v2_vm` resource ([#18148](https://github.com/hashicorp/terraform-provider-google/pull/18148))
+
+BUG FIXES:
+* monitoring: fixed a permadiff with `monitored_resource.labels` property in the `google_monitoring_uptime_check_config` resource ([#18174](https://github.com/hashicorp/terraform-provider-google/pull/18174))
+* storage: fixed a bug where field `autoclass` block is generating permadiff whenever the block is removed from the config  in `google_storage_bucket` resource ([#18197](https://github.com/hashicorp/terraform-provider-google/pull/18197))
+* storagetransfer: fixed a permadiff with `transfer_spec.0.aws_s3_data_source.0.aws_access_key` `resource_storage_transfer_job` ([#18190](https://github.com/hashicorp/terraform-provider-google/pull/18190))
+
 ## 5.30.0 (May 20, 2024)
 
 FEATURES:
