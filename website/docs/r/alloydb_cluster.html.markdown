@@ -318,6 +318,11 @@ The following arguments are supported:
   (Optional)
   The database engine major version. This is an optional field and it's populated at the Cluster creation time. This field cannot be changed after cluster creation.
 
+* `psc_config` -
+  (Optional)
+  Configuration for Private Service Connect (PSC) for the cluster.
+  Structure is [documented below](#nested_psc_config).
+
 * `initial_user` -
   (Optional)
   Initial user to setup during cluster creation.
@@ -385,6 +390,12 @@ Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion
   (Optional)
   The name of the allocated IP range for the private IP AlloyDB cluster. For example: "google-managed-services-default".
   If set, the instance IPs for this cluster will be created in the allocated range.
+
+<a name="nested_psc_config"></a>The `psc_config` block supports:
+
+* `psc_enabled` -
+  (Optional)
+  Create an instance that allows connections from Private Service Connect endpoints to the instance.
 
 <a name="nested_initial_user"></a>The `initial_user` block supports:
 

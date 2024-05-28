@@ -244,6 +244,11 @@ The following arguments are supported:
   Client connection specific configurations.
   Structure is [documented below](#nested_client_connection_config).
 
+* `psc_instance_config` -
+  (Optional)
+  Configuration for Private Service Connect (PSC) for the instance.
+  Structure is [documented below](#nested_psc_instance_config).
+
 * `network_config` -
   (Optional)
   Instance level network configuration.
@@ -298,6 +303,24 @@ The following arguments are supported:
   (Optional)
   SSL mode. Specifies client-server SSL/TLS connection behavior.
   Possible values are: `ENCRYPTED_ONLY`, `ALLOW_UNENCRYPTED_AND_ENCRYPTED`.
+
+<a name="nested_psc_instance_config"></a>The `psc_instance_config` block supports:
+
+* `service_attachment_link` -
+  (Output)
+  The service attachment created when Private Service Connect (PSC) is enabled for the instance.
+  The name of the resource will be in the format of
+  `projects/<alloydb-tenant-project-number>/regions/<region-name>/serviceAttachments/<service-attachment-name>`
+
+* `allowed_consumer_projects` -
+  (Optional)
+  List of consumer projects that are allowed to create PSC endpoints to service-attachments to this instance.
+  These should be specified as project numbers only.
+
+* `psc_dns_name` -
+  (Output)
+  The DNS name of the instance for PSC connectivity.
+  Name convention: <uid>.<uid>.<region>.alloydb-psc.goog
 
 <a name="nested_network_config"></a>The `network_config` block supports:
 
