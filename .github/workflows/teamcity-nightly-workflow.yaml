@@ -21,17 +21,17 @@ jobs:
                 async function createBranch(){
                   let dateToday = new Date().toJSON().slice(0, 10);
 
-                  const masterRef = await github.rest.git.getRef({
+                  const mainRef = await github.rest.git.getRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    ref: "heads/master"
+                    ref: "heads/main"
                   })
                   const branchName = "UTC-nightly-tests-" + dateToday;
                    const resp = await github.rest.git.createRef({
                      owner: context.repo.owner,
                      repo: context.repo.repo,
                      ref: "refs/heads/" + branchName,
-                     sha: masterRef.data.object.sha
+                     sha: mainRef.data.object.sha
                    })
                    console.log("Created Branch: " + branchName)
                 }
