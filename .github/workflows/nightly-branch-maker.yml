@@ -55,7 +55,7 @@ jobs:
                 return (dateToday - branchDate) / 86_400_000 // calculates the difference in days based on milliseconds
             }
             
-            async function branchSweeper(owner, repo, daysThreshold){
+            async function branchSweeper(daysThreshold){
                 let dateToday = new Date().toJSON().slice(0, 10);
                 console.log("Today\'s date: ",dateToday);
                 // grab the list of branches then iterate through the list checking for the difference in days
@@ -83,4 +83,4 @@ jobs:
                 }
             }
           
-            branchSweeper("${GITHUB_REPOSITORY_OWNER}", "${REPO_NAME}", "${DAYS_THRESHOLD}")
+            branchSweeper("${DAYS_THRESHOLD}")
