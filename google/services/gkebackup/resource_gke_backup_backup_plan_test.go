@@ -36,6 +36,15 @@ func TestAccGKEBackupBackupPlan_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
+				Config: testAccGKEBackupBackupPlan_permissive(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_backup_plan.backupplan",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
 				Config: testAccGKEBackupBackupPlan_full(context),
 			},
 			{
@@ -102,6 +111,42 @@ resource "google_gke_backup_backup_plan" "backupplan" {
     include_volume_data = false
     include_secrets = false
     all_namespaces = true
+  }
+  labels = {
+    "some-key-1": "some-value-1"
+  }
+}
+`, context)
+}
+
+func testAccGKEBackupBackupPlan_permissive(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-testcluster%{random_suffix}"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection = false
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "backupplan" {
+  name = "tf-test-testplan%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = false
+    include_secrets = false
+    all_namespaces = true
+    permissive_mode = true
   }
   labels = {
     "some-key-1": "some-value-1"

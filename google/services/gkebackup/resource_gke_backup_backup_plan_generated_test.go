@@ -307,6 +307,84 @@ resource "google_gke_backup_backup_plan" "full" {
 `, context)
 }
 
+func TestAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupBackupPlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_backup_plan.permissive",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupBackupPlan_gkebackupBackupplanPermissiveExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-permissive-cluster%{random_suffix}"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "permissive" {
+  name = "tf-test-permissive-plan%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    cron_schedule = "0 9 * * 1"
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    permissive_mode = true
+    selected_applications {
+      namespaced_names {
+        name = "app1"
+        namespace = "ns1"
+      }
+      namespaced_names {
+        name = "app2"
+        namespace = "ns2"
+      }
+    }
+  }
+}
+`, context)
+}
+
 func TestAccGKEBackupBackupPlan_gkebackupBackupplanRpoDailyWindowExample(t *testing.T) {
 	t.Parallel()
 
