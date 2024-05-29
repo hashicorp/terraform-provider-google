@@ -1990,6 +1990,7 @@ type StaticTokenSource struct {
 // If initialCredentialsOnly is true, don't follow the impersonation settings and return the initial set of creds
 // instead.
 func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bool) (googleoauth.Credentials, error) {
+	// UniverseDomain is assumed to be the previously set provider-configured value for access tokens
 	if c.AccessToken != "" {
 		contents, _, err := verify.PathOrContents(c.AccessToken)
 		if err != nil {
@@ -2013,10 +2014,23 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		}, nil
 	}
 
+	// UniverseDomain is set by the credential file's "universe_domain" field
 	if c.Credentials != "" {
 		contents, _, err := verify.PathOrContents(c.Credentials)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+		}
+
+		var content map[string]any
+		if err := json.Unmarshal([]byte(contents), &content); err != nil {
+			return googleoauth.Credentials{}, fmt.Errorf("error unmarshaling credentials: %s", err)
+		}
+
+		if content["universe_domain"] != nil {
+			c.UniverseDomain = content["universe_domain"].(string)
+		} else {
+			// Unset UniverseDomain if not found in credentials file
+			c.UniverseDomain = ""
 		}
 
 		if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
@@ -2048,31 +2062,50 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		}
 	}
 
+	var creds *googleoauth.Credentials
+	var err error
 	if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
 		opts := option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...)
-		creds, err := transport.Creds(context.TODO(), opts, option.WithScopes(clientScopes...))
+		creds, err = transport.Creds(context.TODO(), opts, option.WithScopes(clientScopes...))
 		if err != nil {
 			return googleoauth.Credentials{}, err
 		}
+	} else {
+		log.Printf("[INFO] Authenticating using DefaultClient...")
+		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 
-		return *creds, nil
-	}
-
-	log.Printf("[INFO] Authenticating using DefaultClient...")
-	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-
-	if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
-		log.Printf("[INFO]   -- Sending JwtWithScope option")
-		creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
-		if err != nil {
-			return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+		if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+			log.Printf("[INFO]   -- Sending JwtWithScope option")
+			creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+			}
+		} else {
+			creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...))
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+			}
 		}
-		return *creds, nil
 	}
 
-	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
-	if err != nil {
-		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+	if creds.JSON != nil {
+		var content map[string]any
+		if err := json.Unmarshal([]byte(creds.JSON), &content); err != nil {
+			log.Printf("[WARN] error unmarshaling credentials, skipping Universe Domain detection")
+			c.UniverseDomain = ""
+		} else if content["universe_domain"] != nil {
+			c.UniverseDomain = content["universe_domain"].(string)
+		} else {
+			// Unset UniverseDomain if not found in ADC credentials file
+			c.UniverseDomain = ""
+		}
+	} else {
+		// creds.GetUniverseDomain may retrieve a domain from the metadata server
+		ud, err := creds.GetUniverseDomain()
+		if err != nil {
+			log.Printf("[WARN] Error retrieving universe domain: %s", err)
+		}
+		c.UniverseDomain = ud
 	}
 
 	return *creds, nil
