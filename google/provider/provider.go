@@ -4,7 +4,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -841,35 +840,11 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		})
 	}
 
-	// set universe_domain based on the service account key file.
-	if config.Credentials != "" {
-		contents, _, err := verify.PathOrContents(config.Credentials)
-		if err != nil {
-			return nil, diag.FromErr(fmt.Errorf("error loading service account credentials: %s", err))
-		}
-		var content map[string]any
-
-		if err := json.Unmarshal([]byte(contents), &content); err != nil {
-			return nil, diag.FromErr(err)
-		}
-
-		if content["universe_domain"] != nil {
-			config.UniverseDomain = content["universe_domain"].(string)
-		}
+	// Set the universe domain to the configured value, if any
+	if v, ok := d.GetOk("universe_domain"); ok {
+		config.UniverseDomain = v.(string)
 	}
 
-	// Check if the user provided a value from the universe_domain field other than the default
-	if v, ok := d.GetOk("universe_domain"); ok && v.(string) != "googleapis.com" {
-		if config.UniverseDomain == "" {
-			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
-		} else if v.(string) != config.UniverseDomain {
-			if _, err := os.Stat(config.Credentials); err == nil {
-				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' already set in the credential file '%s'. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain, config.Credentials))
-			} else {
-				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain))
-			}
-		}
-	}
 	// Configure DCL basePath
 	transport_tpg.ProviderDCLConfigure(d, &config)
 
@@ -1075,6 +1050,17 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	if err := config.LoadAndValidate(stopCtx); err != nil {
 		return nil, diag.FromErr(err)
+	}
+
+	// Verify that universe domains match between credentials and configuration
+	if v, ok := d.GetOk("universe_domain"); ok {
+		if config.UniverseDomain == "" && v.(string) != "googleapis.com" { // v can't be "", as it wouldn't pass `ok` above
+			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
+		} else if v.(string) != config.UniverseDomain && !(config.UniverseDomain == "" && v.(string) == "googleapis.com") {
+			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration must match the universe domain supplied by credentials.", config.UniverseDomain, v))
+		}
+	} else if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
+		return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: Universe domain '%s' was found in credentials without a corresponding 'universe_domain' provider configuration set. Please set 'universe_domain' to '%s' or use different credentials.", config.UniverseDomain, config.UniverseDomain))
 	}
 
 	return &config, nil
