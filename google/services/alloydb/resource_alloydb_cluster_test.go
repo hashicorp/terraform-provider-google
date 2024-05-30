@@ -1297,3 +1297,39 @@ resource "google_compute_network" "default" {
 data "google_project" "project" {}
 `, context)
 }
+
+// Ensures cluster creation succeeds for a Private Service Connect enabled cluster.
+func TestAccAlloydbCluster_withPrivateServiceConnect(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckAlloydbClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAlloydbCluster_withPrivateServiceConnect(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_alloydb_cluster.default", "psc_config.0.psc_enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAlloydbCluster_withPrivateServiceConnect(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_alloydb_cluster" "default" {
+  cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
+  location   = "us-central1"
+  psc_config {
+    psc_enabled = true
+  }
+}
+data "google_project" "project" {}
+`, context)
+}

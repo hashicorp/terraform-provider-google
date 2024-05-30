@@ -373,7 +373,7 @@ Specifying a network enables private IP.
 At least `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`.
+* `require_ssl` - (Optional, Deprecated) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`. It will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.
 
 * `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to `require_ssl`. To change this field, also set the correspoding value in `require_ssl`.
     * For PostgreSQL instances, the value pairs are listed in the [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/instances#ipconfiguration) for `ssl_mode` field.
@@ -419,8 +419,7 @@ when an Instance can automatically restart to apply updates. The maintenance win
 
 * `hour` - (Optional) Hour of day (`0-23`), ignored if `day` not set
 
-* `update_track` - (Optional) Receive updates earlier (`canary`) or later
-(`stable`)
+* `update_track` - (Optional) Receive updates after one week (`canary`) or after two weeks (`stable`) or after five weeks (`week5`) of notification.
 
 The optional `settings.insights_config` subblock for instances declares Query Insights([MySQL](https://cloud.google.com/sql/docs/mysql/using-query-insights), [PostgreSQL](https://cloud.google.com/sql/docs/postgres/using-query-insights)) configuration. It contains:
 

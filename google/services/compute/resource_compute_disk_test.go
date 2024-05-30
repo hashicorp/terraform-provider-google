@@ -4,14 +4,17 @@ package compute_test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -1383,4 +1386,111 @@ resource "google_compute_disk" "foobar" {
   }
 }
 `, add, strategy, diskName)
+}
+
+func TestAccComputeDisk_storagePoolSpecified(t *testing.T) {
+	t.Parallel()
+
+	storagePoolName := fmt.Sprintf("tf-test-storage-pool-%s", acctest.RandString(t, 10))
+	storagePoolUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), storagePoolName)
+	diskName := fmt.Sprintf("tf-test-disk-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				PreConfig: setupTestingStoragePool(t, storagePoolName),
+				Config:    testAccComputeDisk_storagePoolSpecified(diskName, storagePoolUrl),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "storage_pool", storagePoolName),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+	cleanupTestingStoragePool(t, storagePoolName)
+}
+
+func setupTestingStoragePool(t *testing.T, storagePoolName string) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		headers := make(http.Header)
+		project := envvar.GetTestProjectFromEnv()
+		zone := envvar.GetTestZoneFromEnv()
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools", config.ComputeBasePath, project, zone)
+		storagePoolTypeUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePoolTypes/hyperdisk-throughput", project, zone)
+		defaultTimeout := 20 * time.Minute
+		obj := make(map[string]interface{})
+		obj["name"] = storagePoolName
+		obj["poolProvisionedCapacityGb"] = 10240
+		obj["poolProvisionedThroughput"] = 180
+		obj["storagePoolType"] = storagePoolTypeUrl
+		obj["capacityProvisioningType"] = "ADVANCED"
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   defaultTimeout,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Errorf("Error creating StoragePool: %s", err)
+		}
+
+		err = tpgcompute.ComputeOperationWaitTime(config, res, project, "Creating StoragePool", config.UserAgent, defaultTimeout)
+		if err != nil {
+			t.Errorf("Error waiting to create StoragePool: %s", err)
+		}
+	}
+}
+
+func cleanupTestingStoragePool(t *testing.T, storagePoolName string) {
+	config := acctest.GoogleProviderConfig(t)
+	headers := make(http.Header)
+	project := envvar.GetTestProjectFromEnv()
+	zone := envvar.GetTestZoneFromEnv()
+	url := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools/%s", config.ComputeBasePath, project, zone, storagePoolName)
+	defaultTimeout := 20 * time.Minute
+	var obj map[string]interface{}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "DELETE",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: config.UserAgent,
+		Body:      obj,
+		Timeout:   defaultTimeout,
+		Headers:   headers,
+	})
+	if err != nil {
+		t.Errorf("Error deleting StoragePool: %s", err)
+	}
+
+	err = tpgcompute.ComputeOperationWaitTime(config, res, project, "Deleting StoragePool", config.UserAgent, defaultTimeout)
+	if err != nil {
+		t.Errorf("Error waiting to delete StoragePool: %s", err)
+	}
+}
+
+func testAccComputeDisk_storagePoolSpecified(diskName, storagePoolUrl string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+  name = "%s"
+  type = "hyperdisk-throughput"
+  size = 2048
+  provisioned_throughput = 140
+  storage_pool = "%s"
+}
+`, diskName, storagePoolUrl)
 }

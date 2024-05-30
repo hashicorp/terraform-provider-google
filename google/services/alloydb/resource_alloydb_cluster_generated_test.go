@@ -60,7 +60,9 @@ func testAccAlloydbCluster_alloydbClusterBasicExample(context map[string]interfa
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network_config {
+    network = google_compute_network.default.id
+  }
 }
 
 data "google_project" "project" {}
@@ -99,9 +101,11 @@ func TestAccAlloydbCluster_alloydbClusterFullExample(t *testing.T) {
 func testAccAlloydbCluster_alloydbClusterFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_alloydb_cluster" "full" {
-  cluster_id   = "tf-test-alloydb-cluster-full%{random_suffix}"
-  location     = "us-central1"
-  network      = google_compute_network.default.id
+  cluster_id = "tf-test-alloydb-cluster-full%{random_suffix}"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
   database_version = "POSTGRES_15"
 
   initial_user {

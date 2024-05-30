@@ -87,13 +87,15 @@ The following arguments are supported:
 
 * `connection_id` - (Required) Optional connection id that should be assigned to the created connection.
  Used to find the parent resource to bind the IAM policy to
-* `location` - (Required) The geographic location where the connection should reside.
+* `location` - (Optional) The geographic location where the connection should reside.
 Cloud SQL instance must be in the same location as the connection
 with following exceptions: Cloud SQL us-central1 maps to BigQuery US, Cloud SQL europe-west1 maps to BigQuery EU.
 Examples: US, EU, asia-northeast1, us-central1, europe-west1.
 Spanner Connections same as spanner region
 AWS allowed regions are aws-us-east-1
-Azure allowed regions are azure-eastus2 Used to find the parent resource to bind the IAM policy to
+Azure allowed regions are azure-eastus2 Used to find the parent resource to bind the IAM policy to. If not specified,
+  the value will be parsed from the identifier of the parent resource. If no location is provided in the parent identifier and no
+  location is specified, it is taken from the provider configuration.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.

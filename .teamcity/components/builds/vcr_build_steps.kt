@@ -7,6 +7,7 @@
 
 package builds
 
+import jetbrains.buildServer.configs.kotlin.BuildStep
 import jetbrains.buildServer.configs.kotlin.BuildSteps
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 
@@ -140,6 +141,7 @@ fun BuildSteps.runVcrTestRecordingSetup() {
 fun BuildSteps.runVcrTestRecordingSaveCassettes() {
     step(ScriptBuildStep {
         name = "Tasks after running VCR tests: if in RECORDING mode, push new cassettes to GCS"
+        executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         scriptContent = """
             #!/bin/bash
             echo "VCR Testing: Post-test steps"

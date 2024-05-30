@@ -1067,6 +1067,10 @@ The following arguments are supported:
   Scaling settings that apply to the whole service
   Structure is [documented below](#nested_scaling).
 
+* `default_uri_disabled` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Disables public resolution of the default URI of this service.
+
 * `traffic` -
   (Optional)
   Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest Ready Revision.

@@ -117,6 +117,13 @@ when they fall into the scope of Backups.`,
 							Description: `This flag specifies whether volume data should be backed up when PVCs are
 included in the scope of a Backup.`,
 						},
+						"permissive_mode": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `This flag specifies whether Backups will not fail when
+Backup for GKE detects Kubernetes configuration that is
+non-standard or requires additional setup to restore.`,
+						},
 						"selected_applications": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -1249,6 +1256,8 @@ func flattenGKEBackupBackupPlanBackupConfig(v interface{}, d *schema.ResourceDat
 		flattenGKEBackupBackupPlanBackupConfigSelectedNamespaces(original["selectedNamespaces"], d, config)
 	transformed["selected_applications"] =
 		flattenGKEBackupBackupPlanBackupConfigSelectedApplications(original["selectedApplications"], d, config)
+	transformed["permissive_mode"] =
+		flattenGKEBackupBackupPlanBackupConfigPermissiveMode(original["permissiveMode"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEBackupBackupPlanBackupConfigIncludeVolumeData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1334,6 +1343,10 @@ func flattenGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesNa
 }
 
 func flattenGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupBackupPlanBackupConfigPermissiveMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1746,6 +1759,13 @@ func expandGKEBackupBackupPlanBackupConfig(v interface{}, d tpgresource.Terrafor
 		transformed["selectedApplications"] = transformedSelectedApplications
 	}
 
+	transformedPermissiveMode, err := expandGKEBackupBackupPlanBackupConfigPermissiveMode(original["permissive_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPermissiveMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["permissiveMode"] = transformedPermissiveMode
+	}
+
 	return transformed, nil
 }
 
@@ -1860,6 +1880,10 @@ func expandGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesNam
 }
 
 func expandGKEBackupBackupPlanBackupConfigSelectedApplicationsNamespacedNamesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupBackupPlanBackupConfigPermissiveMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

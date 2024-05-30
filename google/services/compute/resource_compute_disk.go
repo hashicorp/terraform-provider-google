@@ -635,6 +635,16 @@ encryption key that protects this resource.`,
 					},
 				},
 			},
+			"storage_pool": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareResourceNames,
+				Description: `The URL of the storage pool in which the new disk is created.
+For example:
+* https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/storagePools/{storagePool}
+* /projects/{project}/zones/{zone}/storagePools/{storagePool}`,
+			},
 			"type": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -846,6 +856,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	} else if v, ok := d.GetOkExists("licenses"); !tpgresource.IsEmptyValue(reflect.ValueOf(licensesProp)) && (ok || !reflect.DeepEqual(v, licensesProp)) {
 		obj["licenses"] = licensesProp
+	}
+	storagePoolProp, err := expandComputeDiskStoragePool(d.Get("storage_pool"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("storage_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(storagePoolProp)) && (ok || !reflect.DeepEqual(v, storagePoolProp)) {
+		obj["storagePool"] = storagePoolProp
 	}
 	labelsProp, err := expandComputeDiskEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1060,6 +1076,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("licenses", flattenComputeDiskLicenses(res["licenses"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("storage_pool", flattenComputeDiskStoragePool(res["storagePool"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeDiskTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1650,6 +1669,13 @@ func flattenComputeDiskLicenses(v interface{}, d *schema.ResourceData, config *t
 	return tpgresource.ConvertAndMapStringArr(v.([]interface{}), tpgresource.ConvertSelfLinkToV1)
 }
 
+func flattenComputeDiskStoragePool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.NameFromSelfLinkStateFunc(v)
+}
+
 func flattenComputeDiskTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1914,6 +1940,10 @@ func expandComputeDiskLicenses(v interface{}, d tpgresource.TerraformResourceDat
 		req = append(req, f.RelativeLink())
 	}
 	return req, nil
+}
+
+func expandComputeDiskStoragePool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeDiskEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
