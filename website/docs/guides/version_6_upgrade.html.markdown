@@ -107,3 +107,9 @@ Description of the change and how users should adjust their configuration (if ne
 ### Resource-level change example header
 
 Description of the change and how users should adjust their configuration (if needed).
+
+## Resource: `google_sql_database_instance`
+
+### `settings.ip_configuration.require_ssl` is now removed
+
+Removed in favor of field `settings.ip_configuration.ssl_mode`.
