@@ -59,6 +59,7 @@ jobs:
                 const branchList = await github.rest.repos.listBranches({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
+                    protected: false
                   })
                 
                 for (let i = 0; i < branchList.data.length; i++) {
