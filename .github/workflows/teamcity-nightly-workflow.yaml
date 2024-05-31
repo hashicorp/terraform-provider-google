@@ -18,7 +18,6 @@ jobs:
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
         with:
           script: |
-                async function createBranch(){
                   let dateToday = new Date().toJSON().slice(0, 10);
 
                   const mainRef = await github.rest.git.getRef({
@@ -27,16 +26,18 @@ jobs:
                     ref: "heads/main"
                   })
                   const branchName = "UTC-nightly-tests-" + dateToday;
-                   const resp = await github.rest.git.createRef({
-                     owner: context.repo.owner,
-                     repo: context.repo.repo,
-                     ref: "refs/heads/" + branchName,
-                     sha: mainRef.data.object.sha
-                   })
-                   console.log("Created Branch: " + branchName)
-                }
+                  const resp = await github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: "refs/heads/" + branchName,
+                    sha: mainRef.data.object.sha
+                  })
+                  if (resp.status == "422"){
+                    console.error("Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
+                  } else {
+                    console.log("Created Branch: " + branchName)
+                  }
 
-                createBranch()
   branch-sweeper:
     needs: create-branch
     runs-on: ubuntu-latest
@@ -55,18 +56,19 @@ jobs:
                 return (dateToday - branchDate) / 86_400_000 // calculates the difference in days based on milliseconds
             }
             
-            async function branchSweeper(owner, repo, daysThreshold){
+            async function branchSweeper(daysThreshold){
                 let dateToday = new Date().toJSON().slice(0, 10);
                 console.log("Today\'s date: ",dateToday);
                 // grab the list of branches then iterate through the list checking for the difference in days
                 const branchList = await github.rest.repos.listBranches({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
+                    protected: false
                   })
                 
                 for (let i = 0; i < branchList.data.length; i++) {
                     const branchName = branchList.data.at(i).name
-                    const branchDate = /\d{4,4}-\d{1,2}-\d{1,2}/g.exec(branchName)
+                    const branchDate = /^UTC-nightly-tests-/\d{4}-\d{2}-\d{2}$/g.exec(branchName)
                     if (branchDate == null) continue // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                     if (dateDifference(dateToday, branchDate) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
                         const resp = await github.rest.git.deleteRef({
@@ -83,4 +85,4 @@ jobs:
                 }
             }
           
-            branchSweeper("${GITHUB_REPOSITORY_OWNER}", "${REPO_NAME}", "${DAYS_THRESHOLD}")
+            branchSweeper("${DAYS_THRESHOLD}")
