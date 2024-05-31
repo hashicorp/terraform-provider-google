@@ -440,6 +440,62 @@ func TestAccBigtableInstance_MultipleClustersSameID(t *testing.T) {
 	})
 }
 
+func TestAccBigtableInstance_forceDestroyBackups(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomString := acctest.RandString(t, 10)
+	region := envvar.GetTestRegionFromEnv()
+	context := map[string]interface{}{
+		"instance_name":  fmt.Sprintf("tf-test-instance-%s", randomString),
+		"cluster_name_1": fmt.Sprintf("tf-test-cluster-%s-1", randomString),
+		"cluster_name_2": fmt.Sprintf("tf-test-cluster-%s-2", randomString),
+		"cluster_zone_1": fmt.Sprintf("%s-a", region),
+		"cluster_zone_2": fmt.Sprintf("%s-b", region),
+		"table_name":     fmt.Sprintf("tf-test-table-%s", randomString),
+		"force_destroy":  true, // Overridden in test steps
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"http": {},
+			"time": {},
+		},
+		CheckDestroy: testAccCheckBigtableInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Create force_destroy = false
+				Config: testAccBigtableInstance_forceDestroy(context, false),
+			},
+			{
+				ResourceName:            "google_bigtable_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "instance_type", "labels", "terraform_labels"}, // we don't read instance type back
+				Check: resource.ComposeTestCheckFunc(
+					// Make sure field is set, and is set to false after import
+					resource.TestCheckResourceAttr("google_bigtable_instance.instance", "force_destroy", "false"),
+				),
+			},
+			{
+				// Try to delete the instance after force_destroy = false was set before
+				Config:      testAccBigtableInstance_forceDestroy_deleteInstance(),
+				ExpectError: regexp.MustCompile("until all user backups have been deleted"),
+			},
+			{
+				// Update force_destroy = true
+				Config: testAccBigtableInstance_forceDestroy(context, true),
+			},
+			{
+				// Try to delete the instance after force_destroy = true was set before
+				Config: testAccBigtableInstance_forceDestroy_deleteInstance(),
+			},
+		},
+	})
+}
+
 func testAccBigtableInstance_multipleClustersSameID(instanceName string) string {
 	return fmt.Sprintf(`
 resource "google_bigtable_instance" "instance" {
@@ -743,4 +799,136 @@ func autoscalingClusterConfigWithStorageTarget(instanceName string, min int, max
 	  deletion_protection = false
 
 	}`, instanceName, instanceName, min, max, cpuTarget, storageTarget)
+}
+
+func testAccBigtableInstance_forceDestroy(context map[string]interface{}, forceDestroy bool) string {
+	context["force_destroy"] = forceDestroy
+
+	return acctest.Nprintf(`
+provider "google" {
+  alias = "http_auth"
+}
+
+resource "google_bigtable_instance" "instance" {
+  name = "%{instance_name}"
+  cluster {
+    cluster_id   = "%{cluster_name_1}"
+    num_nodes    = 1
+    storage_type = "HDD"
+    zone         = "%{cluster_zone_1}"
+  }
+  cluster {
+    cluster_id   = "%{cluster_name_2}"
+    num_nodes    = 1
+    storage_type = "HDD"
+    zone         = "%{cluster_zone_2}"
+  }
+  force_destroy = %{force_destroy}
+  deletion_protection = false
+  labels = {
+    env = "default"
+  }
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%{table_name}"
+  instance_name = google_bigtable_instance.instance.id
+  split_keys    = ["a", "b", "c"]
+}
+
+data "google_client_config" "current" {
+	provider = google.http_auth
+}
+
+locals {
+  project = google_bigtable_instance.instance.project
+  instance = google_bigtable_instance.instance.name
+  cluster_1 = google_bigtable_instance.instance.cluster[0].cluster_id
+  cluster_2 = google_bigtable_instance.instance.cluster[1].cluster_id
+  backup = "backup-1"
+}
+
+data "http" "make_backup_1" {
+  url    = "https://bigtableadmin.googleapis.com/v2/projects/${local.project}/instances/${local.instance}/clusters/${local.cluster_1}/backups?backupId=${local.backup}"
+  method = "POST"
+
+  request_headers = {
+    Content-Type  = "application/json"
+    Authorization = "Bearer ${data.google_client_config.current.access_token}"
+  }
+
+  request_body = <<EOT
+{
+  "sourceTable" : "${google_bigtable_table.table.id}",
+  "expireTime" : "${time_offset.week-in-future.rfc3339}"
+}
+EOT
+
+  depends_on = [
+    google_bigtable_table.table // Needs to exist for backup to be made
+  ]
+}
+
+data "http" "make_backup_2" {
+  url    = "https://bigtableadmin.googleapis.com/v2/projects/${local.project}/instances/${local.instance}/clusters/${local.cluster_2}/backups?backupId=${local.backup}"
+  method = "POST"
+
+  request_headers = {
+    Content-Type  = "application/json"
+    Authorization = "Bearer ${data.google_client_config.current.access_token}"
+  }
+
+  request_body = <<EOT
+{
+  "sourceTable" : "${google_bigtable_table.table.id}",
+  "expireTime" : "${time_offset.week-in-future.rfc3339}"
+}
+EOT
+
+  depends_on = [
+    google_bigtable_table.table // Needs to exist for backup to be made
+  ]
+}
+
+check "health_check_1" {
+  assert {
+    condition     = data.http.make_backups_1.status_code == 200
+    error_message = "HTTP request to create a backup returned a non-200 status code"
+  }
+}
+
+check "health_check_2" {
+  assert {
+    condition     = data.http.make_backup_2.status_code == 200
+    error_message = "HTTP request to create a backup returned a non-200 status code"
+  }
+}
+
+# Expiration time for the backup being created
+resource "time_offset" "week-in-future" {
+  offset_days = 7
+}
+
+resource "time_sleep" "wait_30sec_1" {
+  depends_on = [data.http.make_backup_1]
+  create_duration = "30s"
+}
+resource "time_sleep" "wait_30sec_2" {
+  depends_on = [data.http.make_backup_2]
+  create_duration = "30s"
+}
+`, context)
+}
+
+func testAccBigtableInstance_forceDestroy_deleteInstance() string {
+	// A version of the config in testAccBigtableInstance_forceDestroy missing all the BigTable resources + related things
+	// This allows attempting to delete the instance when backups are present inside.
+	return `
+provider "google" {
+  alias = "http_auth"
+}
+resource "time_offset" "week-in-future" {
+  offset_days = 7
+}
+`
 }
