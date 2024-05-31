@@ -154,6 +154,11 @@ The following arguments are supported:
   To disable automatic snapshot creation you have to remove the whole snapshot_policy block.
   Structure is [documented below](#nested_snapshot_policy).
 
+* `backup_config` -
+  (Optional)
+  Backup configuration for the volume.
+  Structure is [documented below](#nested_backup_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -318,6 +323,21 @@ Setting this parameter to FORCE will delete volumes including nested snapshots.
 * `days_of_month` -
   (Optional)
   Set the day or days of the month to make a snapshot (1-31). Accepts a comma separated number of days. Defaults to '1'.
+
+<a name="nested_backup_config"></a>The `backup_config` block supports:
+
+* `backup_policies` -
+  (Optional)
+  Specify a single backup policy ID for scheduled backups. Format: `projects/{{projectId}}/locations/{{location}}/backupPolicies/{{backupPolicyName}}`
+
+* `backup_vault` -
+  (Optional)
+  ID of the backup vault to use. A backup vault is reqired to create manual or scheduled backups.
+  Format: `projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaultName}}`
+
+* `scheduled_backup_enabled` -
+  (Optional)
+  When set to true, scheduled backup is enabled on the volume. Omit if no backup_policy is specified.
 
 ## Attributes Reference
 
