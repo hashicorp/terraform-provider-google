@@ -26,17 +26,17 @@ jobs:
                     ref: "heads/main"
                   })
                   const branchName = "UTC-nightly-tests-" + dateToday;
-                  const resp = await github.rest.git.createRef({
+                  try{
+                  await github.rest.git.createRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: "refs/heads/" + branchName,
                     sha: mainRef.data.object.sha
                   })
-                  if (resp.status == "422"){
-                    console.error("Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
-                  } else {
-                    console.log("Created Branch: " + branchName)
+                  } catch (error){
+                    core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
                   }
+                  console.log("Created Branch: " + branchName)
 
   branch-sweeper:
     needs: create-branch
@@ -68,7 +68,7 @@ jobs:
                 
                 for (let i = 0; i < branchList.data.length; i++) {
                     const branchName = branchList.data.at(i).name
-                    const branchDate = /^UTC-nightly-tests-/\d{4}-\d{2}-\d{2}$/g.exec(branchName)
+                    const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branchName)
                     if (branchDate == null) continue // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                     if (dateDifference(dateToday, branchDate) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
                         const resp = await github.rest.git.deleteRef({
