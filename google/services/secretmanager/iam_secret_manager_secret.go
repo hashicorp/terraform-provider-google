@@ -133,6 +133,10 @@ func (u *SecretManagerSecretIamUpdater) GetResourceIamPolicy() (*cloudresourcema
 		return nil, err
 	}
 	var obj map[string]interface{}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"options.requestedPolicyVersion": fmt.Sprintf("%d", tpgiamresource.IamPolicyVersion)})
+	if err != nil {
+		return nil, err
+	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(u.d, u.Config.UserAgent)
 	if err != nil {
