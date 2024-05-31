@@ -269,6 +269,33 @@ resource "google_data_loss_prevention_inspect_template" "custom_type_surrogate" 
   }
 }
 ```
+## Example Usage - Dlp Inspect Template Max Infotype Per Finding Default
+
+
+```hcl
+resource "google_data_loss_prevention_inspect_template" "max_infotype_per_finding_default" {
+  parent = "projects/my-project-name"
+
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+    info_types {
+      name = "PERSON_NAME"
+    }
+
+    min_likelihood = "UNLIKELY"
+    limits {
+        max_findings_per_request = 333
+        max_findings_per_item = 222
+        max_findings_per_info_type {
+          # Entry with no info_type specifies the default value used by all info_types that don't specify their own limit
+          max_findings = 111
+        }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -372,7 +399,7 @@ The following arguments are supported:
 <a name="nested_max_findings_per_info_type"></a>The `max_findings_per_info_type` block supports:
 
 * `info_type` -
-  (Required)
+  (Optional)
   Type of information the findings limit applies to. Only one limit per infoType should be provided. If InfoTypeLimit does
   not have an infoType, the DLP API applies the limit against all infoTypes that are found but not
   specified in another InfoTypeLimit.

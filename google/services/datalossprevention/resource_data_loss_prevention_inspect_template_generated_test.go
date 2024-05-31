@@ -428,6 +428,59 @@ resource "google_data_loss_prevention_inspect_template" "with_template_id" {
 `, context)
 }
 
+func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFindingDefaultExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFindingDefaultExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_inspect_template.max_infotype_per_finding_default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "template_id"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionInspectTemplate_dlpInspectTemplateMaxInfotypePerFindingDefaultExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_inspect_template" "max_infotype_per_finding_default" {
+  parent = "projects/%{project}"
+
+  inspect_config {
+    info_types {
+      name = "EMAIL_ADDRESS"
+    }
+    info_types {
+      name = "PERSON_NAME"
+    }
+
+    min_likelihood = "UNLIKELY"
+    limits {
+        max_findings_per_request = 333
+        max_findings_per_item = 222
+        max_findings_per_info_type {
+          # Entry with no info_type specifies the default value used by all info_types that don't specify their own limit
+          max_findings = 111
+        }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckDataLossPreventionInspectTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
