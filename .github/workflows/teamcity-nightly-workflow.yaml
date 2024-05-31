@@ -26,17 +26,17 @@ jobs:
                     ref: "heads/main"
                   })
                   const branchName = "UTC-nightly-tests-" + dateToday;
-                  const resp = await github.rest.git.createRef({
+                  try{
+                  await github.rest.git.createRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: "refs/heads/" + branchName,
                     sha: mainRef.data.object.sha
                   })
-                  if (resp.status == "422"){
-                    console.error("Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
-                  } else {
-                    console.log("Created Branch: " + branchName)
+                  } catch (error){
+                    console.error(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
                   }
+                  console.log("Created Branch: " + branchName)
 
   branch-sweeper:
     needs: create-branch
