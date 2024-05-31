@@ -34,7 +34,7 @@ jobs:
                     sha: mainRef.data.object.sha
                   })
                   } catch (error){
-                    console.error(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
+                    core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name ${branchName} already exists")
                   }
                   console.log("Created Branch: " + branchName)
 
