@@ -10,7 +10,8 @@ package projects.reused
 import MMUpstreamProjectId
 import ProviderNameBeta
 import ProviderNameGa
-import ServiceSweeperName
+import ServiceSweeperCronName
+import ServiceSweeperManualName
 import SharedResourceNameVcr
 import builds.*
 import generated.PackagesListBeta
@@ -24,7 +25,7 @@ import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
-fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot, config: AccTestConfiguration): Project {
+fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot, cronSweeperVcsRoot: GitVcsRoot, config: AccTestConfiguration): Project {
 
     // Create unique ID for the dynamically-created project
     var projectId = "${parentProject}_${MMUpstreamProjectId}"
@@ -44,9 +45,11 @@ fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot,
         ProviderNameBeta -> sweepersList = SweepersListBeta
         else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
     }
-    val serviceSweeperConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperName, sweepersList, projectId, vcsRoot, sharedResources, config)
+    val serviceSweeperManualConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperManualName, sweepersList, projectId, vcsRoot, sharedResources, config)
+
+    val serviceSweeperCronConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperCronName, sweepersList, projectId, cronSweeperVcsRoot, sharedResources, config)
     val trigger  = NightlyTriggerConfiguration(startHour=12)
-    serviceSweeperConfig.addTrigger(trigger) // Only the sweeper is on a schedule in this project
+    serviceSweeperCronConfig.addTrigger(trigger) // Only the sweeper is on a schedule in this project
 
     return Project {
         id(projectId)
@@ -57,7 +60,8 @@ fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot,
         packageBuildConfigs.forEach { buildConfiguration: BuildType ->
             buildType(buildConfiguration)
         }
-        buildType(serviceSweeperConfig)
+        buildType(serviceSweeperManualConfig)
+        buildType(serviceSweeperCronConfig)
 
         params{
             configureGoogleSpecificTestParameters(config)

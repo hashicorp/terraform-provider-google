@@ -37,7 +37,7 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
         subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig))
 
         // MM Upstream project that uses modular-magician/terraform-provider-google
-        subProject(mmUpstream(gaId, ProviderNameGa, ModularMagicianVCSRootGa, vcrConfig))
+        subProject(mmUpstream(gaId, ProviderNameGa, ModularMagicianVCSRootGa, HashiCorpVCSRootGa, vcrConfig))
 
         params {
             readOnlySettings()
