@@ -275,6 +275,12 @@ func ClouddeployTargetExecutionConfigsSchema() *schema.Resource {
 				Description: "Optional. Google service account to use for execution. If unspecified, the project execution service account (-compute@developer.gserviceaccount.com) is used.",
 			},
 
+			"verbose": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Optional. If true, additional logging will be enabled when running builds in this execution environment.",
+			},
+
 			"worker_pool": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -712,6 +718,7 @@ func expandClouddeployTargetExecutionConfigs(o interface{}) *clouddeploy.TargetE
 		ArtifactStorage:  dcl.StringOrNil(obj["artifact_storage"].(string)),
 		ExecutionTimeout: dcl.StringOrNil(obj["execution_timeout"].(string)),
 		ServiceAccount:   dcl.StringOrNil(obj["service_account"].(string)),
+		Verbose:          dcl.Bool(obj["verbose"].(bool)),
 		WorkerPool:       dcl.String(obj["worker_pool"].(string)),
 	}
 }
@@ -739,6 +746,7 @@ func flattenClouddeployTargetExecutionConfigs(obj *clouddeploy.TargetExecutionCo
 		"artifact_storage":  obj.ArtifactStorage,
 		"execution_timeout": obj.ExecutionTimeout,
 		"service_account":   obj.ServiceAccount,
+		"verbose":           obj.Verbose,
 		"worker_pool":       obj.WorkerPool,
 	}
 

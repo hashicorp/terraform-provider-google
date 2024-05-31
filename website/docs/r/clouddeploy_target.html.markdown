@@ -232,6 +232,10 @@ The `execution_configs` block supports:
   (Required)
   Required. Usages when this configuration should be applied.
     
+* `verbose` -
+  (Optional)
+  Optional. If true, additional logging will be enabled when running builds in this execution environment.
+    
 * `worker_pool` -
   (Optional)
   Optional. The resource name of the `WorkerPool`, with the format `projects/{project}/locations/{location}/workerPools/{worker_pool}`. If this optional field is unspecified, the default Cloud Build pool will be used.
