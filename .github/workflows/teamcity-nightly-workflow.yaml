@@ -53,6 +53,8 @@ jobs:
             function dateDifference(dateToday, branchDate){
                 dateToday = new Date(dateToday)
                 branchDate = new Date(branchDate)
+                console.log(dateToday)
+                console.log(branchDate)
                 return (dateToday - branchDate) / 86_400_000 // calculates the difference in days based on milliseconds
             }
             
@@ -77,7 +79,6 @@ jobs:
                     const branchName = filteredBranches.at(i).name
                     const branchDate = /\d{4}-\d{1,2}-\d{1,2}/g.exec(branchName)
                     if (dateDifference(dateToday, branchDate[0]) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
-                      console.log(branchDate)
                       branchesToDelete.push(branchName)
                     }
                 }
