@@ -44,7 +44,7 @@ jobs:
     steps: 
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
         env:
-          DAYS_THRESHOLD: ${{ inputs.dayThreshold }}
+          DAYS_THRESHOLD: ${{ inputs.dayThreshold || '3'}} # this allows the default value to be 3 when triggered on schedule
         with:
           script: |
             const { DAYS_THRESHOLD } = process.env
