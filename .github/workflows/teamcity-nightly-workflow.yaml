@@ -98,4 +98,4 @@ jobs:
                 }
             }
           
-            branchSweeper("${DAYS_THRESHOLD}")
+            branchSweeper(DAYS_THRESHOLD)
