@@ -71,13 +71,12 @@ jobs:
                   return branchDate != null  // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                 })
 
-                console.log(filteredBranches)
-
                 let branchesToDelete = []
                 
                 for (let i = 0; i < filteredBranches.length; i++) {
                     const branchName = filteredBranches.at(i).name
                     const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branchName)
+                    console.log(branchDate)
                     if (dateDifference(dateToday, branchDate) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
                       branchesToDelete.push(branchName)
                     }
