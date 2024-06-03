@@ -196,6 +196,8 @@ is desired, you will need to modify your state file manually using
     in `guest-os-features`, and `network_interface.0.nic-type` must be `GVNIC`
     in order for this setting to take effect.
 
+* `partner_metadata` - (optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) key/value pair represents partner metadata assigned to instance where key represent a defined namespace and value is a json string represent the entries associted with the namespace.
+
 ---
 
 <a name="nested_boot_disk"></a>The `boot_disk` block supports:

@@ -1266,6 +1266,7 @@ func testAccCheckComputeInstanceTemplateExistsInProject(t *testing.T, n, p strin
 		templateName := splits[len(splits)-1]
 		found, err := config.NewComputeClient(config.UserAgent).InstanceTemplates.Get(
 			p, templateName).Do()
+
 		if err != nil {
 			return err
 		}
