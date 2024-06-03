@@ -81,6 +81,8 @@ jobs:
                     }
                 }
                 
+                console.log("branches to be deleted: " + branchesToDelete)
+
                 for (let i = 0; i < branchesToDelete.length; i++) {
                   const resp = await github.rest.git.deleteRef({
                       owner: context.repo.owner,
