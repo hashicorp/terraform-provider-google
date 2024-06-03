@@ -57,7 +57,6 @@ jobs:
             }
             
             async function branchSweeper(daysThreshold){
-              console.log(daysThreshold)
                 let dateToday = new Date().toJSON().slice(0, 10);
                 console.log("Today\'s date: ",dateToday);
                 // grab the list of branches then iterate through the list checking for the difference in days
@@ -88,12 +87,12 @@ jobs:
                   const resp = await github.rest.git.deleteRef({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
-                      ref: "heads/" + branchName,
+                      ref: "heads/" + branchesToDelete[i],
                     })
                   if (resp.status == "422"){
                       console.error("Branch doesn\'t exist")
                   } else{
-                    console.log("Deleted branch: " + branchName)
+                    console.log("Deleted branch: " + branchesToDelete[i])
                   } 
                 }
             }
