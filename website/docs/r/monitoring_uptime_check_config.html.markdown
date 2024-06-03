@@ -300,7 +300,7 @@ The following arguments are supported:
   uptime checks:
   * `aws_ec2_instance`
   * `aws_elb_load_balancer`
-  * `gae_app
+  * `gae_app`
   * `gce_instance`
   * `k8s_service`
   * `servicedirectory_service`
