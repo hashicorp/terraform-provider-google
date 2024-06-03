@@ -71,6 +71,8 @@ jobs:
                   return branchDate != null  // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                 })
 
+                console.log(filteredBranches)
+
                 let branchesToDelete = []
                 
                 for (let i = 0; i < filteredBranches.length; i++) {
