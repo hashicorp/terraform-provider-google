@@ -65,23 +65,33 @@ jobs:
                     repo: context.repo.repo,
                     protected: false
                   })
+
+                const filteredBranches = branchList.data.filter( (branch) => {
+                  const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branch.name)
+                  return branchDate != null  // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
+                })
+
+                let branchesToDelete = []
                 
-                for (let i = 0; i < branchList.data.length; i++) {
-                    const branchName = branchList.data.at(i).name
+                for (let i = 0; i < filteredBranches.length; i++) {
+                    const branchName = filteredBranches.at(i).name
                     const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branchName)
-                    if (branchDate == null) continue // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                     if (dateDifference(dateToday, branchDate) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
-                        const resp = await github.rest.git.deleteRef({
-                            owner: context.repo.owner,
-                            repo: context.repo.repo,
-                            ref: "heads/" + branchName,
-                          })
-                        if (resp.status == "422"){
-                            console.error("Branch doesn\'t exist")
-                        } else{
-                          console.log("Deleted branch: " + branchName)
-                        } 
+                      branchesToDelete.push(branchName)
                     }
+                }
+                
+                for (let i = 0; i < branchesToDelete.length; i++) {
+                  const resp = await github.rest.git.deleteRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: "heads/" + branchName,
+                    })
+                  if (resp.status == "422"){
+                      console.error("Branch doesn\'t exist")
+                  } else{
+                    console.log("Deleted branch: " + branchName)
+                  } 
                 }
             }
           
