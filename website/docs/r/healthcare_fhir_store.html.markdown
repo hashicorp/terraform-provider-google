@@ -50,7 +50,7 @@ resource "google_healthcare_fhir_store" "default" {
   enable_history_import          = false
   default_search_handling_strict = false
 
-  notification_config {
+  notification_configs {
     pubsub_topic = google_pubsub_topic.topic.id
   }
 
@@ -124,43 +124,6 @@ resource "google_bigquery_dataset" "bq_dataset" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_fhir_store_notification_config&open_in_editor=main.tf" target="_blank">
-    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
-  </a>
-</div>
-## Example Usage - Healthcare Fhir Store Notification Config
-
-
-```hcl
-resource "google_healthcare_fhir_store" "default" {
-  name    = "example-fhir-store"
-  dataset = google_healthcare_dataset.dataset.id
-  version = "R4"
-
-  enable_update_create          = false
-  disable_referential_integrity = false
-  disable_resource_versioning   = false
-  enable_history_import         = false
-
-  labels = {
-    label1 = "labelvalue1"
-  }
-
-  notification_config {
-    pubsub_topic = "${google_pubsub_topic.topic.id}"
-  }
-}
-
-resource "google_pubsub_topic" "topic" {
-  name = "fhir-notifications"
-}
-
-resource "google_healthcare_dataset" "dataset" {
-  name     = "example-dataset"
-  location = "us-central1"
-}
-```
-<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_fhir_store_notification_configs&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -170,7 +133,6 @@ resource "google_healthcare_dataset" "dataset" {
 
 ```hcl
 resource "google_healthcare_fhir_store" "default" {
-  provider = google-beta
   name     = "example-fhir-store"
   dataset  = google_healthcare_dataset.dataset.id
   version  = "R4"
@@ -179,7 +141,6 @@ resource "google_healthcare_fhir_store" "default" {
   disable_referential_integrity = false
   disable_resource_versioning   = false
   enable_history_import         = false
-  enable_history_modifications  = false
 
   labels = {
     label1 = "labelvalue1"
@@ -193,12 +154,10 @@ resource "google_healthcare_fhir_store" "default" {
 }
 
 resource "google_pubsub_topic" "topic" {
-  provider = google-beta
   name     = "fhir-notifications"
 }
 
 resource "google_healthcare_dataset" "dataset" {
-  provider = google-beta
   name     = "example-dataset"
   location = "us-central1"
 }
@@ -290,9 +249,11 @@ The following arguments are supported:
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `notification_config` -
-  (Optional)
+  (Optional, Deprecated)
   A nested object resource
   Structure is [documented below](#nested_notification_config).
+
+  ~> **Warning:** `notification_config` is deprecated and will be removed in a future major release. Use `notification_configs` instead.
 
 * `stream_configs` -
   (Optional)
@@ -311,7 +272,7 @@ The following arguments are supported:
   The handling can always be changed from the default on an individual API call by setting the HTTP header Prefer: handling=strict or Prefer: handling=lenient.
 
 * `notification_configs` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   A list of notifcation configs that configure the notification for every resource mutation in this FHIR store.
   Structure is [documented below](#nested_notification_configs).
 

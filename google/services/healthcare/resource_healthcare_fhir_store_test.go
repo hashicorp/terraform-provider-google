@@ -154,9 +154,12 @@ resource "google_healthcare_fhir_store" "default" {
   version              = "R4"
 
 
-  notification_config {
-    pubsub_topic = google_pubsub_topic.topic.id
+  notification_configs {
+	pubsub_topic                     = google_pubsub_topic.topic.id
+	send_full_resource               = true
+	send_previous_resource_on_delete = true
   }
+
 
   labels = {
     label1 = "labelvalue1"
@@ -210,9 +213,12 @@ func testAccCheckGoogleHealthcareFhirStoreUpdate(t *testing.T, pubsubTopic strin
 				return fmt.Errorf("fhirStore labels not updated: %s", gcpResourceUri)
 			}
 
-			topicName := path.Base(response.NotificationConfig.PubsubTopic)
-			if topicName != pubsubTopic {
-				return fmt.Errorf("fhirStore 'NotificationConfig' not updated ('%s' != '%s'): %s", topicName, pubsubTopic, gcpResourceUri)
+			notifications := response.NotificationConfigs
+			if len(notifications) > 0 {
+				topicName := path.Base(notifications[0].PubsubTopic)
+				if topicName != pubsubTopic {
+					return fmt.Errorf("fhirStore 'NotificationConfig' not updated ('%s' != '%s'): %s", topicName, pubsubTopic, gcpResourceUri)
+				}
 			}
 		}
 
