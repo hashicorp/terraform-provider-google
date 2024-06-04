@@ -201,6 +201,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_router":                               compute.DataSourceGoogleComputeRouter(),
 	"google_compute_router_nat":                           compute.DataSourceGoogleComputeRouterNat(),
 	"google_compute_router_status":                        compute.DataSourceGoogleComputeRouterStatus(),
+	"google_compute_security_policy":                      compute.DataSourceGoogleComputeSecurityPolicy(),
 	"google_compute_snapshot":                             compute.DataSourceGoogleComputeSnapshot(),
 	"google_compute_ssl_certificate":                      compute.DataSourceGoogleComputeSslCertificate(),
 	"google_compute_ssl_policy":                           compute.DataSourceGoogleComputeSslPolicy(),
