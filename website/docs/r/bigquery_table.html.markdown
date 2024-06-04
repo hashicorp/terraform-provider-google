@@ -161,8 +161,10 @@ The following arguments are supported:
 * `materialized_view` - (Optional) If specified, configures this table as a materialized view.
     Structure is [documented below](#nested_materialized_view).
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
-in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the table.
+    When the field is set to true or unset in Terraform state, a `terraform apply`
+    or `terraform destroy` that would delete the table will fail.
+    When the field is set to false, deleting the table is allowed..
 
 * `table_constraints` - (Optional) Defines the primary key and foreign keys. 
     Structure is [documented below](#nested_table_constraints).
