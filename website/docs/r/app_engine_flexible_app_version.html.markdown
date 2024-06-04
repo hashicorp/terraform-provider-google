@@ -264,6 +264,11 @@ The following arguments are supported:
   (Optional)
   The channel of the runtime to use. Only available for some runtimes.
 
+* `flexible_runtime_settings` -
+  (Optional)
+  Runtime settings for App Engine flexible environment.
+  Structure is [documented below](#nested_flexible_runtime_settings).
+
 * `beta_settings` -
   (Optional)
   Metadata settings that are supplied to this version to enable beta runtime features.
@@ -415,6 +420,16 @@ The following arguments are supported:
 * `size_gb` -
   (Required)
   Volume size in gigabytes.
+
+<a name="nested_flexible_runtime_settings"></a>The `flexible_runtime_settings` block supports:
+
+* `operating_system` -
+  (Optional)
+  Operating System of the application runtime.
+
+* `runtime_version` -
+  (Optional)
+  The runtime version of an App Engine flexible application.
 
 <a name="nested_handlers"></a>The `handlers` block supports:
 
