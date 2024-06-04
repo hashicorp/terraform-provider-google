@@ -548,6 +548,10 @@ The following arguments are supported:
   Cloud SQL target for Discovery. The first target to match a table will be the one applied.
   Structure is [documented below](#nested_cloud_sql_target).
 
+* `secrets_target` -
+  (Optional)
+  Discovery target that looks for credentials and secrets stored in cloud resource metadata and reports them as vulnerabilities to Security Command Center. Only one target of this type is allowed.
+
 
 <a name="nested_big_query_target"></a>The `big_query_target` block supports:
 
@@ -582,6 +586,11 @@ The following arguments are supported:
   (Optional)
   Catch-all. This should always be the last filter in the list because anything above it will apply first.
 
+* `table_reference` -
+  (Optional)
+  The table to scan. Discovery configurations including this can only include one DiscoveryTarget (the DiscoveryTarget with this TableReference).
+  Structure is [documented below](#nested_table_reference).
+
 
 <a name="nested_tables"></a>The `tables` block supports:
 
@@ -612,6 +621,16 @@ The following arguments are supported:
 * `table_id_regex` -
   (Optional)
   if unset, this property matches all tables
+
+<a name="nested_table_reference"></a>The `table_reference` block supports:
+
+* `dataset_id` -
+  (Required)
+  Dataset ID of the table.
+
+* `table_id` -
+  (Required)
+  Name of the table.
 
 <a name="nested_conditions"></a>The `conditions` block supports:
 
@@ -722,6 +741,11 @@ The following arguments are supported:
   (Optional)
   Catch-all. This should always be the last target in the list because anything above it will apply first. Should only appear once in a configuration. If none is specified, a default one will be added automatically.
 
+* `database_resource_reference` -
+  (Optional)
+  The database resource to scan. Targets including this can only include one target (the target with this database resource reference).
+  Structure is [documented below](#nested_database_resource_reference).
+
 
 <a name="nested_collection"></a>The `collection` block supports:
 
@@ -756,6 +780,24 @@ The following arguments are supported:
 * `database_resource_name_regex` -
   (Optional)
   Regex to test the database resource's name against. An example of a database resource name is a table's name. Other database resource names like view names could be included in the future. If empty, all database resources match.'
+
+<a name="nested_database_resource_reference"></a>The `database_resource_reference` block supports:
+
+* `project_id` -
+  (Required)
+  Required. If within a project-level config, then this must match the config's project ID.
+
+* `instance` -
+  (Required)
+  Required. The instance where this resource is located. For example: Cloud SQL instance ID.
+
+* `database` -
+  (Required)
+  Required. Name of a database within the instance.
+
+* `database_resource` -
+  (Required)
+  Required. Name of a database resource, for example, a table within the database.
 
 <a name="nested_conditions"></a>The `conditions` block supports:
 
