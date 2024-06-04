@@ -465,8 +465,11 @@ resource "google_workstations_workstation_config" "default" {
         }
       }
       boost_configs {
-        id           = "boost-1"
-        machine_type = "e2-standard-2"
+        id                           = "boost-2"
+        machine_type                 = "n1-standard-2"
+        pool_size                    = 2
+        boot_disk_size_gb            = 30
+        enable_nested_virtualization = true
       }
     }
   }
@@ -765,6 +768,19 @@ The following arguments are supported:
 * `machine_type` -
   (Optional)
   The type of machine that boosted VM instances will use—for example, e2-standard-4. For more information about machine types that Cloud Workstations supports, see the list of available machine types https://cloud.google.com/workstations/docs/available-machine-types. Defaults to e2-standard-4.
+
+* `boot_disk_size_gb` -
+  (Optional)
+  Size of the boot disk in GB. The minimum boot disk size is `30` GB. Defaults to `50` GB.
+
+* `enable_nested_virtualization` -
+  (Optional)
+  Whether to enable nested virtualization on the Compute Engine VMs backing boosted Workstations.
+  See https://cloud.google.com/workstations/docs/reference/rest/v1beta/projects.locations.workstationClusters.workstationConfigs#GceInstance.FIELDS.enable_nested_virtualization
+
+* `pool_size` -
+  (Optional)
+  Number of instances to pool for faster workstation boosting.
 
 * `accelerators` -
   (Optional)
