@@ -492,6 +492,10 @@ The following arguments are supported:
   (Optional)
   Specifies whether the Config Sync Repo is in hierarchical or unstructured mode
 
+* `prevent_drift` -
+  (Optional)
+  Set to true to enable the Config Sync admission webhook to prevent drifts. If set to `false`, disables the Config Sync admission webhook and does not prevent drifts.
+
 * `git` -
   (Optional)
   Git repo configuration for the cluster
