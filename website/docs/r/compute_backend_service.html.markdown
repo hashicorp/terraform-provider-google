@@ -572,6 +572,11 @@ The following arguments are supported:
   If logging is enabled, logs will be exported to Stackdriver.
   Structure is [documented below](#nested_log_config).
 
+* `service_lb_policy` -
+  (Optional)
+  URL to networkservices.ServiceLbPolicy resource.
+  Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
