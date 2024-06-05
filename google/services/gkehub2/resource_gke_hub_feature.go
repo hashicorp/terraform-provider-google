@@ -174,6 +174,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 														},
 													},
 												},
+												"prevent_drift": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Set to true to enable the Config Sync admission webhook to prevent drifts. If set to 'false', disables the Config Sync admission webhook and does not prevent drifts.`,
+												},
 												"source_format": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -1349,6 +1354,8 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	transformed := make(map[string]interface{})
 	transformed["source_format"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(original["sourceFormat"], d, config)
+	transformed["prevent_drift"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["preventDrift"], d, config)
 	transformed["git"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	transformed["oci"] =
@@ -1356,6 +1363,10 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2242,6 +2253,13 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 		transformed["sourceFormat"] = transformedSourceFormat
 	}
 
+	transformedPreventDrift, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["prevent_drift"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPreventDrift); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["preventDrift"] = transformedPreventDrift
+	}
+
 	transformedGit, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	if err != nil {
 		return nil, err
@@ -2260,6 +2278,10 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
