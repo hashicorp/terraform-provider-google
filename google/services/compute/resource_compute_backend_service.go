@@ -1061,6 +1061,12 @@ alt name matches one of the specified values.`,
 					},
 				},
 			},
+			"service_lb_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `URL to networkservices.ServiceLbPolicy resource.
+Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.`,
+			},
 			"session_affinity": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -1409,6 +1415,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("log_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(logConfigProp)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
 	}
+	serviceLbPolicyProp, err := expandComputeBackendServiceServiceLbPolicy(d.Get("service_lb_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_lb_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceLbPolicyProp)) && (ok || !reflect.DeepEqual(v, serviceLbPolicyProp)) {
+		obj["serviceLbPolicy"] = serviceLbPolicyProp
+	}
 
 	obj, err = resourceComputeBackendServiceEncoder(d, meta, obj)
 	if err != nil {
@@ -1663,6 +1675,9 @@ func resourceComputeBackendServiceRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("log_config", flattenComputeBackendServiceLogConfig(res["logConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
+	if err := d.Set("service_lb_policy", flattenComputeBackendServiceServiceLbPolicy(res["serviceLbPolicy"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
@@ -1847,6 +1862,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("log_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, logConfigProp)) {
 		obj["logConfig"] = logConfigProp
+	}
+	serviceLbPolicyProp, err := expandComputeBackendServiceServiceLbPolicy(d.Get("service_lb_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_lb_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serviceLbPolicyProp)) {
+		obj["serviceLbPolicy"] = serviceLbPolicyProp
 	}
 
 	obj, err = resourceComputeBackendServiceEncoder(d, meta, obj)
@@ -3187,6 +3208,10 @@ func flattenComputeBackendServiceLogConfigSampleRate(v interface{}, d *schema.Re
 	return v
 }
 
+func flattenComputeBackendServiceServiceLbPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeBackendServiceAffinityCookieTtlSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -4251,6 +4276,10 @@ func expandComputeBackendServiceLogConfigEnable(v interface{}, d tpgresource.Ter
 }
 
 func expandComputeBackendServiceLogConfigSampleRate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceServiceLbPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
