@@ -95,6 +95,14 @@ A five-character random ID is generated automatically, for example, -6f9a, and a
 				Required:    true,
 				Description: `Username for the Active Directory account with permissions to create the compute account within the specified organizational unit.`,
 			},
+			"administrators": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Domain user accounts to be added to the local Administrators group of the SMB service. Comma-separated list of domain users or groups. The Domain Admin group is automatically added when the service joins your domain as a hidden group.`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"aes_encryption": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -271,6 +279,12 @@ func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("backup_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOperatorsProp)) && (ok || !reflect.DeepEqual(v, backupOperatorsProp)) {
 		obj["backupOperators"] = backupOperatorsProp
+	}
+	administratorsProp, err := expandNetappactiveDirectoryAdministrators(d.Get("administrators"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("administrators"); !tpgresource.IsEmptyValue(reflect.ValueOf(administratorsProp)) && (ok || !reflect.DeepEqual(v, administratorsProp)) {
+		obj["administrators"] = administratorsProp
 	}
 	securityOperatorsProp, err := expandNetappactiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
 	if err != nil {
@@ -449,6 +463,9 @@ func resourceNetappactiveDirectoryRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("backup_operators", flattenNetappactiveDirectoryBackupOperators(res["backupOperators"], d, config)); err != nil {
 		return fmt.Errorf("Error reading activeDirectory: %s", err)
 	}
+	if err := d.Set("administrators", flattenNetappactiveDirectoryAdministrators(res["administrators"], d, config)); err != nil {
+		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	}
 	if err := d.Set("security_operators", flattenNetappactiveDirectorySecurityOperators(res["securityOperators"], d, config)); err != nil {
 		return fmt.Errorf("Error reading activeDirectory: %s", err)
 	}
@@ -556,6 +573,12 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("backup_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupOperatorsProp)) {
 		obj["backupOperators"] = backupOperatorsProp
 	}
+	administratorsProp, err := expandNetappactiveDirectoryAdministrators(d.Get("administrators"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("administrators"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, administratorsProp)) {
+		obj["administrators"] = administratorsProp
+	}
 	securityOperatorsProp, err := expandNetappactiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
 	if err != nil {
 		return err
@@ -648,6 +671,10 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 
 	if d.HasChange("backup_operators") {
 		updateMask = append(updateMask, "backupOperators")
+	}
+
+	if d.HasChange("administrators") {
+		updateMask = append(updateMask, "administrators")
 	}
 
 	if d.HasChange("security_operators") {
@@ -840,6 +867,10 @@ func flattenNetappactiveDirectoryBackupOperators(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenNetappactiveDirectoryAdministrators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappactiveDirectorySecurityOperators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -939,6 +970,10 @@ func expandNetappactiveDirectoryPassword(v interface{}, d tpgresource.TerraformR
 }
 
 func expandNetappactiveDirectoryBackupOperators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappactiveDirectoryAdministrators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

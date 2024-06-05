@@ -32,6 +32,11 @@ To get more information about activeDirectory, see:
 values will be stored in the raw state as plain text: `password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=netapp_active_directory_full&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
 ## Example Usage - Netapp Active Directory Full
 
 
@@ -46,6 +51,7 @@ resource "google_netapp_active_directory" "test_active_directory_full" {
     password = "pass"
     aes_encryption         = false
     backup_operators       = ["test1", "test2"]
+    administrators         = ["test1", "test2"]
     description            = "ActiveDirectory is the public representation of the active directory config."
     encrypt_dc_connections = false
     kdc_hostname           = "hostname"
@@ -118,6 +124,10 @@ The following arguments are supported:
 * `backup_operators` -
   (Optional)
   Domain user/group accounts to be added to the Backup Operators group of the SMB service. The Backup Operators group allows members to backup and restore files regardless of whether they have read or write access to the files. Comma-separated list.
+
+* `administrators` -
+  (Optional)
+  Domain user accounts to be added to the local Administrators group of the SMB service. Comma-separated list of domain users or groups. The Domain Admin group is automatically added when the service joins your domain as a hidden group.
 
 * `security_operators` -
   (Optional)
