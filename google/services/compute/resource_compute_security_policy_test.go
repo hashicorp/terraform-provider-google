@@ -199,7 +199,7 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSecurityPolicy_withAdaptiveProtection(spName),
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -207,12 +207,43 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName),
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_update(spName),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicy_withoutAdaptiveProtection(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Can create with layer 7 protection disabled
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Can update to layer 7 protection enabled
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName),
+			},
+			{
+				// Can update to layer 7 protection disabled again
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName),
 			},
 		},
 	})
@@ -840,7 +871,31 @@ resource "google_compute_security_policy" "policy" {
 `, spName)
 }
 
-func testAccComputeSecurityPolicy_withAdaptiveProtection(spName string) string {
+func testAccComputeSecurityPolicy_withoutAdaptiveProtection(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = false
+    }
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
   name        = "%s"
@@ -856,7 +911,7 @@ resource "google_compute_security_policy" "policy" {
 `, spName)
 }
 
-func testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName string) string {
+func testAccComputeSecurityPolicy_withAdaptiveProtection_update(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
   name        = "%s"
