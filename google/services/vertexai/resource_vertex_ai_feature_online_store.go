@@ -96,7 +96,7 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"bigtable"},
+				ExactlyOneOf: []string{"bigtable", "optimized"},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -106,6 +106,17 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"optimized": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+				ConflictsWith: []string{},
+				ExactlyOneOf:  []string{"bigtable", "optimized"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -177,6 +188,12 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("bigtable"); !tpgresource.IsEmptyValue(reflect.ValueOf(bigtableProp)) && (ok || !reflect.DeepEqual(v, bigtableProp)) {
 		obj["bigtable"] = bigtableProp
+	}
+	optimizedProp, err := expandVertexAIFeatureOnlineStoreOptimized(d.Get("optimized"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("optimized"); ok || !reflect.DeepEqual(v, optimizedProp) {
+		obj["optimized"] = optimizedProp
 	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -314,6 +331,9 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("bigtable", flattenVertexAIFeatureOnlineStoreBigtable(res["bigtable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
+	if err := d.Set("optimized", flattenVertexAIFeatureOnlineStoreOptimized(res["optimized"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
@@ -346,6 +366,12 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("bigtable"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigtableProp)) {
 		obj["bigtable"] = bigtableProp
 	}
+	optimizedProp, err := expandVertexAIFeatureOnlineStoreOptimized(d.Get("optimized"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("optimized"); ok || !reflect.DeepEqual(v, optimizedProp) {
+		obj["optimized"] = optimizedProp
+	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -364,6 +390,10 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("bigtable") {
 		updateMask = append(updateMask, "bigtable")
+	}
+
+	if d.HasChange("optimized") {
+		updateMask = append(updateMask, "optimized")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -609,6 +639,14 @@ func flattenVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v 
 	return v // let terraform core handle it otherwise
 }
 
+func flattenVertexAIFeatureOnlineStoreOptimized(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenVertexAIFeatureOnlineStoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -690,6 +728,21 @@ func expandVertexAIFeatureOnlineStoreBigtableAutoScalingMaxNodeCount(v interface
 
 func expandVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreOptimized(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandVertexAIFeatureOnlineStoreEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
