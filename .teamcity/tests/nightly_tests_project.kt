@@ -41,7 +41,7 @@ class NightlyTestProjectsTests {
 
             // Check that nightly test is being ran on main branch
             var isDefault: Boolean = false
-            if (schedulingTrigger.branchFilter == "+:refs/heads/tc-nightly"){
+            if (schedulingTrigger.branchFilter == "+:refs/heads/main"){
                 isDefault = true
             }
             assertTrue("Build configuration `${bt.name} is using the default branch;", isDefault)

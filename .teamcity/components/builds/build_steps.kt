@@ -37,19 +37,6 @@ fun BuildSteps.setGitCommitBuildId() {
     })
 }
 
-fun BuildSteps.helloWorld() {
-    step(ScriptBuildStep {
-        name = "hello world!"
-        scriptContent = """
-            #!/bin/bash
-            echo "Hello ${'$'}(git rev-parse --abbrev-ref HEAD)!"
-        """.trimIndent()
-        // ${'$'} is required to allow creating a script in TeamCity that contains
-        // parts like ${GIT_HASH_SHORT} without having Kotlin syntax issues. For more info see:
-        // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
-    })
-}
-
 fun BuildSteps.tagBuildToIndicateTriggerMethod() {
     step(ScriptBuildStep {
         name = "Set build tag to indicate if build is run automatically or manually triggered"

@@ -12,12 +12,13 @@ on:
         - cron: '0 4 * * *'
 
 jobs:
-  create-branch:
+  nigthly-test-branch-creation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
         with:
           retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
 
@@ -39,8 +40,8 @@ jobs:
                   }
                   console.log("Created Branch: " + branchName)
 
-  branch-sweeper:
-    needs: create-branch
+  sweeping-outdated-branches:
+    needs: nigthly-test-branch-creation
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
@@ -48,6 +49,7 @@ jobs:
           DAYS_THRESHOLD: ${{ inputs.dayThreshold || '3'}} # this allows the default value to be 3 when triggered on schedule
         with:
           retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
             const { DAYS_THRESHOLD } = process.env
             console.log(`Removing nightly-test branches not made in the last ${DAYS_THRESHOLD} days`)
