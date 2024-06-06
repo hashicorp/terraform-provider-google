@@ -14,12 +14,14 @@
 # ----------------------------------------------------------------------------
 subcategory: "Compute Engine"
 description: |-
-  A regional NEG that can support Serverless Products and proxying traffic to external backends.
+  A regional NEG that can support Serverless Products, proxying traffic to
+  external backends and providing traffic to the PSC port mapping endpoints.
 ---
 
 # google_compute_region_network_endpoint_group
 
-A regional NEG that can support Serverless Products and proxying traffic to external backends.
+A regional NEG that can support Serverless Products, proxying traffic to
+external backends and providing traffic to the PSC port mapping endpoints.
 
 Recreating a region network endpoint group that's in use by another resource will give a
 `resourceInUseByAnotherResource` error. Use `lifecycle.create_before_destroy`
@@ -347,6 +349,38 @@ resource "google_compute_network" "default" {
   name                    = "network"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_network_endpoint_group_portmap&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Network Endpoint Group Portmap
+
+
+```hcl
+resource "google_compute_region_network_endpoint_group" "region_network_endpoint_group_portmap" {
+  name                  = "portmap-neg"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+
+  network_endpoint_type = "GCE_VM_IP_PORTMAP"
+  provider           = google-beta
+}
+
+resource "google_compute_network" "default" {
+  name                    = "network"
+  provider           = google-beta
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "subnetwork"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  provider           = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -380,7 +414,7 @@ The following arguments are supported:
   (Optional)
   Type of network endpoints in this network endpoint group. Defaults to SERVERLESS.
   Default value is `SERVERLESS`.
-  Possible values are: `SERVERLESS`, `PRIVATE_SERVICE_CONNECT`, `INTERNET_IP_PORT`, `INTERNET_FQDN_PORT`.
+  Possible values are: `SERVERLESS`, `PRIVATE_SERVICE_CONNECT`, `INTERNET_IP_PORT`, `INTERNET_FQDN_PORT`, `GCE_VM_IP_PORTMAP`.
 
 * `psc_target_service` -
   (Optional)
