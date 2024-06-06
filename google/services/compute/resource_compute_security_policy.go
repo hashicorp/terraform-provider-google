@@ -420,7 +420,7 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 									"rule_visibility": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										Default:      "STANDARD",
+										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"STANDARD", "PREMIUM"}, false),
 										Description:  `Rule visibility. Supported values include: "STANDARD", "PREMIUM".`,
 									},
