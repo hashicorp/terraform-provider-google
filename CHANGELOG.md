@@ -1,4 +1,27 @@
-## 5.32.0 (Unreleased)
+## 5.33.0 (Unreleased)
+
+## 5.32.0 (June 3, 2024)
+
+NOTES:
+* privateca: converted `google_privateca_certificate_template` to now use the MMv1 engine instead of DCL ([#18224](https://github.com/hashicorp/terraform-provider-google/pull/18224))
+
+FEATURES:
+* **New Resource:** `google_dataplex_entry_type` ([#18229](https://github.com/hashicorp/terraform-provider-google/pull/18229))
+* **New Resource:** `google_logging_log_view_iam_member` ([#18243](https://github.com/hashicorp/terraform-provider-google/pull/18243))
+
+IMPROVEMENTS:
+* alloydb: added `psc_config` field to `google_alloydb_cluster` resource ([#18263](https://github.com/hashicorp/terraform-provider-google/pull/18263))
+* alloydb: added `psc_instance_config` field to `google_alloydb_instance` resource ([#18263](https://github.com/hashicorp/terraform-provider-google/pull/18263))
+* cloudrunv2: added `default_uri_disabled` field to resource `google_cloud_run_v2_service` resource ([#18246](https://github.com/hashicorp/terraform-provider-google/pull/18246))
+* compute: added `NONE` to acceptable options for `update_policy.minimal_action` field in `google_compute_instance_group_manager` resource ([#18236](https://github.com/hashicorp/terraform-provider-google/pull/18236))
+* looker: increased validation length of `name` to `google_looker_instance` resource ([#18244](https://github.com/hashicorp/terraform-provider-google/pull/18244))
+* sql: updated support for a new value `week5` in field `setting.maintenance_window.update_track` in `google_sql_database_instance` resource ([#18223](https://github.com/hashicorp/terraform-provider-google/pull/18223))
+
+BUG FIXES:
+* cloudrunv2: added validation for `timeout` field to `google_cloud_run_v2_job` and `google_cloud_run_v2_service` resources ([#18260](https://github.com/hashicorp/terraform-provider-google/pull/18260))
+* compute: fixed permadiff in ordering of `advertised_ip_ranges.range` field on `google_compute_router` resource ([#18228](https://github.com/hashicorp/terraform-provider-google/pull/18228))
+* iam: added a 10 second sleep when creating a 'google_service_account' resource to reduce eventual consistency errors([#18261](https://github.com/hashicorp/terraform-provider-google/pull/18261))
+* storage: fixed `google_storage_bucket.lifecycle_rule.condition` block fields  `days_since_noncurrent_time` and `days_since_custom_time`  and `num_newer_versions` were not working for 0 value ([#18231](https://github.com/hashicorp/terraform-provider-google/pull/18231))
 
 ## 5.31.0 (May 28, 2024)
 
