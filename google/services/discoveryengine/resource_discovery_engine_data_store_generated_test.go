@@ -69,6 +69,102 @@ resource "google_discovery_engine_data_store" "basic" {
 `, context)
 }
 
+func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_store.document_processing_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "document_processing_config" {
+  location                    = "global"
+  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config  {
+      digital_parsing_config {}
+    }
+    parsing_config_overrides {
+      file_type = "pdf"
+      ocr_parsing_config {
+        use_native_text = true
+      }
+    }
+  }        
+}
+`, context)
+}
+
+func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigOcrExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigOcrExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_store.document_processing_config_ocr",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingConfigOcrExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "document_processing_config_ocr" {
+  location                    = "global"
+  data_store_id               = "tf-test-data-store-id%{random_suffix}"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config {
+      ocr_parsing_config {
+        use_native_text = true
+      }
+    }
+  }      
+}
+`, context)
+}
+
 func testAccCheckDiscoveryEngineDataStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
