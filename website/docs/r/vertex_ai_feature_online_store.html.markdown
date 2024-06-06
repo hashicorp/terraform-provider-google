@@ -140,7 +140,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_bigtable).
 
 * `optimized` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore
 
 * `dedicated_serving_endpoint` -
@@ -149,9 +149,11 @@ The following arguments are supported:
   Structure is [documented below](#nested_dedicated_serving_endpoint).
 
 * `embedding_management` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  The settings for embedding management in FeatureOnlineStore. Embedding management can only be used with BigTable.
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html), Deprecated)
+  The settings for embedding management in FeatureOnlineStore. Embedding management can only be set for BigTable. It is enabled by default for optimized storagetype.
   Structure is [documented below](#nested_embedding_management).
+
+  ~> **Warning:** `embedding_management` is deprecated. This field is no longer needed anymore and embedding management is automatically enabled when specifying Optimized storage type
 
 * `region` -
   (Optional)
