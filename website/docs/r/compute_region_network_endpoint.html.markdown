@@ -95,6 +95,69 @@ resource "google_compute_network" "default" {
   auto_create_subnetworks = false
 }
 ```
+## Example Usage - Region Network Endpoint Portmap
+
+
+```hcl
+resource "google_compute_network" "default" {
+  name                    = "network"
+  auto_create_subnetworks = false
+  provider           = google-beta
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "subnetwork"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+  provider           = google-beta
+}
+
+resource "google_compute_region_network_endpoint_group" default {
+  name                  = "portmap-neg"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+
+  network_endpoint_type = "GCE_VM_IP_PORTMAP"
+  provider           = google-beta
+}
+
+resource "google_compute_region_network_endpoint" "region_network_endpoint_portmap" {
+  region_network_endpoint_group = google_compute_region_network_endpoint_group.default.name
+  region = "us-central1"
+  instance   = google_compute_instance.default.self_link
+  port       = 80
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  client_destination_port = 8080
+  provider           = google-beta
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+  provider           = google-beta
+}
+
+resource "google_compute_instance" "default" {
+  name         = "instance"
+  machine_type = "e2-medium"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+    }
+  }
+  provider           = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -122,6 +185,15 @@ The following arguments are supported:
   (Optional)
   Fully qualified domain name of network endpoint.
   This can only be specified when network_endpoint_type of the NEG is INTERNET_FQDN_PORT.
+
+* `client_destination_port` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Client destination port for the `GCE_VM_IP_PORTMAP` NEG.
+
+* `instance` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The name for a specific VM instance that the IP address belongs to.
+  This is required for network endpoints of type GCE_VM_IP_PORTMAP.
 
 * `region` -
   (Optional)
