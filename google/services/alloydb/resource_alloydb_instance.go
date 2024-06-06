@@ -462,20 +462,6 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	headers := make(http.Header)
-	// Temporarily remove the enablePublicIp field if it is set to true since the
-	// API prohibits creating instances with public IP enabled.
-	var nc map[string]interface{}
-	if obj["networkConfig"] == nil {
-		nc = make(map[string]interface{})
-	} else {
-		nc = obj["networkConfig"].(map[string]interface{})
-	}
-	if nc["enablePublicIp"] == true {
-		delete(nc, "enablePublicIp")
-		delete(nc, "authorizedExternalNetworks")
-	}
-	obj["networkConfig"] = nc
-
 	// Read the config and call createsecondary api if instance_type is SECONDARY
 
 	if instanceType := d.Get("instance_type"); instanceType == "SECONDARY" {
@@ -510,51 +496,6 @@ func resourceAlloydbInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create Instance: %s", err)
-	}
-
-	// If enablePublicIp is set to true, then we must create the instance first with
-	// it disabled then update to enable it.
-	networkConfigProp, err = expandAlloydbInstanceNetworkConfig(d.Get("network_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkConfigProp)) && (ok || !reflect.DeepEqual(v, networkConfigProp)) {
-		nc := networkConfigProp.(map[string]interface{})
-		if nc["enablePublicIp"] == true {
-			obj["networkConfig"] = networkConfigProp
-
-			updateMask := []string{}
-			updateMask = append(updateMask, "networkConfig")
-			url, err := tpgresource.ReplaceVars(d, config, "{{AlloydbBasePath}}{{cluster}}/instances/{{instance_id}}")
-			if err != nil {
-				return err
-			}
-			url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-			if err != nil {
-				return err
-			}
-
-			updateRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "PATCH",
-				Project:   billingProject,
-				RawURL:    url,
-				UserAgent: userAgent,
-				Body:      obj,
-				Timeout:   d.Timeout(schema.TimeoutUpdate),
-			})
-			if err != nil {
-				return fmt.Errorf("Error updating the Instance to enable public ip: %s", err)
-			} else {
-				log.Printf("[DEBUG] Finished updating Instance to enable public ip %q: %#v", d.Id(), updateRes)
-			}
-			err = AlloydbOperationWaitTime(
-				config, updateRes, project, "Updating Instance", userAgent,
-				d.Timeout(schema.TimeoutUpdate))
-
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	log.Printf("[DEBUG] Finished creating Instance %q: %#v", d.Id(), res)
