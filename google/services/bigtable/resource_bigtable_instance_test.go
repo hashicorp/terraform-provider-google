@@ -892,7 +892,7 @@ EOT
 
 check "health_check_1" {
   assert {
-    condition     = data.http.make_backups_1.status_code == 200
+    condition     = data.http.make_backup_1.status_code == 200
     error_message = "HTTP request to create a backup returned a non-200 status code"
   }
 }
