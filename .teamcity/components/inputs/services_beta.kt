@@ -486,6 +486,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Looker",
         "path" to "./google-beta/services/looker"
     ),
+    "managedkafka" to mapOf(
+        "name" to "managedkafka",
+        "displayName" to "Managedkafka",
+        "path" to "./google-beta/services/managedkafka"
+    ),
     "memcache" to mapOf(
         "name" to "memcache",
         "displayName" to "Memcache",
