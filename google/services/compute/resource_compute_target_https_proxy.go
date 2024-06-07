@@ -80,7 +80,8 @@ to the BackendService.`,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description: `URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
-Currently, you may specify up to 15 certificates. Certificate manager certificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
+Certificate manager certificates only apply when the load balancing scheme is set to INTERNAL_MANAGED.
+For EXTERNAL and EXTERNAL_MANAGED, use certificate_map instead.
 sslCertificates and certificateManagerCertificates fields can not be defined together.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}' or just the self_link 'projects/{project}/locations/{location}/certificates/{resourceName}'`,
 				Elem: &schema.Schema{
@@ -92,7 +93,8 @@ Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locat
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `A reference to the CertificateMap resource uri that identifies a certificate map
-associated with the given target proxy. This field can only be set for global target proxies.
+associated with the given target proxy. This field is only supported for EXTERNAL and EXTERNAL_MANAGED load balancing schemes.
+For INTERNAL_MANAGED, use certificate_manager_certificates instead.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
 			},
 			"description": {
