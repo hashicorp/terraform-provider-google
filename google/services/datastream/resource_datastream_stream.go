@@ -28,7 +28,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -70,20 +70,20 @@ func resourceDatastreamStreamCustomDiff(_ context.Context, diff *schema.Resource
 
 // waitForDatastreamStreamReady waits for an agent pool to reach a stable state to indicate that it's ready.
 func waitForDatastreamStreamReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceDatastreamStreamRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
 		state := d.Get("state").(string)
 		if state == "STARTING" || state == "DRAINING" {
-			return resource.RetryableError(fmt.Errorf("Stream %q has state %q.", name, state))
+			return retry.RetryableError(fmt.Errorf("Stream %q has state %q.", name, state))
 		} else if state == "NOT_STARTED" || state == "RUNNING" || state == "PAUSED" {
 			log.Printf("[DEBUG] Stream %q has state %q.", name, state)
 			return nil
 		} else {
-			return resource.NonRetryableError(fmt.Errorf("Stream %q has state %q.", name, state))
+			return retry.NonRetryableError(fmt.Errorf("Stream %q has state %q.", name, state))
 		}
 	})
 }

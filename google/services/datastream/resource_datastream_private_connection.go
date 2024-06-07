@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -46,22 +46,22 @@ func extractError(d *schema.ResourceData) error {
 // waitForPrivateConnectionReady waits for a private connection state to become
 // CREATED, if the state is FAILED propegate the error to the user.
 func waitForPrivateConnectionReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceDatastreamPrivateConnectionRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
 		state := d.Get("state").(string)
 		if state == "CREATING" {
-			return resource.RetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
+			return retry.RetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
 		} else if state == "CREATED" {
 			log.Printf("[DEBUG] PrivateConnection %q has state %q.", name, state)
 			return nil
 		} else if state == "FAILED" {
-			return resource.NonRetryableError(extractError(d))
+			return retry.NonRetryableError(extractError(d))
 		} else {
-			return resource.NonRetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
+			return retry.NonRetryableError(fmt.Errorf("PrivateConnection %q has state %q.", name, state))
 		}
 	})
 }

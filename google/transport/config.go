@@ -176,7 +176,7 @@ type Config struct {
 	DefaultLabels                             map[string]string
 	AddTerraformAttributionLabel              bool
 	TerraformAttributionLabelAdditionStrategy string
-	// PollInterval is passed to resource.StateChangeConf in common_operation.go
+	// PollInterval is passed to retry.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 

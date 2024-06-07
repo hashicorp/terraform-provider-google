@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -3944,7 +3944,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	var op *container.Operation
 	var count = 0
-	err = resource.Retry(30*time.Second, func() *resource.RetryError {
+	err = retry.Retry(30*time.Second, func() *retry.RetryError {
 		count++
 
 		name := containerClusterFullName(project, location, clusterName)
@@ -3956,11 +3956,11 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 		if err != nil {
 			log.Printf("[WARNING] Cluster is still not ready to delete, retrying %s", clusterName)
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 
 		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
+			return retry.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
 		}
 		return nil
 	})
@@ -3990,7 +3990,7 @@ var containerClusterRestingStates = RestingStates{
 
 // returns a state with no error if the state is a resting state, and the last state with an error otherwise
 func containerClusterAwaitRestingState(config *transport_tpg.Config, project, location, clusterName, userAgent string, timeout time.Duration) (state string, err error) {
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = retry.Retry(timeout, func() *retry.RetryError {
 		name := containerClusterFullName(project, location, clusterName)
 		clusterGetCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Get(name)
 		if config.UserProjectOverride {
@@ -3998,7 +3998,7 @@ func containerClusterAwaitRestingState(config *transport_tpg.Config, project, lo
 		}
 		cluster, gErr := clusterGetCall.Do()
 		if gErr != nil {
-			return resource.NonRetryableError(gErr)
+			return retry.NonRetryableError(gErr)
 		}
 
 		state = cluster.Status
@@ -4011,7 +4011,7 @@ func containerClusterAwaitRestingState(config *transport_tpg.Config, project, lo
 			log.Printf("[DEBUG] Cluster %q has error state %q with message %q.", clusterName, state, cluster.StatusMessage)
 			return nil
 		default:
-			return resource.RetryableError(fmt.Errorf("Cluster %q has state %q with message %q", clusterName, state, cluster.StatusMessage))
+			return retry.RetryableError(fmt.Errorf("Cluster %q has state %q with message %q", clusterName, state, cluster.StatusMessage))
 		}
 	})
 

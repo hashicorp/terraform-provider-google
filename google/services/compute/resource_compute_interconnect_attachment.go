@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -37,15 +37,15 @@ import (
 // "UNPROVISIONED" state, to indicate that it's either ready or awaiting partner
 // activity.
 func waitForAttachmentToBeProvisioned(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceComputeInterconnectAttachmentRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
 		state := d.Get("state").(string)
 		if state == "UNPROVISIONED" {
-			return resource.RetryableError(fmt.Errorf("InterconnectAttachment %q has state %q.", name, state))
+			return retry.RetryableError(fmt.Errorf("InterconnectAttachment %q has state %q.", name, state))
 		}
 		log.Printf("InterconnectAttachment %q has state %q.", name, state)
 		return nil

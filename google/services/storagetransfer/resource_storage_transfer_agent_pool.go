@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -36,20 +36,20 @@ import (
 // waitForAgentPoolReady waits for an agent pool to leave the
 // "CREATING" state and become "CREATED", to indicate that it's ready.
 func waitForAgentPoolReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceStorageTransferAgentPoolRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
 		state := d.Get("state").(string)
 		if state == "CREATING" {
-			return resource.RetryableError(fmt.Errorf("AgentPool %q has state %q.", name, state))
+			return retry.RetryableError(fmt.Errorf("AgentPool %q has state %q.", name, state))
 		} else if state == "CREATED" {
 			log.Printf("[DEBUG] AgentPool %q has state %q.", name, state)
 			return nil
 		} else {
-			return resource.NonRetryableError(fmt.Errorf("AgentPool %q has state %q.", name, state))
+			return retry.NonRetryableError(fmt.Errorf("AgentPool %q has state %q.", name, state))
 		}
 	})
 }

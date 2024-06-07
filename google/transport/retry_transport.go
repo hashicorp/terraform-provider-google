@@ -6,7 +6,7 @@
 // Do not use for waiting on operations or polling of resource state,
 // especially if the expected state (operation done, resource ready, etc)
 // takes longer to reach than the default client Timeout.
-// In those cases, Retry(...)/resource.Retry with appropriate timeout
+// In those cases, Retry(...)/retry.Retry with appropriate timeout
 // and error predicates/handling should be used as a wrapper around the request
 // instead.
 //
@@ -42,7 +42,7 @@ import (
 	"net/http/httputil"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"google.golang.org/api/googleapi"
 )
 
@@ -181,7 +181,7 @@ func copyHttpRequest(req *http.Request) (*http.Request, error) {
 // checkForRetryableError uses the googleapi.CheckResponse util to check for
 // errors in the response, and determines whether there is a retryable error.
 // in response/response error.
-func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr error) *resource.RetryError {
+func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr error) *retry.RetryError {
 	var errToCheck error
 
 	if respErr != nil {
@@ -196,7 +196,7 @@ func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr err
 			// error code and messages in the response body.
 			dumpBytes, err := httputil.DumpResponse(resp, true)
 			if err != nil {
-				return resource.NonRetryableError(fmt.Errorf("unable to check response for error: %v", err))
+				return retry.NonRetryableError(fmt.Errorf("unable to check response for error: %v", err))
 			}
 			respToCheck.Body = ioutil.NopCloser(bytes.NewReader(dumpBytes))
 		}
@@ -207,7 +207,7 @@ func (t *retryTransport) checkForRetryableError(resp *http.Response, respErr err
 		return nil
 	}
 	if IsRetryableError(errToCheck, t.retryPredicates, nil) {
-		return resource.RetryableError(errToCheck)
+		return retry.RetryableError(errToCheck)
 	}
-	return resource.NonRetryableError(errToCheck)
+	return retry.NonRetryableError(errToCheck)
 }

@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -423,9 +423,9 @@ func expandComputeSslCertificateName(v interface{}, d tpgresource.TerraformResou
 	if v, ok := d.GetOk("name"); ok {
 		certName = v.(string)
 	} else if v, ok := d.GetOk("name_prefix"); ok {
-		certName = resource.PrefixedUniqueId(v.(string))
+		certName = id.PrefixedUniqueId(v.(string))
 	} else {
-		certName = resource.UniqueId()
+		certName = id.UniqueId()
 	}
 
 	// We need to get the {{name}} into schema to set the ID using tpgresource.ReplaceVars

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iam/v1"
 )
@@ -17,7 +17,7 @@ type ServiceAccountKeyWaiter struct {
 	KeyName       string
 }
 
-func (w *ServiceAccountKeyWaiter) RefreshFunc() resource.StateRefreshFunc {
+func (w *ServiceAccountKeyWaiter) RefreshFunc() retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var err error
 		var sak *iam.ServiceAccountKey
@@ -42,7 +42,7 @@ func ServiceAccountKeyWaitTime(client *iam.ProjectsServiceAccountsKeysService, k
 		KeyName:       keyName,
 	}
 
-	c := &resource.StateChangeConf{
+	c := &retry.StateChangeConf{
 		Pending:    []string{"PENDING"},
 		Target:     []string{"DONE"},
 		Refresh:    w.RefreshFunc(),
