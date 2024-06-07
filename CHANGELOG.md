@@ -7,7 +7,9 @@ NOTES:
 
 FEATURES:
 * **New Resource:** `google_dataplex_entry_type` ([#18229](https://github.com/hashicorp/terraform-provider-google/pull/18229))
+* **New Resource:** `google_logging_log_view_iam_binding` ([#18243](https://github.com/hashicorp/terraform-provider-google/pull/18243))
 * **New Resource:** `google_logging_log_view_iam_member` ([#18243](https://github.com/hashicorp/terraform-provider-google/pull/18243))
+* **New Resource:** `google_logging_log_view_iam_policy` ([#18243](https://github.com/hashicorp/terraform-provider-google/pull/18243))
 
 IMPROVEMENTS:
 * alloydb: added `psc_config` field to `google_alloydb_cluster` resource ([#18263](https://github.com/hashicorp/terraform-provider-google/pull/18263))
