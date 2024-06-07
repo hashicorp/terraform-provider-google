@@ -77,6 +77,9 @@ The following arguments are supported:
 * `include_children` - (Optional) Whether or not to include children folders in the sink export. If true, logs
     associated with child projects are also exported; otherwise only logs relating to the provided folder are included.
 
+* `intercept_children` - (Optional) Whether or not to intercept logs from child projects. If true, matching logs will not
+   match with sinks in child resources, except _Required sinks. This sink will be visible to child resources when listing sinks.
+
 * `bigquery_options` - (Optional) Options that affect sinks exporting data to BigQuery. Structure [documented below](#nested_bigquery_options).
 
 * `exclusions` - (Optional) Log entries that match any of the exclusion filters will not be exported. If a log entry is matched by both `filter` and one of `exclusions.filter`, it will not be exported.  Can be repeated multiple times for multiple exclusions. Structure is [documented below](#nested_exclusions).
