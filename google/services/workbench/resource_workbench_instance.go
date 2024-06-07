@@ -60,13 +60,11 @@ func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceD
 }
 
 var WorkbenchInstanceProvidedMetadata = []string{
-	"disable-swap-binaries",
-	"enable-guest-attributes",
-	"proxy-backend-id",
-	"proxy-registration-url",
 	"agent-health-check-interval-seconds",
 	"agent-health-check-path",
 	"container",
+	"custom-container-image",
+	"custom-container-payload",
 	"data-disk-uri",
 	"dataproc-allow-custom-clusters",
 	"dataproc-cluster-name",
@@ -87,16 +85,19 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
+	"last_updated_diagnostics",
 	"notebooks-api",
 	"notebooks-api-version",
 	"notebooks-examples-location",
 	"notebooks-location",
-	"nvidia-driver-gcs-path",
+	"proxy-backend-id",
+	"proxy-byoid-url",
 	"proxy-mode",
 	"proxy-status",
 	"proxy-url",
 	"proxy-user-mail",
 	"report-container-health",
+	"report-event-url",
 	"report-notebook-metrics",
 	"report-system-health",
 	"report-system-status",
@@ -105,8 +106,13 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"shutdown-script",
 	"title",
 	"use-collaborative",
+	"user-data",
 	"version",
+
+	"disable-swap-binaries",
+	"enable-guest-attributes",
 	"enable-oslogin",
+	"proxy-registration-url",
 }
 
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
