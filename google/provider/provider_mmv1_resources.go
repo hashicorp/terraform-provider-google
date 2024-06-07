@@ -413,9 +413,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 422
+// Generated resources: 423
 // Generated IAM resources: 249
-// Total generated resources: 671
+// Total generated resources: 672
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                  accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                            accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1003,6 +1003,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_source_iam_binding":                                           tpgiamresource.ResourceIamBinding(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_scc_source_iam_member":                                            tpgiamresource.ResourceIamMember(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
 	"google_scc_source_iam_policy":                                            tpgiamresource.ResourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer, securitycenter.SecurityCenterSourceIdParseFunc),
+	"google_scc_management_folder_security_health_analytics_custom_module":    securitycentermanagement.ResourceSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule(),
 	"google_scc_management_organization_event_threat_detection_custom_module": securitycentermanagement.ResourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModule(),
 	"google_securityposture_posture":                                          securityposture.ResourceSecurityposturePosture(),
 	"google_securityposture_posture_deployment":                               securityposture.ResourceSecurityposturePostureDeployment(),
