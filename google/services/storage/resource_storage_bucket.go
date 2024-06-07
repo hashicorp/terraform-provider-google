@@ -21,7 +21,7 @@ import (
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -1027,15 +1027,15 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// remove empty bucket
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
 		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
 		}
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
-			return resource.RetryableError(gerr)
+			return retry.RetryableError(gerr)
 		}
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	})
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)

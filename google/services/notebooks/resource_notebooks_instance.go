@@ -28,7 +28,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -88,9 +88,9 @@ func NotebooksInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData
 
 // waitForNotebooksInstanceActive waits for an Notebook instance to become "ACTIVE"
 func waitForNotebooksInstanceActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceNotebooksInstanceRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
@@ -99,7 +99,7 @@ func waitForNotebooksInstanceActive(d *schema.ResourceData, config *transport_tp
 			log.Printf("[DEBUG] Notebook Instance %q has state %q.", name, state)
 			return nil
 		} else {
-			return resource.RetryableError(fmt.Errorf("Notebook Instance %q has state %q. Waiting for ACTIVE state", name, state))
+			return retry.RetryableError(fmt.Errorf("Notebook Instance %q has state %q. Waiting for ACTIVE state", name, state))
 		}
 
 	})

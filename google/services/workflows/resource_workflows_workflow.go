@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -733,9 +733,9 @@ func resourceWorkflowsWorkflowEncoder(d *schema.ResourceData, meta interface{}, 
 	if v, ok := d.GetOk("name"); ok {
 		ResName = v.(string)
 	} else if v, ok := d.GetOk("name_prefix"); ok {
-		ResName = resource.PrefixedUniqueId(v.(string))
+		ResName = id.PrefixedUniqueId(v.(string))
 	} else {
-		ResName = resource.UniqueId()
+		ResName = id.UniqueId()
 	}
 
 	if err := d.Set("name", ResName); err != nil {

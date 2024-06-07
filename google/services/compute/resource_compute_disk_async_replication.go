@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/api/compute/v1"
 )
@@ -147,23 +147,23 @@ func resourceDiskAsyncReplicationCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 	}
-	err = resource.Retry(time.Minute*time.Duration(5), func() *resource.RetryError {
+	err = retry.Retry(time.Minute*time.Duration(5), func() *retry.RetryError {
 		diskStatus, err := asyncReplicationGetDiskStatus(clientCompute, zv, rv)
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		if diskStatus.ResourceStatus == nil {
-			return resource.NonRetryableError(fmt.Errorf("no resource status for disk: %s", resourceId))
+			return retry.NonRetryableError(fmt.Errorf("no resource status for disk: %s", resourceId))
 		}
 		if secondaryState, ok := diskStatus.ResourceStatus.AsyncSecondaryDisks[secondaryDisk]; ok {
 			if secondaryState.State != "ACTIVE" {
 				time.Sleep(5 * time.Second)
-				return resource.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not: ACTIVE", secondaryDisk, secondaryState))
+				return retry.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not: ACTIVE", secondaryDisk, secondaryState))
 			}
 			return nil
 		}
 		time.Sleep(5 * time.Second)
-		return resource.RetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
+		return retry.RetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
 	})
 	if err != nil {
 		return err
@@ -271,19 +271,19 @@ func resourceDiskAsyncReplicationDelete(d *schema.ResourceData, meta interface{}
 					return err
 				}
 			}
-			err = resource.Retry(time.Minute*time.Duration(5), func() *resource.RetryError {
+			err = retry.Retry(time.Minute*time.Duration(5), func() *retry.RetryError {
 				diskStatus, err := asyncReplicationGetDiskStatus(clientCompute, zv, rv)
 				if err != nil {
-					return resource.NonRetryableError(err)
+					return retry.NonRetryableError(err)
 				}
 				if secondaryState, ok := diskStatus.ResourceStatus.AsyncSecondaryDisks[resourceName]; ok {
 					if secondaryState.State != "STOPPED" {
 						time.Sleep(5 * time.Second)
-						return resource.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not STOPPED", secondaryDisk, secondaryState))
+						return retry.RetryableError(fmt.Errorf("secondary disk %s state (%s) is not STOPPED", secondaryDisk, secondaryState))
 					}
 					return nil
 				}
-				return resource.NonRetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
+				return retry.NonRetryableError(fmt.Errorf("secondary disk %s state not available", secondaryDisk))
 			})
 			if err != nil {
 				return err

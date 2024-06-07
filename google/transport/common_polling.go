@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 )
 
 type (
@@ -18,16 +18,16 @@ type (
 	// Function to check the response from polling once
 	PollCheckResponseFunc func(resp map[string]interface{}, respErr error) PollResult
 
-	PollResult *resource.RetryError
+	PollResult *retry.RetryError
 )
 
 // Helper functions to construct result of single pollRead as return result for a PollCheckResponseFunc
 func ErrorPollResult(err error) PollResult {
-	return resource.NonRetryableError(err)
+	return retry.NonRetryableError(err)
 }
 
 func PendingStatusPollResult(status string) PollResult {
-	return resource.RetryableError(fmt.Errorf("got pending status %q", status))
+	return retry.RetryableError(fmt.Errorf("got pending status %q", status))
 }
 
 func SuccessPollResult() PollResult {
@@ -39,12 +39,12 @@ func PollingWaitTime(pollF PollReadFunc, checkResponse PollCheckResponseFunc, ac
 	log.Printf("[DEBUG] %s: Polling until expected state is read", activity)
 	log.Printf("[DEBUG] Target occurrences: %d", targetOccurrences)
 	if targetOccurrences == 1 {
-		return resource.Retry(timeout, func() *resource.RetryError {
+		return retry.Retry(timeout, func() *retry.RetryError {
 			readResp, readErr := pollF()
 			return checkResponse(readResp, readErr)
 		})
 	}
-	return RetryWithTargetOccurrences(timeout, targetOccurrences, func() *resource.RetryError {
+	return RetryWithTargetOccurrences(timeout, targetOccurrences, func() *retry.RetryError {
 		readResp, readErr := pollF()
 		return checkResponse(readResp, readErr)
 	})
@@ -54,13 +54,13 @@ func PollingWaitTime(pollF PollReadFunc, checkResponse PollCheckResponseFunc, ac
 // a function until it returns the specified amount of target occurrences continuously.
 // Adapted from the Retry function in the go SDK.
 func RetryWithTargetOccurrences(timeout time.Duration, targetOccurrences int,
-	f resource.RetryFunc) error {
+	f retry.RetryFunc) error {
 	// These are used to pull the error out of the function; need a mutex to
 	// avoid a data race.
 	var resultErr error
 	var resultErrMu sync.Mutex
 
-	c := &resource.StateChangeConf{
+	c := &retry.StateChangeConf{
 		Pending:                   []string{"retryableerror"},
 		Target:                    []string{"success"},
 		Timeout:                   timeout,

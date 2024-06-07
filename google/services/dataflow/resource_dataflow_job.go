@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	dataflow "google.golang.org/api/dataflow/v1b3"
 	"google.golang.org/api/googleapi"
 )
@@ -499,7 +499,7 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Retry updating the state while the job is not ready to be canceled/drained.
-	err = resource.Retry(time.Minute*time.Duration(15), func() *resource.RetryError {
+	err = retry.Retry(time.Minute*time.Duration(15), func() *retry.RetryError {
 		// To terminate a dataflow job, we update the job with a requested
 		// terminal state.
 		job := &dataflow.Job{
@@ -511,14 +511,14 @@ func resourceDataflowJobDelete(d *schema.ResourceData, meta interface{}) error {
 			gerr, isGoogleErr := updateErr.(*googleapi.Error)
 			if !isGoogleErr {
 				// If we have an error and it's not a google-specific error, we should go ahead and return.
-				return resource.NonRetryableError(updateErr)
+				return retry.NonRetryableError(updateErr)
 			}
 
 			if strings.Contains(gerr.Message, "not yet ready for canceling") {
 				// Retry cancelling job if it's not ready.
 				// Sleep to avoid hitting update quota with repeated attempts.
 				time.Sleep(5 * time.Second)
-				return resource.RetryableError(updateErr)
+				return retry.RetryableError(updateErr)
 			}
 
 			if strings.Contains(gerr.Message, "Job has terminated") {
@@ -684,31 +684,31 @@ func jobHasUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Sche
 }
 
 func waitForDataflowJobToBeUpdated(d *schema.ResourceData, config *transport_tpg.Config, replacementJobID, userAgent string, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		region, err := tpgresource.GetRegion(d, config)
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		replacementJob, err := resourceDataflowJobGetJob(config, project, region, userAgent, replacementJobID)
 		if err != nil {
 			if transport_tpg.IsRetryableError(err, nil, nil) {
-				return resource.RetryableError(err)
+				return retry.RetryableError(err)
 			}
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		state := replacementJob.CurrentState
 		switch state {
 		case "", "JOB_STATE_PENDING":
-			return resource.RetryableError(fmt.Errorf("the replacement job with ID %q has pending state %q.", replacementJobID, state))
+			return retry.RetryableError(fmt.Errorf("the replacement job with ID %q has pending state %q.", replacementJobID, state))
 		case "JOB_STATE_FAILED":
-			return resource.NonRetryableError(fmt.Errorf("the replacement job with ID %q failed with state %q.", replacementJobID, state))
+			return retry.NonRetryableError(fmt.Errorf("the replacement job with ID %q failed with state %q.", replacementJobID, state))
 		default:
 			log.Printf("[DEBUG] the replacement job with ID %q has state %q.", replacementJobID, state)
 			return nil

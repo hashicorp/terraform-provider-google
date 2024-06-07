@@ -15,7 +15,7 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mitchellh/hashstructure"
@@ -1252,7 +1252,7 @@ func waitUntilInstanceHasDesiredStatus(config *transport_tpg.Config, d *schema.R
 			}
 			return instance.Id, instance.Status, nil
 		}
-		stateChangeConf := resource.StateChangeConf{
+		stateChangeConf := retry.StateChangeConf{
 			Delay:      5 * time.Second,
 			Pending:    getAllStatusBut(desiredStatus),
 			Refresh:    stateRefreshFunc,
