@@ -4,6 +4,7 @@ name: "TeamCity: Create empty branch off tip of main to aid nightly-testing"
 # To ensure nightly tests/builds run on the same commit, we checkout and create a new branch from main for TeamCity to run builds on
 
 on:
+    workflow_call:
     workflow_dispatch:
       inputs:
         dayThreshold:
