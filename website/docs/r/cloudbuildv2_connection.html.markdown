@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Cloud Build v2"
 description: |-
-  A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center or GitLab.
+  A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center/Cloud or GitLab.
 ---
 
 # google_cloudbuildv2_connection
 
-A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center or GitLab.
+A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center/Cloud or GitLab.
 
 
 To get more information about Connection, see:
@@ -192,6 +192,16 @@ The following arguments are supported:
   Configuration for connections to gitlab.com or an instance of GitLab Enterprise.
   Structure is [documented below](#nested_gitlab_config).
 
+* `bitbucket_data_center_config` -
+  (Optional)
+  Configuration for connections to Bitbucket Data Center.
+  Structure is [documented below](#nested_bitbucket_data_center_config).
+
+* `bitbucket_cloud_config` -
+  (Optional)
+  Configuration for connections to Bitbucket Cloud.
+  Structure is [documented below](#nested_bitbucket_cloud_config).
+
 * `disabled` -
   (Optional)
   If disabled is set to true, functionality is disabled for this connection. Repository based API methods and webhooks processing for repositories in this connection will be disabled.
@@ -329,6 +339,107 @@ The following arguments are supported:
 * `service` -
   (Required)
   Required. The Service Directory service name. Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+
+<a name="nested_bitbucket_data_center_config"></a>The `bitbucket_data_center_config` block supports:
+
+* `host_uri` -
+  (Required)
+  The URI of the Bitbucket Data Center host this connection is for.
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret used to verify webhook events, formatted as `projects/*/secrets/*/versions/*`.
+
+* `read_authorizer_credential` -
+  (Required)
+  Required. A http access token with the `REPO_READ` access.
+  Structure is [documented below](#nested_read_authorizer_credential).
+
+* `authorizer_credential` -
+  (Required)
+  Required. A http access token with the `REPO_ADMIN` scope access.
+  Structure is [documented below](#nested_authorizer_credential).
+
+* `service_directory_config` -
+  (Optional)
+  Configuration for using Service Directory to privately connect to a Bitbucket Data Center. This should only be set if the Bitbucket Data Center is hosted on-premises and not reachable by public internet. If this field is left empty, calls to the Bitbucket Data Center will be made over the public internet.
+  Structure is [documented below](#nested_service_directory_config).
+
+* `ssl_ca` -
+  (Optional)
+  SSL certificate to use for requests to the Bitbucket Data Center.
+
+* `server_version` -
+  (Output)
+  Output only. Version of the Bitbucket Data Center running on the `host_uri`.
+
+
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated to this token.
+
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated to this token.
+
+<a name="nested_service_directory_config"></a>The `service_directory_config` block supports:
+
+* `service` -
+  (Required)
+  Required. The Service Directory service name. Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.
+
+<a name="nested_bitbucket_cloud_config"></a>The `bitbucket_cloud_config` block supports:
+
+* `workspace` -
+  (Required)
+  The Bitbucket Cloud Workspace ID to be connected to Google Cloud Platform.
+
+* `webhook_secret_secret_version` -
+  (Required)
+  Required. Immutable. SecretManager resource containing the webhook secret used to verify webhook events, formatted as `projects/*/secrets/*/versions/*`.
+
+* `read_authorizer_credential` -
+  (Required)
+  Required. An access token with the `repository` access. It can be either a workspace, project or repository access token. It's recommended to use a system account to generate the credentials.
+  Structure is [documented below](#nested_read_authorizer_credential).
+
+* `authorizer_credential` -
+  (Required)
+  Required. An access token with the `webhook`, `repository`, `repository:admin` and `pullrequest` scope access. It can be either a workspace, project or repository access token. It's recommended to use a system account to generate these credentials.
+  Structure is [documented below](#nested_authorizer_credential).
+
+
+<a name="nested_read_authorizer_credential"></a>The `read_authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated to this token.
+
+<a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
+
+* `user_token_secret_version` -
+  (Required)
+  Required. A SecretManager resource containing the user token that authorizes the Cloud Build connection. Format: `projects/*/secrets/*/versions/*`.
+
+* `username` -
+  (Output)
+  Output only. The username associated to this token.
 
 ## Attributes Reference
 
