@@ -721,8 +721,8 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			Name: operation,
 			Zone: zone,
 		}
-		if err := d.Set("operation", op.Name); err != nil {
-			return fmt.Errorf("Error setting operation: %s", err)
+		if err := d.Set("operation", ""); err != nil {
+			return fmt.Errorf("Error unsetting operation: %s", err)
 		}
 		err = ComputeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
