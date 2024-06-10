@@ -30,6 +30,12 @@ To get more information about AccessLevels, see:
 * How-to Guides
     * [Access Policy Quickstart](https://cloud.google.com/access-context-manager/docs/quickstart)
 
+~> **Warning:** This resource is authoritative over the access levels under an access policy. Due to a limitation in Terraform,
+it will overwrite all preexisting access levels during a create opration without displaying the old values on
+the left side of plan. To prevent this, we recommend importing the resource before applying it if overwriting
+preexisting rules, as the plan will correctly display the complete changes to your access policy if the
+resource is present in state.
+
 ## Example Usage - Access Context Manager Access Levels Basic
 
 
