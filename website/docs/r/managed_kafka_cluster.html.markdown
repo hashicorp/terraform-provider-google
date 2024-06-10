@@ -19,7 +19,7 @@ description: |-
 
 # google_managed_kafka_cluster
 
-An Apache Kafka for BigQuery cluster.
+An Apache Kafka for BigQuery cluster. Apache Kafka is a trademark owned by the Apache Software Foundation.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
