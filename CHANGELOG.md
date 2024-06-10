@@ -1,4 +1,9 @@
-## 4.84.0 (Unreleased)
+## 4.84.1 (Unreleased)
+
+IMPROVEMENTS:
+* storage: added 'soft_delete_policy' to 'google_storage_bucket' resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
+
+## 4.84.0 (September 26, 2023)
 
 DEPRECATIONS:
 * alloydb: deprecated `network` field in favor of `network_config` on `google_alloydb_cluster`. ([#15881](https://github.com/hashicorp/terraform-provider-google/pull/15881))
