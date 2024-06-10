@@ -38,9 +38,6 @@ func testSweepTargetPool(region string) error {
 		return nil
 	}
 
-	// log.Printf("cam here")
-	// log.Printf("%+v", found)
-
 	// Keep count of items that aren't sweepable for logging.
 	nonPrefixCount := 0
 	for zone, itemList := range found.Items {
