@@ -1,4 +1,41 @@
-## 5.33.0 (Unreleased)
+## 5.34.0 (Unreleased)
+
+## 5.33.0 (June 10, 2024)
+
+DEPRECATIONS:
+* healthcare: deprecated `notification_config` in `google_healthcare_fhir_store` resource. Use `notification_configs` instead. ([#18306](https://github.com/hashicorp/terraform-provider-google/pull/18306))
+
+FEATURES:
+* **New Data Source:** `google_compute_security_policy` ([#18316](https://github.com/hashicorp/terraform-provider-google/pull/18316))
+* **New Resource:** `google_compute_project_cloud_armor_tier` ([#18319](https://github.com/hashicorp/terraform-provider-google/pull/18319))
+* **New Resource:** `google_network_services_service_lb_policies` ([#18326](https://github.com/hashicorp/terraform-provider-google/pull/18326))
+* **New Resource:** `google_scc_management_organization_event_threat_detection_custom_module` ([#18317](https://github.com/hashicorp/terraform-provider-google/pull/18317))
+* **New Resource:** `google_spanner_instance_config` ([#18322](https://github.com/hashicorp/terraform-provider-google/pull/18322))
+
+IMPROVEMENTS:
+* appengine: added `flexible_runtime_settings` field to `google_app_engine_flexible_app_version` resource ([#18325](https://github.com/hashicorp/terraform-provider-google/pull/18325))
+* bigtable: added `force_destroy` field to `google_bigtable_instance` resource. This will force delete any backups present in the instance and allow the instance to be deleted. ([#18291](https://github.com/hashicorp/terraform-provider-google/pull/18291))
+* clouddeploy: added `execution_configs.verbose` field to `google_clouddeploy_target` resource ([#18292](https://github.com/hashicorp/terraform-provider-google/pull/18292))
+* compute: added `storage_pool` field to `google_compute_disk` resource ([#18273](https://github.com/hashicorp/terraform-provider-google/pull/18273))
+* dlp: added `secrets_discovery_target`, `cloud_sql_target.filter.database_resource_reference`, and `big_query_target.filter.table_reference` fields to `google_data_loss_prevention_discovery_config` resource ([#18324](https://github.com/hashicorp/terraform-provider-google/pull/18324))
+* gkebackup: added `backup_schedule.backup_config.permissive_mode` field to `google_gke_backup_backup_plan` resource ([#18266](https://github.com/hashicorp/terraform-provider-google/pull/18266))
+* gkebackup: added `restore_config.restore_order` field to `google_gke_backup_restore_plan` resource ([#18266](https://github.com/hashicorp/terraform-provider-google/pull/18266))
+* gkebackup: added `restore_config.volume_data_restore_policy_bindings` field to `google_gke_backup_restore_plan` resource ([#18266](https://github.com/hashicorp/terraform-provider-google/pull/18266))
+* gkebackup: added new enum values `MERGE_SKIP_ON_CONFLICT`, `MERGE_REPLACE_VOLUME_ON_CONFLICT` and `MERGE_REPLACE_ON_CONFLICT` to field `restore_config.namespaced_resource_restore_mode` in `google_gke_backup_restore_plan` resource ([#18266](https://github.com/hashicorp/terraform-provider-google/pull/18266))
+* healthcare: added `notification_config.send_for_bulk_import` field to `google_healthcare_dicom_store` resource ([#18320](https://github.com/hashicorp/terraform-provider-google/pull/18320))
+* healthcare: added `notification_configs` field to `google_healthcare_fhir_store` resource ([#18306](https://github.com/hashicorp/terraform-provider-google/pull/18306))
+* integrationconnectors: added `endpoint_global_access` field to `google_integration_connectors_endpoint_attachment` resource ([#18293](https://github.com/hashicorp/terraform-provider-google/pull/18293))
+* netapp: added `backup_config` field to `google_netapp_volume` resource ([#18286](https://github.com/hashicorp/terraform-provider-google/pull/18286))
+* redis: added `zone_distribution_config` field to `google_redis_cluster` resource ([#18307](https://github.com/hashicorp/terraform-provider-google/pull/18307))
+* resourcemanager: added support for `range_type = "default-domains-netblocks"` in `google_netblock_ip_ranges` data source ([#18290](https://github.com/hashicorp/terraform-provider-google/pull/18290))
+* secretmanager: added support for IAM conditions in `google_secret_manager_secret_iam_*` resources ([#18294](https://github.com/hashicorp/terraform-provider-google/pull/18294))
+* workstations: added `boot_disk_size_gb`, `enable_nested_virtualization`, and `pool_size` to `host.gce_instance.boost_configs` in `google_workstations_workstation_config` resource ([#18310](https://github.com/hashicorp/terraform-provider-google/pull/18310))
+
+BUG FIXES:
+* container: fixed `google_container_node_pool` crash if `node_config.secondary_boot_disks.mode` is not set ([#18323](https://github.com/hashicorp/terraform-provider-google/pull/18323))
+* dlp: removed `required` on `inspect_config.limits.max_findings_per_info_type.info_type` field to allow the use of default limit by not setting this field in `google_data_loss_prevention_inspect_template` resource ([#18285](https://github.com/hashicorp/terraform-provider-google/pull/18285))
+* provider: fixed application default credential and access token authorization when `universe_domain` is set ([#18272](https://github.com/hashicorp/terraform-provider-google/pull/18272))
+
 
 ## 5.32.0 (June 3, 2024)
 
