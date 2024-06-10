@@ -223,70 +223,6 @@ resource "google_access_context_manager_access_policy" "access-policy" {
   title  = "my policy"
 }
 ```
-## Example Usage - Access Context Manager Service Perimeter Granular Controls
-
-
-```hcl
-resource "google_access_context_manager_access_policy" "access-policy" {
-  parent = "organizations/123456789"
-  title  = "Policy with Granular Controls Group Support"
-}
-
-resource "google_access_context_manager_service_perimeter" "test-access" {
-  parent         = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
-  name           = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}/servicePerimeters/%s"
-  title          = "%s"
-  perimeter_type = "PERIMETER_TYPE_REGULAR"
-  status {
-      restricted_services = ["bigquery.googleapis.com", "storage.googleapis.com"]
-
-      vpc_accessible_services {
-          enable_restriction = true
-          allowed_services   = ["bigquery.googleapis.com", "storage.googleapis.com"]
-      }
-
-      ingress_policies {
-          ingress_from {
-              sources {
-                  access_level = google_access_context_manager_access_level.test-access.name
-              }
-              identities = ["group:database-admins@google.com"]
-              identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
-              identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
-          }
-
-          ingress_to {
-              resources = [ "*" ]
-              operations {
-                  service_name = "storage.googleapis.com"
-
-                  method_selectors {
-                      method = "google.storage.objects.create"
-                  }
-              }
-          }
-      }
-
-      egress_policies {
-          egress_from {
-              identities = ["group:database-admins@google.com"]
-              identities = ["principal://iam.googleapis.com/locations/global/workforcePools/1234/subject/janedoe"]
-              identities = ["principalSet://iam.googleapis.com/locations/global/workforcePools/1234/*"]
-          }
-          egress_to {
-              resources = [ "*" ]
-              operations {
-                  service_name = "storage.googleapis.com"
-
-                  method_selectors {
-                      method = "google.storage.objects.create"
-                  }
-              }
-          }
-      }
-   }
-}
-```
 
 ## Argument Reference
 
@@ -453,10 +389,9 @@ The following arguments are supported:
 
 * `identities` -
   (Optional)
-  'A list of identities that are allowed access through this `IngressPolicy`.
-  To specify an identity or identity group, use the IAM v1
-  format specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-  The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'
+  A list of identities that are allowed access through this ingress policy.
+  Should be in the format of email address. The email address should represent
+  individual user or service account only.
 
 * `sources` -
   (Optional)
@@ -571,10 +506,9 @@ The following arguments are supported:
 
 * `identities` -
   (Optional)
-  'A list of identities that are allowed access through this `EgressPolicy`.
-  To specify an identity or identity group, use the IAM v1
-  format specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-  The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'
+  A list of identities that are allowed access through this `EgressPolicy`.
+  Should be in the format of email address. The email address should
+  represent individual user or service account only.
 
 
 <a name="nested_sources"></a>The `sources` block supports:
@@ -725,10 +659,9 @@ The following arguments are supported:
 
 * `identities` -
   (Optional)
-  'A list of identities that are allowed access through this `IngressPolicy`.
-  To specify an identity or identity group, use the IAM v1
-  format specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-  The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'
+  A list of identities that are allowed access through this ingress policy.
+  Should be in the format of email address. The email address should represent
+  individual user or service account only.
 
 * `sources` -
   (Optional)
@@ -843,10 +776,9 @@ The following arguments are supported:
 
 * `identities` -
   (Optional)
-  'A list of identities that are allowed access through this `EgressPolicy`.
-  To specify an identity or identity group, use the IAM v1
-  format specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-  The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'
+  A list of identities that are allowed access through this `EgressPolicy`.
+  Should be in the format of email address. The email address should
+  represent individual user or service account only.
 
 
 <a name="nested_sources"></a>The `sources` block supports:
