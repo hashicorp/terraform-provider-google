@@ -10,7 +10,7 @@ on:
         dayThreshold:
           default: '3'
     schedule:
-        - cron: '0 4 * * *'
+        - cron: '0 4 * * 1-5' # we only want to run nightly tests on weekdays
 
 jobs:
   nigthly-test-branch-creation:
