@@ -2044,16 +2044,7 @@ func expandWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d tpgresour
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil || v.(string) == "" {
-		return "", nil
-	} else if strings.HasPrefix(v.(string), "https://") {
-		return v, nil
-	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
-	if err != nil {
-		return "", err
-	}
-	return tpgresource.ConvertSelfLinkToV1(url), nil
+	return v, nil
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
