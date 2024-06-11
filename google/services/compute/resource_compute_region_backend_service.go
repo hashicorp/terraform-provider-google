@@ -391,7 +391,9 @@ Defaults to 3.`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `Time for which instance will be drained (not accept new
-connections, but still work to finish started).`,
+connections, but still work to finish started).
+
+From version 6.0.0 ConnectionDrainingTimeoutSec default value will be 300 to match default GCP value.`,
 				Default: 0,
 			},
 
@@ -698,7 +700,10 @@ This field can only be specified when the load balancing scheme is set to INTERN
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 This field is applicable only when the 'load_balancing_scheme' is set
-to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
+to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.
+
+From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+Default values are enforce by GCP without providing them.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -952,7 +957,9 @@ partial URL.`,
 				Description: `Specifies the balancing mode for this backend.
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+for an explanation of load balancing modes.
+
+From version 6.0.0 default value will be UTILIZATION to match default GCP value. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
 				Default: "CONNECTION",
 			},
 			"capacity_scaler": {
