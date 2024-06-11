@@ -861,7 +861,10 @@ The default value is 1.0.`,
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 Applicable backend service types can be a global backend service with the
-loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.`,
+loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
+
+From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+Default values are enforce by GCP without providing them.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1149,7 +1152,9 @@ UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
 and CONNECTION (for TCP/SSL).
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+for an explanation of load balancing modes.
+
+From version 6.0.0 default value will be UTILIZATION to match default GCP value. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
 				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {
