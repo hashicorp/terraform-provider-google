@@ -19,7 +19,9 @@ func init() {
 }
 
 // At the time of writing, the CI only passes us-central1 as the region
+// But all Firestore examples use nam5, so we will force that instead
 func testSweepFirestoreDatabase(region string) error {
+	actualRegion := "nam5"
 	resourceName := "FirestoreDatabase"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
@@ -38,12 +40,12 @@ func testSweepFirestoreDatabase(region string) error {
 	t := &testing.T{}
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 
-	// Setup variables to replace in list template
+	// Set up variables to replace in list template
 	d := &tpgresource.ResourceDataMock{
 		FieldsInSchema: map[string]interface{}{
 			"project":         config.Project,
-			"region":          region,
-			"location":        region,
+			"region":          actualRegion,
+			"location":        actualRegion,
 			"zone":            "-",
 			"billing_account": billingId,
 		},
@@ -88,7 +90,7 @@ func testSweepFirestoreDatabase(region string) error {
 
 		name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
 		// Skip resources that shouldn't be sweeped
-		if !sweeper.IsSweepableTestResource(name) {
+		if !sweeper.IsSweepableTestResource(name) && name != "(default)" {
 			nonPrefixCount++
 			continue
 		}
