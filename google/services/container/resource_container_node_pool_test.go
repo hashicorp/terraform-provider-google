@@ -1729,7 +1729,7 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-f"
   initial_node_count = 1
-  min_master_version = "1.25"
+  min_master_version = "1.28"
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
