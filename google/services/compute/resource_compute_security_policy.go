@@ -152,6 +152,45 @@ func ResourceComputeSecurityPolicy() *schema.Resource {
 										},
 										Description: `User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.`,
 									},
+
+									"expr_options": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										MaxItems:    1,
+										Description: `The configuration options available when specifying a user defined CEVAL expression (i.e., 'expr').`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"recaptcha_options": {
+													Type:        schema.TypeList,
+													Required:    true,
+													MaxItems:    1,
+													Description: `reCAPTCHA configuration options to be applied for the rule. If the rule does not evaluate reCAPTCHA tokens, this field has no effect.`,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"action_token_site_keys": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of site keys to be used during the validation of reCAPTCHA action-tokens. The provided site keys need to be created from reCAPTCHA API under the same project where the security policy is created`,
+																MinItems:    1,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+															"session_token_site_keys": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `A list of site keys to be used during the validation of reCAPTCHA session-tokens. The provided site keys need to be created from reCAPTCHA API under the same project where the security policy is created.`,
+																MinItems:    1,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 							Description: `A match condition that incoming traffic is evaluated against. If it evaluates to true, the corresponding action is enforced.`,
@@ -780,6 +819,7 @@ func expandSecurityPolicyMatch(configured []interface{}) *compute.SecurityPolicy
 		VersionedExpr: data["versioned_expr"].(string),
 		Config:        expandSecurityPolicyMatchConfig(data["config"].([]interface{})),
 		Expr:          expandSecurityPolicyMatchExpr(data["expr"].([]interface{})),
+		ExprOptions:   expandSecurityPolicyMatchExprOptions(data["expr_options"].([]interface{})),
 	}
 }
 
@@ -806,6 +846,42 @@ func expandSecurityPolicyMatchExpr(expr []interface{}) *compute.Expr {
 		// Title:       data["title"].(string),
 		// Description: data["description"].(string),
 		// Location:    data["location"].(string),
+	}
+}
+
+func expandSecurityPolicyMatchExprOptions(exprOptions []interface{}) *compute.SecurityPolicyRuleMatcherExprOptions {
+	if len(exprOptions) == 0 || exprOptions[0] == nil {
+		return nil
+	}
+
+	data := exprOptions[0].(map[string]interface{})
+	return &compute.SecurityPolicyRuleMatcherExprOptions{
+		RecaptchaOptions: expandSecurityPolicyMatchExprOptionsRecaptchaOptions(data["recaptcha_options"].([]interface{})),
+	}
+}
+
+func expandSecurityPolicyMatchExprOptionsRecaptchaOptions(recaptchaOptions []interface{}) *compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions {
+	if len(recaptchaOptions) == 0 || recaptchaOptions[0] == nil {
+		return nil
+	}
+
+	data := recaptchaOptions[0].(map[string]interface{})
+
+	actionTokenKeysInterface := data["action_token_site_keys"].([]interface{})
+	actionTokenKeys := make([]string, len(actionTokenKeysInterface))
+	for i, v := range actionTokenKeysInterface {
+		actionTokenKeys[i] = v.(string)
+	}
+
+	sessionTokenKeysInterface := data["session_token_site_keys"].([]interface{})
+	sessionTokenKeys := make([]string, len(sessionTokenKeysInterface))
+	for i, v := range sessionTokenKeysInterface {
+		sessionTokenKeys[i] = v.(string)
+	}
+
+	return &compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions{
+		ActionTokenSiteKeys:  actionTokenKeys,
+		SessionTokenSiteKeys: sessionTokenKeys,
 	}
 }
 
@@ -836,6 +912,7 @@ func flattenMatch(match *compute.SecurityPolicyRuleMatcher) []map[string]interfa
 		"versioned_expr": match.VersionedExpr,
 		"config":         flattenMatchConfig(match.Config),
 		"expr":           flattenMatchExpr(match),
+		"expr_options":   flattenMatchExprOptions(match.ExprOptions),
 	}
 
 	return []map[string]interface{}{data}
@@ -848,6 +925,31 @@ func flattenMatchConfig(conf *compute.SecurityPolicyRuleMatcherConfig) []map[str
 
 	data := map[string]interface{}{
 		"src_ip_ranges": schema.NewSet(schema.HashString, tpgresource.ConvertStringArrToInterface(conf.SrcIpRanges)),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMatchExprOptions(exprOptions *compute.SecurityPolicyRuleMatcherExprOptions) []map[string]interface{} {
+	if exprOptions == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"recaptcha_options": flattenMatchExprOptionsRecaptchaOptions(exprOptions.RecaptchaOptions),
+	}
+
+	return []map[string]interface{}{data}
+}
+
+func flattenMatchExprOptionsRecaptchaOptions(recaptchaOptions *compute.SecurityPolicyRuleMatcherExprOptionsRecaptchaOptions) []map[string]interface{} {
+	if recaptchaOptions == nil {
+		return nil
+	}
+
+	data := map[string]interface{}{
+		"action_token_site_keys":  recaptchaOptions.ActionTokenSiteKeys,
+		"session_token_site_keys": recaptchaOptions.SessionTokenSiteKeys,
 	}
 
 	return []map[string]interface{}{data}
