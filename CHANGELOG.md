@@ -4,7 +4,7 @@ NOTES:
 * The `4.85.0` release backports configuration for the retention period for Cloud Storage soft delete (https://cloud.google.com/resources/storage/soft-delete-announce) so that customers who have not yet upgraded to `5.22.0`+ are able to configure the retention period of objects in their buckets. By upgrading to this version and configuring or otherwise interacting with the `google_storage_bucket.soft_delete_policy` values, you will need to upgrade directly to `5.22.0`+ from `4.85.0` when upgrading to `5.X` in the future.
 
 IMPROVEMENTS:
-* storage: added 'soft_delete_policy' to 'google_storage_bucket' resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
+* storage: added `soft_delete_policy` to `google_storage_bucket` resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
 
 ## 4.84.0 (September 26, 2023)
 
