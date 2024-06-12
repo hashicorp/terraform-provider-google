@@ -265,6 +265,16 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 			New:                "ubuntu-minimal-2210-amd64",
 			ExpectDiffSuppress: true,
 		},
+		"matching image ubuntu amd64 canonical lts self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-amd64-v20240423",
+			New:                "ubuntu-2404-lts-amd64",
+			ExpectDiffSuppress: true,
+		},
+		"matching image ubuntu minimal amd64 canonical lts self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2404-noble-amd64-v20240423",
+			New:                "ubuntu-minimal-2404-lts-amd64",
+			ExpectDiffSuppress: true,
+		},
 		"different architecture image ubuntu amd64 self_link": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2210-kinetic-amd64-v20221022",
 			New:                "ubuntu-2210",
@@ -283,6 +293,26 @@ func TestDiskImageDiffSuppress(t *testing.T) {
 		"different architecture image ubuntu-minimal amd64 family": {
 			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2210-kinetic-v20221022",
 			New:                "ubuntu-minimal-2210-amd64",
+			ExpectDiffSuppress: false,
+		},
+		"different image ubuntu amd64 canonical lts self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-amd64-v20240423",
+			New:                "ubuntu-2404-lts",
+			ExpectDiffSuppress: false,
+		},
+		"different image ubuntu minimal amd64 canonical lts self_link": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2404-noble-amd64-v20240423",
+			New:                "ubuntu-minimal-2404-lts",
+			ExpectDiffSuppress: false,
+		},
+		"different image ubuntu amd64 canonical lts family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-v20240423",
+			New:                "ubuntu-2404-lts-amd64",
+			ExpectDiffSuppress: false,
+		},
+		"different image ubuntu minimal amd64 canonical lts family": {
+			Old:                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2404-noble-v20240423",
+			New:                "ubuntu-minimal-2404-lts-amd64",
 			ExpectDiffSuppress: false,
 		},
 	}
