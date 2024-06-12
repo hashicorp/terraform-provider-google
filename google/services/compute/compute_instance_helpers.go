@@ -557,10 +557,6 @@ func schedulingHasChangeWithoutReboot(d *schema.ResourceData) bool {
 		return true
 	}
 
-	if oScheduling["min_node_cpus"] != newScheduling["min_node_cpus"] {
-		return true
-	}
-
 	if oScheduling["provisioning_model"] != newScheduling["provisioning_model"] {
 		return true
 	}
