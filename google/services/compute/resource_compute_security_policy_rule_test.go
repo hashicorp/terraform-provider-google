@@ -297,6 +297,70 @@ func TestAccComputeSecurityPolicyRule_EnforceOnKeyUpdates(t *testing.T) {
 	})
 }
 
+func TestAccComputeSecurityPolicyRule_withExprOptions(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_withExprOptions(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicyRule_modifyExprOptions(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyRuleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicyRule_withRuleExpr(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_withExprOptions(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicyRule_modifyExprOptions(context),
+			},
+			{
+				ResourceName:      "google_compute_security_policy_rule.policy_rule",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeSecurityPolicyRule_preBasicUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_security_policy" "default" {
@@ -918,4 +982,72 @@ resource "google_compute_security_policy_rule" "policy_rule" {
   }
 }
 `, spName)
+}
+
+func testAccComputeSecurityPolicyRule_withExprOptions(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+	name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "reCAPTCHA rule"
+  action          = "deny(403)"
+  priority        = "2000"
+  preview         = true
+  match {
+    expr {
+      expression = "request.path.endsWith('RegisterWithEmail') && token.recaptcha_action.score >= 0.8 && (token.recaptcha_action.valid)"
+    }
+    expr_options {
+      recaptcha_options {
+        action_token_site_keys = [
+          "placeholder-recaptcha-action-site-key-01",
+          "placeholder-recaptcha-action-site-key-02"
+        ]
+        session_token_site_keys = [
+          "placeholder-recaptcha-session-site-key-1",
+          "placeholder-recaptcha-session-site-key-2"
+        ]
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeSecurityPolicyRule_modifyExprOptions(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_security_policy" "default" {
+  name        = "tf-test%{random_suffix}"
+  description = "basic global security policy"
+}
+
+resource "google_compute_security_policy_rule" "policy_rule" {
+  security_policy = google_compute_security_policy.default.name
+  description     = "modified reCAPTCHA rule"
+  action          = "deny(403)"
+  priority        = "2000"
+  preview         = true
+  match {
+    expr {
+      expression = "request.path.endsWith('RegisterWithEmail') && token.recaptcha_action.score >= 0.8 && (token.recaptcha_action.valid)"
+    }
+    expr_options {
+      recaptcha_options {
+        action_token_site_keys = [
+          "placeholder-recaptcha-action-site-key-09",
+          "placeholder-recaptcha-action-site-key-08",
+          "placeholder-recaptcha-action-site-key-07"
+        ]
+        session_token_site_keys = [
+          "placeholder-recaptcha-session-site-key-1"
+        ]
+      }
+    }
+  }
+}
+`, context)
 }
