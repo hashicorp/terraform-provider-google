@@ -249,6 +249,128 @@ resource "google_storage_bucket" "bucket" {
   location = "us-central1"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataproc_metastore_service_autoscaling_max_scaling_factor&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Autoscaling Max Scaling Factor
+
+
+```hcl
+resource "google_dataproc_metastore_service" "test_resource" {
+  service_id = "test-service"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    autoscaling_config {
+      autoscaling_enabled = true
+      limit_config {
+        max_scaling_factor = 1.0
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataproc_metastore_service_autoscaling_min_and_max_scaling_factor&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Autoscaling Min And Max Scaling Factor
+
+
+```hcl
+resource "google_dataproc_metastore_service" "test_resource" {
+  service_id = "test-service"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    autoscaling_config {
+      autoscaling_enabled = true
+      limit_config {
+        min_scaling_factor = 0.1
+        max_scaling_factor = 1.0
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataproc_metastore_service_autoscaling_min_scaling_factor&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Autoscaling Min Scaling Factor
+
+
+```hcl
+resource "google_dataproc_metastore_service" "test_resource" {
+  service_id = "test-service"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    autoscaling_config {
+      autoscaling_enabled = true
+      limit_config {
+        min_scaling_factor = 0.1
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataproc_metastore_service_autoscaling_no_limit_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Autoscaling No Limit Config
+
+
+```hcl
+resource "google_dataproc_metastore_service" "test_resource" {
+  service_id = "test-service"
+  location   = "us-central1"
+
+  # DPMS 2 requires SPANNER database type, and does not require
+  # a maintenance window.
+  database_type = "SPANNER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+  }
+
+  scaling_config {
+    autoscaling_config {
+      autoscaling_enabled = true
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -359,6 +481,34 @@ The following arguments are supported:
 * `scaling_factor` -
   (Optional)
   Scaling factor, in increments of 0.1 for values less than 1.0, and increments of 1.0 for values greater than 1.0.
+
+* `autoscaling_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Represents the autoscaling configuration of a metastore service.
+  Structure is [documented below](#nested_autoscaling_config).
+
+
+<a name="nested_autoscaling_config"></a>The `autoscaling_config` block supports:
+
+* `autoscaling_enabled` -
+  (Optional)
+  Defines whether autoscaling is enabled. The default value is false.
+
+* `limit_config` -
+  (Optional)
+  Represents the limit configuration of a metastore service.
+  Structure is [documented below](#nested_limit_config).
+
+
+<a name="nested_limit_config"></a>The `limit_config` block supports:
+
+* `min_scaling_factor` -
+  (Optional)
+  The minimum scaling factor that the service will autoscale to. The default value is 0.1.
+
+* `max_scaling_factor` -
+  (Optional)
+  The maximum scaling factor that the service will autoscale to. The default value is 6.0.
 
 <a name="nested_scheduled_backup"></a>The `scheduled_backup` block supports:
 
