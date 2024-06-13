@@ -177,6 +177,38 @@ resource "google_monitoring_notification_channel" "notification_channel" {
   }
 }
 ```
+## Example Usage - Billing Budget Notify Project Recipient
+
+
+```hcl
+data "google_billing_account" "account" {
+  billing_account = "000000-0000000-0000000-000000"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name    = "Example Billing Budget"
+
+  budget_filter {
+    projects = ["projects/${data.google_project.project.number}"]
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units         = "100000"
+    }
+  }
+
+  all_updates_rule {
+    monitoring_notification_channels = []
+    enable_project_level_recipients  = true
+  }
+}
+```
 ## Example Usage - Billing Budget Customperiod
 
 
@@ -469,6 +501,13 @@ The following arguments are supported:
   when a threshold is exceeded. Default recipients are
   those with Billing Account Administrators and Billing
   Account Users IAM roles for the target account.
+
+* `enable_project_level_recipients` -
+  (Optional)
+  When set to true, and when the budget has a single project configured,
+  notifications will be sent to project level recipients of that project.
+  This field will be ignored if the budget has multiple or no project configured.
+  Currently, project level recipients are the users with Owner role on a cloud project.
 
 ## Attributes Reference
 
