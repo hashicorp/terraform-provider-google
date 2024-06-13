@@ -152,6 +152,16 @@ those with Billing Account Administrators and Billing
 Account Users IAM roles for the target account.`,
 							Default: false,
 						},
+						"enable_project_level_recipients": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `When set to true, and when the budget has a single project configured,
+notifications will be sent to project level recipients of that project.
+This field will be ignored if the budget has multiple or no project configured.
+
+Currently, project level recipients are the users with Owner role on a cloud project.`,
+							Default: false,
+						},
 						"monitoring_notification_channels": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -651,7 +661,8 @@ func resourceBillingBudgetUpdate(d *schema.ResourceData, meta interface{}) error
 		updateMask = append(updateMask, "notificationsRule.pubsubTopic",
 			"notificationsRule.schemaVersion",
 			"notificationsRule.monitoringNotificationChannels",
-			"notificationsRule.disableDefaultIamRecipients")
+			"notificationsRule.disableDefaultIamRecipients",
+			"notificationsRule.enableProjectLevelRecipients")
 	}
 
 	if d.HasChange("ownership_scope") {
@@ -1110,6 +1121,8 @@ func flattenBillingBudgetAllUpdatesRule(v interface{}, d *schema.ResourceData, c
 		flattenBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(original["monitoringNotificationChannels"], d, config)
 	transformed["disable_default_iam_recipients"] =
 		flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(original["disableDefaultIamRecipients"], d, config)
+	transformed["enable_project_level_recipients"] =
+		flattenBillingBudgetAllUpdatesRuleEnableProjectLevelRecipients(original["enableProjectLevelRecipients"], d, config)
 	return []interface{}{transformed}
 }
 func flattenBillingBudgetAllUpdatesRulePubsubTopic(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1129,6 +1142,10 @@ func flattenBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interfac
 }
 
 func flattenBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBillingBudgetAllUpdatesRuleEnableProjectLevelRecipients(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1525,6 +1542,13 @@ func expandBillingBudgetAllUpdatesRule(v interface{}, d tpgresource.TerraformRes
 		transformed["disableDefaultIamRecipients"] = transformedDisableDefaultIamRecipients
 	}
 
+	transformedEnableProjectLevelRecipients, err := expandBillingBudgetAllUpdatesRuleEnableProjectLevelRecipients(original["enable_project_level_recipients"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnableProjectLevelRecipients); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enableProjectLevelRecipients"] = transformedEnableProjectLevelRecipients
+	}
+
 	return transformed, nil
 }
 
@@ -1541,6 +1565,10 @@ func expandBillingBudgetAllUpdatesRuleMonitoringNotificationChannels(v interface
 }
 
 func expandBillingBudgetAllUpdatesRuleDisableDefaultIamRecipients(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBillingBudgetAllUpdatesRuleEnableProjectLevelRecipients(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
