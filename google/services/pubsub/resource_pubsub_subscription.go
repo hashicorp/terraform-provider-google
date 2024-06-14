@@ -127,6 +127,13 @@ If all three are empty, then the subscriber will pull and ack messages using API
 are not part of the BigQuery table schema are dropped when writing to BigQuery. Otherwise, the schemas must be kept in sync
 and any messages with extra fields are not written and remain in the subscription's backlog.`,
 						},
+						"service_account_email": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The service account to use to write to BigQuery. If not specified, the Pub/Sub
+[service agent](https://cloud.google.com/iam/docs/service-agents),
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
+						},
 						"use_table_schema": {
 							Type:     schema.TypeBool,
 							Optional: true,
@@ -208,6 +215,13 @@ The maxBytes limit may be exceeded in cases where messages are larger than the l
 May not exceed the subscription's acknowledgement deadline.
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
 							Default: "300s",
+						},
+						"service_account_email": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `The service account to use to write to Cloud Storage. If not specified, the Pub/Sub
+[service agent](https://cloud.google.com/iam/docs/service-agents),
+service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com, is used.`,
 						},
 						"state": {
 							Type:        schema.TypeString,
@@ -1090,6 +1104,8 @@ func flattenPubsubSubscriptionBigqueryConfig(v interface{}, d *schema.ResourceDa
 		flattenPubsubSubscriptionBigqueryConfigWriteMetadata(original["writeMetadata"], d, config)
 	transformed["drop_unknown_fields"] =
 		flattenPubsubSubscriptionBigqueryConfigDropUnknownFields(original["dropUnknownFields"], d, config)
+	transformed["service_account_email"] =
+		flattenPubsubSubscriptionBigqueryConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubSubscriptionBigqueryConfigTable(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1109,6 +1125,10 @@ func flattenPubsubSubscriptionBigqueryConfigWriteMetadata(v interface{}, d *sche
 }
 
 func flattenPubsubSubscriptionBigqueryConfigDropUnknownFields(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionBigqueryConfigServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1137,6 +1157,8 @@ func flattenPubsubSubscriptionCloudStorageConfig(v interface{}, d *schema.Resour
 		flattenPubsubSubscriptionCloudStorageConfigState(original["state"], d, config)
 	transformed["avro_config"] =
 		flattenPubsubSubscriptionCloudStorageConfigAvroConfig(original["avroConfig"], d, config)
+	transformed["service_account_email"] =
+		flattenPubsubSubscriptionCloudStorageConfigServiceAccountEmail(original["serviceAccountEmail"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubSubscriptionCloudStorageConfigBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1194,6 +1216,10 @@ func flattenPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d *sch
 	return []interface{}{transformed}
 }
 func flattenPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionCloudStorageConfigServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1463,6 +1489,13 @@ func expandPubsubSubscriptionBigqueryConfig(v interface{}, d tpgresource.Terrafo
 		transformed["dropUnknownFields"] = transformedDropUnknownFields
 	}
 
+	transformedServiceAccountEmail, err := expandPubsubSubscriptionBigqueryConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
 	return transformed, nil
 }
 
@@ -1483,6 +1516,10 @@ func expandPubsubSubscriptionBigqueryConfigWriteMetadata(v interface{}, d tpgres
 }
 
 func expandPubsubSubscriptionBigqueryConfigDropUnknownFields(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionBigqueryConfigServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1551,6 +1588,13 @@ func expandPubsubSubscriptionCloudStorageConfig(v interface{}, d tpgresource.Ter
 		transformed["avroConfig"] = transformedAvroConfig
 	}
 
+	transformedServiceAccountEmail, err := expandPubsubSubscriptionCloudStorageConfigServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
 	return transformed, nil
 }
 
@@ -1602,6 +1646,10 @@ func expandPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d tpgre
 }
 
 func expandPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionCloudStorageConfigServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
