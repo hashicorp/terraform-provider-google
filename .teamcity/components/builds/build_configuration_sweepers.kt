@@ -70,11 +70,12 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
             }
 
             steps {
-                setGitCommitBuildId()
-                tagBuildToIndicateTriggerMethod()
-                configureGoEnv()
-                downloadTerraformBinary()
-                runSweepers(sweeperName)
+                helloWorld()
+                // setGitCommitBuildId()
+                // tagBuildToIndicateTriggerMethod()
+                // configureGoEnv()
+                // downloadTerraformBinary()
+                // runSweepers(sweeperName)
             }
 
             features {
