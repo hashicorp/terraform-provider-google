@@ -110,6 +110,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycentermanagement"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sourcerepo"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/spanner"

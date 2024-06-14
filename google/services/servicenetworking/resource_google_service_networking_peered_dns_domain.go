@@ -137,7 +137,7 @@ func resourceGoogleServiceNetworkingPeeredDNSDomainCreate(d *schema.ResourceData
 		return err
 	}
 
-	if err := ServiceNetworkingOperationWaitTime(config, op, "Create Service Networking Peered DNS Domain", userAgent, project, d.Timeout(schema.TimeoutCreate)); err != nil {
+	if err := ServiceNetworkingOperationWaitTimeHW(config, op, "Create Service Networking Peered DNS Domain", userAgent, project, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return err
 	}
 

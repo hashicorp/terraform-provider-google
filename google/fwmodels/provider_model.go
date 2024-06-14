@@ -131,6 +131,7 @@ type ProviderModel struct {
 	SecurityCenterManagementCustomEndpoint types.String `tfsdk:"security_center_management_custom_endpoint"`
 	SecuritypostureCustomEndpoint          types.String `tfsdk:"securityposture_custom_endpoint"`
 	ServiceManagementCustomEndpoint        types.String `tfsdk:"service_management_custom_endpoint"`
+	ServiceNetworkingCustomEndpoint        types.String `tfsdk:"service_networking_custom_endpoint"`
 	ServiceUsageCustomEndpoint             types.String `tfsdk:"service_usage_custom_endpoint"`
 	SourceRepoCustomEndpoint               types.String `tfsdk:"source_repo_custom_endpoint"`
 	SpannerCustomEndpoint                  types.String `tfsdk:"spanner_custom_endpoint"`
@@ -153,7 +154,6 @@ type ProviderModel struct {
 	IamCredentialsCustomEndpoint    types.String `tfsdk:"iam_credentials_custom_endpoint"`
 	ResourceManagerV3CustomEndpoint types.String `tfsdk:"resource_manager_v3_custom_endpoint"`
 	IAMCustomEndpoint               types.String `tfsdk:"iam_custom_endpoint"`
-	ServiceNetworkingCustomEndpoint types.String `tfsdk:"service_networking_custom_endpoint"`
 	TagsLocationCustomEndpoint      types.String `tfsdk:"tags_location_custom_endpoint"`
 
 	// dcl
