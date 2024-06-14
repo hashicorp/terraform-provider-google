@@ -27,7 +27,7 @@ fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
 
     schedule{
         enabled = config.nightlyTestsEnabled
-        branchFilter = "+:UTC-*\n-:UTC-nightly-*"
+        branchFilter = "+:refs/heads/UTC-*\n-:refs/heads/UTC-nightly-*"
         triggerBuild = always() // Run build even if no new commits/pending changes
         withPendingChangesOnly = false
         enforceCleanCheckout = true
