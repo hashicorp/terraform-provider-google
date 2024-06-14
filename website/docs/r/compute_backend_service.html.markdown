@@ -522,6 +522,8 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   Applicable backend service types can be a global backend service with the
   loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
+  From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+  Default values are enforce by GCP without providing them.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -563,8 +565,10 @@ The following arguments are supported:
 
 * `timeout_sec` -
   (Optional)
-  How many seconds to wait for the backend before considering it a
-  failed request. Default is 30 seconds. Valid range is [1, 86400].
+  The backend service timeout has a different meaning depending on the type of load balancer.
+  For more information see, [Backend service settings](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices).
+  The default is 30 seconds.
+  The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.
 
 * `log_config` -
   (Optional)
@@ -591,6 +595,7 @@ The following arguments are supported:
   and CONNECTION (for TCP/SSL).
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
+  From version 6.0.0 default value will be UTILIZATION to match default GCP value.
   Default value is `UTILIZATION`.
   Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 

@@ -54,7 +54,7 @@ func testAccDataLossPreventionDiscoveryConfig_BasicUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigUpdate(context),
@@ -63,7 +63,7 @@ func testAccDataLossPreventionDiscoveryConfig_BasicUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -90,7 +90,7 @@ func testAccDataLossPreventionDiscoveryConfig_OrgUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPaused(context),
@@ -99,7 +99,7 @@ func testAccDataLossPreventionDiscoveryConfig_OrgUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -125,7 +125,7 @@ func testAccDataLossPreventionDiscoveryConfig_ActionsUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigActions(context),
@@ -134,7 +134,7 @@ func testAccDataLossPreventionDiscoveryConfig_ActionsUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigActionsSensitivity(context),
@@ -143,7 +143,7 @@ func testAccDataLossPreventionDiscoveryConfig_ActionsUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -169,7 +169,7 @@ func testAccDataLossPreventionDiscoveryConfig_ConditionsCadenceUpdate(t *testing
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigConditionsCadence(context),
@@ -178,7 +178,7 @@ func testAccDataLossPreventionDiscoveryConfig_ConditionsCadenceUpdate(t *testing
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -204,7 +204,7 @@ func testAccDataLossPreventionDiscoveryConfig_FilterUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigFilterRegexesAndConditions(context),
@@ -213,7 +213,7 @@ func testAccDataLossPreventionDiscoveryConfig_FilterUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -239,7 +239,7 @@ func testAccDataLossPreventionDiscoveryConfig_CloudSqlUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigUpdateCloudSql(context),
@@ -248,7 +248,7 @@ func testAccDataLossPreventionDiscoveryConfig_CloudSqlUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -274,7 +274,7 @@ func testAccDataLossPreventionDiscoveryConfig_BqSingleTable(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigBqSingleUpdate(context),
@@ -283,7 +283,7 @@ func testAccDataLossPreventionDiscoveryConfig_BqSingleTable(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -309,7 +309,7 @@ func testAccDataLossPreventionDiscoveryConfig_SqlSingleTable(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigCloudSqlSingleUpdate(context),
@@ -318,7 +318,7 @@ func testAccDataLossPreventionDiscoveryConfig_SqlSingleTable(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})
@@ -344,7 +344,7 @@ func testAccDataLossPreventionDiscoveryConfig_SecretsUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 			{
 				Config: testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigSecretsUpdate(context),
@@ -353,7 +353,7 @@ func testAccDataLossPreventionDiscoveryConfig_SecretsUpdate(t *testing.T) {
 				ResourceName:            "google_data_loss_prevention_discovery_config.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time"},
+				ImportStateVerifyIgnore: []string{"location", "parent", "last_run_time", "update_time", "errors"},
 			},
 		},
 	})

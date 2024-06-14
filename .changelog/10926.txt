@@ -1,0 +1,3 @@
+```release-note:enhancement
+billingbudget: added `enable_project_level_recipients` field to `google_billing_budget` resource
+```

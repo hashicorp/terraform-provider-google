@@ -988,6 +988,14 @@ BUG FIXES:
 * tags: fixed import failure on `google_tags_tag_binding` ([#16005](https://github.com/hashicorp/terraform-provider-google/pull/16005))
 * vertexai: made `contents_delta_uri` a required field in `google_vertex_ai_index` as omitting it would result in an error ([#15992](https://github.com/hashicorp/terraform-provider-google/pull/15992))
 
+## 4.85.0 (June 12, 2024)
+
+NOTES:
+* The `4.85.0` release backports configuration for the retention period for Cloud Storage soft delete (https://cloud.google.com/resources/storage/soft-delete-announce) so that customers who have not yet upgraded to `5.22.0`+ are able to configure the retention period of objects in their buckets. By upgrading to this version and configuring or otherwise interacting with the `google_storage_bucket.soft_delete_policy` values, you will need to upgrade directly to `5.22.0`+ from `4.85.0` when upgrading to `5.X` in the future.
+
+IMPROVEMENTS:
+* storage: added `soft_delete_policy` to `google_storage_bucket` resource ([#17624](https://github.com/hashicorp/terraform-provider-google/pull/17624))
+
 ## 4.84.0 (September 26, 2023)
 
 DEPRECATIONS:

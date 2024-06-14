@@ -104,8 +104,8 @@ platform policies have the following format:
 									"mode": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "BASIC", ""}),
-										Description:  `Sets which mode to use for Security Posture features. Possible values: ["DISABLED", "BASIC"]`,
+										ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "BASIC", "ENTERPRISE", ""}),
+										Description:  `Sets which mode to use for Security Posture features. Possible values: ["DISABLED", "BASIC", "ENTERPRISE"]`,
 									},
 									"vulnerability_mode": {
 										Type:         schema.TypeString,

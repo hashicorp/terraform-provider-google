@@ -372,7 +372,7 @@ otherwise the request will fail with error 412 conditionNotMet.`,
 			"operational_status": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The current status of this Interconnect's functionality, which can take one of the following values:
+				Description: `The current status of this Interconnect's functionality, which can take one of the following:
   - OS_ACTIVE: A valid Interconnect, which is turned up and is ready to use. Attachments may
   be provisioned on this Interconnect.
   - OS_UNPROVISIONED: An Interconnect that has not completed turnup. No attachments may be

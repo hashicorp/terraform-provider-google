@@ -44,7 +44,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
     }
   }
@@ -66,7 +66,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         resources {
           limits = {
             cpu    = "2"
@@ -107,7 +107,7 @@ resource "google_cloud_run_v2_job" "default" {
       }
 
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
 
         env {
           name = "FOO"
@@ -180,7 +180,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template{
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
       vpc_access{
         connector = google_vpc_access_connector.connector.id
@@ -268,7 +268,7 @@ resource "google_cloud_run_v2_job" "default" {
         }
       }
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         volume_mounts {
           name = "a-volume"
           mount_path = "/secrets"
@@ -322,7 +322,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
 	volume_mounts {
 	  name = "empty-dir-volume"
 	  mount_path = "/mnt"
@@ -334,6 +334,28 @@ resource "google_cloud_run_v2_job" "default" {
 	  medium = "MEMORY"
 	  size_limit = "128Mi"
 	}
+      }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_job_run_job&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloudrunv2 Job Run Job
+
+
+```hcl
+resource "google_cloud_run_v2_job" "default" {
+  name     = "cloudrun-job"
+  location = "us-central1"
+  start_execution_token = "start-once-created"
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
     }
   }
@@ -713,6 +735,16 @@ The following arguments are supported:
   (Optional)
   Settings for the Binary Authorization feature.
   Structure is [documented below](#nested_binary_authorization).
+
+* `start_execution_token` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully started.
+  The sum of job name and token length must be fewer than 63 characters.
+
+* `run_execution_token` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  A unique string used as a suffix creating a new execution upon job create or update. The Job will become ready when the execution is successfully completed.
+  The sum of job name and token length must be fewer than 63 characters.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

@@ -64,7 +64,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
     }
   }
@@ -106,7 +106,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         resources {
           limits = {
             cpu    = "2"
@@ -168,7 +168,7 @@ resource "google_cloud_run_v2_job" "default" {
       }
 
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
 
         env {
           name = "FOO"
@@ -261,7 +261,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template{
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
       vpc_access{
         connector = google_vpc_access_connector.connector.id
@@ -389,7 +389,7 @@ resource "google_cloud_run_v2_job" "default" {
         }
       }
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         volume_mounts {
           name = "a-volume"
           mount_path = "/secrets"
@@ -424,6 +424,48 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
   depends_on = [google_secret_manager_secret.secret]
+}
+`, context)
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobRunJobExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobRunJobExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobRunJobExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name     = "tf-test-cloudrun-job%{random_suffix}"
+  location = "us-central1"
+  start_execution_token = "start-once-created"
+  template {
+    template {
+      containers {
+        image = "us-docker.pkg.dev/cloudrun/container/job"
+      }
+    }
+  }
 }
 `, context)
 }

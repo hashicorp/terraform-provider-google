@@ -337,16 +337,16 @@ func testAccArtifactRegistryRepository_artifactRegistryRepositoryRemoteYumExampl
 	return acctest.Nprintf(`
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "tf-test-centos-8%{random_suffix}"
+  repository_id = "tf-test-rocky-9%{random_suffix}"
   description   = "example remote yum repository%{random_suffix}"
   format        = "YUM"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
-    description = "Centos 8 remote repository"
+    description = "Rocky 9 remote repository"
     yum_repository {
       public_repository {
-        repository_base = "CENTOS"
-        repository_path = "centos/8-stream/BaseOS/x86_64/os"
+        repository_base = "ROCKY"
+        repository_path = "pub/rocky/9/BaseOS/x86_64/os"
       }
     }
   }

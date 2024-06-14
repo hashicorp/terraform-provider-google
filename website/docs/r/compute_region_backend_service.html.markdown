@@ -423,6 +423,7 @@ The following arguments are supported:
   (Optional)
   Time for which instance will be drained (not accept new
   connections, but still work to finish started).
+  From version 6.0.0 ConnectionDrainingTimeoutSec default value will be 300 to match default GCP value.
 
 * `description` -
   (Optional)
@@ -514,6 +515,8 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   This field is applicable only when the `load_balancing_scheme` is set
   to INTERNAL_MANAGED and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+  Default values are enforce by GCP without providing them.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -552,8 +555,10 @@ The following arguments are supported:
 
 * `timeout_sec` -
   (Optional)
-  How many seconds to wait for the backend before considering it a
-  failed request. Default is 30 seconds. Valid range is [1, 86400].
+  The backend service timeout has a different meaning depending on the type of load balancer.
+  For more information see, [Backend service settings](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices).
+  The default is 30 seconds.
+  The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.
 
 * `log_config` -
   (Optional)
@@ -587,6 +592,7 @@ The following arguments are supported:
   Specifies the balancing mode for this backend.
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
+  From version 6.0.0 default value will be UTILIZATION to match default GCP value.
   Default value is `CONNECTION`.
   Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 

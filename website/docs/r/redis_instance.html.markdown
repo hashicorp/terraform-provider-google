@@ -355,6 +355,10 @@ The following arguments are supported:
   Maintenance policy for an instance.
   Structure is [documented below](#nested_maintenance_policy).
 
+* `maintenance_version` -
+  (Optional)
+  The self service update maintenance version.
+
 * `redis_version` -
   (Optional)
   The version of Redis software. If not provided, latest supported
