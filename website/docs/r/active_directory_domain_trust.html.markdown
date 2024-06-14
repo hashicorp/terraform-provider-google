@@ -76,8 +76,8 @@ The following arguments are supported:
 
 * `domain` -
   (Required)
-  The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions,
-  https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.
+  The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions
+  of https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.
 
 
 - - -
