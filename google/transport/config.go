@@ -290,6 +290,7 @@ type Config struct {
 	SecurityCenterManagementBasePath string
 	SecuritypostureBasePath          string
 	ServiceManagementBasePath        string
+	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
 	SourceRepoBasePath               string
 	SpannerBasePath                  string
@@ -312,7 +313,6 @@ type Config struct {
 	ResourceManagerV3BasePath string
 	IAMBasePath               string
 	CloudIoTBasePath          string
-	ServiceNetworkingBasePath string
 	BigtableAdminBasePath     string
 	TagsLocationBasePath      string
 
@@ -427,6 +427,7 @@ const SecurityCenterBasePathKey = "SecurityCenter"
 const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
 const SecuritypostureBasePathKey = "Securityposture"
 const ServiceManagementBasePathKey = "ServiceManagement"
+const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const ServiceUsageBasePathKey = "ServiceUsage"
 const SourceRepoBasePathKey = "SourceRepo"
 const SpannerBasePathKey = "Spanner"
@@ -447,7 +448,6 @@ const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
 const ResourceManagerV3BasePathKey = "ResourceManagerV3"
-const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const BigtableAdminBasePathKey = "BigtableAdmin"
 const ContainerAwsBasePathKey = "ContainerAws"
 const ContainerAzureBasePathKey = "ContainerAzure"
@@ -558,6 +558,7 @@ var DefaultBasePaths = map[string]string{
 	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
 	SecuritypostureBasePathKey:          "https://securityposture.googleapis.com/v1/",
 	ServiceManagementBasePathKey:        "https://servicemanagement.googleapis.com/v1/",
+	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	ServiceUsageBasePathKey:             "https://serviceusage.googleapis.com/v1/",
 	SourceRepoBasePathKey:               "https://sourcerepo.googleapis.com/v1/",
 	SpannerBasePathKey:                  "https://spanner.googleapis.com/v1/",
@@ -578,7 +579,6 @@ var DefaultBasePaths = map[string]string{
 	IAMBasePathKey:                      "https://iam.googleapis.com/v1/",
 	IamCredentialsBasePathKey:           "https://iamcredentials.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
-	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	BigtableAdminBasePathKey:            "https://bigtableadmin.googleapis.com/v2/",
 	ContainerAwsBasePathKey:             "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	ContainerAzureBasePathKey:           "https://{{location}}-gkemulticloud.googleapis.com/v1/",
@@ -1171,6 +1171,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("service_management_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ServiceManagementBasePathKey]))
+	}
+	if d.Get("service_networking_custom_endpoint") == "" {
+		d.Set("service_networking_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ServiceNetworkingBasePathKey]))
 	}
 	if d.Get("service_usage_custom_endpoint") == "" {
 		d.Set("service_usage_custom_endpoint", MultiEnvDefault([]string{
@@ -2238,6 +2243,7 @@ func ConfigureBasePaths(c *Config) {
 	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
 	c.SecuritypostureBasePath = DefaultBasePaths[SecuritypostureBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
+	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.ServiceUsageBasePath = DefaultBasePaths[ServiceUsageBasePathKey]
 	c.SourceRepoBasePath = DefaultBasePaths[SourceRepoBasePathKey]
 	c.SpannerBasePath = DefaultBasePaths[SpannerBasePathKey]
@@ -2262,7 +2268,6 @@ func ConfigureBasePaths(c *Config) {
 	c.IamCredentialsBasePath = DefaultBasePaths[IamCredentialsBasePathKey]
 	c.ResourceManagerV3BasePath = DefaultBasePaths[ResourceManagerV3BasePathKey]
 	c.IAMBasePath = DefaultBasePaths[IAMBasePathKey]
-	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
 	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]

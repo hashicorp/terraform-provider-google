@@ -553,7 +553,7 @@ func BootstrapSharedServiceNetworkingConnection(t *testing.T, testId string, par
 		}
 
 		log.Printf("[DEBUG] Waiting for service networking connection creation to finish")
-		if err := tpgservicenetworking.ServiceNetworkingOperationWaitTime(config, op, "Create Service Networking Connection", config.UserAgent, projectId, 4*time.Minute); err != nil {
+		if err := tpgservicenetworking.ServiceNetworkingOperationWaitTimeHW(config, op, "Create Service Networking Connection", config.UserAgent, projectId, 4*time.Minute); err != nil {
 			t.Fatalf("Error bootstrapping shared test service networking connection: %s", err)
 		}
 	}
