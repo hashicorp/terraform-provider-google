@@ -1,7 +1,8 @@
 name: "TeamCity: Remove branches used for nightly test"
 
 
-# To ensure nightly tests/builds run on the same commit, we checkout and create a new branch from main for TeamCity to run builds on
+# To ensure TeamCity build is triggered by the newly created branch. We prevent their to be only
+# one branch that matches the filter (+:UTC-*,-:UTC-nightly-tests*)
 
 on:
     workflow_call:
@@ -23,7 +24,7 @@ jobs:
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
                   const oldBranchName = "UTC-" + dateToday;
-                  const newBranchName = "UTC-nightly-tests" + dateToday;
+                  const newBranchName = "UTC-nightly-tests-" + dateToday;
                   
                   try{
                   await github.rest.repos.renameBranch({
@@ -33,7 +34,7 @@ jobs:
                     new_name: newBranchName, 
                   })
                   } catch (error){
-                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests; branch with name " + oldBranchName + " doesn\'t exist")
+                    core.setFailed(error + "- Failed to rename branch; branch with name " + oldBranchName + " doesn\'t exist")
                   }
                   console.log("Renamed branch " + oldBranchName + " to " + newBranchName)
 
