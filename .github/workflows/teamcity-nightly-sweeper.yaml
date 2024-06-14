@@ -28,7 +28,7 @@ jobs:
                   await github.rest.repos.renameBranch({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    ref: "UTC-" + dateToday,
+                    ref: "refs/heads/UTC-" + dateToday,
                     new_name: newBranchName, 
                   })
                   } catch (error){
