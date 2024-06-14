@@ -58,8 +58,8 @@ func ResourceActiveDirectoryDomainTrust() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions,
-https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.`,
+				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions
+of https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.`,
 			},
 			"target_dns_ip_addresses": {
 				Type:        schema.TypeSet,
