@@ -22,19 +22,20 @@ jobs:
           retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
+                  const oldBranchName = "UTC-" + dateToday;
                   const newBranchName = "UTC-nightly-" + dateToday;
                   
                   try{
                   await github.rest.repos.renameBranch({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    ref: "refs/heads/UTC-" + dateToday,
+                    branch: oldBranchName,
                     new_name: newBranchName, 
                   })
                   } catch (error){
-                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests; branch with name " + newBranchName + " already exists")
+                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests; branch with name " + oldBranchName + " doesn\'t exist")
                   }
-                  console.log("Created Branch: " + branchName)
+                  console.log("Renamed branch " + oldBranchName + " to " + newBranchName)
 
   sweeping-outdated-branches:
     needs: rename-TC-nightly-branch
