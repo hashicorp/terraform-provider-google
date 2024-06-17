@@ -2974,7 +2974,7 @@ resource "google_compute_region_instance_template" "foobar" {
     automatic_restart = false
     provisioning_model = "SPOT"
     instance_termination_action = "DELETE"
-	
+
   }
 
   metadata = {
