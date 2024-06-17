@@ -35,8 +35,8 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":         envvar.GetTestProjectFromEnv(),
 		"location":        envvar.GetTestRegionFromEnv(),
+		"project":         envvar.GetTestProjectFromEnv(),
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":   acctest.RandString(t, 10),

@@ -35,8 +35,8 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPausedE
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"organization":  envvar.GetTestOrgFromEnv(t),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

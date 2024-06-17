@@ -33,8 +33,8 @@ func TestAccApigeeEnvironmentIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -70,8 +70,8 @@ func TestAccApigeeEnvironmentIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,8 +98,8 @@ func TestAccApigeeEnvironmentIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":   acctest.RandString(t, 10),
 		"role":            "roles/viewer",
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
