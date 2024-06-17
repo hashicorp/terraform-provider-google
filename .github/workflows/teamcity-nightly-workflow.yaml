@@ -10,7 +10,7 @@ on:
         dayThreshold:
           default: '3'
     schedule:
-        - cron: '0 3 * * *' # UTC 3AM (-7)-> 8PM PST
+        - cron: '0 3 * * *' # 3AM UTC (-7)-> 8PM PST # teamcity builds are triggered @ 4AM UTC
 
 jobs:
   nightly-test-branch-creation:
