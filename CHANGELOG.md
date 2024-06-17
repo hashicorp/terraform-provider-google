@@ -3,9 +3,6 @@
 NOTES:
 * compute: Updated field description of `connection_draining_timeout_sec`, `balancing_mode` and `outlier_detection` in `google_compute_region_backend_service` and `google_compute_backend_service`  to inform that default values will be changed in 6.0.0 ([#18399](https://github.com/hashicorp/terraform-provider-google/pull/18399))
 
-DEPRECATIONS:
-* vertexai: deprecated beta field `embedding_management` for `google_vertex_ai_feature_online_store` resource ([#18348](https://github.com/hashicorp/terraform-provider-google/pull/18348))
-
 FEATURES:
 * **New Resource:** `google_netapp_backup` ([#18357](https://github.com/hashicorp/terraform-provider-google/pull/18357))
 * **New Resource:** `google_network_services_service_lb_policies` ([#18326](https://github.com/hashicorp/terraform-provider-google/pull/18326))
