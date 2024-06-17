@@ -591,7 +591,6 @@ func expandNestedActiveDirectoryDomainTrustTrustHandshakeSecret(v interface{}, d
 }
 
 func resourceActiveDirectoryDomainTrustEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-
 	wrappedReq := map[string]interface{}{
 		"trust": obj,
 	}
