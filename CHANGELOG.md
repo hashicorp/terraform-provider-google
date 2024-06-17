@@ -1,5 +1,35 @@
 ## 5.34.0 (Unreleased)
 
+NOTES:
+* compute: Updated field description of `connection_draining_timeout_sec`, `balancing_mode` and `outlier_detection` in `google_compute_region_backend_service` and `google_compute_backend_service`  to inform that default values will be changed in 6.0.0 ([#18399](https://github.com/hashicorp/terraform-provider-google/pull/18399))
+
+FEATURES:
+* **New Resource:** `google_netapp_backup` ([#18357](https://github.com/hashicorp/terraform-provider-google/pull/18357))
+* **New Resource:** `google_network_services_service_lb_policies` ([#18326](https://github.com/hashicorp/terraform-provider-google/pull/18326))
+* **New Resource:** `google_scc_management_folder_security_health_analytics_custom_module` ([#18360](https://github.com/hashicorp/terraform-provider-google/pull/18360))
+* **New Resource:** `google_scc_management_organization_project_security_health_analytics_custom_module` ([#18369](https://github.com/hashicorp/terraform-provider-google/pull/18369))
+* **New Resource:** `google_scc_management_organization_security_health_analytics_custom_module` ([#18374](https://github.com/hashicorp/terraform-provider-google/pull/18374))
+
+IMPROVEMENTS:
+* alloydb: changed the resource `google_alloydb_instance` to be created directly with public IP enabled instead of creating the resource with public IP disabled and then enabling it ([#18344](https://github.com/hashicorp/terraform-provider-google/pull/18344))
+* bigtable: added `automated_backup_configuration` field to `google_bigtable_table` resource ([#18335](https://github.com/hashicorp/terraform-provider-google/pull/18335))
+* cloudbuildv2: added support for connecting to Bitbucket Data Center and Bitbucket Cloud with the `bitbucket_data_center_config` and `bitbucket_cloud_config` fields in `google_cloudbuildv2_connection` ([#18375](https://github.com/hashicorp/terraform-provider-google/pull/18375))
+* compute: added update support to `ssl_policy` field in `google_compute_region_target_https_proxy` resource ([#18361](https://github.com/hashicorp/terraform-provider-google/pull/18361))
+* compute: removed enum validation on `guest_os_features.type` in `google_compute_disk` to allow for new features to be used without provider update ([#18331](https://github.com/hashicorp/terraform-provider-google/pull/18331))
+* compute: updated documentation of google_compute_target_https_proxy and google_compute_region_target_https_proxy ([#18358](https://github.com/hashicorp/terraform-provider-google/pull/18358))
+* container: added support for `security_posture_config.mode` value "ENTERPRISE" in `resource_container_cluster` ([#18334](https://github.com/hashicorp/terraform-provider-google/pull/18334))
+* discoveryengine: added `document_processing_config` field to `google_discovery_engine_data_store` resource ([#18350](https://github.com/hashicorp/terraform-provider-google/pull/18350))
+* edgecontainer: added 'maintenance_exclusions' field to 'google_edgecontainer_cluster' resource ([#18370](https://github.com/hashicorp/terraform-provider-google/pull/18370))
+* gkehub: added `prevent_drift` field to ConfigManagement `fleet_default_member_config` ([#18330](https://github.com/hashicorp/terraform-provider-google/pull/18330))
+* netapp: added `administrators` field to `google_netapp_active_directory` resource ([#18333](https://github.com/hashicorp/terraform-provider-google/pull/18333))
+* vertexai: promoted `optimized` field to GA for `google_vertex_ai_feature_online_store` resource ([#18348](https://github.com/hashicorp/terraform-provider-google/pull/18348))
+* workbench: updated the metadata keys managed by the backend. ([#18367](https://github.com/hashicorp/terraform-provider-google/pull/18367))
+
+BUG FIXES:
+* compute: fixed an issue where `google_compute_instance_group_manager` with a pending operation was incorrectly removed due to the operation no longer being present in the backend ([#18380](https://github.com/hashicorp/terraform-provider-google/pull/18380))
+* compute: fixed issue where users could not create `google_compute_security_policy` resources with `layer_7_ddos_defense_config` explicitly disabled ([#18345](https://github.com/hashicorp/terraform-provider-google/pull/18345))
+* workbench: fixed a bug in the `google_workbench_instance` resource where specifying a network in some scenarios would cause instance creation to fail ([#18404](https://github.com/hashicorp/terraform-provider-google/pull/18404)
+
 ## 5.33.0 (June 10, 2024)
 
 DEPRECATIONS:
