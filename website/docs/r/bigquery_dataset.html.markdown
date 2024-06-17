@@ -342,6 +342,14 @@ The following arguments are supported:
   or to PHYSICAL to use physical bytes instead.
   LOGICAL is the default if this flag isn't specified.
 
+* `resource_tags` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The tags attached to this table. Tag keys are globally unique. Tag key is expected to be
+  in the namespaced format, for example "123456789012/environment" where 123456789012 is the
+  ID of the parent organization or project resource for this tag key. Tag value is expected
+  to be the short name, for example "Production". See [Tag definitions](/iam/docs/tags-access-control#definitions)
+  for more details.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
