@@ -23,7 +23,7 @@ jobs:
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
                   const oldBranchName = "UTC-" + dateToday;
-                  const newBranchName = "UTC-nightly-tests" + dateToday;
+                  const newBranchName = "UTC-nightly-tests-" + dateToday;
                   
                   try{
                   await github.rest.repos.renameBranch({
