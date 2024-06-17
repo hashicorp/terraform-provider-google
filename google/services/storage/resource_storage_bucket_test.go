@@ -250,6 +250,81 @@ func TestAccStorageBucket_dualLocation(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_dualLocation_lowercase(t *testing.T) {
+	t.Parallel()
+
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_dualLocation_lowercase(bucketName),
+			},
+			{
+				ResourceName:            "google_storage_bucket.bucket",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_dualLocation_versionChange(t *testing.T) {
+	// Test is not parallel because ENVs are set.
+	// Need to skip VCR as this test downloads providers from the Terraform Registry
+	acctest.SkipIfVcr(t)
+
+	creds := envvar.GetTestCredsFromEnv()
+	project := envvar.GetTestProjectFromEnv()
+	t.Setenv("GOOGLE_CREDENTIALS", creds)
+	t.Setenv("GOOGLE_PROJECT", project)
+
+	bucketName := acctest.TestBucketName(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:     func() { acctest.AccTestPreCheck(t) },
+		CheckDestroy: testAccStorageBucketDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucket_dualLocation(bucketName),
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "5.30.0",
+						Source:            "hashicorp/google",
+					},
+				},
+			},
+			{
+				ResourceName: "google_storage_bucket.bucket",
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"google": {
+						VersionConstraint: "5.30.0",
+						Source:            "hashicorp/google",
+					},
+				},
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy"},
+			},
+			{
+				Config:                   testAccStorageBucket_dualLocation(bucketName),
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+			},
+			{
+				ResourceName:             "google_storage_bucket.bucket",
+				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+				ImportState:              true,
+				ImportStateVerify:        true,
+				ImportStateVerifyIgnore:  []string{"force_destroy"},
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_dualLocation_rpo(t *testing.T) {
 	t.Parallel()
 	bucketName := acctest.TestBucketName(t)
@@ -1710,6 +1785,19 @@ resource "google_storage_bucket" "bucket" {
   force_destroy = true
   custom_placement_config {
     data_locations = ["ASIA-EAST1", "ASIA-SOUTHEAST1"]
+  }
+}
+`, bucketName)
+}
+
+func testAccStorageBucket_dualLocation_lowercase(bucketName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "bucket" {
+  name          = "%s"
+  location      = "ASIA"
+  force_destroy = true
+  custom_placement_config {
+    data_locations = ["asia-east1", "asia-southeast1"]
   }
 }
 `, bucketName)
