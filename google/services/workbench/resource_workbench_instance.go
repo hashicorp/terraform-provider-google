@@ -161,6 +161,16 @@ func WorkbenchInstanceTagsDiffSuppress(_, _, _ string, d *schema.ResourceData) b
 	return false
 }
 
+func WorkbenchInstanceAcceleratorDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("gce_setup.0.accelerator_configs")
+	oldInterface := old.([]interface{})
+	newInterface := new.([]interface{})
+	if len(oldInterface) == 0 && len(newInterface) == 1 && newInterface[0] == nil {
+		return true
+	}
+	return false
+}
+
 // waitForWorkbenchInstanceActive waits for an workbench instance to become "ACTIVE"
 func waitForWorkbenchInstanceActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
 	return retry.Retry(timeout, func() *retry.RetryError {
@@ -267,8 +277,9 @@ func ResourceWorkbenchInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"accelerator_configs": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: WorkbenchInstanceAcceleratorDiffSuppress,
 							Description: `The hardware accelerators used on this instance. If you use accelerators, make sure that your configuration has
 [enough vCPUs and memory to support the 'machine_type' you have selected](https://cloud.google.com/compute/docs/gpus/#gpus-list).
 Currently supports only one accelerator configuration.`,
@@ -992,8 +1003,44 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
+	stopInstance := false
+	newUpdateMask := []string{}
+	if d.HasChange("gce_setup.0.machine_type") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.machine_type")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.accelerator_configs") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.accelerator_configs")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_secure_boot") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_secure_boot")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_vtpm") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_vtpm")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_integrity_monitoring") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_integrity_monitoring")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.metadata") {
+		newUpdateMask = append(newUpdateMask, "gceSetup.metadata")
+	}
+	if d.HasChange("effective_labels") {
+		newUpdateMask = append(newUpdateMask, "labels")
+	}
+
+	// Overwrite the previously set mask.
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
+	if err != nil {
+		return err
+	}
+
 	name := d.Get("name").(string)
-	if d.HasChange("gce_setup.0.machine_type") || d.HasChange("gce_setup.0.accelerator_configs") || d.HasChange("gce_setup.0.shielded_instance_config") {
+	if stopInstance {
 		state := d.Get("state").(string)
 
 		if state != "STOPPED" {
@@ -1012,30 +1059,6 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	} else {
 		log.Printf("[DEBUG] Workbench Instance %q need not be stopped for the update.", name)
-	}
-
-	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
-	newUpdateMask := []string{}
-	if d.HasChange("gce_setup.0.machine_type") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.machine_type")
-	}
-	if d.HasChange("gce_setup.0.accelerator_configs") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.accelerator_configs")
-	}
-	if d.HasChange("gce_setup.0.shielded_instance_config") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config")
-	}
-	if d.HasChange("gce_setup.0.metadata") {
-		newUpdateMask = append(newUpdateMask, "gceSetup.metadata")
-	}
-	if d.HasChange("effective_labels") {
-		newUpdateMask = append(newUpdateMask, "labels")
-	}
-
-	// Overwrite the previously set mask.
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
-	if err != nil {
-		return err
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -1074,7 +1097,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	state := d.Get("state").(string)
 	desired_state := d.Get("desired_state").(string)
 
-	if state != desired_state {
+	if state != desired_state || stopInstance {
 		verb := "start"
 		if desired_state == "STOPPED" {
 			verb = "stop"
@@ -1086,6 +1109,13 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, pRes); err != nil {
 			return fmt.Errorf("Error waiting to modify Workbench Instance state: %s", err)
+		}
+
+		if verb == "start" {
+			if err := waitForWorkbenchInstanceActive(d, config, d.Timeout(schema.TimeoutUpdate)-time.Minute); err != nil {
+				return fmt.Errorf("Workbench instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
+			}
+
 		}
 
 	} else {

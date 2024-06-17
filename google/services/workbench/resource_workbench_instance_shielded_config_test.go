@@ -23,6 +23,10 @@ func TestAccWorkbenchInstance_shielded_config_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_shielded_config_false(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -32,6 +36,10 @@ func TestAccWorkbenchInstance_shielded_config_update(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -56,6 +64,10 @@ func TestAccWorkbenchInstance_shielded_config_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -65,6 +77,10 @@ func TestAccWorkbenchInstance_shielded_config_remove(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_none(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -89,6 +105,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_shielded_config_none(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -98,6 +118,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_none(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -107,6 +131,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_false(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -116,6 +144,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_false(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -125,6 +157,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -134,6 +170,10 @@ func TestAccWorkbenchInstance_shielded_config_double_apply(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_shielded_config_true(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
