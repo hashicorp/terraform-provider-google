@@ -78,9 +78,9 @@ func TestAccComputeReservation_sharedReservationBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":         envvar.GetTestProjectFromEnv(),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"project":         envvar.GetTestProjectFromEnv(),
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 

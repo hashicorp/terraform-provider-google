@@ -34,9 +34,9 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityBasicExam
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location":       "us-central1",
 		"deletion_protection": false,
+		"pool_location":       "us-central1",
+		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -116,9 +116,9 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthoritySubordina
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location":       "us-central1",
 		"deletion_protection": false,
+		"pool_location":       "us-central1",
+		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -244,10 +244,10 @@ func TestAccPrivatecaCertificateAuthority_privatecaCertificateAuthorityCustomSki
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"kms_key_name":        acctest.BootstrapKMSKeyWithPurposeInLocation(t, "ASYMMETRIC_SIGN", "us-central1").CryptoKey.Name,
-		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
-		"pool_location":       "us-central1",
 		"deletion_protection": false,
+		"kms_key_name":        acctest.BootstrapKMSKeyWithPurposeInLocation(t, "ASYMMETRIC_SIGN", "us-central1").CryptoKey.Name,
+		"pool_location":       "us-central1",
+		"pool_name":           acctest.BootstrapSharedCaPoolInLocation(t, "us-central1"),
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 

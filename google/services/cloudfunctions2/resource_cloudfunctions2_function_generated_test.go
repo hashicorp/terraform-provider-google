@@ -36,8 +36,8 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"zip_path":      "./test-fixtures/function-source.zip",
 		"location":      "us-central1",
+		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -107,9 +107,9 @@ func TestAccCloudfunctions2function_cloudfunctions2FullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
-		"zip_path":            "./test-fixtures/function-source-pubsub.zip",
-		"primary_resource_id": "terraform-test",
 		"location":            "us-central1",
+		"primary_resource_id": "terraform-test",
+		"zip_path":            "./test-fixtures/function-source-pubsub.zip",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -207,9 +207,9 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicGcsExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
-		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
-		"primary_resource_id": "terraform-test",
 		"policyChanged":       acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
+		"primary_resource_id": "terraform-test",
+		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -343,9 +343,9 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicAuditlogsExample(t *test
 
 	context := map[string]interface{}{
 		"project":             envvar.GetTestProjectFromEnv(),
-		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
-		"primary_resource_id": "terraform-test",
 		"policyChanged":       acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
+		"primary_resource_id": "terraform-test",
+		"zip_path":            "./test-fixtures/function-source-eventarc-gcs.zip",
 		"random_suffix":       acctest.RandString(t, 10),
 	}
 
@@ -485,8 +485,8 @@ func TestAccCloudfunctions2function_cloudfunctions2BasicBuilderExample(t *testin
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"zip_path":      "./test-fixtures/function-source.zip",
 		"location":      "us-central1",
+		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -597,9 +597,9 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretEnvExample(t *testing.T
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"zip_path":      "./test-fixtures/function-source.zip",
 		"location":      "us-central1",
 		"policyChanged": acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
+		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -696,9 +696,9 @@ func TestAccCloudfunctions2function_cloudfunctions2SecretVolumeExample(t *testin
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"zip_path":      "./test-fixtures/function-source.zip",
 		"location":      "us-central1",
 		"policyChanged": acctest.BootstrapPSARole(t, "service-", "gcp-sa-pubsub", "roles/cloudkms.cryptoKeyEncrypterDecrypter"),
+		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -794,8 +794,8 @@ func TestAccCloudfunctions2function_cloudfunctions2PrivateWorkerpoolExample(t *t
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"zip_path":      "./test-fixtures/function-source.zip",
 		"location":      "us-central1",
+		"zip_path":      "./test-fixtures/function-source.zip",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
