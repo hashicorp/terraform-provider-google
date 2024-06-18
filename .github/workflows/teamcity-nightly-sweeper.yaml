@@ -68,7 +68,7 @@ jobs:
                   })
 
                 const filteredBranches = branchList.data.filter( (branch) => {
-                  const branchDate = /^UTC-nightly-\d{4}-\d{2}-\d{2}$/g.exec(branch.name)
+                  const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branch.name)
                   return branchDate != null  // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
                 })
 
