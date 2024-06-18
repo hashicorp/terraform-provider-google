@@ -227,6 +227,50 @@ func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceD
 	return nil
 }
 
+func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.ResourceData, project string, userAgent string, isBoot bool) error {
+	diskObj := make(map[string]interface{})
+	var sizeString string
+	var diskKey string
+	if isBoot {
+		sizeString = "gce_setup.0.boot_disk.0.disk_size_gb"
+		diskKey = "bootDisk"
+	} else {
+		sizeString = "gce_setup.0.data_disks.0.disk_size_gb"
+		diskKey = "dataDisk"
+	}
+	disk := make(map[string]interface{})
+	disk["diskSizeGb"] = d.Get(sizeString)
+	diskObj[diskKey] = disk
+
+	resizeUrl, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:resizeDisk")
+	if err != nil {
+		return err
+	}
+
+	dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		RawURL:    resizeUrl,
+		UserAgent: userAgent,
+		Body:      diskObj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error resizing disk: %s", err)
+	}
+
+	var opRes map[string]interface{}
+	err = WorkbenchOperationWaitTimeWithResponse(
+		config, dRes, &opRes, project, "Resizing disk", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("Error resizing disk: %s", err)
+	}
+
+	return nil
+}
+
 func ResourceWorkbenchInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceWorkbenchInstanceCreate,
@@ -303,7 +347,6 @@ Currently supports only one accelerator configuration.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The definition of a boot disk.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -321,7 +364,6 @@ data disks, defaults to GMEK. Possible values: ["GMEK", "CMEK"]`,
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
-										ForceNew: true,
 										Description: `Optional. The size of the boot disk in GB attached to this instance,
 up to a maximum of 64000 GB (64 TB). If not specified, this defaults to the
 recommended value of 150GB.`,
@@ -372,7 +414,6 @@ For example: gcr.io/{project_id}/{imageName}`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Data disks attached to the VM instance. Currently supports only one data disk.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -390,7 +431,6 @@ and data disks, defaults to GMEK. Possible values: ["GMEK", "CMEK"]`,
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
-										ForceNew: true,
 										Description: `Optional. The size of the disk in GB attached to this VM instance,
 up to a maximum of 64000 GB (64 TB). If not specified, this defaults to
 100.`,
@@ -1032,7 +1072,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("effective_labels") {
 		newUpdateMask = append(newUpdateMask, "labels")
 	}
-
+	updateMask = newUpdateMask
 	// Overwrite the previously set mask.
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
 	if err != nil {
@@ -1059,6 +1099,13 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	} else {
 		log.Printf("[DEBUG] Workbench Instance %q need not be stopped for the update.", name)
+	}
+
+	if d.HasChange("gce_setup.0.boot_disk.0.disk_size_gb") {
+		resizeWorkbenchInstanceDisk(config, d, project, userAgent, true)
+	}
+	if d.HasChange("gce_setup.0.data_disks.0.disk_size_gb") {
+		resizeWorkbenchInstanceDisk(config, d, project, userAgent, false)
 	}
 
 	// err == nil indicates that the billing_project value was found
