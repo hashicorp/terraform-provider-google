@@ -134,7 +134,6 @@ resource "google_healthcare_fhir_store" "default" {
   disable_resource_versioning   = false
   enable_history_import         = false
   version                       = "R4"
-
 }
 
 resource "google_healthcare_dataset" "dataset" {
@@ -159,7 +158,6 @@ resource "google_healthcare_fhir_store" "default" {
 	send_full_resource               = true
 	send_previous_resource_on_delete = true
   }
-
 
   labels = {
     label1 = "labelvalue1"
