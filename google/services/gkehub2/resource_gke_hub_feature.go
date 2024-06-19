@@ -733,7 +733,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(fleetDefaultMemberConfigProp)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp) {
 		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
 	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)
@@ -910,7 +910,7 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp) {
 		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
 	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)

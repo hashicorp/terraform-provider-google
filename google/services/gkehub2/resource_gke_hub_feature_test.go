@@ -322,6 +322,22 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigServiceMesh(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshRemovalUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshReAddUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -343,6 +359,33 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  fleet_default_member_config {
+    mesh {
+      management = "MANAGEMENT_MANUAL"
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshRemovalUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshReAddUpdate(context map[string]interface{}) string {
 	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "servicemesh"
