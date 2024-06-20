@@ -12,6 +12,7 @@ import builds.AllContextParameters
 import builds.getGaAcceptanceTestConfig
 import builds.getVcrAcceptanceTestConfig
 import builds.readOnlySettings
+import builds.activeBranchSettings
 import jetbrains.buildServer.configs.kotlin.Project
 import projects.reused.mmUpstream
 import projects.reused.nightlyTests
