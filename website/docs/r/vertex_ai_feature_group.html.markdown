@@ -127,7 +127,7 @@ The following arguments are supported:
 
 * `entity_id_columns` -
   (Optional)
-  Columns to construct entityId / row keys. Currently only supports 1 entity_id_column. If not provided defaults to entityId.
+  Columns to construct entityId / row keys. If not provided defaults to entityId.
 
 
 <a name="nested_big_query_source"></a>The `big_query_source` block supports:
