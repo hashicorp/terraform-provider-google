@@ -98,6 +98,7 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()
+                activeBranchSettings()
                 workingDirectory(path)
             }
 

@@ -252,7 +252,7 @@ fun ParametrizedWithType.readOnlySettings() {
     hiddenVariable("teamcity.ui.settings.readOnly", "true", "Requires build configurations be edited via Kotlin")
 }
 
-fun ParametrizedWithType.ActiveBranchSettings(){
+fun ParametrizedWithType.activeBranchSettings() {
     text("teamcity.activeVcsBranch.age.days", 10)
     text("teamcity.activeBuildBranch.age.days". 10)
 }
