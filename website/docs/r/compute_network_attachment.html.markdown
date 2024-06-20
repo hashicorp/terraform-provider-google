@@ -21,8 +21,6 @@ description: |-
 
 A network attachment is a resource that lets a producer Virtual Private Cloud (VPC) network initiate connections to a consumer VPC network through a Private Service Connect interface.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about NetworkAttachment, see:
 
@@ -35,7 +33,6 @@ To get more information about NetworkAttachment, see:
 
 ```hcl
 resource "google_compute_network_attachment" "default" {
-    provider = google-beta
     name = "basic-network-attachment"
     region = "us-central1"
     description = "basic network attachment description"
@@ -55,13 +52,11 @@ resource "google_compute_network_attachment" "default" {
 }
 
 resource "google_compute_network" "default" {
-    provider = google-beta
     name = "basic-network"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-    provider = google-beta
     name = "basic-subnetwork"
     region = "us-central1"
 
@@ -70,7 +65,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_project" "rejected_producer_project" {
-    provider = google-beta
     project_id      = "prj-rejected"
     name            = "prj-rejected"
     org_id          = "123456789"
@@ -78,7 +72,6 @@ resource "google_project" "rejected_producer_project" {
 }
 
 resource "google_project" "accepted_producer_project" {
-    provider = google-beta
     project_id      = "prj-accepted"
     name            = "prj-accepted"
     org_id          = "123456789"
@@ -95,13 +88,11 @@ resource "google_project" "accepted_producer_project" {
 
 ```hcl
 resource "google_compute_network" "default" {
-    provider = google-beta
     name = "basic-network"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
-    provider = google-beta
     name   = "basic-subnetwork"
     region = "us-central1"
 
@@ -110,7 +101,6 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_network_attachment" "default" {
-    provider = google-beta
     name   = "basic-network-attachment"
     region = "us-central1"
     description = "my basic network attachment"
@@ -120,7 +110,6 @@ resource "google_compute_network_attachment" "default" {
 }
 
 resource "google_compute_instance" "default" {
-    provider = google-beta
     name         = "basic-instance"
     zone         = "us-central1-a"
     machine_type = "e2-micro"
