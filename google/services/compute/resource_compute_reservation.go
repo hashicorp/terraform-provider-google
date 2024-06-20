@@ -213,6 +213,7 @@ for information on available CPU platforms.`,
 							Type:         schema.TypeString,
 							Computed:     true,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"LOCAL", "SPECIFIC_PROJECTS", ""}),
 							Description:  `Type of sharing for this shared-reservation Possible values: ["LOCAL", "SPECIFIC_PROJECTS"]`,
 						},
@@ -1128,10 +1129,27 @@ func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interf
 		// Set project_map.
 		projectMap := make(map[string]interface{})
 		old, new := d.GetChange("share_settings")
-		oldMap := old.([]interface{})[0].(map[string]interface{})["project_map"]
-		newMap := new.([]interface{})[0].(map[string]interface{})["project_map"]
-		before := oldMap.(*schema.Set)
-		after := newMap.(*schema.Set)
+
+		var before *schema.Set
+		if oldSlice, ok := old.([]interface{}); ok && len(oldSlice) > 0 {
+			if oldMap, ok := oldSlice[0].(map[string]interface{})["project_map"]; ok {
+				before = oldMap.(*schema.Set)
+			} else {
+				before = schema.NewSet(schema.HashString, []interface{}{})
+			}
+		} else {
+			before = schema.NewSet(schema.HashString, []interface{}{})
+		}
+		var after *schema.Set
+		if newSlice, ok := new.([]interface{}); ok && len(newSlice) > 0 {
+			if newMap, ok := newSlice[0].(map[string]interface{})["project_map"]; ok {
+				after = newMap.(*schema.Set)
+			} else {
+				after = schema.NewSet(schema.HashString, []interface{}{})
+			}
+		} else {
+			after = schema.NewSet(schema.HashString, []interface{}{})
+		}
 
 		for _, raw := range after.Difference(before).List() {
 			original := raw.(map[string]interface{})
@@ -1147,10 +1165,10 @@ func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interf
 			}
 			projectMap[transformedId] = singleProject
 			// add added projects to updateMask
-			if firstProject != true {
-				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", original["project_id"])
+			if !firstProject {
+				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", original["id"])
 			} else {
-				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", original["project_id"])
+				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", original["id"])
 				firstProject = false
 			}
 			decodedPath, _ := url.QueryUnescape(maskId)
@@ -1177,7 +1195,7 @@ func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interf
 				projectNum := project.ProjectNumber
 				projectIdOrNum = fmt.Sprintf("%d", projectNum)
 			}
-			if firstProject != true {
+			if !firstProject {
 				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", projectIdOrNum)
 			} else {
 				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", projectIdOrNum)
