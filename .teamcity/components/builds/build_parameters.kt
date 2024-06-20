@@ -254,7 +254,7 @@ fun ParametrizedWithType.readOnlySettings() {
 
 fun ParametrizedWithType.activeBranchSettings() {
     text("teamcity.activeVcsBranch.age.days", "10")
-    text("teamcity.activeBuildBranch.age.days". "10")
+    text("teamcity.activeBuildBranch.age.days", "10")
 }
 
 // ParametrizedWithType.terraformCoreBinaryTesting sets environment variables that control what Terraform version is downloaded
