@@ -28,28 +28,15 @@ jobs:
                     repo: context.repo.repo,
                     ref: "heads/main"
                   })
-                  const commitHash = mainRef.data.object.sha
-                  const branchName = "UTC-" + dateToday + "-" + commitHash.substring(0,7);
+                  const branchName = "UTC-" + dateToday;
                   try{
                   await github.rest.git.createRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: "refs/heads/" + branchName,
-                    sha: commitHash
+                    sha: mainRef.data.object.sha
                   })
                   } catch (error){
                     core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
                   }
-                  console.log("Created Branch: " + branchName)
-
-                  try{
-                  await github.rest.actions.createEnvironmentVariable({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    environment_name: "test",
-                    name: "MAIN_COMMIT_HASH",
-                    value: commitHash.substring(0,7)
-                  })
-                  } catch (error){
-                    core.setFailed(error + " - failed to set environment variable of main commit hash.")
-                  }
+                  console.log("Created Branch: " + branchName + " using commit ${mainRef.data.object.sha} from main.")
