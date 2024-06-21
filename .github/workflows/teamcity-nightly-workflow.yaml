@@ -40,4 +40,4 @@ jobs:
                   } catch (error){
                     core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
                   }
-                  console.log("Created Branch: " + branchName + " using commit ${commitHash} from main.")
+                  console.log("Created Branch: " + branchName + " using commit " + commitHash + " from main.")
