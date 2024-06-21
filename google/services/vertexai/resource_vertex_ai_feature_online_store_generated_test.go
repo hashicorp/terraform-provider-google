@@ -74,6 +74,55 @@ resource "google_vertex_ai_feature_online_store" "feature_online_store" {
 `, context)
 }
 
+func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIFeatureOnlineStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_feature_online_store.featureonlinestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "force_destroy", "labels", "name", "region", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  provider = google
+  name     = "tf_test_example_feature_online_store_optimized%{random_suffix}"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  optimized {}
+  dedicated_serving_endpoint {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.number]
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google
+}
+`, context)
+}
+
 func testAccCheckVertexAIFeatureOnlineStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
