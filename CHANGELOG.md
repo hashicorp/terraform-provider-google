@@ -2,20 +2,19 @@
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_docker_image` ([#18446](https://github.com/hashicorp/terraform-provider-google/pull/18446))
-* **New Data Source:** `google_composer_user_workloads_config_map` (beta) ([#18406](https://github.com/hashicorp/terraform-provider-google/pull/18406))
+* **New Data Source:** `google_composer_user_workloads_config_map` ([#18406](https://github.com/hashicorp/terraform-provider-google/pull/18406))
 * **New Resource:** `google_service_networking_vpc_service_controls` ([#18448](https://github.com/hashicorp/terraform-provider-google/pull/18448))
 
 IMPROVEMENTS:
-* bigquery: added `resource_tags` field to `google_bigquery_dataset` resource (beta) ([#18453](https://github.com/hashicorp/terraform-provider-google/pull/18453))
+* bigquery: added `resource_tags` field to `google_bigquery_dataset` resource ([#18453](https://github.com/hashicorp/terraform-provider-google/pull/18453))
 * billingbudget: added `enable_project_level_recipients` field to `google_billing_budget` resource ([#18437](https://github.com/hashicorp/terraform-provider-google/pull/18437))
 * cloudrunv2: added fields `start_execution_token` and `run_execution_token` to resource `google_cloud_run_v2_job` ([#18422](https://github.com/hashicorp/terraform-provider-google/pull/18422))
-* compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy' resource; ([#18414](https://github.com/hashicorp/terraform-provider-google/pull/18414))
-* compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy_rule' resource; ([#18414](https://github.com/hashicorp/terraform-provider-google/pull/18414))
+* compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy' and `google_compute_security_policy_rule` resource; ([#18414](https://github.com/hashicorp/terraform-provider-google/pull/18414))
 * dataprocmetastore: added `autoscaling_config` field to `google_dataproc_metastore_service` resource ([#18425](https://github.com/hashicorp/terraform-provider-google/pull/18425))
 * gkehub2: Added `ENTERPRISE` option to `SecurityPostureConfig` on `google_gke_hub_fleet` resource ([#18440](https://github.com/hashicorp/terraform-provider-google/pull/18440))
 * pubsub: added `bigquery_config.service_account_email` field to `google_pubsub_subscription` resource ([#18444](https://github.com/hashicorp/terraform-provider-google/pull/18444))
 * redis: added `maintenance_version` field to `google_redis_instance` ([#18424](https://github.com/hashicorp/terraform-provider-google/pull/18424))
-* storage: added support so that update on `google_storage_bucket_object` no longer delete to create object ([#18479](https://github.com/hashicorp/terraform-provider-google/pull/18479))
+* storage: changed update behavior in `google_storage_bucket_object` to no longer delete to avoid object deletion on content update ([#18479](https://github.com/hashicorp/terraform-provider-google/pull/18479))
 * sql: added support for more MySQL values in `google_sql_user.type` ([#18452](https://github.com/hashicorp/terraform-provider-google/pull/18452))
 * sql: increased timeouts on `google_sql_database_instance` to 90m to account for longer-running actions such as creation through cloning ([#18458](https://github.com/hashicorp/terraform-provider-google/pull/18458))
 * workbench: added update support to `gce_setup.boot_disk` and `gce_setup.data_disks` fields in `google_workbench_instance` resource ([#18482](https://github.com/hashicorp/terraform-provider-google/pull/18482))
