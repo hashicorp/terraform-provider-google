@@ -1,8 +1,8 @@
 name: "TeamCity: Remove branches used for nightly test"
 
 
-# To ensure TeamCity build is triggered by the newly created branch. We prevent their to be only
-# one branch that matches the filter (+:UTC-*,-:UTC-nightly-tests*)
+# TeamCity should use a newly created branches that matches the pattern `UTC-<YYYY-MM-DD>` and is the only branch matching that pattern. We rename past nightly test branches to avoid there being more than one `UTC-<YYYY-MM-DD>` branch (i.e. only one branch that matches the filter (+:UTC-*,-:UTC-nightly-tests*)). This workflow also removes renamed branches once they get past a certain age. 
+# ```
 
 on:
     workflow_call:
