@@ -46,7 +46,7 @@ jobs:
                   await github.rest.actions.createEnvironmentVariable({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    environment_name: "test",
+                    environment_name: "3242431282",
                     name: "MAIN_COMMIT_HASH",
                     value: commitHash.substring(0,7)
                   })
