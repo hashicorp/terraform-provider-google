@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed google_compute_instance with `service_account.email` but no `service_account.scopes`
+```
