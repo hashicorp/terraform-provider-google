@@ -2,31 +2,26 @@
 
 FEATURES:
 * **New Data Source:** `google_artifact_registry_docker_image` ([#18446](https://github.com/hashicorp/terraform-provider-google/pull/18446))
-* **New Data Source:** `google_composer_user_workloads_config_map` ([#18406](https://github.com/hashicorp/terraform-provider-google/pull/18406))
 * **New Resource:** `google_service_networking_vpc_service_controls` ([#18448](https://github.com/hashicorp/terraform-provider-google/pull/18448))
 
 IMPROVEMENTS:
-* bigquery: added `resource_tags` field to `google_bigquery_dataset` resource ([#18453](https://github.com/hashicorp/terraform-provider-google/pull/18453))
 * billingbudget: added `enable_project_level_recipients` field to `google_billing_budget` resource ([#18437](https://github.com/hashicorp/terraform-provider-google/pull/18437))
-* cloudrunv2: added fields `start_execution_token` and `run_execution_token` to resource `google_cloud_run_v2_job` ([#18422](https://github.com/hashicorp/terraform-provider-google/pull/18422))
-* compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy' and `google_compute_security_policy_rule` resource; ([#18414](https://github.com/hashicorp/terraform-provider-google/pull/18414))
-* dataprocmetastore: added `autoscaling_config` field to `google_dataproc_metastore_service` resource ([#18425](https://github.com/hashicorp/terraform-provider-google/pull/18425))
-* gkehub2: Added `ENTERPRISE` option to `SecurityPostureConfig` on `google_gke_hub_fleet` resource ([#18440](https://github.com/hashicorp/terraform-provider-google/pull/18440))
+* compute: added `action_token_site_keys` and `session_token_site_keys` fields to `google_compute_security_policy` and `google_compute_security_policy_rule` resources ([#18414](https://github.com/hashicorp/terraform-provider-google/pull/18414))
+* gkehub2: added `ENTERPRISE` option to `security_posture_config` field on `google_gke_hub_fleet` resource ([#18440](https://github.com/hashicorp/terraform-provider-google/pull/18440))
 * pubsub: added `bigquery_config.service_account_email` field to `google_pubsub_subscription` resource ([#18444](https://github.com/hashicorp/terraform-provider-google/pull/18444))
-* redis: added `maintenance_version` field to `google_redis_instance` ([#18424](https://github.com/hashicorp/terraform-provider-google/pull/18424))
+* redis: added `maintenance_version` field to `google_redis_instance` resource ([#18424](https://github.com/hashicorp/terraform-provider-google/pull/18424))
 * storage: changed update behavior in `google_storage_bucket_object` to no longer delete to avoid object deletion on content update ([#18479](https://github.com/hashicorp/terraform-provider-google/pull/18479))
-* sql: added support for more MySQL values in `google_sql_user.type` ([#18452](https://github.com/hashicorp/terraform-provider-google/pull/18452))
+* sql: added support for more MySQL values in `type` field of `google_sql_user` resource ([#18452](https://github.com/hashicorp/terraform-provider-google/pull/18452))
 * sql: increased timeouts on `google_sql_database_instance` to 90m to account for longer-running actions such as creation through cloning ([#18458](https://github.com/hashicorp/terraform-provider-google/pull/18458))
 * workbench: added update support to `gce_setup.boot_disk` and `gce_setup.data_disks` fields in `google_workbench_instance` resource ([#18482](https://github.com/hashicorp/terraform-provider-google/pull/18482))
 
 BUG FIXES:
-* compute: updated schedulingHasChangeWithoutReboot to force reboot if min_node_cpus is updated. ([#18420](https://github.com/hashicorp/terraform-provider-google/pull/18420))
+* compute: updated `google_compute_instance` to force reboot if `min_node_cpus` is updated ([#18420](https://github.com/hashicorp/terraform-provider-google/pull/18420))
 * compute: fixed `description` field in `google_compute_firewall` to support empty/null values on update ([#18478](https://github.com/hashicorp/terraform-provider-google/pull/18478))
 * compute: fixed perma-diff on `google_compute_disk` for Ubuntu amd64 canonical LTS images ([#18418](https://github.com/hashicorp/terraform-provider-google/pull/18418))
-* storage: fixed `custom_placement_config` values not normalized in `google_storage_bucket` ([#18456](https://github.com/hashicorp/terraform-provider-google/pull/18456))
-* workbench: fixed the issue that the instance is not starting after an update in resource `google_workbench_instance` ([#18464](https://github.com/hashicorp/terraform-provider-google/pull/18464))
-* workbench: fixed the permadiff caused by empty `accelerator_configs` in resource `google_workbench_instance` ([#18464](https://github.com/hashicorp/terraform-provider-google/pull/18464))
-
+* storage: fixed lowercased `custom_placement_config` values in `google_storage_bucket` causing perma-destroy ([#18456](https://github.com/hashicorp/terraform-provider-google/pull/18456))
+* workbench: fixed issue where instance was not starting after an update in `google_workbench_instance` resource ([#18464](https://github.com/hashicorp/terraform-provider-google/pull/18464))
+* workbench: fixed perma-diff caused by empty `accelerator_configs` in `google_workbench_instance` resource ([#18464](https://github.com/hashicorp/terraform-provider-google/pull/18464))
 
 ## 5.34.0 (June 17, 2024)
 
