@@ -1,7 +1,7 @@
 ---
-page_title: "Terraform Google Provider 6.0.0 Upgrade Guide"
+page_title: "Terraform provider for Google Cloud 6.0.0 Upgrade Guide"
 description: |-
-  Terraform Google Provider 6.0.0 Upgrade Guide
+  Terraform provider for Google Cloud 6.0.0 Upgrade Guide
 ---
 
 # Terraform Google Provider 6.0.0 Upgrade Guide
