@@ -491,7 +491,6 @@ The following arguments are supported:
                        instance either reported a valid weight or had
                        UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                        equal-weight.
-
   This field is applicable to either:
   * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
     and loadBalancingScheme set to INTERNAL_MANAGED.
@@ -499,7 +498,6 @@ The following arguments are supported:
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
     Load Balancing). Only MAGLEV and WEIGHTED_MAGLEV values are possible for External
     Network Load Balancing. The default is MAGLEV.
-
   If session_affinity is not NONE, and this field is not set to MAGLEV, WEIGHTED_MAGLEV,
   or RING_HASH, session affinity settings will not take effect.
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
