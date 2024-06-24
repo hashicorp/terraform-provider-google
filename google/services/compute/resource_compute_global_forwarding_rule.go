@@ -89,7 +89,6 @@ The forwarded traffic must be of a type appropriate to the target object.
   *  'vpc-sc' - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
   *  'all-apis' - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
 
-
 For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.`,
 			},
 			"ip_address": {
@@ -111,7 +110,6 @@ required under the following circumstances:
 * When the 'target' is a Private Service Connect Google APIs
 bundle, you must specify an 'IPAddress'.
 
-
 Otherwise, you can optionally specify an IP address that references an
 existing static (reserved) IP address resource. When omitted, Google Cloud
 assigns an ephemeral IP address.
@@ -128,7 +126,6 @@ forwarding rule:
   * 'regions/region/addresses/address-name'
   * 'global/addresses/address-name'
   * 'address-name'
-
 
 The forwarding rule's 'target',
 and in most cases, also the 'loadBalancingScheme', determine the
