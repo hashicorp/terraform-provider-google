@@ -776,10 +776,21 @@ be from 0 to 999,999,999 inclusive.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_confidential_compute": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Defines whether the instance should have confidential compute enabled.`,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `Defines whether the instance should have confidential compute enabled. Field will be deprecated in a future release.`,
+							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
+						},
+						"confidential_instance_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `
+								Specifies which confidential computing technology to use.
+								This could be one of the following values: SEV, SEV_SNP.
+								If SEV_SNP, min_cpu_platform = "AMD Milan" is currently required.`,
+							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
 				},
