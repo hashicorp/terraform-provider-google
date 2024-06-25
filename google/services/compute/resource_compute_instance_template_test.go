@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 
 	"google.golang.org/api/compute/v1"
@@ -1220,6 +1221,50 @@ func TestAccComputeInstanceTemplate_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestUnitComputeInstanceTemplate_IpCidrRangeDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"single ip address": {
+			Old:                "10.2.3.4",
+			New:                "10.2.3.5",
+			ExpectDiffSuppress: false,
+		},
+		"cidr format string": {
+			Old:                "10.1.2.0/24",
+			New:                "10.1.3.0/24",
+			ExpectDiffSuppress: false,
+		},
+		"netmask same mask": {
+			Old:                "10.1.2.0/24",
+			New:                "/24",
+			ExpectDiffSuppress: true,
+		},
+		"netmask different mask": {
+			Old:                "10.1.2.0/24",
+			New:                "/32",
+			ExpectDiffSuppress: false,
+		},
+		"add netmask": {
+			Old:                "",
+			New:                "/24",
+			ExpectDiffSuppress: false,
+		},
+		"remove netmask": {
+			Old:                "/24",
+			New:                "",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func testAccCheckComputeInstanceTemplateDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -1486,7 +1531,7 @@ func testAccCheckComputeInstanceTemplateHasAliasIpRange(instanceTemplate *comput
 	return func(s *terraform.State) error {
 		for _, networkInterface := range instanceTemplate.Properties.NetworkInterfaces {
 			for _, aliasIpRange := range networkInterface.AliasIpRanges {
-				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || tpgresource.IpCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
+				if aliasIpRange.SubnetworkRangeName == subnetworkRangeName && (aliasIpRange.IpCidrRange == iPCidrRange || tpgcompute.IpCidrRangeDiffSuppress("ip_cidr_range", aliasIpRange.IpCidrRange, iPCidrRange, nil)) {
 					return nil
 				}
 			}
