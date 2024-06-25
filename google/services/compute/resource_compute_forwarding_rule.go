@@ -18,9 +18,11 @@
 package compute
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"reflect"
 	"strings"
@@ -49,6 +51,57 @@ func forwardingRuleCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, v
 		}
 	}
 	return nil
+}
+
+// Port range '80' and '80-80' is equivalent.
+// `old` is read from the server and always has the full range format (e.g. '80-80', '1024-2048').
+// `new` can be either a single port or a port range.
+func PortRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return old == new+"-"+new
+}
+
+// Suppresses diff for IPv4 and IPv6 different formats.
+// It also suppresses diffs if an IP is changing to a reference.
+func InternalIpDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	addr_equality := false
+	netmask_equality := false
+
+	addr_netmask_old := strings.Split(old, "/")
+	addr_netmask_new := strings.Split(new, "/")
+
+	// Check if old or new are IPs (with or without netmask)
+	var addr_old net.IP
+	if net.ParseIP(addr_netmask_old[0]) == nil {
+		addr_old = net.ParseIP(old)
+	} else {
+		addr_old = net.ParseIP(addr_netmask_old[0])
+	}
+	var addr_new net.IP
+	if net.ParseIP(addr_netmask_new[0]) == nil {
+		addr_new = net.ParseIP(new)
+	} else {
+		addr_new = net.ParseIP(addr_netmask_new[0])
+	}
+
+	if addr_old != nil {
+		if addr_new == nil {
+			// old is an IP and new is a reference
+			addr_equality = true
+		} else {
+			// old and new are IP addresses
+			addr_equality = bytes.Equal(addr_old, addr_new)
+		}
+	}
+
+	// If old and new both have a netmask compare them, otherwise suppress
+	// This is not technically correct but prevents the permadiff described in https://github.com/hashicorp/terraform-provider-google/issues/16400
+	if (len(addr_netmask_old)) == 2 && (len(addr_netmask_new) == 2) {
+		netmask_equality = addr_netmask_old[1] == addr_netmask_new[1]
+	} else {
+		netmask_equality = true
+	}
+
+	return addr_equality && netmask_equality
 }
 
 func ResourceComputeForwardingRule() *schema.Resource {
@@ -98,7 +151,7 @@ lowercase letters and numbers and must start with a letter.`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.InternalIpDiffSuppress,
+				DiffSuppressFunc: InternalIpDiffSuppress,
 				Description: `IP address for which this forwarding rule accepts traffic. When a client
 sends traffic to this IP address, the forwarding rule directs the traffic
 to the referenced 'target' or 'backendService'.
@@ -305,7 +358,7 @@ networkTier of the Address. Possible values: ["PREMIUM", "STANDARD"]`,
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.PortRangeDiffSuppress,
+				DiffSuppressFunc: PortRangeDiffSuppress,
 				Description: `The 'ports', 'portRange', and 'allPorts' fields are mutually exclusive.
 Only packets addressed to ports in the specified range will be forwarded
 to the backends configured with this forwarding rule.

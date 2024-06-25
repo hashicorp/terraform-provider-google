@@ -96,7 +96,7 @@ For Private Service Connect forwarding rules that forward traffic to managed ser
 				Computed:         true,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.InternalIpDiffSuppress,
+				DiffSuppressFunc: InternalIpDiffSuppress,
 				Description: `IP address for which this forwarding rule accepts traffic. When a client
 sends traffic to this IP address, the forwarding rule directs the traffic
 to the referenced 'target'.
@@ -284,7 +284,7 @@ APIs, a network must be provided.`,
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.PortRangeDiffSuppress,
+				DiffSuppressFunc: PortRangeDiffSuppress,
 				Description: `The 'portRange' field has the following limitations:
 * It requires that the forwarding rule 'IPProtocol' be TCP, UDP, or SCTP,
 and
