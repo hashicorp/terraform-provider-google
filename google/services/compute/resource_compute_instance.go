@@ -2252,7 +2252,7 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		if d.HasChange("service_account.0.email") || scopesChange {
 			sa := d.Get("service_account").([]interface{})
 			req := &compute.InstancesSetServiceAccountRequest{ForceSendFields: []string{"email"}}
-			if len(sa) > 0 && sa[0] != nil {
+			if !isEmptyServiceAccountBlock(d) && len(sa) > 0 && sa[0] != nil {
 				saMap := sa[0].(map[string]interface{})
 				req.Email = saMap["email"].(string)
 				req.Scopes = tpgresource.CanonicalizeServiceScopes(tpgresource.ConvertStringSet(saMap["scopes"].(*schema.Set)))
@@ -2862,6 +2862,11 @@ func serviceAccountDiffSuppress(k, old, new string, d *schema.ResourceData) bool
 	// suppress changes between { } and {scopes:[]}
 	if l[0] != nil {
 		contents := l[0].(map[string]interface{})
+		email := contents["email"]
+		if email != "" {
+			// if email is non empty, don't suppress the diff
+			return false
+		}
 		if scopes, ok := contents["scopes"]; ok {
 			a := scopes.(*schema.Set).List()
 			if a != nil && len(a) > 0 {
@@ -2870,4 +2875,43 @@ func serviceAccountDiffSuppress(k, old, new string, d *schema.ResourceData) bool
 		}
 	}
 	return true
+}
+
+// isEmptyServiceAccountBlock is used to work around an issue when updating
+// service accounts. Creating the instance with some scopes but without
+// specifying a service account email, assigns default compute service account
+// to the instance:
+//
+//	service_account {
+//	   scopes = ["some-scope"]
+//	}
+//
+// Then when updating the instance with empty service account:
+//
+//	service_account {
+//	   scopes = []
+//	}
+//
+// the default Terraform behavior is to clear scopes without clearing the
+// email. The email was previously computed to be the default service account
+// and has not been modified, so the default plan is to leave it unchanged.
+// However, when creating a new instance:
+//
+//	service_account {
+//	   scopes = []
+//	}
+//
+// indicates an instance without any service account set.
+// isEmptyServiceAccountBlock is used to detect empty service_account block
+// and if it is, it is interpreted as no service account and no scopes.
+func isEmptyServiceAccountBlock(d *schema.ResourceData) bool {
+	serviceAccountsConfig := d.GetRawConfig().GetAttr("service_account")
+	if serviceAccountsConfig.IsNull() || len(serviceAccountsConfig.AsValueSlice()) == 0 {
+		return true
+	}
+	serviceAccount := serviceAccountsConfig.AsValueSlice()[0]
+	if serviceAccount.GetAttr("email").IsNull() && len(serviceAccount.GetAttr("scopes").AsValueSlice()) == 0 {
+		return true
+	}
+	return false
 }

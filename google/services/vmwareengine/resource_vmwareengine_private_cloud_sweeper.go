@@ -4,6 +4,7 @@ package vmwareengine
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -15,12 +16,12 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("VmwareengineNetwork", testSweepVmwareengineNetwork)
+	sweeper.AddTestSweepers("VmwareenginePrivateCloud", testSweepVmwareenginePrivateCloud)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region
-func testSweepVmwareengineNetwork(region string) error {
-	resourceName := "VmwareengineNetwork"
+func testSweepVmwareenginePrivateCloud(region string) error {
+	resourceName := "VmwareenginePrivateCloud"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sweeper.SharedConfigForRegion(region)
@@ -39,10 +40,9 @@ func testSweepVmwareengineNetwork(region string) error {
 	billingId := envvar.GetTestBillingAccountFromEnv(t)
 
 	// List of location values includes:
-	//   * global location
-	//   * regions used for this resource type's acc tests in the past
+	//   * zones used for this resource type's acc tests in the past
 	//   * the 'region' passed to the sweeper
-	locations := []string{region, "global", "southamerica-west1", "me-west1"}
+	locations := []string{region, "southamerica-west1-a", "me-west1-a"}
 	log.Printf("[INFO][SWEEPER_LOG] Sweeping will include these locations: %v.", locations)
 	for _, location := range locations {
 		log.Printf("[INFO][SWEEPER_LOG] Beginning the process of sweeping location '%s'.", location)
@@ -58,7 +58,7 @@ func testSweepVmwareengineNetwork(region string) error {
 			},
 		}
 
-		listTemplate := strings.Split("https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/vmwareEngineNetworks", "?")[0]
+		listTemplate := strings.Split("https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/privateClouds", "?")[0]
 		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -77,7 +77,7 @@ func testSweepVmwareengineNetwork(region string) error {
 			continue
 		}
 
-		resourceList, ok := res["vmwareEngineNetworks"]
+		resourceList, ok := res["privateClouds"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 			continue
@@ -102,13 +102,18 @@ func testSweepVmwareengineNetwork(region string) error {
 				continue
 			}
 
-			deleteTemplate := "https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/vmwareEngineNetworks/{{name}}"
+			deleteTemplate := "https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/privateClouds/{{name}}"
 			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
 				continue
 			}
 			deleteUrl = deleteUrl + name
+
+			// We force delete the Private Cloud and ensure there's no delay in deletion
+			force := true
+			delayHours := 0
+			deleteUrl = deleteUrl + fmt.Sprintf("?force=%t&delayHours=%d", force, delayHours)
 
 			// Don't wait on operations as we may have a lot to delete
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

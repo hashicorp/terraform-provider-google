@@ -14,8 +14,6 @@ import (
 
 func TestAccProviderFunction_zone_from_id(t *testing.T) {
 	t.Parallel()
-	// Skipping due to requiring TF 1.8.0 in VCR systems : https://github.com/hashicorp/terraform-provider-google/issues/17451
-	acctest.SkipIfVcr(t)
 
 	zone := envvar.GetTestZoneFromEnv()
 	zoneRegex := regexp.MustCompile(fmt.Sprintf("^%s$", zone))
