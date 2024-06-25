@@ -81,6 +81,12 @@ resource "google_bigquery_table" "sample_table" {
         "mode": "NULLABLE"
     },
     {
+        "name": "test_entity_column",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "test secondary entity column"
+    },
+    {
         "name": "feature_timestamp",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
@@ -105,7 +111,7 @@ func testAccVertexAIFeatureGroup_updated(context map[string]interface{}) string 
     big_query_source {
         input_uri = "bq://${google_bigquery_table.sample_table.project}.${google_bigquery_table.sample_table.dataset_id}.${google_bigquery_table.sample_table.table_id}"
     }
-    entity_id_columns = ["feature_id"]
+    entity_id_columns = ["feature_id","test_entity_column"]
   }
 }
 
@@ -127,6 +133,12 @@ resource "google_bigquery_table" "sample_table" {
         "name": "feature_id",
         "type": "STRING",
         "mode": "NULLABLE"
+    },
+    {
+        "name": "test_entity_column",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "test secondary entity column"
     },
     {
         "name": "feature_timestamp",

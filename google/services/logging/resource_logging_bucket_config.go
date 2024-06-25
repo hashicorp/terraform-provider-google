@@ -95,6 +95,7 @@ See [Enabling CMEK for Logging Buckets](https://cloud.google.com/logging/docs/ro
 		Type:        schema.TypeSet,
 		MaxItems:    20,
 		Optional:    true,
+		Computed:    true,
 		Description: `A list of indexed fields and related configuration data.`,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{

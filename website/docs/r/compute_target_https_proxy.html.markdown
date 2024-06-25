@@ -344,6 +344,14 @@ The following arguments are supported:
   Default value is `NONE`.
   Possible values are: `NONE`, `ENABLE`, `DISABLE`.
 
+* `tls_early_data` -
+  (Optional)
+  Specifies whether TLS 1.3 0-RTT Data (“Early Data”) should be accepted for this service.
+  Early Data allows a TLS resumption handshake to include the initial application payload
+  (a HTTP request) alongside the handshake, reducing the effective round trips to “zero”.
+  This applies to TLS 1.3 connections over TCP (HTTP/2) as well as over UDP (QUIC/h3).
+  Possible values are: `STRICT`, `PERMISSIVE`, `DISABLED`.
+
 * `certificate_manager_certificates` -
   (Optional)
   URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
