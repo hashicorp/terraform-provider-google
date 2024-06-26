@@ -147,8 +147,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Description: `The type of network connectivity used by the AppConnection. Refer to
-https://cloud.google.com/beyondcorp/docs/reference/rest/v1/projects.locations.appConnections#type
+				Description: `The type of network connectivity used by the AppConnection. Refer
+to https://cloud.google.com/beyondcorp/docs/reference/rest/v1/projects.locations.appConnections#type
 for a list of possible values.`,
 			},
 			"effective_labels": {
