@@ -42,8 +42,8 @@ To get more information about NotificationChannel, see:
 
 * [API documentation](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.notificationChannels)
 * How-to Guides
-    * [Notification Options](https://cloud.google.com/monitoring/support/notification-options)
     * [Monitoring API Documentation](https://cloud.google.com/monitoring/api/v3/)
+    * [Notification Options](https://cloud.google.com/monitoring/support/notification-options)
 
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `sensitive_labels.auth_token`, `sensitive_labels.password`, `sensitive_labels.service_key`.

@@ -27,8 +27,8 @@ To get more information about ExternalAccountKey, see:
 * [API documentation](https://cloud.google.com/certificate-manager/docs/reference/public-ca/rest/v1/projects.locations.externalAccountKeys/create)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/certificate-manager/docs/public-ca)
-    * [Request EAB key ID and HMAC](https://cloud.google.com/certificate-manager/docs/public-ca-tutorial#request-key-hmac)
     * [Request Certificate Using Public CA](https://cloud.google.com/certificate-manager/docs/public-ca-tutorial)
+    * [Request EAB key ID and HMAC](https://cloud.google.com/certificate-manager/docs/public-ca-tutorial#request-key-hmac)
 
 ~> **Warning:** This resource is create-only and could not be read from the API.
 On delete, the resource would be removed from the state.
