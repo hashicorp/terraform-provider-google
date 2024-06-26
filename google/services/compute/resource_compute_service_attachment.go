@@ -901,7 +901,6 @@ func expandComputeServiceAttachmentRegion(v interface{}, d tpgresource.Terraform
 }
 
 func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-
 	// need to send value in PATCH due to validation bug on api b/198329756
 	nameProp := d.Get("name")
 	if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
