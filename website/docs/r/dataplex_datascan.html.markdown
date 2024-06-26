@@ -239,7 +239,7 @@ resource "google_dataplex_datascan" "full_quality" {
         sql_expression = "COUNT(*) > 0"
       }
     }
-    
+
     rules {
       dimension = "VALIDITY"
       sql_assertion {
@@ -538,7 +538,7 @@ The following arguments are supported:
 
 * `sql_statement` -
   (Required)
-  The SQL Statement.
+  The SQL statement.
 
 <a name="nested_data_profile_spec"></a>The `data_profile_spec` block supports:
 

@@ -344,7 +344,7 @@ resource "google_dataplex_datascan" "full_quality" {
         sql_expression = "COUNT(*) > 0"
       }
     }
-    
+
     rules {
       dimension = "VALIDITY"
       sql_assertion {

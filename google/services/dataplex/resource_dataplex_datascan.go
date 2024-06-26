@@ -413,7 +413,7 @@ Only relevant if a minValue has been defined. Default = false.`,
 												"sql_statement": {
 													Type:        schema.TypeString,
 													Required:    true,
-													Description: `The SQL Statement.`,
+													Description: `The SQL statement.`,
 												},
 											},
 										},
