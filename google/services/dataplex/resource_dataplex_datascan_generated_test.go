@@ -344,6 +344,13 @@ resource "google_dataplex_datascan" "full_quality" {
         sql_expression = "COUNT(*) > 0"
       }
     }
+    
+    rules {
+      dimension = "VALIDITY"
+      sql_assertion {
+        sql_statement = "select * from bigquery-public-data.austin_bikeshare.bikeshare_stations where station_id is null"
+      }
+    }
   }
 
 
