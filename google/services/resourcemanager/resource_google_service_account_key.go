@@ -147,6 +147,12 @@ func resourceGoogleServiceAccountKeyCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+
+	// We can't guarantee complete consistency even after waiting on
+	// the results, so sleep for some additional time to reduce the
+	// likelihood of eventual consistency failures.
+	time.Sleep(10 * time.Second)
+
 	return resourceGoogleServiceAccountKeyRead(d, meta)
 }
 
