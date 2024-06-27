@@ -1,0 +1,3 @@
+```release-note:enhancement
+gkehub: added `config_sync.enabled` field to ConfigManagement `fleet_default_member_config`
+```

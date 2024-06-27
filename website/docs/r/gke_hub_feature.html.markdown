@@ -492,6 +492,10 @@ The following arguments are supported:
   (Optional)
   Specifies whether the Config Sync Repo is in hierarchical or unstructured mode
 
+* `enabled` -
+  (Optional)
+  Enables the installation of ConfigSync. If set to true, ConfigSync resources will be created and the other ConfigSync fields will be applied if exist. If set to false, all other ConfigSync fields will be ignored, ConfigSync resources will be deleted. If omitted, ConfigSync resources will be managed depends on the presence of the git or oci field.
+
 * `prevent_drift` -
   (Optional)
   Set to true to enable the Config Sync admission webhook to prevent drifts. If set to `false`, disables the Config Sync admission webhook and does not prevent drifts.
