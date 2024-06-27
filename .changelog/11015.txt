@@ -1,0 +1,4 @@
+```release-note:REPLACEME
+ Added new field vm_tags to the workstation config
+
+```

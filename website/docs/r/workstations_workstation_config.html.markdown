@@ -39,6 +39,24 @@ To get more information about WorkstationConfig, see:
 
 
 ```hcl
+resource "google_project" "project" {
+  project_id = ""
+  name       = ""
+  org_id     = ""
+}
+  
+resource "google_tags_tag_key" "tag_key1" {
+  provider = "google-beta"
+  parent = "organizations/"
+  short_name = "tag_key1"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  provider = "google-beta"
+  parent = "tagKeys/${google_tags_tag_key.tag_key1.name}"
+  short_name = "tag_value1"
+}
+
 resource "google_compute_network" "default" {
   provider                = google-beta
   name                    = "workstation-cluster"
@@ -93,6 +111,9 @@ resource "google_workstations_workstation_config" "default" {
       boot_disk_size_gb           = 35
       disable_public_ip_addresses = true
       disable_ssh                 = false
+      vm_tags = {
+        "tagKeys/${google_tags_tag_key.tag_key1.short_name}" = "tagValues/${google_tags_tag_value.tag_value1.short_name}"
+      }
     }
   }
 }
@@ -727,6 +748,14 @@ The following arguments are supported:
   (Optional)
   A list of the boost configurations that workstations created using this workstation configuration are allowed to use.
   Structure is [documented below](#nested_boost_configs).
+
+* `vm_tags` -
+  (Optional)
+  Resource manager tags to be bound to the VM instances backing the Workstations.
+  Tag keys and values have the same definition as
+  https://cloud.google.com/resource-manager/docs/tags/tags-overview
+  Keys must be in the format `tagKeys/{tag_key_id}`, and
+  values are in the format `tagValues/456`.
 
 
 <a name="nested_shielded_instance_config"></a>The `shielded_instance_config` block supports:
