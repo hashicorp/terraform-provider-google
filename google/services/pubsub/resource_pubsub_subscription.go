@@ -141,7 +141,7 @@ If all three are empty, then the subscriber will pull and ack messages using API
 						"table": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: `The name of the table to which to write data, of the form {projectId}:{datasetId}.{tableId}`,
+							Description: `The name of the table to which to write data, of the form {projectId}.{datasetId}.{tableId}`,
 						},
 						"drop_unknown_fields": {
 							Type:     schema.TypeBool,
