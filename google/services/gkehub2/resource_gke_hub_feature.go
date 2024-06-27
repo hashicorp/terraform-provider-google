@@ -83,6 +83,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Enables the installation of ConfigSync. If set to true, ConfigSync resources will be created and the other ConfigSync fields will be applied if exist. If set to false, all other ConfigSync fields will be ignored, ConfigSync resources will be deleted. If omitted, ConfigSync resources will be managed depends on the presence of the git or oci field.`,
+												},
 												"git": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -1354,6 +1359,8 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	transformed := make(map[string]interface{})
 	transformed["source_format"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(original["sourceFormat"], d, config)
+	transformed["enabled"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(original["enabled"], d, config)
 	transformed["prevent_drift"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["preventDrift"], d, config)
 	transformed["git"] =
@@ -1363,6 +1370,10 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2253,6 +2264,13 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 		transformed["sourceFormat"] = transformedSourceFormat
 	}
 
+	transformedEnabled, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
 	transformedPreventDrift, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["prevent_drift"], d, config)
 	if err != nil {
 		return nil, err
@@ -2278,6 +2296,10 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
