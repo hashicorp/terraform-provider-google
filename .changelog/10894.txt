@@ -1,0 +1,3 @@
+```release-note:none
+bigqueryreservation: `google_bigquery_reservation_assignment ` now uses mmv1 engine instead of DCL
+```
