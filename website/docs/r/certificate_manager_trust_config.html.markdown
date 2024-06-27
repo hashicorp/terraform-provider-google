@@ -60,6 +60,32 @@ resource "google_certificate_manager_trust_config" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=certificate_manager_trust_config_allowlisted_certificates&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Certificate Manager Trust Config Allowlisted Certificates
+
+
+```hcl
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "trust-config"
+  description = "A sample trust config resource with allowlisted certificates"
+  location = "global"
+
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert.pem") 
+  }
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert2.pem") 
+  }
+  
+  labels = {
+    foo = "bar"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -94,6 +120,12 @@ The following arguments are supported:
   This field is supported when TrustConfig is configured with Load Balancers, currently not supported for SPIFFE certificate validation.
   Structure is [documented below](#nested_trust_stores).
 
+* `allowlisted_certificates` -
+  (Optional)
+  Allowlisted PEM-encoded certificates. A certificate matching an allowlisted certificate is always considered valid as long as
+  the certificate is parseable, proof of private key possession is established, and constraints on the certificate's SAN field are met.
+  Structure is [documented below](#nested_allowlisted_certificates).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -127,6 +159,12 @@ The following arguments are supported:
   PEM intermediate certificate used for building up paths for validation.
   Each certificate provided in PEM format may occupy up to 5kB.
   **Note**: This property is sensitive and will not be displayed in the plan.
+
+<a name="nested_allowlisted_certificates"></a>The `allowlisted_certificates` block supports:
+
+* `pem_certificate` -
+  (Required)
+  PEM certificate that is allowlisted. The certificate can be up to 5k bytes, and must be a parseable X.509 certificate.
 
 ## Attributes Reference
 

@@ -78,6 +78,52 @@ resource "google_certificate_manager_trust_config" "default" {
 `, context)
 }
 
+func TestAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlistedCertificatesExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCertificateManagerTrustConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlistedCertificatesExample(context),
+			},
+			{
+				ResourceName:            "google_certificate_manager_trust_config.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCertificateManagerTrustConfig_certificateManagerTrustConfigAllowlistedCertificatesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_certificate_manager_trust_config" "default" {
+  name        = "tf-test-trust-config%{random_suffix}"
+  description = "A sample trust config resource with allowlisted certificates"
+  location = "global"
+
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert.pem") 
+  }
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert2.pem") 
+  }
+  
+  labels = {
+    foo = "bar"
+  }
+}
+`, context)
+}
+
 func testAccCheckCertificateManagerTrustConfigDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
