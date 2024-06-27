@@ -48,7 +48,7 @@ func testAccCertificateManagerTrustConfig_update0(context map[string]interface{}
 resource "google_certificate_manager_trust_config" "default" {
   name        = "tf-test-trust-config%{random_suffix}"
   description = "sample description for the trust config"
-  location    = "us-central1"
+  location = "global"
 
   trust_stores {
     trust_anchors { 
@@ -57,6 +57,10 @@ resource "google_certificate_manager_trust_config" "default" {
     intermediate_cas { 
       pem_certificate = file("test-fixtures/cert.pem")
     }
+  }
+
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert.pem") 
   }
 
   labels = {
@@ -71,7 +75,7 @@ func testAccCertificateManagerTrustConfig_update1(context map[string]interface{}
 resource "google_certificate_manager_trust_config" "default" {
   name        = "tf-test-trust-config%{random_suffix}"
   description = "sample description for the trust config 2"
-  location    = "us-central1"
+  location    = "global"
 
   trust_stores {
     trust_anchors { 
@@ -80,6 +84,10 @@ resource "google_certificate_manager_trust_config" "default" {
     intermediate_cas { 
       pem_certificate = file("test-fixtures/cert2.pem")
     }
+  }
+
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert.pem") 
   }
 
   labels = {
