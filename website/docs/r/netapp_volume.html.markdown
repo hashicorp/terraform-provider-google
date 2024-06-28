@@ -385,6 +385,14 @@ In addition to the arguments listed above, the following computed attributes are
   Reports mount instructions for this volume.
   Structure is [documented below](#nested_mount_options).
 
+* `zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the active zone for regional volume.
+
+* `replica_zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the replica zone for regional volume.
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
