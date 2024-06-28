@@ -659,17 +659,17 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("target"); !tpgresource.IsEmptyValue(reflect.ValueOf(targetProp)) && (ok || !reflect.DeepEqual(v, targetProp)) {
 		obj["target"] = targetProp
 	}
-	allowGlobalAccessProp, err := expandComputeForwardingRuleAllowGlobalAccess(d.Get("allow_global_access"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("allow_global_access"); ok || !reflect.DeepEqual(v, allowGlobalAccessProp) {
-		obj["allowGlobalAccess"] = allowGlobalAccessProp
-	}
 	labelFingerprintProp, err := expandComputeForwardingRuleLabelFingerprint(d.Get("label_fingerprint"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
 		obj["labelFingerprint"] = labelFingerprintProp
+	}
+	allowGlobalAccessProp, err := expandComputeForwardingRuleAllowGlobalAccess(d.Get("allow_global_access"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_global_access"); ok || !reflect.DeepEqual(v, allowGlobalAccessProp) {
+		obj["allowGlobalAccess"] = allowGlobalAccessProp
 	}
 	allPortsProp, err := expandComputeForwardingRuleAllPorts(d.Get("all_ports"), d, config)
 	if err != nil {
@@ -941,13 +941,13 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 	if err := d.Set("target", flattenComputeForwardingRuleTarget(res["target"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
+	if err := d.Set("label_fingerprint", flattenComputeForwardingRuleLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
 	if err := d.Set("allow_global_access", flattenComputeForwardingRuleAllowGlobalAccess(res["allowGlobalAccess"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("labels", flattenComputeForwardingRuleLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ForwardingRule: %s", err)
-	}
-	if err := d.Set("label_fingerprint", flattenComputeForwardingRuleLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("all_ports", flattenComputeForwardingRuleAllPorts(res["allPorts"], d, config)); err != nil {
@@ -1055,51 +1055,6 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 	}
-	if d.HasChange("allow_global_access") {
-		obj := make(map[string]interface{})
-
-		allowGlobalAccessProp, err := expandComputeForwardingRuleAllowGlobalAccess(d.Get("allow_global_access"), d, config)
-		if err != nil {
-			return err
-		} else if v, ok := d.GetOkExists("allow_global_access"); ok || !reflect.DeepEqual(v, allowGlobalAccessProp) {
-			obj["allowGlobalAccess"] = allowGlobalAccessProp
-		}
-
-		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "PATCH",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
-		})
-		if err != nil {
-			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating ForwardingRule %q: %#v", d.Id(), res)
-		}
-
-		err = ComputeOperationWaitTime(
-			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-	}
 	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
 		obj := make(map[string]interface{})
 
@@ -1131,6 +1086,51 @@ func resourceComputeForwardingRuleUpdate(d *schema.ResourceData, meta interface{
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating ForwardingRule %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating ForwardingRule %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, tpgresource.GetResourceNameFromSelfLink(project), "Updating ForwardingRule", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("allow_global_access") {
+		obj := make(map[string]interface{})
+
+		allowGlobalAccessProp, err := expandComputeForwardingRuleAllowGlobalAccess(d.Get("allow_global_access"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("allow_global_access"); ok || !reflect.DeepEqual(v, allowGlobalAccessProp) {
+			obj["allowGlobalAccess"] = allowGlobalAccessProp
+		}
+
+		url, err := tpgresource.ReplaceVarsForId(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/forwardingRules/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,
@@ -1379,6 +1379,10 @@ func flattenComputeForwardingRuleTarget(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenComputeForwardingRuleLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeForwardingRuleAllowGlobalAccess(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1396,10 +1400,6 @@ func flattenComputeForwardingRuleLabels(v interface{}, d *schema.ResourceData, c
 	}
 
 	return transformed
-}
-
-func flattenComputeForwardingRuleLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
 }
 
 func flattenComputeForwardingRuleAllPorts(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1601,11 +1601,11 @@ func expandComputeForwardingRuleTarget(v interface{}, d tpgresource.TerraformRes
 	return url + v.(string), nil
 }
 
-func expandComputeForwardingRuleAllowGlobalAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeForwardingRuleLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandComputeForwardingRuleLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandComputeForwardingRuleAllowGlobalAccess(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
