@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug preventing the creation of `google_compute_autoscaler` and `google_compute_region_autoscaler` resources if both `maxReplicas` and `minReplicas` were configured as zero.
+```
