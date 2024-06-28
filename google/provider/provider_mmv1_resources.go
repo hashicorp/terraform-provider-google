@@ -232,6 +232,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_iam_testable_permissions":                     resourcemanager.DataSourceGoogleIamTestablePermissions(),
 	"google_iap_client":                                   iap.DataSourceGoogleIapClient(),
 	"google_kms_crypto_key":                               kms.DataSourceGoogleKmsCryptoKey(),
+	"google_kms_crypto_keys":                              kms.DataSourceGoogleKmsCryptoKeys(),
 	"google_kms_crypto_key_version":                       kms.DataSourceGoogleKmsCryptoKeyVersion(),
 	"google_kms_key_ring":                                 kms.DataSourceGoogleKmsKeyRing(),
 	"google_kms_secret":                                   kms.DataSourceGoogleKmsSecret(),
