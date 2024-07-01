@@ -957,6 +957,74 @@ func TestAccComputeRegionInstanceTemplate_spot(t *testing.T) {
 	})
 }
 
+func TestAccComputeRegionInstanceTemplate_spot_maxRunDuration(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	var expectedMaxRunDuration = compute.Duration{}
+	// Define in testAccComputeRegionInstanceTemplate_spot_maxRunDuration
+	expectedMaxRunDuration.Nanos = 123
+	expectedMaxRunDuration.Seconds = 60
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_spot_maxRunDuration(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeRegionInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeRegionInstanceTemplatePreemptible(&instanceTemplate, true),
+					testAccCheckComputeRegionInstanceTemplateProvisioningModel(&instanceTemplate, "SPOT"),
+					testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(&instanceTemplate, "DELETE"),
+					testAccCheckComputeRegionInstanceTemplateMaxRunDuration(&instanceTemplate, expectedMaxRunDuration),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeRegionInstanceTemplate_maxRunDuration_onInstanceStopAction(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate compute.InstanceTemplate
+	var expectedMaxRunDuration = compute.Duration{}
+	// Define in testAccComputeRegionInstanceTemplate_spot
+	expectedMaxRunDuration.Nanos = 123
+	expectedMaxRunDuration.Seconds = 60
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeRegionInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionInstanceTemplate_maxRunDuration_onInstanceStopAction(acctest.RandString(t, 10)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionInstanceTemplateExists(
+						t, "google_compute_region_instance_template.foobar", &instanceTemplate),
+					testAccCheckComputeRegionInstanceTemplateAutomaticRestart(&instanceTemplate, false),
+					testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(&instanceTemplate, "STOP"),
+					testAccCheckComputeRegionInstanceTemplateMaxRunDuration(&instanceTemplate, expectedMaxRunDuration),
+				),
+			},
+			{
+				ResourceName:      "google_compute_region_instance_template.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccComputeRegionInstanceTemplate_localSsdRecoveryTimeout(t *testing.T) {
 	t.Parallel()
 
@@ -1289,6 +1357,16 @@ func testAccCheckComputeRegionInstanceTemplateInstanceTerminationAction(instance
 		if instanceTemplate.Properties.Scheduling.InstanceTerminationAction != instance_termination_action {
 			return fmt.Errorf("Expected instance_termination_action  %v, got %v", instance_termination_action, instanceTemplate.Properties.Scheduling.InstanceTerminationAction)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeRegionInstanceTemplateMaxRunDuration(instanceTemplate *compute.InstanceTemplate, instance_max_run_duration_want compute.Duration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if !reflect.DeepEqual(*instanceTemplate.Properties.Scheduling.MaxRunDuration, instance_max_run_duration_want) {
+			return fmt.Errorf("gExpected instance_termination_action: %#v; got %#v", instance_max_run_duration_want, instanceTemplate.Properties.Scheduling.MaxRunDuration)
+		}
+
 		return nil
 	}
 }
@@ -3078,6 +3156,58 @@ resource "google_compute_region_instance_template" "foobar" {
     automatic_restart = false
     provisioning_model = "SPOT"
     instance_termination_action = "DELETE"
+    max_run_duration {
+	nanos = 123
+	seconds = 60
+    }
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+}
+`, suffix)
+}
+
+func testAccComputeRegionInstanceTemplate_maxRunDuration_onInstanceStopAction(suffix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_region_instance_template" "foobar" {
+  name           = "tf-test-instance-template-%s"
+  region      = "us-central1"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+    automatic_restart = false
+    provisioning_model = "STANDARD"
+    instance_termination_action = "STOP"
+    max_run_duration {
+	nanos = 123
+	seconds = 60
+    }
+	on_instance_stop_action {
+		discard_local_ssd = true
+	}
 
   }
 
