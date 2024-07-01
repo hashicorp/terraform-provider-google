@@ -870,7 +870,6 @@ resource "google_compute_region_health_check" "default" {
     request_path = "/"
   }
 }
-
 `, context)
 }
 
