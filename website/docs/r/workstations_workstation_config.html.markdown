@@ -39,22 +39,16 @@ To get more information about WorkstationConfig, see:
 
 
 ```hcl
-resource "google_project" "project" {
-  project_id = ""
-  name       = ""
-  org_id     = ""
-}
-  
 resource "google_tags_tag_key" "tag_key1" {
-  provider = "google-beta"
-  parent = "organizations/"
-  short_name = "tag_key1"
+  provider   = google-beta
+  parent     = "organizations/123456789"
+  short_name = "keyname"
 }
 
 resource "google_tags_tag_value" "tag_value1" {
-  provider = "google-beta"
-  parent = "tagKeys/${google_tags_tag_key.tag_key1.name}"
-  short_name = "tag_value1"
+  provider   = google-beta
+  parent     = "tagKeys/${google_tags_tag_key.tag_key1.name}"
+  short_name = "valuename"
 }
 
 resource "google_compute_network" "default" {
@@ -112,7 +106,7 @@ resource "google_workstations_workstation_config" "default" {
       disable_public_ip_addresses = true
       disable_ssh                 = false
       vm_tags = {
-        "tagKeys/${google_tags_tag_key.tag_key1.short_name}" = "tagValues/${google_tags_tag_value.tag_value1.short_name}"
+        "tagKeys/${google_tags_tag_key.tag_key1.name}" = "tagValues/${google_tags_tag_value.tag_value1.name}"
       }
     }
   }
