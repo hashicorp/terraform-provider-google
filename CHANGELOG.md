@@ -1,4 +1,31 @@
-## 5.36.0 (Unreleased)
+## 5.37.0 (Unreleased)
+
+## 5.36.0 (July 1, 2024)
+
+FEATURES:
+* **New Resource:** `google_storage_managed_folder_iam` ([#18555](https://github.com/hashicorp/terraform-provider-google/pull/18555))
+* **New Resource:** `google_storage_managed_folder` ([#18555](https://github.com/hashicorp/terraform-provider-google/pull/18555))
+
+IMPROVEMENTS:
+* bigtable: added `ignore_warnings` field to `google_bigtable_gc_policy` resource ([#18492](https://github.com/hashicorp/terraform-provider-google/pull/18492))
+* cloudfunctions2: added `build_config.automatic_update_policy` and `build_config.on_deploy_update_policy` fields to `google_cloudfunctions2_function` resource ([#18540](https://github.com/hashicorp/terraform-provider-google/pull/18540))
+* compute: added `confidential_instance_config.confidential_instance_type` field to `google_compute_instance`, `google_compute_instance_template`, and `google_compute_region_instance_template` resources ([#18554](https://github.com/hashicorp/terraform-provider-google/pull/18554))
+* compute: added `custom_error_response_policy` and `default_custom_error_response_policy` fields to `google_compute_url_map` resource ([#18511](https://github.com/hashicorp/terraform-provider-google/pull/18511))
+* compute: added `tls_early_data` field to `google_compute_target_https_proxy` resource ([#18512](https://github.com/hashicorp/terraform-provider-google/pull/18512))
+* compute: promoted `google_compute_network_attachment` resource from beta to GA ([#18494](https://github.com/hashicorp/terraform-provider-google/pull/18494))
+* datafusion: added `connection_type` and `private_service_connect_config` fields to `google_data_fusion_instance` resource ([#18525](https://github.com/hashicorp/terraform-provider-google/pull/18525))
+* healthcare: added `encryption_spec` field to `google_healthcare_dataset` resource ([#18528](https://github.com/hashicorp/terraform-provider-google/pull/18528))
+* monitoring: added `links` field to `google_monitoring_alert_policy` resource ([#18549](https://github.com/hashicorp/terraform-provider-google/pull/18549))
+* vertexai: added update support for `big_query.entity_id_columns` field on `google_vertex_ai_feature_group` resource ([#18493](https://github.com/hashicorp/terraform-provider-google/pull/18493))
+* vertexai: promoted `dedicated_serving_endpoint` field on `google_vertex_ai_feature_online_store` resource from beta to GA ([#18513](https://github.com/hashicorp/terraform-provider-google/pull/18513))
+
+BUG FIXES:
+* accesscontextmanager: fixed perma-diff caused by ordering of `service_perimeters` in `google_access_context_manager_service_perimeters` resource ([#18520](https://github.com/hashicorp/terraform-provider-google/pull/18520))
+* compute: fixed a crash in `google_compute_reservation` resource when `share_settings` field has changes ([#18498](https://github.com/hashicorp/terraform-provider-google/pull/18498))
+* compute: fixed issue in `google_compute_instance` resource where `service_account` is not set when specifying `service_account.email` and no `service_account.scopes` ([#18521](https://github.com/hashicorp/terraform-provider-google/pull/18521))
+* gkehub2: fixed `google_gke_hub_feature` resource to allow `fleet_default_member_config` field to be unset ([#18487](https://github.com/hashicorp/terraform-provider-google/pull/18487))
+* identityplatform: fixed perma-diff on `google_identity_platform_config` resource when `sms_region_config` is not set ([#18537](https://github.com/hashicorp/terraform-provider-google/pull/18537))
+* logging: fixed perma-diff on `index_configs` in `google_logging_organization_bucket_config` resource ([#18501](https://github.com/hashicorp/terraform-provider-google/pull/18501))
 
 ## 5.35.0 (June 24, 2024)
 
