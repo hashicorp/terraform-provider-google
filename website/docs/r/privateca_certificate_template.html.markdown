@@ -26,9 +26,9 @@ To get more information about CertificateTemplate, see:
 
 * [API documentation](https://cloud.google.com/certificate-authority-service/docs/reference/rest)
 * How-to Guides
+    * [Common configurations and Certificate Profiles](https://cloud.google.com/certificate-authority-service/docs/certificate-profile)
     * [Official Documentation](https://cloud.google.com/certificate-authority-service)
     * [Understanding Certificate Templates](https://cloud.google.com/certificate-authority-service/docs/certificate-template)
-    * [Common configurations and Certificate Profiles](https://cloud.google.com/certificate-authority-service/docs/certificate-profile)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=privateca_template_basic&open_in_editor=main.tf" target="_blank">

@@ -105,6 +105,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
 	"github.com/hashicorp/terraform-provider-google/google/services/securitycentermanagement"
+	"github.com/hashicorp/terraform-provider-google/google/services/securitycenterv2"
 	"github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
 	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
@@ -231,8 +232,10 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_iam_testable_permissions":                     resourcemanager.DataSourceGoogleIamTestablePermissions(),
 	"google_iap_client":                                   iap.DataSourceGoogleIapClient(),
 	"google_kms_crypto_key":                               kms.DataSourceGoogleKmsCryptoKey(),
+	"google_kms_crypto_keys":                              kms.DataSourceGoogleKmsCryptoKeys(),
 	"google_kms_crypto_key_version":                       kms.DataSourceGoogleKmsCryptoKeyVersion(),
 	"google_kms_key_ring":                                 kms.DataSourceGoogleKmsKeyRing(),
+	"google_kms_key_rings":                                kms.DataSourceGoogleKmsKeyRings(),
 	"google_kms_secret":                                   kms.DataSourceGoogleKmsSecret(),
 	"google_kms_secret_ciphertext":                        kms.DataSourceGoogleKmsSecretCiphertext(),
 	"google_folder":                                       resourcemanager.DataSourceGoogleFolder(),
@@ -378,6 +381,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_pubsub_topic_iam_policy":                         tpgiamresource.DataSourceIamPolicy(pubsub.PubsubTopicIamSchema, pubsub.PubsubTopicIamUpdaterProducer),
 	"google_secret_manager_secret_iam_policy":                tpgiamresource.DataSourceIamPolicy(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer),
 	"google_secure_source_manager_instance_iam_policy":       tpgiamresource.DataSourceIamPolicy(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer),
+	"google_secure_source_manager_repository_iam_policy":     tpgiamresource.DataSourceIamPolicy(securesourcemanager.SecureSourceManagerRepositoryIamSchema, securesourcemanager.SecureSourceManagerRepositoryIamUpdaterProducer),
 	"google_scc_source_iam_policy":                           tpgiamresource.DataSourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer),
 	"google_endpoints_service_iam_policy":                    tpgiamresource.DataSourceIamPolicy(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer),
 	"google_endpoints_service_consumers_iam_policy":          tpgiamresource.DataSourceIamPolicy(servicemanagement.ServiceManagementServiceConsumersIamSchema, servicemanagement.ServiceManagementServiceConsumersIamUpdaterProducer),
@@ -406,6 +410,7 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 	"google_kms_crypto_key_iam_policy":          tpgiamresource.DataSourceIamPolicy(kms.IamKmsCryptoKeySchema, kms.NewKmsCryptoKeyIamUpdater),
 	"google_spanner_instance_iam_policy":        tpgiamresource.DataSourceIamPolicy(spanner.IamSpannerInstanceSchema, spanner.NewSpannerInstanceIamUpdater),
 	"google_spanner_database_iam_policy":        tpgiamresource.DataSourceIamPolicy(spanner.IamSpannerDatabaseSchema, spanner.NewSpannerDatabaseIamUpdater),
+	"google_storage_managed_folder_iam_policy":  tpgiamresource.DataSourceIamPolicy(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer),
 	"google_organization_iam_policy":            tpgiamresource.DataSourceIamPolicy(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater),
 	"google_project_iam_policy":                 tpgiamresource.DataSourceIamPolicy(resourcemanager.IamProjectSchema, resourcemanager.NewProjectIamUpdater),
 	"google_pubsub_subscription_iam_policy":     tpgiamresource.DataSourceIamPolicy(pubsub.IamPubsubSubscriptionSchema, pubsub.NewPubsubSubscriptionIamUpdater),
@@ -414,9 +419,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 427
-// Generated IAM resources: 249
-// Total generated resources: 676
+// Generated resources: 431
+// Generated IAM resources: 252
+// Total generated resources: 683
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -509,6 +514,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_bigquery_bi_reservation":                                             bigqueryreservation.ResourceBigqueryReservationBiReservation(),
 	"google_bigquery_capacity_commitment":                                        bigqueryreservation.ResourceBigqueryReservationCapacityCommitment(),
 	"google_bigquery_reservation":                                                bigqueryreservation.ResourceBigqueryReservationReservation(),
+	"google_bigquery_reservation_assignment":                                     bigqueryreservation.ResourceBigqueryReservationReservationAssignment(),
 	"google_bigtable_app_profile":                                                bigtable.ResourceBigtableAppProfile(),
 	"google_billing_budget":                                                      billing.ResourceBillingBudget(),
 	"google_binary_authorization_attestor":                                       binaryauthorization.ResourceBinaryAuthorizationAttestor(),
@@ -995,6 +1001,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_secure_source_manager_instance_iam_binding":                          tpgiamresource.ResourceIamBinding(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_member":                           tpgiamresource.ResourceIamMember(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_policy":                           tpgiamresource.ResourceIamPolicy(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
+	"google_secure_source_manager_repository":                                    securesourcemanager.ResourceSecureSourceManagerRepository(),
+	"google_secure_source_manager_repository_iam_binding":                        tpgiamresource.ResourceIamBinding(securesourcemanager.SecureSourceManagerRepositoryIamSchema, securesourcemanager.SecureSourceManagerRepositoryIamUpdaterProducer, securesourcemanager.SecureSourceManagerRepositoryIdParseFunc),
+	"google_secure_source_manager_repository_iam_member":                         tpgiamresource.ResourceIamMember(securesourcemanager.SecureSourceManagerRepositoryIamSchema, securesourcemanager.SecureSourceManagerRepositoryIamUpdaterProducer, securesourcemanager.SecureSourceManagerRepositoryIdParseFunc),
+	"google_secure_source_manager_repository_iam_policy":                         tpgiamresource.ResourceIamPolicy(securesourcemanager.SecureSourceManagerRepositoryIamSchema, securesourcemanager.SecureSourceManagerRepositoryIamUpdaterProducer, securesourcemanager.SecureSourceManagerRepositoryIdParseFunc),
 	"google_scc_event_threat_detection_custom_module":                            securitycenter.ResourceSecurityCenterEventThreatDetectionCustomModule(),
 	"google_scc_folder_custom_module":                                            securitycenter.ResourceSecurityCenterFolderCustomModule(),
 	"google_scc_mute_config":                                                     securitycenter.ResourceSecurityCenterMuteConfig(),
@@ -1009,6 +1019,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_management_organization_event_threat_detection_custom_module":    securitycentermanagement.ResourceSecurityCenterManagementOrganizationEventThreatDetectionCustomModule(),
 	"google_scc_management_organization_security_health_analytics_custom_module": securitycentermanagement.ResourceSecurityCenterManagementOrganizationSecurityHealthAnalyticsCustomModule(),
 	"google_scc_management_project_security_health_analytics_custom_module":      securitycentermanagement.ResourceSecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule(),
+	"google_scc_v2_organization_notification_config":                             securitycenterv2.ResourceSecurityCenterV2OrganizationNotificationConfig(),
 	"google_securityposture_posture":                                             securityposture.ResourceSecurityposturePosture(),
 	"google_securityposture_posture_deployment":                                  securityposture.ResourceSecurityposturePostureDeployment(),
 	"google_endpoints_service_iam_binding":                                       tpgiamresource.ResourceIamBinding(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
@@ -1033,6 +1044,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_storage_bucket_access_control":                                       storage.ResourceStorageBucketAccessControl(),
 	"google_storage_default_object_access_control":                               storage.ResourceStorageDefaultObjectAccessControl(),
 	"google_storage_hmac_key":                                                    storage.ResourceStorageHmacKey(),
+	"google_storage_managed_folder":                                              storage.ResourceStorageManagedFolder(),
 	"google_storage_object_access_control":                                       storage.ResourceStorageObjectAccessControl(),
 	"google_storage_insights_report_config":                                      storageinsights.ResourceStorageInsightsReportConfig(),
 	"google_storage_transfer_agent_pool":                                         storagetransfer.ResourceStorageTransferAgentPool(),
@@ -1209,6 +1221,9 @@ var handwrittenIAMResources = map[string]*schema.Resource{
 	"google_spanner_database_iam_binding":        tpgiamresource.ResourceIamBinding(spanner.IamSpannerDatabaseSchema, spanner.NewSpannerDatabaseIamUpdater, spanner.SpannerDatabaseIdParseFunc),
 	"google_spanner_database_iam_member":         tpgiamresource.ResourceIamMember(spanner.IamSpannerDatabaseSchema, spanner.NewSpannerDatabaseIamUpdater, spanner.SpannerDatabaseIdParseFunc),
 	"google_spanner_database_iam_policy":         tpgiamresource.ResourceIamPolicy(spanner.IamSpannerDatabaseSchema, spanner.NewSpannerDatabaseIamUpdater, spanner.SpannerDatabaseIdParseFunc),
+	"google_storage_managed_folder_iam_binding":  tpgiamresource.ResourceIamBinding(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
+	"google_storage_managed_folder_iam_member":   tpgiamresource.ResourceIamMember(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
+	"google_storage_managed_folder_iam_policy":   tpgiamresource.ResourceIamPolicy(storage.StorageManagedFolderIamSchema, storage.StorageManagedFolderIamUpdaterProducer, storage.StorageManagedFolderIdParseFunc),
 	"google_organization_iam_binding":            tpgiamresource.ResourceIamBinding(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),
 	"google_organization_iam_member":             tpgiamresource.ResourceIamMember(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),
 	"google_organization_iam_policy":             tpgiamresource.ResourceIamPolicy(resourcemanager.IamOrganizationSchema, resourcemanager.NewOrganizationIamUpdater, resourcemanager.OrgIdParseFunc),

@@ -615,7 +615,7 @@ The following arguments are supported:
 
 * `table` -
   (Required)
-  The name of the table to which to write data, of the form {projectId}:{datasetId}.{tableId}
+  The name of the table to which to write data, of the form {projectId}.{datasetId}.{tableId}
 
 * `use_topic_schema` -
   (Optional)

@@ -26,6 +26,30 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
+func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// The range may be a:
+	// A) single IP address (e.g. 10.2.3.4)
+	// B) CIDR format string (e.g. 10.1.2.0/24)
+	// C) netmask (e.g. /24)
+	//
+	// For A) and B), no diff to suppress, they have to match completely.
+	// For C), The API picks a network IP address and this creates a diff of the form:
+	// network_interface.0.alias_ip_range.0.ip_cidr_range: "10.128.1.0/24" => "/24"
+	// We should only compare the mask portion for this case.
+	if len(new) > 0 && new[0] == '/' {
+		oldNetmaskStartPos := strings.LastIndex(old, "/")
+
+		if oldNetmaskStartPos != -1 {
+			oldNetmask := old[strings.LastIndex(old, "/"):]
+			if oldNetmask == new {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 var (
 	bootDiskKeys = []string{
 		"boot_disk.0.auto_delete",
@@ -392,7 +416,7 @@ func ResourceComputeInstance() *schema.Resource {
 									"ip_cidr_range": {
 										Type:             schema.TypeString,
 										Required:         true,
-										DiffSuppressFunc: tpgresource.IpCidrRangeDiffSuppress,
+										DiffSuppressFunc: IpCidrRangeDiffSuppress,
 										Description:      `The IP CIDR range represented by this alias IP range.`,
 									},
 									"subnetwork_range_name": {
@@ -921,9 +945,19 @@ be from 0 to 999,999,999 inclusive.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enable_confidential_compute": {
-							Type:        schema.TypeBool,
-							Required:    true,
-							Description: `Defines whether the instance should have confidential compute enabled.`,
+							Type:         schema.TypeBool,
+							Optional:     true,
+							Description:  `Defines whether the instance should have confidential compute enabled. Field will be deprecated in a future release`,
+							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
+						},
+						"confidential_instance_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Description: `
+								Specifies which confidential computing technology to use.
+								This could be one of the following values: SEV, SEV_SNP.
+								If SEV_SNP, min_cpu_platform = "AMD Milan" is currently required.`,
+							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
 				},

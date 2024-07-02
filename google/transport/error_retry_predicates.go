@@ -455,6 +455,31 @@ func Is429QuotaError(err error) (bool, string) {
 	return false, ""
 }
 
+// Do retry if operation returns a 429 and the reason is RATE_LIMIT_EXCEEDED
+func Is429RetryableQuotaError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code == 429 {
+			// Quota error isn't necessarily retryable if it's a resource instance limit; check details
+			isRateLimitExceeded := false
+			for _, d := range gerr.Details {
+				data := d.(map[string]interface{})
+				dType, ok := data["@type"]
+				// Find google.rpc.ErrorInfo in Details
+				if ok && strings.Contains(dType.(string), "ErrorInfo") {
+					if v, ok := data["reason"]; ok {
+						if v.(string) == "RATE_LIMIT_EXCEEDED" {
+							isRateLimitExceeded = true
+							break
+						}
+					}
+				}
+			}
+			return isRateLimitExceeded, "429s are retryable for this resource, but only if the reason is RATE_LIMIT_EXCEEDED"
+		}
+	}
+	return false, ""
+}
+
 // Retry if App Engine operation returns a 409 with a specific message for
 // concurrent operations, or a 404 indicating p4sa has not yet propagated.
 func IsAppEngineRetryableError(err error) (bool, string) {

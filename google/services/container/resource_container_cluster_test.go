@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/container"
 )
 
 func TestAccContainerCluster_basic(t *testing.T) {
@@ -512,6 +513,49 @@ func TestAccContainerCluster_withAuthenticatorGroupsConfig(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestUnitContainerCluster_Rfc3339TimeDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"same time, format changed to have leading zero": {
+			Old:                "2:00",
+			New:                "02:00",
+			ExpectDiffSuppress: true,
+		},
+		"same time, format changed not to have leading zero": {
+			Old:                "02:00",
+			New:                "2:00",
+			ExpectDiffSuppress: true,
+		},
+		"different time, both without leading zero": {
+			Old:                "2:00",
+			New:                "3:00",
+			ExpectDiffSuppress: false,
+		},
+		"different time, old with leading zero, new without": {
+			Old:                "02:00",
+			New:                "3:00",
+			ExpectDiffSuppress: false,
+		},
+		"different time, new with leading zero, oldwithout": {
+			Old:                "2:00",
+			New:                "03:00",
+			ExpectDiffSuppress: false,
+		},
+		"different time, both with leading zero": {
+			Old:                "02:00",
+			New:                "03:00",
+			ExpectDiffSuppress: false,
+		},
+	}
+	for tn, tc := range cases {
+		if container.Rfc3339TimeDiffSuppress("time", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, '%s' => '%s' expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
 }
 
 func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {

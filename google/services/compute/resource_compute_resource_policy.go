@@ -265,8 +265,7 @@ both 13:00-5 and 08:00 are valid.`,
 													ValidateFunc: verify.ValidateHourlyOnly,
 													Description: `Time within the window to start the operations.
 It must be in an hourly format "HH:MM",
-where HH : [00-23] and MM : [00] GMT.
-eg: 21:00`,
+where HH : [00-23] and MM : [00] GMT. eg: 21:00`,
 												},
 											},
 										},

@@ -108,6 +108,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycentermanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenterv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"

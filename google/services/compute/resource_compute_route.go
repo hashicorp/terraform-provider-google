@@ -20,6 +20,7 @@ package compute
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"reflect"
 	"time"
@@ -31,6 +32,19 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+// Use this method when the field accepts either an IP address or a
+// self_link referencing a resource (such as google_compute_route's
+// next_hop_ilb)
+func CompareIpAddressOrSelfLinkOrResourceName(_, old, new string, _ *schema.ResourceData) bool {
+	// if we can parse `new` as an IP address, then compare as strings
+	if net.ParseIP(new) != nil {
+		return new == old
+	}
+
+	// otherwise compare as self links
+	return tpgresource.CompareSelfLinkOrResourceName("", old, new, nil)
+}
 
 func ResourceComputeRoute() *schema.Resource {
 	return &schema.Resource{
@@ -104,7 +118,7 @@ partial valid URL:
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareIpAddressOrSelfLinkOrResourceName,
+				DiffSuppressFunc: CompareIpAddressOrSelfLinkOrResourceName,
 				Description: `The IP address or URL to a forwarding rule of type
 loadBalancingScheme=INTERNAL that should handle matching
 packets.
