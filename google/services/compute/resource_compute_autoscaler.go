@@ -1028,7 +1028,7 @@ func expandComputeAutoscalerAutoscalingPolicy(v interface{}, d tpgresource.Terra
 	transformedMaxReplicas, err := expandComputeAutoscalerAutoscalingPolicyMaxReplicas(original["max_replicas"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedMaxReplicas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["maxNumReplicas"] = transformedMaxReplicas
 	}
 

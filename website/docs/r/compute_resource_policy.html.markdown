@@ -293,8 +293,7 @@ The following arguments are supported:
   (Required)
   Time within the window to start the operations.
   It must be in an hourly format "HH:MM",
-  where HH : [00-23] and MM : [00] GMT.
-  eg: 21:00
+  where HH : [00-23] and MM : [00] GMT. eg: 21:00
 
 <a name="nested_daily_schedule"></a>The `daily_schedule` block supports:
 

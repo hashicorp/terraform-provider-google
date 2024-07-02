@@ -30,8 +30,8 @@ To get more information about Volume, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.volumes)
 * How-to Guides
-    * [Quickstart](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-volume)
     * [Documentation](https://cloud.google.com/netapp/volumes/docs/configure-and-use/volumes/overview)
+    * [Quickstart](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-volume)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=netapp_volume_basic&open_in_editor=main.tf" target="_blank">
@@ -384,6 +384,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `mount_options` -
   Reports mount instructions for this volume.
   Structure is [documented below](#nested_mount_options).
+
+* `zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the active zone for regional volume.
+
+* `replica_zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the replica zone for regional volume.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

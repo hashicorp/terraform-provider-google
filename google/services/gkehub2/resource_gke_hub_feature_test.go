@@ -473,8 +473,9 @@ resource "google_gke_hub_feature" "feature" {
   fleet_default_member_config {
     configmanagement {
       version = "1.16.1"
-     config_sync {
-       prevent_drift = true
+      config_sync {
+        enabled = true
+        prevent_drift = true
         source_format = "unstructured"
         oci {
           sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"

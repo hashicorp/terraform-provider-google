@@ -25,6 +25,15 @@ import (
 	"google.golang.org/api/container/v1"
 )
 
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
+// Assume either value could be in either format.
+func Rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
+		return true
+	}
+	return false
+}
+
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", verify.ProjectRegex))
 
@@ -927,7 +936,7 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										ValidateFunc:     verify.ValidateRFC3339Time,
-										DiffSuppressFunc: tpgresource.Rfc3339TimeDiffSuppress,
+										DiffSuppressFunc: Rfc3339TimeDiffSuppress,
 									},
 									"duration": {
 										Type:     schema.TypeString,
@@ -1048,7 +1057,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
-							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET and CADVISOR.`,
+							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

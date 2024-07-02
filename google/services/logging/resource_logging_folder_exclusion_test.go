@@ -36,6 +36,45 @@ func TestAccLoggingFolderExclusion(t *testing.T) {
 	}
 }
 
+func TestUnitLoggingFolder_OptionalPrefixSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		Prefix             string
+		ExpectDiffSuppress bool
+	}{
+		"with same prefix": {
+			Old:                "my-folder",
+			New:                "folders/my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: true,
+		},
+		"with different prefix": {
+			Old:                "folders/my-folder",
+			New:                "organizations/my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+		"same without prefix": {
+			Old:                "my-folder",
+			New:                "my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+		"different without prefix": {
+			Old:                "my-folder",
+			New:                "my-new-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if logging.OptionalPrefixSuppress(tc.Prefix)("folder", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
 func testAccLoggingFolderExclusion_basic(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
 	exclusionName := "tf-test-exclusion-" + acctest.RandString(t, 10)

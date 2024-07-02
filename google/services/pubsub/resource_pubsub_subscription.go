@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -43,6 +44,28 @@ func comparePubsubSubscriptionExpirationPolicy(_, old, new string, _ *schema.Res
 		trimmedOld = strings.TrimRight(strings.TrimSuffix(trimmedOld, "s"), "0") + "s"
 	}
 	return trimmedNew == trimmedOld
+}
+
+func IgnoreMissingKeyInMap(key string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		log.Printf("[DEBUG] - suppressing diff %q with old %q, new %q", k, old, new)
+		if strings.HasSuffix(k, ".%") {
+			oldNum, err := strconv.Atoi(old)
+			if err != nil {
+				log.Printf("[ERROR] could not parse %q as number, no longer attempting diff suppress", old)
+				return false
+			}
+			newNum, err := strconv.Atoi(new)
+			if err != nil {
+				log.Printf("[ERROR] could not parse %q as number, no longer attempting diff suppress", new)
+				return false
+			}
+			return oldNum+1 == newNum
+		} else if strings.HasSuffix(k, "."+key) {
+			return old == ""
+		}
+		return false
+	}
 }
 
 func ResourcePubsubSubscription() *schema.Resource {
@@ -118,7 +141,7 @@ If all three are empty, then the subscriber will pull and ack messages using API
 						"table": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: `The name of the table to which to write data, of the form {projectId}:{datasetId}.{tableId}`,
+							Description: `The name of the table to which to write data, of the form {projectId}.{datasetId}.{tableId}`,
 						},
 						"drop_unknown_fields": {
 							Type:     schema.TypeBool,
@@ -380,7 +403,7 @@ For example, a Webhook endpoint might use
 						"attributes": {
 							Type:             schema.TypeMap,
 							Optional:         true,
-							DiffSuppressFunc: tpgresource.IgnoreMissingKeyInMap("x-goog-version"),
+							DiffSuppressFunc: IgnoreMissingKeyInMap("x-goog-version"),
 							Description: `Endpoint configuration attributes.
 
 Every endpoint has a set of API supported attributes that can

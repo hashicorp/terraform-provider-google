@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/services/apikeys"
 	"github.com/hashicorp/terraform-provider-google/google/services/assuredworkloads"
-	"github.com/hashicorp/terraform-provider-google/google/services/bigqueryreservation"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudbuild"
 	"github.com/hashicorp/terraform-provider-google/google/services/clouddeploy"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
@@ -41,7 +40,6 @@ import (
 var dclResources = map[string]*schema.Resource{
 	"google_apikeys_key":                                        apikeys.ResourceApikeysKey(),
 	"google_assured_workloads_workload":                         assuredworkloads.ResourceAssuredWorkloadsWorkload(),
-	"google_bigquery_reservation_assignment":                    bigqueryreservation.ResourceBigqueryReservationAssignment(),
 	"google_cloudbuild_worker_pool":                             cloudbuild.ResourceCloudbuildWorkerPool(),
 	"google_clouddeploy_delivery_pipeline":                      clouddeploy.ResourceClouddeployDeliveryPipeline(),
 	"google_clouddeploy_target":                                 clouddeploy.ResourceClouddeployTarget(),

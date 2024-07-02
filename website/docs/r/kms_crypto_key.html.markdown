@@ -128,7 +128,7 @@ The following arguments are supported:
 * `destroy_scheduled_duration` -
   (Optional)
   The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
-  If not specified at creation time, the default duration is 24 hours.
+  If not specified at creation time, the default duration is 30 days.
 
 * `import_only` -
   (Optional)

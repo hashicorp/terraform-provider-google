@@ -403,6 +403,21 @@ Only relevant if a minValue has been defined. Default = false.`,
 											},
 										},
 									},
+									"sql_assertion": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Table rule which evaluates whether any row matches invalid state.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"sql_statement": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The SQL statement.`,
+												},
+											},
+										},
+									},
 									"statistic_range_expectation": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -1223,6 +1238,7 @@ func flattenDataplexDatascanDataQualitySpecRules(v interface{}, d *schema.Resour
 			"statistic_range_expectation": flattenDataplexDatascanDataQualitySpecRulesStatisticRangeExpectation(original["statisticRangeExpectation"], d, config),
 			"row_condition_expectation":   flattenDataplexDatascanDataQualitySpecRulesRowConditionExpectation(original["rowConditionExpectation"], d, config),
 			"table_condition_expectation": flattenDataplexDatascanDataQualitySpecRulesTableConditionExpectation(original["tableConditionExpectation"], d, config),
+			"sql_assertion":               flattenDataplexDatascanDataQualitySpecRulesSqlAssertion(original["sqlAssertion"], d, config),
 		})
 	}
 	return transformed
@@ -1408,6 +1424,23 @@ func flattenDataplexDatascanDataQualitySpecRulesTableConditionExpectation(v inte
 	return []interface{}{transformed}
 }
 func flattenDataplexDatascanDataQualitySpecRulesTableConditionExpectationSqlExpression(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexDatascanDataQualitySpecRulesSqlAssertion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["sql_statement"] =
+		flattenDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(original["sqlStatement"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1854,6 +1887,13 @@ func expandDataplexDatascanDataQualitySpecRules(v interface{}, d tpgresource.Ter
 			transformed["tableConditionExpectation"] = transformedTableConditionExpectation
 		}
 
+		transformedSqlAssertion, err := expandDataplexDatascanDataQualitySpecRulesSqlAssertion(original["sql_assertion"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSqlAssertion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["sqlAssertion"] = transformedSqlAssertion
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2125,6 +2165,29 @@ func expandDataplexDatascanDataQualitySpecRulesTableConditionExpectation(v inter
 }
 
 func expandDataplexDatascanDataQualitySpecRulesTableConditionExpectationSqlExpression(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesSqlAssertion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSqlStatement, err := expandDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(original["sql_statement"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSqlStatement); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sqlStatement"] = transformedSqlStatement
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexDatascanDataQualitySpecRulesSqlAssertionSqlStatement(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

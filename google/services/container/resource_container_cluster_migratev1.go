@@ -700,7 +700,7 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										ValidateFunc:     verify.ValidateRFC3339Time,
-										DiffSuppressFunc: tpgresource.Rfc3339TimeDiffSuppress,
+										DiffSuppressFunc: Rfc3339TimeDiffSuppress,
 									},
 									"duration": {
 										Type:     schema.TypeString,
@@ -821,7 +821,7 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
-							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT and STATEFULSET.`,
+							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET and DCGM.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
