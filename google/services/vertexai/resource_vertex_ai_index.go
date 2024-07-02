@@ -554,40 +554,8 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 		updateMask = append(updateMask, "description")
 	}
 
-	if d.HasChange("metadata") {
-		updateMask = append(updateMask, "metadata")
-	}
-
 	if d.HasChange("effective_labels") {
 		updateMask = append(updateMask, "labels")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
-	newUpdateMask := []string{}
-
-	if d.HasChange("metadata.0.contents_delta_uri") {
-		// Use the current value of isCompleteOverwrite when updating contentsDeltaUri
-		newUpdateMask = append(newUpdateMask, "metadata.contentsDeltaUri")
-		newUpdateMask = append(newUpdateMask, "metadata.isCompleteOverwrite")
-	}
-
-	for _, mask := range updateMask {
-		// Use granular update masks instead of 'metadata' to avoid the following error:
-		// 'If `contents_delta_gcs_uri` is set as part of `index.metadata`, then no other Index fields can be also updated as part of the same update call.'
-		if mask == "metadata" {
-			continue
-		}
-		newUpdateMask = append(newUpdateMask, mask)
-	}
-
-	// Refreshing updateMask after adding extra schema entries
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
-	if err != nil {
-		return err
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -597,6 +565,13 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// if updateMask is empty we are not updating anything so skip the post
 	if len(updateMask) > 0 {
+		log.Printf("[DEBUG] Updating first Index with updateMask: %#v", updateMask)
+		// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+		// won't set it
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+		if err != nil {
+			return err
+		}
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "PATCH",
@@ -609,9 +584,51 @@ func resourceVertexAIIndexUpdate(d *schema.ResourceData, meta interface{}) error
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error updating Index %q: %s", d.Id(), err)
+			return fmt.Errorf("Error updating first Index %q: %s", d.Id(), err)
 		} else {
-			log.Printf("[DEBUG] Finished updating Index %q: %#v", d.Id(), res)
+			log.Printf("[DEBUG] Finished updating first Index %q: %#v", d.Id(), res)
+		}
+
+		err = VertexAIOperationWaitTime(
+			config, res, project, "Updating Index", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	secondUpdateMask := []string{}
+	// 'If `contents_delta_gcs_uri` is set as part of `index.metadata`,
+	// then no other Index fields can be also updated as part of the same update call.'
+	// Metadata update need to be done in a separate update call.
+	if d.HasChange("metadata") {
+		secondUpdateMask = append(secondUpdateMask, "metadata")
+	}
+
+	// if secondUpdateMask is empty we are not updating anything so skip the post
+	if len(secondUpdateMask) > 0 {
+		log.Printf("[DEBUG] Updating second Index with updateMask: %#v", secondUpdateMask)
+		// Override updateMask with secondUpdateMask
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(secondUpdateMask, ",")})
+		if err != nil {
+			return err
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error Updating second Index %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished Updating second Index %q: %#v", d.Id(), res)
 		}
 
 		err = VertexAIOperationWaitTime(
