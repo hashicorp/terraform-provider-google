@@ -494,6 +494,21 @@ func IsAppEngineRetryableError(err error) (bool, string) {
 	return false, ""
 }
 
+// Retry if Orgpolicy operation returns a 403 with a specific message
+// indicating the parent resource does not exist.
+func IsOrgpolicyRetryableError(err error) (bool, string) {
+	if gerr, ok := err.(*googleapi.Error); ok {
+		if gerr.Code != 403 {
+			return false, ""
+		}
+		pattern := regexp.MustCompile("Permission 'orgpolicy\\.policy\\.[a-z]*' denied on resource '//[a-z]*\\.googleapis\\.com/(projects|folders)/[a-z0-9-]*/policies/[a-zA-Z.]*' \\(or it may not exist\\)\\.")
+		if pattern.MatchString(gerr.Body) {
+			return true, "Waiting for parent resource to be ready"
+		}
+	}
+	return false, ""
+}
+
 // Bigtable uses gRPC and thus does not return errors of type *googleapi.Error.
 // Instead the errors returned are *status.Error. See the types of codes returned
 // here (https://pkg.go.dev/google.golang.org/grpc/codes#Code).
