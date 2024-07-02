@@ -1,0 +1,3 @@
+```release-note:breaking-change
+pubsub: Allow `schema_settings` of `google_pubsub_topic` to be removed
+```

@@ -169,7 +169,6 @@ and is not a valid configuration.`,
 			},
 			"schema_settings": {
 				Type:        schema.TypeList,
-				Computed:    true,
 				Optional:    true,
 				Description: `Settings for validating messages published against a schema.`,
 				MaxItems:    1,
