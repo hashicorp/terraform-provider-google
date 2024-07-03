@@ -41,4 +41,4 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `content` - (Computed) The content of the object.
+* `content` - (Computed) [Content-Language](https://tools.ietf.org/html/rfc7231#section-3.1.3.2) of the object content.
