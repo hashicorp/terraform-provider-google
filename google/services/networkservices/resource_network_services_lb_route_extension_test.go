@@ -147,7 +147,7 @@ resource "google_compute_instance_template" "instance_template" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
@@ -506,7 +506,7 @@ resource "google_compute_instance_template" "instance_template" {
   }
 
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
