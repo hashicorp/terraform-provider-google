@@ -1,0 +1,3 @@
+```release-note:bug
+networksecurity: fixed permadiffs on `purpose` field in `google_network_security_address_group` resource (beta)
+```
