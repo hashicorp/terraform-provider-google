@@ -88,11 +88,13 @@ resource "google_project" "accepted_producer_project" {
 
 ```hcl
 resource "google_compute_network" "default" {
+    provider = google-beta
     name = "basic-network"
     auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "default" {
+    provider = google-beta
     name   = "basic-subnetwork"
     region = "us-central1"
 
@@ -101,6 +103,7 @@ resource "google_compute_subnetwork" "default" {
 }
 
 resource "google_compute_network_attachment" "default" {
+    provider = google-beta
     name   = "basic-network-attachment"
     region = "us-central1"
     description = "my basic network attachment"
@@ -110,6 +113,7 @@ resource "google_compute_network_attachment" "default" {
 }
 
 resource "google_compute_instance" "default" {
+    provider = google-beta
     name         = "basic-instance"
     zone         = "us-central1-a"
     machine_type = "e2-micro"
