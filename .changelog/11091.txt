@@ -1,0 +1,3 @@
+```release-note:bug
+resource_policy: make the resource updatable.
+```
