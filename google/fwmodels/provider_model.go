@@ -135,6 +135,7 @@ type ProviderModel struct {
 	ServiceManagementCustomEndpoint        types.String `tfsdk:"service_management_custom_endpoint"`
 	ServiceNetworkingCustomEndpoint        types.String `tfsdk:"service_networking_custom_endpoint"`
 	ServiceUsageCustomEndpoint             types.String `tfsdk:"service_usage_custom_endpoint"`
+	SiteVerificationCustomEndpoint         types.String `tfsdk:"site_verification_custom_endpoint"`
 	SourceRepoCustomEndpoint               types.String `tfsdk:"source_repo_custom_endpoint"`
 	SpannerCustomEndpoint                  types.String `tfsdk:"spanner_custom_endpoint"`
 	SQLCustomEndpoint                      types.String `tfsdk:"sql_custom_endpoint"`
