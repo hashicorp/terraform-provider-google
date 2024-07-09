@@ -143,6 +143,7 @@ type FrameworkProviderConfig struct {
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
+	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
@@ -301,6 +302,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
 	p.PrivatecaBasePath = data.PrivatecaCustomEndpoint.ValueString()
+	p.PrivilegedAccessManagerBasePath = data.PrivilegedAccessManagerCustomEndpoint.ValueString()
 	p.PublicCABasePath = data.PublicCACustomEndpoint.ValueString()
 	p.PubsubBasePath = data.PubsubCustomEndpoint.ValueString()
 	p.PubsubLiteBasePath = data.PubsubLiteCustomEndpoint.ValueString()
@@ -1189,6 +1191,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.PrivatecaBasePathKey])
 		if customEndpoint != nil {
 			data.PrivatecaCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.PrivilegedAccessManagerCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_PRIVILEGED_ACCESS_MANAGER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PrivilegedAccessManagerBasePathKey])
+		if customEndpoint != nil {
+			data.PrivilegedAccessManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.PublicCACustomEndpoint.IsNull() {

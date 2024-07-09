@@ -96,6 +96,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	"github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	"github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	"github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/publicca"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	"github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
@@ -420,9 +421,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 433
+// Generated resources: 434
 // Generated IAM resources: 252
-// Total generated resources: 685
+// Total generated resources: 686
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -978,6 +979,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_privateca_certificate_template_iam_binding":                          tpgiamresource.ResourceIamBinding(privateca.PrivatecaCertificateTemplateIamSchema, privateca.PrivatecaCertificateTemplateIamUpdaterProducer, privateca.PrivatecaCertificateTemplateIdParseFunc),
 	"google_privateca_certificate_template_iam_member":                           tpgiamresource.ResourceIamMember(privateca.PrivatecaCertificateTemplateIamSchema, privateca.PrivatecaCertificateTemplateIamUpdaterProducer, privateca.PrivatecaCertificateTemplateIdParseFunc),
 	"google_privateca_certificate_template_iam_policy":                           tpgiamresource.ResourceIamPolicy(privateca.PrivatecaCertificateTemplateIamSchema, privateca.PrivatecaCertificateTemplateIamUpdaterProducer, privateca.PrivatecaCertificateTemplateIdParseFunc),
+	"google_privileged_access_manager_entitlement":                               privilegedaccessmanager.ResourcePrivilegedAccessManagerEntitlement(),
 	"google_public_ca_external_account_key":                                      publicca.ResourcePublicCAExternalAccountKey(),
 	"google_pubsub_schema":                                                       pubsub.ResourcePubsubSchema(),
 	"google_pubsub_schema_iam_binding":                                           tpgiamresource.ResourceIamBinding(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer, pubsub.PubsubSchemaIdParseFunc),
