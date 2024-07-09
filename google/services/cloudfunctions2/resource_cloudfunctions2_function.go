@@ -33,6 +33,21 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+// Suppress diffs for the system environment variables
+func environmentVariablesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if k == "service_config.0.environment_variables.LOG_EXECUTION_ID" && new == "" {
+		return true
+	}
+
+	// Let diff be determined by environment_variables (above)
+	if strings.HasPrefix(k, "service_config.0.environment_variables.%") {
+		return true
+	}
+
+	// For other keys, don't suppress diff.
+	return false
+}
+
 func ResourceCloudfunctions2function() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceCloudfunctions2functionCreate,
@@ -351,10 +366,11 @@ Defaults to 256M. Supported units are k, M, G, Mi, Gi. If no unit is
 supplied the value is interpreted as bytes.`,
 						},
 						"environment_variables": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: `Environment variables that shall be available during function execution.`,
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:             schema.TypeMap,
+							Optional:         true,
+							DiffSuppressFunc: environmentVariablesDiffSuppress,
+							Description:      `Environment variables that shall be available during function execution.`,
+							Elem:             &schema.Schema{Type: schema.TypeString},
 						},
 						"ingress_settings": {
 							Type:         schema.TypeString,

@@ -226,6 +226,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_dns_managed_zone":                             dns.DataSourceDnsManagedZone(),
 	"google_dns_managed_zones":                            dns.DataSourceDnsManagedZones(),
 	"google_dns_record_set":                               dns.DataSourceDnsRecordSet(),
+	"google_gke_hub_membership_binding":                   gkehub2.DataSourceGoogleGkeHubMembershipBinding(),
 	"google_filestore_instance":                           filestore.DataSourceGoogleFilestoreInstance(),
 	"google_iam_policy":                                   resourcemanager.DataSourceGoogleIamPolicy(),
 	"google_iam_role":                                     resourcemanager.DataSourceGoogleIamRole(),
@@ -419,9 +420,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 431
+// Generated resources: 432
 // Generated IAM resources: 252
-// Total generated resources: 683
+// Total generated resources: 684
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -964,6 +965,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_notebooks_runtime_iam_member":                                        tpgiamresource.ResourceIamMember(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
 	"google_notebooks_runtime_iam_policy":                                        tpgiamresource.ResourceIamPolicy(notebooks.NotebooksRuntimeIamSchema, notebooks.NotebooksRuntimeIamUpdaterProducer, notebooks.NotebooksRuntimeIdParseFunc),
 	"google_org_policy_custom_constraint":                                        orgpolicy.ResourceOrgPolicyCustomConstraint(),
+	"google_org_policy_policy":                                                   orgpolicy.ResourceOrgPolicyPolicy(),
 	"google_os_config_patch_deployment":                                          osconfig.ResourceOSConfigPatchDeployment(),
 	"google_os_login_ssh_public_key":                                             oslogin.ResourceOSLoginSSHPublicKey(),
 	"google_privateca_ca_pool":                                                   privateca.ResourcePrivatecaCaPool(),

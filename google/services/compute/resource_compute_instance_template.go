@@ -31,6 +31,8 @@ var (
 		"scheduling.0.min_node_cpus",
 		"scheduling.0.provisioning_model",
 		"scheduling.0.instance_termination_action",
+		"scheduling.0.max_run_duration",
+		"scheduling.0.on_instance_stop_action",
 		"scheduling.0.local_ssd_recovery_timeout",
 	}
 
@@ -675,6 +677,51 @@ Google Cloud KMS.`,
 							ForceNew:     true,
 							AtLeastOneOf: schedulingInstTemplateKeys,
 							Description:  `Specifies the action GCE should take when SPOT VM is preempted.`,
+						},
+						"max_run_duration": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `The timeout for new network connections to hosts.`,
+							MaxItems:    1,
+							ForceNew:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"seconds": {
+										Type:     schema.TypeInt,
+										Required: true,
+										ForceNew: true,
+										Description: `Span of time at a resolution of a second.
+Must be from 0 to 315,576,000,000 inclusive.`,
+									},
+									"nanos": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										ForceNew: true,
+										Description: `Span of time that's a fraction of a second at nanosecond
+resolution. Durations less than one second are represented
+with a 0 seconds field and a positive nanos field. Must
+be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
+						},
+						"on_instance_stop_action": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							ForceNew:    true,
+							Description: `Defines the behaviour for instances with the instance_termination_action.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"discard_local_ssd": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `If true, the contents of any attached Local SSD disks will be discarded.`,
+										Default:     false,
+										ForceNew:    true,
+									},
+								},
+							},
 						},
 						"local_ssd_recovery_timeout": {
 							Type:     schema.TypeList,

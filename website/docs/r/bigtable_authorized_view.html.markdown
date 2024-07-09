@@ -64,7 +64,7 @@ resource "google_bigtable_authorized_view" "authorized_view" {
   }
 
   subset_view {
-    row_prefixes = [base64encode("prefix#)]
+    row_prefixes = [base64encode("prefix#")]
 
     family_subsets {
       family_name = "family-first"

@@ -96,7 +96,7 @@ resource "google_compute_snapshot" "foobar" {
 func testAccComputeSnapshot_encryptionCMEK(snapshotName string, diskName string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
-  family  = "debian-10"
+  family  = "debian-12"
   project = "debian-cloud"
 }
 
