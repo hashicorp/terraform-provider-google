@@ -113,3 +113,9 @@ Description of the change and how users should adjust their configuration (if ne
 ### `settings.ip_configuration.require_ssl` is now removed
 
 Removed in favor of field `settings.ip_configuration.ssl_mode`.
+
+## Resource: `google_pubsub_topic`
+
+### `schema_settings` no longer has a default value
+
+An empty value means the setting should be cleared.
