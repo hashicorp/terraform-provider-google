@@ -68,6 +68,21 @@ resource "google_network_security_address_group" "default" {
   items       = ["208.80.154.224/32"]
 }
 ```
+## Example Usage - Network Security Address Groups Cloud Armor
+
+
+```hcl
+resource "google_network_security_address_group" "default" {
+  provider    = google-beta
+  name        = "my-address-groups"
+  parent      = "projects/my-project-name"
+  location    = "global"
+  type        = "IPV4"
+  capacity    = "100"
+  purpose     = ["CLOUD_ARMOR"]
+  items       = ["208.80.154.224/32"]
+}
+```
 
 ## Argument Reference
 
@@ -111,6 +126,11 @@ The following arguments are supported:
 * `items` -
   (Optional)
   List of items.
+
+* `purpose` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  List of supported purposes of the Address Group.
+  Each value may be one of: `DEFAULT`, `CLOUD_ARMOR`.
 
 * `parent` -
   (Optional)

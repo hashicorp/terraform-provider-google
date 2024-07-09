@@ -296,17 +296,9 @@ is 256 characters.`,
 				ForceNew:         true,
 				DiffSuppressFunc: resourceBigQueryDatasetAccessIamMemberDiffSuppress,
 				Description: `A special group to grant access to. Possible values include:
-
-
 * 'projectOwners': Owners of the enclosing project.
-
-
 * 'projectReaders': Readers of the enclosing project.
-
-
 * 'projectWriters': Writers of the enclosing project.
-
-
 * 'allAuthenticatedUsers': All authenticated BigQuery users.`,
 				ExactlyOneOf: []string{"user_by_email", "group_by_email", "domain", "special_group", "iam_member", "view", "dataset", "routine"},
 			},
