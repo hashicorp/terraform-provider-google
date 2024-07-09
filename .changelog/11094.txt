@@ -1,0 +1,3 @@
+```release-note:enhancement
+privilegedaccessmanager: promoted `google_privileged_access_manager_entitlement` resource from beta to ga
+```

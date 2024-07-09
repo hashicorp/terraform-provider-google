@@ -99,6 +99,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/publicca"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
