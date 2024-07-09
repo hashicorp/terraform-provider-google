@@ -32,6 +32,13 @@ To get more information about Cluster, see:
 To promote, users have to set the `cluster_type` property as `PRIMARY` and remove the `secondary_config` field from cluster configuration.
 [See Example](https://github.com/hashicorp/terraform-provider-google/pull/16413).
 
+Switchover is supported in terraform by refreshing the state of the terraform configurations.
+The switchover operation still needs to be called outside of terraform.
+After the switchover operation is completed successfully:
+  1. Refresh the state of the AlloyDB resources by running `terraform apply -refresh-only --auto-approve` .
+  2. Manually update the terraform configuration file(s) to match the actual state of the resources by modifying the `cluster_type` and `secondary_config` fields.
+  3. Verify the sync of terraform state by running `terraform plan` and ensure that the infrastructure matches the configuration and no changes are required.
+
 ~> **Warning:** All arguments including the following potentially sensitive
 values will be stored in the raw state as plain text: `initial_user.password`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
