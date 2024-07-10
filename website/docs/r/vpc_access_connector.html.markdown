@@ -41,6 +41,8 @@ resource "google_vpc_access_connector" "connector" {
   name          = "vpc-con"
   ip_cidr_range = "10.8.0.0/28"
   network       = "default"
+  min_instances = 2
+  max_instances = 3
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -58,6 +60,8 @@ resource "google_vpc_access_connector" "connector" {
     name = google_compute_subnetwork.custom_test.name
   }
   machine_type = "e2-standard-4"
+  min_instances = 2
+  max_instances = 3
 }
 
 resource "google_compute_subnetwork" "custom_test" {

@@ -191,6 +191,8 @@ resource "google_vpc_access_connector" "bar" {
   region = "us-central1"
   ip_cidr_range = "10.8.0.16/28"
   network = "default"
+  min_throughput  = 200
+  max_throughput = 300
 }
 
 resource "google_app_engine_standard_app_version" "foo" {

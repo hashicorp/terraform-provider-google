@@ -26,6 +26,8 @@ resource "google_vpc_access_connector" "connector" {
   ip_cidr_range = "10.8.0.0/28"
   network       = "default"
   region        = "us-central1"
+  min_instances = 2
+  max_instances = 3
 }
 ```
 
