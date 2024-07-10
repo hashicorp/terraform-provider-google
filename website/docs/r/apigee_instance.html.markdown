@@ -189,7 +189,7 @@ resource "google_kms_crypto_key_iam_member" "apigee_sa_keyuser" {
   crypto_key_id = google_kms_crypto_key.apigee_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  member = "serviceAccount:${google_project_service_identity.apigee_sa.email}"
+  member = google_project_service_identity.apigee_sa.member
 }
 
 resource "google_apigee_organization" "apigee_org" {
