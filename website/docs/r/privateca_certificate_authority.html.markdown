@@ -207,13 +207,13 @@ resource "google_kms_crypto_key_iam_member" "privateca_sa_keyuser_signerverifier
   crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   role          = "roles/cloudkms.signerVerifier"
 
-  member = "serviceAccount:${google_project_service_identity.privateca_sa.email}"
+  member = google_project_service_identity.privateca_sa.member
 }
 
 resource "google_kms_crypto_key_iam_member" "privateca_sa_keyuser_viewer" {
   crypto_key_id = "projects/keys-project/locations/us-central1/keyRings/key-ring/cryptoKeys/crypto-key"
   role          = "roles/viewer"
-  member = "serviceAccount:${google_project_service_identity.privateca_sa.email}"
+  member = google_project_service_identity.privateca_sa.member
 }
 
 resource "google_privateca_certificate_authority" "default" {
