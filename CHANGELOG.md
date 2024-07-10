@@ -1,4 +1,42 @@
-## 5.37.0 (Unreleased)
+## 5.38.0 (unreleased)
+
+FEATURES:
+* **New Data Source:** `google_gke_hub_membership_binding` ([#18680](https://github.com/hashicorp/terraform-provider-google/pull/18680))
+* **New Data Source:** `google_site_verification_token` ([#18688](https://github.com/hashicorp/terraform-provider-google/pull/18688))
+* **New Resource:** `google_scc_project_notification_config` ([#18682](https://github.com/hashicorp/terraform-provider-google/pull/18682))
+
+IMPROVEMENTS:
+* compute: promoted `labels` field on `google_compute_global_address` resource from beta to GA ([#18646](https://github.com/hashicorp/terraform-provider-google/pull/18646))
+* privilegedaccessmanager: promoted `google_privileged_access_manager_entitlement` resource from beta to GA ([#18686](https://github.com/hashicorp/terraform-provider-google/pull/18686))
+* vertexai: added `project_number` field to `google_vertex_ai_feature_online_store_featureview` resource ([#18637](https://github.com/hashicorp/terraform-provider-google/pull/18637))
+
+BUG FIXES:
+* cloudfunctions2: fixed permadiffs on `service_config.environment_variables` field in `google_cloudfunctions2_function` resource ([#18651](https://github.com/hashicorp/terraform-provider-google/pull/18651))
+* compute: made the `google_compute_resource_policy` resource updatable in-place ([#18673](https://github.com/hashicorp/terraform-provider-google/pull/18673))
+
+## 5.37.0
+
+FEATURES:
+* **New Data Source:** `google_kms_crypto_keys` ([#18605](https://github.com/hashicorp/terraform-provider-google/pull/18605))
+* **New Data Source:** `google_kms_key_rings` ([#18611](https://github.com/hashicorp/terraform-provider-google/pull/18611))
+* **New Resource:** `google_scc_v2_organization_notification_config` ([#18594](https://github.com/hashicorp/terraform-provider-google/pull/18594))
+* **New Resource:** `google_secure_source_manager_repository` ([#18576](https://github.com/hashicorp/terraform-provider-google/pull/18576))
+* **New Resource:** `google_storage_managed_folder_iam` ([#18555](https://github.com/hashicorp/terraform-provider-google/pull/18555))
+* **New Resource:** `google_storage_managed_folder` ([#18555](https://github.com/hashicorp/terraform-provider-google/pull/18555))
+
+IMPROVEMENTS:
+* certificatemanager: added `allowlisted_certificates` field to `google_certificate_manager_trust_config` resource ([#18587](https://github.com/hashicorp/terraform-provider-google/pull/18587))
+* compute: added `max_run_duration` and `on_instance_stop_action` fields to `google_compute_instance`, `google_compute_instance_template`, and `google_compute_instance_from_machine_image` resources ([#18623](https://github.com/hashicorp/terraform-provider-google/pull/18623))
+* dataplex: added `sql_assertion` field to `google_dataplex_datascan` resource ([#18559](https://github.com/hashicorp/terraform-provider-google/pull/18559))
+* gkehub: added `fleet_default_member_config.configmanagement.config_sync.enabled` field to `google_gke_hub_feature` resource ([#18582](https://github.com/hashicorp/terraform-provider-google/pull/18582))
+* netapp: added `zone` and `replica_zone` field to `google_netapp_storage_pool` resource ([#18609](https://github.com/hashicorp/terraform-provider-google/pull/18609))
+* vertexai: added `project_number` field to `google_vertex_ai_feature_online_store_featureview` resource ([#18637](https://github.com/hashicorp/terraform-provider-google/pull/18637))
+* workstations: added `host.gce_instance.vm_tags` field to `google_workstations_workstation_config` resource ([#18588](https://github.com/hashicorp/terraform-provider-google/pull/18588))
+
+BUG FIXES:
+* compute: fixed a bug preventing the creation of `google_compute_autoscaler` and `google_compute_region_autoscaler` resources if both `autoscaling_policy.max_replicas` and `autoscaling_policy.min_replicas` were configured as zero. ([#18607](https://github.com/hashicorp/terraform-provider-google/pull/18607))
+* resourcemanager: mitigated eventual consistency issues by adding a 10s wait after `google_service_account_key` resource creation ([#18566](https://github.com/hashicorp/terraform-provider-google/pull/18566))
+* vertexai: fixed issue where updating "metadata" field could fail in `google_vertex_ai_index` resource ([#18632](https://github.com/hashicorp/terraform-provider-google/pull/18632))
 
 ## 5.36.0 (July 1, 2024)
 
