@@ -249,7 +249,6 @@ func resourceDialogflowCXWebhookCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -313,7 +312,6 @@ func resourceDialogflowCXWebhookRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -479,7 +477,6 @@ func resourceDialogflowCXWebhookUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -546,7 +543,6 @@ func resourceDialogflowCXWebhookDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
