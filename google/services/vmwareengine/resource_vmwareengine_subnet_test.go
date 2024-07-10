@@ -10,6 +10,8 @@ import (
 )
 
 func TestAccVmwareengineSubnet_vmwareEngineUserDefinedSubnetUpdate(t *testing.T) {
+	// Temporarily skipping so that this test does not run and consume resources during PR pushes. It is bound to fail and is being fixed by PR #10992
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
