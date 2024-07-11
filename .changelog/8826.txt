@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_apigee_environment_keyvaluemaps`
+```
+```release-note:new-resource
+`google_apigee_environment_keyvaluemaps_entries`
+```
