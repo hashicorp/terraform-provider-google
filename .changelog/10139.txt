@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_compute_resize_request`
+```
