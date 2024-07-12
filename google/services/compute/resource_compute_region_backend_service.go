@@ -391,10 +391,8 @@ Defaults to 3.`,
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: `Time for which instance will be drained (not accept new
-connections, but still work to finish started).
-
-From version 6.0.0 ConnectionDrainingTimeoutSec default value will be 300 to match default GCP value.`,
-				Default: 0,
+connections, but still work to finish started).`,
+				Default: 300,
 			},
 
 			"consistent_hash": {
@@ -698,10 +696,7 @@ This field can only be specified when the load balancing scheme is set to INTERN
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 This field is applicable only when the 'load_balancing_scheme' is set
-to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.
-
-From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
-Default values are enforce by GCP without providing them.`,
+to INTERNAL_MANAGED and the 'protocol' is set to HTTP, HTTPS, or HTTP2.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -737,7 +732,6 @@ less than one second are represented with a 0 'seconds' field and a positive
 							Description: `Number of errors before a host is ejected from the connection pool. When the
 backend host is accessed over HTTP, a 5xx return code qualifies as an error.
 Defaults to 5.`,
-							Default:      5,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"consecutive_gateway_failure": {
@@ -746,7 +740,6 @@ Defaults to 5.`,
 							Description: `The number of consecutive gateway failures (502, 503, 504 status or connection
 errors that are mapped to one of those status codes) before a consecutive
 gateway failure ejection occurs. Defaults to 5.`,
-							Default:      5,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"enforcing_consecutive_errors": {
@@ -755,7 +748,6 @@ gateway failure ejection occurs. Defaults to 5.`,
 							Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through consecutive 5xx. This setting can be used to disable
 ejection or to ramp it up slowly. Defaults to 100.`,
-							Default:      100,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"enforcing_consecutive_gateway_failure": {
@@ -764,7 +756,6 @@ ejection or to ramp it up slowly. Defaults to 100.`,
 							Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through consecutive gateway failures. This setting can be
 used to disable ejection or to ramp it up slowly. Defaults to 0.`,
-							Default:      0,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"enforcing_success_rate": {
@@ -773,7 +764,6 @@ used to disable ejection or to ramp it up slowly. Defaults to 0.`,
 							Description: `The percentage chance that a host will be actually ejected when an outlier
 status is detected through success rate statistics. This setting can be used to
 disable ejection or to ramp it up slowly. Defaults to 100.`,
-							Default:      100,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"interval": {
@@ -806,7 +796,6 @@ less than one second are represented with a 0 'seconds' field and a positive
 							Optional: true,
 							Description: `Maximum percentage of hosts in the load balancing pool for the backend service
 that can be ejected. Defaults to 10%.`,
-							Default:      10,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"success_rate_minimum_hosts": {
@@ -816,7 +805,6 @@ that can be ejected. Defaults to 10%.`,
 success rate outliers. If the number of hosts is less than this setting, outlier
 detection via success rate statistics is not performed for any host in the
 cluster. Defaults to 5.`,
-							Default:      5,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"success_rate_request_volume": {
@@ -827,7 +815,6 @@ defined by the interval duration above) to include this host in success rate
 based outlier detection. If the volume is lower than this setting, outlier
 detection via success rate statistics is not performed for that host. Defaults
 to 100.`,
-							Default:      100,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 						"success_rate_stdev_factor": {
@@ -839,7 +826,6 @@ rate, and the product of this factor and the standard deviation of the mean
 success rate: mean - (stdev * success_rate_stdev_factor). This factor is divided
 by a thousand to get a double. That is, if the desired factor is 1.9, the
 runtime value should be 1900. Defaults to 1900.`,
-							Default:      1900,
 							AtLeastOneOf: []string{"outlier_detection.0.base_ejection_time", "outlier_detection.0.consecutive_errors", "outlier_detection.0.consecutive_gateway_failure", "outlier_detection.0.enforcing_consecutive_errors", "outlier_detection.0.enforcing_consecutive_gateway_failure", "outlier_detection.0.enforcing_success_rate", "outlier_detection.0.interval", "outlier_detection.0.max_ejection_percent", "outlier_detection.0.success_rate_minimum_hosts", "outlier_detection.0.success_rate_request_volume", "outlier_detection.0.success_rate_stdev_factor"},
 						},
 					},
@@ -957,10 +943,8 @@ partial URL.`,
 				Description: `Specifies the balancing mode for this backend.
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes.
-
-From version 6.0.0 default value will be UTILIZATION to match default GCP value. Default value: "CONNECTION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
-				Default: "CONNECTION",
+for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {
 				Type:     schema.TypeFloat,

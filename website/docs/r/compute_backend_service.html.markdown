@@ -277,7 +277,15 @@ resource "google_compute_backend_service" "default" {
     }
   }
   outlier_detection {
-    consecutive_errors = 2
+    consecutive_errors                    = 2
+    consecutive_gateway_failure           = 5
+    enforcing_consecutive_errors          = 100
+    enforcing_consecutive_gateway_failure = 0
+    enforcing_success_rate                = 100
+    max_ejection_percent                  = 10
+    success_rate_minimum_hosts            = 5
+    success_rate_request_volume           = 100
+    success_rate_stdev_factor             = 1900
   }
 }
 
@@ -520,8 +528,6 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   Applicable backend service types can be a global backend service with the
   loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
-  From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
-  Default values are enforce by GCP without providing them.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -593,7 +599,6 @@ The following arguments are supported:
   and CONNECTION (for TCP/SSL).
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
-  From version 6.0.0 default value will be UTILIZATION to match default GCP value.
   Default value is `UTILIZATION`.
   Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 
