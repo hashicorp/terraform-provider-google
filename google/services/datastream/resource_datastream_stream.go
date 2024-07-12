@@ -143,10 +143,23 @@ func ResourceDatastreamStream() *schema.Resource {
 						"bigquery_destination_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: `A configuration for how data should be loaded to Cloud Storage.`,
+							Description: `A configuration for how data should be loaded to Google BigQuery.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"append_only": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `AppendOnly mode defines that the stream of changes (INSERT, UPDATE-INSERT, UPDATE-DELETE and DELETE
+events) to a source table will be written to the destination Google BigQuery table, retaining the
+historical state of the data.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{"destination_config.0.bigquery_destination_config.0.merge", "destination_config.0.bigquery_destination_config.0.append_only"},
+									},
 									"data_freshness": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -154,6 +167,19 @@ func ResourceDatastreamStream() *schema.Resource {
 Editing this field will only affect new tables created in the future, but existing tables
 will not be impacted. Lower values mean that queries will return fresher data, but may result in higher cost.
 A duration in seconds with up to nine fractional digits, terminated by 's'. Example: "3.5s". Defaults to 900s.`,
+									},
+									"merge": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Description: `Merge mode defines that all changes to a table will be merged at the destination Google BigQuery
+table. This is the default write mode. When selected, BigQuery reflects the way the data is stored
+in the source database. With Merge mode, no historical record of the change events is kept.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{"destination_config.0.bigquery_destination_config.0.merge", "destination_config.0.bigquery_destination_config.0.append_only"},
 									},
 									"single_target_dataset": {
 										Type:        schema.TypeList,
@@ -3071,6 +3097,10 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfig(v interfa
 		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSingleTargetDataset(original["singleTargetDataset"], d, config)
 	transformed["source_hierarchy_datasets"] =
 		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasets(original["sourceHierarchyDatasets"], d, config)
+	transformed["merge"] =
+		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(original["merge"], d, config)
+	transformed["append_only"] =
+		flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(original["appendOnly"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigDataFreshness(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3134,6 +3164,22 @@ func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHier
 
 func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDatastreamStreamState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5228,6 +5274,20 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfig(v interfac
 		transformed["sourceHierarchyDatasets"] = transformedSourceHierarchyDatasets
 	}
 
+	transformedMerge, err := expandDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(original["merge"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["merge"] = transformedMerge
+	}
+
+	transformedAppendOnly, err := expandDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(original["append_only"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["appendOnly"] = transformedAppendOnly
+	}
+
 	return transformed, nil
 }
 
@@ -5329,6 +5389,36 @@ func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHiera
 
 func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigSourceHierarchyDatasetsDatasetTemplateKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigMerge(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDatastreamStreamDestinationConfigBigqueryDestinationConfigAppendOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }
 
 func expandDatastreamStreamBackfillAll(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
