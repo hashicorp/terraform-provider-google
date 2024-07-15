@@ -136,6 +136,10 @@ resource "google_compute_subnetwork" "my_subnetwork" {
   ip_cidr_range = "10.0.1.0/24"
 }
 
+resource "google_compute_address" "static" {
+  name = "wbi-test-default"
+}
+
 resource "google_workbench_instance" "instance" {
   name = "workbench-instance"
   location = "us-central1-a"
@@ -177,6 +181,9 @@ resource "google_workbench_instance" "instance" {
       network = google_compute_network.my_network.id
       subnet = google_compute_subnetwork.my_subnetwork.id
       nic_type = "GVNIC"
+      access_configs {
+        external_ip = google_compute_address.static.address
+      }
     }
 
     metadata = {
@@ -458,6 +465,25 @@ The following arguments are supported:
   Optional. The type of vNIC to be used on this interface. This
   may be gVNIC or VirtioNet.
   Possible values are: `VIRTIO_NET`, `GVNIC`.
+
+* `access_configs` -
+  (Optional)
+  Optional. An array of configurations for this interface. Currently, only one access
+  config, ONE_TO_ONE_NAT, is supported. If no accessConfigs specified, the
+  instance will have an external internet access through an ephemeral
+  external IP address.
+  Structure is [documented below](#nested_access_configs).
+
+
+<a name="nested_access_configs"></a>The `access_configs` block supports:
+
+* `external_ip` -
+  (Required)
+  An external IP address associated with this instance. Specify an unused
+  static external IP address available to the project or leave this field
+  undefined to use an IP from a shared ephemeral IP address pool. If you
+  specify a static external IP address, it must live in the same region as
+  the zone of the instance.
 
 ## Attributes Reference
 
