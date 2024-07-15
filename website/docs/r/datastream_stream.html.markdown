@@ -421,7 +421,6 @@ resource "google_datastream_stream" "stream5" {
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
-    provider            = google-beta
     name                = "sql-server"
     database_version    = "SQLSERVER_2019_STANDARD"
     region              = "us-central1"
@@ -457,21 +456,18 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "db" {
-    provider   = google-beta
     name       = "db"
     instance   = google_sql_database_instance.instance.name
     depends_on = [google_sql_user.user]
 }
 
 resource "google_sql_user" "user" {
-    provider = google-beta
     name     = "user"
     instance = google_sql_database_instance.instance.name
     password = "password"
 }
 
 resource "google_datastream_connection_profile" "source" {
-    provider              = google-beta
     display_name          = "SQL Server Source"
     location              = "us-central1"
     connection_profile_id = "source-profile"
@@ -486,7 +482,6 @@ resource "google_datastream_connection_profile" "source" {
 }
 
 resource "google_datastream_connection_profile" "destination" {
-    provider              = google-beta
     display_name          = "BigQuery Destination"
     location              = "us-central1"
     connection_profile_id = "destination-profile"
@@ -495,7 +490,6 @@ resource "google_datastream_connection_profile" "destination" {
 }
 
 resource "google_datastream_stream" "default" {
-    provider     = google-beta
     display_name = "SQL Server to BigQuery"
     location     = "us-central1"
     stream_id    = "stream"
@@ -933,7 +927,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_postgresql_source_config).
 
 * `sql_server_source_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   SQL Server data source configuration.
   Structure is [documented below](#nested_sql_server_source_config).
 
@@ -1748,7 +1742,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_oracle_excluded_objects).
 
 * `sql_server_excluded_objects` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   SQL Server data source objects to avoid backfilling.
   Structure is [documented below](#nested_sql_server_excluded_objects).
 

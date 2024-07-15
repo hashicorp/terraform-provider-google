@@ -1,0 +1,6 @@
+```release-note:enhancement
+datastream: promoted `sql_server_profile` field in `google_datastream_connection_profile` resource from beta to GA
+```
+```release-note:enhancement
+datastream: promoted `source_config.sql_server_source_config` and `backfill_all.sql_server_excluded_objects` fields in `google_datastream_stream` resource from beta to GA
+```
