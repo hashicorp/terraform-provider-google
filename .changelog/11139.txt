@@ -1,0 +1,3 @@
+```release-note:enhancement
+dlp: added `cloud_storage_target` field to `google_data_loss_prevention_discovery_config` resource
+```
