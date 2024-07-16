@@ -1,5 +1,6 @@
 ## Feature Branch Folder
 
-This folder is meant for testing of new features in teamcity.
+This folder is meant for testing of new features in TeamCity.
 
-For example, this [PR](https://github.com/GoogleCloudPlatform/magic-modules/pull/10088) creates a project within teamcity for testing provider functions.
+See the [Contribution Guide](../../../CONTRIBUTION_GUIDE.md) for information about feature branch testing.
+
