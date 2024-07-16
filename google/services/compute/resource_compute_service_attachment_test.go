@@ -233,3 +233,115 @@ resource "google_compute_subnetwork" "psc_ilb_nat" {
 }
 `, context)
 }
+
+func TestAccComputeServiceAttachment_serviceAttachmentBasicExampleGateway(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeServiceAttachmentDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeServiceAttachment_serviceAttachmentBasicExampleGateway(context),
+			},
+			{
+				ResourceName:            "google_compute_service_attachment.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"target_service", "region"},
+			},
+		},
+	})
+}
+
+func testAccComputeServiceAttachment_serviceAttachmentBasicExampleGateway(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_service_attachment" "default" {
+  name        = "tf-test-sa-%{random_suffix}"
+  region      = "us-east1"
+  description = "A service attachment configured with Terraform"
+
+  enable_proxy_protocol    = false
+  connection_preference    = "ACCEPT_AUTOMATIC"
+  nat_subnets              = [google_compute_subnetwork.psc.id]
+  target_service           = google_network_services_gateway.foobar.self_link
+}
+
+resource "google_certificate_manager_certificate" "default" {
+  name        = "tf-test-sa-certificate-%{random_suffix}"
+  location    = "us-east1"
+  self_managed {
+    pem_certificate = file("test-fixtures/cert.pem")
+    pem_private_key = file("test-fixtures/private-key.pem")
+  }
+}
+
+resource "google_compute_network" "default" {
+  name = "tf-test-sa-network-%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc" {
+  name   = "tf-test-sa-psc-subnet-%{random_suffix}"
+  region = "us-east1"
+
+  network       = google_compute_network.default.id
+  purpose       =  "PRIVATE_SERVICE_CONNECT"
+  ip_cidr_range = "10.1.0.0/16"
+}
+
+resource "google_compute_subnetwork" "proxyonly" {
+  name          = "tf-test-sa-proxyonly-subnet-%{random_suffix}"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  ip_cidr_range = "192.168.0.0/23"
+  region        = "us-east1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "tf-test-sa-default-subnet-%{random_suffix}"
+  purpose       = "PRIVATE"
+  ip_cidr_range = "10.128.0.0/20"
+  region        = "us-east1"
+  network       = google_compute_network.default.id
+  role          = "ACTIVE"
+}
+
+resource "google_network_security_gateway_security_policy" "default" {
+  name     = "tf-test-sa-swp-policy-%{random_suffix}"
+  location = "us-east1"
+}
+
+resource "google_network_security_gateway_security_policy_rule" "default" {
+  name                    = "tf-test-sa-swp-rule-%{random_suffix}"
+  location                = "us-east1"
+  gateway_security_policy = google_network_security_gateway_security_policy.default.name
+  enabled                 = true
+  priority                = 1
+  session_matcher         = "host() == 'example.com'"
+  basic_profile           = "ALLOW"
+}
+
+resource "google_network_services_gateway" "foobar" {
+  name                                 = "tf-test-sa-swp-%{random_suffix}"
+  location                             = "us-east1"
+  addresses                            = ["10.128.0.99"]
+  type                                 = "SECURE_WEB_GATEWAY"
+  ports                                = [443]
+  description                          = "my description"
+  scope                                = "%s"
+  certificate_urls                     = [google_certificate_manager_certificate.default.id]
+  gateway_security_policy              = google_network_security_gateway_security_policy.default.id
+  network                              = google_compute_network.default.id
+  subnetwork                           = google_compute_subnetwork.default.id
+  delete_swg_autogen_router_on_destroy = true
+  depends_on                           = [google_compute_subnetwork.proxyonly]
+}
+`, context)
+}

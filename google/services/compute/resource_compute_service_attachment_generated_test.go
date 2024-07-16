@@ -49,7 +49,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -158,7 +158,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -274,7 +274,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t 
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -401,7 +401,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
