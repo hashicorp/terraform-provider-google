@@ -4,7 +4,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -320,6 +319,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"composer_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"compute_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -600,6 +604,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"privileged_access_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"public_ca_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -640,6 +649,16 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"security_center_management_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"security_center_v2_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"securityposture_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -650,7 +669,17 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"service_networking_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"service_usage_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"site_verification_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -841,35 +870,11 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		})
 	}
 
-	// set universe_domain based on the service account key file.
-	if config.Credentials != "" {
-		contents, _, err := verify.PathOrContents(config.Credentials)
-		if err != nil {
-			return nil, diag.FromErr(fmt.Errorf("error loading service account credentials: %s", err))
-		}
-		var content map[string]any
-
-		if err := json.Unmarshal([]byte(contents), &content); err != nil {
-			return nil, diag.FromErr(err)
-		}
-
-		if content["universe_domain"] != nil {
-			config.UniverseDomain = content["universe_domain"].(string)
-		}
+	// Set the universe domain to the configured value, if any
+	if v, ok := d.GetOk("universe_domain"); ok {
+		config.UniverseDomain = v.(string)
 	}
 
-	// Check if the user provided a value from the universe_domain field other than the default
-	if v, ok := d.GetOk("universe_domain"); ok && v.(string) != "googleapis.com" {
-		if config.UniverseDomain == "" {
-			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
-		} else if v.(string) != config.UniverseDomain {
-			if _, err := os.Stat(config.Credentials); err == nil {
-				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' already set in the credential file '%s'. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain, config.Credentials))
-			} else {
-				return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration can not be used to override the universe domain that is defined in the active credential.  Set the 'universe_domain' provider configuration when universe domain information is not already available in the credential, e.g. when authenticating with a JWT token.", v, config.UniverseDomain))
-			}
-		}
-	}
 	// Configure DCL basePath
 	transport_tpg.ProviderDCLConfigure(d, &config)
 
@@ -971,6 +976,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.CloudRunV2BasePath = d.Get("cloud_run_v2_custom_endpoint").(string)
 	config.CloudSchedulerBasePath = d.Get("cloud_scheduler_custom_endpoint").(string)
 	config.CloudTasksBasePath = d.Get("cloud_tasks_custom_endpoint").(string)
+	config.ComposerBasePath = d.Get("composer_custom_endpoint").(string)
 	config.ComputeBasePath = d.Get("compute_custom_endpoint").(string)
 	config.ContainerAnalysisBasePath = d.Get("container_analysis_custom_endpoint").(string)
 	config.ContainerAttachedBasePath = d.Get("container_attached_custom_endpoint").(string)
@@ -1027,6 +1033,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
+	config.PrivilegedAccessManagerBasePath = d.Get("privileged_access_manager_custom_endpoint").(string)
 	config.PublicCABasePath = d.Get("public_ca_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
@@ -1035,9 +1042,13 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.SecretManagerBasePath = d.Get("secret_manager_custom_endpoint").(string)
 	config.SecureSourceManagerBasePath = d.Get("secure_source_manager_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
+	config.SecurityCenterManagementBasePath = d.Get("security_center_management_custom_endpoint").(string)
+	config.SecurityCenterV2BasePath = d.Get("security_center_v2_custom_endpoint").(string)
 	config.SecuritypostureBasePath = d.Get("securityposture_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
+	config.ServiceNetworkingBasePath = d.Get("service_networking_custom_endpoint").(string)
 	config.ServiceUsageBasePath = d.Get("service_usage_custom_endpoint").(string)
+	config.SiteVerificationBasePath = d.Get("site_verification_custom_endpoint").(string)
 	config.SourceRepoBasePath = d.Get("source_repo_custom_endpoint").(string)
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
@@ -1060,7 +1071,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IamCredentialsBasePath = d.Get(transport_tpg.IamCredentialsCustomEndpointEntryKey).(string)
 	config.ResourceManagerV3BasePath = d.Get(transport_tpg.ResourceManagerV3CustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(transport_tpg.IAMCustomEndpointEntryKey).(string)
-	config.ServiceNetworkingBasePath = d.Get(transport_tpg.ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(transport_tpg.ServiceUsageCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(transport_tpg.BigtableAdminCustomEndpointEntryKey).(string)
 	config.TagsLocationBasePath = d.Get(transport_tpg.TagsLocationCustomEndpointEntryKey).(string)
@@ -1075,6 +1085,17 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	}
 	if err := config.LoadAndValidate(stopCtx); err != nil {
 		return nil, diag.FromErr(err)
+	}
+
+	// Verify that universe domains match between credentials and configuration
+	if v, ok := d.GetOk("universe_domain"); ok {
+		if config.UniverseDomain == "" && v.(string) != "googleapis.com" { // v can't be "", as it wouldn't pass `ok` above
+			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' supplied directly to Terraform with no matching universe domain in credentials. Credentials with no 'universe_domain' set are assumed to be in the default universe.", v))
+		} else if v.(string) != config.UniverseDomain && !(config.UniverseDomain == "" && v.(string) == "googleapis.com") {
+			return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: '%s' does not match the universe domain '%s' supplied directly to Terraform. The 'universe_domain' provider configuration must match the universe domain supplied by credentials.", config.UniverseDomain, v))
+		}
+	} else if config.UniverseDomain != "" && config.UniverseDomain != "googleapis.com" {
+		return nil, diag.FromErr(fmt.Errorf("Universe domain mismatch: Universe domain '%s' was found in credentials without a corresponding 'universe_domain' provider configuration set. Please set 'universe_domain' to '%s' or use different credentials.", config.UniverseDomain, config.UniverseDomain))
 	}
 
 	return &config, nil

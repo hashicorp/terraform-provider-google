@@ -7,9 +7,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	"google.golang.org/api/logging/v2"
 )
+
+func OptionalSurroundingSpacesSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return strings.TrimSpace(old) == strings.TrimSpace(new)
+}
 
 func resourceLoggingSinkSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
@@ -29,7 +32,7 @@ func resourceLoggingSinkSchema() map[string]*schema.Schema {
 		"filter": {
 			Type:             schema.TypeString,
 			Optional:         true,
-			DiffSuppressFunc: tpgresource.OptionalSurroundingSpacesSuppress,
+			DiffSuppressFunc: OptionalSurroundingSpacesSuppress,
 			Description:      `The filter to apply when exporting logs. Only log entries that match the filter are exported.`,
 		},
 

@@ -378,6 +378,176 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
   }
 }
 ```
+## Example Usage - Gkebackup Restoreplan Gitops Mode
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "gitops-mode-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "gitops-mode"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "gitops_mode" {
+  name = "gitops-mode"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "MERGE_SKIP_ON_CONFLICT"
+    volume_data_restore_policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+  }
+}
+```
+## Example Usage - Gkebackup Restoreplan Restore Order
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "restore-order-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "restore-order"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "restore_order" {
+  name = "restore-order"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
+    volume_data_restore_policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+    restore_order {
+        group_kind_dependencies {
+            satisfying {
+                resource_group = "stable.example.com"
+                resource_kind = "kindA"
+            }
+            requiring {
+                resource_group = "stable.example.com"
+                resource_kind = "kindB"
+            }
+        }
+        group_kind_dependencies {
+            satisfying {
+                resource_group = "stable.example.com"
+                resource_kind = "kindB"
+            }
+            requiring {
+                resource_group = "stable.example.com"
+                resource_kind = "kindC"
+            }
+        }
+    }
+  }
+}
+```
+## Example Usage - Gkebackup Restoreplan Volume Res
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "volume-res-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = ""
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "volume-res"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "volume_res" {
+  name = "volume-res"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
+    volume_data_restore_policy = "NO_VOLUME_DATA_RESTORATION"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+    volume_data_restore_policy_bindings {
+        policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+        volume_type = "GCE_PERSISTENT_DISK"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -446,7 +616,7 @@ The following arguments are supported:
   if the `namespacedResourceRestoreScope` is anything other than `noNamespaces`.
   See https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/reference/rest/v1/RestoreConfig#namespacedresourcerestoremode
   for more information on each mode.
-  Possible values are: `DELETE_AND_RESTORE`, `FAIL_ON_CONFLICT`.
+  Possible values are: `DELETE_AND_RESTORE`, `FAIL_ON_CONFLICT`, `MERGE_SKIP_ON_CONFLICT`, `MERGE_REPLACE_VOLUME_ON_CONFLICT`, `MERGE_REPLACE_ON_CONFLICT`.
 
 * `volume_data_restore_policy` -
   (Optional)
@@ -481,6 +651,18 @@ The following arguments are supported:
   as changes made by a rule may impact the filtering logic of subsequent
   rules. An empty list means no transformation will occur.
   Structure is [documented below](#nested_transformation_rules).
+
+* `volume_data_restore_policy_bindings` -
+  (Optional)
+  A table that binds volumes by their scope to a restore policy. Bindings
+  must have a unique scope. Any volumes not scoped in the bindings are
+  subject to the policy defined in volume_data_restore_policy.
+  Structure is [documented below](#nested_volume_data_restore_policy_bindings).
+
+* `restore_order` -
+  (Optional)
+  It contains custom ordering to use on a Restore.
+  Structure is [documented below](#nested_restore_order).
 
 
 <a name="nested_excluded_namespaces"></a>The `excluded_namespaces` block supports:
@@ -654,6 +836,72 @@ The following arguments are supported:
   (Optional)
   A string that specifies the desired value in string format
   to use for transformation.
+
+<a name="nested_volume_data_restore_policy_bindings"></a>The `volume_data_restore_policy_bindings` block supports:
+
+* `policy` -
+  (Required)
+  Specifies the mechanism to be used to restore this volume data.
+  See https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/reference/rest/v1/RestoreConfig#VolumeDataRestorePolicy
+  for more information on each policy option.
+  Possible values are: `RESTORE_VOLUME_DATA_FROM_BACKUP`, `REUSE_VOLUME_HANDLE_FROM_BACKUP`, `NO_VOLUME_DATA_RESTORATION`.
+
+* `volume_type` -
+  (Required)
+  The volume type, as determined by the PVC's
+  bound PV, to apply the policy to.
+  Possible values are: `GCE_PERSISTENT_DISK`.
+
+<a name="nested_restore_order"></a>The `restore_order` block supports:
+
+* `group_kind_dependencies` -
+  (Required)
+  A list of group kind dependency pairs
+  that is used by Backup for GKE to
+  generate a group kind restore order.
+  Structure is [documented below](#nested_group_kind_dependencies).
+
+
+<a name="nested_group_kind_dependencies"></a>The `group_kind_dependencies` block supports:
+
+* `satisfying` -
+  (Required)
+  The satisfying group kind must be restored first
+  in order to satisfy the dependency.
+  Structure is [documented below](#nested_satisfying).
+
+* `requiring` -
+  (Required)
+  The requiring group kind requires that the satisfying
+  group kind be restored first.
+  Structure is [documented below](#nested_requiring).
+
+
+<a name="nested_satisfying"></a>The `satisfying` block supports:
+
+* `resource_group` -
+  (Optional)
+  API Group of a Kubernetes resource, e.g.
+  "apiextensions.k8s.io", "storage.k8s.io", etc.
+  Use empty string for core group.
+
+* `resource_kind` -
+  (Optional)
+  Kind of a Kubernetes resource, e.g.
+  "CustomResourceDefinition", "StorageClass", etc.
+
+<a name="nested_requiring"></a>The `requiring` block supports:
+
+* `resource_group` -
+  (Optional)
+  API Group of a Kubernetes resource, e.g.
+  "apiextensions.k8s.io", "storage.k8s.io", etc.
+  Use empty string for core group.
+
+* `resource_kind` -
+  (Optional)
+  Kind of a Kubernetes resource, e.g.
+  "CustomResourceDefinition", "StorageClass", etc.
 
 - - -
 

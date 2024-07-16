@@ -6,16 +6,21 @@
 package netapp_test
 
 import (
+	"fmt"
+	"sort"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-google/google/services/netapp"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 func TestAccNetappVolume_netappVolumeBasicExample_update(t *testing.T) {
-	t.Parallel()
-
 	context := map[string]interface{}{
 		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
 		"random_suffix": acctest.RandString(t, 10),
@@ -25,6 +30,9 @@ func TestAccNetappVolume_netappVolumeBasicExample_update(t *testing.T) {
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetappVolume_volumeBasicExample_basic(context),
@@ -66,6 +74,34 @@ func TestAccNetappVolume_netappVolumeBasicExample_update(t *testing.T) {
 			},
 			{
 				ResourceName:            "google_netapp_volume.test_volume_clone",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_volumeBasicExample_createBackupConfig(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_volumeBasicExample_updateBackupConfigRemoveBackupPolicy(context),
+				Check:  testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t, "google_netapp_backup_vault.backup-vault"),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_volumeBasicExample_updateBackupConfigRemoveBackupVault(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
@@ -396,4 +432,232 @@ data "google_compute_network" "default" {
     name = "%{network_name}"
 }
 	`, context)
+}
+
+// Tests creating a volume with backup config
+func testAccNetappVolume_volumeBasicExample_createBackupConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default2" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-west2"
+    service_level = "EXTREME"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+}
+
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west2"
+    name = "tf-test-test-volume%{random_suffix}"
+    capacity_gib = "200"
+    share_name = "tf-test-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default2.name
+    protocols = ["NFSV3"]
+    security_style = "UNIX"
+    # Delete protection only gets active after an NFS client mounts.
+    # Setting it here is save, volume can still be deleted.
+    restricted_actions = ["DELETE"]
+    deletion_policy = "FORCE"
+    backup_config {
+        backup_policies = [
+            google_netapp_backup_policy.backup-policy.id
+        ]
+        backup_vault = google_netapp_backup_vault.backup-vault.id
+        scheduled_backup_enabled = true
+    }
+}
+
+resource "time_sleep" "wait_30_minutes" {
+    depends_on = [google_netapp_volume.test_volume]
+    create_duration = "30m"
+}
+
+resource "google_netapp_backup_vault" "backup-vault" {
+    location = "us-west2"
+    name = "tf-test-vault%{random_suffix}"
+}
+
+resource "google_netapp_backup_policy" "backup-policy" {
+    name          		 = "tf-test-backup-policy%{random_suffix}"
+    location 			 = "us-west2"
+    daily_backup_limit   = 2
+    weekly_backup_limit  = 0
+    monthly_backup_limit = 0
+    enabled = true
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+	`, context)
+}
+
+// Tests updating the volume backup config
+func testAccNetappVolume_volumeBasicExample_updateBackupConfigRemoveBackupPolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default2" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-west2"
+    service_level = "EXTREME"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+}
+
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west2"
+    name = "tf-test-test-volume%{random_suffix}"
+    capacity_gib = "200"
+    share_name = "tf-test-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default2.name
+    protocols = ["NFSV3"]
+    security_style = "UNIX"
+    # Delete protection only gets active after an NFS client mounts.
+    # Setting it here is save, volume can still be deleted.
+    restricted_actions = ["DELETE"]
+    deletion_policy = "FORCE"
+    backup_config {
+        backup_vault = google_netapp_backup_vault.backup-vault.id
+    }
+}
+
+resource "time_sleep" "wait_30_minutes" {
+    depends_on = [google_netapp_volume.test_volume]
+    create_duration = "30m"
+}
+
+resource "google_netapp_backup_vault" "backup-vault" {
+    location = "us-west2"
+    name = "tf-test-vault%{random_suffix}"
+}
+
+resource "google_netapp_backup_policy" "backup-policy" {
+    name          		 = "tf-test-backup-policy%{random_suffix}"
+    location 			 = "us-west2"
+    daily_backup_limit   = 2
+    weekly_backup_limit  = 0
+    monthly_backup_limit = 0
+    enabled = true
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+	`, context)
+}
+
+// Tests updating the volume to no backup config
+func testAccNetappVolume_volumeBasicExample_updateBackupConfigRemoveBackupVault(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default2" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-west2"
+    service_level = "EXTREME"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+}
+
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west2"
+    name = "tf-test-test-volume%{random_suffix}"
+    capacity_gib = "200"
+    share_name = "tf-test-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default2.name
+    protocols = ["NFSV3"]
+    security_style = "UNIX"
+    # Delete protection only gets active after an NFS client mounts.
+    # Setting it here is save, volume can still be deleted.
+    restricted_actions = ["DELETE"]
+    deletion_policy = "FORCE"
+}
+
+resource "time_sleep" "wait_30_minutes" {
+    depends_on = [google_netapp_volume.test_volume]
+    create_duration = "30m"
+}
+
+resource "google_netapp_backup_vault" "backup-vault" {
+    location = "us-west2"
+    name = "tf-test-vault%{random_suffix}"
+}
+
+resource "google_netapp_backup_policy" "backup-policy" {
+    name          		 = "tf-test-backup-policy%{random_suffix}"
+    location 			 = "us-west2"
+    daily_backup_limit   = 2
+    weekly_backup_limit  = 0
+    monthly_backup_limit = 0
+    enabled = true
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+	`, context)
+}
+
+// Cleanup the created backup of the test
+func testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t *testing.T, vault string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		rs, ok := s.RootModule().Resources[vault]
+		if !ok {
+			return fmt.Errorf("Not found: %v", vault)
+		}
+		url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetappBasePath}}projects/{{project}}/locations/{{location}}/backupVaults/{{name}}/backups")
+		if err != nil {
+			return fmt.Errorf("Error : %v", err)
+		}
+		response, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+		})
+		backups := response["backups"].([]interface{})
+		if len(backups) == 0 {
+			return nil
+		}
+		type BackupData struct {
+			name       string
+			createTime time.Time
+		}
+		var backupDataList []BackupData
+		for i, _ := range backups {
+			backup := backups[i].(map[string]interface{})
+			backupName := backup["name"].(string)
+			backupCreateTimeStr := backup["createTime"].(string)
+			backupCreateTime, err := time.Parse(time.RFC3339, backupCreateTimeStr)
+			if err != nil {
+				fmt.Errorf("Failed to parse backup create time : %v", err)
+			}
+			backupData := BackupData{
+				name:       backupName,
+				createTime: backupCreateTime,
+			}
+			backupDataList = append(backupDataList, backupData)
+		}
+		sort.Slice(backupDataList, func(i, j int) bool {
+			return backupDataList[i].createTime.After(backupDataList[j].createTime)
+		})
+		for i, _ := range backupDataList {
+			baseUrl, err := tpgresource.ReplaceVarsForTest(config, rs, "{{NetappBasePath}}")
+			if err != nil {
+				return fmt.Errorf("Error : %v", err)
+			}
+			backupUrl := baseUrl + backupDataList[i].name
+			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:    config,
+				Method:    "DELETE",
+				RawURL:    backupUrl,
+				UserAgent: config.UserAgent,
+			})
+			if err != nil {
+				return fmt.Errorf("Delete Request Error : %v", err)
+			}
+			err = netapp.NetappOperationWaitTime(config, res, config.Project, "Deleting Backup", config.UserAgent, 10*time.Minute)
+			if err != nil {
+				return fmt.Errorf("Delete LRO Error : %v", err)
+			}
+		}
+		return nil
+	}
 }

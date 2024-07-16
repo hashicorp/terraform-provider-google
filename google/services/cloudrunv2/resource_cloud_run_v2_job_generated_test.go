@@ -64,7 +64,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
     }
   }
@@ -106,7 +106,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         resources {
           limits = {
             cpu    = "2"
@@ -168,7 +168,7 @@ resource "google_cloud_run_v2_job" "default" {
       }
 
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
 
         env {
           name = "FOO"
@@ -261,7 +261,7 @@ resource "google_cloud_run_v2_job" "default" {
   template {
     template{
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
       }
       vpc_access{
         connector = google_vpc_access_connector.connector.id
@@ -389,7 +389,7 @@ resource "google_cloud_run_v2_job" "default" {
         }
       }
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "us-docker.pkg.dev/cloudrun/container/job"
         volume_mounts {
           name = "a-volume"
           mount_path = "/secrets"

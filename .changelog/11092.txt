@@ -1,0 +1,3 @@
+```release-note:bug
+cloudfunctions2: fixed permadiffs on `service_config.environment_variables` field in `google_cloudfunctions2_function` resource
+```

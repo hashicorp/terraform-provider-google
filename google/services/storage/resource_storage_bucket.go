@@ -21,7 +21,7 @@ import (
 
 	"github.com/gammazero/workerpool"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -497,6 +497,9 @@ func ResourceStorageBucket() *schema.Resource {
 							MinItems: 2,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
+								StateFunc: func(s interface{}) string {
+									return strings.ToUpper(s.(string))
+								},
 							},
 							Description: `The list of individual regions that comprise a dual-region bucket. See the docs for a list of acceptable regions. Note: If any of the data_locations changes, it will recreate the bucket.`,
 						},
@@ -1027,15 +1030,15 @@ func resourceStorageBucketDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// remove empty bucket
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+	err = retry.Retry(1*time.Minute, func() *retry.RetryError {
 		err := config.NewStorageClient(userAgent).Buckets.Delete(bucket).Do()
 		if err == nil {
 			return nil
 		}
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 429 {
-			return resource.RetryableError(gerr)
+			return retry.RetryableError(gerr)
 		}
-		return resource.NonRetryableError(err)
+		return retry.NonRetryableError(err)
 	})
 	if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 409 && strings.Contains(gerr.Message, "not empty") && listError != nil {
 		return fmt.Errorf("could not delete non-empty bucket due to error when listing contents: %v", listError)
@@ -1170,9 +1173,15 @@ func flattenBucketCustomPlacementConfig(cfc *storage.BucketCustomPlacementConfig
 func expandBucketDataLocations(configured interface{}) []string {
 	l := configured.(*schema.Set).List()
 
+	// Since we only want uppercase values to prevent unnecessary diffs, we can do a comparison
+	// to determine whether or not to include the value as part of the request.
+
+	// This extra check comes from the limitations of both DiffStateFunc and StateFunc towards types of Sets,Lists, and Maps.
 	req := make([]string, 0, len(l))
 	for _, raw := range l {
-		req = append(req, raw.(string))
+		if raw.(string) == strings.ToUpper(raw.(string)) {
+			req = append(req, raw.(string))
+		}
 	}
 	return req
 }

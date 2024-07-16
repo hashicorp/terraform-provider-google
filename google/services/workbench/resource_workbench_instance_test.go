@@ -23,6 +23,10 @@ func TestAccWorkbenchInstance_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -32,6 +36,10 @@ func TestAccWorkbenchInstance_update(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_update(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -72,6 +80,14 @@ resource "google_workbench_instance" "instance" {
       enable_integrity_monitoring = false
     }
 
+	boot_disk {
+		disk_size_gb  = 310
+	  }
+  
+	  data_disks {
+		disk_size_gb  = 330
+	  }
+
     metadata = {
       terraform = "true"
     }
@@ -99,6 +115,10 @@ func TestAccWorkbenchInstance_updateGpu(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_basicGpu(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -108,6 +128,10 @@ func TestAccWorkbenchInstance_updateGpu(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_updateGpu(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -179,6 +203,10 @@ func TestAccWorkbenchInstance_removeGpu(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_Gpu(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -188,6 +216,10 @@ func TestAccWorkbenchInstance_removeGpu(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_updateGpu(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -244,6 +276,10 @@ func TestAccWorkbenchInstance_updateMetadata(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -253,6 +289,10 @@ func TestAccWorkbenchInstance_updateMetadata(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_updateMetadata(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -297,6 +337,10 @@ func TestAccWorkbenchInstance_updateState(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -306,6 +350,10 @@ func TestAccWorkbenchInstance_updateState(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_updateState(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "STOPPED"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -315,6 +363,10 @@ func TestAccWorkbenchInstance_updateState(t *testing.T) {
 			},
 			{
 				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
 			},
 			{
 				ResourceName:            "google_workbench_instance.instance",
@@ -334,6 +386,243 @@ resource "google_workbench_instance" "instance" {
 
   desired_state = "STOPPED"
 
+}
+`, context)
+}
+
+func TestAccWorkbenchInstance_empty_accelerator(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccWorkbenchInstance_empty_accelerator(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccWorkbenchInstance_empty_accelerator(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_empty_accelerator(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+
+  gce_setup {
+    accelerator_configs{
+    }
+  }
+}
+`, context)
+}
+
+func TestAccWorkbenchInstance_updateBootDisk(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_updateBootDisk(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+		},
+	})
+}
+
+func TestAccWorkbenchInstance_updateDataDisk(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_updateDataDisk(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+		},
+	})
+}
+
+func TestAccWorkbenchInstance_updateBothDisks(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWorkbenchInstance_basic(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+			{
+				Config: testAccWorkbenchInstance_updateBothDisks(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"google_workbench_instance.instance", "state", "ACTIVE"),
+				),
+			},
+			{
+				ResourceName:            "google_workbench_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels", "desired_state"},
+			},
+		},
+	})
+}
+
+func testAccWorkbenchInstance_updateBootDisk(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+  gce_setup {
+	boot_disk {
+		disk_size_gb  = 310
+	  }
+	}
+}
+`, context)
+}
+
+func testAccWorkbenchInstance_updateDataDisk(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+  gce_setup {  
+	  data_disks {
+		disk_size_gb  = 330
+	  }
+	}
+}
+`, context)
+}
+
+func testAccWorkbenchInstance_updateBothDisks(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_workbench_instance" "instance" {
+  name = "tf-test-workbench-instance%{random_suffix}"
+  location = "us-central1-a"
+  gce_setup {
+	boot_disk {
+		disk_size_gb  = 310
+	  }
+
+	  data_disks {
+		disk_size_gb  = 330
+	  }
+	}
 }
 `, context)
 }

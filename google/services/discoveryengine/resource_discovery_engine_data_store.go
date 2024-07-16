@@ -96,6 +96,103 @@ data store is not configured as site search (GENERIC vertical and
 PUBLIC_WEBSITE contentConfig), this flag will be ignored.`,
 				Default: false,
 			},
+			"document_processing_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Configuration for Document understanding and enrichment.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_parsing_config": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Configurations for default Document parser. If not specified, this resource
+will be configured to use a default DigitalParsingConfig, and the default parsing
+config will be applied to all file types for Document parsing.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"digital_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to digital parser.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"ocr_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to OCR parser. Currently it only applies to PDFs.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"use_native_text": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, will use native text instead of OCR text on pages containing native text.`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+								},
+							},
+						},
+						"parsing_config_overrides": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Description: `Map from file type to override the default parsing configuration based on the file type. Supported keys:
+  * 'pdf': Override parsing config for PDF files, either digital parsing, ocr parsing or layout parsing is supported.
+  * 'html': Override parsing config for HTML files, only digital parsing and or layout parsing are supported.
+  * 'docx': Override parsing config for DOCX files, only digital parsing and or layout parsing are supported.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"file_type": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"digital_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to digital parser.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"ocr_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to OCR parser. Currently it only applies to PDFs.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"use_native_text": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `If true, will use native text instead of OCR text on pages containing native text.`,
+												},
+											},
+										},
+										ExactlyOneOf: []string{},
+									},
+								},
+							},
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The full resource name of the Document Processing Config. Format:
+'projects/{project}/locations/{location}/collections/{collection_id}/dataStores/{data_store_id}/documentProcessingConfig'.`,
+						},
+					},
+				},
+			},
 			"solution_types": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -166,6 +263,12 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("content_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(contentConfigProp)) && (ok || !reflect.DeepEqual(v, contentConfigProp)) {
 		obj["contentConfig"] = contentConfigProp
+	}
+	documentProcessingConfigProp, err := expandDiscoveryEngineDataStoreDocumentProcessingConfig(d.Get("document_processing_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("document_processing_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(documentProcessingConfigProp)) && (ok || !reflect.DeepEqual(v, documentProcessingConfigProp)) {
+		obj["documentProcessingConfig"] = documentProcessingConfigProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores?dataStoreId={{data_store_id}}&createAdvancedSiteSearch={{create_advanced_site_search}}")
@@ -282,6 +385,9 @@ func resourceDiscoveryEngineDataStoreRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err := d.Set("content_config", flattenDiscoveryEngineDataStoreContentConfig(res["contentConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading DataStore: %s", err)
+	}
+	if err := d.Set("document_processing_config", flattenDiscoveryEngineDataStoreDocumentProcessingConfig(res["documentProcessingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading DataStore: %s", err)
 	}
 	if err := d.Set("create_time", flattenDiscoveryEngineDataStoreCreateTime(res["createTime"], d, config)); err != nil {
@@ -469,6 +575,108 @@ func flattenDiscoveryEngineDataStoreContentConfig(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigName(original["name"], d, config)
+	transformed["default_parsing_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(original["defaultParsingConfig"], d, config)
+	transformed["parsing_config_overrides"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(original["parsingConfigOverrides"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["digital_parsing_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(original["digitalParsingConfig"], d, config)
+	transformed["ocr_parsing_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfig(original["ocrParsingConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["use_native_text"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfigUseNativeText(original["useNativeText"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfigUseNativeText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.(map[string]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for k, raw := range l {
+		original := raw.(map[string]interface{})
+		transformed = append(transformed, map[string]interface{}{
+			"file_type":              k,
+			"digital_parsing_config": flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesDigitalParsingConfig(original["digitalParsingConfig"], d, config),
+			"ocr_parsing_config":     flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfig(original["ocrParsingConfig"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesDigitalParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["use_native_text"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(original["useNativeText"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenDiscoveryEngineDataStoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -486,5 +694,176 @@ func expandDiscoveryEngineDataStoreSolutionTypes(v interface{}, d tpgresource.Te
 }
 
 func expandDiscoveryEngineDataStoreContentConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedDefaultParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(original["default_parsing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDefaultParsingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["defaultParsingConfig"] = transformedDefaultParsingConfig
+	}
+
+	transformedParsingConfigOverrides, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(original["parsing_config_overrides"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedParsingConfigOverrides); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["parsingConfigOverrides"] = transformedParsingConfigOverrides
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedDigitalParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(original["digital_parsing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["digitalParsingConfig"] = transformedDigitalParsingConfig
+	}
+
+	transformedOcrParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfig(original["ocr_parsing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOcrParsingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ocrParsingConfig"] = transformedOcrParsingConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUseNativeText, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfigUseNativeText(original["use_native_text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseNativeText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useNativeText"] = transformedUseNativeText
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfigUseNativeText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
+	if v == nil {
+		return map[string]interface{}{}, nil
+	}
+	m := make(map[string]interface{})
+	for _, raw := range v.(*schema.Set).List() {
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedDigitalParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesDigitalParsingConfig(original["digital_parsing_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["digitalParsingConfig"] = transformedDigitalParsingConfig
+		}
+
+		transformedOcrParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfig(original["ocr_parsing_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedOcrParsingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["ocrParsingConfig"] = transformedOcrParsingConfig
+		}
+
+		transformedFileType, err := tpgresource.ExpandString(original["file_type"], d, config)
+		if err != nil {
+			return nil, err
+		}
+		m[transformedFileType] = transformed
+	}
+	return m, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesDigitalParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedUseNativeText, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(original["use_native_text"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseNativeText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useNativeText"] = transformedUseNativeText
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

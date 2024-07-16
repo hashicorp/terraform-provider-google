@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -24,6 +24,15 @@ import (
 
 	"google.golang.org/api/container/v1"
 )
+
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
+// Assume either value could be in either format.
+func Rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
+		return true
+	}
+	return false
+}
 
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", verify.ProjectRegex))
@@ -272,7 +281,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
-				Description: `Whether or not to allow Terraform to destroy the instance. Defaults to true. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the cluster will fail.`,
+				Description: `When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the cluster will fail. When the field is set to false, deleting the cluster is allowed.`,
 			},
 
 			"addons_config": {
@@ -927,7 +936,7 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										ValidateFunc:     verify.ValidateRFC3339Time,
-										DiffSuppressFunc: tpgresource.Rfc3339TimeDiffSuppress,
+										DiffSuppressFunc: Rfc3339TimeDiffSuppress,
 									},
 									"duration": {
 										Type:     schema.TypeString,
@@ -1021,8 +1030,8 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:             schema.TypeString,
 							Optional:         true,
 							Computed:         true,
-							ValidateFunc:     validation.StringInSlice([]string{"DISABLED", "BASIC", "MODE_UNSPECIFIED"}, false),
-							Description:      `Sets the mode of the Kubernetes security posture API's off-cluster features. Available options include DISABLED and BASIC.`,
+							ValidateFunc:     validation.StringInSlice([]string{"DISABLED", "BASIC", "ENTERPRISE", "MODE_UNSPECIFIED"}, false),
+							Description:      `Sets the mode of the Kubernetes security posture API's off-cluster features. Available options include DISABLED, BASIC, and ENTERPRISE.`,
 							DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("MODE_UNSPECIFIED"),
 						},
 						"vulnerability_mode": {
@@ -1048,7 +1057,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
-							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET and CADVISOR.`,
+							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -3944,7 +3953,7 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 	var op *container.Operation
 	var count = 0
-	err = resource.Retry(30*time.Second, func() *resource.RetryError {
+	err = retry.Retry(30*time.Second, func() *retry.RetryError {
 		count++
 
 		name := containerClusterFullName(project, location, clusterName)
@@ -3956,11 +3965,11 @@ func resourceContainerClusterDelete(d *schema.ResourceData, meta interface{}) er
 
 		if err != nil {
 			log.Printf("[WARNING] Cluster is still not ready to delete, retrying %s", clusterName)
-			return resource.RetryableError(err)
+			return retry.RetryableError(err)
 		}
 
 		if count == 15 {
-			return resource.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
+			return retry.NonRetryableError(fmt.Errorf("Error retrying to delete cluster %s", clusterName))
 		}
 		return nil
 	})
@@ -3990,7 +3999,7 @@ var containerClusterRestingStates = RestingStates{
 
 // returns a state with no error if the state is a resting state, and the last state with an error otherwise
 func containerClusterAwaitRestingState(config *transport_tpg.Config, project, location, clusterName, userAgent string, timeout time.Duration) (state string, err error) {
-	err = resource.Retry(timeout, func() *resource.RetryError {
+	err = retry.Retry(timeout, func() *retry.RetryError {
 		name := containerClusterFullName(project, location, clusterName)
 		clusterGetCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.Get(name)
 		if config.UserProjectOverride {
@@ -3998,7 +4007,7 @@ func containerClusterAwaitRestingState(config *transport_tpg.Config, project, lo
 		}
 		cluster, gErr := clusterGetCall.Do()
 		if gErr != nil {
-			return resource.NonRetryableError(gErr)
+			return retry.NonRetryableError(gErr)
 		}
 
 		state = cluster.Status
@@ -4011,7 +4020,7 @@ func containerClusterAwaitRestingState(config *transport_tpg.Config, project, lo
 			log.Printf("[DEBUG] Cluster %q has error state %q with message %q.", clusterName, state, cluster.StatusMessage)
 			return nil
 		default:
-			return resource.RetryableError(fmt.Errorf("Cluster %q has state %q with message %q", clusterName, state, cluster.StatusMessage))
+			return retry.RetryableError(fmt.Errorf("Cluster %q has state %q with message %q", clusterName, state, cluster.StatusMessage))
 		}
 	})
 

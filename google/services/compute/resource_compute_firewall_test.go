@@ -39,6 +39,17 @@ func TestAccComputeFirewall_update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config: testAccComputeFirewall_nullDescription(networkName, firewallName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_firewall.foobar", "description", ""),
+				),
+			},
+			{
+				ResourceName:      "google_compute_firewall.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeFirewall_basic(networkName, firewallName),
 			},
 			{
@@ -380,6 +391,28 @@ resource "google_compute_network" "foobar" {
 resource "google_compute_firewall" "foobar" {
   name        = "%s"
   description = "Resource created for Terraform acceptance testing"
+  network     = google_compute_network.foobar.self_link
+  source_tags = ["foo"]
+  target_tags = ["bar"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80-255"]
+  }
+}
+`, network, firewall)
+}
+
+func testAccComputeFirewall_nullDescription(network, firewall string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "foobar" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_firewall" "foobar" {
+  name        = "%s"
+  description = null
   network     = google_compute_network.foobar.self_link
   source_tags = ["foo"]
   target_tags = ["bar"]

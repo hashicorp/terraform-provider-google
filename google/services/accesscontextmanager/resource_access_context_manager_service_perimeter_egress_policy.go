@@ -67,8 +67,8 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 							Optional: true,
 							ForceNew: true,
 							Description: `A list of identities that are allowed access through this 'EgressPolicy'.
-Should be in the format of an email address. The email address should
-represent an individual user, service account, or Google group.`,
+Should be in the format of email address. The email address should
+represent individual user or service account only.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

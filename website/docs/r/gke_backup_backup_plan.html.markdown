@@ -194,6 +194,55 @@ resource "google_gke_backup_backup_plan" "full" {
   }
 }
 ```
+## Example Usage - Gkebackup Backupplan Permissive
+
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "permissive-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "my-project-name.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "true"
+  network       = "default"
+  subnetwork    = "default"
+}
+
+resource "google_gke_backup_backup_plan" "permissive" {
+  name = "permissive-plan"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  retention_policy {
+    backup_delete_lock_days = 30
+    backup_retain_days = 180
+  }
+  backup_schedule {
+    cron_schedule = "0 9 * * 1"
+  }
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    permissive_mode = true
+    selected_applications {
+      namespaced_names {
+        name = "app1"
+        namespace = "ns1"
+      }
+      namespaced_names {
+        name = "app2"
+        namespace = "ns2"
+      }
+    }
+  }
+}
+```
 ## Example Usage - Gkebackup Backupplan Rpo Daily Window
 
 
@@ -574,6 +623,12 @@ The following arguments are supported:
   (Optional)
   A list of namespaced Kubernetes Resources.
   Structure is [documented below](#nested_selected_applications).
+
+* `permissive_mode` -
+  (Optional)
+  This flag specifies whether Backups will not fail when
+  Backup for GKE detects Kubernetes configuration that is
+  non-standard or requires additional setup to restore.
 
 
 <a name="nested_encryption_key"></a>The `encryption_key` block supports:

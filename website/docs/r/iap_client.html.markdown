@@ -76,7 +76,7 @@ The following arguments are supported:
   (Required)
   Identifier of the brand to which this client
   is attached to. The format is
-  `projects/{project_number}/brands/{brand_id}/identityAwareProxyClients/{client_id}`.
+  `projects/{project_number}/brands/{brand_id}`.
 
 
 - - -
@@ -96,8 +96,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `client_id` -
   Output only. Unique identifier of the OAuth client.
 
-
-* `client_id`: The OAuth2 ID of the client.
 
 ## Timeouts
 

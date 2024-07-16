@@ -218,6 +218,16 @@ func ResourceBigtableGCPolicy() *schema.Resource {
 				in a replicated instance. Possible values are: "ABANDON".`,
 				ValidateFunc: validation.StringInSlice([]string{"ABANDON", ""}, false),
 			},
+
+			"ignore_warnings": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Allows ignoring warnings when updating the GC policy. This can be used
+				to increase the gc policy on replicated clusters. Doing this may make clusters be
+				inconsistent for a longer period of time, before using this make sure you understand
+				the risks listed at https://cloud.google.com/bigtable/docs/garbage-collection#increasing`,
+				Default: false,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -255,9 +265,14 @@ func resourceBigtableGCPolicyUpsert(d *schema.ResourceData, meta interface{}) er
 
 	tableName := d.Get("table").(string)
 	columnFamily := d.Get("column_family").(string)
+	ignoreWarnings := d.Get("ignore_warnings").(bool)
+	updateOpts := []bigtable.GCPolicyOption{}
+	if ignoreWarnings {
+		updateOpts = append(updateOpts, bigtable.IgnoreWarnings())
+	}
 
 	retryFunc := func() error {
-		reqErr := c.SetGCPolicy(ctx, tableName, columnFamily, gcPolicy)
+		reqErr := c.SetGCPolicyWithOptions(ctx, tableName, columnFamily, gcPolicy, updateOpts...)
 		return reqErr
 	}
 	// The default create timeout is 20 minutes.

@@ -319,6 +319,53 @@ func TestAccKmsCryptoKey_destroyDuration(t *testing.T) {
 	})
 }
 
+func TestAccKmsCryptoKey_keyAccessJustificationsPolicy(t *testing.T) {
+	t.Parallel()
+
+	projectId := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	projectOrg := envvar.GetTestOrgFromEnv(t)
+	location := envvar.GetTestRegionFromEnv()
+	projectBillingAccount := envvar.GetTestBillingAccountFromEnv(t)
+	keyRingName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	cryptoKeyName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	allowedAccessReason := "CUSTOMER_INITIATED_SUPPORT"
+	updatedAllowedAccessReason := "GOOGLE_INITIATED_SERVICE"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleKmsCryptoKey_keyAccessJustificationsPolicy(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, allowedAccessReason),
+			},
+			{
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testGoogleKmsCryptoKey_keyAccessJustificationsPolicy(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, updatedAllowedAccessReason),
+			},
+			{
+				ResourceName:            "google_kms_crypto_key.crypto_key",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			// Use a separate TestStep rather than a CheckDestroy because we need the project to still exist.
+			{
+				Config: testGoogleKmsCryptoKey_removed(projectId, projectOrg, projectBillingAccount, keyRingName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleKmsCryptoKeyWasRemovedFromState("google_kms_crypto_key.crypto_key"),
+					testAccCheckGoogleKmsCryptoKeyVersionsDestroyed(t, projectId, location, keyRingName, cryptoKeyName),
+					testAccCheckGoogleKmsCryptoKeyRotationDisabled(t, projectId, location, keyRingName, cryptoKeyName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKmsCryptoKey_importOnly(t *testing.T) {
 	t.Parallel()
 
@@ -789,6 +836,39 @@ resource "google_kms_crypto_key" "crypto_key" {
   destroy_scheduled_duration = "129600s"
 }
 `, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName)
+}
+
+func testGoogleKmsCryptoKey_keyAccessJustificationsPolicy(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, allowed_access_reason string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  name            = "%s"
+  project_id      = "%s"
+  org_id          = "%s"
+  billing_account = "%s"
+}
+
+resource "google_project_service" "acceptance" {
+  project = google_project.acceptance.project_id
+  service = "cloudkms.googleapis.com"
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  project  = google_project_service.acceptance.project
+  name     = "%s"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "%s"
+  key_ring = google_kms_key_ring.key_ring.id
+  labels = {
+    key = "value"
+  }
+  key_access_justifications_policy {
+    allowed_access_reasons = ["%s"]
+  }
+}
+`, projectId, projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName, allowed_access_reason)
 }
 
 func testGoogleKmsCryptoKey_importOnly(projectId, projectOrg, projectBillingAccount, keyRingName, cryptoKeyName string) string {

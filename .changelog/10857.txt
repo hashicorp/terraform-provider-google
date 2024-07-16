@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `project_number` field to `google_vertex_ai_feature_online_store_featureview` resource
+```

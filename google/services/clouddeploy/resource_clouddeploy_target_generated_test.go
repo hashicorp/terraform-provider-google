@@ -262,6 +262,7 @@ resource "google_clouddeploy_target" "primary" {
     usages           = ["RENDER"]
     artifact_storage = "gs://other-bucket/other-dir"
     service_account  = "other-owner@%{project_name}.iam.gserviceaccount.com"
+    verbose          = true
   }
 
   execution_configs {

@@ -175,6 +175,9 @@ cluster.
 * `queued_provisioning` - (Optional) Specifies node pool-level settings of queued provisioning.
     Structure is [documented below](#nested_queued_provisioning).
 
+* `reservation_affinity` (Optional) The configuration of the desired reservation which instances could take capacity from.
+    Structure is [documented below](#nested_reservation_affinity).
+
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
 
 * `min_node_count` - (Optional) Minimum number of nodes per zone in the NodePool.
@@ -224,6 +227,9 @@ cluster.
 * `additional_pod_network_configs` - (Optional, Beta) We specify the additional pod networks for this node pool using this list. Each pod network corresponds to an additional alias IP range for the node.
     Structure is [documented below](#nested_additional_pod_network_configs)
 
+* `pod_cidr_overprovision_config` - (Optional) Configuration for node-pool level pod cidr overprovision. If not set, the cluster level setting will be inherited. Structure is [documented below](#pod_cidr_overprovision_config).
+
+* `network_performance_config` - (Optional) Network bandwidth tier configuration. Structure is [documented below](#network_performance_config).
 
 <a name="nested_additional_node_network_configs"></a>The `additional_node_network_configs` block supports:
 
@@ -238,6 +244,14 @@ cluster.
 * `secondary_pod_range` - The name of the secondary range on the subnet which provides IP address for this pod range.
 
 * `max_pods_per_node` - The maximum number of pods per node which use this pod network.
+
+<a name="network_performance_config"></a>The `network_performance_config` block supports:
+
+* `total_egress_bandwidth_tier` (Required) - Specifies the total network bandwidth tier for the NodePool.
+
+<a name="pod_cidr_overprovision_config"></a>The `pod_cidr_overprovision_config` block supports:
+
+* `disabled` (Required) - Whether pod cidr overprovision is disabled.
 
 <a name="nested_upgrade_settings"></a>The `upgrade_settings` block supports:
 
@@ -281,6 +295,18 @@ cluster.
 <a name="nested_queued_provisioning"></a> The `queued_provisioning` block supports:
 
 * `enabled` (Required) - Makes nodes obtainable through the [ProvisioningRequest API](https://cloud.google.com/kubernetes-engine/docs/how-to/provisioningrequest) exclusively.
+
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` (Required) The type of reservation consumption
+    Accepted values are:
+
+    * `"UNSPECIFIED"`: Default value. This should not be used.
+    * `"NO_RESERVATION"`: Do not consume from any reserved capacity.
+    * `"ANY_RESERVATION"`: Consume any reservation available.
+    * `"SPECIFIC_RESERVATION"`: Must consume from a specific reservation. Must specify key value fields for specifying the reservations.
+* `key` (Optional) The label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify "compute.googleapis.com/reservation-name" as the key and specify the name of your reservation as its value.
+* `values` (Optional) The list of label values of reservation resources. For example: the name of the specific reservation when using a key of "compute.googleapis.com/reservation-name"
 
 ## Attributes Reference
 

@@ -287,7 +287,7 @@ configuration. The following monitored resource types are supported for
 uptime checks:
 * 'aws_ec2_instance'
 * 'aws_elb_load_balancer'
-* 'gae_app
+* 'gae_app'
 * 'gce_instance'
 * 'k8s_service'
 * 'servicedirectory_service'

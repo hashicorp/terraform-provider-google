@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -130,9 +130,9 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(40 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(90 * time.Minute),
+			Update: schema.DefaultTimeout(90 * time.Minute),
+			Delete: schema.DefaultTimeout(90 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -443,6 +443,7 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										AtLeastOneOf: ipConfigurationKeys,
 										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode if it has been set too.`,
+										Deprecated:   "`require_ssl` will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.",
 									},
 									"private_network": {
 										Type:             schema.TypeString,
@@ -492,7 +493,7 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
-										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to require_ssl. To change this field, also set the correspoding value in require_ssl.`,
+										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -1053,7 +1054,7 @@ func resourceSqlDatabaseInstanceCreate(d *schema.ResourceData, meta interface{})
 	if v, ok := d.GetOk("name"); ok {
 		name = v.(string)
 	} else {
-		name = resource.UniqueId()
+		name = id.UniqueId()
 	}
 
 	if err := d.Set("name", name); err != nil {

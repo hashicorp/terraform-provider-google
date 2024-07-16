@@ -199,7 +199,7 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeSecurityPolicy_withAdaptiveProtection(spName),
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
@@ -207,12 +207,43 @@ func TestAccComputeSecurityPolicy_withAdaptiveProtection(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName),
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_update(spName),
 			},
 			{
 				ResourceName:      "google_compute_security_policy.policy",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicy_withoutAdaptiveProtection(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				// Can create with layer 7 protection disabled
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				// Can update to layer 7 protection enabled
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName),
+			},
+			{
+				// Can update to layer 7 protection disabled again
+				Config: testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName),
 			},
 		},
 	})
@@ -366,6 +397,67 @@ func TestAccComputeSecurityPolicy_withHeadAction(t *testing.T) {
 		},
 	})
 }
+
+func TestAccComputeSecurityPolicy_withExprOptions(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_withExprOptions(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeSecurityPolicy_modifyExprOptions(t *testing.T) {
+	t.Parallel()
+
+	spName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSecurityPolicyDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeSecurityPolicy_withRule(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_withExprOptions(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeSecurityPolicy_modifyExprOptions(spName),
+			},
+			{
+				ResourceName:      "google_compute_security_policy.policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccComputeSecurityPolicy_withRecaptchaOptionsConfig(project, spName string) string {
 	return fmt.Sprintf(`
 resource "google_recaptcha_enterprise_key" "primary" {
@@ -840,7 +932,31 @@ resource "google_compute_security_policy" "policy" {
 `, spName)
 }
 
-func testAccComputeSecurityPolicy_withAdaptiveProtection(spName string) string {
+func testAccComputeSecurityPolicy_withoutAdaptiveProtection(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_disabled(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+  name        = "%s"
+  description = "updated description"
+
+  adaptive_protection_config {
+    layer_7_ddos_defense_config {
+      enable = false
+    }
+  }
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withAdaptiveProtection_enabled(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
   name        = "%s"
@@ -856,7 +972,7 @@ resource "google_compute_security_policy" "policy" {
 `, spName)
 }
 
-func testAccComputeSecurityPolicy_withAdaptiveProtectionUpdate(spName string) string {
+func testAccComputeSecurityPolicy_withAdaptiveProtection_update(spName string) string {
 	return fmt.Sprintf(`
 resource "google_compute_security_policy" "policy" {
   name        = "%s"
@@ -1077,6 +1193,92 @@ resource "google_compute_security_policy" "policy" {
 		redirect_options {
 			type = "EXTERNAL_302"
 			target = "https://example.com"
+		}
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_withExprOptions(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action      = "allow"
+		priority    = "2147483647"
+		description = "default rule"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+	}
+
+	rule {
+		action      = "deny(403)"
+		priority    = "2000"
+		description = "reCAPTCHA rule"
+		match {
+			expr {
+				expression = "request.path.endsWith('RegisterWithEmail') && token.recaptcha_action.score >= 0.8 && (token.recaptcha_action.valid)"
+			}
+			expr_options {
+				recaptcha_options {
+					action_token_site_keys = [
+						"placeholder-recaptcha-action-site-key-01",
+						"placeholder-recaptcha-action-site-key-02"
+					]
+					session_token_site_keys = [
+						"placeholder-recaptcha-session-site-key-1",
+						"placeholder-recaptcha-session-site-key-2"
+					]
+				}
+			}
+		}
+	}
+}
+`, spName)
+}
+
+func testAccComputeSecurityPolicy_modifyExprOptions(spName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_security_policy" "policy" {
+	name = "%s"
+
+	rule {
+		action      = "allow"
+		priority    = "2147483647"
+		description = "default rule"
+		match {
+			versioned_expr = "SRC_IPS_V1"
+			config {
+				src_ip_ranges = ["*"]
+			}
+		}
+	}
+
+	rule {
+		action      = "deny(403)"
+		priority    = "2000"
+		description = "reCAPTCHA rule"
+		match {
+			expr {
+				expression = "request.path.endsWith('RegisterWithEmail') && token.recaptcha_action.score >= 0.8 && (token.recaptcha_action.valid)"
+			}
+			expr_options {
+				recaptcha_options {
+					action_token_site_keys = [
+						"placeholder-recaptcha-action-site-key-09",
+						"placeholder-recaptcha-action-site-key-08",
+						"placeholder-recaptcha-action-site-key-07"
+					]
+					session_token_site_keys = [
+						"placeholder-recaptcha-session-site-key-1"
+					]
+				}
+			}
 		}
 	}
 }

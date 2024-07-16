@@ -1,5 +1,6 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: MPL-2.0
 package storage
 
 import (
@@ -90,7 +91,6 @@ func ResourceStorageBucketObject() *schema.Resource {
 			"content": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"source"},
 				Sensitive:    true,
 				Computed:     true,
@@ -122,7 +122,6 @@ func ResourceStorageBucketObject() *schema.Resource {
 				Type: schema.TypeString,
 				// This field is not Computed because it needs to trigger a diff.
 				Optional: true,
-				ForceNew: true,
 				// Makes the diff message nicer:
 				// detect_md5hash:       "1XcnP/iFw/hNrbhXi7QTmQ==" => "different hash" (forces new resource)
 				// Instead of the more confusing:
@@ -378,45 +377,53 @@ func resourceStorageBucketObjectUpdate(d *schema.ResourceData, meta interface{})
 	bucket := d.Get("bucket").(string)
 	name := d.Get("name").(string)
 
-	objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutUpdate)))
-	getCall := objectsService.Get(bucket, name)
+	if d.HasChange("content") || d.HasChange("detect_md5hash") {
+		// The KMS key name are not able to be set on create :
+		// or you get error: Error uploading object test-maarc: googleapi: Error 400: Malformed Cloud KMS crypto key: projects/myproject/locations/myregion/keyRings/mykeyring/cryptoKeys/mykeyname/cryptoKeyVersions/1, invalid
+		d.Set("kms_key_name", nil)
+		return resourceStorageBucketObjectCreate(d, meta)
+	} else {
 
-	res, err := getCall.Do()
-	if err != nil {
-		return fmt.Errorf("Error retrieving object during update %s: %s", name, err)
-	}
+		objectsService := storage.NewObjectsService(config.NewStorageClientWithTimeoutOverride(userAgent, d.Timeout(schema.TimeoutUpdate)))
+		getCall := objectsService.Get(bucket, name)
 
-	hasRetentionChanges := d.HasChange("retention")
-	if hasRetentionChanges {
-		if v, ok := d.GetOk("retention"); ok {
-			res.Retention = expandObjectRetention(v)
-		} else {
-			res.Retention = nil
-			res.NullFields = append(res.NullFields, "Retention")
+		res, err := getCall.Do()
+		if err != nil {
+			return fmt.Errorf("Error retrieving object during update %s: %s", name, err)
 		}
-	}
 
-	if d.HasChange("event_based_hold") {
-		v := d.Get("event_based_hold")
-		res.EventBasedHold = v.(bool)
-	}
+		hasRetentionChanges := d.HasChange("retention")
+		if hasRetentionChanges {
+			if v, ok := d.GetOk("retention"); ok {
+				res.Retention = expandObjectRetention(v)
+			} else {
+				res.Retention = nil
+				res.NullFields = append(res.NullFields, "Retention")
+			}
+		}
 
-	if d.HasChange("temporary_hold") {
-		v := d.Get("temporary_hold")
-		res.TemporaryHold = v.(bool)
-	}
+		if d.HasChange("event_based_hold") {
+			v := d.Get("event_based_hold")
+			res.EventBasedHold = v.(bool)
+		}
 
-	updateCall := objectsService.Update(bucket, name, res)
-	if hasRetentionChanges {
-		updateCall.OverrideUnlockedRetention(true)
-	}
-	_, err = updateCall.Do()
+		if d.HasChange("temporary_hold") {
+			v := d.Get("temporary_hold")
+			res.TemporaryHold = v.(bool)
+		}
 
-	if err != nil {
-		return fmt.Errorf("Error updating object %s: %s", name, err)
-	}
+		updateCall := objectsService.Update(bucket, name, res)
+		if hasRetentionChanges {
+			updateCall.OverrideUnlockedRetention(true)
+		}
+		_, err = updateCall.Do()
 
-	return nil
+		if err != nil {
+			return fmt.Errorf("Error updating object %s: %s", name, err)
+		}
+
+		return nil
+	}
 }
 
 func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) error {

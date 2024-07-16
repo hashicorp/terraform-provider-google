@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_storage_managed_folder`
+```
+```release-note:new-resource
+`google_storage_managed_folder_iam`
+```

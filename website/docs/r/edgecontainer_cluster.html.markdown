@@ -307,6 +307,13 @@ The following arguments are supported:
   Specifies the maintenance window in which maintenance may be performed.
   Structure is [documented below](#nested_window).
 
+* `maintenance_exclusions` -
+  (Optional)
+  Exclusions to automatic maintenance. Non-emergency maintenance should not occur
+  in these windows. Each exclusion has a unique name and may be active or expired.
+  The max number of maintenance exclusions allowed at a given time is 3.
+  Structure is [documented below](#nested_maintenance_exclusions).
+
 
 <a name="nested_window"></a>The `window` block supports:
 
@@ -328,6 +335,29 @@ The following arguments are supported:
   An RRULE (https://tools.ietf.org/html/rfc5545#section-3.8.5.3) for how
   this window recurs. They go on for the span of time between the start and
   end time.
+
+
+<a name="nested_window"></a>The `window` block supports:
+
+* `start_time` -
+  (Optional)
+  The time that the window first starts.
+
+* `end_time` -
+  (Optional)
+  The time that the window ends. The end time must take place after the
+  start time.
+
+<a name="nested_maintenance_exclusions"></a>The `maintenance_exclusions` block supports:
+
+* `window` -
+  (Optional)
+  Represents an arbitrary window of time.
+  Structure is [documented below](#nested_window).
+
+* `id` -
+  (Optional)
+  A unique (per cluster) id for the window.
 
 
 <a name="nested_window"></a>The `window` block supports:

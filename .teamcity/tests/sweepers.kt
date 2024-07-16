@@ -9,6 +9,8 @@ package tests
 
 import ProjectSweeperName
 import ServiceSweeperName
+import ServiceSweeperCronName
+import ServiceSweeperManualName
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
@@ -19,76 +21,105 @@ import projects.googleCloudRootProject
 
 class SweeperTests {
     @Test
-    fun projectSweeperDoesNotSkipProjectSweep() {
+    fun projectSweeperConfig() {
         val root = googleCloudRootProject(testContextParameters())
 
         // Find Project sweeper project
         val projectSweeperProject = getSubProject(root, projectSweeperProjectName)
 
-        // For the project sweeper to be skipped, SKIP_PROJECT_SWEEPER needs a value
+        // SKIP_PROJECT_SWEEPER should be empty so project sweepers will be run
         // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
 
         projectSweeperProject.buildTypes.forEach{bt ->
-            val value = bt.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
-            assertTrue("env.SKIP_PROJECT_SWEEPER should be set to an empty value, so project sweepers are NOT skipped in the ${projectSweeperProject.name} project. Value = `${value}` ", value == "")
+            val skipProjectSweeper = bt.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
+            assertTrue("env.SKIP_PROJECT_SWEEPER should be set to an empty value, so project sweepers are NOT skipped in the ${projectSweeperProject.name} project. Value = `${skipProjectSweeper}` ", skipProjectSweeper == "")
         }
     }
 
     @Test
-    fun serviceSweepersSkipProjectSweeper() {
+    fun gaNightlyTestsServiceSweeperConfig() {
         val root = googleCloudRootProject(testContextParameters())
 
         // Find GA nightly test project
-        val gaNightlyTestProject = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
-        // Find GA MM Upstream project
-        val gaMmUpstreamProject = getNestedProjectFromRoot(root, gaProjectName, mmUpstreamProjectName)
-
-        // Find Beta nightly test project
-        val betaNightlyTestProject = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
-        // Find Beta MM Upstream project
-        val betaMmUpstreamProject = getNestedProjectFromRoot(root, betaProjectName, mmUpstreamProjectName)
-
-        val allProjects: ArrayList<Project> = arrayListOf(gaNightlyTestProject, gaMmUpstreamProject, betaNightlyTestProject, betaMmUpstreamProject)
-        allProjects.forEach{ project ->
-            // Find sweeper inside
-            val sweeper = getBuildFromProject(project, ServiceSweeperName)
-
-            // For the project sweeper to be skipped, SKIP_PROJECT_SWEEPER needs a value
-            // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
-
-            val value = sweeper.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
-            assertTrue("env.SKIP_PROJECT_SWEEPER should be set to a non-empty string so project sweepers are skipped in the ${project.name} project. Value = `${value}` ", value != "")
-        }
-    }
-
-    @Test
-    fun gaNightlyProjectServiceSweeperRunsInGoogle() {
-        val root = googleCloudRootProject(testContextParameters())
-
-        // Find GA nightly test project
-        val gaNightlyTestProject = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
+        val project = getNestedProjectFromRoot(root, gaProjectName, nightlyTestsProjectName)
 
         // Find sweeper inside
-        val sweeper = getBuildFromProject(gaNightlyTestProject, ServiceSweeperName)
+        val sweeper = getBuildFromProject(project, ServiceSweeperName)
 
         // Check PACKAGE_PATH is in google (not google-beta)
         val value = sweeper.params.findRawParam("PACKAGE_PATH")!!.value
         assertEquals("./google/sweeper", value)
+
+        // SKIP_PROJECT_SWEEPER should have a value so project sweepers will be skipped
+        // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
+        val skipProjectSweeper = sweeper.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
+        assertTrue("env.SKIP_PROJECT_SWEEPER should be set to a non-empty string so project sweepers are skipped in the ${project.name} project (${sweeper.name}). Value = `${skipProjectSweeper}` ", skipProjectSweeper != "")
     }
 
     @Test
-    fun betaNightlyProjectServiceSweeperRunsInGoogleBeta() {
+    fun betaNightlyTestsServiceSweeperConfig() {
         val root = googleCloudRootProject(testContextParameters())
 
         // Find Beta nightly test project
-        val betaNightlyTestProject = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
+        val project = getNestedProjectFromRoot(root, betaProjectName, nightlyTestsProjectName)
 
         // Find sweeper inside
-        val sweeper: BuildType = getBuildFromProject(betaNightlyTestProject, ServiceSweeperName)
+        val sweeper: BuildType = getBuildFromProject(project, ServiceSweeperName)
 
         // Check PACKAGE_PATH is in google-beta
         val value = sweeper.params.findRawParam("PACKAGE_PATH")!!.value
         assertEquals("./google-beta/sweeper", value)
+
+        // SKIP_PROJECT_SWEEPER should have a value so project sweepers will be skipped
+        // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
+        val skipProjectSweeper = sweeper.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
+        assertTrue("env.SKIP_PROJECT_SWEEPER should be set to a non-empty string so project sweepers are skipped in the ${project.name} project (${sweeper.name}). Value = `${skipProjectSweeper}` ", skipProjectSweeper != "")
+    }
+
+    @Test
+    fun gaMmUpstreamServiceSweeperConfig() {
+        val root = googleCloudRootProject(testContextParameters())
+
+        // Find Beta nightly test project
+        val project = getNestedProjectFromRoot(root, gaProjectName, mmUpstreamProjectName)
+
+        // Find sweepers inside
+        val cronSweeper = getBuildFromProject(project, ServiceSweeperCronName)
+        val manualSweeper = getBuildFromProject(project, ServiceSweeperManualName)
+        val allSweepers: ArrayList<BuildType> = arrayListOf(cronSweeper, manualSweeper)
+        allSweepers.forEach{ sweeper ->
+            // Check PACKAGE_PATH is in google-beta
+            val value = sweeper.params.findRawParam("PACKAGE_PATH")!!.value
+            assertEquals("./google/sweeper", value)
+
+            // SKIP_PROJECT_SWEEPER should have a value so project sweepers will be skipped
+            // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
+            val skipProjectSweeper = sweeper.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
+            assertTrue("env.SKIP_PROJECT_SWEEPER should be set to a non-empty string so project sweepers are skipped in the ${project.name} project (${sweeper.name}). Value = `${skipProjectSweeper}` ", skipProjectSweeper != "")
+        }
+    }
+
+    @Test
+    fun betaMmUpstreamServiceSweeperConfig() {
+        val root = googleCloudRootProject(testContextParameters())
+
+        // Find Beta nightly test project
+        val project = getNestedProjectFromRoot(root, betaProjectName, mmUpstreamProjectName)
+
+        // Find sweepers inside
+        val cronSweeper = getBuildFromProject(project, ServiceSweeperCronName)
+        val manualSweeper = getBuildFromProject(project, ServiceSweeperManualName)
+        val allSweepers: ArrayList<BuildType> = arrayListOf(cronSweeper, manualSweeper)
+        allSweepers.forEach{ sweeper ->
+            // Check PACKAGE_PATH is in google-beta
+            val value = sweeper.params.findRawParam("PACKAGE_PATH")!!.value
+            assertEquals("./google-beta/sweeper", value)
+
+            // SKIP_PROJECT_SWEEPER should have a value so project sweepers will be skipped
+            // See https://github.com/GoogleCloudPlatform/magic-modules/blob/501429790939717ca6dce76dbf4b1b82aef4e9d9/mmv1/third_party/terraform/services/resourcemanager/resource_google_project_sweeper.go#L18-L26
+            val skipProjectSweeper = sweeper.params.findRawParam("env.SKIP_PROJECT_SWEEPER")!!.value
+            assertTrue("env.SKIP_PROJECT_SWEEPER should be set to a non-empty string so project sweepers are skipped in the ${project.name} project (${sweeper.name}). Value = `${skipProjectSweeper}` ", skipProjectSweeper != "")
+        }
     }
 
     @Test
@@ -120,7 +151,7 @@ class SweeperTests {
         val cronBeta = stBeta.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
         val stProject = projectSweeper.triggers.items[0] as ScheduleTrigger
         val cronProject = stProject.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the project sweeper", cronGa.hours.toString() < cronProject.hours.toString()) // Values are strings like "11", "12"
-        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the project sweeper", cronBeta.hours.toString() < cronProject.hours.toString() )
+        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the project sweeper", cronGa.hours.toString().toInt() < cronProject.hours.toString().toInt()) // Converting nullable strings to ints
+        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the project sweeper", cronBeta.hours.toString().toInt() < cronProject.hours.toString().toInt() )
     }
 }

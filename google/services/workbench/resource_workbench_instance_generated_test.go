@@ -255,6 +255,10 @@ resource "google_compute_subnetwork" "my_subnetwork" {
   ip_cidr_range = "10.0.1.0/24"
 }
 
+resource "google_compute_address" "static" {
+  name = "tf-test-wbi-test-default%{random_suffix}"
+}
+
 resource "google_workbench_instance" "instance" {
   name = "tf-test-workbench-instance%{random_suffix}"
   location = "us-central1-a"
@@ -296,6 +300,9 @@ resource "google_workbench_instance" "instance" {
       network = google_compute_network.my_network.id
       subnet = google_compute_subnetwork.my_subnetwork.id
       nic_type = "GVNIC"
+      access_configs {
+        external_ip = google_compute_address.static.address
+      }
     }
 
     metadata = {

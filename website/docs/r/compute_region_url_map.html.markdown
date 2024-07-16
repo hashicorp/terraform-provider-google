@@ -774,7 +774,7 @@ resource "google_compute_instance_template" "default" {
     }
   }
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
@@ -867,7 +867,7 @@ resource "google_compute_instance" "default" {
   }
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-10"
+      image = "debian-cloud/debian-12"
     }
   }
 }
@@ -1016,7 +1016,6 @@ resource "google_compute_region_health_check" "default" {
     request_path = "/"
   }
 }
-
 ```
 
 ## Argument Reference
@@ -1646,7 +1645,7 @@ The following arguments are supported:
   Specifies one or more conditions when this retry rule applies. Valid values are:
   * 5xx: Loadbalancer will attempt a retry if the backend service responds with
     any 5xx response code, or if the backend service does not respond at all,
-    example: disconnects, reset, read timeout, connection failure, and refused
+    for example: disconnects, reset, read timeout, connection failure, and refused
     streams.
   * gateway-error: Similar to 5xx, but only applies to response codes
     502, 503 or 504.
@@ -2064,7 +2063,7 @@ The following arguments are supported:
   Specifies one or more conditions when this retry rule applies. Valid values are:
   - 5xx: Loadbalancer will attempt a retry if the backend service responds with
   any 5xx response code, or if the backend service does not respond at all,
-  example: disconnects, reset, read timeout, connection failure, and refused
+  for example: disconnects, reset, read timeout, connection failure, and refused
   streams.
   - gateway-error: Similar to 5xx, but only applies to response codes
   502, 503 or 504.

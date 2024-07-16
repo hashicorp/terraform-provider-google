@@ -143,9 +143,9 @@ func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T)
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-2"),
+		"address_name":  acctest.BootstrapSharedTestGlobalAddress(t, "looker-vpc-network-3", acctest.AddressWithPrefixLength(8)),
 		"kms_key_name":  acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-2"),
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "looker-vpc-network-3", acctest.ServiceNetworkWithPrefixLength(8)),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -214,6 +214,8 @@ resource "google_looker_instance" "looker-instance" {
     client_id = "tf-test-my-client-id%{random_suffix}"
     client_secret = "tf-test-my-client-secret%{random_suffix}"
   }
+
+  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 }
 
 data "google_compute_global_address" "looker_range" {

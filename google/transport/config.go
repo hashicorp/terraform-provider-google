@@ -176,7 +176,7 @@ type Config struct {
 	DefaultLabels                             map[string]string
 	AddTerraformAttributionLabel              bool
 	TerraformAttributionLabelAdditionStrategy string
-	// PollInterval is passed to resource.StateChangeConf in common_operation.go
+	// PollInterval is passed to retry.StateChangeConf in common_operation.go
 	// It controls the interval at which we poll for successful operations
 	PollInterval time.Duration
 
@@ -222,6 +222,7 @@ type Config struct {
 	CloudRunV2BasePath               string
 	CloudSchedulerBasePath           string
 	CloudTasksBasePath               string
+	ComposerBasePath                 string
 	ComputeBasePath                  string
 	ContainerAnalysisBasePath        string
 	ContainerAttachedBasePath        string
@@ -278,6 +279,7 @@ type Config struct {
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
+	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
@@ -286,9 +288,13 @@ type Config struct {
 	SecretManagerBasePath            string
 	SecureSourceManagerBasePath      string
 	SecurityCenterBasePath           string
+	SecurityCenterManagementBasePath string
+	SecurityCenterV2BasePath         string
 	SecuritypostureBasePath          string
 	ServiceManagementBasePath        string
+	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
+	SiteVerificationBasePath         string
 	SourceRepoBasePath               string
 	SpannerBasePath                  string
 	SQLBasePath                      string
@@ -304,14 +310,12 @@ type Config struct {
 	WorkflowsBasePath                string
 
 	CloudBillingBasePath      string
-	ComposerBasePath          string
 	ContainerBasePath         string
 	DataflowBasePath          string
 	IamCredentialsBasePath    string
 	ResourceManagerV3BasePath string
 	IAMBasePath               string
 	CloudIoTBasePath          string
-	ServiceNetworkingBasePath string
 	BigtableAdminBasePath     string
 	TagsLocationBasePath      string
 
@@ -358,6 +362,7 @@ const CloudRunBasePathKey = "CloudRun"
 const CloudRunV2BasePathKey = "CloudRunV2"
 const CloudSchedulerBasePathKey = "CloudScheduler"
 const CloudTasksBasePathKey = "CloudTasks"
+const ComposerBasePathKey = "Composer"
 const ComputeBasePathKey = "Compute"
 const ContainerAnalysisBasePathKey = "ContainerAnalysis"
 const ContainerAttachedBasePathKey = "ContainerAttached"
@@ -414,6 +419,7 @@ const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
 const PrivatecaBasePathKey = "Privateca"
+const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
 const PubsubBasePathKey = "Pubsub"
 const PubsubLiteBasePathKey = "PubsubLite"
@@ -422,9 +428,13 @@ const ResourceManagerBasePathKey = "ResourceManager"
 const SecretManagerBasePathKey = "SecretManager"
 const SecureSourceManagerBasePathKey = "SecureSourceManager"
 const SecurityCenterBasePathKey = "SecurityCenter"
+const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
+const SecurityCenterV2BasePathKey = "SecurityCenterV2"
 const SecuritypostureBasePathKey = "Securityposture"
 const ServiceManagementBasePathKey = "ServiceManagement"
+const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const ServiceUsageBasePathKey = "ServiceUsage"
+const SiteVerificationBasePathKey = "SiteVerification"
 const SourceRepoBasePathKey = "SourceRepo"
 const SpannerBasePathKey = "Spanner"
 const SQLBasePathKey = "SQL"
@@ -439,13 +449,11 @@ const VPCAccessBasePathKey = "VPCAccess"
 const WorkbenchBasePathKey = "Workbench"
 const WorkflowsBasePathKey = "Workflows"
 const CloudBillingBasePathKey = "CloudBilling"
-const ComposerBasePathKey = "Composer"
 const ContainerBasePathKey = "Container"
 const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
 const ResourceManagerV3BasePathKey = "ResourceManagerV3"
-const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const BigtableAdminBasePathKey = "BigtableAdmin"
 const ContainerAwsBasePathKey = "ContainerAws"
 const ContainerAzureBasePathKey = "ContainerAzure"
@@ -488,6 +496,7 @@ var DefaultBasePaths = map[string]string{
 	CloudRunV2BasePathKey:               "https://run.googleapis.com/v2/",
 	CloudSchedulerBasePathKey:           "https://cloudscheduler.googleapis.com/v1/",
 	CloudTasksBasePathKey:               "https://cloudtasks.googleapis.com/v2/",
+	ComposerBasePathKey:                 "https://composer.googleapis.com/v1/",
 	ComputeBasePathKey:                  "https://compute.googleapis.com/compute/v1/",
 	ContainerAnalysisBasePathKey:        "https://containeranalysis.googleapis.com/v1/",
 	ContainerAttachedBasePathKey:        "https://{{location}}-gkemulticloud.googleapis.com/v1/",
@@ -544,6 +553,7 @@ var DefaultBasePaths = map[string]string{
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
+	PrivilegedAccessManagerBasePathKey:  "https://privilegedaccessmanager.googleapis.com/v1/",
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
 	PubsubBasePathKey:                   "https://pubsub.googleapis.com/v1/",
 	PubsubLiteBasePathKey:               "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
@@ -552,9 +562,13 @@ var DefaultBasePaths = map[string]string{
 	SecretManagerBasePathKey:            "https://secretmanager.googleapis.com/v1/",
 	SecureSourceManagerBasePathKey:      "https://securesourcemanager.googleapis.com/v1/",
 	SecurityCenterBasePathKey:           "https://securitycenter.googleapis.com/v1/",
+	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
+	SecurityCenterV2BasePathKey:         "https://securitycenter.googleapis.com/v2/",
 	SecuritypostureBasePathKey:          "https://securityposture.googleapis.com/v1/",
 	ServiceManagementBasePathKey:        "https://servicemanagement.googleapis.com/v1/",
+	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	ServiceUsageBasePathKey:             "https://serviceusage.googleapis.com/v1/",
+	SiteVerificationBasePathKey:         "https://www.googleapis.com/siteVerification/v1/",
 	SourceRepoBasePathKey:               "https://sourcerepo.googleapis.com/v1/",
 	SpannerBasePathKey:                  "https://spanner.googleapis.com/v1/",
 	SQLBasePathKey:                      "https://sqladmin.googleapis.com/sql/v1beta4/",
@@ -569,13 +583,11 @@ var DefaultBasePaths = map[string]string{
 	WorkbenchBasePathKey:                "https://notebooks.googleapis.com/v2/",
 	WorkflowsBasePathKey:                "https://workflows.googleapis.com/v1/",
 	CloudBillingBasePathKey:             "https://cloudbilling.googleapis.com/v1/",
-	ComposerBasePathKey:                 "https://composer.googleapis.com/v1/",
 	ContainerBasePathKey:                "https://container.googleapis.com/v1/",
 	DataflowBasePathKey:                 "https://dataflow.googleapis.com/v1b3/",
 	IAMBasePathKey:                      "https://iam.googleapis.com/v1/",
 	IamCredentialsBasePathKey:           "https://iamcredentials.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
-	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	BigtableAdminBasePathKey:            "https://bigtableadmin.googleapis.com/v2/",
 	ContainerAwsBasePathKey:             "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	ContainerAzureBasePathKey:           "https://{{location}}-gkemulticloud.googleapis.com/v1/",
@@ -828,6 +840,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("cloud_tasks_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_CLOUD_TASKS_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[CloudTasksBasePathKey]))
+	}
+	if d.Get("composer_custom_endpoint") == "" {
+		d.Set("composer_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_COMPOSER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ComposerBasePathKey]))
 	}
 	if d.Get("compute_custom_endpoint") == "" {
 		d.Set("compute_custom_endpoint", MultiEnvDefault([]string{
@@ -1109,6 +1126,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[PrivatecaBasePathKey]))
 	}
+	if d.Get("privileged_access_manager_custom_endpoint") == "" {
+		d.Set("privileged_access_manager_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PRIVILEGED_ACCESS_MANAGER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[PrivilegedAccessManagerBasePathKey]))
+	}
 	if d.Get("public_ca_custom_endpoint") == "" {
 		d.Set("public_ca_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_PUBLIC_CA_CUSTOM_ENDPOINT",
@@ -1149,6 +1171,16 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_SECURITY_CENTER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[SecurityCenterBasePathKey]))
 	}
+	if d.Get("security_center_management_custom_endpoint") == "" {
+		d.Set("security_center_management_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SECURITY_CENTER_MANAGEMENT_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SecurityCenterManagementBasePathKey]))
+	}
+	if d.Get("security_center_v2_custom_endpoint") == "" {
+		d.Set("security_center_v2_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SECURITY_CENTER_V2_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SecurityCenterV2BasePathKey]))
+	}
 	if d.Get("securityposture_custom_endpoint") == "" {
 		d.Set("securityposture_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SECURITYPOSTURE_CUSTOM_ENDPOINT",
@@ -1159,10 +1191,20 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ServiceManagementBasePathKey]))
 	}
+	if d.Get("service_networking_custom_endpoint") == "" {
+		d.Set("service_networking_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ServiceNetworkingBasePathKey]))
+	}
 	if d.Get("service_usage_custom_endpoint") == "" {
 		d.Set("service_usage_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ServiceUsageBasePathKey]))
+	}
+	if d.Get("site_verification_custom_endpoint") == "" {
+		d.Set("site_verification_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SITE_VERIFICATION_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SiteVerificationBasePathKey]))
 	}
 	if d.Get("source_repo_custom_endpoint") == "" {
 		d.Set("source_repo_custom_endpoint", MultiEnvDefault([]string{
@@ -1990,6 +2032,7 @@ type StaticTokenSource struct {
 // If initialCredentialsOnly is true, don't follow the impersonation settings and return the initial set of creds
 // instead.
 func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bool) (googleoauth.Credentials, error) {
+	// UniverseDomain is assumed to be the previously set provider-configured value for access tokens
 	if c.AccessToken != "" {
 		contents, _, err := verify.PathOrContents(c.AccessToken)
 		if err != nil {
@@ -2013,10 +2056,23 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		}, nil
 	}
 
+	// UniverseDomain is set by the credential file's "universe_domain" field
 	if c.Credentials != "" {
 		contents, _, err := verify.PathOrContents(c.Credentials)
 		if err != nil {
 			return googleoauth.Credentials{}, fmt.Errorf("error loading credentials: %s", err)
+		}
+
+		var content map[string]any
+		if err := json.Unmarshal([]byte(contents), &content); err != nil {
+			return googleoauth.Credentials{}, fmt.Errorf("error unmarshaling credentials: %s", err)
+		}
+
+		if content["universe_domain"] != nil {
+			c.UniverseDomain = content["universe_domain"].(string)
+		} else {
+			// Unset UniverseDomain if not found in credentials file
+			c.UniverseDomain = ""
 		}
 
 		if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
@@ -2048,31 +2104,50 @@ func (c *Config) GetCredentials(clientScopes []string, initialCredentialsOnly bo
 		}
 	}
 
+	var creds *googleoauth.Credentials
+	var err error
 	if c.ImpersonateServiceAccount != "" && !initialCredentialsOnly {
 		opts := option.ImpersonateCredentials(c.ImpersonateServiceAccount, c.ImpersonateServiceAccountDelegates...)
-		creds, err := transport.Creds(context.TODO(), opts, option.WithScopes(clientScopes...))
+		creds, err = transport.Creds(context.TODO(), opts, option.WithScopes(clientScopes...))
 		if err != nil {
 			return googleoauth.Credentials{}, err
 		}
+	} else {
+		log.Printf("[INFO] Authenticating using DefaultClient...")
+		log.Printf("[INFO]   -- Scopes: %s", clientScopes)
 
-		return *creds, nil
-	}
-
-	log.Printf("[INFO] Authenticating using DefaultClient...")
-	log.Printf("[INFO]   -- Scopes: %s", clientScopes)
-
-	if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
-		log.Printf("[INFO]   -- Sending JwtWithScope option")
-		creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
-		if err != nil {
-			return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+		if c.UniverseDomain != "" && c.UniverseDomain != "googleapis.com" {
+			log.Printf("[INFO]   -- Sending JwtWithScope option")
+			creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...), internaloption.EnableJwtWithScope())
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+			}
+		} else {
+			creds, err = transport.Creds(context.Background(), option.WithScopes(clientScopes...))
+			if err != nil {
+				return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+			}
 		}
-		return *creds, nil
 	}
 
-	creds, err := transport.Creds(context.Background(), option.WithScopes(clientScopes...))
-	if err != nil {
-		return googleoauth.Credentials{}, fmt.Errorf("Attempted to load application default credentials since neither `credentials` nor `access_token` was set in the provider block.  No credentials loaded. To use your gcloud credentials, run 'gcloud auth application-default login'.  Original error: %w", err)
+	if creds.JSON != nil {
+		var content map[string]any
+		if err := json.Unmarshal([]byte(creds.JSON), &content); err != nil {
+			log.Printf("[WARN] error unmarshaling credentials, skipping Universe Domain detection")
+			c.UniverseDomain = ""
+		} else if content["universe_domain"] != nil {
+			c.UniverseDomain = content["universe_domain"].(string)
+		} else {
+			// Unset UniverseDomain if not found in ADC credentials file
+			c.UniverseDomain = ""
+		}
+	} else {
+		// creds.GetUniverseDomain may retrieve a domain from the metadata server
+		ud, err := creds.GetUniverseDomain()
+		if err != nil {
+			log.Printf("[WARN] Error retrieving universe domain: %s", err)
+		}
+		c.UniverseDomain = ud
 	}
 
 	return *creds, nil
@@ -2124,6 +2199,7 @@ func ConfigureBasePaths(c *Config) {
 	c.CloudRunV2BasePath = DefaultBasePaths[CloudRunV2BasePathKey]
 	c.CloudSchedulerBasePath = DefaultBasePaths[CloudSchedulerBasePathKey]
 	c.CloudTasksBasePath = DefaultBasePaths[CloudTasksBasePathKey]
+	c.ComposerBasePath = DefaultBasePaths[ComposerBasePathKey]
 	c.ComputeBasePath = DefaultBasePaths[ComputeBasePathKey]
 	c.ContainerAnalysisBasePath = DefaultBasePaths[ContainerAnalysisBasePathKey]
 	c.ContainerAttachedBasePath = DefaultBasePaths[ContainerAttachedBasePathKey]
@@ -2180,6 +2256,7 @@ func ConfigureBasePaths(c *Config) {
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
+	c.PrivilegedAccessManagerBasePath = DefaultBasePaths[PrivilegedAccessManagerBasePathKey]
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]
 	c.PubsubBasePath = DefaultBasePaths[PubsubBasePathKey]
 	c.PubsubLiteBasePath = DefaultBasePaths[PubsubLiteBasePathKey]
@@ -2188,9 +2265,13 @@ func ConfigureBasePaths(c *Config) {
 	c.SecretManagerBasePath = DefaultBasePaths[SecretManagerBasePathKey]
 	c.SecureSourceManagerBasePath = DefaultBasePaths[SecureSourceManagerBasePathKey]
 	c.SecurityCenterBasePath = DefaultBasePaths[SecurityCenterBasePathKey]
+	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
+	c.SecurityCenterV2BasePath = DefaultBasePaths[SecurityCenterV2BasePathKey]
 	c.SecuritypostureBasePath = DefaultBasePaths[SecuritypostureBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
+	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.ServiceUsageBasePath = DefaultBasePaths[ServiceUsageBasePathKey]
+	c.SiteVerificationBasePath = DefaultBasePaths[SiteVerificationBasePathKey]
 	c.SourceRepoBasePath = DefaultBasePaths[SourceRepoBasePathKey]
 	c.SpannerBasePath = DefaultBasePaths[SpannerBasePathKey]
 	c.SQLBasePath = DefaultBasePaths[SQLBasePathKey]
@@ -2214,7 +2295,6 @@ func ConfigureBasePaths(c *Config) {
 	c.IamCredentialsBasePath = DefaultBasePaths[IamCredentialsBasePathKey]
 	c.ResourceManagerV3BasePath = DefaultBasePaths[ResourceManagerV3BasePathKey]
 	c.IAMBasePath = DefaultBasePaths[IAMBasePathKey]
-	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
 	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]

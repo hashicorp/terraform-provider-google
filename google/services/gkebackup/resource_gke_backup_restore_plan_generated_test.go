@@ -555,6 +555,263 @@ resource "google_gke_backup_restore_plan" "transform_rule" {
 `, context)
 }
 
+func TestAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupRestorePlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_restore_plan.gitops_mode",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupRestorePlan_gkebackupRestoreplanGitopsModeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-gitops-mode%{random_suffix}-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "tf-test-gitops-mode%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "gitops_mode" {
+  name = "tf-test-gitops-mode%{random_suffix}"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "MERGE_SKIP_ON_CONFLICT"
+    volume_data_restore_policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+  }
+}
+`, context)
+}
+
+func TestAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupRestorePlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_restore_plan.restore_order",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupRestorePlan_gkebackupRestoreplanRestoreOrderExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-restore-order%{random_suffix}-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "tf-test-restore-order%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "restore_order" {
+  name = "tf-test-restore-order%{random_suffix}"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
+    volume_data_restore_policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+    restore_order {
+        group_kind_dependencies {
+            satisfying {
+                resource_group = "stable.example.com"
+                resource_kind = "kindA"
+            }
+            requiring {
+                resource_group = "stable.example.com"
+                resource_kind = "kindB"
+            }
+        }
+        group_kind_dependencies {
+            satisfying {
+                resource_group = "stable.example.com"
+                resource_kind = "kindB"
+            }
+            requiring {
+                resource_group = "stable.example.com"
+                resource_kind = "kindC"
+            }
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":             envvar.GetTestProjectFromEnv(),
+		"deletion_protection": false,
+		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
+		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEBackupRestorePlanDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(context),
+			},
+			{
+				ResourceName:            "google_gke_backup_restore_plan.volume_res",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccGKEBackupRestorePlan_gkebackupRestoreplanVolumeResExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_container_cluster" "primary" {
+  name               = "tf-test-volume-res%{random_suffix}-cluster"
+  location           = "us-central1"
+  initial_node_count = 1
+  workload_identity_config {
+    workload_pool = "%{project}.svc.id.goog"
+  }
+  addons_config {
+    gke_backup_agent_config {
+      enabled = true
+    }
+  }
+  deletion_protection  = "%{deletion_protection}"
+  network       = "%{network_name}"
+  subnetwork    = "%{subnetwork_name}"
+}
+
+resource "google_gke_backup_backup_plan" "basic" {
+  name = "tf-test-volume-res%{random_suffix}"
+  cluster = google_container_cluster.primary.id
+  location = "us-central1"
+  backup_config {
+    include_volume_data = true
+    include_secrets = true
+    all_namespaces = true
+  }
+}
+
+resource "google_gke_backup_restore_plan" "volume_res" {
+  name = "tf-test-volume-res%{random_suffix}"
+  location = "us-central1"
+  backup_plan = google_gke_backup_backup_plan.basic.id
+  cluster = google_container_cluster.primary.id
+  restore_config {
+    all_namespaces = true
+    namespaced_resource_restore_mode = "FAIL_ON_CONFLICT"
+    volume_data_restore_policy = "NO_VOLUME_DATA_RESTORATION"
+    cluster_resource_restore_scope {
+      all_group_kinds = true
+    }
+    cluster_resource_conflict_policy = "USE_EXISTING_VERSION"
+    volume_data_restore_policy_bindings {
+        policy = "RESTORE_VOLUME_DATA_FROM_BACKUP"
+        volume_type = "GCE_PERSISTENT_DISK"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckGKEBackupRestorePlanDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

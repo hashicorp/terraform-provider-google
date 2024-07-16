@@ -51,6 +51,61 @@ resource "google_redis_cluster" "cluster-ha" {
   redis_configs = {
     maxmemory-policy	= "volatile-ttl"
   }
+  zone_distribution_config {
+    mode = "MULTI_ZONE"
+  }
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  name = "mypolicy"
+  location = "us-central1"
+  service_class = "gcp-memorystore-redis"
+  description   = "my basic service connection policy"
+  network = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  name          = "mysubnet"
+  ip_cidr_range = "10.0.0.248/29"
+  region        = "us-central1"
+  network       = google_compute_network.producer_net.id
+}
+
+resource "google_compute_network" "producer_net" {
+  name                    = "mynetwork"
+  auto_create_subnetworks = false
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=redis_cluster_ha_single_zone&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Redis Cluster Ha Single Zone
+
+
+```hcl
+resource "google_redis_cluster" "cluster-ha-single-zone" {
+  name           = "ha-cluster-single-zone"
+  shard_count    = 3
+  psc_configs {
+    network = google_compute_network.producer_net.id
+  }
+  region = "us-central1"
+  zone_distribution_config {
+    mode = "SINGLE_ZONE"
+    zone = "us-central1-f"
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -136,6 +191,11 @@ The following arguments are supported:
   If not provided, REDIS_HIGHMEM_MEDIUM will be used as default
   Possible values are: `REDIS_SHARED_CORE_NANO`, `REDIS_HIGHMEM_MEDIUM`, `REDIS_HIGHMEM_XLARGE`, `REDIS_STANDARD_SMALL`.
 
+* `zone_distribution_config` -
+  (Optional)
+  Immutable. Zone distribution config for Memorystore Redis cluster.
+  Structure is [documented below](#nested_zone_distribution_config).
+
 * `replica_count` -
   (Optional)
   Optional. The number of replica nodes per shard.
@@ -153,6 +213,18 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_zone_distribution_config"></a>The `zone_distribution_config` block supports:
+
+* `mode` -
+  (Optional)
+  Immutable. The mode for zone distribution for Memorystore Redis cluster.
+  If not provided, MULTI_ZONE will be used as default
+  Possible values are: `MULTI_ZONE`, `SINGLE_ZONE`.
+
+* `zone` -
+  (Optional)
+  Immutable. The zone for single zone Memorystore Redis cluster.
 
 ## Attributes Reference
 

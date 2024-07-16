@@ -55,6 +55,7 @@ resource "google_netapp_active_directory" "test_active_directory_full" {
     password = "pass"
     aes_encryption         = false
     backup_operators       = ["test1", "test2"]
+    administrators         = ["test1", "test2"]
     description            = "ActiveDirectory is the public representation of the active directory config."
     encrypt_dc_connections = false
     kdc_hostname           = "hostname"
@@ -83,6 +84,7 @@ resource "google_netapp_active_directory" "test_active_directory_full" {
     password = "pass"
     aes_encryption         = false
     backup_operators       = ["test1", "test2"]
+    administrators         = ["test1", "test2"]
     description            = "ActiveDirectory is the public representation of the active directory config."
     encrypt_dc_connections = false
     kdc_hostname           = "hostname"

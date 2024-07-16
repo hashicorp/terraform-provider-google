@@ -35,8 +35,8 @@ func TestAccCloudAssetFolderFeed_cloudAssetFolderFeedExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

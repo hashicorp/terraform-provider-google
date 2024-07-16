@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -721,8 +721,8 @@ func resourceComputeInstanceGroupManagerRead(d *schema.ResourceData, meta interf
 			Name: operation,
 			Zone: zone,
 		}
-		if err := d.Set("operation", op.Name); err != nil {
-			return fmt.Errorf("Error setting operation: %s", err)
+		if err := d.Set("operation", ""); err != nil {
+			return fmt.Errorf("Error unsetting operation: %s", err)
 		}
 		err = ComputeOperationWaitTime(config, op, project, "Creating InstanceGroupManager", userAgent, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
@@ -1029,7 +1029,7 @@ func resourceComputeInstanceGroupManagerDelete(d *schema.ResourceData, meta inte
 
 func computeIGMWaitForInstanceStatus(d *schema.ResourceData, meta interface{}) error {
 	waitForUpdates := d.Get("wait_for_instances_status").(string) == "UPDATED"
-	conf := resource.StateChangeConf{
+	conf := retry.StateChangeConf{
 		Pending: []string{"creating", "error", "updating per instance configs", "reaching version target", "updating all instances config"},
 		Target:  []string{"created"},
 		Refresh: waitForInstancesRefreshFunc(getManager, waitForUpdates, d, meta),

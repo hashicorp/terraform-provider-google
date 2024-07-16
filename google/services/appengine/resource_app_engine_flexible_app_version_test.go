@@ -67,6 +67,7 @@ resource "google_project_service" "appengineflex" {
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_network" "network" {
@@ -140,6 +141,11 @@ resource "google_app_engine_flexible_app_version" "foo" {
 
   entrypoint {
     shell = "gunicorn -b :$PORT main:app"
+  }
+
+  flexible_runtime_settings {
+    operating_system = "ubuntu22"
+    runtime_version = "3.11"
   }
 
   deployment {
@@ -234,6 +240,7 @@ resource "google_project_service" "appengineflex" {
   service = "appengineflex.googleapis.com"
 
   disable_dependent_services = false
+  depends_on = [google_project_service.compute]
 }
 
 resource "google_compute_network" "network" {
@@ -307,6 +314,11 @@ resource "google_app_engine_flexible_app_version" "foo" {
 
   entrypoint {
     shell = "gunicorn -b :$PORT main:app"
+  }
+
+  flexible_runtime_settings {
+    operating_system = "ubuntu22"
+    runtime_version = "3.11"
   }
 
   deployment {

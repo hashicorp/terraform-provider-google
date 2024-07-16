@@ -32,8 +32,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":           envvar.GetTestOrgFromEnv(t),
 		"billing_acct":     envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":           envvar.GetTestOrgFromEnv(t),
 		"quota_start_time": time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
 		"random_suffix":    acctest.RandString(t, 10),
 	}
@@ -131,8 +131,8 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigMinimalExample(t *testi
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"billing_acct":  envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

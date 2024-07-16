@@ -248,8 +248,10 @@ includes an up-to-date reference of supported versions.
     That service account needs the `Cloud KMS > Cloud KMS CryptoKey Encrypter/Decrypter` role on your
     key - please see [this step](https://cloud.google.com/sql/docs/mysql/configure-cmek#grantkey).
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
-in Terraform state, a `terraform destroy` or `terraform apply` command that deletes the instance will fail. Defaults to `true`.
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the instance.
+    When the field is set to true or unset in Terraform state, a `terraform apply`
+    or `terraform destroy` that would delete the instance will fail.
+    When the field is set to false, deleting the instance is allowed.
 
   ~> **NOTE:** This flag only protects instances from deletion within Terraform. To protect your instances from accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform), use the API flag `settings.deletion_protection_enabled`.
 
@@ -373,7 +375,7 @@ Specifying a network enables private IP.
 At least `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `require_ssl` - (Optional) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`.
+* `require_ssl` - (Optional, Deprecated) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`. It will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.
 
 * `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to `require_ssl`. To change this field, also set the correspoding value in `require_ssl`.
     * For PostgreSQL instances, the value pairs are listed in the [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/instances#ipconfiguration) for `ssl_mode` field.
@@ -576,9 +578,9 @@ performing filtering in a Terraform config.
 `google_sql_database_instance` provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 40 minutes.
-- `update` - Default is 30 minutes.
-- `delete` - Default is 30 minutes.
+- `create` - Default is 90 minutes.
+- `update` - Default is 90 minutes.
+- `delete` - Default is 90 minutes.
 
 ## Import
 

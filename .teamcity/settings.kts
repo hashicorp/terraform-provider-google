@@ -9,7 +9,7 @@ import projects.googleCloudRootProject
 import builds.AllContextParameters
 import jetbrains.buildServer.configs.kotlin.*
 
-version = "2023.11"
+version = "2024.03"
 
 // The code below pulls context parameters from the TeamCity project.
 // Context parameters aren't stored in VCS, and are managed manually.

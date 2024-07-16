@@ -34,6 +34,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-access-connector"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -60,7 +61,7 @@ func testAccVPCAccessConnector_vpcAccessConnectorExample(context map[string]inte
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-vpc-con%{random_suffix}"
   ip_cidr_range = "10.8.0.0/28"
-  network       = "default"
+  network       = "%{network_name}"
 }
 `, context)
 }
@@ -69,6 +70,7 @@ func TestAccVPCAccessConnector_vpcAccessConnectorSharedVpcExample(t *testing.T) 
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "vpc-access-connector"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -104,12 +106,7 @@ resource "google_compute_subnetwork" "custom_test" {
   name          = "tf-test-vpc-con%{random_suffix}"
   ip_cidr_range = "10.2.0.0/28"
   region        = "us-central1"
-  network       = google_compute_network.custom_test.id
-}
-
-resource "google_compute_network" "custom_test" {
-  name                    = "tf-test-vpc-con%{random_suffix}"
-  auto_create_subnetworks = false
+  network       = "%{network_name}"
 }
 `, context)
 }

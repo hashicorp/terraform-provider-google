@@ -200,7 +200,7 @@ resource "google_privateca_ca_pool_iam_member" "default" {
   provider = google-beta
   ca_pool  = google_privateca_ca_pool.default.id
   role     = "roles/privateca.certificateManager"
-  member   = "serviceAccount:${google_project_service_identity.ns_sa.email}"
+  member   = google_project_service_identity.ns_sa.member
 }
 
 resource "google_certificate_manager_trust_config" "default" {

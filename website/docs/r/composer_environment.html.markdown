@@ -47,6 +47,11 @@ will not be able to find or manage many of these underlying resources automatica
 resource "google_composer_environment" "test" {
   name   = "example-composer-env"
   region = "us-central1"
+  config {
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
+  }
 }
 ```
 
@@ -270,10 +275,6 @@ The following arguments are supported:
   (Optional)
   The configuration used for the Kubernetes Engine cluster.  Structure is [documented below](#nested_node_config_c1).
 
-* `recovery_config` -
-  (Optional, Cloud Composer 2 only)
-  The configuration settings for recovery. Structure is [documented below](#nested_recovery_config_c1).
-
 * `software_config` -
   (Optional)
   The configuration settings for software inside the environment.  Structure is [documented below](#nested_software_config_c1).
@@ -419,14 +420,40 @@ The following arguments are supported:
   They cannot specify Apache Airflow software configuration overrides (they cannot match the regular expression
   `AIRFLOW__[A-Z0-9_]+__[A-Z0-9_]+`), and they cannot match any of the following reserved names:
   ```
+  AIRFLOW_DATABASE_VERSION
   AIRFLOW_HOME
-  C_FORCE_ROOT
+  AIRFLOW_SRC_DIR
+  AIRFLOW_WEBSERVER
+  AUTO_GKE
+  CLOUDSDK_METRICS_ENVIRONMENT
+  CLOUD_LOGGING_ONLY
+  COMPOSER_ENVIRONMENT
+  COMPOSER_GKE_LOCATION
+  COMPOSER_GKE_NAME
+  COMPOSER_GKE_ZONE
+  COMPOSER_LOCATION
+  COMPOSER_OPERATION_UUID
+  COMPOSER_PYTHON_VERSION
+  COMPOSER_VERSION
   CONTAINER_NAME
+  C_FORCE_ROOT
   DAGS_FOLDER
   GCP_PROJECT
+  GCP_TENANT_PROJECT
+  GCSFUSE_EXTRACTED
   GCS_BUCKET
   GKE_CLUSTER_NAME
+  GKE_IN_TENANT
+  GOOGLE_APPLICATION_CREDENTIALS
+  MAJOR_VERSION
+  MINOR_VERSION
+  PATH
+  PIP_DISABLE_PIP_VERSION_CHECK
+  PORT
+  PROJECT_ID
+  PYTHONPYCACHEPREFIX
   SQL_DATABASE
+  SQL_HOST
   SQL_INSTANCE
   SQL_PASSWORD
   SQL_PROJECT
@@ -459,11 +486,6 @@ The following arguments are supported:
 
 See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. <a name="nested_private_environment_config_c1"></a>The `private_environment_config` block supports:
 
-* `connection_type` -
-  (Optional, Cloud Composer 2 only)
-  Mode of internal communication within the Composer environment. Must be one
-  of `"VPC_PEERING"` or `"PRIVATE_SERVICE_CONNECT"`.
- 
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
   If this field is set to true, the `ip_allocation_policy.use_ip_aliases` field must
@@ -652,6 +674,10 @@ The following arguments are supported:
   (Optional)
   The configuration used for the Kubernetes Engine cluster. Structure is [documented below](#nested_node_config_c2).
 
+* `recovery_config` -
+  (Optional, Cloud Composer 2 only)
+  The configuration settings for recovery. Structure is [documented below](#nested_recovery_config_c2).
+
 * `software_config` -
   (Optional)
   The configuration settings for software (Airflow) inside the environment. Structure is
@@ -695,7 +721,25 @@ The following arguments are supported:
   master authorized networks will disallow all external traffic to access
   Kubernetes master through HTTPS except traffic from the given CIDR blocks,
   Google Compute Engine Public IPs and Google Prod IPs. Structure is
-  [documented below](#nested_master_authorized_networks_config_c1).
+  [documented below](#nested_master_authorized_networks_config_c2).
+
+<a name="nested_master_authorized_networks_config_c2"></a>The `master_authorized_networks_config` block supports:
+* `enabled` -
+  (Required)
+  Whether or not master authorized networks is enabled.
+
+* `cidr_blocks` -
+  `cidr_blocks `define up to 50 external networks that could access Kubernetes master through HTTPS. Structure is [documented below](#nested_cidr_blocks_c2).
+
+<a name="nested_cidr_blocks_c2"></a>The `cidr_blocks` supports:
+
+* `display_name` -
+  (Optional)
+  `display_name` is a field for users to identify CIDR blocks.
+
+* `cidr_block` -
+  (Required)
+  `cidr_block` must be specified in CIDR notation.
 
 * `data_retention_config` -
   (Optional, Cloud Composer 2.0.23 or newer only)
@@ -841,6 +885,11 @@ The following arguments are supported:
 
 <a name="nested_private_environment_config_c2"></a>See [documentation](https://cloud.google.com/composer/docs/how-to/managing/configuring-private-ip) for setting up private environments. The `private_environment_config` block supports:
 
+* `connection_type` -
+  (Optional, Cloud Composer 2 only)
+  Mode of internal communication within the Composer environment. Must be one
+  of `"VPC_PEERING"` or `"PRIVATE_SERVICE_CONNECT"`.
+
 * `enable_private_endpoint` -
   If true, access to the public endpoint of the GKE cluster is denied.
 
@@ -930,7 +979,7 @@ The following arguments are supported:
   The only allowed values for 'FREQ' field are 'FREQ=DAILY' and 'FREQ=WEEKLY;BYDAY=...'.
   Example values: 'FREQ=WEEKLY;BYDAY=TU,WE', 'FREQ=DAILY'.
 
-<a name="nested_recovery_config_c1"></a>The `recovery_config` block supports:
+<a name="nested_recovery_config_c2"></a>The `recovery_config` block supports:
 
 * `scheduled_snapshots_config` -
   (Optional)

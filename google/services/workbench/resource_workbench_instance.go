@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -60,13 +60,11 @@ func WorkbenchInstanceLabelsDiffSuppress(k, old, new string, d *schema.ResourceD
 }
 
 var WorkbenchInstanceProvidedMetadata = []string{
-	"disable-swap-binaries",
-	"enable-guest-attributes",
-	"proxy-backend-id",
-	"proxy-registration-url",
 	"agent-health-check-interval-seconds",
 	"agent-health-check-path",
 	"container",
+	"custom-container-image",
+	"custom-container-payload",
 	"data-disk-uri",
 	"dataproc-allow-custom-clusters",
 	"dataproc-cluster-name",
@@ -87,16 +85,19 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"install-monitoring-agent",
 	"install-nvidia-driver",
 	"installed-extensions",
+	"last_updated_diagnostics",
 	"notebooks-api",
 	"notebooks-api-version",
 	"notebooks-examples-location",
 	"notebooks-location",
-	"nvidia-driver-gcs-path",
+	"proxy-backend-id",
+	"proxy-byoid-url",
 	"proxy-mode",
 	"proxy-status",
 	"proxy-url",
 	"proxy-user-mail",
 	"report-container-health",
+	"report-event-url",
 	"report-notebook-metrics",
 	"report-system-health",
 	"report-system-status",
@@ -105,8 +106,13 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"shutdown-script",
 	"title",
 	"use-collaborative",
+	"user-data",
 	"version",
+
+	"disable-swap-binaries",
+	"enable-guest-attributes",
 	"enable-oslogin",
+	"proxy-registration-url",
 }
 
 func WorkbenchInstanceMetadataDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
@@ -155,11 +161,21 @@ func WorkbenchInstanceTagsDiffSuppress(_, _, _ string, d *schema.ResourceData) b
 	return false
 }
 
+func WorkbenchInstanceAcceleratorDiffSuppress(_, _, _ string, d *schema.ResourceData) bool {
+	old, new := d.GetChange("gce_setup.0.accelerator_configs")
+	oldInterface := old.([]interface{})
+	newInterface := new.([]interface{})
+	if len(oldInterface) == 0 && len(newInterface) == 1 && newInterface[0] == nil {
+		return true
+	}
+	return false
+}
+
 // waitForWorkbenchInstanceActive waits for an workbench instance to become "ACTIVE"
 func waitForWorkbenchInstanceActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceWorkbenchInstanceRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
@@ -168,7 +184,7 @@ func waitForWorkbenchInstanceActive(d *schema.ResourceData, config *transport_tp
 			log.Printf("[DEBUG] Workbench Instance %q has state %q.", name, state)
 			return nil
 		} else {
-			return resource.RetryableError(fmt.Errorf("Workbench Instance %q has state %q. Waiting for ACTIVE state", name, state))
+			return retry.RetryableError(fmt.Errorf("Workbench Instance %q has state %q. Waiting for ACTIVE state", name, state))
 		}
 
 	})
@@ -208,6 +224,50 @@ func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceD
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.ResourceData, project string, userAgent string, isBoot bool) error {
+	diskObj := make(map[string]interface{})
+	var sizeString string
+	var diskKey string
+	if isBoot {
+		sizeString = "gce_setup.0.boot_disk.0.disk_size_gb"
+		diskKey = "bootDisk"
+	} else {
+		sizeString = "gce_setup.0.data_disks.0.disk_size_gb"
+		diskKey = "dataDisk"
+	}
+	disk := make(map[string]interface{})
+	disk["diskSizeGb"] = d.Get(sizeString)
+	diskObj[diskKey] = disk
+
+	resizeUrl, err := tpgresource.ReplaceVars(d, config, "{{WorkbenchBasePath}}projects/{{project}}/locations/{{location}}/instances/{{name}}:resizeDisk")
+	if err != nil {
+		return err
+	}
+
+	dRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "POST",
+		RawURL:    resizeUrl,
+		UserAgent: userAgent,
+		Body:      diskObj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error resizing disk: %s", err)
+	}
+
+	var opRes map[string]interface{}
+	err = WorkbenchOperationWaitTimeWithResponse(
+		config, dRes, &opRes, project, "Resizing disk", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("Error resizing disk: %s", err)
+	}
+
 	return nil
 }
 
@@ -261,8 +321,9 @@ func ResourceWorkbenchInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"accelerator_configs": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:             schema.TypeList,
+							Optional:         true,
+							DiffSuppressFunc: WorkbenchInstanceAcceleratorDiffSuppress,
 							Description: `The hardware accelerators used on this instance. If you use accelerators, make sure that your configuration has
 [enough vCPUs and memory to support the 'machine_type' you have selected](https://cloud.google.com/compute/docs/gpus/#gpus-list).
 Currently supports only one accelerator configuration.`,
@@ -286,7 +347,6 @@ Currently supports only one accelerator configuration.`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The definition of a boot disk.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -304,7 +364,6 @@ data disks, defaults to GMEK. Possible values: ["GMEK", "CMEK"]`,
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
-										ForceNew: true,
 										Description: `Optional. The size of the boot disk in GB attached to this instance,
 up to a maximum of 64000 GB (64 TB). If not specified, this defaults to the
 recommended value of 150GB.`,
@@ -355,7 +414,6 @@ For example: gcr.io/{project_id}/{imageName}`,
 							Type:        schema.TypeList,
 							Computed:    true,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Data disks attached to the VM instance. Currently supports only one data disk.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -373,7 +431,6 @@ and data disks, defaults to GMEK. Possible values: ["GMEK", "CMEK"]`,
 										Type:     schema.TypeString,
 										Computed: true,
 										Optional: true,
-										ForceNew: true,
 										Description: `Optional. The size of the disk in GB attached to this VM instance,
 up to a maximum of 64000 GB (64 TB). If not specified, this defaults to
 100.`,
@@ -434,6 +491,30 @@ https://cloud.google.com/vpc/docs/using-routes#canipforward`,
 							Description: `The network interfaces for the VM. Supports only one interface.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"access_configs": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Optional: true,
+										ForceNew: true,
+										Description: `Optional. An array of configurations for this interface. Currently, only one access
+config, ONE_TO_ONE_NAT, is supported. If no accessConfigs specified, the
+instance will have an external internet access through an ephemeral
+external IP address.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"external_ip": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+													Description: `An external IP address associated with this instance. Specify an unused
+static external IP address available to the project or leave this field
+undefined to use an IP from a shared ephemeral IP address pool. If you
+specify a static external IP address, it must live in the same region as
+the zone of the instance.`,
+												},
+											},
+										},
+									},
 									"network": {
 										Type:             schema.TypeString,
 										Computed:         true,
@@ -986,8 +1067,44 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
+	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
+	stopInstance := false
+	newUpdateMask := []string{}
+	if d.HasChange("gce_setup.0.machine_type") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.machine_type")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.accelerator_configs") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.accelerator_configs")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_secure_boot") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_secure_boot")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_vtpm") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_vtpm")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.shielded_instance_config.0.enable_integrity_monitoring") {
+		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config.enable_integrity_monitoring")
+		stopInstance = true
+	}
+	if d.HasChange("gce_setup.0.metadata") {
+		newUpdateMask = append(newUpdateMask, "gceSetup.metadata")
+	}
+	if d.HasChange("effective_labels") {
+		newUpdateMask = append(newUpdateMask, "labels")
+	}
+	updateMask = newUpdateMask
+	// Overwrite the previously set mask.
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
+	if err != nil {
+		return err
+	}
+
 	name := d.Get("name").(string)
-	if d.HasChange("gce_setup.0.machine_type") || d.HasChange("gce_setup.0.accelerator_configs") || d.HasChange("gce_setup.0.shielded_instance_config") {
+	if stopInstance {
 		state := d.Get("state").(string)
 
 		if state != "STOPPED" {
@@ -1008,28 +1125,11 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Workbench Instance %q need not be stopped for the update.", name)
 	}
 
-	// Build custom mask since the notebooks API does not support gce_setup as a valid mask
-	newUpdateMask := []string{}
-	if d.HasChange("gce_setup.0.machine_type") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.machine_type")
+	if d.HasChange("gce_setup.0.boot_disk.0.disk_size_gb") {
+		resizeWorkbenchInstanceDisk(config, d, project, userAgent, true)
 	}
-	if d.HasChange("gce_setup.0.accelerator_configs") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.accelerator_configs")
-	}
-	if d.HasChange("gce_setup.0.shielded_instance_config") {
-		newUpdateMask = append(newUpdateMask, "gce_setup.shielded_instance_config")
-	}
-	if d.HasChange("gce_setup.0.metadata") {
-		newUpdateMask = append(newUpdateMask, "gceSetup.metadata")
-	}
-	if d.HasChange("effective_labels") {
-		newUpdateMask = append(newUpdateMask, "labels")
-	}
-
-	// Overwrite the previously set mask.
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
-	if err != nil {
-		return err
+	if d.HasChange("gce_setup.0.data_disks.0.disk_size_gb") {
+		resizeWorkbenchInstanceDisk(config, d, project, userAgent, false)
 	}
 
 	// err == nil indicates that the billing_project value was found
@@ -1068,7 +1168,7 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	state := d.Get("state").(string)
 	desired_state := d.Get("desired_state").(string)
 
-	if state != desired_state {
+	if state != desired_state || stopInstance {
 		verb := "start"
 		if desired_state == "STOPPED" {
 			verb = "stop"
@@ -1080,6 +1180,13 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 		if err := waitForWorkbenchOperation(config, d, project, billingProject, userAgent, pRes); err != nil {
 			return fmt.Errorf("Error waiting to modify Workbench Instance state: %s", err)
+		}
+
+		if verb == "start" {
+			if err := waitForWorkbenchInstanceActive(d, config, d.Timeout(schema.TimeoutUpdate)-time.Minute); err != nil {
+				return fmt.Errorf("Workbench instance %q did not reach ACTIVE state: %q", d.Get("name").(string), err)
+			}
+
 		}
 
 	} else {
@@ -1405,9 +1512,10 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"network":  flattenWorkbenchInstanceGceSetupNetworkInterfacesNetwork(original["network"], d, config),
-			"subnet":   flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(original["subnet"], d, config),
-			"nic_type": flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(original["nicType"], d, config),
+			"network":        flattenWorkbenchInstanceGceSetupNetworkInterfacesNetwork(original["network"], d, config),
+			"subnet":         flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(original["subnet"], d, config),
+			"nic_type":       flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(original["nicType"], d, config),
+			"access_configs": flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(original["accessConfigs"], d, config),
 		})
 	}
 	return transformed
@@ -1421,6 +1529,28 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d *s
 }
 
 func flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"external_ip": flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(original["externalIp"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2032,22 +2162,20 @@ func expandWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d tpgresour
 			transformed["nicType"] = transformedNicType
 		}
 
+		transformedAccessConfigs, err := expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(original["access_configs"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAccessConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["accessConfigs"] = transformedAccessConfigs
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	if v == nil || v.(string) == "" {
-		return "", nil
-	} else if strings.HasPrefix(v.(string), "https://") {
-		return v, nil
-	}
-	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}"+v.(string))
-	if err != nil {
-		return "", err
-	}
-	return tpgresource.ConvertSelfLinkToV1(url), nil
+	return v, nil
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -2055,6 +2183,32 @@ func expandWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d tpg
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesNicType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedExternalIp, err := expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(original["external_ip"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExternalIp); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["externalIp"] = transformedExternalIp
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

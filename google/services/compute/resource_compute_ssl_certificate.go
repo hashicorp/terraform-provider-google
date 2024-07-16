@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -66,7 +66,7 @@ The chain must include at least one intermediate cert.`,
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.Sha256DiffSuppress,
+				DiffSuppressFunc: sha256DiffSuppress,
 				Description:      `The write-only private key in PEM format.`,
 				Sensitive:        true,
 			},
@@ -89,7 +89,6 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.
-
 
 These are in the same namespace as the managed SSL certificates.`,
 			},
@@ -423,9 +422,9 @@ func expandComputeSslCertificateName(v interface{}, d tpgresource.TerraformResou
 	if v, ok := d.GetOk("name"); ok {
 		certName = v.(string)
 	} else if v, ok := d.GetOk("name_prefix"); ok {
-		certName = resource.PrefixedUniqueId(v.(string))
+		certName = id.PrefixedUniqueId(v.(string))
 	} else {
-		certName = resource.UniqueId()
+		certName = id.UniqueId()
 	}
 
 	// We need to get the {{name}} into schema to set the ID using tpgresource.ReplaceVars

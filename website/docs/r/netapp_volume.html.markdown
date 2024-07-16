@@ -30,8 +30,8 @@ To get more information about Volume, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.volumes)
 * How-to Guides
-    * [Quickstart](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-volume)
     * [Documentation](https://cloud.google.com/netapp/volumes/docs/configure-and-use/volumes/overview)
+    * [Quickstart](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-volume)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=netapp_volume_basic&open_in_editor=main.tf" target="_blank">
@@ -153,6 +153,11 @@ The following arguments are supported:
   Snapshot policy defines the schedule for automatic snapshot creation.
   To disable automatic snapshot creation you have to remove the whole snapshot_policy block.
   Structure is [documented below](#nested_snapshot_policy).
+
+* `backup_config` -
+  (Optional)
+  Backup configuration for the volume.
+  Structure is [documented below](#nested_backup_config).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -319,6 +324,21 @@ Setting this parameter to FORCE will delete volumes including nested snapshots.
   (Optional)
   Set the day or days of the month to make a snapshot (1-31). Accepts a comma separated number of days. Defaults to '1'.
 
+<a name="nested_backup_config"></a>The `backup_config` block supports:
+
+* `backup_policies` -
+  (Optional)
+  Specify a single backup policy ID for scheduled backups. Format: `projects/{{projectId}}/locations/{{location}}/backupPolicies/{{backupPolicyName}}`
+
+* `backup_vault` -
+  (Optional)
+  ID of the backup vault to use. A backup vault is reqired to create manual or scheduled backups.
+  Format: `projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaultName}}`
+
+* `scheduled_backup_enabled` -
+  (Optional)
+  When set to true, scheduled backup is enabled on the volume. Omit if no backup_policy is specified.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -364,6 +384,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `mount_options` -
   Reports mount instructions for this volume.
   Structure is [documented below](#nested_mount_options).
+
+* `zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the active zone for regional volume.
+
+* `replica_zone` -
+  ([Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the replica zone for regional volume.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource

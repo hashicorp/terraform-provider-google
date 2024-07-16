@@ -256,9 +256,10 @@ If omitted, a port number will be chosen and passed to the container through the
 										Description: `Email address of the IAM service account associated with the Task of a Job. The service account represents the identity of the running task, and determines what permissions the task has. If not provided, the task will use the project's default service account.`,
 									},
 									"timeout": {
-										Type:     schema.TypeString,
-										Computed: true,
-										Optional: true,
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: verify.ValidateRegexp(`^[0-9]+(?:\.[0-9]{1,9})?s$`),
 										Description: `Max allowed time duration the Task may be active before the system will actively try to mark it failed and kill associated containers. This applies per attempt of a task, meaning each retry can run for the full timeout.
 
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,

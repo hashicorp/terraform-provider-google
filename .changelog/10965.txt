@@ -1,0 +1,3 @@
+```release-note:bug
+accesscontextmanager: Implement custom flatten for google_access_context_manager_service_perimeters as ordering my change server side which can cause a permadiff.
+```

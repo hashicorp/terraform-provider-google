@@ -64,7 +64,6 @@ resource "google_compute_instance_settings" "gce_instance_settings" {
     }
   }
 }
-
 `, context)
 }
 

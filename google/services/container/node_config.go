@@ -830,11 +830,25 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 	}
 
 	if v, ok := nodeConfig["secondary_boot_disks"]; ok && len(v.([]interface{})) > 0 {
-		conf := v.([]interface{})[0].(map[string]interface{})
-		nc.SecondaryBootDisks = append(nc.SecondaryBootDisks, &container.SecondaryBootDisk{
-			DiskImage: conf["disk_image"].(string),
-			Mode:      conf["mode"].(string),
-		})
+		conf, confOK := v.([]interface{})[0].(map[string]interface{})
+		if confOK {
+			modeValue, modeOK := conf["mode"]
+			diskImage := conf["disk_image"].(string)
+			if modeOK {
+				nc.SecondaryBootDisks = append(nc.SecondaryBootDisks, &container.SecondaryBootDisk{
+					DiskImage: diskImage,
+					Mode:      modeValue.(string),
+				})
+			} else {
+				nc.SecondaryBootDisks = append(nc.SecondaryBootDisks, &container.SecondaryBootDisk{
+					DiskImage: diskImage,
+				})
+			}
+		} else {
+			nc.SecondaryBootDisks = append(nc.SecondaryBootDisks, &container.SecondaryBootDisk{
+				DiskImage: "",
+			})
+		}
 	}
 
 	if v, ok := nodeConfig["gcfs_config"]; ok && len(v.([]interface{})) > 0 {

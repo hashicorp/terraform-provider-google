@@ -80,7 +80,8 @@ to the BackendService.`,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description: `URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
-Currently, you may specify up to 15 certificates. Certificate manager certificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
+Certificate manager certificates only apply when the load balancing scheme is set to INTERNAL_MANAGED.
+For EXTERNAL and EXTERNAL_MANAGED, use certificate_map instead.
 sslCertificates and certificateManagerCertificates fields can not be defined together.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}' or just the self_link 'projects/{project}/locations/{location}/certificates/{resourceName}'`,
 				Elem: &schema.Schema{
@@ -92,7 +93,8 @@ Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locat
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `A reference to the CertificateMap resource uri that identifies a certificate map
-associated with the given target proxy. This field can only be set for global target proxies.
+associated with the given target proxy. This field is only supported for EXTERNAL and EXTERNAL_MANAGED load balancing schemes.
+For INTERNAL_MANAGED, use certificate_manager_certificates instead.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificateMaps/{resourceName}'.`,
 			},
 			"description": {
@@ -165,6 +167,17 @@ sslCertificates and certificateManagerCertificates can not be defined together.`
 the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
 resource will not have any SSL policy configured.`,
 			},
+			"tls_early_data": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STRICT", "PERMISSIVE", "DISABLED", ""}),
+				Description: `Specifies whether TLS 1.3 0-RTT Data (“Early Data”) should be accepted for this service.
+Early Data allows a TLS resumption handshake to include the initial application payload
+(a HTTP request) alongside the handshake, reducing the effective round trips to “zero”.
+This applies to TLS 1.3 connections over TCP (HTTP/2) as well as over UDP (QUIC/h3). Possible values: ["STRICT", "PERMISSIVE", "DISABLED"]`,
+			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -215,6 +228,12 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("quic_override"); !tpgresource.IsEmptyValue(reflect.ValueOf(quicOverrideProp)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
 		obj["quicOverride"] = quicOverrideProp
+	}
+	tlsEarlyDataProp, err := expandComputeTargetHttpsProxyTlsEarlyData(d.Get("tls_early_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_early_data"); !tpgresource.IsEmptyValue(reflect.ValueOf(tlsEarlyDataProp)) && (ok || !reflect.DeepEqual(v, tlsEarlyDataProp)) {
+		obj["tlsEarlyData"] = tlsEarlyDataProp
 	}
 	certificateManagerCertificatesProp, err := expandComputeTargetHttpsProxyCertificateManagerCertificates(d.Get("certificate_manager_certificates"), d, config)
 	if err != nil {
@@ -393,6 +412,9 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("quic_override", flattenComputeTargetHttpsProxyQuicOverride(res["quicOverride"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+	}
+	if err := d.Set("tls_early_data", flattenComputeTargetHttpsProxyTlsEarlyData(res["tlsEarlyData"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("certificate_manager_certificates", flattenComputeTargetHttpsProxyCertificateManagerCertificates(res["certificateManagerCertificates"], d, config)); err != nil {
@@ -818,6 +840,10 @@ func flattenComputeTargetHttpsProxyQuicOverride(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeTargetHttpsProxyTlsEarlyData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeTargetHttpsProxyCertificateManagerCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -884,6 +910,10 @@ func expandComputeTargetHttpsProxyName(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandComputeTargetHttpsProxyQuicOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeTargetHttpsProxyTlsEarlyData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

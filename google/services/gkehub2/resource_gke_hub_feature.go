@@ -83,6 +83,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Enables the installation of ConfigSync. If set to true, ConfigSync resources will be created and the other ConfigSync fields will be applied if exist. If set to false, all other ConfigSync fields will be ignored, ConfigSync resources will be deleted. If omitted, ConfigSync resources will be managed depends on the presence of the git or oci field.`,
+												},
 												"git": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -173,6 +178,11 @@ func ResourceGKEHub2Feature() *schema.Resource {
 															},
 														},
 													},
+												},
+												"prevent_drift": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: `Set to true to enable the Config Sync admission webhook to prevent drifts. If set to 'false', disables the Config Sync admission webhook and does not prevent drifts.`,
 												},
 												"source_format": {
 													Type:        schema.TypeString,
@@ -728,7 +738,7 @@ func resourceGKEHub2FeatureCreate(d *schema.ResourceData, meta interface{}) erro
 	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(fleetDefaultMemberConfigProp)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp) {
 		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
 	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)
@@ -905,7 +915,7 @@ func resourceGKEHub2FeatureUpdate(d *schema.ResourceData, meta interface{}) erro
 	fleetDefaultMemberConfigProp, err := expandGKEHub2FeatureFleetDefaultMemberConfig(d.Get("fleet_default_member_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("fleet_default_member_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp)) {
+	} else if v, ok := d.GetOkExists("fleet_default_member_config"); ok || !reflect.DeepEqual(v, fleetDefaultMemberConfigProp) {
 		obj["fleetDefaultMemberConfig"] = fleetDefaultMemberConfigProp
 	}
 	labelsProp, err := expandGKEHub2FeatureEffectiveLabels(d.Get("effective_labels"), d, config)
@@ -1349,6 +1359,10 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	transformed := make(map[string]interface{})
 	transformed["source_format"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(original["sourceFormat"], d, config)
+	transformed["enabled"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(original["enabled"], d, config)
+	transformed["prevent_drift"] =
+		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["preventDrift"], d, config)
 	transformed["git"] =
 		flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	transformed["oci"] =
@@ -1356,6 +1370,14 @@ func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v i
 	return []interface{}{transformed}
 }
 func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2242,6 +2264,20 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 		transformed["sourceFormat"] = transformedSourceFormat
 	}
 
+	transformedEnabled, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedPreventDrift, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(original["prevent_drift"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPreventDrift); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["preventDrift"] = transformedPreventDrift
+	}
+
 	transformedGit, err := expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncGit(original["git"], d, config)
 	if err != nil {
 		return nil, err
@@ -2260,6 +2296,14 @@ func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSync(v in
 }
 
 func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncSourceFormat(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEHub2FeatureFleetDefaultMemberConfigConfigmanagementConfigSyncPreventDrift(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

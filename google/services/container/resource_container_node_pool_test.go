@@ -1516,6 +1516,11 @@ func TestAccContainerNodePool_secondaryBootDisks(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:      "google_container_node_pool.np-no-mode",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -1550,7 +1555,25 @@ resource "google_container_node_pool" "np" {
     }
   }
 }
-`, cluster, networkName, subnetworkName, np)
+
+resource "google_container_node_pool" "np-no-mode" {
+  name               = "%s-no-mode"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "n1-standard-8"
+    image_type = "COS_CONTAINERD"
+	gcfs_config {
+  		enabled = true
+	}
+    secondary_boot_disks {
+      disk_image = ""
+    }
+  }
+}
+`, cluster, networkName, subnetworkName, np, np)
 }
 
 func TestAccContainerNodePool_gcfsConfig(t *testing.T) {
@@ -1706,7 +1729,7 @@ resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-f"
   initial_node_count = 1
-  min_master_version = "1.25"
+  min_master_version = "1.28"
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
@@ -3590,7 +3613,7 @@ resource "google_container_node_pool" "np1" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.27.3-gke.1700"
+  version            = "1.29.4-gke.1043002"
 }
 
 resource "google_container_node_pool" "np2" {
@@ -3598,7 +3621,7 @@ resource "google_container_node_pool" "np2" {
   location           = "us-central1-a"
   cluster            = google_container_cluster.cluster.name
   initial_node_count = 2
-  version            = "1.27.3-gke.1700"
+  version            = "1.29.4-gke.1043002"
 }
 `, cluster, networkName, subnetworkName, np1, np2)
 }

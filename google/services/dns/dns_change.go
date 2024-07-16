@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/api/dns/v1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 )
 
 type DnsChangeWaiter struct {
@@ -17,7 +17,7 @@ type DnsChangeWaiter struct {
 	ManagedZone string
 }
 
-func (w *DnsChangeWaiter) RefreshFunc() resource.StateRefreshFunc {
+func (w *DnsChangeWaiter) RefreshFunc() retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var chg *dns.Change
 		var err error
@@ -33,8 +33,8 @@ func (w *DnsChangeWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
-func (w *DnsChangeWaiter) Conf() *resource.StateChangeConf {
-	return &resource.StateChangeConf{
+func (w *DnsChangeWaiter) Conf() *retry.StateChangeConf {
+	return &retry.StateChangeConf{
 		Pending:    []string{"pending"},
 		Target:     []string{"done"},
 		Refresh:    w.RefreshFunc(),

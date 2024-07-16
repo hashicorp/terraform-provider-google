@@ -151,10 +151,9 @@ a perimeter bridge.`,
 															"identities": {
 																Type:     schema.TypeSet,
 																Optional: true,
-																Description: `'A list of identities that are allowed access through this 'EgressPolicy'.
-To specify an identity or identity group, use the IAM v1 format
-specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'`,
+																Description: `A list of identities that are allowed access through this 'EgressPolicy'.
+Should be in the format of email address. The email address should
+represent individual user or service account only.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -291,10 +290,9 @@ to apply.`,
 															"identities": {
 																Type:     schema.TypeSet,
 																Optional: true,
-																Description: `'A list of identities that are allowed access through this 'IngressPolicy'.
-To specify an identity or identity group, use the IAM v1 format
-specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'`,
+																Description: `A list of identities that are allowed access through this ingress policy.
+Should be in the format of email address. The email address should represent
+individual user or service account only.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -514,10 +512,9 @@ a perimeter bridge.`,
 															"identities": {
 																Type:     schema.TypeSet,
 																Optional: true,
-																Description: `'A list of identities that are allowed access through this 'EgressPolicy'.
-To specify an identity or identity group, use the IAM v1 format
-specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'`,
+																Description: `A list of identities that are allowed access through this 'EgressPolicy'.
+Should be in the format of email address. The email address should
+represent individual user or service account only.`,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
@@ -743,10 +740,9 @@ to apply.`,
 						"identities": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Description: `'A list of identities that are allowed access through this 'IngressPolicy'.
-To specify an identity or identity group, use the IAM v1 format
-specified [here](https://cloud.google.com/iam/docs/principal-identifiers.md#v1).
-The following prefixes are supprted: user, group, serviceAccount, principal, and principalSet.'`,
+							Description: `A list of identities that are allowed access through this ingress policy.
+Should be in the format of email address. The email address should represent
+individual user or service account only.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -1103,14 +1099,13 @@ func flattenAccessContextManagerServicePerimetersServicePerimeters(v interface{}
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	apiData := make([]map[string]interface{}, 0, len(l))
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
-			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		apiData = append(apiData, map[string]interface{}{
 			"name":                      flattenAccessContextManagerServicePerimetersServicePerimetersName(original["name"], d, config),
 			"title":                     flattenAccessContextManagerServicePerimetersServicePerimetersTitle(original["title"], d, config),
 			"description":               flattenAccessContextManagerServicePerimetersServicePerimetersDescription(original["description"], d, config),
@@ -1122,8 +1117,19 @@ func flattenAccessContextManagerServicePerimetersServicePerimeters(v interface{}
 			"use_explicit_dry_run_spec": flattenAccessContextManagerServicePerimetersServicePerimetersUseExplicitDryRunSpec(original["useExplicitDryRunSpec"], d, config),
 		})
 	}
-	return transformed
+	configData := []map[string]interface{}{}
+	for _, item := range d.Get("service_perimeters").([]interface{}) {
+		configData = append(configData, item.(map[string]interface{}))
+	}
+	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "name")
+	if err != nil {
+		log.Printf("[ERROR] Could not sort API response value: %s", err)
+		return v
+	}
+
+	return sorted
 }
+
 func flattenAccessContextManagerServicePerimetersServicePerimetersName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }

@@ -161,8 +161,10 @@ The following arguments are supported:
 * `materialized_view` - (Optional) If specified, configures this table as a materialized view.
     Structure is [documented below](#nested_materialized_view).
 
-* `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false
-in Terraform state, a `terraform destroy` or `terraform apply` that would delete the instance will fail.
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the table.
+    When the field is set to true or unset in Terraform state, a `terraform apply`
+    or `terraform destroy` that would delete the table will fail.
+    When the field is set to false, deleting the table is allowed..
 
 * `table_constraints` - (Optional) Defines the primary key and foreign keys. 
     Structure is [documented below](#nested_table_constraints).
@@ -172,16 +174,15 @@ in Terraform state, a `terraform destroy` or `terraform apply` that would delete
     `CREATE MATERIALIZED VIEW mv1 AS REPLICA OF src_mv`.
     Structure is [documented below](#nested_table_replication_info).
 
-* `resource_tags` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-    This field is in beta. The tags attached to this table. Tag keys are
+* `resource_tags` - (Optional) The tags attached to this table. Tag keys are
     globally unique. Tag key is expected to be in the namespaced format, for
     example "123456789012/environment" where 123456789012 is the ID of the
     parent organization or project resource for this tag key. Tag value is
     expected to be the short name, for example "Production".
 
-* `allow_resource_tags_on_deletion` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-    This field is in beta. If set to true, it allows table deletion when there
-    are still resource tags attached. The default value is false.
+* `allow_resource_tags_on_deletion` - (Optional) If set to true, it allows table
+    deletion when there are still resource tags attached. The default value is
+    false.
 
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 

@@ -79,8 +79,7 @@ to the RegionBackendService.`,
 				Optional:         true,
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description: `URLs to certificate manager certificate resources that are used to authenticate connections between users and the load balancer.
-Currently, you may specify up to 15 certificates. Certificate manager certificates do not apply when the load balancing scheme is set to INTERNAL_SELF_MANAGED.
-sslCertificates and certificateManagerCertificates fields can not be defined together.
+sslCertificates and certificateManagerCertificates can't be defined together.
 Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locations/{location}/certificates/{resourceName}' or just the self_link 'projects/{project}/locations/{location}/certificates/{resourceName}'`,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -132,7 +131,6 @@ sslCertificates do not apply when the load balancing scheme is set to INTERNAL_S
 			"ssl_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `A reference to the Region SslPolicy resource that will be associated with
 the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
@@ -475,6 +473,79 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionTargetHttpsProxy %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionTargetHttpsProxy", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("ssl_policy") {
+		obj := make(map[string]interface{})
+
+		getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    getUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetHttpsProxy %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
+		sslPolicyProp, err := expandComputeRegionTargetHttpsProxySslPolicy(d.Get("ssl_policy"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("ssl_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sslPolicyProp)) {
+			obj["sslPolicy"] = sslPolicyProp
+		}
+
+		obj, err = resourceComputeRegionTargetHttpsProxyUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
 			Project:   billingProject,
 			RawURL:    url,
 			UserAgent: userAgent,

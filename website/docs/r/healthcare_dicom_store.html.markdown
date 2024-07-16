@@ -77,7 +77,8 @@ resource "google_healthcare_dicom_store" "default" {
   dataset = google_healthcare_dataset.dataset.id
 
   notification_config {
-    pubsub_topic = google_pubsub_topic.topic.id
+    pubsub_topic         = google_pubsub_topic.topic.id
+    send_for_bulk_import = true
   }
 
   labels = {
@@ -178,6 +179,10 @@ The following arguments are supported:
   was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
   project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
   Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
+
+* `send_for_bulk_import` -
+  (Optional)
+  Indicates whether or not to send Pub/Sub notifications on bulk import. Only supported for DICOM imports.
 
 <a name="nested_stream_configs"></a>The `stream_configs` block supports:
 

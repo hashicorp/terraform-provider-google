@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -35,17 +35,17 @@ import (
 // waitForRegistrationActive waits for a registration to leave the
 // "REGISTRATION_PENDING" state and become "ACTIVE" or any other state.
 func waitForRegistrationActive(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
-	return resource.Retry(timeout, func() *resource.RetryError {
+	return retry.Retry(timeout, func() *retry.RetryError {
 		if err := resourceClouddomainsRegistrationRead(d, config); err != nil {
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 
 		name := d.Get("name").(string)
 		state := d.Get("state").(string)
 		if state == "REGISTRATION_PENDING" {
-			return resource.RetryableError(fmt.Errorf("Registration %q has state %q.", name, state))
+			return retry.RetryableError(fmt.Errorf("Registration %q has state %q.", name, state))
 		} else if state == "REGISTRATION_FAILED" {
-			return resource.NonRetryableError(fmt.Errorf("Registration %q has failed with state %q.", name, state))
+			return retry.NonRetryableError(fmt.Errorf("Registration %q has failed with state %q.", name, state))
 		} else {
 			log.Printf("[DEBUG] Registration %q has state %q.", name, state)
 			return nil

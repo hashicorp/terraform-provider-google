@@ -96,7 +96,51 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 						},
 					},
 				},
-				ExactlyOneOf: []string{"bigtable"},
+				ExactlyOneOf: []string{"bigtable", "optimized"},
+			},
+			"dedicated_serving_endpoint": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `The dedicated serving endpoint for this FeatureOnlineStore, which is different from common vertex service endpoint. Only need to be set when you choose Optimized storage type or enable EmbeddingManagement. Will use public endpoint by default.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_service_connect_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Private service connect config.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enable_private_service_connect": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `If set to true, customers will use private service connection to send request. Otherwise, the connection will set to public endpoint.`,
+									},
+									"project_allowlist": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `A list of Projects from which the forwarding rule will target the service attachment.`,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"public_endpoint_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Domain name to use for this FeatureOnlineStore`,
+						},
+						"service_attachment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the service attachment resource. Applicable only if private service connect is enabled and after FeatureViewSync is created.`,
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -106,6 +150,17 @@ func ResourceVertexAIFeatureOnlineStore() *schema.Resource {
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"optimized": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{},
+				},
+				ConflictsWith: []string{},
+				ExactlyOneOf:  []string{"bigtable", "optimized"},
 			},
 			"region": {
 				Type:        schema.TypeString,
@@ -177,6 +232,18 @@ func resourceVertexAIFeatureOnlineStoreCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("bigtable"); !tpgresource.IsEmptyValue(reflect.ValueOf(bigtableProp)) && (ok || !reflect.DeepEqual(v, bigtableProp)) {
 		obj["bigtable"] = bigtableProp
+	}
+	optimizedProp, err := expandVertexAIFeatureOnlineStoreOptimized(d.Get("optimized"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("optimized"); ok || !reflect.DeepEqual(v, optimizedProp) {
+		obj["optimized"] = optimizedProp
+	}
+	dedicatedServingEndpointProp, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpoint(d.Get("dedicated_serving_endpoint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dedicated_serving_endpoint"); !tpgresource.IsEmptyValue(reflect.ValueOf(dedicatedServingEndpointProp)) && (ok || !reflect.DeepEqual(v, dedicatedServingEndpointProp)) {
+		obj["dedicatedServingEndpoint"] = dedicatedServingEndpointProp
 	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -314,6 +381,12 @@ func resourceVertexAIFeatureOnlineStoreRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("bigtable", flattenVertexAIFeatureOnlineStoreBigtable(res["bigtable"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
+	if err := d.Set("optimized", flattenVertexAIFeatureOnlineStoreOptimized(res["optimized"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
+	if err := d.Set("dedicated_serving_endpoint", flattenVertexAIFeatureOnlineStoreDedicatedServingEndpoint(res["dedicatedServingEndpoint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenVertexAIFeatureOnlineStoreTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading FeatureOnlineStore: %s", err)
 	}
@@ -346,6 +419,18 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("bigtable"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, bigtableProp)) {
 		obj["bigtable"] = bigtableProp
 	}
+	optimizedProp, err := expandVertexAIFeatureOnlineStoreOptimized(d.Get("optimized"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("optimized"); ok || !reflect.DeepEqual(v, optimizedProp) {
+		obj["optimized"] = optimizedProp
+	}
+	dedicatedServingEndpointProp, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpoint(d.Get("dedicated_serving_endpoint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dedicated_serving_endpoint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dedicatedServingEndpointProp)) {
+		obj["dedicatedServingEndpoint"] = dedicatedServingEndpointProp
+	}
 	labelsProp, err := expandVertexAIFeatureOnlineStoreEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -364,6 +449,14 @@ func resourceVertexAIFeatureOnlineStoreUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("bigtable") {
 		updateMask = append(updateMask, "bigtable")
+	}
+
+	if d.HasChange("optimized") {
+		updateMask = append(updateMask, "optimized")
+	}
+
+	if d.HasChange("dedicated_serving_endpoint") {
+		updateMask = append(updateMask, "dedicatedServingEndpoint")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -609,6 +702,62 @@ func flattenVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v 
 	return v // let terraform core handle it otherwise
 }
 
+func flattenVertexAIFeatureOnlineStoreOptimized(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpoint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["public_endpoint_domain_name"] =
+		flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPublicEndpointDomainName(original["publicEndpointDomainName"], d, config)
+	transformed["service_attachment"] =
+		flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointServiceAttachment(original["serviceAttachment"], d, config)
+	transformed["private_service_connect_config"] =
+		flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfig(original["privateServiceConnectConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPublicEndpointDomainName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointServiceAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enable_private_service_connect"] =
+		flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enablePrivateServiceConnect"], d, config)
+	transformed["project_allowlist"] =
+		flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigProjectAllowlist(original["projectAllowlist"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIFeatureOnlineStoreTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -689,6 +838,96 @@ func expandVertexAIFeatureOnlineStoreBigtableAutoScalingMaxNodeCount(v interface
 }
 
 func expandVertexAIFeatureOnlineStoreBigtableAutoScalingCpuUtilizationTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreOptimized(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpoint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPublicEndpointDomainName, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPublicEndpointDomainName(original["public_endpoint_domain_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPublicEndpointDomainName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["publicEndpointDomainName"] = transformedPublicEndpointDomainName
+	}
+
+	transformedServiceAttachment, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpointServiceAttachment(original["service_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAttachment"] = transformedServiceAttachment
+	}
+
+	transformedPrivateServiceConnectConfig, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfig(original["private_service_connect_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPrivateServiceConnectConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["privateServiceConnectConfig"] = transformedPrivateServiceConnectConfig
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPublicEndpointDomainName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointServiceAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnablePrivateServiceConnect, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(original["enable_private_service_connect"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnablePrivateServiceConnect); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enablePrivateServiceConnect"] = transformedEnablePrivateServiceConnect
+	}
+
+	transformedProjectAllowlist, err := expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigProjectAllowlist(original["project_allowlist"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProjectAllowlist); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["projectAllowlist"] = transformedProjectAllowlist
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigEnablePrivateServiceConnect(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIFeatureOnlineStoreDedicatedServingEndpointPrivateServiceConnectConfigProjectAllowlist(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

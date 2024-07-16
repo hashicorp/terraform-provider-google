@@ -35,8 +35,8 @@ func TestAccApphubWorkload_apphubWorkloadBasicExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -150,7 +150,7 @@ resource "google_compute_instance_template" "instance_template" {
     }
   }
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
@@ -197,8 +197,8 @@ func TestAccApphubWorkload_apphubWorkloadFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 
@@ -333,7 +333,7 @@ resource "google_compute_instance_template" "instance_template" {
     }
   }
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }

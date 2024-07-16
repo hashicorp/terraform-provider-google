@@ -1,0 +1,43 @@
+name: "TeamCity: Create empty branch off tip of main to aid nightly-testing"
+
+
+# To ensure nightly tests/builds run on the same commit, we checkout and create a new branch from main for TeamCity to run builds on
+
+on:
+    workflow_call:
+    workflow_dispatch:
+      inputs:
+        dayThreshold:
+          default: '3'
+    schedule:
+        - cron: '0 3 * * *' # 3AM UTC (-7)-> 8PM PST # teamcity builds are triggered @ 4AM UTC
+
+jobs:
+  nightly-test-branch-creation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        with:
+          retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
+          script: |
+                  let dateToday = new Date().toJSON().slice(0, 10);
+
+                  const mainRef = await github.rest.git.getRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: "heads/main"
+                  })
+                  const branchName = "UTC-" + dateToday;
+                  const commitHash = mainRef.data.object.sha;
+                  try{
+                  await github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: "refs/heads/" + branchName,
+                    sha: commitHash
+                  })
+                  } catch (error){
+                    core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
+                  }
+                  console.log("Created Branch: " + branchName + " using commit " + commitHash + " from main.")

@@ -559,9 +559,10 @@ All system labels in v1 now have a corresponding field in v2 RevisionTemplate.`,
 							Description: `Enables session affinity. For more information, go to https://cloud.google.com/run/docs/configuring/session-affinity`,
 						},
 						"timeout": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Optional: true,
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateRegexp(`^[0-9]+(?:\.[0-9]{1,9})?s$`),
 							Description: `Max allowed time for an instance to respond to a request.
 
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,

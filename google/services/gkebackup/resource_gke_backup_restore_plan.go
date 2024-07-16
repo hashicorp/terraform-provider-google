@@ -204,13 +204,13 @@ All namespaces except those in this list will be restored.`,
 						"namespaced_resource_restore_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"DELETE_AND_RESTORE", "FAIL_ON_CONFLICT", ""}),
+							ValidateFunc: verify.ValidateEnum([]string{"DELETE_AND_RESTORE", "FAIL_ON_CONFLICT", "MERGE_SKIP_ON_CONFLICT", "MERGE_REPLACE_VOLUME_ON_CONFLICT", "MERGE_REPLACE_ON_CONFLICT", ""}),
 							Description: `Defines the behavior for handling the situation where sets of namespaced resources
 being restored already exist in the target cluster.
 This MUST be set to a value other than 'NAMESPACED_RESOURCE_RESTORE_MODE_UNSPECIFIED'
 if the 'namespacedResourceRestoreScope' is anything other than 'noNamespaces'.
 See https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/reference/rest/v1/RestoreConfig#namespacedresourcerestoremode
-for more information on each mode. Possible values: ["DELETE_AND_RESTORE", "FAIL_ON_CONFLICT"]`,
+for more information on each mode. Possible values: ["DELETE_AND_RESTORE", "FAIL_ON_CONFLICT", "MERGE_SKIP_ON_CONFLICT", "MERGE_REPLACE_VOLUME_ON_CONFLICT", "MERGE_REPLACE_ON_CONFLICT"]`,
 						},
 						"no_namespaces": {
 							Type:     schema.TypeBool,
@@ -218,6 +218,75 @@ for more information on each mode. Possible values: ["DELETE_AND_RESTORE", "FAIL
 							Description: `Do not restore any namespaced resources if set to "True".
 Specifying this field to "False" is not allowed.`,
 							ExactlyOneOf: []string{"restore_config.0.all_namespaces", "restore_config.0.excluded_namespaces", "restore_config.0.selected_namespaces", "restore_config.0.selected_applications", "restore_config.0.no_namespaces"},
+						},
+						"restore_order": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `It contains custom ordering to use on a Restore.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"group_kind_dependencies": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `A list of group kind dependency pairs
+that is used by Backup for GKE to
+generate a group kind restore order.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"requiring": {
+													Type:     schema.TypeList,
+													Required: true,
+													Description: `The requiring group kind requires that the satisfying
+group kind be restored first.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"resource_group": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `API Group of a Kubernetes resource, e.g.
+"apiextensions.k8s.io", "storage.k8s.io", etc.
+Use empty string for core group.`,
+															},
+															"resource_kind": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Kind of a Kubernetes resource, e.g.
+"CustomResourceDefinition", "StorageClass", etc.`,
+															},
+														},
+													},
+												},
+												"satisfying": {
+													Type:     schema.TypeList,
+													Required: true,
+													Description: `The satisfying group kind must be restored first
+in order to satisfy the dependency.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"resource_group": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `API Group of a Kubernetes resource, e.g.
+"apiextensions.k8s.io", "storage.k8s.io", etc.
+Use empty string for core group.`,
+															},
+															"resource_kind": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `Kind of a Kubernetes resource, e.g.
+"CustomResourceDefinition", "StorageClass", etc.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"selected_applications": {
 							Type:     schema.TypeList,
@@ -397,6 +466,32 @@ if the 'namespacedResourceRestoreScope' is anything other than 'noNamespaces'.
 If not specified, it will be treated as 'NO_VOLUME_DATA_RESTORATION'.
 See https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/reference/rest/v1/RestoreConfig#VolumeDataRestorePolicy
 for more information on each policy option. Possible values: ["RESTORE_VOLUME_DATA_FROM_BACKUP", "REUSE_VOLUME_HANDLE_FROM_BACKUP", "NO_VOLUME_DATA_RESTORATION"]`,
+						},
+						"volume_data_restore_policy_bindings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `A table that binds volumes by their scope to a restore policy. Bindings
+must have a unique scope. Any volumes not scoped in the bindings are
+subject to the policy defined in volume_data_restore_policy.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"policy": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"RESTORE_VOLUME_DATA_FROM_BACKUP", "REUSE_VOLUME_HANDLE_FROM_BACKUP", "NO_VOLUME_DATA_RESTORATION"}),
+										Description: `Specifies the mechanism to be used to restore this volume data.
+See https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/reference/rest/v1/RestoreConfig#VolumeDataRestorePolicy
+for more information on each policy option. Possible values: ["RESTORE_VOLUME_DATA_FROM_BACKUP", "REUSE_VOLUME_HANDLE_FROM_BACKUP", "NO_VOLUME_DATA_RESTORATION"]`,
+									},
+									"volume_type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"GCE_PERSISTENT_DISK"}),
+										Description: `The volume type, as determined by the PVC's
+bound PV, to apply the policy to. Possible values: ["GCE_PERSISTENT_DISK"]`,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -892,6 +987,10 @@ func flattenGKEBackupRestorePlanRestoreConfig(v interface{}, d *schema.ResourceD
 		flattenGKEBackupRestorePlanRestoreConfigClusterResourceConflictPolicy(original["clusterResourceConflictPolicy"], d, config)
 	transformed["transformation_rules"] =
 		flattenGKEBackupRestorePlanRestoreConfigTransformationRules(original["transformationRules"], d, config)
+	transformed["volume_data_restore_policy_bindings"] =
+		flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindings(original["volumeDataRestorePolicyBindings"], d, config)
+	transformed["restore_order"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrder(original["restoreOrder"], d, config)
 	return []interface{}{transformed}
 }
 func flattenGKEBackupRestorePlanRestoreConfigAllNamespaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1182,6 +1281,111 @@ func flattenGKEBackupRestorePlanRestoreConfigTransformationRulesFieldActionsValu
 	return v
 }
 
+func flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"policy":      flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsPolicy(original["policy"], d, config),
+			"volume_type": flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsVolumeType(original["volumeType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsVolumeType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrder(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["group_kind_dependencies"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependencies(original["groupKindDependencies"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependencies(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"satisfying": flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfying(original["satisfying"], d, config),
+			"requiring":  flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiring(original["requiring"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfying(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["resource_group"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceGroup(original["resourceGroup"], d, config)
+	transformed["resource_kind"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceKind(original["resourceKind"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiring(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["resource_group"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceGroup(original["resourceGroup"], d, config)
+	transformed["resource_kind"] =
+		flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceKind(original["resourceKind"], d, config)
+	return []interface{}{transformed}
+}
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceGroup(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceKind(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenGKEBackupRestorePlanState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1302,6 +1506,20 @@ func expandGKEBackupRestorePlanRestoreConfig(v interface{}, d tpgresource.Terraf
 		return nil, err
 	} else if val := reflect.ValueOf(transformedTransformationRules); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["transformationRules"] = transformedTransformationRules
+	}
+
+	transformedVolumeDataRestorePolicyBindings, err := expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindings(original["volume_data_restore_policy_bindings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVolumeDataRestorePolicyBindings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["volumeDataRestorePolicyBindings"] = transformedVolumeDataRestorePolicyBindings
+	}
+
+	transformedRestoreOrder, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrder(original["restore_order"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRestoreOrder); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["restoreOrder"] = transformedRestoreOrder
 	}
 
 	return transformed, nil
@@ -1725,6 +1943,159 @@ func expandGKEBackupRestorePlanRestoreConfigTransformationRulesFieldActionsPath(
 }
 
 func expandGKEBackupRestorePlanRestoreConfigTransformationRulesFieldActionsValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPolicy, err := expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsPolicy(original["policy"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["policy"] = transformedPolicy
+		}
+
+		transformedVolumeType, err := expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsVolumeType(original["volume_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVolumeType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["volumeType"] = transformedVolumeType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigVolumeDataRestorePolicyBindingsVolumeType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrder(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedGroupKindDependencies, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependencies(original["group_kind_dependencies"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedGroupKindDependencies); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["groupKindDependencies"] = transformedGroupKindDependencies
+	}
+
+	return transformed, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependencies(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedSatisfying, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfying(original["satisfying"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedSatisfying); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["satisfying"] = transformedSatisfying
+		}
+
+		transformedRequiring, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiring(original["requiring"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRequiring); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["requiring"] = transformedRequiring
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfying(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceGroup, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceGroup(original["resource_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceGroup"] = transformedResourceGroup
+	}
+
+	transformedResourceKind, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceKind(original["resource_kind"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceKind); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceKind"] = transformedResourceKind
+	}
+
+	return transformed, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesSatisfyingResourceKind(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiring(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedResourceGroup, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceGroup(original["resource_group"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceGroup); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceGroup"] = transformedResourceGroup
+	}
+
+	transformedResourceKind, err := expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceKind(original["resource_kind"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedResourceKind); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["resourceKind"] = transformedResourceKind
+	}
+
+	return transformed, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceGroup(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandGKEBackupRestorePlanRestoreConfigRestoreOrderGroupKindDependenciesRequiringResourceKind(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

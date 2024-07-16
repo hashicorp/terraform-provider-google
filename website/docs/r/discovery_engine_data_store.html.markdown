@@ -50,6 +50,36 @@ resource "google_discovery_engine_data_store" "basic" {
   create_advanced_site_search = false
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_datastore_document_processing_config&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Discoveryengine Datastore Document Processing Config
+
+
+```hcl
+resource "google_discovery_engine_data_store" "document_processing_config" {
+  location                    = "global"
+  data_store_id               = "data-store-id"
+  display_name                = "tf-test-structured-datastore"
+  industry_vertical           = "GENERIC"
+  content_config              = "NO_CONTENT"
+  solution_types              = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search = false
+  document_processing_config {
+    default_parsing_config  {
+      digital_parsing_config {}
+    }
+    parsing_config_overrides {
+      file_type = "pdf"
+      ocr_parsing_config {
+        use_native_text = true
+      }
+    }
+  }        
+}
+```
 
 ## Argument Reference
 
@@ -89,6 +119,11 @@ The following arguments are supported:
   The solutions that the data store enrolls.
   Each value may be one of: `SOLUTION_TYPE_RECOMMENDATION`, `SOLUTION_TYPE_SEARCH`, `SOLUTION_TYPE_CHAT`.
 
+* `document_processing_config` -
+  (Optional)
+  Configuration for Document understanding and enrichment.
+  Structure is [documented below](#nested_document_processing_config).
+
 * `create_advanced_site_search` -
   (Optional)
   If true, an advanced data store for site search will be created. If the
@@ -98,6 +133,67 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_document_processing_config"></a>The `document_processing_config` block supports:
+
+* `name` -
+  (Output)
+  The full resource name of the Document Processing Config. Format:
+  `projects/{project}/locations/{location}/collections/{collection_id}/dataStores/{data_store_id}/documentProcessingConfig`.
+
+* `default_parsing_config` -
+  (Optional)
+  Configurations for default Document parser. If not specified, this resource
+  will be configured to use a default DigitalParsingConfig, and the default parsing
+  config will be applied to all file types for Document parsing.
+  Structure is [documented below](#nested_default_parsing_config).
+
+* `parsing_config_overrides` -
+  (Optional)
+  Map from file type to override the default parsing configuration based on the file type. Supported keys:
+    * `pdf`: Override parsing config for PDF files, either digital parsing, ocr parsing or layout parsing is supported.
+    * `html`: Override parsing config for HTML files, only digital parsing and or layout parsing are supported.
+    * `docx`: Override parsing config for DOCX files, only digital parsing and or layout parsing are supported.
+  Structure is [documented below](#nested_parsing_config_overrides).
+
+
+<a name="nested_default_parsing_config"></a>The `default_parsing_config` block supports:
+
+* `digital_parsing_config` -
+  (Optional)
+  Configurations applied to digital parser.
+
+* `ocr_parsing_config` -
+  (Optional)
+  Configurations applied to OCR parser. Currently it only applies to PDFs.
+  Structure is [documented below](#nested_ocr_parsing_config).
+
+
+<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+
+* `use_native_text` -
+  (Optional)
+  If true, will use native text instead of OCR text on pages containing native text.
+
+<a name="nested_parsing_config_overrides"></a>The `parsing_config_overrides` block supports:
+
+* `file_type` - (Required) The identifier for this object. Format specified above.
+
+* `digital_parsing_config` -
+  (Optional)
+  Configurations applied to digital parser.
+
+* `ocr_parsing_config` -
+  (Optional)
+  Configurations applied to OCR parser. Currently it only applies to PDFs.
+  Structure is [documented below](#nested_ocr_parsing_config).
+
+
+<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
+
+* `use_native_text` -
+  (Optional)
+  If true, will use native text instead of OCR text on pages containing native text.
 
 ## Attributes Reference
 

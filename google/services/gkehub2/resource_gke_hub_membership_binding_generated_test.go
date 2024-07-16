@@ -35,8 +35,8 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
 		"location":            envvar.GetTestRegionFromEnv(),
+		"project":             envvar.GetTestProjectFromEnv(),
 		"deletion_protection": false,
 		"network_name":        acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name":     acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),

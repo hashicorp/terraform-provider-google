@@ -336,9 +336,14 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 										Description: `Configuration of findings limit given for specified infoTypes.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
+												"max_findings": {
+													Type:        schema.TypeInt,
+													Required:    true,
+													Description: `Max findings limit for the given infoType.`,
+												},
 												"info_type": {
 													Type:     schema.TypeList,
-													Required: true,
+													Optional: true,
 													Description: `Type of information the findings limit applies to. Only one limit per infoType should be provided. If InfoTypeLimit does
 not have an infoType, the DLP API applies the limit against all infoTypes that are found but not
 specified in another InfoTypeLimit.`,
@@ -374,11 +379,6 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 															},
 														},
 													},
-												},
-												"max_findings": {
-													Type:        schema.TypeInt,
-													Required:    true,
-													Description: `Max findings limit for the given infoType.`,
 												},
 											},
 										},

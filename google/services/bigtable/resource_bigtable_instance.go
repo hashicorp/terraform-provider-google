@@ -12,12 +12,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/api/iterator"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"cloud.google.com/go/bigtable"
 )
+
+// resourceBigtableInstanceVirtualUpdate identifies if an update to the resource includes only virtual field updates
+func resourceBigtableInstanceVirtualUpdate(d *schema.ResourceData, resourceSchema map[string]*schema.Schema) bool {
+	// force_destroy is the only virtual field
+	if d.HasChange("force_destroy") {
+		for field := range resourceSchema {
+			if field == "force_destroy" {
+				continue
+			}
+			if d.HasChange(field) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
 
 func ResourceBigtableInstance() *schema.Resource {
 	return &schema.Resource{
@@ -155,11 +173,18 @@ func ResourceBigtableInstance() *schema.Resource {
 				Deprecated:   `It is recommended to leave this field unspecified since the distinction between "DEVELOPMENT" and "PRODUCTION" instances is going away, and all instances will become "PRODUCTION" instances. This means that new and existing "DEVELOPMENT" instances will be converted to "PRODUCTION" instances. It is recommended for users to use "PRODUCTION" instances in any case, since a 1-node "PRODUCTION" instance is functionally identical to a "DEVELOPMENT" instance, but without the accompanying restrictions.`,
 			},
 
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `When deleting a BigTable instance, this boolean option will delete all backups within the instance.`,
+			},
+
 			"deletion_protection": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
-				Description: `Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.`,
+				Description: `      When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the instance will fail. When the field is set to false, deleting the instance is allowed.`,
 			},
 
 			"labels": {
@@ -343,6 +368,13 @@ func resourceBigtableInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	// Don't set instance_type: we don't want to detect drift on it because it can
 	// change under-the-hood.
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
+
 	return nil
 }
 
@@ -391,6 +423,18 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	log.Printf("[DEBUG] Updating BigTable instance %q: %#v", d.Id(), conf)
+
+	// Handle scenario where the update includes only updating force_destroy
+	if resourceBigtableInstanceVirtualUpdate(d, ResourceBigtableInstance().Schema) {
+		if d.Get("force_destroy") != nil {
+			if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
+				return fmt.Errorf("error reading Instance: %s", err)
+			}
+		}
+		return nil
+	}
+
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 	if _, err := bigtable.UpdateInstanceAndSyncClusters(ctxWithTimeout, c, conf); err != nil {
@@ -401,6 +445,7 @@ func resourceBigtableInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Deleting BigTable instance %q", d.Id())
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy instance without setting deletion_protection=false and running `terraform apply`")
 	}
@@ -425,6 +470,40 @@ func resourceBigtableInstanceDestroy(d *schema.ResourceData, meta interface{}) e
 	defer c.Close()
 
 	name := d.Get("name").(string)
+
+	// If force_destroy is set, delete all backups and unblock deletion of the instance
+	if d.Get("force_destroy").(bool) {
+		adminClient, err := config.BigTableClientFactory(userAgent).NewAdminClient(project, name)
+		if err != nil {
+			return fmt.Errorf("error starting admin client. %s", err)
+		}
+
+		// Iterate over clusters to get all backups
+		//    Need to get backup data per cluster because when you delete a backup the name must be provided.
+		//    If we get all backups in an instance at once the information about the cluster a backup belongs to isn't present.
+		clusters, err := c.Clusters(ctx, name)
+		if err != nil {
+			return fmt.Errorf("error retrieving cluster data for instance %s: %s", name, err)
+		}
+		for _, cluster := range clusters {
+			it := adminClient.Backups(ctx, cluster.Name)
+			for {
+				backup, err := it.Next()
+				if err == iterator.Done {
+					break
+				}
+				if err != nil {
+					return fmt.Errorf("error iterating over backups in cluster %s: %s", cluster.Name, err)
+				}
+				log.Printf("[DEBUG] Deleting backup %s from cluster %s", backup.Name, cluster.Name)
+				err = adminClient.DeleteBackup(ctx, cluster.Name, backup.Name)
+				if err != nil {
+					return fmt.Errorf("error backup %s from cluster %s: %s", backup.Name, cluster.Name, err)
+				}
+			}
+		}
+	}
+
 	err = c.DeleteInstance(ctx, name)
 	if err != nil {
 		return fmt.Errorf("Error deleting instance. %s", err)
@@ -734,6 +813,11 @@ func resourceBigtableInstanceImport(d *schema.ResourceData, meta interface{}) ([
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

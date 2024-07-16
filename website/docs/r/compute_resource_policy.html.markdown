@@ -293,8 +293,7 @@ The following arguments are supported:
   (Required)
   Time within the window to start the operations.
   It must be in an hourly format "HH:MM",
-  where HH : [00-23] and MM : [00] GMT.
-  eg: 21:00
+  where HH : [00-23] and MM : [00] GMT. eg: 21:00
 
 <a name="nested_daily_schedule"></a>The `daily_schedule` block supports:
 
@@ -445,6 +444,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import

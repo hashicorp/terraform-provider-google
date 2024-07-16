@@ -167,7 +167,6 @@ configuration. These addresses are regional resources.
 configure Private Service Connect. Only global internal addresses can use
 this purpose.
 
-
 This should only be set when using an Internal address.`,
 			},
 			"region": {

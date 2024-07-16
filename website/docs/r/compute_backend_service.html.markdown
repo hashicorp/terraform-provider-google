@@ -491,7 +491,6 @@ The following arguments are supported:
                        instance either reported a valid weight or had
                        UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                        equal-weight.
-
   This field is applicable to either:
   * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
     and loadBalancingScheme set to INTERNAL_MANAGED.
@@ -499,7 +498,6 @@ The following arguments are supported:
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
     Load Balancing). Only MAGLEV and WEIGHTED_MAGLEV values are possible for External
     Network Load Balancing. The default is MAGLEV.
-
   If session_affinity is not NONE, and this field is not set to MAGLEV, WEIGHTED_MAGLEV,
   or RING_HASH, session affinity settings will not take effect.
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
@@ -522,6 +520,8 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   Applicable backend service types can be a global backend service with the
   loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
+  From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+  Default values are enforce by GCP without providing them.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -563,14 +563,21 @@ The following arguments are supported:
 
 * `timeout_sec` -
   (Optional)
-  How many seconds to wait for the backend before considering it a
-  failed request. Default is 30 seconds. Valid range is [1, 86400].
+  The backend service timeout has a different meaning depending on the type of load balancer.
+  For more information see, [Backend service settings](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices).
+  The default is 30 seconds.
+  The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.
 
 * `log_config` -
   (Optional)
   This field denotes the logging options for the load balancer traffic served by this backend service.
   If logging is enabled, logs will be exported to Stackdriver.
   Structure is [documented below](#nested_log_config).
+
+* `service_lb_policy` -
+  (Optional)
+  URL to networkservices.ServiceLbPolicy resource.
+  Can only be set if load balancing scheme is EXTERNAL, EXTERNAL_MANAGED, INTERNAL_MANAGED or INTERNAL_SELF_MANAGED and the scope is global.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -586,6 +593,7 @@ The following arguments are supported:
   and CONNECTION (for TCP/SSL).
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
+  From version 6.0.0 default value will be UTILIZATION to match default GCP value.
   Default value is `UTILIZATION`.
   Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 

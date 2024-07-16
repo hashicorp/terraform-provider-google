@@ -556,6 +556,54 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 	}
 }
 ```
+## Example Usage - Dlp Job Trigger Timespan Config Big Query
+
+
+```hcl
+resource "google_data_loss_prevention_job_trigger" "timespan_config_big_query" {
+    parent = "projects/my-project-name"
+    description  = "BigQuery DLP Job Trigger with timespan config and row limit"
+    display_name = "bigquery-dlp-job-trigger-limit-timespan"
+
+    triggers {
+        schedule {
+            recurrence_period_duration ="86400s"
+        }
+    }
+
+    inspect_job {
+        inspect_template_name = "projects/test/locations/global/inspectTemplates/6425492983381733900" 
+        storage_config {
+            big_query_options {
+                table_reference {
+                    project_id = "project"
+                    dataset_id = "dataset"
+                    table_id   = "table"
+                }
+                sample_method = ""
+            }
+
+            timespan_config {
+                start_time = "2023-01-01T00:00:23Z"
+                timestamp_field {
+                    name = "timestamp"
+                }
+            }
+        }
+
+        actions {
+            save_findings {
+                output_config {
+                    table {
+                        project_id = "project"
+                        dataset_id = "output"
+                    }
+                }
+            }
+        }
+}
+}
+```
 
 ## Argument Reference
 
@@ -1321,6 +1369,7 @@ The following arguments are supported:
   (Optional)
   How to sample rows if not all rows are scanned. Meaningful only when used in conjunction with either
   rowsLimit or rowsLimitPercent. If not specified, rows are scanned in the order BigQuery reads them.
+  If TimespanConfig is set, set this to an empty string to avoid using the default value.
   Default value is `TOP`.
   Possible values are: `TOP`, `RANDOM_START`.
 
