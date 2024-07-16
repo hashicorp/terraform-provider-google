@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: changed `target_service` field on the `google_compute_service_attachment` resource to accept a `ForwardingRule` or `Gateway` URL.
+```
