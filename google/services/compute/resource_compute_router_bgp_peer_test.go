@@ -1156,6 +1156,10 @@ resource "google_compute_router_peer" "foobar" {
   advertised_ip_ranges {
     range = "10.1.0.0/32"
   }
+  custom_learned_ip_ranges {
+    range = "6.7.0.0/16"
+  }
+  custom_learned_route_priority=200
   interface = google_compute_router_interface.foobar.name
 }
 `, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName, routerName)

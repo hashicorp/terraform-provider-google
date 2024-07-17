@@ -661,6 +661,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Serviceusage",
         "path" to "./google-beta/services/serviceusage"
     ),
+    "siteverification" to mapOf(
+        "name" to "siteverification",
+        "displayName" to "Siteverification",
+        "path" to "./google-beta/services/siteverification"
+    ),
     "sourcerepo" to mapOf(
         "name" to "sourcerepo",
         "displayName" to "Sourcerepo",

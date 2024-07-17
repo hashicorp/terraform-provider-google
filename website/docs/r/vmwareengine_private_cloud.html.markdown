@@ -38,7 +38,6 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
     management_cidr       = "192.168.30.0/24"
     vmware_engine_network = google_vmwareengine_network.pc-nw.id
   }
-
   management_cluster {
     cluster_id = "sample-mgmt-cluster"
     node_type_configs {
@@ -68,7 +67,6 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
     management_cidr       = "192.168.30.0/24"
     vmware_engine_network = google_vmwareengine_network.pc-nw.id
   }
-
   management_cluster {
     cluster_id = "sample-mgmt-cluster"
     node_type_configs {
@@ -77,6 +75,8 @@ resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
       custom_core_count = 32
     }
   }
+  deletion_delay_hours = 0
+  send_deletion_delay_hours_if_zero = true
 }
 
 resource "google_vmwareengine_network" "pc-nw" {
@@ -203,6 +203,10 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_delay_hours` - (Optional) The number of hours to delay this request. You can set this value to an hour between 0 to 8, where setting it to 0 starts the deletion request immediately. If no value is set, a default value is set at the API Level.
+
+* `send_deletion_delay_hours_if_zero` - (Optional) While set true, deletion_delay_hours value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the deletion_delay_hours field. It can be used both alone and together with deletion_delay_hours.
 
 
 ## Attributes Reference

@@ -491,6 +491,30 @@ https://cloud.google.com/vpc/docs/using-routes#canipforward`,
 							Description: `The network interfaces for the VM. Supports only one interface.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"access_configs": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Optional: true,
+										ForceNew: true,
+										Description: `Optional. An array of configurations for this interface. Currently, only one access
+config, ONE_TO_ONE_NAT, is supported. If no accessConfigs specified, the
+instance will have an external internet access through an ephemeral
+external IP address.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"external_ip": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+													Description: `An external IP address associated with this instance. Specify an unused
+static external IP address available to the project or leave this field
+undefined to use an IP from a shared ephemeral IP address pool. If you
+specify a static external IP address, it must live in the same region as
+the zone of the instance.`,
+												},
+											},
+										},
+									},
 									"network": {
 										Type:             schema.TypeString,
 										Computed:         true,
@@ -1488,9 +1512,10 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"network":  flattenWorkbenchInstanceGceSetupNetworkInterfacesNetwork(original["network"], d, config),
-			"subnet":   flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(original["subnet"], d, config),
-			"nic_type": flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(original["nicType"], d, config),
+			"network":        flattenWorkbenchInstanceGceSetupNetworkInterfacesNetwork(original["network"], d, config),
+			"subnet":         flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(original["subnet"], d, config),
+			"nic_type":       flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(original["nicType"], d, config),
+			"access_configs": flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(original["accessConfigs"], d, config),
 		})
 	}
 	return transformed
@@ -1504,6 +1529,28 @@ func flattenWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d *s
 }
 
 func flattenWorkbenchInstanceGceSetupNetworkInterfacesNicType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"external_ip": flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(original["externalIp"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2115,6 +2162,13 @@ func expandWorkbenchInstanceGceSetupNetworkInterfaces(v interface{}, d tpgresour
 			transformed["nicType"] = transformedNicType
 		}
 
+		transformedAccessConfigs, err := expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(original["access_configs"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAccessConfigs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["accessConfigs"] = transformedAccessConfigs
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2129,6 +2183,32 @@ func expandWorkbenchInstanceGceSetupNetworkInterfacesSubnet(v interface{}, d tpg
 }
 
 func expandWorkbenchInstanceGceSetupNetworkInterfacesNicType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedExternalIp, err := expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(original["external_ip"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedExternalIp); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["externalIp"] = transformedExternalIp
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandWorkbenchInstanceGceSetupNetworkInterfacesAccessConfigsExternalIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

@@ -780,7 +780,7 @@ resource "google_kms_crypto_key_iam_binding" "gcf_cmek_keyuser" {
     "serviceAccount:service-${data.google_project.project.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com",
     "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com",
     "serviceAccount:service-${data.google_project.project.number}@serverless-robot-prod.iam.gserviceaccount.com",
-    "serviceAccount:${google_project_service_identity.ea_sa.email}",
+    google_project_service_identity.ea_sa.member,
   ]
 
   depends_on = [
