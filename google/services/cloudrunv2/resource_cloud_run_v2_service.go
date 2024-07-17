@@ -173,7 +173,6 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 									},
 									"liveness_probe": {
 										Type:        schema.TypeList,
-										Computed:    true,
 										Optional:    true,
 										Description: `Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
 										MaxItems:    1,
