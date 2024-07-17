@@ -120,6 +120,7 @@ type ProviderModel struct {
 	OSConfigCustomEndpoint                 types.String `tfsdk:"os_config_custom_endpoint"`
 	OSLoginCustomEndpoint                  types.String `tfsdk:"os_login_custom_endpoint"`
 	PrivatecaCustomEndpoint                types.String `tfsdk:"privateca_custom_endpoint"`
+	PrivilegedAccessManagerCustomEndpoint  types.String `tfsdk:"privileged_access_manager_custom_endpoint"`
 	PublicCACustomEndpoint                 types.String `tfsdk:"public_ca_custom_endpoint"`
 	PubsubCustomEndpoint                   types.String `tfsdk:"pubsub_custom_endpoint"`
 	PubsubLiteCustomEndpoint               types.String `tfsdk:"pubsub_lite_custom_endpoint"`
@@ -134,6 +135,7 @@ type ProviderModel struct {
 	ServiceManagementCustomEndpoint        types.String `tfsdk:"service_management_custom_endpoint"`
 	ServiceNetworkingCustomEndpoint        types.String `tfsdk:"service_networking_custom_endpoint"`
 	ServiceUsageCustomEndpoint             types.String `tfsdk:"service_usage_custom_endpoint"`
+	SiteVerificationCustomEndpoint         types.String `tfsdk:"site_verification_custom_endpoint"`
 	SourceRepoCustomEndpoint               types.String `tfsdk:"source_repo_custom_endpoint"`
 	SpannerCustomEndpoint                  types.String `tfsdk:"spanner_custom_endpoint"`
 	SQLCustomEndpoint                      types.String `tfsdk:"sql_custom_endpoint"`

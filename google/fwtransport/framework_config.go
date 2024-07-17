@@ -143,6 +143,7 @@ type FrameworkProviderConfig struct {
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
+	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
@@ -157,6 +158,7 @@ type FrameworkProviderConfig struct {
 	ServiceManagementBasePath        string
 	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
+	SiteVerificationBasePath         string
 	SourceRepoBasePath               string
 	SpannerBasePath                  string
 	SQLBasePath                      string
@@ -301,6 +303,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.OSConfigBasePath = data.OSConfigCustomEndpoint.ValueString()
 	p.OSLoginBasePath = data.OSLoginCustomEndpoint.ValueString()
 	p.PrivatecaBasePath = data.PrivatecaCustomEndpoint.ValueString()
+	p.PrivilegedAccessManagerBasePath = data.PrivilegedAccessManagerCustomEndpoint.ValueString()
 	p.PublicCABasePath = data.PublicCACustomEndpoint.ValueString()
 	p.PubsubBasePath = data.PubsubCustomEndpoint.ValueString()
 	p.PubsubLiteBasePath = data.PubsubLiteCustomEndpoint.ValueString()
@@ -315,6 +318,7 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.ServiceManagementBasePath = data.ServiceManagementCustomEndpoint.ValueString()
 	p.ServiceNetworkingBasePath = data.ServiceNetworkingCustomEndpoint.ValueString()
 	p.ServiceUsageBasePath = data.ServiceUsageCustomEndpoint.ValueString()
+	p.SiteVerificationBasePath = data.SiteVerificationCustomEndpoint.ValueString()
 	p.SourceRepoBasePath = data.SourceRepoCustomEndpoint.ValueString()
 	p.SpannerBasePath = data.SpannerCustomEndpoint.ValueString()
 	p.SQLBasePath = data.SQLCustomEndpoint.ValueString()
@@ -1191,6 +1195,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 			data.PrivatecaCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
+	if data.PrivilegedAccessManagerCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_PRIVILEGED_ACCESS_MANAGER_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.PrivilegedAccessManagerBasePathKey])
+		if customEndpoint != nil {
+			data.PrivilegedAccessManagerCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
 	if data.PublicCACustomEndpoint.IsNull() {
 		customEndpoint := transport_tpg.MultiEnvDefault([]string{
 			"GOOGLE_PUBLIC_CA_CUSTOM_ENDPOINT",
@@ -1301,6 +1313,14 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.ServiceUsageBasePathKey])
 		if customEndpoint != nil {
 			data.ServiceUsageCustomEndpoint = types.StringValue(customEndpoint.(string))
+		}
+	}
+	if data.SiteVerificationCustomEndpoint.IsNull() {
+		customEndpoint := transport_tpg.MultiEnvDefault([]string{
+			"GOOGLE_SITE_VERIFICATION_CUSTOM_ENDPOINT",
+		}, transport_tpg.DefaultBasePaths[transport_tpg.SiteVerificationBasePathKey])
+		if customEndpoint != nil {
+			data.SiteVerificationCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.SourceRepoCustomEndpoint.IsNull() {

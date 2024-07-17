@@ -165,7 +165,6 @@ func resourceDialogflowCXVersionCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -250,7 +249,6 @@ func resourceDialogflowCXVersionRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -344,7 +342,6 @@ func resourceDialogflowCXVersionUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -411,7 +408,6 @@ func resourceDialogflowCXVersionDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 

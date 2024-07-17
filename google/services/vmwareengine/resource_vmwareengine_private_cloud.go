@@ -33,8 +33,35 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func vmwareenginePrivateCloudStandardTypeDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
+func vmwareenginePrivateCloudStandardTypeDiffSuppressFunc(_, old, new string, d *schema.ResourceData) bool {
 	if (old == "STANDARD" && new == "") || (old == "" && new == "STANDARD") {
+		return true
+	}
+	if isMultiNodePrivateCloud(d) && old == "TIME_LIMITED" && new == "STANDARD" {
+		log.Printf("[DEBUG] Multinode Private Cloud found, facilitating TYPE change to STANDARD")
+		return true
+	}
+	return false
+}
+
+func isMultiNodePrivateCloud(d *schema.ResourceData) bool {
+	nodeConfigMap := d.Get("management_cluster.0.node_type_configs").(*schema.Set).List()
+	totalNodeCount := 0
+	for _, nodeConfig := range nodeConfigMap {
+		configMap, ok := nodeConfig.(map[string]interface{})
+		if !ok {
+			log.Printf("[DEBUG] Invalid node configuration format for private cloud.")
+			continue
+		}
+		nodeCount, ok := configMap["node_count"].(int)
+		if !ok {
+			log.Printf("[DEBUG] Invalid node_count format for private cloud.")
+			continue
+		}
+		totalNodeCount += nodeCount
+	}
+	log.Printf("[DEBUG] The node count of the private cloud is found to be %v nodes.", totalNodeCount)
+	if totalNodeCount > 2 {
 		return true
 	}
 	return false
@@ -299,6 +326,16 @@ the form: projects/{project_number}/locations/{location}/vmwareEngineNetworks/{v
 					},
 				},
 			},
+			"deletion_delay_hours": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `The number of hours to delay this request. You can set this value to an hour between 0 to 8, where setting it to 0 starts the deletion request immediately. If no value is set, a default value is set at the API Level.`,
+			},
+			"send_deletion_delay_hours_if_zero": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `While set true, deletion_delay_hours value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the deletion_delay_hours field. It can be used both alone and together with deletion_delay_hours.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -451,6 +488,7 @@ func resourceVmwareenginePrivateCloudRead(d *schema.ResourceData, meta interface
 		return nil
 	}
 
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading PrivateCloud: %s", err)
 	}
@@ -628,7 +666,7 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 	}
 	billingProject = project
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}?delay_hours=0")
+	url, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
 	if err != nil {
 		return err
 	}
@@ -641,6 +679,14 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
+	// Delay deletion of the Private Cloud if delationDelayHours value is set
+	delationDelayHours := d.Get("deletion_delay_hours").(int)
+	if delationDelayHours > 0 || (delationDelayHours == 0 && d.Get("send_deletion_delay_hours_if_zero").(bool) == true) {
+		log.Printf("[DEBUG] Triggering delete of the Private Cloud with a delay of %v hours.\n", delationDelayHours)
+		url = url + "?delay_hours=" + fmt.Sprintf("%v", delationDelayHours)
+	} else {
+		log.Printf("[DEBUG] No deletion delay provided, triggering DELETE API without setting delay hours.\n")
+	}
 
 	log.Printf("[DEBUG] Deleting PrivateCloud %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -696,6 +742,13 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 			if err != nil {
 				return res, err
 			}
+			// if resource exists but is marked for deletion
+			log.Printf("[DEBUG] Fetching state of the private cloud.")
+			v, ok := res["state"]
+			if ok && v.(string) == "DELETED" {
+				log.Printf("[DEBUG] The Private cloud has been successfully marked for delayed deletion.")
+				return nil, nil
+			}
 			return res, nil
 		}
 	}
@@ -725,6 +778,8 @@ func resourceVmwareenginePrivateCloudImport(d *schema.ResourceData, meta interfa
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }

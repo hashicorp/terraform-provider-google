@@ -628,7 +628,6 @@ func resourceDialogflowCXTestCaseCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -692,7 +691,6 @@ func resourceDialogflowCXTestCaseRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -822,7 +820,6 @@ func resourceDialogflowCXTestCaseUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -889,7 +886,6 @@ func resourceDialogflowCXTestCaseDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 

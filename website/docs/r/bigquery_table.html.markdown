@@ -174,16 +174,15 @@ The following arguments are supported:
     `CREATE MATERIALIZED VIEW mv1 AS REPLICA OF src_mv`.
     Structure is [documented below](#nested_table_replication_info).
 
-* `resource_tags` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-    This field is in beta. The tags attached to this table. Tag keys are
+* `resource_tags` - (Optional) The tags attached to this table. Tag keys are
     globally unique. Tag key is expected to be in the namespaced format, for
     example "123456789012/environment" where 123456789012 is the ID of the
     parent organization or project resource for this tag key. Tag value is
     expected to be the short name, for example "Production".
 
-* `allow_resource_tags_on_deletion` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-    This field is in beta. If set to true, it allows table deletion when there
-    are still resource tags attached. The default value is false.
+* `allow_resource_tags_on_deletion` - (Optional) If set to true, it allows table
+    deletion when there are still resource tags attached. The default value is
+    false.
 
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 

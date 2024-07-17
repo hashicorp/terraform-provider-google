@@ -97,7 +97,7 @@ resource "google_org_policy_policy" "primary" {
     rules {
       condition {
         description = "A sample condition for the policy"
-        expression  = "resource.matchLabels('labelKeys/123', 'labelValues/345')"
+        expression  = "resource.matchTagId('tagKeys/123', 'tagValues/345')"
         location    = "sample-location.log"
         title       = "sample-condition"
       }

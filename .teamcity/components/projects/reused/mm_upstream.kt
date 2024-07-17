@@ -25,7 +25,7 @@ import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 import replaceCharsId
 
-fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot, cronSweeperVcsRoot: GitVcsRoot, config: AccTestConfiguration): Project {
+fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot, cronSweeperVcsRoot: GitVcsRoot, config: AccTestConfiguration, cron: NightlyTriggerConfiguration): Project {
 
     // Create unique ID for the dynamically-created project
     var projectId = "${parentProject}_${MMUpstreamProjectId}"
@@ -45,11 +45,13 @@ fun mmUpstream(parentProject: String, providerName: String, vcsRoot: GitVcsRoot,
         ProviderNameBeta -> sweepersList = SweepersListBeta
         else -> throw Exception("Provider name not supplied when generating a nightly test subproject")
     }
+
+    // This build is for manually-initiated runs of sweepers, to test changes to sweepers from the upstream repo
     val serviceSweeperManualConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperManualName, sweepersList, projectId, vcsRoot, sharedResources, config)
 
+    // This build runs on a schedule to do actual sweeping of the VCR project, using the downstream repo's code
     val serviceSweeperCronConfig = BuildConfigurationForServiceSweeper(providerName, ServiceSweeperCronName, sweepersList, projectId, cronSweeperVcsRoot, sharedResources, config)
-    val trigger  = NightlyTriggerConfiguration(startHour=12)
-    serviceSweeperCronConfig.addTrigger(trigger) // Only the sweeper is on a schedule in this project
+    serviceSweeperCronConfig.addTrigger(cron)
 
     return Project {
         id(projectId)

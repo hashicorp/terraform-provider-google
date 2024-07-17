@@ -339,7 +339,7 @@ The following arguments are supported:
   LOGICAL is the default if this flag isn't specified.
 
 * `resource_tags` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The tags attached to this table. Tag keys are globally unique. Tag key is expected to be
   in the namespaced format, for example "123456789012/environment" where 123456789012 is the
   ID of the parent organization or project resource for this tag key. Tag value is expected

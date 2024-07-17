@@ -349,6 +349,7 @@ resource "google_cloud_run_v2_job" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_job" "default" {
+  provider = google-beta
   name     = "cloudrun-job"
   location = "us-central1"
   start_execution_token = "start-once-created"
