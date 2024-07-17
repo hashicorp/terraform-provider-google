@@ -1497,6 +1497,23 @@ func TestAccBigQueryTable_invalidSchemas(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryTable_schemaWithRequiredFieldAndView(t *testing.T) {
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+	tableID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryTableDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccBigQueryTableWithSchemaWithRequiredFieldAndView(datasetID, tableID),
+				ExpectError: regexp.MustCompile("Schema cannot contain required fields when creating a view"),
+			},
+		},
+	})
+}
+
 func TestAccBigQueryTable_TableReplicationInfo_ConflictsWithView(t *testing.T) {
 	t.Parallel()
 
@@ -3977,6 +3994,42 @@ resource "google_bigquery_table" "test" {
     source_project_id = "source_project_id"
     source_dataset_id = "source_dataset_id"
     source_table_id = "source_table_id"
+  }
+}
+`, datasetID, tableID)
+}
+
+func testAccBigQueryTableWithSchemaWithRequiredFieldAndView(datasetID, tableID string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "test" {
+  dataset_id = "%s"
+}
+
+resource "google_bigquery_table" "test" {
+  deletion_protection = false
+  table_id   = "%s"
+  dataset_id = google_bigquery_dataset.test.dataset_id
+  schema = <<EOF
+  [
+    {
+      "name": "requiredField",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "requiredField"
+    },
+    {
+      "name": "optionalField",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "optionalField"
+    }
+  ]
+  EOF
+  view {
+    query = <<EOF
+      SELECT 'a' AS requiredField, 'b' AS optionalField
+    EOF
+    use_legacy_sql = false
   }
 }
 `, datasetID, tableID)
