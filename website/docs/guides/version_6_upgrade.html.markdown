@@ -102,6 +102,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 ## Resources
 
+## Resource: `google_bigquery_table`
+
+### View creation now validates `schema`
+
+A `view` can no longer be created when `schema` contains required fields
+
 ## Resource: `google_sql_database_instance`
 
 ### `settings.ip_configuration.require_ssl` is now removed
