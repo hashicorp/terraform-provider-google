@@ -73,6 +73,7 @@ resource "google_compute_backend_service" "default" {
   protocol              = "HTTP"
   load_balancing_scheme = "EXTERNAL"
   iap {
+    enabled              = true
     oauth2_client_id     = "abc"
     oauth2_client_secret = "xyz"
   }
@@ -913,12 +914,16 @@ The following arguments are supported:
 
 <a name="nested_iap"></a>The `iap` block supports:
 
-* `oauth2_client_id` -
+* `enabled` -
   (Required)
+  Whether the serving infrastructure will authenticate and authorize all incoming requests.
+
+* `oauth2_client_id` -
+  (Optional)
   OAuth2 Client ID for IAP
 
 * `oauth2_client_secret` -
-  (Required)
+  (Optional)
   OAuth2 Client Secret for IAP
   **Note**: This property is sensitive and will not be displayed in the plan.
 

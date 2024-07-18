@@ -119,3 +119,15 @@ Removed in favor of field `settings.ip_configuration.ssl_mode`.
 ### `schema_settings` no longer has a default value
 
 An empty value means the setting should be cleared.
+
+## Resource: `google_compute_backend_service`
+
+### `iap.enabled` is now required in the `iap` block
+
+To apply the IAP settings to the backend service, `true` needs to be set for `enabled` field.
+
+## Resource: `google_compute_region_backend_service`
+
+### `iap.enabled` is now required in the `iap` block
+
+To apply the IAP settings to the backend service, `true` needs to be set for `enabled` field.
