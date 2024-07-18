@@ -637,14 +637,19 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:        schema.TypeBool,
+							Required:    true,
+							Description: `Whether the serving infrastructure will authenticate and authorize all incoming requests.`,
+						},
 						"oauth2_client_id": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: `OAuth2 Client ID for IAP`,
 						},
 						"oauth2_client_secret": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: `OAuth2 Client Secret for IAP`,
 							Sensitive:   true,
 						},
@@ -2738,6 +2743,8 @@ func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData, conf
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenComputeBackendServiceIapEnabled(original["enabled"], d, config)
 	transformed["oauth2_client_id"] =
 		flattenComputeBackendServiceIapOauth2ClientId(original["oauth2ClientId"], d, config)
 	transformed["oauth2_client_secret"] =
@@ -2746,6 +2753,10 @@ func flattenComputeBackendServiceIap(v interface{}, d *schema.ResourceData, conf
 		flattenComputeBackendServiceIapOauth2ClientSecretSha256(original["oauth2ClientSecretSha256"], d, config)
 	return []interface{}{transformed}
 }
+func flattenComputeBackendServiceIapEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeBackendServiceIapOauth2ClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -3847,6 +3858,13 @@ func expandComputeBackendServiceIap(v interface{}, d tpgresource.TerraformResour
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedEnabled, err := expandComputeBackendServiceIapEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
 	transformedOauth2ClientId, err := expandComputeBackendServiceIapOauth2ClientId(original["oauth2_client_id"], d, config)
 	if err != nil {
 		return nil, err
@@ -3869,6 +3887,10 @@ func expandComputeBackendServiceIap(v interface{}, d tpgresource.TerraformResour
 	}
 
 	return transformed, nil
+}
+
+func expandComputeBackendServiceIapEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeBackendServiceIapOauth2ClientId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -4275,24 +4297,6 @@ func expandComputeBackendServiceServiceLbPolicy(v interface{}, d tpgresource.Ter
 }
 
 func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// The BackendService API's Update / PUT API is badly formed and behaves like
-	// a PATCH field for at least IAP. When sent a `null` `iap` field, the API
-	// doesn't disable an existing field. To work around this, we need to emulate
-	// the old Terraform behaviour of always sending the block (at both update and
-	// create), and force sending each subfield as empty when the block isn't
-	// present in config.
-
-	iapVal := obj["iap"]
-	if iapVal == nil {
-		data := map[string]interface{}{}
-		data["enabled"] = false
-		obj["iap"] = data
-	} else {
-		iap := iapVal.(map[string]interface{})
-		iap["enabled"] = true
-		obj["iap"] = iap
-	}
-
 	backendsRaw, ok := obj["backends"]
 	if !ok {
 		return obj, nil
@@ -4351,18 +4355,6 @@ func resourceComputeBackendServiceEncoder(d *schema.ResourceData, meta interface
 }
 
 func resourceComputeBackendServiceDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
-	// We need to pretend IAP isn't there if it's disabled for Terraform to maintain
-	// BC behaviour with the handwritten resource.
-	v, ok := res["iap"]
-	if !ok || v == nil {
-		delete(res, "iap")
-		return res, nil
-	}
-	m := v.(map[string]interface{})
-	if ok && m["enabled"] == false {
-		delete(res, "iap")
-	}
-
 	// Requests with consistentHash will error for specific values of
 	// localityLbPolicy. However, the API will not remove it if the backend
 	// service is updated to from supporting to non-supporting localityLbPolicy
