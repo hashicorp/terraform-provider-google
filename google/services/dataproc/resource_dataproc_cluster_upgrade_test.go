@@ -5,7 +5,7 @@ package dataproc_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"google.golang.org/api/dataproc/v1"
 
