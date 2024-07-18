@@ -35,8 +35,8 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -74,8 +74,8 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -104,8 +104,8 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
