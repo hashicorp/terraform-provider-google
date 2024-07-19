@@ -1,0 +1,3 @@
+```release-note:none
+add an example for connecting to a private SSM instance using PSC
+```
