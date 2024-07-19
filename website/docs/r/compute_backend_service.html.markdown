@@ -35,7 +35,7 @@ To get more information about BackendService, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`.
+values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`, `security_settings.aws_v4_authentication.access_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -1089,16 +1089,44 @@ The following arguments are supported:
 <a name="nested_security_settings"></a>The `security_settings` block supports:
 
 * `client_tls_policy` -
-  (Required)
+  (Optional)
   ClientTlsPolicy is a resource that specifies how a client should authenticate
   connections to backends of a service. This resource itself does not affect
   configuration unless it is attached to a backend service resource.
 
 * `subject_alt_names` -
-  (Required)
+  (Optional)
   A list of alternate names to verify the subject identity in the certificate.
   If specified, the client will verify that the server certificate's subject
   alt name matches one of the specified values.
+
+* `aws_v4_authentication` -
+  (Optional)
+  The configuration needed to generate a signature for access to private storage buckets that support AWS's Signature Version 4 for authentication.
+  Allowed only for INTERNET_IP_PORT and INTERNET_FQDN_PORT NEG backends.
+  Structure is [documented below](#nested_aws_v4_authentication).
+
+
+<a name="nested_aws_v4_authentication"></a>The `aws_v4_authentication` block supports:
+
+* `access_key_id` -
+  (Optional)
+  The identifier of an access key used for s3 bucket authentication.
+
+* `access_key` -
+  (Optional)
+  The access key used for s3 bucket authentication.
+  Required for updating or creating a backend that uses AWS v4 signature authentication, but will not be returned as part of the configuration when queried with a REST API GET request.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `access_key_version` -
+  (Optional)
+  The optional version identifier for the access key. You can use this to keep track of different iterations of your access key.
+
+* `origin_region` -
+  (Optional)
+  The name of the cloud region of your origin. This is a free-form field with the name of the region your cloud uses to host your origin.
+  For example, "us-east-1" for AWS or "us-ashburn-1" for OCI.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 
