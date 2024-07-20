@@ -394,11 +394,8 @@ The following arguments are supported:
 * `container_concurrency` -
   (Optional)
   ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
-  requests per container of the Revision. Values are:
-  - `0` thread-safe, the system should manage the max concurrency. This is
-      the default value.
-  - `1` not-thread-safe. Single concurrency
-  - `2-N` thread-safe, max concurrency of N
+  requests per container of the Revision. If not specified or 0, defaults to 80 when
+  requested CPU >= 1 and defaults to 1 when requested CPU < 1.
 
 * `timeout_seconds` -
   (Optional)

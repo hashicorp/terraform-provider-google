@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added 'aws_v4_authentication' fields to 'google_compute_backend_service' resource;
+```

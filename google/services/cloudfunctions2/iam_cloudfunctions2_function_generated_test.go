@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -35,8 +35,8 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -74,8 +74,8 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -104,8 +104,8 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 		"role":          "roles/viewer",
 		"project":       envvar.GetTestProjectFromEnv(),
 
-		"zip_path": "./test-fixtures/function-source.zip",
 		"location": "us-central1",
+		"zip_path": "./test-fixtures/function-source.zip",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
