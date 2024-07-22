@@ -110,8 +110,6 @@ resource "google_workbench_instance" "instance" {
 
   }
 
-  instance_owners  = [ "my@service-account.com"]
-
   labels = {
     k = "val"
   }
@@ -138,6 +136,14 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 
 resource "google_compute_address" "static" {
   name = "wbi-test-default"
+}
+
+resource "google_service_account_iam_binding" "act_as_permission" {
+  service_account_id = "projects/my-project-name/serviceAccounts/my@service-account.com"
+  role               = "roles/iam.serviceAccountUser"
+  members = [
+    "user:example@example.com",
+  ]
 }
 
 resource "google_workbench_instance" "instance" {
@@ -198,7 +204,7 @@ resource "google_workbench_instance" "instance" {
 
   disable_proxy_access = "true"
 
-  instance_owners  = [ "my@service-account.com"]
+  instance_owners  = ["example@example.com"]
 
   labels = {
     k = "val"
