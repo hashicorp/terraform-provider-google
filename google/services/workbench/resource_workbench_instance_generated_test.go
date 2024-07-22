@@ -202,8 +202,6 @@ resource "google_workbench_instance" "instance" {
 
   }
 
-  instance_owners  = [ "%{service_account}"]
-
   labels = {
     k = "val"
   }
@@ -218,6 +216,7 @@ func TestAccWorkbenchInstance_workbenchInstanceFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"project_id":      envvar.GetTestProjectFromEnv(),
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"key_name":        acctest.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
 		"random_suffix":   acctest.RandString(t, 10),
@@ -257,6 +256,14 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 
 resource "google_compute_address" "static" {
   name = "tf-test-wbi-test-default%{random_suffix}"
+}
+
+resource "google_service_account_iam_binding" "act_as_permission" {
+  service_account_id = "projects/%{project_id}/serviceAccounts/%{service_account}"
+  role               = "roles/iam.serviceAccountUser"
+  members = [
+    "user:example@example.com",
+  ]
 }
 
 resource "google_workbench_instance" "instance" {
@@ -317,7 +324,7 @@ resource "google_workbench_instance" "instance" {
 
   disable_proxy_access = "true"
 
-  instance_owners  = [ "%{service_account}"]
+  instance_owners  = ["example@example.com"]
 
   labels = {
     k = "val"
