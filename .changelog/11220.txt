@@ -1,0 +1,3 @@
+```release-note:deprecation
+bigqueryreservation: deprecated `multi_region_auxiliary` on `google_bigquery_reservation`.
+```
