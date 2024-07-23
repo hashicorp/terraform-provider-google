@@ -433,3 +433,138 @@ resource "google_bigtable_app_profile" "ap" {
 }
 `, instanceName, instanceName, instanceName, instanceName, instanceName, instanceName)
 }
+
+func testAccBigtableAppProfile_updateSSDWithPriority(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  cluster {
+    cluster_id   = "%s2"
+    zone         = "us-central1-a"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  cluster {
+    cluster_id   = "%s3"
+    zone         = "us-central1-c"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.id
+  app_profile_id = "test"
+
+  single_cluster_routing {
+    cluster_id                 = %q
+    allow_transactional_writes = false
+  }
+
+  standard_isolation {
+    priority = "PRIORITY_MEDIUM"
+  }
+
+  ignore_warnings               = true
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func testAccBigtableAppProfile_updateDataBoost(instanceName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%s"
+  cluster {
+    cluster_id   = "%s"
+    zone         = "us-central1-b"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  cluster {
+    cluster_id   = "%s2"
+    zone         = "us-central1-a"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  cluster {
+    cluster_id   = "%s3"
+    zone         = "us-central1-c"
+    num_nodes    = 1
+    storage_type = "SSD"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_app_profile" "ap" {
+  instance       = google_bigtable_instance.instance.id
+  app_profile_id = "test"
+
+  single_cluster_routing {
+    cluster_id                 = %q
+    allow_transactional_writes = false
+  }
+
+  data_boost_isolation_read_only {
+    compute_billing_owner = "HOST_PAYS"
+  }
+
+  ignore_warnings               = true
+}
+`, instanceName, instanceName, instanceName, instanceName, instanceName)
+}
+
+func TestAccBigtableAppProfile_updateStandardIsolationToDataBoost(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableAppProfileDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableAppProfile_updateSSDWithPriority(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateDataBoost(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableAppProfile_updateSSDWithPriority(instanceName),
+			},
+			{
+				ResourceName:            "google_bigtable_app_profile.ap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+		},
+	})
+}
