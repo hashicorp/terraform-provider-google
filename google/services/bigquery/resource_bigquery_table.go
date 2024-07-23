@@ -1256,7 +1256,8 @@ func ResourceBigQueryTable() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: `Whether or not to allow table deletion when there are still resource tags attached.`,
+				Description: `**Deprecated** Whether or not to allow table deletion when there are still resource tags attached.`,
+				Deprecated:  `This field is deprecated and will be removed in a future major release. The default behavior will be allowing the presence of resource tags on deletion after the next major release.`,
 			},
 
 			// TableConstraints: [Optional] Defines the primary key and foreign keys.
