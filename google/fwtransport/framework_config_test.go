@@ -328,6 +328,9 @@ func TestFrameworkProvider_LoadAndValidateFramework_credentials(t *testing.T) {
 				}
 				t.Fatalf("did not expect error, but [%d] error(s) occurred", diags.ErrorsCount())
 			}
+			if tc.ExpectError && !diags.HasError() {
+				t.Fatalf("expected error, but no errors occurred")
+			}
 			if !data.Credentials.Equal(tc.ExpectedDataModelValue) {
 				t.Fatalf("want credentials to be `%s`, but got the value `%s`", tc.ExpectedDataModelValue, data.Credentials.String())
 			}
