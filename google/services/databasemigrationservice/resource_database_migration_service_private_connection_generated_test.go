@@ -34,7 +34,6 @@ func TestAccDatabaseMigrationServicePrivateConnection_databaseMigrationServicePr
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"network_name":  acctest.BootstrapSharedTestNetwork(t, "dbms-privateconnection"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -68,13 +67,14 @@ resource "google_database_migration_service_private_connection" "default" {
 	}
 
 	vpc_peering_config {
-		vpc_name = data.google_compute_network.default.id
+		vpc_name = resource.google_compute_network.default.id
 		subnet = "10.0.0.0/29"
 	}
 }
 
-data "google_compute_network" "default" {
-  name = "%{network_name}"
+resource "google_compute_network" "default" {
+  name = "tf-test-my-network%{random_suffix}"
+  auto_create_subnetworks = false
 }
 `, context)
 }
