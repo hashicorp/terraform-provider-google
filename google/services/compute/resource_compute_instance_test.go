@@ -1900,9 +1900,9 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 			{
 				Config: testAccComputeInstanceConfidentialInstanceConfigNoEnable(instanceName, "AMD Milan", "SEV_SNP"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar3", &instance),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar5", &instance),
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, false, "SEV_SNP"),
-					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar4", &instance2),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar6", &instance2),
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance2, false, "SEV_SNP"),
 				),
 			},
@@ -7096,6 +7096,7 @@ resource "google_compute_instance" "foobar2" {
   }
 
 }
+
 `, instance, confidentialInstanceType, instance)
 }
 
@@ -7106,8 +7107,8 @@ data "google_compute_image" "my_image2" {
   project   = "ubuntu-os-cloud"
 }
 
-resource "google_compute_instance" "foobar3" {
-  name         = "%s3"
+resource "google_compute_instance" "foobar5" {
+  name         = "%s5"
   machine_type = "n2d-standard-2"
   zone         = "us-central1-a"
 
@@ -7133,8 +7134,8 @@ resource "google_compute_instance" "foobar3" {
   }
 
 }
-resource "google_compute_instance" "foobar4" {
-  name         = "%s4"
+resource "google_compute_instance" "foobar6" {
+  name         = "%s6"
   machine_type = "n2d-standard-2"
   zone         = "us-central1-a"
 
