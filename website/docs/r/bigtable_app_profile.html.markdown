@@ -219,6 +219,11 @@ The following arguments are supported:
   The standard options used for isolating this app profile's traffic from other use cases.
   Structure is [documented below](#nested_standard_isolation).
 
+* `data_boost_isolation_read_only` -
+  (Optional)
+  Specifies that this app profile is intended for read-only usage via the Data Boost feature.
+  Structure is [documented below](#nested_data_boost_isolation_read_only).
+
 * `instance` -
   (Optional)
   The name of the instance to create the app profile within.
@@ -248,6 +253,13 @@ The following arguments are supported:
   (Required)
   The priority of requests sent using this app profile.
   Possible values are: `PRIORITY_LOW`, `PRIORITY_MEDIUM`, `PRIORITY_HIGH`.
+
+<a name="nested_data_boost_isolation_read_only"></a>The `data_boost_isolation_read_only` block supports:
+
+* `compute_billing_owner` -
+  (Required)
+  The Compute Billing Owner for this Data Boost App Profile.
+  Possible values are: `HOST_PAYS`.
 
 ## Attributes Reference
 
