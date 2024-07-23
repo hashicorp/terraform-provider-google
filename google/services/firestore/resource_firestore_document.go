@@ -60,11 +60,13 @@ func ResourceFirestoreDocument() *schema.Resource {
 			"collection": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The collection ID, relative to database. For example: chatrooms or chatrooms/my-document/private-messages.`,
 			},
 			"document_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: `The client-assigned document ID to use for this document during creation.`,
 			},
 			"fields": {
@@ -77,6 +79,7 @@ func ResourceFirestoreDocument() *schema.Resource {
 			"database": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				ForceNew:    true,
 				Description: `The Firestore database id. Defaults to '"(default)"'.`,
 				Default:     "(default)",
 			},
