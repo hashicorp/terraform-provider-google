@@ -1801,6 +1801,10 @@ func GetCredentials(ctx context.Context, data fwmodels.ProviderModel, initialCre
 			diags.AddError(fmt.Sprintf("error loading credentials: %s", err), err.Error())
 			return googleoauth.Credentials{}
 		}
+		if len(contents) == 0 {
+			diags.AddError("error loading credentials", "provided credentials are empty")
+			return googleoauth.Credentials{}
+		}
 
 		if !data.ImpersonateServiceAccount.IsNull() && !initialCredentialsOnly {
 			opts := []option.ClientOption{option.WithCredentialsJSON([]byte(contents)), option.ImpersonateCredentials(data.ImpersonateServiceAccount.ValueString(), delegates...), option.WithScopes(clientScopes...)}
