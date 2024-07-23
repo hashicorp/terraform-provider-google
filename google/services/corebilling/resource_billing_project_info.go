@@ -127,7 +127,7 @@ func resourceCoreBillingProjectInfoCreate(d *schema.ResourceData, meta interface
 	}
 
 	// Store the ID now
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/billingInfo")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
@@ -318,7 +318,7 @@ func resourceCoreBillingProjectInfoImport(d *schema.ResourceData, meta interface
 	}
 
 	// Replace import id for the resource id
-	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}/billingInfo")
+	id, err := tpgresource.ReplaceVars(d, config, "projects/{{project}}")
 	if err != nil {
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}

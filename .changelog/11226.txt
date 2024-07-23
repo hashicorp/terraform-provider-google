@@ -1,0 +1,3 @@
+```release-note:note
+billing: updated resource id for `google_billing_project_info`
+```
