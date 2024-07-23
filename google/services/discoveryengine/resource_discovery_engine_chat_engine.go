@@ -702,7 +702,7 @@ func expandDiscoveryEngineChatEngineCommonConfigCompanyName(v interface{}, d tpg
 }
 
 func resourceDiscoveryEngineChatEngineEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	//hard code solutionType to "SOLUTION_TYPE_CHAT" for chat engine resource
+	// hard code solutionType to "SOLUTION_TYPE_CHAT" for chat engine resource
 	obj["solutionType"] = "SOLUTION_TYPE_CHAT"
 	return obj, nil
 }
