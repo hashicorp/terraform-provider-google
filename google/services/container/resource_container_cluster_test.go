@@ -4475,6 +4475,9 @@ resource "google_container_cluster" "primary" {
   initial_node_count = 1
 
   min_master_version = "latest"
+  release_channel {
+    channel = "RAPID"
+  }
 
   workload_identity_config {
     workload_pool = "${data.google_project.project.project_id}.svc.id.goog"
@@ -4512,6 +4515,9 @@ resource "google_container_cluster" "primary" {
       enabled = false
     }
     stateful_ha_config {
+      enabled = false
+    }
+    ray_operator_config {
       enabled = false
     }
   }
@@ -4574,6 +4580,15 @@ resource "google_container_cluster" "primary" {
     }
     stateful_ha_config {
       enabled = true
+    }
+    ray_operator_config {
+      enabled = true
+      ray_cluster_logging_config {
+        enabled = true
+      }
+      ray_cluster_monitoring_config {
+        enabled = true
+      }
     }
 	}
   deletion_protection = false

@@ -87,6 +87,7 @@ var (
 		"addons_config.0.config_connector_config",
 		"addons_config.0.gcs_fuse_csi_driver_config",
 		"addons_config.0.stateful_ha_config",
+		"addons_config.0.ray_operator_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -473,6 +474,52 @@ func ResourceContainerCluster() *schema.Resource {
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
+									},
+								},
+							},
+						},
+						"ray_operator_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     3,
+							Description:  `The status of the Ray Operator addon, which enabled management of Ray AI/ML jobs on GKE. Defaults to disabled; set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"ray_cluster_logging_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										Description: `The status of Ray Logging, which scrapes Ray cluster logs to Cloud Logging. Defaults to disabled; set enabled = true to enable.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:     schema.TypeBool,
+													Required: true,
+												},
+											},
+										},
+									},
+									"ray_cluster_monitoring_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										Description: `The status of Ray Cluster monitoring, which shows Ray cluster metrics in Cloud Console. Defaults to disabled; set enabled = true to enable.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:     schema.TypeBool,
+													Required: true,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -4124,6 +4171,28 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["ray_operator_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.RayOperatorConfig = &container.RayOperatorConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+		if v, ok := addon["ray_cluster_logging_config"]; ok && len(v.([]interface{})) > 0 {
+			loggingConfig := v.([]interface{})[0].(map[string]interface{})
+			ac.RayOperatorConfig.RayClusterLoggingConfig = &container.RayClusterLoggingConfig{
+				Enabled:         loggingConfig["enabled"].(bool),
+				ForceSendFields: []string{"Enabled"},
+			}
+		}
+		if v, ok := addon["ray_cluster_monitoring_config"]; ok && len(v.([]interface{})) > 0 {
+			loggingConfig := v.([]interface{})[0].(map[string]interface{})
+			ac.RayOperatorConfig.RayClusterMonitoringConfig = &container.RayClusterMonitoringConfig{
+				Enabled:         loggingConfig["enabled"].(bool),
+				ForceSendFields: []string{"Enabled"},
+			}
+		}
+	}
+
 	return ac
 }
 
@@ -5175,6 +5244,24 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			{
 				"enabled": c.StatefulHaConfig.Enabled,
 			},
+		}
+	}
+	if c.RayOperatorConfig != nil {
+		rayConfig := c.RayOperatorConfig
+		result["ray_operator_config"] = []map[string]interface{}{
+			{
+				"enabled": rayConfig.Enabled,
+			},
+		}
+		if rayConfig.RayClusterLoggingConfig != nil {
+			result["ray_operator_config"].([]map[string]any)[0]["ray_cluster_logging_config"] = []map[string]interface{}{{
+				"enabled": rayConfig.RayClusterLoggingConfig.Enabled,
+			}}
+		}
+		if rayConfig.RayClusterMonitoringConfig != nil {
+			result["ray_operator_config"].([]map[string]any)[0]["ray_cluster_monitoring_config"] = []map[string]interface{}{{
+				"enabled": rayConfig.RayClusterMonitoringConfig.Enabled,
+			}}
 		}
 	}
 
