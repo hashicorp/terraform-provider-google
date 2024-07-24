@@ -120,15 +120,13 @@ Removed in favor of field `settings.ip_configuration.ssl_mode`.
 
 An empty value means the setting should be cleared.
 
+## Resource: `google_cloud_run_v2_service`
+
+### `liveness_probe` no longer defaults from API
+
+Cloud Run does not provide a default value for liveness probe. Now removing this field
+will remove the liveness probe from the Cloud Run service.
 ## Resource: `google_compute_backend_service`
-
-### `iap.enabled` is now required in the `iap` block
-
-To apply the IAP settings to the backend service, `true` needs to be set for `enabled` field.
-
-### `outlier_detection` subfields default values removed
-
-Empty values mean the setting should be cleared
 
 ## Resource: `google_compute_region_backend_service`
 

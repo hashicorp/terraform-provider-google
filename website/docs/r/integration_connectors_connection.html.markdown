@@ -421,8 +421,8 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Optional)
-  The [KMS key name] with which the content of the Operation is encrypted. The expected
-  format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  The [KMS key name] with which the content of the Operation is encrypted. The
+  expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
 
 <a name="nested_auth_config"></a>The `auth_config` block supports:
@@ -511,8 +511,8 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Optional)
-  The [KMS key name] with which the content of the Operation is encrypted. The expected
-  format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  The [KMS key name] with which the content of the Operation is encrypted. The
+  expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
 
 <a name="nested_user_password"></a>The `user_password` block supports:
@@ -827,8 +827,8 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Optional)
-  The [KMS key name] with which the content of the Operation is encrypted. The expected
-  format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  The [KMS key name] with which the content of the Operation is encrypted. The
+  expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
 
 <a name="nested_eventing_config"></a>The `eventing_config` block supports:
@@ -945,8 +945,8 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Optional)
-  The [KMS key name] with which the content of the Operation is encrypted. The expected
-  format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  The [KMS key name] with which the content of the Operation is encrypted. The
+  expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
 
 <a name="nested_user_password"></a>The `user_password` block supports:
@@ -1012,8 +1012,8 @@ The following arguments are supported:
 
 * `kms_key_name` -
   (Optional)
-  The [KMS key name] with which the content of the Operation is encrypted. The expected
-  format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+  The [KMS key name] with which the content of the Operation is encrypted. The
+  expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
   Will be empty string if google managed.
 
 ## Attributes Reference
