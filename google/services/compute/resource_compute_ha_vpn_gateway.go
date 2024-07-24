@@ -78,6 +78,14 @@ character, which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"gateway_ip_version": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4", "IPV6", ""}),
+				Description:  `The IP family of the gateway IPs for the HA-VPN gateway interfaces. If not specified, IPV4 will be used. Default value: "IPV4" Possible values: ["IPV4", "IPV6"]`,
+				Default:      "IPV4",
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -90,9 +98,9 @@ character, which cannot be a dash.`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY", ""}),
 				Description: `The stack type for this VPN gateway to identify the IP protocols that are enabled.
-If not specified, IPV4_ONLY will be used. Default value: "IPV4_ONLY" Possible values: ["IPV4_ONLY", "IPV4_IPV6"]`,
+If not specified, IPV4_ONLY will be used. Default value: "IPV4_ONLY" Possible values: ["IPV4_ONLY", "IPV4_IPV6", "IPV6_ONLY"]`,
 				Default: "IPV4_ONLY",
 			},
 			"vpn_interfaces": {
@@ -176,6 +184,12 @@ func resourceComputeHaVpnGatewayCreate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("stack_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(stackTypeProp)) && (ok || !reflect.DeepEqual(v, stackTypeProp)) {
 		obj["stackType"] = stackTypeProp
+	}
+	gatewayIpVersionProp, err := expandComputeHaVpnGatewayGatewayIpVersion(d.Get("gateway_ip_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("gateway_ip_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(gatewayIpVersionProp)) && (ok || !reflect.DeepEqual(v, gatewayIpVersionProp)) {
+		obj["gatewayIpVersion"] = gatewayIpVersionProp
 	}
 	vpnInterfacesProp, err := expandComputeHaVpnGatewayVpnInterfaces(d.Get("vpn_interfaces"), d, config)
 	if err != nil {
@@ -300,6 +314,9 @@ func resourceComputeHaVpnGatewayRead(d *schema.ResourceData, meta interface{}) e
 	if err := d.Set("stack_type", flattenComputeHaVpnGatewayStackType(res["stackType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
 	}
+	if err := d.Set("gateway_ip_version", flattenComputeHaVpnGatewayGatewayIpVersion(res["gatewayIpVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
+	}
 	if err := d.Set("vpn_interfaces", flattenComputeHaVpnGatewayVpnInterfaces(res["vpnInterfaces"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HaVpnGateway: %s", err)
 	}
@@ -413,6 +430,14 @@ func flattenComputeHaVpnGatewayStackType(v interface{}, d *schema.ResourceData, 
 	return v
 }
 
+func flattenComputeHaVpnGatewayGatewayIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil || tpgresource.IsEmptyValue(reflect.ValueOf(v)) {
+		return "IPV4"
+	}
+
+	return v
+}
+
 func flattenComputeHaVpnGatewayVpnInterfaces(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -485,6 +510,10 @@ func expandComputeHaVpnGatewayNetwork(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandComputeHaVpnGatewayStackType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHaVpnGatewayGatewayIpVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
