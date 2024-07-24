@@ -1,0 +1,3 @@
+```release-note:deprecation
+sql: `settings.ip_configuration.require_ssl` is now deprecated within `google_sql_database_instance`. Please use `settings.ip_configuration.ssl_mode` instead.
+```
