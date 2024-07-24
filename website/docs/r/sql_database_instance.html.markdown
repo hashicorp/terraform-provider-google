@@ -375,12 +375,7 @@ Specifying a network enables private IP.
 At least `ipv4_enabled` must be enabled or a `private_network` must be configured.
 This setting can be updated, but it cannot be removed after it is set.
 
-* `require_ssl` - (Optional, Deprecated) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`. It will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.
-
-* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to `require_ssl`. To change this field, also set the correspoding value in `require_ssl`.
-    * For PostgreSQL instances, the value pairs are listed in the [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/instances#ipconfiguration) for `ssl_mode` field.
-    * For MySQL instances, use the same value pairs as the PostgreSQL instances.
-    * For SQL Server instances, set it to `ALLOW_UNENCRYPTED_AND_ENCRYPTED` when `require_ssl=false` and `ENCRYPTED_ONLY` otherwise.
+* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections.
 
 * `allocated_ip_range` - (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
 

@@ -76,7 +76,6 @@ var (
 	ipConfigurationKeys = []string{
 		"settings.0.ip_configuration.0.authorized_networks",
 		"settings.0.ip_configuration.0.ipv4_enabled",
-		"settings.0.ip_configuration.0.require_ssl",
 		"settings.0.ip_configuration.0.private_network",
 		"settings.0.ip_configuration.0.allocated_ip_range",
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
@@ -438,13 +437,6 @@ is set to true. Defaults to ZONAL.`,
 										AtLeastOneOf: ipConfigurationKeys,
 										Description:  `Whether this Cloud SQL instance should be assigned a public IPV4 address. At least ipv4_enabled must be enabled or a private_network must be configured.`,
 									},
-									"require_ssl": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										AtLeastOneOf: ipConfigurationKeys,
-										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode if it has been set too.`,
-										Deprecated:   "`require_ssl` will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.",
-									},
 									"private_network": {
 										Type:             schema.TypeString,
 										Optional:         true,
@@ -493,7 +485,7 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
-										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
+										Description:  `Specify how SSL connection should be enforced in DB connections.`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -1386,7 +1378,8 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 
 	_ipConfiguration := configured[0].(map[string]interface{})
 
-	forceSendFields := []string{"Ipv4Enabled", "RequireSsl"}
+	forceSendFields := []string{"Ipv4Enabled"}
+	nullFields := []string{"RequireSsl"}
 
 	if !strings.HasPrefix(databaseVersion, "SQLSERVER") {
 		forceSendFields = append(forceSendFields, "EnablePrivatePathForGoogleCloudServices")
@@ -1394,12 +1387,12 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 
 	return &sqladmin.IpConfiguration{
 		Ipv4Enabled:                             _ipConfiguration["ipv4_enabled"].(bool),
-		RequireSsl:                              _ipConfiguration["require_ssl"].(bool),
 		PrivateNetwork:                          _ipConfiguration["private_network"].(string),
 		AllocatedIpRange:                        _ipConfiguration["allocated_ip_range"].(string),
 		AuthorizedNetworks:                      expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
 		ForceSendFields:                         forceSendFields,
+		NullFields:                              nullFields,
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 	}
@@ -2240,8 +2233,8 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"ipv4_enabled":       ipConfiguration.Ipv4Enabled,
 		"private_network":    ipConfiguration.PrivateNetwork,
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
-		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
+		"ssl_mode": ipConfiguration.SslMode,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
@@ -2250,11 +2243,6 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 
 	if ipConfiguration.PscConfig != nil {
 		data["psc_config"] = flattenPscConfigs(ipConfiguration.PscConfig)
-	}
-
-	// We store the ssl_mode value only if the customer already uses `ssl_mode`.
-	if _, ok := d.GetOk("settings.0.ip_configuration.0.ssl_mode"); ok {
-		data["ssl_mode"] = ipConfiguration.SslMode
 	}
 
 	return []map[string]interface{}{data}
