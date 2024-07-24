@@ -170,7 +170,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{network_endpoint_group}}/endpoints`
+* `id` - an identifier for the resource with format `{{project}}/{{zone}}/{{network_endpoint_group}}`
 
 
 ## Timeouts
