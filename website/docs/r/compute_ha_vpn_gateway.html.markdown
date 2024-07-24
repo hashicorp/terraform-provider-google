@@ -176,7 +176,13 @@ The following arguments are supported:
   The stack type for this VPN gateway to identify the IP protocols that are enabled.
   If not specified, IPV4_ONLY will be used.
   Default value is `IPV4_ONLY`.
-  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`.
+  Possible values are: `IPV4_ONLY`, `IPV4_IPV6`, `IPV6_ONLY`.
+
+* `gateway_ip_version` -
+  (Optional)
+  The IP family of the gateway IPs for the HA-VPN gateway interfaces. If not specified, IPV4 will be used.
+  Default value is `IPV4`.
+  Possible values are: `IPV4`, `IPV6`.
 
 * `vpn_interfaces` -
   (Optional)
