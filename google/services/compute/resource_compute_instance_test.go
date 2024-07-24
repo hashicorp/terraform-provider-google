@@ -4,6 +4,7 @@ package compute_test
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 	"regexp"
 	"sort"
@@ -12,13 +13,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
 	"google.golang.org/api/compute/v1"
 )
@@ -1900,9 +1902,9 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 			{
 				Config: testAccComputeInstanceConfidentialInstanceConfigNoEnable(instanceName, "AMD Milan", "SEV_SNP"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar3", &instance),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar5", &instance),
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, false, "SEV_SNP"),
-					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar4", &instance2),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar6", &instance2),
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance2, false, "SEV_SNP"),
 				),
 			},
@@ -7096,6 +7098,7 @@ resource "google_compute_instance" "foobar2" {
   }
 
 }
+
 `, instance, confidentialInstanceType, instance)
 }
 
@@ -7106,8 +7109,8 @@ data "google_compute_image" "my_image2" {
   project   = "ubuntu-os-cloud"
 }
 
-resource "google_compute_instance" "foobar3" {
-  name         = "%s3"
+resource "google_compute_instance" "foobar5" {
+  name         = "%s5"
   machine_type = "n2d-standard-2"
   zone         = "us-central1-a"
 
@@ -7133,8 +7136,8 @@ resource "google_compute_instance" "foobar3" {
   }
 
 }
-resource "google_compute_instance" "foobar4" {
-  name         = "%s4"
+resource "google_compute_instance" "foobar6" {
+  name         = "%s6"
   machine_type = "n2d-standard-2"
   zone         = "us-central1-a"
 
@@ -8042,4 +8045,101 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, suffix, region, suffix, instance, region, stack_type)
+}
+
+func TestAccComputeInstance_bootDisk_storagePoolSpecified(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
+	storagePoolName := fmt.Sprintf("tf-test-storage-pool-%s", acctest.RandString(t, 10))
+	storagePoolUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), storagePoolName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				PreConfig: setupTestingStoragePool_HyperdiskBalanced(t, storagePoolName),
+				Config:    testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolUrl, envvar.GetTestZoneFromEnv()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.initialize_params.0.storage_pool", storagePoolName),
+				),
+			},
+			{
+				ResourceName:      "google_compute_instance.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+
+	cleanupTestingStoragePool(t, storagePoolName)
+}
+
+func setupTestingStoragePool_HyperdiskBalanced(t *testing.T, storagePoolName string) func() {
+	return func() {
+		config := acctest.GoogleProviderConfig(t)
+		headers := make(http.Header)
+		project := envvar.GetTestProjectFromEnv()
+		zone := envvar.GetTestZoneFromEnv()
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools", config.ComputeBasePath, project, zone)
+		storagePoolTypeUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePoolTypes/hyperdisk-balanced", project, zone)
+		defaultTimeout := 20 * time.Minute
+		obj := make(map[string]interface{})
+		obj["name"] = storagePoolName
+		obj["poolProvisionedCapacityGb"] = 10240
+		obj["poolProvisionedIops"] = 10000
+		obj["poolProvisionedThroughput"] = 1024
+		obj["storagePoolType"] = storagePoolTypeUrl
+		obj["capacityProvisioningType"] = "ADVANCED"
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      obj,
+			Timeout:   defaultTimeout,
+			Headers:   headers,
+		})
+		if err != nil {
+			t.Errorf("Error creating StoragePool: %s", err)
+		}
+
+		err = tpgcompute.ComputeOperationWaitTime(config, res, project, "Creating StoragePool", config.UserAgent, defaultTimeout)
+		if err != nil {
+			t.Errorf("Error waiting to create StoragePool: %s", err)
+		}
+	}
+}
+
+func testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolUrl, zone string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+data "google_project" "project" {}
+
+resource "google_compute_instance" "foobar" {
+	name = "%s"
+	machine_type= "h3-standard-88"
+	zone = "%s"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+			type = "hyperdisk-balanced"
+			size = 500
+			storage_pool = "%s"
+		}
+	}
+	
+	network_interface {
+		network = "default"
+	}
+}
+`, instanceName, zone, storagePoolUrl)
 }

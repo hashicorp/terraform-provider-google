@@ -116,8 +116,9 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				Default: "US",
 			},
 			"multi_region_auxiliary": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "`multi_region_auxiliary` is deprecated and will be removed in a future major release. This field is no longer supported by the BigQuery Reservation API.",
 				Description: `Applicable only for reservations located within one of the BigQuery multi-regions (US or EU).
 If set to true, this reservation is placed in the organization's secondary region which is designated for disaster recovery purposes. If false, this reservation is placed in the organization's default region.`,
 			},

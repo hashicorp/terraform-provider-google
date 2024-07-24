@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -475,24 +476,26 @@ func resourceFirestoreFieldImport(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, err
 	}
 
-	stringParts := strings.Split(d.Get("name").(string), "/")
-	if len(stringParts) != 8 {
-		return nil, fmt.Errorf(
-			"Saw %s when the name is expected to have shape %s",
-			d.Get("name"),
-			"projects/{{project}}/databases/{{database}}/collectionGroups/{{collection}}/indexes/{{server_generated_id}}",
-		)
+	// Re-populate split fields from the name.
+	re := regexp.MustCompile("^projects/([^/]+)/databases/([^/]+)/collectionGroups/([^/]+)/fields/(.+)$")
+	match := re.FindStringSubmatch(d.Get("name").(string))
+	if len(match) > 0 {
+		if err := d.Set("project", match[1]); err != nil {
+			return nil, fmt.Errorf("Error setting project: %s", err)
+		}
+		if err := d.Set("database", match[2]); err != nil {
+			return nil, fmt.Errorf("Error setting database: %s", err)
+		}
+		if err := d.Set("collection", match[3]); err != nil {
+			return nil, fmt.Errorf("Error setting collection: %s", err)
+		}
+		if err := d.Set("field", match[4]); err != nil {
+			return nil, fmt.Errorf("Error setting field: %s", err)
+		}
+	} else {
+		return nil, fmt.Errorf("import did not match the regex ^projects/([^/]+)/databases/([^/]+)/collectionGroups/([^/]+)/fields/(.+)$")
 	}
 
-	if err := d.Set("project", stringParts[1]); err != nil {
-		return nil, fmt.Errorf("Error setting project: %s", err)
-	}
-	if err := d.Set("database", stringParts[3]); err != nil {
-		return nil, fmt.Errorf("Error setting database: %s", err)
-	}
-	if err := d.Set("collection", stringParts[5]); err != nil {
-		return nil, fmt.Errorf("Error setting collection: %s", err)
-	}
 	return []*schema.ResourceData{d}, nil
 }
 

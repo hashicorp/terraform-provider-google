@@ -97,8 +97,6 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. Unique identifier of the OAuth client.
 
 
-* `client_id`: The OAuth2 ID of the client.
-
 ## Timeouts
 
 This resource provides the following

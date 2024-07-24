@@ -195,6 +195,11 @@ func resourceLoggingLogViewRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	headers := make(http.Header)
+	resourceLoggingLogViewEncoder(d, nil, nil)
+	url, err = tpgresource.ReplaceVars(d, config, "{{LoggingBasePath}}{{parent}}/locations/{{location}}/buckets/{{bucket}}/views/{{name}}")
+	if err != nil {
+		return err
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "GET",

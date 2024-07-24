@@ -515,10 +515,11 @@ All system labels in v1 now have a corresponding field in v2 RevisionTemplate.`,
 							Elem: &schema.Schema{Type: schema.TypeString},
 						},
 						"max_instance_request_concurrency": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Optional:    true,
-							Description: `Sets the maximum number of requests that each serving instance can receive.`,
+							Type:     schema.TypeInt,
+							Computed: true,
+							Optional: true,
+							Description: `Sets the maximum number of requests that each serving instance can receive.
+If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 when requested CPU < 1.`,
 						},
 						"revision": {
 							Type:        schema.TypeString,
