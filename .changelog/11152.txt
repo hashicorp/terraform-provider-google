@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed perma-diff on `node_config.guest_accelerator.gpu_driver_installation_config` field in GKE 1.30+ in `google_container_node_pool` resource
+```

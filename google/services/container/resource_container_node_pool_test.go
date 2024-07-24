@@ -4454,3 +4454,64 @@ resource "google_container_node_pool" "np" {
 }
 `, secretID, cluster, network, subnetwork, nodepool)
 }
+
+func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_defaultDriverInstallation(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_defaultDriverInstallation(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  deletion_protection = false
+
+  min_master_version = "1.30.1-gke.1329003"
+  release_channel {
+    channel = "RAPID"
+  }
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  version            = "1.30.1-gke.1329003"
+
+  node_config {
+    service_account = "default"
+    machine_type = "n1-standard-8"
+
+    guest_accelerator {
+      type  = "nvidia-tesla-t4"
+      count = 1
+      gpu_sharing_config {
+	    gpu_sharing_strategy = "TIME_SHARING"
+	    max_shared_clients_per_gpu = 3
+      }
+    }
+  }
+}
+`, cluster, np)
+}
