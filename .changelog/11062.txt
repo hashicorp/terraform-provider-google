@@ -1,0 +1,6 @@
+```release-note:enhancement
+container: promoted `enable_multi_networking` to GA in the `google_container_cluster` resource
+```
+```release-note:enhancement
+container: promoted `additional_node_network_configs` and `additional_pod_network_configs` fields to GA in the `google_container_node_pool` resource
+```
