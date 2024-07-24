@@ -1,0 +1,3 @@
+```release-note:none
+reformatted resource_sql_database_instance.go.erb
+```
