@@ -22,7 +22,7 @@ IMPROVEMENTS:
 * bigquery: added `resource_tags` field to `google_bigquery_table` resource ([#18741](https://github.com/hashicorp/terraform-provider-google/pull/18741))
 * bigtable: added `data_boost_isolation_read_only` and `data_boost_isolation_read_only.compute_billing_owner` fields to `google_bigtable_app_profile` resource ([#18819](https://github.com/hashicorp/terraform-provider-google/pull/18819))
 * cloudfunctions: added `build_service_account` field to `google_cloudfunctions_function` resource ([#18702](https://github.com/hashicorp/terraform-provider-google/pull/18702))
-* compute: added 'aws_v4_authentication' fields to 'google_compute_backend_service' resource; ([#18796](https://github.com/hashicorp/terraform-provider-google/pull/18796))
+* compute: added `aws_v4_authentication` fields to `google_compute_backend_service` resource ([#18796](https://github.com/hashicorp/terraform-provider-google/pull/18796))
 * compute: added `custom_learned_ip_ranges` and `custom_learned_route_priority` fields to `google_compute_router_peer` resource ([#18727](https://github.com/hashicorp/terraform-provider-google/pull/18727))
 * compute: added `export_policies` and `import_policies` fields  to `google_compute_router_peer` resource ([#18759](https://github.com/hashicorp/terraform-provider-google/pull/18759))
 * compute: added `shared_secret` field to `google_compute_public_advertised_prefix` resource ([#18786](https://github.com/hashicorp/terraform-provider-google/pull/18786))
