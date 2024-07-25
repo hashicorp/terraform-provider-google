@@ -112,53 +112,11 @@ func ResourceCloudRunV2Job() *schema.Resource {
 													},
 												},
 												"env": {
-													Type:        schema.TypeList,
+													Type:        schema.TypeSet,
 													Optional:    true,
 													Description: `List of environment variables to set in the container.`,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"name": {
-																Type:        schema.TypeString,
-																Required:    true,
-																Description: `Name of the environment variable. Must be a C_IDENTIFIER, and mnay not exceed 32768 characters.`,
-															},
-															"value": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `Variable references $(VAR_NAME) are expanded using the previous defined environment variables in the container and any route environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "", and the maximum length is 32768 bytes`,
-															},
-															"value_source": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `Source for the environment variable's value.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"secret_key_ref": {
-																			Type:        schema.TypeList,
-																			Optional:    true,
-																			Description: `Selects a secret and a specific version from Cloud Secret Manager.`,
-																			MaxItems:    1,
-																			Elem: &schema.Resource{
-																				Schema: map[string]*schema.Schema{
-																					"secret": {
-																						Type:        schema.TypeString,
-																						Required:    true,
-																						Description: `The name of the secret in Cloud Secret Manager. Format: {secretName} if the secret is in the same project. projects/{project}/secrets/{secretName} if the secret is in a different project.`,
-																					},
-																					"version": {
-																						Type:        schema.TypeString,
-																						Required:    true,
-																						Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version.`,
-																					},
-																				},
-																			},
-																		},
-																	},
-																},
-															},
-														},
-													},
+													Elem:        cloudrunv2JobTemplateTemplateContainersContainersEnvSchema(),
+													// Default schema.HashSchema is used.
 												},
 												"name": {
 													Type:        schema.TypeString,
@@ -725,6 +683,53 @@ A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to n
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func cloudrunv2JobTemplateTemplateContainersContainersEnvSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Name of the environment variable. Must be a C_IDENTIFIER, and mnay not exceed 32768 characters.`,
+			},
+			"value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Variable references $(VAR_NAME) are expanded using the previous defined environment variables in the container and any route environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "", and the maximum length is 32768 bytes`,
+			},
+			"value_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Source for the environment variable's value.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_key_ref": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Selects a secret and a specific version from Cloud Secret Manager.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"secret": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The name of the secret in Cloud Secret Manager. Format: {secretName} if the secret is in the same project. projects/{project}/secrets/{secretName} if the secret is in a different project.`,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -1373,14 +1378,14 @@ func flattenCloudRunV2JobTemplateTemplateContainersEnv(v interface{}, d *schema.
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(cloudrunv2JobTemplateTemplateContainersContainersEnvSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"name":         flattenCloudRunV2JobTemplateTemplateContainersEnvName(original["name"], d, config),
 			"value":        flattenCloudRunV2JobTemplateTemplateContainersEnvValue(original["value"], d, config),
 			"value_source": flattenCloudRunV2JobTemplateTemplateContainersEnvValueSource(original["valueSource"], d, config),
@@ -2217,6 +2222,7 @@ func expandCloudRunV2JobTemplateTemplateContainersArgs(v interface{}, d tpgresou
 }
 
 func expandCloudRunV2JobTemplateTemplateContainersEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
