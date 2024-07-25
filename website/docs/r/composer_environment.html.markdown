@@ -1343,7 +1343,7 @@ The following arguments are supported:
   /20 IPv4 cidr range that will be used by Composer internal components.
   Cannot be updated.
 
-<a name="nested_software_config_c3">The `software_config` block supports:
+<a name="nested_software_config_c3"></a>The `software_config` block supports:
 
 * `airflow_config_overrides` -
   (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names,
