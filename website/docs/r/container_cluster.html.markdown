@@ -642,7 +642,7 @@ This block also contains several computed attributes, documented below.
 
 * `enable_metrics` - (Required) Whether or not to enable advanced datapath metrics.
 * `enable_relay` - (Optional) Whether or not Relay is enabled.
-* `relay_mode` - (Optional) Mode used to make Relay available.
+* `relay_mode` - (Optional, Deprecated) Mode used to make Relay available. Deprecated in favor of `enable_relay` field. Remove this attribute's configuration as this field will be removed in the next major release and `enable_relay` will become a required field.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.
