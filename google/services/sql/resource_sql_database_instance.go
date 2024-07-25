@@ -402,6 +402,11 @@ is set to true. Defaults to ZONAL.`,
 							Optional:    true,
 							Description: `Enables Vertex AI Integration.`,
 						},
+						"enable_dataplex_integration": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Enables Dataplex Integration.`,
+						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -1274,7 +1279,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		Tier:                      _settings["tier"].(string),
 		Edition:                   _settings["edition"].(string),
 		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
-		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration"},
+		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration", "EnableDataplexIntegration"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
 		DenyMaintenancePeriods:    expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
@@ -1288,6 +1293,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		PricingPlan:               _settings["pricing_plan"].(string),
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
 		EnableGoogleMlIntegration: _settings["enable_google_ml_integration"].(bool),
+		EnableDataplexIntegration: _settings["enable_dataplex_integration"].(bool),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
@@ -2112,6 +2118,7 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
 
 	data["enable_google_ml_integration"] = settings.EnableGoogleMlIntegration
+	data["enable_dataplex_integration"] = settings.EnableDataplexIntegration
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
