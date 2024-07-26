@@ -646,7 +646,7 @@ func flattenComputeRouterBgpAdvertisedIpRanges(v interface{}, d *schema.Resource
 		})
 	}
 	configData := []map[string]interface{}{}
-	if v, ok := d.GetOk("advertised_ip_ranges"); ok {
+	if v, ok := d.GetOk("bgp.0.advertised_ip_ranges"); ok {
 		for _, item := range v.([]interface{}) {
 			configData = append(configData, item.(map[string]interface{}))
 		}
