@@ -70,6 +70,7 @@ func ResourceGoogleProject() *schema.Resource {
 			},
 			"skip_delete": {
 				Type:        schema.TypeBool,
+				Deprecated:  `skip_delete is deprecated and will be removed in a future major release. The new release adds support for deletion_policy instead.`,
 				Optional:    true,
 				Computed:    true,
 				Description: `If true, the Terraform resource can be deleted without deleting the Project via the Google API.`,
