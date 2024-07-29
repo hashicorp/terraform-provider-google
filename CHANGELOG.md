@@ -33,7 +33,6 @@ IMPROVEMENTS:
 * datastream: promoted `source_config.sql_server_source_config` and `backfill_all.sql_server_excluded_objects` fields in `google_datastream_stream` resource from beta to GA ([#18732](https://github.com/hashicorp/terraform-provider-google/pull/18732))
 * datastream: promoted `sql_server_profile` field in `google_datastream_connection_profile` resource from beta to GA ([#18732](https://github.com/hashicorp/terraform-provider-google/pull/18732))
 * dlp: added `cloud_storage_target` field to `google_data_loss_prevention_discovery_config` resource ([#18740](https://github.com/hashicorp/terraform-provider-google/pull/18740))
-* netapp: added `default_from_api = true` attribute to `smb_settings` field of `google_netapp_volume` ([#18790](https://github.com/hashicorp/terraform-provider-google/pull/18790))
 * resourcemanager: added `check_if_service_has_usage_on_destroy` field to `google_project_service` resource ([#18753](https://github.com/hashicorp/terraform-provider-google/pull/18753))
 * resourcemanager: added the `member` property to `google_project_service_identity` ([#18695](https://github.com/hashicorp/terraform-provider-google/pull/18695))
 * vmwareengine: added `deletion_delay_hours` field to `google_vmwareengine_private_cloud` resource ([#18698](https://github.com/hashicorp/terraform-provider-google/pull/18698))
@@ -45,6 +44,7 @@ BUG FIXES:
 * dialogflowcx: fixed intermittent issues with retrieving resource state soon after creating `google_dialogflow_cx_security_settings` resources ([#18792](https://github.com/hashicorp/terraform-provider-google/pull/18792))
 * firestore: fixed missing import of `field` for `google_firestore_field`. ([#18771](https://github.com/hashicorp/terraform-provider-google/pull/18771))
 * firestore: fixed bug where fields `database`, `collection`, `document_id`, and `field` could not be updated on `google_firestore_document` and `google_firestore_field` resources. ([#18821](https://github.com/hashicorp/terraform-provider-google/pull/18821))
+* netapp: made the `smb_settings` field on the `google_netapp_volume` resource default to the value returned from the API. This solves permadiffs when the field is unset. ([#18790](https://github.com/hashicorp/terraform-provider-google/pull/18790))
 * networksecurity: added recreate functionality on update for `client_validation_mode` and `client_validation_trust_config` in `google_network_security_server_tls_policy` ([#18769](https://github.com/hashicorp/terraform-provider-google/pull/18769))
 
 ## 5.38.0 (July 15, 2024)
