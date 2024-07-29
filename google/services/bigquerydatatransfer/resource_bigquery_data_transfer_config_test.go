@@ -303,6 +303,7 @@ func TestAccBigqueryDataTransferConfig(t *testing.T) {
 		"booleanParam":           testAccBigqueryDataTransferConfig_copy_booleanParam,
 		"update_params":          testAccBigqueryDataTransferConfig_force_new_update_params,
 		"update_service_account": testAccBigqueryDataTransferConfig_scheduledQuery_update_service_account,
+		"salesforce":             testAccBigqueryDataTransferConfig_salesforce_basic,
 	}
 
 	for name, tc := range testCases {
@@ -572,6 +573,27 @@ func testAccCheckDataTransferServiceAccountNamePrefix(resourceName string, prefi
 	}
 }
 
+func testAccBigqueryDataTransferConfig_salesforce_basic(t *testing.T) {
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_salesforce(randomSuffix),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.salesforce_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
 func testAccBigqueryDataTransferConfig_scheduledQuery(random_suffix, random_suffix2, schedule, start_time, end_time, letter string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
@@ -811,4 +833,31 @@ resource "google_bigquery_data_transfer_config" "query_config" {
   }
 }
 `, service_account, service_account, service_account, random_suffix, random_suffix, service_account)
+}
+
+func testAccBigqueryDataTransferConfig_salesforce(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id       = "tf_test_%s"
+  friendly_name    = "foo"
+  description      = "bar"
+  location         = "US"
+}
+
+resource "google_bigquery_data_transfer_config" "salesforce_config" {
+  display_name           = "tf-test-%s"
+  data_source_id         = "salesforce"
+  destination_dataset_id = google_bigquery_dataset.dataset.dataset_id
+  location               = google_bigquery_dataset.dataset.location
+
+  params = {
+    "connector.authentication.oauth.clientId"     = ""
+    "connector.authentication.oauth.clientSecret" = ""
+    "connector.authentication.username"           = ""
+    "connector.authentication.password"           = ""
+    "connector.authentication.securityToken"      = ""
+    "assets"                                      = "[asset-a, asset-b]"
+  }
+}
+`, randomSuffix, randomSuffix)
 }

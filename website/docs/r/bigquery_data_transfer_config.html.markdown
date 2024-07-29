@@ -70,6 +70,34 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 ```
+## Example Usage - Bigquerydatatransfer Config Salesforce
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_bigquery_dataset" "my_dataset" {
+  dataset_id    = "my_dataset"
+  description   = "My dataset"
+  location      = "asia-northeast1"
+}
+resource "google_bigquery_data_transfer_config" "salesforce_config" {
+  display_name           = "my-salesforce-config"
+  location               = "asia-northeast1"
+  data_source_id         = "salesforce"
+  schedule               = "first sunday of quarter 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  params = {
+    "connector.authentication.oauth.clientId"     = "client-id"
+    "connector.authentication.oauth.clientSecret" = "client-secret"
+    "connector.authentication.username"           = "username"
+    "connector.authentication.password"           = "password"
+    "connector.authentication.securityToken"      = "security-token"
+    "assets"                                      = "[asset-a, asset-b]"
+  }
+}
+```
 
 ## Argument Reference
 
