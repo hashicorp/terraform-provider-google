@@ -1,4 +1,53 @@
-## 5.39.0 (Unreleased)
+## 5.40.0 (Unreleased)
+
+## 5.39.0 (July 29th, 2024)
+
+NOTES:
+* networkconnectivity: migrated `google_network_connectivity_hub` from DCL to MMv1 ([#18724](https://github.com/hashicorp/terraform-provider-google/pull/18724))
+* networkconnectivity: migrated `google_network_connectivity_spoke` from DCL to MMv1 ([#18779](https://github.com/hashicorp/terraform-provider-google/pull/18779))
+
+DEPRECATIONS:
+* bigquery: deprecated `allow_resource_tags_on_deletion` in `google_bigquery_table`. ([#18811](https://github.com/hashicorp/terraform-provider-google/pull/18811))
+* bigqueryreservation: deprecated `multi_region_auxiliary` on `google_bigquery_reservation`. ([#18803](https://github.com/hashicorp/terraform-provider-google/pull/18803))
+* datastore: deprecated the resource `google_datastore_index`. Use the `google_firestore_index` resource instead. ([#18781](https://github.com/hashicorp/terraform-provider-google/pull/18781))
+
+FEATURES:
+* **New Resource:** `google_apigee_environment_keyvaluemaps_entries` ([#18707](https://github.com/hashicorp/terraform-provider-google/pull/18707))
+* **New Resource:** `google_apigee_environment_keyvaluemaps` ([#18707](https://github.com/hashicorp/terraform-provider-google/pull/18707))
+* **New Resource:** `google_compute_resize_request` ([#18725](https://github.com/hashicorp/terraform-provider-google/pull/18725))
+* **New Resource:** `google_compute_router_route_policy` ([#18759](https://github.com/hashicorp/terraform-provider-google/pull/18759))
+* **New Resource:** `google_scc_v2_organization_mute_config` ([#18752](https://github.com/hashicorp/terraform-provider-google/pull/18752))
+
+IMPROVEMENTS:
+* alloydb: added `observability_config` field to `google_alloydb_instance` resource ([#18743](https://github.com/hashicorp/terraform-provider-google/pull/18743))
+* bigquery: added `resource_tags` field to `google_bigquery_dataset` resource (ga) ([#18711](https://github.com/hashicorp/terraform-provider-google/pull/18711))
+* bigquery: added `resource_tags` field to `google_bigquery_table` resource ([#18741](https://github.com/hashicorp/terraform-provider-google/pull/18741))
+* bigtable: added `data_boost_isolation_read_only` and `data_boost_isolation_read_only.compute_billing_owner` fields to `google_bigtable_app_profile` resource ([#18819](https://github.com/hashicorp/terraform-provider-google/pull/18819))
+* cloudfunctions: added `build_service_account` field to `google_cloudfunctions_function` resource ([#18702](https://github.com/hashicorp/terraform-provider-google/pull/18702))
+* compute: added `aws_v4_authentication` fields to `google_compute_backend_service` resource ([#18796](https://github.com/hashicorp/terraform-provider-google/pull/18796))
+* compute: added `custom_learned_ip_ranges` and `custom_learned_route_priority` fields to `google_compute_router_peer` resource ([#18727](https://github.com/hashicorp/terraform-provider-google/pull/18727))
+* compute: added `export_policies` and `import_policies` fields  to `google_compute_router_peer` resource ([#18759](https://github.com/hashicorp/terraform-provider-google/pull/18759))
+* compute: added `shared_secret` field to `google_compute_public_advertised_prefix` resource ([#18786](https://github.com/hashicorp/terraform-provider-google/pull/18786))
+* compute: added `storage_pool` under `boot_disk.initialize_params` to `google_compute_instance` resource ([#18817](https://github.com/hashicorp/terraform-provider-google/pull/18817))
+* compute: changed `target_service` field on the `google_compute_service_attachment` resource to accept a `ForwardingRule` or `Gateway` URL. ([#18742](https://github.com/hashicorp/terraform-provider-google/pull/18742))
+* container: added field `ray_operator_config` for `google_container_cluster` ([#18825](https://github.com/hashicorp/terraform-provider-google/pull/18825))
+* datastream: added `merge` and `append_only` fields to `google_datastream_stream` resource ([#18726](https://github.com/hashicorp/terraform-provider-google/pull/18726))
+* datastream: promoted `source_config.sql_server_source_config` and `backfill_all.sql_server_excluded_objects` fields in `google_datastream_stream` resource from beta to GA ([#18732](https://github.com/hashicorp/terraform-provider-google/pull/18732))
+* datastream: promoted `sql_server_profile` field in `google_datastream_connection_profile` resource from beta to GA ([#18732](https://github.com/hashicorp/terraform-provider-google/pull/18732))
+* dlp: added `cloud_storage_target` field to `google_data_loss_prevention_discovery_config` resource ([#18740](https://github.com/hashicorp/terraform-provider-google/pull/18740))
+* resourcemanager: added `check_if_service_has_usage_on_destroy` field to `google_project_service` resource ([#18753](https://github.com/hashicorp/terraform-provider-google/pull/18753))
+* resourcemanager: added the `member` property to `google_project_service_identity` ([#18695](https://github.com/hashicorp/terraform-provider-google/pull/18695))
+* vmwareengine: added `deletion_delay_hours` field to `google_vmwareengine_private_cloud` resource ([#18698](https://github.com/hashicorp/terraform-provider-google/pull/18698))
+* vmwareengine: supported type change from `TIME_LIMITED` to `STANDARD` for multi-node `google_vmwareengine_private_cloud` resource ([#18698](https://github.com/hashicorp/terraform-provider-google/pull/18698))
+* workbench: added `access_configs` to `google_workbench_instance` resource ([#18737](https://github.com/hashicorp/terraform-provider-google/pull/18737))
+
+BUG FIXES:
+* compute: fixed perma-diff for `interconnect_type` being `DEDICATED` in `google_compute_interconnect` resource ([#18761](https://github.com/hashicorp/terraform-provider-google/pull/18761))
+* dialogflowcx: fixed intermittent issues with retrieving resource state soon after creating `google_dialogflow_cx_security_settings` resources ([#18792](https://github.com/hashicorp/terraform-provider-google/pull/18792))
+* firestore: fixed missing import of `field` for `google_firestore_field`. ([#18771](https://github.com/hashicorp/terraform-provider-google/pull/18771))
+* firestore: fixed bug where fields `database`, `collection`, `document_id`, and `field` could not be updated on `google_firestore_document` and `google_firestore_field` resources. ([#18821](https://github.com/hashicorp/terraform-provider-google/pull/18821))
+* netapp: made the `smb_settings` field on the `google_netapp_volume` resource default to the value returned from the API. This solves permadiffs when the field is unset. ([#18790](https://github.com/hashicorp/terraform-provider-google/pull/18790))
+* networksecurity: added recreate functionality on update for `client_validation_mode` and `client_validation_trust_config` in `google_network_security_server_tls_policy` ([#18769](https://github.com/hashicorp/terraform-provider-google/pull/18769))
 
 ## 5.38.0 (July 15, 2024)
 
