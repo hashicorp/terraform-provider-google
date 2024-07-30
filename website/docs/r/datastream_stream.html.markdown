@@ -756,7 +756,6 @@ resource "google_datastream_stream" "default" {
                     kms_key_name = "bigquery-kms-name"
                 }
             }
-            merge {}
         }
     }
 
