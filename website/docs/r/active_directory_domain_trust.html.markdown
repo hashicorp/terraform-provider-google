@@ -43,6 +43,7 @@ resource "google_active_directory_domain_trust" "ad-domain-trust" {
     trust_direction         = "OUTBOUND"
     trust_type              = "FOREST"
     trust_handshake_secret  = "Testing1!"
+    deletion_protection = false
 }
 ```
 
