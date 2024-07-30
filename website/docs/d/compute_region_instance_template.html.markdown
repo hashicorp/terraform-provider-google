@@ -33,7 +33,7 @@ The following arguments are supported:
 - `name` - (Optional) The name of the instance template. One of `name` or `filter` must be provided.
 
 - `filter` - (Optional) A filter to retrieve the instance templates.
-    See [gcloud topic filters](https://cloud.google.com/sdk/gcloud/reference/topic/filters) for reference.
+    See [API filter parameter documentation](https://cloud.google.com/compute/docs/reference/rest/v1/regionInstanceTemplates/list#body.QUERY_PARAMETERS.filter) for reference.
     If multiple instance templates match, either adjust the filter or specify `most_recent`. One of `name` or `filter` must be provided.
 
 - `most_recent` - (Optional) If `filter` is provided, ensures the most recent template is returned when multiple instance templates match. One of `name` or `filter` must be provided.
