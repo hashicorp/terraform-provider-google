@@ -1008,6 +1008,19 @@ func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta inte
 				}
 			}
 		}
+		for k, v := range params {
+			switch v.(type) {
+			case []interface{}, map[string]interface{}:
+				value, err := json.Marshal(v)
+				if err != nil {
+					return nil, err
+				}
+				params[k] = string(value)
+			default:
+				params[k] = v
+			}
+		}
+		res["params"] = params
 	}
 
 	return res, nil
