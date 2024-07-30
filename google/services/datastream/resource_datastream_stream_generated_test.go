@@ -710,7 +710,6 @@ resource "google_datastream_stream" "default" {
                     kms_key_name = "%{bigquery_destination_table_kms_key_name}"
                 }
             }
-            merge {}
         }
     }
 
