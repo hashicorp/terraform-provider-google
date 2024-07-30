@@ -64,7 +64,7 @@ resource "google_cloudfunctions2_function" "function_http_v2" {
     env = "test"
   }
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs18"
     entry_point = "helloHttp"
     source {
       storage_source {
