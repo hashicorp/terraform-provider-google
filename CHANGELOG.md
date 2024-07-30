@@ -1,4 +1,9 @@
-## 5.39.0 (Unreleased)
+## 5.39.1 (Unreleased)
+
+BUG FIXES:
+* datastream: removed a breaking change in `google_datastream_stream` that made one of `destination_config.0.bigquery_destination_config.0.merge` or `destination_config.0.bigquery_destination_config.0.append_only` required ([#18903](https://github.com/hashicorp/terraform-provider-google/pull/18903))
+
+## 5.39.0 (July 29, 2024)
 
 NOTES:
 * networkconnectivity: migrated `google_network_connectivity_hub` from DCL to MMv1 ([#18724](https://github.com/hashicorp/terraform-provider-google/pull/18724))
