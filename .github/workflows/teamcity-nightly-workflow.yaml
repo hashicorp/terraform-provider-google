@@ -28,7 +28,7 @@ jobs:
                     repo: context.repo.repo,
                     ref: "heads/main"
                   })
-                  const branchName = "UTC-" + dateToday;
+                  const branchName = "nightly-test";
                   const commitHash = mainRef.data.object.sha;
                   try{
                   await github.rest.git.createRef({
