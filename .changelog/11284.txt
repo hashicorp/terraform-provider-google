@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed a permadiff when handling "assets" params in the `google_bigquery_data_transfer_config` resource
+```

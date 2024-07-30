@@ -94,7 +94,7 @@ resource "google_bigquery_data_transfer_config" "salesforce_config" {
     "connector.authentication.username"           = "username"
     "connector.authentication.password"           = "password"
     "connector.authentication.securityToken"      = "security-token"
-    "assets"                                      = "[asset-a, asset-b]"
+    "assets"                                      = "[\"asset-a\",\"asset-b\"]"
   }
 }
 ```
