@@ -108,6 +108,12 @@ Description of the change and how users should adjust their configuration (if ne
 
 A `view` can no longer be created when `schema` contains required fields
 
+## Resource: `google_bigquery_reservation`
+
+### `multi_region_auxiliary` is now removed
+
+This field is no longer supported by the BigQuery Reservation API.
+
 ## Resource: `google_sql_database_instance`
 
 ### `settings.ip_configuration.require_ssl` is now removed

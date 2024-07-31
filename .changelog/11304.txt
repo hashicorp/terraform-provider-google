@@ -1,0 +1,3 @@
+```release-note:breaking-change
+bigqueryreservation: remove `multi_region_auxiliary` from `google_bigquery_reservation`
+```
