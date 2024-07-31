@@ -665,7 +665,7 @@ is set to true. Defaults to ZONAL.`,
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NOT_REQUIRED", "REQUIRED"}, false),
-							Description:  `Specifies if connections must use Cloud SQL connectors.`,
+							Description:  `Enables the enforcement of Cloud SQL Auth Proxy or Cloud SQL connectors for all the connections. If enabled, all the direct connections are rejected.`,
 						},
 						"deletion_protection_enabled": {
 							Type:        schema.TypeBool,
