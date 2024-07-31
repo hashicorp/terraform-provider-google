@@ -3409,6 +3409,60 @@ func TestAccContainerCluster_autoprovisioningDefaultsManagement(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_autoprovisioningLocations(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioningLocations(clusterName, networkName, subnetworkName, []string{"us-central1-a", "us-central1-f"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.enabled", "true"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.auto_provisioning_locations.0", "us-central1-a"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.auto_provisioning_locations.1", "us-central1-f"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning_locations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_autoprovisioningLocations(clusterName, networkName, subnetworkName, []string{"us-central1-b", "us-central1-c"}),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.enabled", "true"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.auto_provisioning_locations.0", "us-central1-b"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning_locations",
+						"cluster_autoscaling.0.auto_provisioning_locations.1", "us-central1-c"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning_locations",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 // This resource originally cleaned up the dangling cluster directly, but now
 // taints it, having Terraform clean it up during the next apply. This test
 // name is now inexact, but is being preserved to maintain the test history.
@@ -6063,6 +6117,46 @@ resource "google_container_cluster" "with_autoprovisioning_management" {
   subnetwork    = "%s"
 }
 `, clusterName, autoUpgrade, autoRepair, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_autoprovisioningLocations(clusterName, networkName, subnetworkName string, locations []string) string {
+	var autoprovisionLocationsStr string
+	for i := 0; i < len(locations); i++ {
+		autoprovisionLocationsStr += fmt.Sprintf("\"%s\",", locations[i])
+	}
+	var apl string
+	if len(autoprovisionLocationsStr) > 0 {
+		apl = fmt.Sprintf(`
+			auto_provisioning_locations = [%s]
+		`, autoprovisionLocationsStr)
+	}
+
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_autoprovisioning_locations" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  cluster_autoscaling {
+    enabled = true
+
+	resource_limits {
+	  resource_type = "cpu"
+	  maximum       = 2
+	}
+
+	resource_limits {
+	  resource_type = "memory"
+	  maximum       = 2048
+	}
+
+    %s
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, apl, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_backendRef(cluster, networkName, subnetworkName string) string {
