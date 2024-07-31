@@ -230,6 +230,7 @@ func ResourceStorageBucket() *schema.Resource {
 									},
 									"no_age": {
 										Type:        schema.TypeBool,
+										Deprecated:  "`no_age` is deprecated and will be removed in a future major release. Use `send_age_if_zero` instead.",
 										Optional:    true,
 										Description: `While set true, age value will be omitted.Required to set true when age is unset in the config file.`,
 									},
@@ -262,6 +263,12 @@ func ResourceStorageBucket() *schema.Resource {
 										Optional:    true,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: `One or more matching name suffixes to satisfy this condition.`,
+									},
+									"send_age_if_zero": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     true,
+										Description: `While set true, age value will be sent in the request even for zero value of the field. This field is only useful for setting 0 value to the age field. It can be used alone or together with age.`,
 									},
 									"send_days_since_noncurrent_time_if_zero": {
 										Type:        schema.TypeBool,
@@ -1397,13 +1404,21 @@ func flattenBucketLifecycleRuleCondition(index int, d *schema.ResourceData, cond
 			ruleCondition["with_state"] = "ARCHIVED"
 		}
 	}
-	// setting no_age value from state config since it is terraform only variable and not getting value from backend.
+	// Setting the lifecycle condition virtual fields from the state file if they
+	// are already present otherwise setting them to individual default values.
 	if v, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.condition", index)); ok {
 		state_condition := v.(*schema.Set).List()[0].(map[string]interface{})
 		ruleCondition["no_age"] = state_condition["no_age"].(bool)
 		ruleCondition["send_days_since_noncurrent_time_if_zero"] = state_condition["send_days_since_noncurrent_time_if_zero"].(bool)
 		ruleCondition["send_days_since_custom_time_if_zero"] = state_condition["send_days_since_custom_time_if_zero"].(bool)
 		ruleCondition["send_num_newer_versions_if_zero"] = state_condition["send_num_newer_versions_if_zero"].(bool)
+		ruleCondition["send_age_if_zero"] = state_condition["send_age_if_zero"].(bool)
+	} else {
+		ruleCondition["no_age"] = false
+		ruleCondition["send_age_if_zero"] = true
+		ruleCondition["send_days_since_noncurrent_time_if_zero"] = false
+		ruleCondition["send_days_since_custom_time_if_zero"] = false
+		ruleCondition["send_num_newer_versions_if_zero"] = false
 	}
 
 	return ruleCondition
@@ -1553,13 +1568,15 @@ func expandStorageBucketLifecycleRuleCondition(v interface{}) (*storage.BucketLi
 
 	condition := conditions[0].(map[string]interface{})
 	transformed := &storage.BucketLifecycleRuleCondition{}
-	// Setting high precedence of no_age over age when both used together.
+	// Setting high precedence of no_age over age and send_age_if_zero.
 	// Only sets age value when no_age is not present or no_age is present and has false value
 	if v, ok := condition["no_age"]; !ok || !(v.(bool)) {
 		if v, ok := condition["age"]; ok {
 			age := int64(v.(int))
-			transformed.Age = &age
-			transformed.ForceSendFields = append(transformed.ForceSendFields, "Age")
+			u, ok := condition["send_age_if_zero"]
+			if age > 0 || (ok && u.(bool)) {
+				transformed.Age = &age
+			}
 		}
 	}
 
@@ -1673,6 +1690,9 @@ func resourceGCSBucketLifecycleRuleConditionHash(v interface{}) int {
 	if v, ok := m["no_age"]; ok && v.(bool) {
 		buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
 	} else {
+		if v, ok := m["send_age_if_zero"]; ok {
+			buf.WriteString(fmt.Sprintf("%t-", v.(bool)))
+		}
 		if v, ok := m["age"]; ok {
 			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
 		}
