@@ -577,6 +577,7 @@ is set to true. Defaults to ZONAL.`,
 						"insights_config": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
