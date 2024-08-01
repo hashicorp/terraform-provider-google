@@ -434,8 +434,51 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(t *testing.T)
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      management = "MANAGEMENT_AUTOMATIC"
+      config_sync {
+        enabled = true
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(context map[string]interface{}) string {
@@ -473,6 +516,7 @@ resource "google_gke_hub_feature" "feature" {
   fleet_default_member_config {
     configmanagement {
       version = "1.16.1"
+      management = "MANAGEMENT_MANUAL"
       config_sync {
         enabled = true
         prevent_drift = true
@@ -487,6 +531,45 @@ resource "google_gke_hub_feature" "feature" {
       }
     }
   }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      version = "1.16.1"
+      management = "MANAGEMENT_AUTOMATIC"
+      config_sync {
+        prevent_drift = true
+        source_format = "unstructured"
+        oci {
+          sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
+          policy_dir = "/acm/nonprod-root/"
+          secret_type = "gcpserviceaccount"
+          sync_wait_secs = "15"
+          gcp_service_account_email = "gke-cluster@gke-foo-nonprod.iam.gserviceaccount.com"
+        }
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
   depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
   project = google_project.project.project_id
 }

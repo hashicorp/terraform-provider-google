@@ -480,6 +480,11 @@ The following arguments are supported:
   (Optional)
   Version of ACM installed
 
+* `management` -
+  (Optional)
+  Set this field to MANAGEMENT_AUTOMATIC to enable Config Sync auto-upgrades, and set this field to MANAGEMENT_MANUAL or MANAGEMENT_UNSPECIFIED to disable Config Sync auto-upgrades.
+  Possible values are: `MANAGEMENT_UNSPECIFIED`, `MANAGEMENT_AUTOMATIC`, `MANAGEMENT_MANUAL`.
+
 * `config_sync` -
   (Optional)
   ConfigSync configuration for the cluster
