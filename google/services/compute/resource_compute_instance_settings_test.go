@@ -29,7 +29,7 @@ func TestAccComputeInstanceSettings_update(t *testing.T) {
 				ResourceName:            "google_compute_instance_settings.gce_instance_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "fingerprint"},
 			},
 			{
 				Config: testAccComputeInstanceSettings_update(context),
@@ -38,7 +38,7 @@ func TestAccComputeInstanceSettings_update(t *testing.T) {
 				ResourceName:            "google_compute_instance_settings.gce_instance_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "fingerprint"},
 			},
 			{
 				Config: testAccComputeInstanceSettings_delete(context),
@@ -47,7 +47,7 @@ func TestAccComputeInstanceSettings_update(t *testing.T) {
 				ResourceName:            "google_compute_instance_settings.gce_instance_settings",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"zone"},
+				ImportStateVerifyIgnore: []string{"zone", "fingerprint"},
 			},
 		},
 	})
