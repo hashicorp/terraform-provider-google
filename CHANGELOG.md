@@ -1,5 +1,31 @@
 ## 5.40.0 (Unreleased)
 
+UNKNOWN CHANGELOG TYPE:
+* Add 5.39.0 to CHANGELOG on main ([#18885](https://github.com/hashicorp/terraform-provider-google/pull/18885))
+NOTES:
+*  ([#18910](https://github.com/hashicorp/terraform-provider-google/pull/18910))
+DEPRECATIONS:
+* 'skip_delete' is being deprecated in favor of a new field 'deletion_policy' in the next major release ([#18867](https://github.com/hashicorp/terraform-provider-google/pull/18867))
+
+IMPROVEMENTS:
+*  ([#18841](https://github.com/hashicorp/terraform-provider-google/pull/18841))
+* bigquery: added support for value `DELTA_LAKE` to `source_format` in `google_bigquery_table` resource ([#18915](https://github.com/hashicorp/terraform-provider-google/pull/18915))
+* compute: added `access_mode` field to `google_compute_disk` resource ([#18857](https://github.com/hashicorp/terraform-provider-google/pull/18857))
+* compute: added `stack_type`, and `gateway_ip_version` fields to `google_compute_router` resource ([#18839](https://github.com/hashicorp/terraform-provider-google/pull/18839))
+* container: added field `ray_operator_config` for `resource_container_cluster` ([#18825](https://github.com/hashicorp/terraform-provider-google/pull/18825))
+* container: promoted `additional_node_network_configs` and `additional_pod_network_configs` fields to GA in the `google_container_node_pool` resource ([#18842](https://github.com/hashicorp/terraform-provider-google/pull/18842))
+* container: promoted `enable_multi_networking` to GA in the `google_container_cluster` resource ([#18842](https://github.com/hashicorp/terraform-provider-google/pull/18842))
+* monitoring: updated max threshold permitted in google_monitoring_slo to 0.9999 ([#18845](https://github.com/hashicorp/terraform-provider-google/pull/18845))
+* networkconnectivity: added `export_psc` field to `google_network_connectivity_hub` resource ([#18866](https://github.com/hashicorp/terraform-provider-google/pull/18866))
+* sql: added `enable_dataplex_integration` field to `google_sql_database_instance` resource ([#18852](https://github.com/hashicorp/terraform-provider-google/pull/18852))
+
+BUG FIXES:
+* bigquery: fixed a permadiff when handling "assets" params in the `google_bigquery_data_transfer_config` resource ([#18898](https://github.com/hashicorp/terraform-provider-google/pull/18898))
+* bigquery: fixed an issue preventing certain keys in `params` from being assigned values in `google_bigquery_data_transfer_config` ([#18888](https://github.com/hashicorp/terraform-provider-google/pull/18888))
+* compute: fixed perma-diff in `google_compute_router` ([#18869](https://github.com/hashicorp/terraform-provider-google/pull/18869))
+* container: fixed perma-diff on `node_config.guest_accelerator.gpu_driver_installation_config` field in GKE 1.30+ in `google_container_node_pool` resource ([#18835](https://github.com/hashicorp/terraform-provider-google/pull/18835))
+* datastream: removed a breaking change in `google_datastream_stream` that made one of `destination_config.0.bigquery_destination_config.0.merge` or `destination_config.0.bigquery_destination_config.0.append_only` required ([#18903](https://github.com/hashicorp/terraform-provider-google/pull/18903))
+
 ## 5.39.0 (July 29th, 2024)
 
 NOTES:
