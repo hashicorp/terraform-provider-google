@@ -19,6 +19,7 @@ BUG FIXES:
 * bigquery: fixed an issue preventing certain keys in `params` from being assigned values in `google_bigquery_data_transfer_config` ([#18888](https://github.com/hashicorp/terraform-provider-google/pull/18888))
 * compute: fixed perma-diff of `advertised_ip_ranges` field in `google_compute_router` resource ([#18869](https://github.com/hashicorp/terraform-provider-google/pull/18869))
 * container: fixed perma-diff on `node_config.guest_accelerator.gpu_driver_installation_config` field in GKE 1.30+ in `google_container_node_pool` resource ([#18835](https://github.com/hashicorp/terraform-provider-google/pull/18835))
+* sql: fixed a perma-diff in `settings.insights_config` in `google_sql_database_instance` ([#18962](https://github.com/hashicorp/terraform-provider-google/pull/18962))
 
 ## v5.39.1 (July 30th, 2024)
 
