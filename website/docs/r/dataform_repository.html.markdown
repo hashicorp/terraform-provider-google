@@ -50,11 +50,37 @@ resource "google_secret_manager_secret_version" "secret_version" {
   secret_data = "secret-data"
 }
 
+resource "google_kms_key_ring" "keyring" {
+  provider = google-beta
+  
+  name     = "example-key-ring"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "example_key" {
+  provider = google-beta
+  
+  name            = "example-crypto-key-name"
+  key_ring        = google_kms_key_ring.keyring.id
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key_binding" {
+  provider = google-beta
+
+  crypto_key_id = google_kms_crypto_key.example_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:service-${data.google_project.project.number}@gcp-sa-dataform.iam.gserviceaccount.com",
+  ]
+}
+
 resource "google_dataform_repository" "dataform_repository" {
   provider = google-beta
   name = "dataform_repository"
   display_name = "dataform_repository"
   npmrc_environment_variables_secret_version = google_secret_manager_secret_version.secret_version.id
+  kms_key_name = google_kms_crypto_key.example_key.id
 
   labels = {
     label_foo1 = "label-bar1"
@@ -71,6 +97,10 @@ resource "google_dataform_repository" "dataform_repository" {
     schema_suffix = "_suffix"
     table_prefix = "prefix_"
   }
+
+  depends_on = [
+    google_kms_crypto_key_iam_binding.crypto_key_binding
+  ]
 }
 ```
 
@@ -108,6 +138,11 @@ The following arguments are supported:
 * `display_name` -
   (Optional)
   Optional. The repository's user-friendly name.
+
+* `kms_key_name` -
+  (Optional)
+  Optional. The reference to a KMS encryption key. If provided, it will be used to encrypt user data in the repository and all child resources.
+  It is not possible to add or update the encryption key after the repository is created. Example projects/[kms_project_id]/locations/[region]/keyRings/[key_region]/cryptoKeys/[key]
 
 * `labels` -
   (Optional)
