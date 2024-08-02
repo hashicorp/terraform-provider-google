@@ -35,6 +35,7 @@ func ResourceStorageManagedFolder() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceStorageManagedFolderCreate,
 		Read:   resourceStorageManagedFolderRead,
+		Update: resourceStorageManagedFolderUpdate,
 		Delete: resourceStorageManagedFolderDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -43,6 +44,7 @@ func ResourceStorageManagedFolder() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -76,6 +78,15 @@ trailing '/'. For example, 'example_dir/example_dir2/'.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The timestamp at which this managed folder was most recently updated.`,
+			},
+			"force_destroy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: `Allows the deletion of a managed folder even if contains
+objects. If a non-empty managed folder is deleted, any objects
+within the folder will remain in a simulated folder with the
+same name.`,
 			},
 			"self_link": {
 				Type:     schema.TypeString,
@@ -179,6 +190,13 @@ func resourceStorageManagedFolderRead(d *schema.ResourceData, meta interface{}) 
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("StorageManagedFolder %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
+
 	if err := d.Set("create_time", flattenStorageManagedFolderCreateTime(res["createTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ManagedFolder: %s", err)
 	}
@@ -201,6 +219,21 @@ func resourceStorageManagedFolderRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
+func resourceStorageManagedFolderUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	_ = config
+
+	// we can only get here if force_destroy was updated
+	if d.Get("force_destroy") != nil {
+		if err := d.Set("force_destroy", d.Get("force_destroy")); err != nil {
+			return fmt.Errorf("Error updating force_destroy: %s", err)
+		}
+	}
+
+	// all other fields are immutable, don't do anything else
+	return nil
+}
+
 func resourceStorageManagedFolderDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
@@ -210,7 +243,7 @@ func resourceStorageManagedFolderDelete(d *schema.ResourceData, meta interface{}
 
 	billingProject := ""
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/managedFolders/{{%name}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{StorageBasePath}}b/{{bucket}}/managedFolders/{{%name}}?allowNonEmpty={{force_destroy}}")
 	if err != nil {
 		return err
 	}
@@ -258,6 +291,11 @@ func resourceStorageManagedFolderImport(d *schema.ResourceData, meta interface{}
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
