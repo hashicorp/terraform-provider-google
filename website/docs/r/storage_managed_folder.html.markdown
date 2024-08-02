@@ -54,8 +54,9 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_managed_folder" "folder" {
-  bucket = google_storage_bucket.bucket.name
-  name   = "managed/folder/name/"
+  bucket        = google_storage_bucket.bucket.name
+  name          = "managed/folder/name/"
+  force_destroy = true
 }
 ```
 
@@ -76,6 +77,11 @@ The following arguments are supported:
 
 - - -
 
+
+* `force_destroy` - (Optional) Allows the deletion of a managed folder even if contains
+objects. If a non-empty managed folder is deleted, any objects
+within the folder will remain in a simulated folder with the
+same name.
 
 
 ## Attributes Reference
@@ -101,6 +107,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 20 minutes.
 
 ## Import
