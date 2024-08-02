@@ -97,6 +97,12 @@ func ResourceStorageBucketObject() *schema.Resource {
 				Description:  `Data as string to be uploaded. Must be defined if source is not. Note: The content field is marked as sensitive. To view the raw contents of the object, please define an output.`,
 			},
 
+			"generation": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The content generation of this object. Used for object versioning and soft delete.`,
+			},
+
 			"crc32c": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -455,6 +461,9 @@ func resourceStorageBucketObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if err := d.Set("detect_md5hash", res.Md5Hash); err != nil {
 		return fmt.Errorf("Error setting detect_md5hash: %s", err)
+	}
+	if err := d.Set("generation", res.Generation); err != nil {
+		return fmt.Errorf("Error setting generation: %s", err)
 	}
 	if err := d.Set("crc32c", res.Crc32c); err != nil {
 		return fmt.Errorf("Error setting crc32c: %s", err)

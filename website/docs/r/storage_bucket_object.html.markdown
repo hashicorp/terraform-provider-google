@@ -104,6 +104,8 @@ One of the following is required:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
+* `generation` - (Computed) The content generation of this object. Used for object [versioning](https://cloud.google.com/storage/docs/object-versioning) and [soft delete](https://cloud.google.com/storage/docs/soft-delete).
+
 * `crc32c` - (Computed) Base 64 CRC32 hash of the uploaded data.
 
 * `md5hash` - (Computed) Base 64 MD5 hash of the uploaded data.
