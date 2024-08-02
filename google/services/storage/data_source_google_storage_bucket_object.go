@@ -91,6 +91,9 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 	if err := d.Set("metadata", res["metadata"]); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
+	if err := d.Set("generation", res["generation"]); err != nil {
+		return fmt.Errorf("Error setting generation: %s", err)
+	}
 
 	d.SetId(bucket + "-" + name)
 
