@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed the bug that creation of PSC forwarding rules fails in `google_compute_forwarding_rule` resource when provider default labels are set
+```
