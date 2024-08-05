@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
 description: |-
-  Manage a single IngressPolicy in the status (enforced) configuration for a service perimeter.
+  Manage a single IngressPolicy in the spec (dry-run) configuration for a service perimeter.
 ---
 
-# google_access_context_manager_service_perimeter_ingress_policy
+# google_access_context_manager_service_perimeter_dry_run_ingress_policy
 
-Manage a single IngressPolicy in the status (enforced) configuration for a service perimeter.
+Manage a single IngressPolicy in the spec (dry-run) configuration for a service perimeter.
 IngressPolicies match requests based on ingressFrom and ingressTo stanzas. For an ingress policy to match,
 both the ingressFrom and ingressTo stanzas must be matched. If an IngressPolicy matches a request,
 the request is allowed through the perimeter boundary from outside the perimeter.
@@ -34,11 +34,11 @@ from the perimeter and add it back in a non-atomic manner. To ensure that the ne
 is added before the old one is removed, add a `lifecycle` block with `create_before_destroy = true` to this resource.
 
 
-To get more information about ServicePerimeterIngressPolicy, see:
+To get more information about ServicePerimeterDryRunIngressPolicy, see:
 
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/accessPolicies.servicePerimeters#ingresspolicy)
 
-## Example Usage - Access Context Manager Service Perimeter Ingress Policy
+## Example Usage - Access Context Manager Service Perimeter Dry Run Ingress Policy
 
 
 ```hcl
@@ -54,7 +54,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
   }
 }
 
-resource "google_access_context_manager_service_perimeter_ingress_policy" "ingress_policy" {
+resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "ingress_policy" {
   perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
   ingress_from {
     identity_type = "any_identity"
@@ -147,10 +147,7 @@ The following arguments are supported:
   (Optional)
   A Google Cloud resource that is allowed to ingress the perimeter.
   Requests from these resources will be allowed to access perimeter data.
-  Currently only projects and VPCs are allowed.
-  Project format: `projects/{projectNumber}`
-  VPC network format:
-  `//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}`.
+  Currently only projects are allowed. Format `projects/{project_number}`
   The project may be in any Google Cloud organization, not just the
   organization that the perimeter is defined in. `*` is not allowed, the case
   of allowing all Google Cloud resources only is not supported.

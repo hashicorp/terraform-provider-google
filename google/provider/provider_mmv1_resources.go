@@ -424,9 +424,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 442
+// Generated resources: 444
 // Generated IAM resources: 252
-// Total generated resources: 694
+// Total generated resources: 696
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -443,6 +443,8 @@ var generatedResources = map[string]*schema.Resource{
 	"google_access_context_manager_gcp_user_access_binding":                      accesscontextmanager.ResourceAccessContextManagerGcpUserAccessBinding(),
 	"google_access_context_manager_ingress_policy":                               accesscontextmanager.ResourceAccessContextManagerIngressPolicy(),
 	"google_access_context_manager_service_perimeter":                            accesscontextmanager.ResourceAccessContextManagerServicePerimeter(),
+	"google_access_context_manager_service_perimeter_dry_run_egress_policy":      accesscontextmanager.ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy(),
+	"google_access_context_manager_service_perimeter_dry_run_ingress_policy":     accesscontextmanager.ResourceAccessContextManagerServicePerimeterDryRunIngressPolicy(),
 	"google_access_context_manager_service_perimeter_dry_run_resource":           accesscontextmanager.ResourceAccessContextManagerServicePerimeterDryRunResource(),
 	"google_access_context_manager_service_perimeter_egress_policy":              accesscontextmanager.ResourceAccessContextManagerServicePerimeterEgressPolicy(),
 	"google_access_context_manager_service_perimeter_ingress_policy":             accesscontextmanager.ResourceAccessContextManagerServicePerimeterIngressPolicy(),

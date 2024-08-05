@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
 description: |-
-  Manage a single EgressPolicy in the status (enforced) configuration for a service perimeter.
+  Manage a single EgressPolicy in the spec (dry-run) configuration for a service perimeter.
 ---
 
-# google_access_context_manager_service_perimeter_egress_policy
+# google_access_context_manager_service_perimeter_dry_run_egress_policy
 
-Manage a single EgressPolicy in the status (enforced) configuration for a service perimeter.
+Manage a single EgressPolicy in the spec (dry-run) configuration for a service perimeter.
 EgressPolicies match requests based on egressFrom and egressTo stanzas.
 For an EgressPolicy to match, both egressFrom and egressTo stanzas must be matched.
 If an EgressPolicy matches a request, the request is allowed to span the ServicePerimeter
@@ -33,11 +33,11 @@ from the perimeter and add it back in a non-atomic manner. To ensure that the ne
 is added before the old one is removed, add a `lifecycle` block with `create_before_destroy = true` to this resource.
 
 
-To get more information about ServicePerimeterEgressPolicy, see:
+To get more information about ServicePerimeterDryRunEgressPolicy, see:
 
 * [API documentation](https://cloud.google.com/access-context-manager/docs/reference/rest/v1/accessPolicies.servicePerimeters#egresspolicy)
 
-## Example Usage - Access Context Manager Service Perimeter Egress Policy
+## Example Usage - Access Context Manager Service Perimeter Dry Run Egress Policy
 
 
 ```hcl
@@ -45,7 +45,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
   parent = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}"
   name   = "accesspolicies/${google_access_context_manager_access_policy.access-policy.name}/serviceperimeters/storage-perimeter"
   title  = "Storage Perimeter"
-  status {
+  spec {
     restricted_services = ["storage.googleapis.com"]
   }
   lifecycle {
@@ -53,7 +53,7 @@ resource "google_access_context_manager_service_perimeter" "storage-perimeter" {
   }
 }
 
-resource "google_access_context_manager_service_perimeter_egress_policy" "egress_policy" {
+resource "google_access_context_manager_service_perimeter_dry_run_egress_policy" "egress_policy" {
   perimeter = "${google_access_context_manager_service_perimeter.storage-perimeter.name}"
   egress_from {
     identity_type = "ANY_IDENTITY"
@@ -127,7 +127,7 @@ The following arguments are supported:
 * `source_restriction` -
   (Optional)
   Whether to enforce traffic restrictions based on `sources` field. If the `sources` field is non-empty, then this field must be set to `SOURCE_RESTRICTION_ENABLED`.
-  Possible values are: `SOURCE_RESTRICTION_UNSPECIFIED`, `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
+  Possible values are: `SOURCE_RESTRICTION_ENABLED`, `SOURCE_RESTRICTION_DISABLED`.
 
 
 <a name="nested_sources"></a>The `sources` block supports:
