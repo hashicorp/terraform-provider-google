@@ -215,7 +215,7 @@ func TestAccWorkbenchInstance_removeGpu(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"name", "instance_owners", "location", "instance_id", "request_id", "labels", "terraform_labels"},
 			},
 			{
-				Config: testAccWorkbenchInstance_updateGpu(context),
+				Config: testAccWorkbenchInstance_removeGpu(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"google_workbench_instance.instance", "state", "ACTIVE"),
