@@ -424,9 +424,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 441
+// Generated resources: 442
 // Generated IAM resources: 252
-// Total generated resources: 693
+// Total generated resources: 694
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1038,6 +1038,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_v2_folder_mute_config":                                           securitycenterv2.ResourceSecurityCenterV2FolderMuteConfig(),
 	"google_scc_v2_organization_mute_config":                                     securitycenterv2.ResourceSecurityCenterV2OrganizationMuteConfig(),
 	"google_scc_v2_organization_notification_config":                             securitycenterv2.ResourceSecurityCenterV2OrganizationNotificationConfig(),
+	"google_scc_v2_project_mute_config":                                          securitycenterv2.ResourceSecurityCenterV2ProjectMuteConfig(),
 	"google_securityposture_posture":                                             securityposture.ResourceSecurityposturePosture(),
 	"google_securityposture_posture_deployment":                                  securityposture.ResourceSecurityposturePostureDeployment(),
 	"google_endpoints_service_iam_binding":                                       tpgiamresource.ResourceIamBinding(servicemanagement.ServiceManagementServiceIamSchema, servicemanagement.ServiceManagementServiceIamUpdaterProducer, servicemanagement.ServiceManagementServiceIdParseFunc),
