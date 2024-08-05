@@ -1421,6 +1421,38 @@ func TestAccSqlDatabaseInstance_EnableGoogleMlIntegration(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_EnableGoogleDataplexIntegration(t *testing.T) {
+	t.Parallel()
+
+	masterID := acctest.RandInt(t)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_EnableDataplexIntegration(masterID, true),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_EnableDataplexIntegration(masterID, false),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_insights(t *testing.T) {
 	t.Parallel()
 
@@ -3953,6 +3985,22 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, masterID, dbVersion, masterID, tier, enableGoogleMlIntegration)
+}
+
+func testGoogleSqlDatabaseInstance_EnableDataplexIntegration(masterID int, enableDataplexIntegration bool) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "tf-test-%d"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  root_password		  = "rand-pwd-%d"
+  settings {
+    tier = "db-custom-2-10240"
+	enable_dataplex_integration = %t
+  }
+}
+`, masterID, masterID, enableDataplexIntegration)
 }
 
 func testGoogleSqlDatabaseInstance_BackupRetention(masterID int) string {

@@ -270,6 +270,14 @@ The following arguments are supported:
   * https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/storagePools/{storagePool}
   * /projects/{project}/zones/{zone}/storagePools/{storagePool}
 
+* `access_mode` -
+  (Optional)
+  The accessMode of the disk.
+  For example:
+  * READ_WRITE_SINGLE
+  * READ_WRITE_MANY
+  * READ_ONLY_SINGLE
+
 * `zone` -
   (Optional)
   A reference to the zone where the disk resides.

@@ -68,6 +68,12 @@ func ResourceNetworkConnectivityHub() *schema.Resource {
 				Optional:    true,
 				Description: `An optional description of the hub.`,
 			},
+			"export_psc": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: `Whether Private Service Connect transitivity is enabled for the hub. If true, Private Service Connect endpoints in VPC spokes attached to the hub are made accessible to other VPC spokes attached to the hub. The default value is false.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -155,6 +161,12 @@ func resourceNetworkConnectivityHubCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
+	}
+	exportPscProp, err := expandNetworkConnectivityHubExportPsc(d.Get("export_psc"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_psc"); !tpgresource.IsEmptyValue(reflect.ValueOf(exportPscProp)) && (ok || !reflect.DeepEqual(v, exportPscProp)) {
+		obj["exportPsc"] = exportPscProp
 	}
 	labelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -285,6 +297,9 @@ func resourceNetworkConnectivityHubRead(d *schema.ResourceData, meta interface{}
 	if err := d.Set("routing_vpcs", flattenNetworkConnectivityHubRoutingVpcs(res["routingVpcs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
+	if err := d.Set("export_psc", flattenNetworkConnectivityHubExportPsc(res["exportPsc"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Hub: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetworkConnectivityHubTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Hub: %s", err)
 	}
@@ -317,6 +332,12 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
+	exportPscProp, err := expandNetworkConnectivityHubExportPsc(d.Get("export_psc"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("export_psc"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, exportPscProp)) {
+		obj["exportPsc"] = exportPscProp
+	}
 	labelsProp, err := expandNetworkConnectivityHubEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -335,6 +356,10 @@ func resourceNetworkConnectivityHubUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("description") {
 		updateMask = append(updateMask, "description")
+	}
+
+	if d.HasChange("export_psc") {
+		updateMask = append(updateMask, "exportPsc")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -520,6 +545,10 @@ func flattenNetworkConnectivityHubRoutingVpcsUri(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenNetworkConnectivityHubExportPsc(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityHubTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -544,6 +573,10 @@ func expandNetworkConnectivityHubName(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandNetworkConnectivityHubDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkConnectivityHubExportPsc(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

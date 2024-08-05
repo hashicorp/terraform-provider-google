@@ -4,9 +4,7 @@ package vmwareengine
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -59,15 +57,26 @@ func testSweepVmwareengineCluster(region string) error {
 		}
 
 		log.Printf("[INFO][SWEEPER_LOG] looking for parent resources in location '%s'.", location)
-		privateCloudNames, err := listPrivateCloudsInLocation(d, config)
+
+		parentResponseField := "privateClouds"
+		parentListUrlTemplate := "https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/privateClouds"
+		parentNames, err := sweeper.ListParentResourcesInLocation(d, config, parentListUrlTemplate, parentResponseField)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error finding parental resources in location %s: %s", location, err)
 			continue
 		}
-		for _, parent := range privateCloudNames {
+		for _, parent := range parentNames {
 
 			// `parent` will be string of form projects/my-project/locations/us-central1-a/privateClouds/my-cloud
-			listUrl := fmt.Sprintf("https://vmwareengine.googleapis.com/v1/projects/%s/clusters", parent)
+			// Change on each loop, so new value used in tpgresource.ReplaceVars
+			d.Set("parent", parent)
+
+			listTemplate := "https://vmwareengine.googleapis.com/v1/{{parent}}/clusters"
+			listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+			if err != nil {
+				log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
+				continue
+			}
 
 			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 				Config:    config,
@@ -135,42 +144,4 @@ func testSweepVmwareengineCluster(region string) error {
 		}
 	}
 	return nil
-}
-
-func listPrivateCloudsInLocation(d *tpgresource.ResourceDataMock, config *transport_tpg.Config) ([]string, error) {
-	listTemplate := strings.Split("https://vmwareengine.googleapis.com/v1/projects/{{project}}/locations/{{location}}/privateClouds", "?")[0]
-	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-		return nil, err
-	}
-
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   config.Project,
-		RawURL:    listUrl,
-		UserAgent: config.UserAgent,
-	})
-	if err != nil {
-		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-		return nil, err
-	}
-
-	resourceList, ok := res["privateClouds"]
-	if !ok {
-		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-		return nil, fmt.Errorf("nothing found in response")
-	}
-
-	rl := resourceList.([]interface{})
-	privateCloudNames := []string{}
-	for _, r := range rl {
-		resource := r.(map[string]interface{})
-		if name, ok := resource["name"]; ok {
-			privateCloudNames = append(privateCloudNames, name.(string))
-		}
-
-	}
-	return privateCloudNames, nil
 }

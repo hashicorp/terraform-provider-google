@@ -155,6 +155,7 @@ func schemaNodeConfig() *schema.Schema {
 								Type:        schema.TypeList,
 								MaxItems:    1,
 								Optional:    true,
+								Computed:    true,
 								ForceNew:    true,
 								ConfigMode:  schema.SchemaConfigModeAttr,
 								Description: `Configuration for auto installation of GPU driver.`,
