@@ -31,11 +31,11 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource {
+func ResourceAccessContextManagerServicePerimeterDryRunEgressPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAccessContextManagerServicePerimeterEgressPolicyCreate,
-		Read:   resourceAccessContextManagerServicePerimeterEgressPolicyRead,
-		Delete: resourceAccessContextManagerServicePerimeterEgressPolicyDelete,
+		Create: resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate,
+		Read:   resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead,
+		Delete: resourceAccessContextManagerServicePerimeterDryRunEgressPolicyDelete,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -82,8 +82,8 @@ be allowed access. Possible values: ["ANY_IDENTITY", "ANY_USER_ACCOUNT", "ANY_SE
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
-							ValidateFunc: verify.ValidateEnum([]string{"SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED", ""}),
-							Description:  `Whether to enforce traffic restrictions based on 'sources' field. If the 'sources' field is non-empty, then this field must be set to 'SOURCE_RESTRICTION_ENABLED'. Possible values: ["SOURCE_RESTRICTION_UNSPECIFIED", "SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED"]`,
+							ValidateFunc: verify.ValidateEnum([]string{"SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED", ""}),
+							Description:  `Whether to enforce traffic restrictions based on 'sources' field. If the 'sources' field is non-empty, then this field must be set to 'SOURCE_RESTRICTION_ENABLED'. Possible values: ["SOURCE_RESTRICTION_ENABLED", "SOURCE_RESTRICTION_DISABLED"]`,
 						},
 						"sources": {
 							Type:        schema.TypeList,
@@ -192,7 +192,7 @@ the perimeter.`,
 	}
 }
 
-func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -200,13 +200,13 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	}
 
 	obj := make(map[string]interface{})
-	egressFromProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(d.Get("egress_from"), d, config)
+	egressFromProp, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(d.Get("egress_from"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("egress_from"); !tpgresource.IsEmptyValue(reflect.ValueOf(egressFromProp)) && (ok || !reflect.DeepEqual(v, egressFromProp)) {
 		obj["egressFrom"] = egressFromProp
 	}
-	egressToProp, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(d.Get("egress_to"), d, config)
+	egressToProp, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(d.Get("egress_to"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("egress_to"); !tpgresource.IsEmptyValue(reflect.ValueOf(egressToProp)) && (ok || !reflect.DeepEqual(v, egressToProp)) {
@@ -225,13 +225,13 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new ServicePerimeterEgressPolicy: %#v", obj)
+	log.Printf("[DEBUG] Creating new ServicePerimeterDryRunEgressPolicy: %#v", obj)
 
-	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(d, meta, obj)
+	obj, err = resourceAccessContextManagerServicePerimeterDryRunEgressPolicyPatchCreateEncoder(d, meta, obj)
 	if err != nil {
 		return err
 	}
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.egressPolicies"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "spec.egressPolicies"})
 	if err != nil {
 		return err
 	}
@@ -243,6 +243,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	}
 
 	headers := make(http.Header)
+	obj["use_explicit_dry_run_spec"] = true
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -254,7 +255,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating ServicePerimeterEgressPolicy: %s", err)
+		return fmt.Errorf("Error creating ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
 
 	// Store the ID now
@@ -268,17 +269,17 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	// identity fields and d.Id() before read
 	var opRes map[string]interface{}
 	err = AccessContextManagerOperationWaitTimeWithResponse(
-		config, res, &opRes, "Creating ServicePerimeterEgressPolicy", userAgent,
+		config, res, &opRes, "Creating ServicePerimeterDryRunEgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
 
-		return fmt.Errorf("Error waiting to create ServicePerimeterEgressPolicy: %s", err)
+		return fmt.Errorf("Error waiting to create ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
 
-	if _, ok := opRes["status"]; ok {
-		opRes, err = flattenNestedAccessContextManagerServicePerimeterEgressPolicy(d, meta, opRes)
+	if _, ok := opRes["spec"]; ok {
+		opRes, err = flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicy(d, meta, opRes)
 		if err != nil {
 			return fmt.Errorf("Error getting nested object from operation response: %s", err)
 		}
@@ -287,10 +288,10 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 			return fmt.Errorf("Error decoding response from operation, could not find nested object")
 		}
 	}
-	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(opRes["egressFrom"], d, config)); err != nil {
+	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(opRes["egressFrom"], d, config)); err != nil {
 		return err
 	}
-	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(opRes["egressTo"], d, config)); err != nil {
+	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(opRes["egressTo"], d, config)); err != nil {
 		return err
 	}
 
@@ -301,12 +302,12 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyCreate(d *schema.Re
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating ServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating ServicePerimeterDryRunEgressPolicy %q: %#v", d.Id(), res)
 
-	return resourceAccessContextManagerServicePerimeterEgressPolicyRead(d, meta)
+	return resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d, meta)
 }
 
-func resourceAccessContextManagerServicePerimeterEgressPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -335,32 +336,32 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyRead(d *schema.Reso
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterEgressPolicy %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("AccessContextManagerServicePerimeterDryRunEgressPolicy %q", d.Id()))
 	}
 
-	res, err = flattenNestedAccessContextManagerServicePerimeterEgressPolicy(d, meta, res)
+	res, err = flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicy(d, meta, res)
 	if err != nil {
 		return err
 	}
 
 	if res == nil {
 		// Object isn't there any more - remove it from the state.
-		log.Printf("[DEBUG] Removing AccessContextManagerServicePerimeterEgressPolicy because it couldn't be matched.")
+		log.Printf("[DEBUG] Removing AccessContextManagerServicePerimeterDryRunEgressPolicy because it couldn't be matched.")
 		d.SetId("")
 		return nil
 	}
 
-	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(res["egressFrom"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterEgressPolicy: %s", err)
+	if err := d.Set("egress_from", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(res["egressFrom"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
-	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(res["egressTo"], d, config)); err != nil {
-		return fmt.Errorf("Error reading ServicePerimeterEgressPolicy: %s", err)
+	if err := d.Set("egress_to", flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(res["egressTo"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ServicePerimeterDryRunEgressPolicy: %s", err)
 	}
 
 	return nil
 }
 
-func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -383,11 +384,11 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 
 	var obj map[string]interface{}
 
-	obj, err = resourceAccessContextManagerServicePerimeterEgressPolicyPatchDeleteEncoder(d, meta, obj)
+	obj, err = resourceAccessContextManagerServicePerimeterDryRunEgressPolicyPatchDeleteEncoder(d, meta, obj)
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterEgressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterDryRunEgressPolicy")
 	}
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "status.egressPolicies"})
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": "spec.egressPolicies"})
 	if err != nil {
 		return err
 	}
@@ -398,8 +399,9 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 	}
 
 	headers := make(http.Header)
+	obj["use_explicit_dry_run_spec"] = true
 
-	log.Printf("[DEBUG] Deleting ServicePerimeterEgressPolicy %q", d.Id())
+	log.Printf("[DEBUG] Deleting ServicePerimeterDryRunEgressPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",
@@ -411,22 +413,22 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterEgressPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "ServicePerimeterDryRunEgressPolicy")
 	}
 
 	err = AccessContextManagerOperationWaitTime(
-		config, res, "Deleting ServicePerimeterEgressPolicy", userAgent,
+		config, res, "Deleting ServicePerimeterDryRunEgressPolicy", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting ServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting ServicePerimeterDryRunEgressPolicy %q: %#v", d.Id(), res)
 	return nil
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -436,24 +438,24 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v i
 	}
 	transformed := make(map[string]interface{})
 	transformed["identity_type"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(original["identityType"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentityType(original["identityType"], d, config)
 	transformed["identities"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(original["identities"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentities(original["identities"], d, config)
 	transformed["sources"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(original["sources"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(original["sources"], d, config)
 	transformed["source_restriction"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(original["sourceRestriction"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourceRestriction(original["sourceRestriction"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentityType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentities(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -466,20 +468,20 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSour
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"access_level": flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
+			"access_level": flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(original["accessLevel"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourceRestriction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
 	}
@@ -489,22 +491,22 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v int
 	}
 	transformed := make(map[string]interface{})
 	transformed["resources"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToResources(original["resources"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResources(original["resources"], d, config)
 	transformed["external_resources"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToExternalResources(original["externalResources"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToExternalResources(original["externalResources"], d, config)
 	transformed["operations"] =
-		flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperations(original["operations"], d, config)
+		flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperations(original["operations"], d, config)
 	return []interface{}{transformed}
 }
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToExternalResources(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -517,17 +519,17 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"service_name":     flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsServiceName(original["serviceName"], d, config),
-			"method_selectors": flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectors(original["methodSelectors"], d, config),
+			"service_name":     flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsServiceName(original["serviceName"], d, config),
+			"method_selectors": flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectors(original["methodSelectors"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsServiceName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -540,21 +542,21 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperat
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"method":     flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsMethod(original["method"], d, config),
-			"permission": flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsPermission(original["permission"], d, config),
+			"method":     flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsMethod(original["method"], d, config),
+			"permission": flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsPermission(original["permission"], d, config),
 		})
 	}
 	return transformed
 }
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsPermission(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -563,28 +565,28 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v in
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedIdentityType, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(original["identity_type"], d, config)
+	transformedIdentityType, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentityType(original["identity_type"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedIdentityType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["identityType"] = transformedIdentityType
 	}
 
-	transformedIdentities, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(original["identities"], d, config)
+	transformedIdentities, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentities(original["identities"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedIdentities); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["identities"] = transformedIdentities
 	}
 
-	transformedSources, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(original["sources"], d, config)
+	transformedSources, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(original["sources"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["sources"] = transformedSources
 	}
 
-	transformedSourceRestriction, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(original["source_restriction"], d, config)
+	transformedSourceRestriction, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourceRestriction(original["source_restriction"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedSourceRestriction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -594,15 +596,15 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v in
 	return transformed, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentityType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromIdentities(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromIdentities(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -612,7 +614,7 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourc
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedAccessLevel, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(original["access_level"], d, config)
+		transformedAccessLevel, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(original["access_level"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedAccessLevel); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -624,15 +626,15 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourc
 	return req, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourcesAccessLevel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFromSourceRestriction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFromSourceRestriction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {
 		return nil, nil
@@ -641,21 +643,21 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v inte
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
-	transformedResources, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToResources(original["resources"], d, config)
+	transformedResources, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResources(original["resources"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["resources"] = transformedResources
 	}
 
-	transformedExternalResources, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToExternalResources(original["external_resources"], d, config)
+	transformedExternalResources, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToExternalResources(original["external_resources"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedExternalResources); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["externalResources"] = transformedExternalResources
 	}
 
-	transformedOperations, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperations(original["operations"], d, config)
+	transformedOperations, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperations(original["operations"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedOperations); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -665,15 +667,15 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(v inte
 	return transformed, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToExternalResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToExternalResources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -683,14 +685,14 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperati
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedServiceName, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsServiceName(original["service_name"], d, config)
+		transformedServiceName, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsServiceName(original["service_name"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedServiceName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["serviceName"] = transformedServiceName
 		}
 
-		transformedMethodSelectors, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectors(original["method_selectors"], d, config)
+		transformedMethodSelectors, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectors(original["method_selectors"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedMethodSelectors); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -702,11 +704,11 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperati
 	return req, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsServiceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsServiceName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {
@@ -716,14 +718,14 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperati
 		original := raw.(map[string]interface{})
 		transformed := make(map[string]interface{})
 
-		transformedMethod, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsMethod(original["method"], d, config)
+		transformedMethod, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsMethod(original["method"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["method"] = transformedMethod
 		}
 
-		transformedPermission, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsPermission(original["permission"], d, config)
+		transformedPermission, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsPermission(original["permission"], d, config)
 		if err != nil {
 			return nil, err
 		} else if val := reflect.ValueOf(transformedPermission); val.IsValid() && !tpgresource.IsEmptyValue(val) {
@@ -735,19 +737,19 @@ func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperati
 	return req, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressToOperationsMethodSelectorsPermission(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressToOperationsMethodSelectorsPermission(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func flattenNestedAccessContextManagerServicePerimeterEgressPolicy(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+func flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicy(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	var v interface{}
 	var ok bool
 
-	v, ok = res["status"]
+	v, ok = res["spec"]
 	if !ok || v == nil {
 		return nil, nil
 	}
@@ -765,27 +767,27 @@ func flattenNestedAccessContextManagerServicePerimeterEgressPolicy(d *schema.Res
 		// Construct list out of single nested resource
 		v = []interface{}{v}
 	default:
-		return nil, fmt.Errorf("expected list or map for value status.egressPolicies. Actual value: %v", v)
+		return nil, fmt.Errorf("expected list or map for value spec.egressPolicies. Actual value: %v", v)
 	}
 
-	_, item, err := resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInList(d, meta, v.([]interface{}))
+	_, item, err := resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObjectInList(d, meta, v.([]interface{}))
 	if err != nil {
 		return nil, err
 	}
 	return item, nil
 }
 
-func resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
-	expectedEgressFrom, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(d.Get("egress_from"), d, meta.(*transport_tpg.Config))
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObjectInList(d *schema.ResourceData, meta interface{}, items []interface{}) (index int, item map[string]interface{}, err error) {
+	expectedEgressFrom, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(d.Get("egress_from"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedEgressFrom := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(expectedEgressFrom, d, meta.(*transport_tpg.Config))
-	expectedEgressTo, err := expandNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(d.Get("egress_to"), d, meta.(*transport_tpg.Config))
+	expectedFlattenedEgressFrom := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(expectedEgressFrom, d, meta.(*transport_tpg.Config))
+	expectedEgressTo, err := expandNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(d.Get("egress_to"), d, meta.(*transport_tpg.Config))
 	if err != nil {
 		return -1, nil, err
 	}
-	expectedFlattenedEgressTo := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(expectedEgressTo, d, meta.(*transport_tpg.Config))
+	expectedFlattenedEgressTo := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(expectedEgressTo, d, meta.(*transport_tpg.Config))
 
 	// Search list for this resource.
 	for idx, itemRaw := range items {
@@ -794,13 +796,13 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInL
 		}
 		item := itemRaw.(map[string]interface{})
 
-		itemEgressFrom := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(item["egressFrom"], d, meta.(*transport_tpg.Config))
+		itemEgressFrom := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressFrom(item["egressFrom"], d, meta.(*transport_tpg.Config))
 		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemEgressFrom)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedEgressFrom))) && !reflect.DeepEqual(itemEgressFrom, expectedFlattenedEgressFrom) {
 			log.Printf("[DEBUG] Skipping item with egressFrom= %#v, looking for %#v)", itemEgressFrom, expectedFlattenedEgressFrom)
 			continue
 		}
-		itemEgressTo := flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressTo(item["egressTo"], d, meta.(*transport_tpg.Config))
+		itemEgressTo := flattenNestedAccessContextManagerServicePerimeterDryRunEgressPolicyEgressTo(item["egressTo"], d, meta.(*transport_tpg.Config))
 		// IsEmptyValue check so that if one is nil and the other is "", that's considered a match
 		if !(tpgresource.IsEmptyValue(reflect.ValueOf(itemEgressTo)) && tpgresource.IsEmptyValue(reflect.ValueOf(expectedFlattenedEgressTo))) && !reflect.DeepEqual(itemEgressTo, expectedFlattenedEgressTo) {
 			log.Printf("[DEBUG] Skipping item with egressTo= %#v, looking for %#v)", itemEgressTo, expectedFlattenedEgressTo)
@@ -814,20 +816,20 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInL
 
 // PatchCreateEncoder handles creating request data to PATCH parent resource
 // with list including new object.
-func resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d, meta)
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyPatchCreateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	currItems, err := resourceAccessContextManagerServicePerimeterDryRunEgressPolicyListForPatch(d, meta)
 	if err != nil {
 		return nil, err
 	}
 
-	_, found, err := resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInList(d, meta, currItems)
+	_, found, err := resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObjectInList(d, meta, currItems)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return error if item already created.
 	if found != nil {
-		return nil, fmt.Errorf("Unable to create ServicePerimeterEgressPolicy, existing object already found: %+v", found)
+		return nil, fmt.Errorf("Unable to create ServicePerimeterDryRunEgressPolicy, existing object already found: %+v", found)
 	}
 
 	// Return list with the resource to create appended
@@ -835,7 +837,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(
 		"egressPolicies": append(currItems, obj),
 	}
 	wrapped := map[string]interface{}{
-		"status": res,
+		"spec": res,
 	}
 	res = wrapped
 
@@ -844,19 +846,19 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchCreateEncoder(
 
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
 // with list excluding object to delete.
-func resourceAccessContextManagerServicePerimeterEgressPolicyPatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d, meta)
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyPatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	currItems, err := resourceAccessContextManagerServicePerimeterDryRunEgressPolicyListForPatch(d, meta)
 	if err != nil {
 		return nil, err
 	}
 
-	idx, item, err := resourceAccessContextManagerServicePerimeterEgressPolicyFindNestedObjectInList(d, meta, currItems)
+	idx, item, err := resourceAccessContextManagerServicePerimeterDryRunEgressPolicyFindNestedObjectInList(d, meta, currItems)
 	if err != nil {
 		return nil, err
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, tpgresource.Fake404("nested", "AccessContextManagerServicePerimeterEgressPolicy")
+		return nil, tpgresource.Fake404("nested", "AccessContextManagerServicePerimeterDryRunEgressPolicy")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
@@ -864,7 +866,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchDeleteEncoder(
 		"egressPolicies": updatedItems,
 	}
 	wrapped := map[string]interface{}{
-		"status": res,
+		"spec": res,
 	}
 	res = wrapped
 
@@ -873,7 +875,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyPatchDeleteEncoder(
 
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
-func resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
+func resourceAccessContextManagerServicePerimeterDryRunEgressPolicyListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
 	config := meta.(*transport_tpg.Config)
 	url, err := tpgresource.ReplaceVars(d, config, "{{AccessContextManagerBasePath}}{{perimeter}}")
 	if err != nil {
@@ -897,7 +899,7 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyListForPatch(d *sch
 
 	var v interface{}
 	var ok bool
-	if v, ok = res["status"]; ok && v != nil {
+	if v, ok = res["spec"]; ok && v != nil {
 		res = v.(map[string]interface{})
 	} else {
 		return nil, nil
