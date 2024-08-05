@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: `google_compute_target_https_proxy` resource now supports using the `PATCH` verb for updates to the `server_tls_policy` property
+```
