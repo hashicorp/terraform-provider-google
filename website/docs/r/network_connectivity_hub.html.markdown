@@ -45,6 +45,21 @@ resource "google_network_connectivity_hub" "primary"  {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_hub_with_export_psc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Hub With Export Psc
+
+
+```hcl
+resource "google_network_connectivity_hub" "primary"  {
+ name        = "basic"
+ description = "A sample hub with Private Service Connect transitivity is enabled"
+ export_psc = true
+}
+```
 
 ## Argument Reference
 
@@ -68,6 +83,10 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of the hub.
+
+* `export_psc` -
+  (Optional)
+  Whether Private Service Connect transitivity is enabled for the hub. If true, Private Service Connect endpoints in VPC spokes attached to the hub are made accessible to other VPC spokes attached to the hub. The default value is false.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

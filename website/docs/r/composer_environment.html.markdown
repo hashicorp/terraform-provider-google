@@ -14,42 +14,53 @@ To get more information about Environments, see:
 
 * [Cloud Composer documentation](https://cloud.google.com/composer/docs)
 * [Cloud Composer API documentation](https://cloud.google.com/composer/docs/reference/rest/v1beta1/projects.locations.environments)
-* How-to Guides (Cloud Composer 1)
-  * [Creating environments](https://cloud.google.com/composer/docs/how-to/managing/creating)
-  * [Scaling environments](https://cloud.google.com/composer/docs/scale-environments)
-  * [Configuring Shared VPC for Composer Environments](https://cloud.google.com/composer/docs/how-to/managing/configuring-shared-vpc)
 * How-to Guides (Cloud Composer 2)
   * [Creating environments](https://cloud.google.com/composer/docs/composer-2/create-environments)
   * [Scaling environments](https://cloud.google.com/composer/docs/composer-2/scale-environments)
   * [Configuring Shared VPC for Composer Environments](https://cloud.google.com/composer/docs/composer-2/configure-shared-vpc)
+* How-to Guides (Cloud Composer 3)
+  * [Creating environments](https://cloud.google.com/composer/docs/composer-3/create-environments)
+  * [Scaling environments](https://cloud.google.com/composer/docs/composer-3/scale-environments)
+  * [Change environment networking type (Private or Public IP)](https://cloud.google.com/composer/docs/composer-3/change-networking-type)
+  * [Connect an environment to a VPC network](https://cloud.google.com/composer/docs/composer-3/connect-vpc-network)
 * [Apache Airflow Documentation](http://airflow.apache.org/)
 
-We **STRONGLY** recommend you read the [GCP
-guides](https://cloud.google.com/composer/docs/how-to) as the Environment resource requires a long
-deployment process and involves several layers of GCP infrastructure, including a Kubernetes Engine
-cluster, Cloud Storage, and Compute networking resources. Due to limitations of the API, Terraform
-will not be able to find or manage many of these underlying resources automatically. In particular:
-* Creating or updating an environment resource can take up to one hour. In addition, GCP may only
-  detect some errors in the configuration when they are used (e.g., ~40-50 minutes into the creation
-  process), and is prone to limited error reporting. If you encounter confusing or uninformative
-  errors, please verify your configuration is valid against GCP Cloud Composer before filing bugs
-  against the Terraform provider.
-* **Environments create Google Cloud Storage buckets that are not automatically cleaned up** on environment deletion. [More about Composer's use of Cloud
-  Storage](https://cloud.google.com/composer/docs/concepts/cloud-storage).
-* Please review the [known
-  issues](https://cloud.google.com/composer/docs/known-issues) for Composer if you are having
-  problems.
+<Note>
+  Cloud Composer 1 is in the post-maintenance mode. Google does 
+  not release any further updates to Cloud Composer 1, including new versions 
+  of Airflow, bugfixes, and security updates. We recommend using
+  Cloud Composer 2 or Cloud Composer 3 instead.
+</Note>
+
+Several special considerations apply to managing Cloud Composer environments 
+with Terraform:
+
+* The Environment resource is based on several layers of GCP infrastructure. 
+    Terraform does not manage these underlying resources. For example, in Cloud 
+    Composer 2, this includes a Kubernetes Engine cluster, Cloud Storage, and 
+    Compute networking resources.
+* Creating or updating an environment usually takes around 25 minutes.
+* In some cases errors in the configuration will be detected and reported only 
+    during the process of the environment creation. If you encounter such 
+    errors, please verify your configuration is valid against GCP Cloud Composer before filing bugs for the Terraform provider.
+* **Environments have Google Cloud Storage buckets that are not automatically 
+    deleted** with the environment.
+    See [Delete environments](https://cloud.google.com/composer/docs/composer-2/delete-environments)
+    for more information.
+* Please refer to
+    [Troubleshooting pages](https://cloud.devsite.corp.google.com/composer/docs/composer-2/troubleshooting-environment-creation) if you encounter
+    problems.
 
 ## Example Usage
 
-### Basic Usage (Cloud Composer 1)
+### Basic Usage (Cloud Composer 3)
 ```hcl
 resource "google_composer_environment" "test" {
   name   = "example-composer-env"
   region = "us-central1"
-  config {
+ config {
     software_config {
-      image_version = "composer-1-airflow-2"
+      image_version = "composer-3-airflow-2"
     }
   }
 }
@@ -68,51 +79,86 @@ resource "google_composer_environment" "test" {
 }
 ```
 
-### With GKE and Compute Resource Dependencies
-
-**NOTE** To use custom service accounts, you must give at least `role/composer.worker` to the service account used by the GKE Nodes on the Composer project.
-For more information, see the [Access Control](https://cloud.devsite.corp.google.com/composer/docs/how-to/access-control) page in the Cloud Composer documentation.
-You may need to assign additional roles depending on what the Airflow DAGs will be running.
-
-#### GKE and Compute Resource Dependencies (Cloud Composer 1)
-
+### Basic Usage (Cloud Composer 1)
 ```hcl
 resource "google_composer_environment" "test" {
   name   = "example-composer-env"
   region = "us-central1"
   config {
-    node_count = 4
-
-    node_config {
-      zone         = "us-central1-a"
-      machine_type = "n1-standard-1"
-
-      network    = google_compute_network.test.id
-      subnetwork = google_compute_subnetwork.test.id
-
-      service_account = google_service_account.test.name
-    }
-
-    database_config {
-      machine_type = "db-n1-standard-2"
-    }
-
-    web_server_config {
-      machine_type = "composer-n1-webserver-2"
+    software_config {
+      image_version = "composer-1-airflow-2"
     }
   }
 }
+```
 
-resource "google_compute_network" "test" {
-  name                    = "composer-test-network"
-  auto_create_subnetworks = false
+
+### With GKE and Compute Resource Dependencies
+
+<Note>
+  To use custom service accounts, you must give at least the
+  `role/composer.worker` role to the service account of the Cloud Composer 
+  environment. For more information, see the
+  [Access Control](https://cloud.google.com/composer/docs/how-to/access-control)
+  page in the Cloud Composer documentation.
+  You might need to assign additional roles depending on specific workflows 
+  that the Airflow DAGs will be running.
+<Note>
+
+#### GKE and Compute Resource Dependencies (Cloud Composer 3)
+
+```hcl
+provider "google" {
+  project = "example-project"
 }
 
-resource "google_compute_subnetwork" "test" {
-  name          = "composer-test-subnetwork"
-  ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
-  network       = google_compute_network.test.id
+resource "google_composer_environment" "test" {
+  name   = "example-composer-env-tf-c3"
+  region = "us-central1"
+  config {
+
+    software_config {
+      image_version = "composer-3-airflow-2"
+    }
+
+    workloads_config {
+      scheduler {
+        cpu        = 0.5
+        memory_gb  = 2
+        storage_gb = 1
+        count      = 1
+      }
+      triggerer {
+        cpu        = 0.5
+        memory_gb  = 1
+        count      = 1
+      }
+      dag_processor {
+        cpu        = 1
+        memory_gb  = 2
+        storage_gb = 1
+        count      = 1
+      }
+      web_server {
+        cpu        = 0.5
+        memory_gb  = 2
+        storage_gb = 1
+      }
+      worker {
+        cpu = 0.5
+        memory_gb  = 2
+        storage_gb = 1
+        min_count  = 1
+        max_count  = 3
+      }
+
+    }
+    environment_size = "ENVIRONMENT_SIZE_SMALL"
+
+    node_config {
+      service_account = google_service_account.test.name
+    }
+  }
 }
 
 resource "google_service_account" "test" {
@@ -121,8 +167,9 @@ resource "google_service_account" "test" {
 }
 
 resource "google_project_iam_member" "composer-worker" {
-  role   = "roles/composer.worker"
-  member = "serviceAccount:${google_service_account.test.email}"
+  project = "your-project-id"
+  role    = "roles/composer.worker"
+  member  = "serviceAccount:${google_service_account.test.email}"
 }
 ```
 
@@ -130,7 +177,7 @@ resource "google_project_iam_member" "composer-worker" {
 
 ```hcl
 provider "google" {
-  project = "bigdata-writers"
+  project = "example-project"
 }
 
 resource "google_composer_environment" "test" {
@@ -198,6 +245,64 @@ resource "google_project_iam_member" "composer-worker" {
 }
 ```
 
+#### GKE and Compute Resource Dependencies (Cloud Composer 1)
+
+```hcl
+resource "google_composer_environment" "test" {
+  name   = "example-composer-env"
+  region = "us-central1"
+  config {
+    
+    software_config {
+      image_version = "composer-1-airflow-2"
+    }
+    
+    node_count = 4
+
+    node_config {
+      zone         = "us-central1-a"
+      machine_type = "n1-standard-1"
+
+      network    = google_compute_network.test.id
+      subnetwork = google_compute_subnetwork.test.id
+
+      service_account = google_service_account.test.name
+    }
+
+    database_config {
+      machine_type = "db-n1-standard-2"
+    }
+
+    web_server_config {
+      machine_type = "composer-n1-webserver-2"
+    }
+  }
+}
+
+resource "google_compute_network" "test" {
+  name                    = "composer-test-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "test" {
+  name          = "composer-test-subnetwork"
+  ip_cidr_range = "10.2.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.test.id
+}
+
+resource "google_service_account" "test" {
+  account_id   = "composer-env-account"
+  display_name = "Test Service Account for Composer Environment"
+}
+
+resource "google_project_iam_member" "composer-worker" {
+  role   = "roles/composer.worker"
+  member = "serviceAccount:${google_service_account.test.email}"
+}
+```
+
+
 ### With Software (Airflow) Config
 
 ```hcl
@@ -206,8 +311,6 @@ resource "google_composer_environment" "test" {
   region = "us-central1"
 
   config {
-    software_config {
-      scheduler_count = 2 // only in Composer 1 with Airflow 2, use workloads_config in Composer 2
       airflow_config_overrides = {
         core-dags_are_paused_at_creation = "True"
       }
@@ -218,7 +321,7 @@ resource "google_composer_environment" "test" {
       }
 
       env_variables = {
-        FOO = "bar"
+        EXAMPLE_VARIABLE = "test"
       }
     }
   }
@@ -249,7 +352,7 @@ The following arguments are supported:
   Both keys and values must be <= 128 bytes in size.
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-	Please refer to the field 'effective_labels' for all of the labels present on the resource.
+  Please refer to the field 'effective_labels' for all of the labels present on the resource.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource and default labels configured on the provider.
@@ -1095,8 +1198,6 @@ The `worker` block supports:
 
 ## Argument Reference - Cloud Composer 3
 
-**Please note: This documentation corresponds to Composer 3, which is not yet released.**
-
 The following arguments are supported:
 
 * `name` -
@@ -1242,7 +1343,7 @@ The following arguments are supported:
   /20 IPv4 cidr range that will be used by Composer internal components.
   Cannot be updated.
 
-<a name="nested_software_config_c3">The `software_config` block supports:
+<a name="nested_software_config_c3"></a>The `software_config` block supports:
 
 * `airflow_config_overrides` -
   (Optional) Apache Airflow configuration properties to override. Property keys contain the section and property names,

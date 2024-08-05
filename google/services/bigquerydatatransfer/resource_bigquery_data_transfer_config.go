@@ -19,6 +19,7 @@ package bigquerydatatransfer
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -965,8 +966,24 @@ func resourceBigqueryDataTransferConfigEncoder(d *schema.ResourceData, meta inte
 		paramMap = make(map[string]string)
 	}
 
-	var params map[string]string
-	params = paramMap.(map[string]string)
+	params := map[string]interface{}{}
+
+	for k, v := range paramMap.(map[string]string) {
+		var value interface{}
+		if err := json.Unmarshal([]byte(v), &value); err != nil {
+			// If the value is a string, don't convert it to anything.
+			params[k] = v
+		} else {
+			switch value.(type) {
+			case float64:
+				// If the value is a number, keep the string representation.
+				params[k] = v
+			default:
+				// If the value is another JSON type, keep the unmarshalled type as is.
+				params[k] = value
+			}
+		}
+	}
 
 	for _, sp := range sensitiveParams {
 		if auth, _ := d.GetOkExists("sensitive_params.0." + sp); auth != "" {
@@ -991,6 +1008,19 @@ func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta inte
 				}
 			}
 		}
+		for k, v := range params {
+			switch v.(type) {
+			case []interface{}, map[string]interface{}:
+				value, err := json.Marshal(v)
+				if err != nil {
+					return nil, err
+				}
+				params[k] = string(value)
+			default:
+				params[k] = v
+			}
+		}
+		res["params"] = params
 	}
 
 	return res, nil

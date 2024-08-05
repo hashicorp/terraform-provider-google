@@ -158,7 +158,7 @@ historical state of the data.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{"destination_config.0.bigquery_destination_config.0.merge", "destination_config.0.bigquery_destination_config.0.append_only"},
+										ConflictsWith: []string{"destination_config.0.bigquery_destination_config.0.merge"},
 									},
 									"data_freshness": {
 										Type:     schema.TypeString,
@@ -179,7 +179,7 @@ in the source database. With Merge mode, no historical record of the change even
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ExactlyOneOf: []string{"destination_config.0.bigquery_destination_config.0.merge", "destination_config.0.bigquery_destination_config.0.append_only"},
+										ConflictsWith: []string{"destination_config.0.bigquery_destination_config.0.append_only"},
 									},
 									"single_target_dataset": {
 										Type:        schema.TypeList,

@@ -67,6 +67,41 @@ resource "google_network_connectivity_hub" "primary"  {
 `, context)
 }
 
+func TestAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityHubDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_hub" "primary"  {
+ name        = "basic%{random_suffix}"
+ description = "A sample hub with Private Service Connect transitivity is enabled"
+ export_psc = true
+}
+`, context)
+}
+
 func testAccCheckNetworkConnectivityHubDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

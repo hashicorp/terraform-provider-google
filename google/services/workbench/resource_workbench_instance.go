@@ -633,14 +633,12 @@ a workbench instance with the environment installed directly on the VM.`,
 										ForceNew: true,
 										Description: `Optional. Use this VM image family to find the image; the newest
 image in this family will be used.`,
-										ExactlyOneOf: []string{},
 									},
 									"name": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ForceNew:     true,
-										Description:  `Optional. Use VM image name to find the image.`,
-										ExactlyOneOf: []string{},
+										Type:        schema.TypeString,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `Optional. Use VM image name to find the image.`,
 									},
 									"project": {
 										Type:     schema.TypeString,

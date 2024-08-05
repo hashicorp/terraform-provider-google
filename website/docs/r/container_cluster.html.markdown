@@ -356,7 +356,7 @@ subnetwork in which the cluster's instances are launched.
 * `enable_l4_ilb_subsetting` - (Optional)
     Whether L4ILB Subsetting is enabled for this cluster.
 
-* `enable_multi_networking` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+* `enable_multi_networking` - (Optional)
     Whether multi-networking is enabled for this cluster.
 
 * `enable_fqdn_network_policy` - (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
@@ -459,6 +459,20 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
     The status of the Stateful HA addon, which provides automatic configurable failover for stateful applications.
     It is disabled by default for Standard clusters. Set `enabled = true` to enable.
 
+*  `ray_operator_config` - (Optional). The status of the [Ray Operator
+   addon](https://cloud.google.com/kubernetes-engine/docs/add-on/ray-on-gke/concepts/overview).
+   It is disabled by default. Set `enabled = true` to enable. The minimum
+   cluster version to enable Ray is 1.30.0-gke.1747000.
+
+   Ray Operator config has optional subfields
+   `ray_cluster_logging_config.enabled` and
+   `ray_cluster_monitoring_config.enabled` which control Ray Cluster logging
+   and monitoring respectively. See [Collect and view logs and metrics for Ray
+   clusters on
+   GKE](https://cloud.google.com/kubernetes-engine/docs/add-on/ray-on-gke/how-to/collect-view-logs-metrics)
+   for more information.
+
+
 This example `addons_config` disables two addons:
 
 ```hcl
@@ -528,6 +542,10 @@ in addition to node auto-provisioning. Structure is [documented below](#nested_r
 * `auto_provisioning_defaults` - (Optional) Contains defaults for a node pool created by NAP. A subset of fields also apply to
 GKE Autopilot clusters.
 Structure is [documented below](#nested_auto_provisioning_defaults).
+
+* `auto_provisioning_locations` - (Optional) The list of Google Compute Engine 
+[zones](https://cloud.google.com/compute/docs/zones#available) in which the 
+NodePool's nodes can be created by NAP.
 
 * `autoscaling_profile` - (Optional) Configuration
 options for the [Autoscaling profile](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler#autoscaling_profiles)
@@ -628,7 +646,7 @@ This block also contains several computed attributes, documented below.
 
 * `enable_metrics` - (Required) Whether or not to enable advanced datapath metrics.
 * `enable_relay` - (Optional) Whether or not Relay is enabled.
-* `relay_mode` - (Optional) Mode used to make Relay available.
+* `relay_mode` - (Optional, Deprecated) Mode used to make Relay available. Deprecated in favor of `enable_relay` field. Remove this attribute's configuration as this field will be removed in the next major release and `enable_relay` will become a required field.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.

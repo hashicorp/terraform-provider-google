@@ -141,6 +141,7 @@ resource "google_network_connectivity_hub" "primary" {
   labels = {
     label-two = "value-one"
   }
+  export_psc = true
 }
 
 

@@ -671,6 +671,32 @@ func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withMultiNicNetworkConfig(t *testing.T) {
+	t.Parallel()
+
+	randstr := acctest.RandString(t, 10)
+	cluster := fmt.Sprintf("tf-test-cluster-%s", randstr)
+	np := fmt.Sprintf("tf-test-np-%s", randstr)
+	network := fmt.Sprintf("tf-test-net-%s", randstr)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withMultiNicNetworkConfig(cluster, np, network),
+			},
+			{
+				ResourceName:            "google_container_cluster.cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"network_config.0.create_pod_range", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withEnablePrivateNodesToggle(t *testing.T) {
 	t.Parallel()
 
@@ -3206,6 +3232,125 @@ resource "google_container_node_pool" "with_tier1_net" {
 `, network, cluster, np, np, np, np, netTier)
 }
 
+func testAccContainerNodePool_withMultiNicNetworkConfig(cluster, np, network string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "container_network" {
+  name                    = "%s-1"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "addn_net_1" {
+  name                    = "%s-2"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_network" "addn_net_2" {
+  name                    = "%s-3"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "container_subnetwork" {
+  name                     = "%s-subnet-1"
+  network                  = google_compute_network.container_network.name
+  ip_cidr_range            = "10.0.36.0/24"
+  region                   = "us-central1"
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.0.0/19"
+  }
+
+  secondary_ip_range {
+    range_name    = "svc"
+    ip_cidr_range = "10.0.32.0/22"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # The auto nodepool creates a secondary range which diffs this resource.
+      secondary_ip_range,
+    ]
+  }
+}
+
+resource "google_compute_subnetwork" "subnet1" {
+  name                     = "%s-subnet-2"
+  network                  = google_compute_network.addn_net_1.name
+  ip_cidr_range            = "10.0.37.0/24"
+  region                   = "us-central1"
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name                     = "%s-subnet-3"
+  network                  = google_compute_network.addn_net_2.name
+  ip_cidr_range            = "10.0.38.0/24"
+  region                   = "us-central1"
+
+  secondary_ip_range {
+    range_name    = "pod"
+    ip_cidr_range = "10.0.64.0/19"
+  }
+}
+
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1"
+  initial_node_count = 1
+
+  network    = google_compute_network.container_network.name
+  subnetwork = google_compute_subnetwork.container_subnetwork.name
+  ip_allocation_policy {
+    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
+  }
+  private_cluster_config {
+    enable_private_nodes    = true
+    master_ipv4_cidr_block  = "10.42.0.0/28"
+  }
+  release_channel {
+	channel = "RAPID"
+  }
+  enable_multi_networking = true
+  datapath_provider = "ADVANCED_DATAPATH"
+  deletion_protection = false
+}
+
+resource "google_container_node_pool" "with_multi_nic" {
+  name               = "%s-mutli-nic"
+  location           = "us-central1"
+  cluster            = google_container_cluster.cluster.name
+  node_count = 1
+  network_config {
+    create_pod_range = false
+    enable_private_nodes = true
+    pod_range = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
+    additional_node_network_configs {
+      network    = google_compute_network.addn_net_1.name
+      subnetwork = google_compute_subnetwork.subnet1.name
+    }
+    additional_node_network_configs {
+      network    = google_compute_network.addn_net_2.name
+      subnetwork = google_compute_subnetwork.subnet2.name
+    }
+    additional_pod_network_configs {
+      subnetwork          = google_compute_subnetwork.subnet2.name
+      secondary_pod_range = "pod"
+      max_pods_per_node   = 32
+    }
+  }
+  node_config {
+    machine_type = "n2-standard-8"
+	oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    image_type = "COS_CONTAINERD"
+  }
+}
+
+`, network, network, network, network, network, network, cluster, np)
+}
+
 func makeUpgradeSettings(maxSurge int, maxUnavailable int, strategy string, nodePoolSoakDuration string, batchNodeCount int, batchPercentage float64, batchSoakDuration string) string {
 	if strategy == "BLUE_GREEN" {
 		return fmt.Sprintf(`
@@ -4453,4 +4598,65 @@ resource "google_container_node_pool" "np" {
   }
 }
 `, secretID, cluster, network, subnetwork, nodepool)
+}
+
+func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_defaultDriverInstallation(cluster, np),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_defaultDriverInstallation(cluster, np string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 3
+  deletion_protection = false
+
+  min_master_version = "1.30.1-gke.1329003"
+  release_channel {
+    channel = "RAPID"
+  }
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+  version            = "1.30.1-gke.1329003"
+
+  node_config {
+    service_account = "default"
+    machine_type = "n1-standard-8"
+
+    guest_accelerator {
+      type  = "nvidia-tesla-t4"
+      count = 1
+      gpu_sharing_config {
+	    gpu_sharing_strategy = "TIME_SHARING"
+	    max_shared_clients_per_gpu = 3
+      }
+    }
+  }
+}
+`, cluster, np)
 }

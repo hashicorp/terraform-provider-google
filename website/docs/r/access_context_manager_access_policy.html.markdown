@@ -74,7 +74,7 @@ The following arguments are supported:
 * `parent` -
   (Required)
   The parent of this AccessPolicy in the Cloud Resource Hierarchy.
-  Format: organizations/{organization_id}
+  Format: 'organizations/{{organization_id}}'
 
 * `title` -
   (Required)
@@ -87,7 +87,7 @@ The following arguments are supported:
 * `scopes` -
   (Optional)
   Folder or project on which this policy is applicable.
-  Format: folders/{{folder_id}} or projects/{{project_id}}
+  Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'
 
 
 ## Attributes Reference
@@ -97,7 +97,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `{{name}}`
 
 * `name` -
-  Resource name of the AccessPolicy. Format: {policy_id}
+  Resource name of the AccessPolicy. Format: '{{policy_id}}'
 
 * `create_time` -
   Time the AccessPolicy was created in UTC.
