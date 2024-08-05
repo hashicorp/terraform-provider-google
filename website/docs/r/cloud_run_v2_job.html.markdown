@@ -761,6 +761,10 @@ The following arguments are supported:
   (Optional)
   If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.
 
+* `policy` -
+  (Optional)
+  The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

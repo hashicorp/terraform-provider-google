@@ -461,10 +461,17 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 							Optional:    true,
 							Description: `If present, indicates to use Breakglass using this justification. If useDefault is False, then it must be empty. For more information on breakglass, see https://cloud.google.com/binary-authorization/docs/using-breakglass`,
 						},
+						"policy": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							Description:   `The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}`,
+							ConflictsWith: []string{},
+						},
 						"use_default": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.`,
+							Type:          schema.TypeBool,
+							Optional:      true,
+							Description:   `If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.`,
+							ConflictsWith: []string{},
 						},
 					},
 				},
@@ -1226,6 +1233,8 @@ func flattenCloudRunV2JobBinaryAuthorization(v interface{}, d *schema.ResourceDa
 		flattenCloudRunV2JobBinaryAuthorizationBreakglassJustification(original["breakglassJustification"], d, config)
 	transformed["use_default"] =
 		flattenCloudRunV2JobBinaryAuthorizationUseDefault(original["useDefault"], d, config)
+	transformed["policy"] =
+		flattenCloudRunV2JobBinaryAuthorizationPolicy(original["policy"], d, config)
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2JobBinaryAuthorizationBreakglassJustification(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1233,6 +1242,10 @@ func flattenCloudRunV2JobBinaryAuthorizationBreakglassJustification(v interface{
 }
 
 func flattenCloudRunV2JobBinaryAuthorizationUseDefault(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobBinaryAuthorizationPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1966,6 +1979,13 @@ func expandCloudRunV2JobBinaryAuthorization(v interface{}, d tpgresource.Terrafo
 		transformed["useDefault"] = transformedUseDefault
 	}
 
+	transformedPolicy, err := expandCloudRunV2JobBinaryAuthorizationPolicy(original["policy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPolicy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["policy"] = transformedPolicy
+	}
+
 	return transformed, nil
 }
 
@@ -1974,6 +1994,10 @@ func expandCloudRunV2JobBinaryAuthorizationBreakglassJustification(v interface{}
 }
 
 func expandCloudRunV2JobBinaryAuthorizationUseDefault(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobBinaryAuthorizationPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
