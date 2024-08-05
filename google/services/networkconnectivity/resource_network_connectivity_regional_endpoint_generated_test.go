@@ -72,12 +72,12 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 resource "google_network_connectivity_regional_endpoint" "default" {
   name              = "tf-test-my-rep%{random_suffix}"
   location          = "us-central1"
-  target_google_api = "boqcodelabjaimin-pa.us-central1.p.rep.googleapis.com"
+  target_google_api = "storage.us-central1.p.rep.googleapis.com"
   access_type       = "REGIONAL"
   address           = "192.168.0.5"
   network           = google_compute_network.my_network.id
   subnetwork        = google_compute_subnetwork.my_subnetwork.id
-  description       = "My RegionalEndpoint targeting Google API boqcodelabjaimin-pa.us-central1.p.rep.googleapis.com"
+  description       = "My RegionalEndpoint targeting Google API storage.us-central1.p.rep.googleapis.com"
   labels            = {env = "default"}
 }
 `, context)
@@ -125,7 +125,7 @@ resource "google_compute_subnetwork" "my_subnetwork" {
 resource "google_network_connectivity_regional_endpoint" "default" {
   name              = "tf-test-my-rep%{random_suffix}"
   location          = "us-central1"
-  target_google_api = "boqcodelabjaimin-pa.us-central1.p.rep.googleapis.com"
+  target_google_api = "storage.us-central1.p.rep.googleapis.com"
   access_type       = "GLOBAL"
   address           = "192.168.0.4"
   network           = google_compute_network.my_network.id
