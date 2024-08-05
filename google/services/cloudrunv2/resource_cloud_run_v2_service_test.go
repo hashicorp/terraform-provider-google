@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/cloudrunv2"
 )
 
@@ -597,6 +598,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceWithDirectVPCUpdate(t *testing.T)
 	serviceName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"service_name": serviceName,
+		"project":      envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -614,7 +616,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceWithDirectVPCUpdate(t *testing.T)
 				ImportStateVerifyIgnore: []string{"name", "location"},
 			},
 			{
-				Config: testAccCloudRunV2Service_cloudRunServiceWithDirectVPCUpdate(context),
+				Config: testAccCloudRunV2Service_cloudRunServiceWithDirectVPCAndNamedBinAuthPolicyUpdate(context),
 			},
 			{
 				ResourceName:            "google_cloud_run_v2_service.default",
@@ -646,12 +648,16 @@ resource "google_cloud_run_v2_service" "default" {
 `, context)
 }
 
-func testAccCloudRunV2Service_cloudRunServiceWithDirectVPCUpdate(context map[string]interface{}) string {
+func testAccCloudRunV2Service_cloudRunServiceWithDirectVPCAndNamedBinAuthPolicyUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
   launch_stage = "GA"
+  binary_authorization {
+    policy = "projects/%{project}/platforms/cloudRun/policies/my-policy"
+    breakglass_justification = "Some justification"
+  }
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
