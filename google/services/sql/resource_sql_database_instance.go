@@ -82,6 +82,7 @@ var (
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
 		"settings.0.ip_configuration.0.psc_config",
 		"settings.0.ip_configuration.0.ssl_mode",
+		"settings.0.ip_configuration.0.server_ca_mode",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -499,6 +500,14 @@ is set to true. Defaults to ZONAL.`,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
 										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcement options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
+										AtLeastOneOf: ipConfigurationKeys,
+									},
+									"server_ca_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.StringInSlice([]string{"CA_MODE_UNSPECIFIED", "GOOGLE_MANAGED_INTERNAL_CA", "GOOGLE_MANAGED_CAS_CA"}, false),
+										Description:  `Specify how the server certificate's Certificate Authority is hosted.`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -1409,6 +1418,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		ForceSendFields:                         forceSendFields,
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
+		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 	}
 }
 
@@ -2250,6 +2260,7 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
 		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
+		"server_ca_mode": ipConfiguration.ServerCaMode,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {
