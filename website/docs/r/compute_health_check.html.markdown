@@ -390,7 +390,7 @@ The following arguments are supported:
   greater value than checkIntervalSec.
 
 * `source_regions` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The list of cloud regions from which health checks are performed. If
   any regions are specified, then exactly 3 regions should be specified.
   The region names must be valid names of Google Cloud regions. This can
