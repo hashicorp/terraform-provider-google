@@ -41,13 +41,14 @@ To get more information about DataStore, see:
 
 ```hcl
 resource "google_discovery_engine_data_store" "basic" {
-  location                    = "global"
-  data_store_id               = "data-store-id"
-  display_name                = "tf-test-structured-datastore"
-  industry_vertical           = "GENERIC"
-  content_config              = "NO_CONTENT"
-  solution_types              = ["SOLUTION_TYPE_SEARCH"]
-  create_advanced_site_search = false
+  location                     = "global"
+  data_store_id                = "data-store-id"
+  display_name                 = "tf-test-structured-datastore"
+  industry_vertical            = "GENERIC"
+  content_config               = "NO_CONTENT"
+  solution_types               = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search  = false
+  skip_default_schema_creation = false
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -129,6 +130,16 @@ The following arguments are supported:
   If true, an advanced data store for site search will be created. If the
   data store is not configured as site search (GENERIC vertical and
   PUBLIC_WEBSITE contentConfig), this flag will be ignored.
+
+* `skip_default_schema_creation` -
+  (Optional)
+  A boolean flag indicating whether to skip the default schema creation for
+  the data store. Only enable this flag if you are certain that the default
+  schema is incompatible with your use case.
+  If set to true, you must manually create a schema for the data store
+  before any documents can be ingested.
+  This flag cannot be specified if `data_store.starting_schema` is
+  specified.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
