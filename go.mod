@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cloud.google.com/go/bigtable v1.27.2-0.20240730134218-123c88616251
-	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.68.0
+	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.70.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dnaeon/go-vcr v1.0.1
