@@ -1054,6 +1054,17 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 				Computed:    true,
 				Description: `The main URI in which this Service is serving traffic.`,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: `Whether Terraform will be prevented from destroying the service. Defaults to true.
+When a'terraform destroy' or 'terraform apply' would delete the service,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a 'terraform apply'
+or 'terraform destroy' that would delete the service will fail.
+When the field is set to false, deleting the service is allowed.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1288,6 +1299,12 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunV2Service %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1541,6 +1558,9 @@ func resourceCloudRunV2ServiceDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy service without setting deletion_protection=false and running `terraform apply`")
+	}
 
 	log.Printf("[DEBUG] Deleting Service %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1585,6 +1605,11 @@ func resourceCloudRunV2ServiceImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

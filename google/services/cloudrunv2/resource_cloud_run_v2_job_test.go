@@ -38,7 +38,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobFullUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "launch_stage", "labels", "terraform_labels", "annotations"},
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "labels", "terraform_labels", "annotations", "deletion_protection"},
 			},
 		},
 	})
@@ -117,6 +117,7 @@ func testAccCloudRunV2Job_cloudrunv2JobFullUpdate(context map[string]interface{}
 resource "google_cloud_run_v2_job" "default" {
   name     = "tf-test-cloudrun-job%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   binary_authorization {
     use_default = true
     breakglass_justification = "Some justification"
@@ -228,7 +229,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context),
@@ -237,7 +238,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_job.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
 			},
 		},
 	})
@@ -248,6 +249,7 @@ func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPC(context map[string]interfac
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
     location = "us-central1"
+    deletion_protection = false
     launch_stage = "BETA"
     template {
       template {
@@ -276,6 +278,7 @@ func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context map[string]in
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
     location = "us-central1"
+    deletion_protection = false
     launch_stage = "BETA"
     template {
       template {
