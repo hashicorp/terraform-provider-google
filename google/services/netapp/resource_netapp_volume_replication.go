@@ -279,12 +279,12 @@ data in relation to the source volume data.`,
 						"total_transfer_duration": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Total time taken so far during current transfer.`,
+							Description: `Cumulative time taken across all transfers for the replication relationship.`,
 						},
 						"transfer_bytes": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Number of bytes transferred so far in current transfer.`,
+							Description: `Cumulative bytes transferred so far for the replication relationship.`,
 						},
 						"update_time": {
 							Type:        schema.TypeString,
