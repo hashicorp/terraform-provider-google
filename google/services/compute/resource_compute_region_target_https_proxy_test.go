@@ -413,7 +413,7 @@ resource "google_compute_region_backend_service" "default" {
   health_checks         = [google_compute_region_health_check.default.self_link]
   locality_lb_policy    = "RING_HASH"
 
-  # webscoket handling: https://stackoverflow.com/questions/63822612/websocket-connection-being-closed-on-google-compute-engine
+  # websocket handling: https://stackoverflow.com/questions/63822612/websocket-connection-being-closed-on-google-compute-engine
   timeout_sec = 600
 
   consistent_hash {
@@ -531,7 +531,7 @@ resource "google_compute_region_backend_service" "default" {
   health_checks         = [google_compute_region_health_check.default.self_link]
   locality_lb_policy    = "RING_HASH"
 
-  # webscoket handling: https://stackoverflow.com/questions/63822612/websocket-connection-being-closed-on-google-compute-engine
+  # websocket handling: https://stackoverflow.com/questions/63822612/websocket-connection-being-closed-on-google-compute-engine
   timeout_sec = 600
 
   consistent_hash {
