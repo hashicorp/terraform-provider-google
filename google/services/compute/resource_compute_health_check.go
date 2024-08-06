@@ -485,6 +485,32 @@ which means no health check logging will be done.`,
 					},
 				},
 			},
+			"source_regions": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The list of cloud regions from which health checks are performed. If
+any regions are specified, then exactly 3 regions should be specified.
+The region names must be valid names of Google Cloud regions. This can
+only be set for global health check. If this list is non-empty, then
+there are restrictions on what other health check fields are supported
+and what other resources can use this health check:
+
+* SSL, HTTP2, and GRPC protocols are not supported.
+
+* The TCP request field is not supported.
+
+* The proxyHeader field for HTTP, HTTPS, and TCP is not supported.
+
+* The checkIntervalSec field must be at least 30.
+
+* The health check cannot be used with BackendService nor with managed
+instance group auto-healing.`,
+				MinItems: 3,
+				MaxItems: 3,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"ssl_health_check": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -707,6 +733,12 @@ func resourceComputeHealthCheckCreate(d *schema.ResourceData, meta interface{}) 
 	} else if v, ok := d.GetOkExists("timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(timeoutSecProp)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
 	}
+	sourceRegionsProp, err := expandComputeHealthCheckSourceRegions(d.Get("source_regions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(sourceRegionsProp)) && (ok || !reflect.DeepEqual(v, sourceRegionsProp)) {
+		obj["sourceRegions"] = sourceRegionsProp
+	}
 	unhealthyThresholdProp, err := expandComputeHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold"), d, config)
 	if err != nil {
 		return err
@@ -877,6 +909,9 @@ func resourceComputeHealthCheckRead(d *schema.ResourceData, meta interface{}) er
 	if err := d.Set("timeout_sec", flattenComputeHealthCheckTimeoutSec(res["timeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
+	if err := d.Set("source_regions", flattenComputeHealthCheckSourceRegions(res["sourceRegions"], d, config)); err != nil {
+		return fmt.Errorf("Error reading HealthCheck: %s", err)
+	}
 	if err := d.Set("unhealthy_threshold", flattenComputeHealthCheckUnhealthyThreshold(res["unhealthyThreshold"], d, config)); err != nil {
 		return fmt.Errorf("Error reading HealthCheck: %s", err)
 	}
@@ -956,6 +991,12 @@ func resourceComputeHealthCheckUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	} else if v, ok := d.GetOkExists("timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, timeoutSecProp)) {
 		obj["timeoutSec"] = timeoutSecProp
+	}
+	sourceRegionsProp, err := expandComputeHealthCheckSourceRegions(d.Get("source_regions"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("source_regions"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sourceRegionsProp)) {
+		obj["sourceRegions"] = sourceRegionsProp
 	}
 	unhealthyThresholdProp, err := expandComputeHealthCheckUnhealthyThreshold(d.Get("unhealthy_threshold"), d, config)
 	if err != nil {
@@ -1189,6 +1230,10 @@ func flattenComputeHealthCheckTimeoutSec(v interface{}, d *schema.ResourceData, 
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeHealthCheckSourceRegions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeHealthCheckUnhealthyThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1608,6 +1653,10 @@ func expandComputeHealthCheckName(v interface{}, d tpgresource.TerraformResource
 }
 
 func expandComputeHealthCheckTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeHealthCheckSourceRegions(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
