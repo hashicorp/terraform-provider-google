@@ -41,7 +41,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceFullUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "deletion_protection"},
 			},
 		},
 	})
@@ -116,6 +116,7 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   description = "description updating"
   location = "us-central1"
+  deletion_protection = false
   annotations = {
     generated-by = "magic-modules-files"
   }
@@ -227,7 +228,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceTCPProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithTCPStartupProbeAndHTTPLivenessProbe(context),
@@ -236,7 +237,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceTCPProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 		},
 	})
@@ -261,7 +262,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceHTTPProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithHTTPStartupProbe(context),
@@ -270,7 +271,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceHTTPProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 		},
 	})
@@ -296,7 +297,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCLivenessProbe(context),
@@ -305,7 +306,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceGRPCProbesUpdate(t *testing.T) {
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "deletion_protection"},
 			},
 			// The following test steps of gRPC startup probe are expected to fail with startup probe check failures.
 			// This is because, due to the unavailability of ready-to-use container images of a gRPC service that
@@ -358,6 +359,7 @@ func testAccCloudRunV2Service_cloudrunv2ServiceWithEmptyTCPStartupProbeAndHTTPLi
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -382,6 +384,7 @@ func testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithTCPStartupProbeAndHTTPL
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -426,6 +429,7 @@ func testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithEmptyHTTPStartupProbe(c
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -444,6 +448,7 @@ func testAccCloudRunV2Service_cloudrunv2ServiceUpdateWithHTTPStartupProbe(contex
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -476,6 +481,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithEmptyGRPCLivenessProbe(co
 resource "google_cloud_run_v2_service" "default" {
   name     ="%{service_name}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -497,6 +503,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCLivenessProbe(context
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -521,6 +528,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithEmptyGRPCStartupProbe(con
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -542,6 +550,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCStartupProbe(context 
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -566,6 +575,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithGRPCLivenessAndStartupPro
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -611,7 +621,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceWithDirectVPCUpdate(t *testing.T)
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudRunServiceWithDirectVPCUpdate(context),
@@ -620,7 +630,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceWithDirectVPCUpdate(t *testing.T)
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location"},
+				ImportStateVerifyIgnore: []string{"name", "location", "deletion_protection"},
 			},
 		},
 	})
@@ -631,6 +641,7 @@ func testAccCloudRunV2Service_cloudRunServiceWithDirectVPC(context map[string]in
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
   launch_stage = "GA"
   template {
     containers {
@@ -651,6 +662,7 @@ func testAccCloudRunV2Service_cloudRunServiceWithDirectVPCUpdate(context map[str
 resource "google_cloud_run_v2_service" "default" {
   name     = "%{service_name}"
   location = "us-central1"
+  deletion_protection = false
   launch_stage = "GA"
   template {
     containers {
@@ -684,7 +696,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceCustomAudienceUpdate(t *testing.T
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithCustomAudience(serviceName, "test_update"),
@@ -693,7 +705,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceCustomAudienceUpdate(t *testing.T
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage", "deletion_protection"},
 			},
 			{
 				Config: testAccCloudRunV2Service_cloudRunServiceUpdateWithoutCustomAudience(serviceName),
@@ -702,7 +714,7 @@ func TestAccCloudRunV2Service_cloudrunv2ServiceCustomAudienceUpdate(t *testing.T
 				ResourceName:            "google_cloud_run_v2_service.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage"},
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "launch_stage", "deletion_protection"},
 			},
 		},
 	})
@@ -713,6 +725,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithoutCustomAudience(service
 resource "google_cloud_run_v2_service" "default" {
   name         = "%s"
   location     = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -731,6 +744,7 @@ func testAccCloudRunV2Service_cloudRunServiceUpdateWithCustomAudience(serviceNam
 resource "google_cloud_run_v2_service" "default" {
   name             = "%s"
   location         = "us-central1"
+  deletion_protection = false
   custom_audiences = ["%s"]
 
   template {
@@ -803,6 +817,7 @@ provider "google" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   labels = {
     user_label = "foo"
@@ -830,6 +845,7 @@ provider "google" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
 
   labels = {
     user_label = "bar"

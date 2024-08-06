@@ -128,6 +128,7 @@ func testAccCloudRunV2ServiceIamMember_basicGenerated(context map[string]interfa
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -152,6 +153,7 @@ func testAccCloudRunV2ServiceIamPolicy_basicGenerated(context map[string]interfa
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -191,6 +193,7 @@ func testAccCloudRunV2ServiceIamPolicy_emptyBinding(context map[string]interface
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -217,6 +220,7 @@ func testAccCloudRunV2ServiceIamBinding_basicGenerated(context map[string]interf
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -241,6 +245,7 @@ func testAccCloudRunV2ServiceIamBinding_updateGenerated(context map[string]inter
 resource "google_cloud_run_v2_service" "default" {
   name     = "tf-test-cloudrun-service%{random_suffix}"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
