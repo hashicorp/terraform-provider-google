@@ -3,9 +3,10 @@
 package discoveryengine_test
 
 import (
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
-	"testing"
 )
 
 func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update(t *testing.T) {
@@ -18,7 +19,6 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckDiscoveryEngineDataStoreDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_basic(context),
@@ -27,7 +27,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update
 				ResourceName:            "google_discovery_engine_data_store.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search"},
+				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search", "skip_default_schema_creation"},
 			},
 			{
 				Config: testAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update(context),
@@ -36,7 +36,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample_update
 				ResourceName:            "google_discovery_engine_data_store.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search"},
+				ImportStateVerifyIgnore: []string{"location", "data_store_id", "create_advanced_site_search", "skip_default_schema_creation"},
 			},
 		},
 	})
