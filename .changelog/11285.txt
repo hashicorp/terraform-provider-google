@@ -1,0 +1,6 @@
+```release-note:enhancement
+gkehub: added `config_management.management` and `config_management.config_sync.enabled` fields to `google_gkehub_feature_membership`
+```
+```release-note:enhancement
+clouddeploy: added `gke.proxy_url` field to `google_clouddeploy_target`
+```
