@@ -309,6 +309,16 @@ resource "google_sql_user" "user" {
     password = "tf-test-my-password%{random_suffix}"
 }
 
+data "google_bigquery_default_service_account" "bq_sa" {}
+
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "key_sa_user" {
+  project       = data.google_project.project.project_id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${data.google_bigquery_default_service_account.bq_sa.email}"
+}
+
 resource "google_bigquery_connection" "bq-connection-cmek" {
     friendly_name = "👋"
     description   = "a riveting description"
