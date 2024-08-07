@@ -30,6 +30,7 @@ func TestAccDataSourceGoogleProject_basic(t *testing.T) {
 							// Virtual fields
 							"auto_create_network": {},
 							"skip_delete":         {},
+							"deletion_policy":     {},
 						}),
 				),
 			},
