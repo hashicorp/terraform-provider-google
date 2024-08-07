@@ -367,6 +367,7 @@ supplied the value is interpreted as bytes.`,
 						},
 						"environment_variables": {
 							Type:             schema.TypeMap,
+							Computed:         true,
 							Optional:         true,
 							DiffSuppressFunc: environmentVariablesDiffSuppress,
 							Description:      `Environment variables that shall be available during function execution.`,
