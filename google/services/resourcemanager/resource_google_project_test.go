@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -97,7 +98,7 @@ func TestAccProject_billing(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
 			},
 			// Update to a different  billing account
 			{
@@ -138,7 +139,7 @@ func TestAccProject_labels(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "labels", "terraform_labels", "deletion_policy"},
 			},
 			// update project with labels
 			{
@@ -211,7 +212,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
 			},
 			{
 				Config: testAccProject_migrateParentOrg(pid, folderDisplayName, org),
@@ -220,7 +221,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
 			},
 			{
 				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
@@ -229,7 +230,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete"},
+				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
 			},
 		},
 	})
@@ -352,6 +353,65 @@ func testAccCheckGoogleProjectHasNoLabels(t *testing.T, r, pid string) resource.
 	}
 }
 
+func TestAccProject_noAllowDestroy(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_noAllowDestroy(pid, org),
+			},
+			{
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+			},
+			{
+				Config:      testAccProject_noAllowDestroy(pid, org),
+				Destroy:     true,
+				ExpectError: regexp.MustCompile("deletion_policy"),
+			},
+			{
+				Config: testAccProject_create(pid, org),
+			},
+		},
+	})
+}
+
+func TestAccProject_abandon(t *testing.T) {
+	t.Parallel()
+
+	org := envvar.GetTestOrgFromEnv(t)
+	pid := fmt.Sprintf("%s-%d", TestPrefix, acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProject_abandon(pid, org),
+			},
+			{
+				ResourceName:            "google_project.acceptance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
+			},
+			{
+				Config:  testAccProject_abandon(pid, org),
+				Destroy: true,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
+				),
+			},
+		},
+	})
+}
+
 func testAccProject_createWithoutOrg(pid string) string {
 	return fmt.Sprintf(`
 resource "google_project" "acceptance" {
@@ -359,6 +419,28 @@ resource "google_project" "acceptance" {
   name       = "%s"
 }
 `, pid, pid)
+}
+
+func testAccProject_noAllowDestroy(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id = "%s"
+  deletion_policy = "PREVENT"
+}
+`, pid, pid, org)
+}
+
+func testAccProject_abandon(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id = "%s"
+  deletion_policy = "ABANDON"
+}
+`, pid, pid, org)
 }
 
 func testAccProject_createBilling(pid, org, billing string) string {
