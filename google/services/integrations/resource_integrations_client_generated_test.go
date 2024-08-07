@@ -110,7 +110,7 @@ resource "google_kms_crypto_key_version" "test_key" {
 }
 
 resource "google_service_account" "service_account" {
-  account_id   = "tf-test-my-service-acc%{random_suffix}"
+  account_id   = "tf-test-service-acc%{random_suffix}"
   display_name = "Service Account"
 }
 
