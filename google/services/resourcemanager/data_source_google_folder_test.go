@@ -125,6 +125,7 @@ func testAccCheckGoogleFolder_byFullNameConfig(parent string, displayName string
 resource "google_folder" "foobar" {
   parent       = "%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 data "google_folder" "folder" {
@@ -138,6 +139,7 @@ func testAccCheckGoogleFolder_byShortNameConfig(parent string, displayName strin
 resource "google_folder" "foobar" {
   parent       = "%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 data "google_folder" "folder" {
@@ -151,6 +153,7 @@ func testAccCheckGoogleFolder_lookupOrganizationConfig(parent string, displayNam
 resource "google_folder" "foobar" {
   parent       = "%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 data "google_folder" "folder" {

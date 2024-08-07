@@ -210,6 +210,7 @@ resource "google_org_policy_policy" "primary" {
 resource "google_folder" "basic" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder%{random_suffix}"
+  deletion_protection = false
 }
 
 
@@ -247,6 +248,7 @@ resource "google_org_policy_policy" "primary" {
 resource "google_folder" "basic" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder%{random_suffix}"
+  deletion_protection = false
 }
 
 

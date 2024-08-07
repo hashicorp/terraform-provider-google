@@ -70,6 +70,7 @@ resource "google_org_policy_policy" "primary" {
 resource "google_folder" "basic" {
   parent       = "organizations/123456789"
   display_name = "folder"
+  deletion_protection = false
 }
 ```
 ## Example Usage - Org Policy Policy Organization

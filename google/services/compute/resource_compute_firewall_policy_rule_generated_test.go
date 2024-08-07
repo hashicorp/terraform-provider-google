@@ -83,6 +83,7 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"
+  deletion_protection = false
 }
 
 resource "google_compute_firewall_policy" "default" {
@@ -136,6 +137,7 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 resource "google_folder" "folder" {
   display_name = "tf-test-policy%{random_suffix}"
   parent       = "organizations/%{org_id}"
+  deletion_protection = false
 }
 
 resource "google_compute_firewall_policy" "default" {

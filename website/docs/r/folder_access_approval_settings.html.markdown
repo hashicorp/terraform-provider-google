@@ -33,6 +33,7 @@ To get more information about FolderSettings, see:
 resource "google_folder" "my_folder" {
   display_name = "my-folder"
   parent       = "organizations/123456789"
+  deletion_protection = false
 }
 
 resource "google_folder_access_approval_settings" "folder_access_approval" {
@@ -51,6 +52,7 @@ resource "google_folder_access_approval_settings" "folder_access_approval" {
 resource "google_folder" "my_folder" {
   display_name = "my-folder"
   parent       = "organizations/123456789"
+  deletion_protection = false
 }
 
 resource "google_project" "my_project" {
