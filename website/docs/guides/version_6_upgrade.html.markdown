@@ -227,6 +227,19 @@ resource blocks that contain both fields in a conflicting pair, and remove one o
 The fields that are removed from the configuration will still have Computed values,
 that are derived from the API.
 
+## Resource: `google_folder`
+
+### Folder deletion now prevented by default with `deletion_protection`
+
+The field `deletion_protection` has been added with a default value of `true`. This field prevents
+Terraform from destroying or recreating the Folder. In 6.0.0, existing folders will have 
+`deletion_protection` set to `true` during the next refresh unless otherwise set in configuration.
+
+**`deletion_protection` does NOT prevent deletion outside of Terraform.**
+
+To disable deletion protection, explicitly set this field to `false` in configuration
+and then run `terraform apply` to apply the change.
+
 ## Resource: `google_storage_bucket`
 
 ### `lifecycle_rule.condition.no_age` is now removed

@@ -258,6 +258,7 @@ func testAccLoggingBucketConfigFolder_basic(context map[string]interface{}, rete
 resource "google_folder" "default" {
 	display_name = "%{folder_name}"
 	parent       = "organizations/%{org_id}"
+	deletion_protection = false
 }
 
 resource "google_logging_folder_bucket_config" "basic" {

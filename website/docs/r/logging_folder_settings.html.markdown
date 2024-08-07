@@ -43,6 +43,7 @@ resource "google_logging_folder_settings" "example" {
 resource "google_folder" "my_folder" {
   display_name = "folder-name"
   parent       = "organizations/123456789"
+  deletion_protection = false
 }
 
 data "google_logging_folder_settings" "settings" {

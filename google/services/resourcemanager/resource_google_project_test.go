@@ -413,6 +413,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, folderName, org)
 }
@@ -429,6 +430,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, folderName, org)
 }
@@ -445,6 +447,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, org, folderName, org)
 }
