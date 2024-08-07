@@ -139,6 +139,10 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
   service    = "appengine-network-endpoint-group"
   runtime    = "nodejs"
+  flexible_runtime_settings {
+    operating_system = "ubuntu22"
+    runtime_version = "20"
+  }
 
   entrypoint {
     shell = "node ./app.js"
