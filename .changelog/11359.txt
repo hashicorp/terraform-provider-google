@@ -1,0 +1,3 @@
+```release-note:enhancement
+resourcemanager: added `deletion_policy` field to replace `skip_delete` field in `google_project` resource. Setting `deletion_policy` to `PREVENT` will protect the project against any destroy actions caused by a terraform apply or terraform destroy. Setting `deletion_policy` to `ABANDON` allows the resource to be abandoned rather than deleted and it behaves the same with `skip_delete = true`. Default value is `DELETE`.
+```
