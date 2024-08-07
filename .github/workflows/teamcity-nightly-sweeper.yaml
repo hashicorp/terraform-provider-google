@@ -1,7 +1,8 @@
 name: "TeamCity: Remove branches used for nightly test"
 
 
-# To ensure nightly tests/builds run on the same commit, we checkout and create a new branch from main for TeamCity to run builds on
+# TeamCity should use a newly created branches that matches the pattern `nightly-test` and is the only branch matching that pattern. We rename past nightly test branches to avoid there being more than one `nightly-test` branch (i.e. only one branch that matches the filter (+:nightly-test)). This workflow also removes renamed branches once they get past a certain age. 
+# ```
 
 on:
     workflow_call:
