@@ -70,12 +70,11 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
             }
 
             steps {
-                helloWorld()
-                // setGitCommitBuildId()
-                // tagBuildToIndicateTriggerMethod()
-                // configureGoEnv()
-                // downloadTerraformBinary()
-                // runSweepers(sweeperName)
+                setGitCommitBuildId()
+                tagBuildToIndicateTriggerMethod()
+                configureGoEnv()
+                downloadTerraformBinary()
+                runSweepers(sweeperName)
             }
 
             features {
@@ -98,7 +97,6 @@ class SweeperDetails(private val sweeperName: String, private val parentProjectN
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()
-                activeBranchSettings()
                 workingDirectory(path)
             }
 

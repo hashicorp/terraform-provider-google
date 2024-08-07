@@ -42,7 +42,6 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
 
         params {
             readOnlySettings()
-            activeBranchSettings()
         }
     }
 }

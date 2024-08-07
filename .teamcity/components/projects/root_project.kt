@@ -65,7 +65,6 @@ fun googleCloudRootProject(allConfig: AllContextParameters): Project {
 
         params {
             readOnlySettings()
-            activeBranchSettings()
         }
     }
 }

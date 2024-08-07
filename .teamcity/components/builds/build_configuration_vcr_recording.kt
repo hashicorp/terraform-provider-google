@@ -42,15 +42,14 @@ class VcrDetails(private val providerName: String, private val buildId: String, 
             }
 
             steps {
-                helloWorld()
-                // setGitCommitBuildId()
-                // checkVcrEnvironmentVariables()
-                // tagBuildToIndicateVcrMode()
-                // configureGoEnv()
-                // downloadTerraformBinary()
-                // runVcrTestRecordingSetup()
-                // runVcrAcceptanceTests()
-                // runVcrTestRecordingSaveCassettes()
+                setGitCommitBuildId()
+                checkVcrEnvironmentVariables()
+                tagBuildToIndicateVcrMode()
+                configureGoEnv()
+                downloadTerraformBinary()
+                runVcrTestRecordingSetup()
+                runVcrAcceptanceTests()
+                runVcrTestRecordingSaveCassettes()
             }
 
             features {
@@ -73,7 +72,6 @@ class VcrDetails(private val providerName: String, private val buildId: String, 
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()
-                activeBranchSettings()
                 workingDirectory(path)
             }
 

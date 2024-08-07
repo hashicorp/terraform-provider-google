@@ -37,23 +37,6 @@ fun BuildSteps.setGitCommitBuildId() {
     })
 }
 
-fun BuildSteps.helloWorld() {
-    step(ScriptBuildStep {
-        name = "hello from nightly tests!"
-        scriptContent = """
-            #!/bin/bash
-            BRANCH_NAME=%teamcity.build.branch%
-            GIT_HASH=%system.build.vcs.number%
-            GIT_HASH_SHORT=${'$'}{GIT_HASH:0:7}
-
-            echo "Hello from '${'$'}{BRANCH_NAME}' using commit ${'$'}{GIT_HASH_SHORT} from main"
-        """.trimIndent()
-        // ${'$'} is required to allow creating a script in TeamCity that contains
-        // parts like ${GIT_HASH_SHORT} without having Kotlin syntax issues. For more info see:
-        // https://youtrack.jetbrains.com/issue/KT-2425/Provide-a-way-for-escaping-the-dollar-sign-symbol-in-multiline-strings-and-string-templates
-    })
-}
-
 fun BuildSteps.tagBuildToIndicateTriggerMethod() {
     step(ScriptBuildStep {
         name = "Set build tag to indicate if build is run automatically or manually triggered"

@@ -252,11 +252,6 @@ fun ParametrizedWithType.readOnlySettings() {
     hiddenVariable("teamcity.ui.settings.readOnly", "true", "Requires build configurations be edited via Kotlin")
 }
 
-fun ParametrizedWithType.activeBranchSettings() {
-    text("teamcity.activeVcsBranch.age.days", "10")
-    // text("teamcity.activeBuildBranch.age.hours", "240")
-}
-
 // ParametrizedWithType.terraformCoreBinaryTesting sets environment variables that control what Terraform version is downloaded
 // and ensures the testing framework uses that downloaded version. The default Terraform core version is used if no argument is supplied.
 fun ParametrizedWithType.terraformCoreBinaryTesting(tfVersion: String = DefaultTerraformCoreVersion) {

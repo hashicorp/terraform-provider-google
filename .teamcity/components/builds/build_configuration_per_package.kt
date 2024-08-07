@@ -66,13 +66,12 @@ class PackageDetails(private val packageName: String, private val displayName: S
             }
 
             steps {
-                helloWorld()
-                // setGitCommitBuildId()
-                // tagBuildToIndicateTriggerMethod()
-                // configureGoEnv()
-                // downloadTerraformBinary()
-                // runAcceptanceTests()
-                // saveArtifactsToGCS()
+                setGitCommitBuildId()
+                tagBuildToIndicateTriggerMethod()
+                configureGoEnv()
+                downloadTerraformBinary()
+                runAcceptanceTests()
+                saveArtifactsToGCS()
             }
 
             features {
@@ -94,7 +93,6 @@ class PackageDetails(private val packageName: String, private val displayName: S
                 terraformCoreBinaryTesting()
                 terraformShouldPanicForSchemaErrors()
                 readOnlySettings()
-                activeBranchSettings()
                 workingDirectory(path)
             }
 
