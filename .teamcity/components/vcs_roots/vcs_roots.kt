@@ -13,7 +13,7 @@ import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 
 object HashiCorpVCSRootGa: GitVcsRoot({
     name = "https://github.com/hashicorp/terraform-provider-${ProviderNameGa}#refs/heads/main"
-    url = "https://github.com/hashiCorp/terraform-provider-${ProviderNameGa}"
+    url = "https://github.com/hashicorp/terraform-provider-${ProviderNameGa}"
     branch = "refs/heads/main"
     branchSpec = """
         +:*

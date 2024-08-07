@@ -35,7 +35,7 @@ fun Triggers.runNightly(config: NightlyTriggerConfiguration) {
         schedulingPolicy = cron {
             hours = config.startHour.toString()
             timezone = "SERVER"
-            
+
             dayOfWeek = config.daysOfWeek
             dayOfMonth = config.daysOfMonth
         }
