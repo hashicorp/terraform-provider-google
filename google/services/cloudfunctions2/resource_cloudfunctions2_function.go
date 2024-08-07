@@ -1140,6 +1140,16 @@ func flattenCloudfunctions2functionBuildConfigSourceStorageSourceObject(v interf
 }
 
 func flattenCloudfunctions2functionBuildConfigSourceStorageSourceGeneration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// This flatten function is shared between the resource and the datasource.
+	// TF Input will use the generation from the source object
+	// GET Response will use the generation from the automatically created object
+	// As TF Input and GET response values have different format,
+	// we will return TF Input value to prevent state drift.
+
+	if genVal, ok := d.GetOk("build_config.0.source.0.storage_source.0.generation"); ok {
+		v = genVal
+	}
+
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
