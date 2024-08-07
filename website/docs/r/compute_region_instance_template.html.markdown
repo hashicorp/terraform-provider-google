@@ -80,7 +80,7 @@ resource "google_compute_region_disk" "foobar" {
   type                      = "pd-ssd"
   region                    = "us-central1"
   physical_block_size_bytes = 4096
- 
+
   replica_zones = ["us-central1-a", "us-central1-f"]
 }
 
@@ -91,7 +91,7 @@ resource "google_compute_disk" "disk" {
   type  = "pd-ssd"
   zone  = "us-central1-a"
 }
- 
+
 resource "google_compute_snapshot" "snap_disk" {
   name        = "snapDisk"
   source_disk = google_compute_disk.disk.name
@@ -588,16 +588,16 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    groups will use as host systems. Read more on sole-tenant node creation
    [here](https://cloud.google.com/compute/docs/nodes/create-nodes).
    Structure [documented below](#nested_node_affinities).
-   
-* `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`, 
+
+* `provisioning_model` - (Optional) Describe the type of preemptible VM. This field accepts the value `STANDARD` or `SPOT`. If the value is `STANDARD`, there will be no discount. If this   is set to `SPOT`,
     `preemptible` should be `true` and `automatic_restart` should be
     `false`. For more info about
     `SPOT`, read [here](https://cloud.google.com/compute/docs/instances/spot)
-    
-* `instance_termination_action` - (Optional) Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
+
+* `instance_termination_action` - (Optional) Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot)
 
 * `max_run_duration` -  (Optional)  The duration of the instance. Instance will run and be terminated after then, the termination action could be defined in `instance_termination_action`. Only support `DELETE` `instance_termination_action` at this point. Structure is [documented below](#nested_max_run_duration).
-    
+
 <a name="nested_max_run_duration"></a>The `max_run_duration` block supports:
 
 * `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
@@ -609,7 +609,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
    315,576,000,000 inclusive. Note: these bounds are computed from: 60
    sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years.
 
-* `maintenance_interval` - (Optional)  Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.   
+* `maintenance_interval` - (Optional)  Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
 
 * `local_ssd_recovery_timeout` -  (Optional) (https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
 <a name="nested_local_ssd_recovery_timeout"></a>The `local_ssd_recovery_timeout` block supports:
@@ -663,7 +663,7 @@ The `specific_reservation` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled with AMD SEV. If enabled, [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
 
-* `confidential_instance_type` (Optional) Defines the confidential computing technology the instance uses. SEV is an AMD feature. One of the following values: `SEV`, `SEV_SNP`. [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`confidential_instance_type`](#confidential_instance_type) is set to `SEV` and [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM. If `SEV_SNP`, currently [`min_cpu_platform`](#min_cpu_platform) has to be set to `"AMD Milan"` or this will fail to create the VM.
+* `confidential_instance_type` (Optional) Defines the confidential computing technology the instance uses. SEV is an AMD feature. TDX is an Intel feature. One of the following values is required: `SEV`, `SEV_SNP`, `TDX`. [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`confidential_instance_type`](#confidential_instance_type) is set to `SEV` and [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM. If `SEV_SNP`, currently [`min_cpu_platform`](#min_cpu_platform) has to be set to `"AMD Milan"` or this will fail to create the VM. TDX is only available in beta.
 
 <a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
 
