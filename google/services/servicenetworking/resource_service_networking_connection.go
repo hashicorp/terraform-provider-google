@@ -71,6 +71,11 @@ func ResourceServiceNetworkingConnection() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"update_on_creation_fail": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `When set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -120,7 +125,21 @@ func resourceServiceNetworkingConnectionCreate(d *schema.ResourceData, meta inte
 	}
 
 	if err := ServiceNetworkingOperationWaitTimeHW(config, op, "Create Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return err
+		if strings.Contains(err.Error(), "Cannot modify allocated ranges in CreateConnection.") && d.Get("update_on_creation_fail").(bool) {
+			patchCall := config.NewServiceNetworkingClient(userAgent).Services.Connections.Patch(parentService+"/connections/-", connection).UpdateMask("reservedPeeringRanges").Force(true)
+			if config.UserProjectOverride {
+				patchCall.Header().Add("X-Goog-User-Project", project)
+			}
+			op, err := patchCall.Do()
+			if err != nil {
+				return err
+			}
+			if err := ServiceNetworkingOperationWaitTimeHW(config, op, "Update Service Networking Connection", userAgent, project, d.Timeout(schema.TimeoutUpdate)); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	connectionId := &connectionId{
