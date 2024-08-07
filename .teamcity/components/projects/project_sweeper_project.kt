@@ -45,7 +45,6 @@ fun projectSweeperSubProject(allConfig: AllContextParameters): Project {
 
         params {
             readOnlySettings()
-            activeBranchSettings()
         }
     }
 }

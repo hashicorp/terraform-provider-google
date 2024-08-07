@@ -12,7 +12,6 @@ import SharedResourceNameGa
 import SharedResourceNameVcr
 import builds.AllContextParameters
 import builds.readOnlySettings
-import builds.activeBranchSettings
 import generated.PackagesListBeta
 import generated.PackagesListGa
 import generated.ServicesListBeta
