@@ -218,7 +218,6 @@ func resourceDialogflowCXEntityTypeCreate(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -282,7 +281,6 @@ func resourceDialogflowCXEntityTypeRead(d *schema.ResourceData, meta interface{}
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -432,7 +430,6 @@ func resourceDialogflowCXEntityTypeUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -499,7 +496,6 @@ func resourceDialogflowCXEntityTypeDelete(d *schema.ResourceData, meta interface
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 

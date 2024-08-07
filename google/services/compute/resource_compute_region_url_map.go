@@ -945,7 +945,7 @@ less than one second are represented with a 0 'seconds' field and a positive
 
 - 5xx: Loadbalancer will attempt a retry if the backend service responds with
 any 5xx response code, or if the backend service does not respond at all,
-example: disconnects, reset, read timeout, connection failure, and refused
+for example: disconnects, reset, read timeout, connection failure, and refused
 streams.
 - gateway-error: Similar to 5xx, but only applies to response codes
 502, 503 or 504.
@@ -1815,7 +1815,7 @@ less than one second are represented with a 0 'seconds' field and a positive
 
 * 5xx: Loadbalancer will attempt a retry if the backend service responds with
   any 5xx response code, or if the backend service does not respond at all,
-  example: disconnects, reset, read timeout, connection failure, and refused
+  for example: disconnects, reset, read timeout, connection failure, and refused
   streams.
 * gateway-error: Similar to 5xx, but only applies to response codes
   502, 503 or 504.

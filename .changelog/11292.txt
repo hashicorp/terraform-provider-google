@@ -1,0 +1,3 @@
+```release-note:bug
+datastream: removed a breaking change in `google_datastream_stream` that made one of `destination_config.0.bigquery_destination_config.0.merge` or `destination_config.0.bigquery_destination_config.0.append_only` required
+```

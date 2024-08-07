@@ -128,7 +128,7 @@ The following arguments are supported:
 * `destroy_scheduled_duration` -
   (Optional)
   The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
-  If not specified at creation time, the default duration is 24 hours.
+  If not specified at creation time, the default duration is 30 days.
 
 * `import_only` -
   (Optional)
@@ -138,6 +138,18 @@ The following arguments are supported:
   (Optional)
   The resource name of the backend environment associated with all CryptoKeyVersions within this CryptoKey.
   The resource name is in the format "projects/*/locations/*/ekmConnections/*" and only applies to "EXTERNAL_VPC" keys.
+
+* `key_access_justifications_policy` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  The policy used for Key Access Justifications Policy Enforcement. If this
+  field is present and this key is enrolled in Key Access Justifications
+  Policy Enforcement, the policy will be evaluated in encrypt, decrypt, and
+  sign operations, and the operation will fail if rejected by the policy. The
+  policy is defined by specifying zero or more allowed justification codes.
+  https://cloud.google.com/assured-workloads/key-access-justifications/docs/justification-codes
+  By default, this field is absent, and all justification codes are allowed.
+  This field is currently in beta and is subject to change.
+  Structure is [documented below](#nested_key_access_justifications_policy).
 
 * `skip_initial_version_creation` -
   (Optional)
@@ -156,6 +168,14 @@ The following arguments are supported:
 * `protection_level` -
   (Optional)
   The protection level to use when creating a version based on this template. Possible values include "SOFTWARE", "HSM", "EXTERNAL", "EXTERNAL_VPC". Defaults to "SOFTWARE".
+
+<a name="nested_key_access_justifications_policy"></a>The `key_access_justifications_policy` block supports:
+
+* `allowed_access_reasons` -
+  (Optional)
+  The list of allowed reasons for access to this CryptoKey. Zero allowed
+  access reasons means all encrypt, decrypt, and sign operations for
+  this CryptoKey will fail.
 
 ## Attributes Reference
 

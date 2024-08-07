@@ -62,7 +62,6 @@ resource "google_compute_region_health_check" "default" {
   region             = "europe-west4"
   timeout_sec        = 1
   check_interval_sec = 1
-  
   tcp_health_check {
     port = "80"
   }

@@ -30,8 +30,8 @@ To get more information about FirewallEndpointAssociation, see:
 
 * [API documentation](https://cloud.google.com/firewall/docs/reference/network-security/rest/v1/projects.locations.firewallEndpointAssociations#FirewallEndpointAssociation)
 * How-to Guides
-    * [Firewall endpoint overview](https://cloud.google.com/firewall/docs/about-firewall-endpoints)
     * [Create and associate firewall endpoints](https://cloud.google.com/firewall/docs/configure-firewall-endpoints)
+    * [Firewall endpoint overview](https://cloud.google.com/firewall/docs/about-firewall-endpoints)
 
 ## Example Usage - Network Security Firewall Endpoint Association Basic
 

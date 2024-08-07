@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -33,8 +33,8 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
@@ -73,8 +73,8 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
@@ -104,8 +104,8 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
 		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),

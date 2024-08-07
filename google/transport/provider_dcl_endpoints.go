@@ -69,12 +69,6 @@ var GKEHubFeatureEndpointEntry = &schema.Schema{
 	Optional: true,
 }
 
-var OrgPolicyEndpointEntryKey = "org_policy_custom_endpoint"
-var OrgPolicyEndpointEntry = &schema.Schema{
-	Type:     schema.TypeString,
-	Optional: true,
-}
-
 var RecaptchaEnterpriseEndpointEntryKey = "recaptcha_enterprise_custom_endpoint"
 var RecaptchaEnterpriseEndpointEntry = &schema.Schema{
 	Type:     schema.TypeString,
@@ -89,7 +83,6 @@ type DCLConfig struct {
 	EventarcBasePath             string
 	FirebaserulesBasePath        string
 	GKEHubFeatureBasePath        string
-	OrgPolicyBasePath            string
 	RecaptchaEnterpriseBasePath  string
 }
 
@@ -101,7 +94,6 @@ func ConfigureDCLProvider(provider *schema.Provider) {
 	provider.Schema[EventarcEndpointEntryKey] = EventarcEndpointEntry
 	provider.Schema[FirebaserulesEndpointEntryKey] = FirebaserulesEndpointEntry
 	provider.Schema[GKEHubFeatureEndpointEntryKey] = GKEHubFeatureEndpointEntry
-	provider.Schema[OrgPolicyEndpointEntryKey] = OrgPolicyEndpointEntry
 	provider.Schema[RecaptchaEnterpriseEndpointEntryKey] = RecaptchaEnterpriseEndpointEntry
 }
 
@@ -139,11 +131,6 @@ func HandleDCLCustomEndpointDefaults(d *schema.ResourceData) {
 	if d.Get(GKEHubFeatureEndpointEntryKey) == "" {
 		d.Set(GKEHubFeatureEndpointEntryKey, MultiEnvDefault([]string{
 			"GOOGLE_GKEHUB_FEATURE_CUSTOM_ENDPOINT",
-		}, ""))
-	}
-	if d.Get(OrgPolicyEndpointEntryKey) == "" {
-		d.Set(OrgPolicyEndpointEntryKey, MultiEnvDefault([]string{
-			"GOOGLE_ORG_POLICY_CUSTOM_ENDPOINT",
 		}, ""))
 	}
 	if d.Get(RecaptchaEnterpriseEndpointEntryKey) == "" {
@@ -192,12 +179,6 @@ func ConfigureDCLCustomEndpointAttributesFramework(frameworkSchema *framework_sc
 		},
 	}
 	frameworkSchema.Attributes["gkehub_feature_custom_endpoint"] = framework_schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			CustomEndpointValidator(),
-		},
-	}
-	frameworkSchema.Attributes["org_policy_custom_endpoint"] = framework_schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
 			CustomEndpointValidator(),

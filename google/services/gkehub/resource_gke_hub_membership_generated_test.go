@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -35,8 +35,8 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":         envvar.GetTestProjectFromEnv(),
 		"location":        envvar.GetTestRegionFromEnv(),
+		"project":         envvar.GetTestProjectFromEnv(),
 		"network_name":    acctest.BootstrapSharedTestNetwork(t, "gke-cluster"),
 		"subnetwork_name": acctest.BootstrapSubnet(t, "gke-cluster", acctest.BootstrapSharedTestNetwork(t, "gke-cluster")),
 		"random_suffix":   acctest.RandString(t, 10),

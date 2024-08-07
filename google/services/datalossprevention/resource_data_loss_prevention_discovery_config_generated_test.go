@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -35,8 +35,8 @@ func TestAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigOrgFolderPausedE
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"organization":  envvar.GetTestOrgFromEnv(t),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

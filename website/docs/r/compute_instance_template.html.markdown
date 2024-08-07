@@ -589,9 +589,9 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `instance_termination_action` - (Optional) Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot)
 
-* `max_run_duration` -  (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) The duration of the instance. Instance will run and be terminated after then, the termination action could be defined in `instance_termination_action`. Structure is [documented below](#nested_max_run_duration).
+* `max_run_duration` -  (Optional) The duration of the instance. Instance will run and be terminated after then, the termination action could be defined in `instance_termination_action`. Structure is [documented below](#nested_max_run_duration).
 
-* `on_instance_stop_action` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the action to be performed when the instance is terminated using `max_run_duration` and `STOP` `instance_termination_action`. Only support `true` `discard_local_ssd` at this point. Structure is [documented below](#nested_on_instance_stop_action).
+* `on_instance_stop_action` - (Optional) Specifies the action to be performed when the instance is terminated using `max_run_duration` and `STOP` `instance_termination_action`. Only support `true` `discard_local_ssd` at this point. Structure is [documented below](#nested_on_instance_stop_action).
 
 * `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
 
@@ -620,7 +620,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 <a name="nested_on_instance_stop_action"></a>The `on_instance_stop_action` block supports:
 
-* `discard_local_ssd` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Whether to discard local SSDs attached to the VM while terminating using `max_run_duration`. Only supports `true` at this point.
+* `discard_local_ssd` - (Optional) Whether to discard local SSDs attached to the VM while terminating using `max_run_duration`. Only supports `true` at this point.
 
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
@@ -662,7 +662,7 @@ The `specific_reservation` block supports:
 
 * `enable_confidential_compute` (Optional) Defines whether the instance should have confidential compute enabled with AMD SEV. If enabled, [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM.
 
-* `confidential_instance_type` (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Defines the confidential computing technology the instance uses. SEV is an AMD feature. One of the following values: `SEV`, `SEV_SNP`. [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`confidential_instance_type`](#confidential_instance_type) is set to `SEV` and [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM. If `SEV_SNP`, currently [`min_cpu_platform`](#min_cpu_platform) has to be set to `"AMD Milan"` or this will fail to create the VM.
+* `confidential_instance_type` (Optional) Defines the confidential computing technology the instance uses. SEV is an AMD feature. One of the following values: `SEV`, `SEV_SNP`. [`on_host_maintenance`](#on_host_maintenance) can be set to MIGRATE if [`confidential_instance_type`](#confidential_instance_type) is set to `SEV` and [`min_cpu_platform`](#min_cpu_platform) is set to `"AMD Milan"`. Otherwise, [`on_host_maintenance`](#on_host_maintenance) has to be set to TERMINATE or this will fail to create the VM. If `SEV_SNP`, currently [`min_cpu_platform`](#min_cpu_platform) has to be set to `"AMD Milan"` or this will fail to create the VM.
 
 <a name="nested_network_performance_config"></a>The `network_performance_config` block supports:
 

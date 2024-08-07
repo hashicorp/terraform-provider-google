@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -64,7 +64,7 @@ resource "google_cloudfunctions2_function" "function_http_v2" {
     env = "test"
   }
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs18"
     entry_point = "helloHttp"
     source {
       storage_source {

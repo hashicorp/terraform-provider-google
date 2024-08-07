@@ -37,10 +37,6 @@ func ResourceAccessContextManagerServicePerimeterIngressPolicy() *schema.Resourc
 		Read:   resourceAccessContextManagerServicePerimeterIngressPolicyRead,
 		Delete: resourceAccessContextManagerServicePerimeterIngressPolicyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceAccessContextManagerServicePerimeterIngressPolicyImport,
-		},
-
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
@@ -109,7 +105,10 @@ If * is specified, then all IngressSources will be allowed.`,
 										ForceNew: true,
 										Description: `A Google Cloud resource that is allowed to ingress the perimeter.
 Requests from these resources will be allowed to access perimeter data.
-Currently only projects are allowed. Format 'projects/{project_number}'
+Currently only projects and VPCs are allowed.
+Project format: 'projects/{projectNumber}'
+VPC network format:
+'//compute.googleapis.com/projects/{PROJECT_ID}/global/networks/{NAME}'.
 The project may be in any Google Cloud organization, not just the
 organization that the perimeter is defined in. '*' is not allowed, the case
 of allowing all Google Cloud resources only is not supported.`,
@@ -432,21 +431,6 @@ func resourceAccessContextManagerServicePerimeterIngressPolicyDelete(d *schema.R
 
 	log.Printf("[DEBUG] Finished deleting ServicePerimeterIngressPolicy %q: %#v", d.Id(), res)
 	return nil
-}
-
-func resourceAccessContextManagerServicePerimeterIngressPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*transport_tpg.Config)
-
-	// current import_formats can't import fields with forward slashes in their value
-	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)"}, d, config, d.Id())
-	if err != nil {
-		return nil, err
-	}
-
-	if err := d.Set("perimeter", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
-		return nil, fmt.Errorf("Error setting perimeter: %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
 }
 
 func flattenNestedAccessContextManagerServicePerimeterIngressPolicyIngressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

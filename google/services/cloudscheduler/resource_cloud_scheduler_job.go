@@ -53,6 +53,20 @@ func validateAuthHeaders(_ context.Context, diff *schema.ResourceDiff, v interfa
 	return nil
 }
 
+// Suppress diffs in below cases
+// "https://hello-rehvs75zla-uc.a.run.app/" -> "https://hello-rehvs75zla-uc.a.run.app"
+// "https://hello-rehvs75zla-uc.a.run.app" -> "https://hello-rehvs75zla-uc.a.run.app/"
+func LastSlashDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	if last := len(new) - 1; last >= 0 && new[last] == '/' {
+		new = new[:last]
+	}
+
+	if last := len(old) - 1; last >= 0 && old[last] == '/' {
+		old = old[:last]
+	}
+	return new == old
+}
+
 func authHeaderDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	// If generating an `oauth_token` and `scope` is not provided in the configuration,
 	// the default "https://www.googleapis.com/auth/cloud-platform" scope will be used.
@@ -242,7 +256,7 @@ send a request to the targeted url`,
 						"uri": {
 							Type:             schema.TypeString,
 							Required:         true,
-							DiffSuppressFunc: tpgresource.LastSlashDiffSuppress,
+							DiffSuppressFunc: LastSlashDiffSuppress,
 							Description:      `The full URI path that the request will be sent to.`,
 						},
 						"body": {

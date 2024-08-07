@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed an issue preventing certain keys in `params` from being assigned values in `google_bigquery_data_transfer_config`
+```

@@ -1,0 +1,3 @@
+```release-note:bug
+resourcemanager: added a 10s wait after `google_service_account_key` creation to attempt to mitigate eventual concistency issues resulting in a `Root resource was present, but now absent` error.
+```

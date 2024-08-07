@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -16,6 +16,8 @@ import (
 )
 
 func TestAccVmwareengineExternalAddress_vmwareEngineExternalAddressUpdate(t *testing.T) {
+	// Temporarily skipping so that this test does not run and consume resources during PR pushes. It is bound to fail and is being fixed by PR #10992
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

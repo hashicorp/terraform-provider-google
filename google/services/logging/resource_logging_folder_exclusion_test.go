@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/logging"
@@ -33,6 +33,45 @@ func TestAccLoggingFolderExclusion(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			tc(t)
 		})
+	}
+}
+
+func TestUnitLoggingFolder_OptionalPrefixSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		Prefix             string
+		ExpectDiffSuppress bool
+	}{
+		"with same prefix": {
+			Old:                "my-folder",
+			New:                "folders/my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: true,
+		},
+		"with different prefix": {
+			Old:                "folders/my-folder",
+			New:                "organizations/my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+		"same without prefix": {
+			Old:                "my-folder",
+			New:                "my-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+		"different without prefix": {
+			Old:                "my-folder",
+			New:                "my-new-folder",
+			Prefix:             "folders/",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if logging.OptionalPrefixSuppress(tc.Prefix)("folder", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
 	}
 }
 

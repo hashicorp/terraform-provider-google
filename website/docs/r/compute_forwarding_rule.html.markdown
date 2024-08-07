@@ -130,7 +130,7 @@ resource "google_compute_instance_template" "instance_template" {
     }
   }
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
@@ -224,7 +224,7 @@ resource "google_compute_instance" "vm-test" {
   }
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-10"
+      image = "debian-cloud/debian-12"
     }
   }
 }
@@ -299,7 +299,7 @@ resource "google_compute_instance_template" "instance_template" {
     }
   }
   disk {
-    source_image = "debian-cloud/debian-10"
+    source_image = "debian-cloud/debian-12"
     auto_delete  = true
     boot         = true
   }
@@ -412,7 +412,7 @@ resource "google_compute_instance" "vm_test" {
   }
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-10"
+      image = "debian-cloud/debian-12"
     }
   }
 }
@@ -1352,7 +1352,6 @@ The following arguments are supported:
   `IPAddress` should be set to `0.0.0.0`.
   * When the `target` is a Private Service Connect Google APIs
   bundle, you must specify an `IPAddress`.
-
   Otherwise, you can optionally specify an IP address that references an
   existing static (reserved) IP address resource. When omitted, Google Cloud
   assigns an ephemeral IP address.
@@ -1367,7 +1366,6 @@ The following arguments are supported:
     * `regions/region/addresses/address-name`
     * `global/addresses/address-name`
     * `address-name`
-
   The forwarding rule's `target` or `backendService`,
   and in most cases, also the `loadBalancingScheme`, determine the
   type of IP address that you can use. For detailed information, see
@@ -1480,7 +1478,6 @@ The following arguments are supported:
   *  For Private Service Connect forwarding rules that forward traffic to Google APIs, provide the name of a supported Google API bundle:
     *  `vpc-sc` - [ APIs that support VPC Service Controls](https://cloud.google.com/vpc-service-controls/docs/supported-products).
     *  `all-apis` - [All supported Google APIs](https://cloud.google.com/vpc/docs/private-service-connect#supported-apis).
-
   For Private Service Connect forwarding rules that forward traffic to managed services, the target must be a service attachment.
 
 * `allow_global_access` -

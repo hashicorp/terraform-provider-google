@@ -20,8 +20,9 @@ description: |-
 # google_firestore_index
 
 Cloud Firestore indexes enable simple and complex queries against documents in a database.
- This resource manages composite indexes and not single
-field indexes.
+ Both Firestore Native and Datastore Mode indexes are supported.
+ This resource manages composite indexes and not single field indexes.
+ To manage single field indexes, use the `google_firestore_field` resource instead.
 
 
 To get more information about Index, see:
@@ -34,9 +35,8 @@ To get more information about Index, see:
 a Firestore database. If you haven't already created it, you may
 create a `google_firestore_database` resource and `location_id` set
 to your chosen location. If you wish to use App Engine, you may
-instead create a `google_app_engine_application` resource with
-`database_type` set to `"CLOUD_FIRESTORE"`. Your Firestore location
-will be the same as the App Engine location specified.
+instead create a `google_app_engine_application` resource.
+Your Firestore location will be the same as the App Engine location specified.
 
 ## Example Usage - Firestore Index Basic
 

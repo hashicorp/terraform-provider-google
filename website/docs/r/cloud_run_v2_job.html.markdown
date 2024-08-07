@@ -349,6 +349,7 @@ resource "google_cloud_run_v2_job" "default" {
 
 ```hcl
 resource "google_cloud_run_v2_job" "default" {
+  provider = google-beta
   name     = "cloudrun-job"
   location = "us-central1"
   start_execution_token = "start-once-created"
@@ -759,6 +760,10 @@ The following arguments are supported:
 * `use_default` -
   (Optional)
   If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.
+
+* `policy` -
+  (Optional)
+  The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}
 
 ## Attributes Reference
 

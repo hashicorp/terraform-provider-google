@@ -23,7 +23,7 @@ description: |-
 An Anthos node pool running on AWS.
 
 For more information, see:
-* [Multicloud overview](https://cloud.google.com/anthos/clusters/docs/multi-cloud)
+* [Multicloud overview](https://cloud.google.com/kubernetes-engine/multi-cloud/docs)
 ## Example Usage - basic_aws_cluster
 A basic example of a containeraws node pool
 ```hcl

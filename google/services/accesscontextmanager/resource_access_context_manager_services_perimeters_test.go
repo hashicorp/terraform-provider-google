@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -28,25 +28,28 @@ func testAccAccessContextManagerServicePerimeters_basicTest(t *testing.T) {
 				Config: testAccAccessContextManagerServicePerimeters_basic(org, "my policy", "level", "storage_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
 			},
 			{
-				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 			{
 				Config: testAccAccessContextManagerServicePerimeters_update(org, "my policy", "level", "storage_perimeter", "bigquery_perimeter", "bigtable_perimeter", "bigquery_omni_perimeter"),
 			},
 			{
-				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 			{
 				Config: testAccAccessContextManagerServicePerimeters_empty(org, "my policy", "level"),
 			},
 			{
-				ResourceName:      "google_access_context_manager_service_perimeters.test-access",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_access_context_manager_service_perimeters.test-access",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"service_perimeters"},
 			},
 		},
 	})

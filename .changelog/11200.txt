@@ -1,0 +1,3 @@
+```release-note:deprecation
+datastore: deprecated the resource `google_datastore_index`. Use the `google_firestore_index` resource instead.
+```

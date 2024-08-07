@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_scc_v2_organization_mute_config`
+```

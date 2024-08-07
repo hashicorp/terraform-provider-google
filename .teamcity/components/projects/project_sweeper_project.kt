@@ -23,7 +23,7 @@ fun projectSweeperSubProject(allConfig: AllContextParameters): Project {
 
     val projectId = replaceCharsId("PROJECT_SWEEPER")
 
-    // Get config for using the GA identity (arbitrary choice as sweeper isn't confined by GA/Beta etc)
+    // Get config for using the GA identity (arbitrary choice as sweeper isn't confined by GA/Beta etc.)
     val gaConfig = getGaAcceptanceTestConfig(allConfig)
 
     // List of ALL shared resources; avoid clashing with any other running build

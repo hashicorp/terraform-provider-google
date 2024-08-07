@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkconnectivity: migrated `google_network_connectivity_spoke` from DCL to MMv1
+```

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -446,6 +446,70 @@ resource "google_bigquery_dataset" "dataset" {
   external_dataset_reference {
     external_source = "aws-glue://arn:aws:glue:us-east-1:772042918353:database/db_other_formats_external"
     connection      = "projects/bigquerytestdefault/locations/aws-us-east-1/connections/external_test-connection"
+  }
+}
+`, context)
+}
+
+func TestAccBigQueryDataset_bigqueryDatasetResourceTagsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigQueryDatasetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDataset_bigqueryDatasetResourceTagsExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_dataset.dataset",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccBigQueryDataset_bigqueryDatasetResourceTagsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "project" {
+}
+
+resource "google_tags_tag_key" "tag_key1" {
+  parent = "projects/${data.google_project.project.number}"
+  short_name = "tf_test_tag_key1%{random_suffix}"
+}
+
+resource "google_tags_tag_value" "tag_value1" {
+  parent = "tagKeys/${google_tags_tag_key.tag_key1.name}"
+  short_name = "tf_test_tag_value1%{random_suffix}"
+}
+
+resource "google_tags_tag_key" "tag_key2" {
+  parent = "projects/${data.google_project.project.number}"
+  short_name = "tf_test_tag_key2%{random_suffix}"
+}
+
+resource "google_tags_tag_value" "tag_value2" {
+  parent = "tagKeys/${google_tags_tag_key.tag_key2.name}"
+  short_name = "tf_test_tag_value2%{random_suffix}"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id                  = "dataset%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "EU"
+
+  resource_tags = {
+    "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key1.short_name}" = "${google_tags_tag_value.tag_value1.short_name}"
+    "${data.google_project.project.project_id}/${google_tags_tag_key.tag_key2.short_name}" = "${google_tags_tag_value.tag_value2.short_name}"
   }
 }
 `, context)

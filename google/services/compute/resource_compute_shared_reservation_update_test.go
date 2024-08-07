@@ -5,13 +5,12 @@ package compute_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccComputeSharedReservation_update(t *testing.T) {
-	acctest.SkipIfVcr(t) // large number of parallel resources.
 	t.Parallel()
 
 	context := map[string]interface{}{

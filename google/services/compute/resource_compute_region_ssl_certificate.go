@@ -18,6 +18,8 @@
 package compute
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,6 +34,12 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+// sha256DiffSuppress
+// if old is the hex-encoded sha256 sum of new, treat them as equal
+func sha256DiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return hex.EncodeToString(sha256.New().Sum([]byte(old))) == new
+}
 
 func ResourceComputeRegionSslCertificate() *schema.Resource {
 	return &schema.Resource{
@@ -66,7 +74,7 @@ The chain must include at least one intermediate cert.`,
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.Sha256DiffSuppress,
+				DiffSuppressFunc: sha256DiffSuppress,
 				Description:      `The write-only private key in PEM format.`,
 				Sensitive:        true,
 			},
@@ -89,7 +97,6 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.
-
 
 These are in the same namespace as the managed SSL certificates.`,
 			},

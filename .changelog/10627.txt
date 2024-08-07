@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudfunctions2: added `build_config.automatic_update_policy` and `build_config.on_deploy_update_policy` to `google_cloudfunctions2_function` resource
+```

@@ -5,7 +5,7 @@ package cloudfunctions2_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
@@ -77,7 +77,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   }
 
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs18"
     entry_point = "helloHttp"
     source {
       storage_source {
@@ -119,7 +119,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   }
   
   build_config {
-    runtime = "nodejs12"
+    runtime = "nodejs18"
     entry_point = "helloHttp"
     source {
       storage_source {
@@ -127,6 +127,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
         object = google_storage_bucket_object.object.name
       }
     }
+    on_deploy_update_policy {}
   }
 
   service_config {
@@ -156,7 +157,7 @@ resource "google_cloudfunctions2_function" "terraform-test2" {
   description = "function test"
 
   build_config {
-    runtime = "nodejs16"
+    runtime = "nodejs18"
     entry_point = "helloHttp"
     environment_variables = {
         BUILD_CONFIG_TEST = "build_test"
@@ -275,7 +276,7 @@ resource "google_cloudfunctions2_function" "function" {
   description = "a new function"
 
   build_config {
-    runtime     = "nodejs12"
+    runtime     = "nodejs18"
     entry_point = "entryPoint" # Set the entry point in the code
     environment_variables = {
       BUILD_CONFIG_TEST = "build_test"
@@ -320,4 +321,172 @@ resource "google_cloudfunctions2_function" "function" {
     }
   }
 }`, context)
+}
+
+func TestAccCloudFunctions2Function_updateAbiuFull(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"zip_path":      "./test-fixtures/function-source.zip",
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudfunctions2functionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudfunctions2function_abiuBasic(context),
+			},
+			{
+				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudFunctions2Function_test_abiuUpdate(context),
+			},
+			{
+				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccCloudFunctions2Function_test_abiuUpdate2(context),
+			},
+			{
+				ResourceName:            "google_cloudfunctions2_function.terraform-test2",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "build_config.0.source.0.storage_source.0.object", "build_config.0.source.0.storage_source.0.bucket", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccCloudfunctions2function_abiuBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "tf-test-cloudfunctions2-function-bucket%{random_suffix}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"
+}
+
+resource "google_cloudfunctions2_function" "terraform-test2" {
+  name = "tf-test-test-function%{random_suffix}"
+  location = "us-central1"
+  description = "a new function"
+  labels = {
+    env = "test"
+  }
+
+  build_config {
+    runtime = "nodejs18"
+    entry_point = "helloHttp"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+    automatic_update_policy {}
+  }
+
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "1536Mi"
+    timeout_seconds     = 30
+  }
+}
+`, context)
+}
+
+func testAccCloudFunctions2Function_test_abiuUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "tf-test-cloudfunctions2-function-bucket%{random_suffix}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"
+}
+
+resource "google_cloudfunctions2_function" "terraform-test2" {
+  name = "tf-test-test-function%{random_suffix}"
+  location = "us-central1"
+  description = "an updated function with automatic runtime update specified"
+  labels = {
+    env = "test-update"
+  }
+
+  build_config {
+    runtime = "nodejs18"
+    entry_point = "helloHttp"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+    on_deploy_update_policy {}
+  }
+
+  service_config {
+    min_instance_count = 1
+  }
+}
+`, context)
+}
+
+func testAccCloudFunctions2Function_test_abiuUpdate2(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name     = "tf-test-cloudfunctions2-function-bucket%{random_suffix}"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object" {
+  name   = "function-source.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%{zip_path}"
+}
+
+resource "google_cloudfunctions2_function" "terraform-test2" {
+  name = "tf-test-test-function%{random_suffix}"
+  location = "us-central1"
+  description = "an updated function with no runtime update specified"
+  labels = {
+    env = "test-update"
+  }
+  
+  build_config {
+    runtime = "nodejs18"
+    entry_point = "helloHttp"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.object.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count = 1
+  }
+}
+`, context)
 }

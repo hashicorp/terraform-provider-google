@@ -36,9 +36,9 @@ resource "google_logging_billing_account_bucket_config" "example-billing-account
   retention_days  = 30
   bucket_id       = "_Default"
 	
-  index_configs   = {
-    file_path   = "jsonPayload.request.status"
-    type        = "INDEX_TYPE_STRING"
+  index_configs {
+    field_path = "jsonPayload.request.status"
+    type       = "INDEX_TYPE_STRING"
   }
 }
 ```
@@ -62,7 +62,7 @@ The following arguments are supported:
 <a name="nested_index_configs"></a>The `index_configs` block supports:
 
 * `field_path` - The LogEntry field path to index.
-  Note that some paths are automatically indexed, and other paths are not eligible for indexing. See [indexing documentation]( https://cloud.google.com/logging/docs/view/advanced-queries#indexed-fields) for details.
+  Note that some paths are automatically indexed, and other paths are not eligible for indexing. See [indexing documentation](https://cloud.google.com/logging/docs/analyze/custom-index) for details.
 
 * `type` - The type of data in this index. Allowed types include `INDEX_TYPE_UNSPECIFIED`, `INDEX_TYPE_STRING` and `INDEX_TYPE_INTEGER`.
 

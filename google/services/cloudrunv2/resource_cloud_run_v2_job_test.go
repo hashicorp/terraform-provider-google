@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccCloudRunV2Job_cloudrunv2JobFullUpdate(t *testing.T) {
@@ -214,6 +215,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
 	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
 	context := map[string]interface{}{
 		"job_name": jobName,
+		"project":  envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -231,7 +233,7 @@ func TestAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"location", "launch_stage"},
 			},
 			{
-				Config: testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context),
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCAndNamedBinAuthPolicyUpdate(context),
 			},
 			{
 				ResourceName:            "google_cloud_run_v2_job.default",
@@ -248,7 +250,6 @@ func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPC(context map[string]interfac
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
     location = "us-central1"
-    launch_stage = "BETA"
     template {
       template {
         containers {
@@ -271,12 +272,15 @@ func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPC(context map[string]interfac
 `, context)
 }
 
-func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCUpdate(context map[string]interface{}) string {
+func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCAndNamedBinAuthPolicyUpdate(context map[string]interface{}) string {
 	return acctest.Nprintf(`
   resource "google_cloud_run_v2_job" "default" {
     name     = "%{job_name}"
     location = "us-central1"
-    launch_stage = "BETA"
+    binary_authorization {
+      policy = "projects/%{project}/platforms/cloudRun/policies/my-policy"
+      breakglass_justification = "Some justification"
+    }
     template {
       template {
         containers {

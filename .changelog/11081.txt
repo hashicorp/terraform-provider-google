@@ -1,0 +1,3 @@
+```release-note:bug
+index_update: fixed pre-update use unsupported nested updatemask "metadata.contentsDeltaUri". Use first layer update mask and update "metadata" field in a separate call.
+```

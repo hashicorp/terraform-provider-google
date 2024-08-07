@@ -1,0 +1,6 @@
+```release-note:enhancement
+vertexai: promoted `dedicated_serving_endpoint` field to GA for `google_vertex_ai_feature_online_store` resource
+```
+```release-note:none
+vertexai: grammatical corrections in documentation
+```

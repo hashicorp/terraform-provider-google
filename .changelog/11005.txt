@@ -1,0 +1,3 @@
+```release-note:none
+sql: improved disk_size and disk_autoresize docs
+```

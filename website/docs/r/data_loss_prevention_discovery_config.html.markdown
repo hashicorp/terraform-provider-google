@@ -375,6 +375,92 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
     }
 }
 ```
+## Example Usage - Dlp Discovery Config Cloud Storage
+
+
+```hcl
+resource "google_data_loss_prevention_discovery_config" "cloud_storage" {
+    parent = "projects/my-project-name/locations/us"
+    location = "us"
+    status = "RUNNING"
+
+    targets {
+        cloud_storage_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            cloud_storage_regex {
+                                project_id_regex = "foo-project"
+                                bucket_name_regex = "bucket"
+                            }
+                        }
+                    }
+                }
+            }
+            conditions {
+                created_after = "2023-10-02T15:01:23Z"
+                min_age = "10800s"
+                cloud_storage_conditions {
+                    included_object_attributes = ["ALL_SUPPORTED_OBJECTS"]
+                    included_bucket_attributes = ["ALL_SUPPORTED_BUCKETS"]
+                }
+            }
+            generation_cadence {
+                inspect_template_modified_cadence {
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+    }
+    targets {
+        cloud_storage_target {
+            filter {
+                collection {
+                    include_regexes {
+                        patterns {
+                            cloud_storage_regex {
+                                project_id_regex = "foo-project"
+                                bucket_name_regex = "do-not-scan"
+                            }
+                        }
+                    }
+                }
+            }
+            disabled {}
+        }
+    }
+    targets {
+        cloud_storage_target {
+            filter {
+                others {}
+            }
+            generation_cadence {
+                schema_modified_cadence {
+                    types = ["NEW_COLUMNS"]
+                    frequency = "UPDATE_FREQUENCY_MONTHLY"
+                }
+                refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+            }
+        }
+
+    }
+    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"] 
+}
+
+resource "google_data_loss_prevention_inspect_template" "basic" {
+    parent = "projects/my-project-name"
+    description = "My description"
+    display_name = "display_name"
+
+    inspect_config {
+        info_types {
+            name = "EMAIL_ADDRESS"
+        }
+    }
+}
+```
 
 ## Argument Reference
 
@@ -551,6 +637,11 @@ The following arguments are supported:
 * `secrets_target` -
   (Optional)
   Discovery target that looks for credentials and secrets stored in cloud resource metadata and reports them as vulnerabilities to Security Command Center. Only one target of this type is allowed.
+
+* `cloud_storage_target` -
+  (Optional)
+  Cloud Storage target for Discovery. The first target to match a bucket will be the one applied.
+  Structure is [documented below](#nested_cloud_storage_target).
 
 
 <a name="nested_big_query_target"></a>The `big_query_target` block supports:
@@ -834,6 +925,137 @@ The following arguments are supported:
 * `frequency` -
   (Optional)
   Frequency to regenerate data profiles when the schema is modified. Defaults to monthly.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+<a name="nested_cloud_storage_target"></a>The `cloud_storage_target` block supports:
+
+* `filter` -
+  (Required)
+  The buckets the generation_cadence applies to. The first target with a matching filter will be the one to apply to a bucket.
+  Structure is [documented below](#nested_filter).
+
+* `conditions` -
+  (Optional)
+  In addition to matching the filter, these conditions must be true before a profile is generated.
+  Structure is [documented below](#nested_conditions).
+
+* `generation_cadence` -
+  (Optional)
+  How often and when to update profiles. New buckets that match both the filter and conditions are scanned as quickly as possible depending on system capacity.
+  Structure is [documented below](#nested_generation_cadence).
+
+* `disabled` -
+  (Optional)
+  Disable profiling for buckets that match this filter.
+
+
+<a name="nested_filter"></a>The `filter` block supports:
+
+* `collection` -
+  (Optional)
+  A specific set of buckets for this filter to apply to.
+  Structure is [documented below](#nested_collection).
+
+* `cloud_storage_resource_reference` -
+  (Optional)
+  The bucket to scan. Targets including this can only include one target (the target with this bucket). This enables profiling the contents of a single bucket, while the other options allow for easy profiling of many buckets within a project or an organization.
+  Structure is [documented below](#nested_cloud_storage_resource_reference).
+
+* `others` -
+  (Optional)
+  Match discovery resources not covered by any other filter.
+
+
+<a name="nested_collection"></a>The `collection` block supports:
+
+* `include_regexes` -
+  (Optional)
+  A collection of regular expressions to match a file store against.
+  Structure is [documented below](#nested_include_regexes).
+
+
+<a name="nested_include_regexes"></a>The `include_regexes` block supports:
+
+* `patterns` -
+  (Optional)
+  The group of regular expression patterns to match against one or more file stores. Maximum of 100 entries. The sum of all lengths of regular expressions can't exceed 10 KiB.
+  Structure is [documented below](#nested_patterns).
+
+
+<a name="nested_patterns"></a>The `patterns` block supports:
+
+* `cloud_storage_regex` -
+  (Optional)
+  Regex for Cloud Storage.
+  Structure is [documented below](#nested_cloud_storage_regex).
+
+
+<a name="nested_cloud_storage_regex"></a>The `cloud_storage_regex` block supports:
+
+* `project_id_regex` -
+  (Optional)
+  For organizations, if unset, will match all projects.
+
+* `bucket_name_regex` -
+  (Optional)
+  Regex to test the bucket name against. If empty, all buckets match. Example: "marketing2021" or "(marketing)\d{4}" will both match the bucket gs://marketing2021
+
+<a name="nested_cloud_storage_resource_reference"></a>The `cloud_storage_resource_reference` block supports:
+
+* `bucket_name` -
+  (Optional)
+  The bucket to scan.
+
+* `project_id` -
+  (Optional)
+  If within a project-level config, then this must match the config's project id.
+
+<a name="nested_conditions"></a>The `conditions` block supports:
+
+* `created_after` -
+  (Optional)
+  File store must have been created after this date. Used to avoid backfilling. A timestamp in RFC3339 UTC "Zulu" format with nanosecond resolution and upto nine fractional digits.
+
+* `min_age` -
+  (Optional)
+  Duration format. Minimum age a file store must have. If set, the value must be 1 hour or greater.
+
+* `cloud_storage_conditions` -
+  (Optional)
+  Cloud Storage conditions.
+  Structure is [documented below](#nested_cloud_storage_conditions).
+
+
+<a name="nested_cloud_storage_conditions"></a>The `cloud_storage_conditions` block supports:
+
+* `included_object_attributes` -
+  (Optional)
+  Only objects with the specified attributes will be scanned. If an object has one of the specified attributes but is inside an excluded bucket, it will not be scanned. Defaults to [ALL_SUPPORTED_OBJECTS]. A profile will be created even if no objects match the included_object_attributes.
+  Each value may be one of: `ALL_SUPPORTED_OBJECTS`, `STANDARD`, `NEARLINE`, `COLDLINE`, `ARCHIVE`, `REGIONAL`, `MULTI_REGIONAL`, `DURABLE_REDUCED_AVAILABILITY`.
+
+* `included_bucket_attributes` -
+  (Optional)
+  Only objects with the specified attributes will be scanned. Defaults to [ALL_SUPPORTED_BUCKETS] if unset.
+  Each value may be one of: `ALL_SUPPORTED_BUCKETS`, `AUTOCLASS_DISABLED`, `AUTOCLASS_ENABLED`.
+
+<a name="nested_generation_cadence"></a>The `generation_cadence` block supports:
+
+* `refresh_frequency` -
+  (Optional)
+  Data changes in Cloud Storage can't trigger reprofiling. If you set this field, profiles are refreshed at this frequency regardless of whether the underlying buckets have changes. Defaults to never.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+* `inspect_template_modified_cadence` -
+  (Optional)
+  Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
+  Structure is [documented below](#nested_inspect_template_modified_cadence).
+
+
+<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+
+* `frequency` -
+  (Optional)
+  How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
 ## Attributes Reference

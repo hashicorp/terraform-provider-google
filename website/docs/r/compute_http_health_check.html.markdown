@@ -22,7 +22,6 @@ description: |-
 An HttpHealthCheck resource. This resource defines a template for how
 individual VMs should be checked for health, via HTTP.
 
-
 ~> **Note:** google_compute_http_health_check is a legacy health check.
 The newer [google_compute_health_check](/docs/providers/google/r/compute_health_check.html)
 should be preferred for all uses except

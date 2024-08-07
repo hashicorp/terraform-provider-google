@@ -129,8 +129,7 @@ except the last character, which cannot be a dash.`,
 				Required:         true,
 				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description: `The URL of a forwarding rule that represents the service identified by
-this service attachment.`,
+				Description:      `The URL of a service serving the endpoint identified by this service attachment.`,
 			},
 			"consumer_accept_lists": {
 				Type:     schema.TypeSet,
@@ -713,10 +712,7 @@ func flattenComputeServiceAttachmentConnectedEndpointsStatus(v interface{}, d *s
 }
 
 func flattenComputeServiceAttachmentTargetService(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	if v == nil {
-		return v
-	}
-	return tpgresource.ConvertSelfLinkToV1(v.(string))
+	return v
 }
 
 func flattenComputeServiceAttachmentNatSubnets(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -804,11 +800,7 @@ func expandComputeServiceAttachmentConnectionPreference(v interface{}, d tpgreso
 }
 
 func expandComputeServiceAttachmentTargetService(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := tpgresource.ParseRegionalFieldValue("forwardingRules", v.(string), "project", "region", "zone", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for target_service: %s", err)
-	}
-	return f.RelativeLink(), nil
+	return v, nil
 }
 
 func expandComputeServiceAttachmentNatSubnets(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -901,7 +893,6 @@ func expandComputeServiceAttachmentRegion(v interface{}, d tpgresource.Terraform
 }
 
 func resourceComputeServiceAttachmentUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-
 	// need to send value in PATCH due to validation bug on api b/198329756
 	nameProp := d.Get("name")
 	if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {

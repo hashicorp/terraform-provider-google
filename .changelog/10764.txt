@@ -1,0 +1,6 @@
+```release-note:enhancement
+vmwareengine: added `deletion_delay_hours` field to `google_vmwareengine_private_cloud` resource
+```
+```release-note:enhancement
+vmwareengine: support type change from `TIME_LIMITED` to `STANDARD` for multi-node `google_vmwareengine_private_cloud` resource
+```

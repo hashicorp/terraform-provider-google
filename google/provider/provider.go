@@ -604,6 +604,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"privileged_access_manager_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"public_ca_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -649,6 +654,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"security_center_v2_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"securityposture_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -659,7 +669,17 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
 			},
+			"service_networking_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
 			"service_usage_custom_endpoint": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
+			},
+			"site_verification_custom_endpoint": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: transport_tpg.ValidateCustomEndpoint,
@@ -1013,6 +1033,7 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.OSConfigBasePath = d.Get("os_config_custom_endpoint").(string)
 	config.OSLoginBasePath = d.Get("os_login_custom_endpoint").(string)
 	config.PrivatecaBasePath = d.Get("privateca_custom_endpoint").(string)
+	config.PrivilegedAccessManagerBasePath = d.Get("privileged_access_manager_custom_endpoint").(string)
 	config.PublicCABasePath = d.Get("public_ca_custom_endpoint").(string)
 	config.PubsubBasePath = d.Get("pubsub_custom_endpoint").(string)
 	config.PubsubLiteBasePath = d.Get("pubsub_lite_custom_endpoint").(string)
@@ -1022,9 +1043,12 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.SecureSourceManagerBasePath = d.Get("secure_source_manager_custom_endpoint").(string)
 	config.SecurityCenterBasePath = d.Get("security_center_custom_endpoint").(string)
 	config.SecurityCenterManagementBasePath = d.Get("security_center_management_custom_endpoint").(string)
+	config.SecurityCenterV2BasePath = d.Get("security_center_v2_custom_endpoint").(string)
 	config.SecuritypostureBasePath = d.Get("securityposture_custom_endpoint").(string)
 	config.ServiceManagementBasePath = d.Get("service_management_custom_endpoint").(string)
+	config.ServiceNetworkingBasePath = d.Get("service_networking_custom_endpoint").(string)
 	config.ServiceUsageBasePath = d.Get("service_usage_custom_endpoint").(string)
+	config.SiteVerificationBasePath = d.Get("site_verification_custom_endpoint").(string)
 	config.SourceRepoBasePath = d.Get("source_repo_custom_endpoint").(string)
 	config.SpannerBasePath = d.Get("spanner_custom_endpoint").(string)
 	config.SQLBasePath = d.Get("sql_custom_endpoint").(string)
@@ -1047,7 +1071,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config.IamCredentialsBasePath = d.Get(transport_tpg.IamCredentialsCustomEndpointEntryKey).(string)
 	config.ResourceManagerV3BasePath = d.Get(transport_tpg.ResourceManagerV3CustomEndpointEntryKey).(string)
 	config.IAMBasePath = d.Get(transport_tpg.IAMCustomEndpointEntryKey).(string)
-	config.ServiceNetworkingBasePath = d.Get(transport_tpg.ServiceNetworkingCustomEndpointEntryKey).(string)
 	config.ServiceUsageBasePath = d.Get(transport_tpg.ServiceUsageCustomEndpointEntryKey).(string)
 	config.BigtableAdminBasePath = d.Get(transport_tpg.BigtableAdminCustomEndpointEntryKey).(string)
 	config.TagsLocationBasePath = d.Get(transport_tpg.TagsLocationCustomEndpointEntryKey).(string)

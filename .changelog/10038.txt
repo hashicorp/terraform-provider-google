@@ -1,0 +1,4 @@
+```release-note:enhancement
+storage: The update on `google_storage_bucket_object` content is now no more delete to create object, but just push a new object if the content change
+
+```

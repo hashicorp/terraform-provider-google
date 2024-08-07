@@ -1,35 +1,18 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: MPL-2.0
-
-// ----------------------------------------------------------------------------
-//
-//     ***     AUTO GENERATED CODE    ***    Type: DCL     ***
-//
-// ----------------------------------------------------------------------------
-//
-//     This file is managed by Magic Modules (https://github.com/GoogleCloudPlatform/magic-modules)
-//     and is based on the DCL (https://github.com/GoogleCloudPlatform/declarative-resource-client-library).
-//     Changes will need to be made to the DCL or Magic Modules instead of here.
-//
-//     We are not currently able to accept contributions to this file. If changes
-//     are required, please file an issue at https://github.com/hashicorp/terraform-provider-google/issues/new/choose
-//
-// ----------------------------------------------------------------------------
-
 package orgpolicy_test
 
 import (
-	"context"
 	"fmt"
-	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
-	orgpolicy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/orgpolicy"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -272,23 +255,45 @@ resource "google_folder" "basic" {
 
 func testAccOrgPolicyPolicy_OrganizationPolicy(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_org_policy_custom_constraint" "constraint" {
+  name         = "custom.tfTest%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  display_name = "Disable GKE auto upgrade"
+  description  = "Only allow GKE NodePool resource to be created or updated if AutoUpgrade is not enabled where this custom constraint is enforced."
+
+  action_type    = "ALLOW"
+  condition      = "resource.management.autoUpgrade == false"
+  method_types   = ["CREATE", "UPDATE"]
+  resource_types = ["container.googleapis.com/NodePool"]
+}
+
 resource "google_org_policy_policy" "primary" {
-  name   = "organizations/%{org_id}/policies/gcp.detailedAuditLoggingMode"
+  name   = "organizations/%{org_id}/policies/${google_org_policy_custom_constraint.constraint.name}"
   parent = "organizations/%{org_id}"
 
   spec {
     reset = true
   }
 }
-
-
 `, context)
 }
 
 func testAccOrgPolicyPolicy_OrganizationPolicyUpdate0(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+resource "google_org_policy_custom_constraint" "constraint" {
+  name         = "custom.tfTest%{random_suffix}"
+  parent       = "organizations/%{org_id}"
+  display_name = "Disable GKE auto upgrade"
+  description  = "Only allow GKE NodePool resource to be created or updated if AutoUpgrade is not enabled where this custom constraint is enforced."
+
+  action_type    = "ALLOW"
+  condition      = "resource.management.autoUpgrade == false"
+  method_types   = ["CREATE", "UPDATE"]
+  resource_types = ["container.googleapis.com/NodePool"]
+}
+
 resource "google_org_policy_policy" "primary" {
-  name   = "organizations/%{org_id}/policies/gcp.detailedAuditLoggingMode"
+  name   = "organizations/%{org_id}/policies/${google_org_policy_custom_constraint.constraint.name}"
   parent = "organizations/%{org_id}"
 
   spec {
@@ -299,8 +304,6 @@ resource "google_org_policy_policy" "primary" {
     }
   }
 }
-
-
 `, context)
 }
 
@@ -416,7 +419,7 @@ resource "google_org_policy_policy" "primary" {
 func testAccCheckOrgPolicyPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
-			if rs.Type != "rs.google_org_policy_policy" {
+			if rs.Type != "google_org_policy_policy" {
 				continue
 			}
 			if strings.HasPrefix(name, "data.") {
@@ -425,23 +428,30 @@ func testAccCheckOrgPolicyPolicyDestroyProducer(t *testing.T) func(s *terraform.
 
 			config := acctest.GoogleProviderConfig(t)
 
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{OrgPolicyBasePath}}{{parent}}/policies/{{name}}")
+			if err != nil {
+				return err
+			}
+
 			billingProject := ""
+
 			if config.BillingProject != "" {
 				billingProject = config.BillingProject
 			}
 
-			obj := &orgpolicy.Policy{
-				Name:   dcl.String(rs.Primary.Attributes["name"]),
-				Parent: dcl.String(rs.Primary.Attributes["parent"]),
-				Etag:   dcl.StringOrNil(rs.Primary.Attributes["etag"]),
-			}
-
-			client := transport_tpg.NewDCLOrgPolicyClient(config, config.UserAgent, billingProject, 0)
-			_, err := client.GetPolicy(context.Background(), obj)
+			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+				Config:               config,
+				Method:               "GET",
+				Project:              billingProject,
+				RawURL:               url,
+				UserAgent:            config.UserAgent,
+				ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsOrgpolicyRetryableError},
+			})
 			if err == nil {
-				return fmt.Errorf("google_org_policy_policy still exists %v", obj)
+				return fmt.Errorf("OrgPolicyPolicy still exists at %s", url)
 			}
 		}
+
 		return nil
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccComputeBackendService_basic(t *testing.T) {
@@ -784,6 +784,68 @@ func TestAccComputeBackendService_trafficDirectorUpdateLbPolicies(t *testing.T) 
 			},
 			{
 				Config: testAccComputeBackendService_trafficDirectorUpdateLbPolicies(backendName, checkName),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withPrivateOriginAuth(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_withPrivateOriginAuth(randomSuffix),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				Config: testAccComputeBackendService_withPrivateOriginAuthUpdate(randomSuffix),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+		},
+	})
+}
+
+func TestAccComputeBackendService_withClientTlsPolicy(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_clientTlsPolicy(randomSuffix),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeBackendService_clientTlsPolicyUpdate(randomSuffix),
 			},
 			{
 				ResourceName:      "google_compute_backend_service.foobar",
@@ -1813,4 +1875,147 @@ resource "google_compute_http_health_check" "zero" {
   timeout_sec        = 1
 }
 `, serviceName, compressionMode, checkName)
+}
+
+func testAccComputeBackendService_withPrivateOriginAuth(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name = "tf-test-backend-service-%s"
+  security_settings {
+    aws_v4_authentication {
+      access_key_id      = "AKIAIOSFODNN7EXAMPLE"
+      access_key         = "c4afb1cc5771d871763a393e44b703571b55cc28424d1a5e86da6ed3c154a4b9"
+      access_key_version = "prod-access-key-v1.2"
+      origin_region      = "us-east-2"
+    }
+  }
+  backend {
+    group = google_compute_global_network_endpoint_group.group.self_link
+  }
+}
+
+resource "google_compute_global_network_endpoint" "networkendpoint" {
+  global_network_endpoint_group = google_compute_global_network_endpoint_group.group.name
+  ip_address  = "8.8.8.8"
+  port        = 443
+}
+
+resource "google_compute_global_network_endpoint_group" "group" {
+  name         = "tf-test-neg-%s"
+  network_endpoint_type = "INTERNET_IP_PORT"
+}
+`, randomSuffix, randomSuffix)
+}
+
+func testAccComputeBackendService_withPrivateOriginAuthUpdate(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name = "tf-test-backend-service-%s"
+  security_settings {
+    aws_v4_authentication {
+      access_key_id      = "AKIAIOSFODNN7EXAMPLE"
+      access_key         = "EXAMPLEc5771d871763a393e44b703571b55cc28424d1a5e86da6ed3cELPMAXE"
+      access_key_version = "prod-access-key-v1.2"
+      origin_region      = "us-east-2"
+    }
+  }
+  backend {
+    group = google_compute_global_network_endpoint_group.group.self_link
+  }
+}
+
+resource "google_compute_global_network_endpoint" "networkendpoint" {
+  global_network_endpoint_group = google_compute_global_network_endpoint_group.group.name
+  ip_address  = "8.8.8.8"
+  port        = 443
+}
+
+resource "google_compute_global_network_endpoint_group" "group" {
+  name         = "tf-test-neg-%s"
+  network_endpoint_type = "INTERNET_IP_PORT"
+}
+`, randomSuffix, randomSuffix)
+}
+
+func testAccComputeBackendService_clientTlsPolicy(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name                  = "tf-test-backend-service-%s"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  security_settings {
+    client_tls_policy = "//networksecurity.googleapis.com/${google_network_security_client_tls_policy.foobar.id}"
+    subject_alt_names = ["test-ca"]
+  }
+}
+
+resource "google_network_security_client_tls_policy" "foobar" {
+  name           = "tf-test-client-tls-policy-%s"
+  labels         = {
+    foo = "bar"
+  }
+  description    = "example description"
+  sni            = "secure.example.com"
+  client_certificate {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+  server_validation_ca {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+}
+`, randomSuffix, randomSuffix)
+}
+
+func testAccComputeBackendService_clientTlsPolicyUpdate(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_compute_backend_service" "foobar" {
+  name                  = "tf-test-backend-service-%s"
+  load_balancing_scheme = "INTERNAL_SELF_MANAGED"
+  security_settings {
+    client_tls_policy = "//networksecurity.googleapis.com/${google_network_security_client_tls_policy.foobar2.id}"
+    subject_alt_names = ["test-ca", "test-ca-2"]
+  }
+}
+
+resource "google_network_security_client_tls_policy" "foobar" {
+  name           = "tf-test-client-tls-policy-%s"
+  labels         = {
+    foo = "bar"
+  }
+  description    = "example description"
+  sni            = "secure.example.com"
+  client_certificate {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+  server_validation_ca {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+}
+
+resource "google_network_security_client_tls_policy" "foobar2" {
+  name           = "tf-test-client-tls-policy-the-second-%s"
+  labels         = {
+    foo = "bar"
+  }
+  description    = "example description of the second policy"
+  sni            = "secure.example2.com"
+  client_certificate {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+  server_validation_ca {
+    certificate_provider_instance {
+      plugin_instance = "google_cloud_private_spiffe"
+    }
+  }
+}
+`, randomSuffix, randomSuffix, randomSuffix)
 }

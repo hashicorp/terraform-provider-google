@@ -38,8 +38,8 @@ import (
 
 func validateMonitoringSloGoal(v interface{}, k string) (warnings []string, errors []error) {
 	goal := v.(float64)
-	if goal <= 0 || goal > 0.999 {
-		errors = append(errors, fmt.Errorf("goal %f must be > 0 and <= 0.999", goal))
+	if goal <= 0 || goal > 0.9999 {
+		errors = append(errors, fmt.Errorf("goal %f must be > 0 and <= 0.9999", goal))
 	}
 	return
 }

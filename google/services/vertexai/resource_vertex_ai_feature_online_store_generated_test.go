@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -70,6 +70,55 @@ resource "google_vertex_ai_feature_online_store" "feature_online_store" {
       cpu_utilization_target = 50
     }
   }
+}
+`, context)
+}
+
+func TestAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVertexAIFeatureOnlineStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_feature_online_store.featureonlinestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"etag", "force_destroy", "labels", "name", "region", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIFeatureOnlineStore_vertexAiFeatureonlinestoreWithOptimizedExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  provider = google
+  name     = "tf_test_example_feature_online_store_optimized%{random_suffix}"
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  optimized {}
+  dedicated_serving_endpoint {
+    private_service_connect_config {
+      enable_private_service_connect = true
+      project_allowlist              = [data.google_project.project.number]
+    }
+  }
+}
+
+data "google_project" "project" {
+  provider = google
 }
 `, context)
 }

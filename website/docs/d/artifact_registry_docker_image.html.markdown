@@ -21,9 +21,9 @@ resource "google_artifact_registry_repository" "my_repo" {
 }
 
 data "google_artifact_registry_docker_image" "my_image" {
-  repository = google_artifact_registry_repository.my_repo.id
-  image      = "my-image"
-  tag        = "my-tag"
+  location      = google_artifact_registry_repository.my_repo.location
+  repository_id = google_artifact_registry_repository.my_repo.repository_id
+  image         = "my-image:my-tag"
 }
 
 resource "google_cloud_run_v2_service" "default" {
@@ -43,7 +43,7 @@ The following arguments are supported:
 
 * `location` - (Required) The location of the artifact registry.
 
-* `repository_id` - (Required) The last part of the repository name. to fetch from.
+* `repository_id` - (Required) The last part of the repository name to fetch from.
 
 * `image_name` - (Required) The image name to fetch. If no digest or tag is provided, then the latest modified image will be used.
 

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -322,6 +322,22 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigServiceMesh(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshRemovalUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshReAddUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -343,6 +359,33 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  fleet_default_member_config {
+    mesh {
+      management = "MANAGEMENT_MANUAL"
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshRemovalUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.mesh]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigServiceMeshReAddUpdate(context map[string]interface{}) string {
 	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "servicemesh"
@@ -391,8 +434,51 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(t *testing.T)
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context),
+			},
+			{
+				ResourceName:      "google_gke_hub_feature.feature",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      management = "MANAGEMENT_AUTOMATIC"
+      config_sync {
+        enabled = true
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(context map[string]interface{}) string {
@@ -430,8 +516,10 @@ resource "google_gke_hub_feature" "feature" {
   fleet_default_member_config {
     configmanagement {
       version = "1.16.1"
-     config_sync {
-       prevent_drift = true
+      management = "MANAGEMENT_MANUAL"
+      config_sync {
+        enabled = true
+        prevent_drift = true
         source_format = "unstructured"
         oci {
           sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
@@ -443,6 +531,45 @@ resource "google_gke_hub_feature" "feature" {
       }
     }
   }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+  fleet_default_member_config {
+    configmanagement {
+      version = "1.16.1"
+      management = "MANAGEMENT_AUTOMATIC"
+      config_sync {
+        prevent_drift = true
+        source_format = "unstructured"
+        oci {
+          sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
+          policy_dir = "/acm/nonprod-root/"
+          secret_type = "gcpserviceaccount"
+          sync_wait_secs = "15"
+          gcp_service_account_email = "gke-cluster@gke-foo-nonprod.iam.gserviceaccount.com"
+        }
+      }
+    }
+  }
+  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
+  project = google_project.project.project_id
+}
+`, context)
+}
+
+func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context map[string]interface{}) string {
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
   depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
   project = google_project.project.project_id
 }

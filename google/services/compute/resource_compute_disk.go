@@ -330,6 +330,16 @@ first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.`,
 			},
+			"access_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				Description: `The accessMode of the disk.
+For example:
+* READ_WRITE_SINGLE
+* READ_WRITE_MANY
+* READ_ONLY_SINGLE`,
+			},
 			"async_primary_disk": {
 				Type:             schema.TypeList,
 				Optional:         true,
@@ -861,6 +871,12 @@ func resourceComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	} else if v, ok := d.GetOkExists("storage_pool"); !tpgresource.IsEmptyValue(reflect.ValueOf(storagePoolProp)) && (ok || !reflect.DeepEqual(v, storagePoolProp)) {
 		obj["storagePool"] = storagePoolProp
 	}
+	accessModeProp, err := expandComputeDiskAccessMode(d.Get("access_mode"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(accessModeProp)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+		obj["accessMode"] = accessModeProp
+	}
 	labelsProp, err := expandComputeDiskEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1077,6 +1093,9 @@ func resourceComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("storage_pool", flattenComputeDiskStoragePool(res["storagePool"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Disk: %s", err)
+	}
+	if err := d.Set("access_mode", flattenComputeDiskAccessMode(res["accessMode"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Disk: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenComputeDiskTerraformLabels(res["labels"], d, config)); err != nil {
@@ -1302,6 +1321,56 @@ func resourceComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}?paths=provisionedThroughput")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Disk %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating Disk", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+	if d.HasChange("access_mode") {
+		obj := make(map[string]interface{})
+
+		accessModeProp, err := expandComputeDiskAccessMode(d.Get("access_mode"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("access_mode"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, accessModeProp)) {
+			obj["accessMode"] = accessModeProp
+		}
+
+		obj, err = resourceComputeDiskUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/disks/{{name}}?paths=accessMode")
 		if err != nil {
 			return err
 		}
@@ -1674,6 +1743,10 @@ func flattenComputeDiskStoragePool(v interface{}, d *schema.ResourceData, config
 	return tpgresource.NameFromSelfLinkStateFunc(v)
 }
 
+func flattenComputeDiskAccessMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeDiskTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1944,6 +2017,10 @@ func expandComputeDiskStoragePool(v interface{}, d tpgresource.TerraformResource
 	return v, nil
 }
 
+func expandComputeDiskAccessMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeDiskEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -2193,7 +2270,7 @@ func resourceComputeDiskEncoder(d *schema.ResourceData, meta interface{}, obj ma
 
 func resourceComputeDiskUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 
-	if (d.HasChange("provisioned_iops") && strings.Contains(d.Get("type").(string), "hyperdisk")) || (d.HasChange("provisioned_throughput") && strings.Contains(d.Get("type").(string), "hyperdisk")) {
+	if (d.HasChange("provisioned_iops") && strings.Contains(d.Get("type").(string), "hyperdisk")) || (d.HasChange("provisioned_throughput") && strings.Contains(d.Get("type").(string), "hyperdisk")) || (d.HasChange("access_mode") && strings.Contains(d.Get("type").(string), "hyperdisk")) {
 		nameProp := d.Get("name")
 		if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 			obj["name"] = nameProp

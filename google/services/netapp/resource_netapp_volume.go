@@ -269,6 +269,7 @@ Use NTFS to use NTFS ACLs for file permissions. Can only be set for volumes whic
 			},
 			"smb_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Settings for volumes with SMB access. Possible values: ["ENCRYPT_DATA", "BROWSABLE", "CHANGE_NOTIFY", "NON_BROWSABLE", "OPLOCKS", "SHOW_SNAPSHOT", "SHOW_PREVIOUS_VERSIONS", "ACCESS_BASED_ENUMERATION", "CONTINUOUSLY_AVAILABLE"]`,
 				Elem: &schema.Schema{

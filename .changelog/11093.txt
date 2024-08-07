@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: move `labels` field on `google_compute_global_address` resource from Beta to GA
+```

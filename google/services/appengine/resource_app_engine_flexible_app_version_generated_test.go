@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -33,8 +33,8 @@ func TestAccAppEngineFlexibleAppVersion_appEngineFlexibleAppVersionExample(t *te
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"random_suffix":   acctest.RandString(t, 10),
 	}
 

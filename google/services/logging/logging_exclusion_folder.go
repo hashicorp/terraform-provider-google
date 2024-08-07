@@ -13,12 +13,18 @@ import (
 	"google.golang.org/api/logging/v2"
 )
 
+func OptionalPrefixSuppress(prefix string) schema.SchemaDiffSuppressFunc {
+	return func(k, old, new string, d *schema.ResourceData) bool {
+		return prefix+old == new || prefix+new == old
+	}
+}
+
 var FolderLoggingExclusionSchema = map[string]*schema.Schema{
 	"folder": {
 		Type:             schema.TypeString,
 		Required:         true,
 		ForceNew:         true,
-		DiffSuppressFunc: tpgresource.OptionalPrefixSuppress("folders/"),
+		DiffSuppressFunc: OptionalPrefixSuppress("folders/"),
 	},
 }
 

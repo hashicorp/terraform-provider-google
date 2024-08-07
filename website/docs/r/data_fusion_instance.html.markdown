@@ -96,6 +96,55 @@ resource "google_compute_global_address" "private_ip_alloc" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=data_fusion_instance_psc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Data Fusion Instance Psc
+
+
+```hcl
+resource "google_data_fusion_instance" "psc_instance" {
+  name             = "psc-instance"
+  region           = "us-central1"
+  type             = "BASIC"
+  private_instance = true
+
+  network_config {
+    connection_type = "PRIVATE_SERVICE_CONNECT_INTERFACES"
+    private_service_connect_config {
+      network_attachment     = google_compute_network_attachment.psc.id
+      unreachable_cidr_block = "192.168.0.0/25"
+    }
+  }
+
+  
+}
+
+resource "google_compute_network" "psc" {
+  name                    = "datafusion-psc-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "psc" {
+  name   = "datafusion-psc-subnet"
+  region = "us-central1"
+
+  network       = google_compute_network.psc.id
+  ip_cidr_range = "10.0.0.0/16"
+}
+
+resource "google_compute_network_attachment" "psc" {
+  name                  = "datafusion-psc-attachment"
+  region                = "us-central1"
+  connection_preference = "ACCEPT_AUTOMATIC"
+
+  subnetworks = [
+    google_compute_subnetwork.psc.self_link
+  ]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=data_fusion_instance_cmek&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -303,15 +352,49 @@ The following arguments are supported:
 <a name="nested_network_config"></a>The `network_config` block supports:
 
 * `ip_allocation` -
-  (Required)
+  (Optional)
   The IP range in CIDR notation to use for the managed Data Fusion instance
   nodes. This range must not overlap with any other ranges used in the Data Fusion instance network.
 
 * `network` -
-  (Required)
+  (Optional)
   Name of the network in the project with which the tenant project
   will be peered for executing pipelines. In case of shared VPC where the network resides in another host
   project the network should specified in the form of projects/{host-project-id}/global/networks/{network}
+
+* `connection_type` -
+  (Optional)
+  Optional. Type of connection for establishing private IP connectivity between the Data Fusion customer project VPC and
+  the corresponding tenant project from a predefined list of available connection modes.
+  If this field is unspecified for a private instance, VPC peering is used.
+  Possible values are: `VPC_PEERING`, `PRIVATE_SERVICE_CONNECT_INTERFACES`.
+
+* `private_service_connect_config` -
+  (Optional)
+  Optional. Configuration for Private Service Connect.
+  This is required only when using connection type PRIVATE_SERVICE_CONNECT_INTERFACES.
+  Structure is [documented below](#nested_private_service_connect_config).
+
+
+<a name="nested_private_service_connect_config"></a>The `private_service_connect_config` block supports:
+
+* `network_attachment` -
+  (Optional)
+  Optional. The reference to the network attachment used to establish private connectivity.
+  It will be of the form projects/{project-id}/regions/{region}/networkAttachments/{network-attachment-id}.
+  This is required only when using connection type PRIVATE_SERVICE_CONNECT_INTERFACES.
+
+* `unreachable_cidr_block` -
+  (Optional)
+  Optional. Input only. The CIDR block to which the CDF instance can't route traffic to in the consumer project VPC.
+  The size of this block should be at least /25. This range should not overlap with the primary address range of any subnetwork used by the network attachment.
+  This range can be used for other purposes in the consumer VPC as long as there is no requirement for CDF to reach destinations using these addresses.
+  If this value is not provided, the server chooses a non RFC 1918 address range. The format of this field is governed by RFC 4632.
+
+* `effective_unreachable_cidr_block` -
+  (Output)
+  Output only. The CIDR block to which the CDF instance can't route traffic to in the consumer project VPC.
+  The size of this block is /25. The format of this field is governed by RFC 4632.
 
 <a name="nested_crypto_key_config"></a>The `crypto_key_config` block supports:
 

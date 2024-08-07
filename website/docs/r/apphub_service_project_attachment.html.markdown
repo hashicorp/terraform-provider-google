@@ -84,7 +84,7 @@ The following arguments are supported:
   (Optional)
   "Immutable. Service project name in the format: \"projects/abc\"
   or \"projects/123\". As input, project name with either project id or number
-  are accepted. As output, this field will contain project number. "
+  are accepted. As output, this field will contain project number."
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -97,7 +97,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/global/serviceProjectAttachments/{{service_project_attachment_id}}`
 
 * `name` -
-  "Identifier. The resource name of a ServiceProjectAttachment. Format:\"projects/{host-project-id}/locations/global/serviceProjectAttachments/{service-project-id}.\" "
+  "Identifier. The resource name of a ServiceProjectAttachment. Format:\"projects/{host-project-id}/locations/global/serviceProjectAttachments/{service-project-id}.\""
 
 * `create_time` -
   Output only. Create time.

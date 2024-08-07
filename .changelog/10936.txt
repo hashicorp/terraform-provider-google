@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fixed `custom_placement_config` values not normalized in `google_storage_bucket`
+```

@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
@@ -1523,4 +1523,53 @@ resource "google_compute_disk" "foobar" {
   storage_pool = "%s"
 }
 `, diskName, storagePoolUrl)
+}
+
+func TestAccComputeDisk_accessModeSpecified(t *testing.T) {
+	t.Parallel()
+
+	diskName := fmt.Sprintf("tf-test-disk-accessmode-%s", acctest.RandString(t, 10))
+	accessModeForCreate := "READ_WRITE_SINGLE"
+	accessModeForUpdate := "READ_ONLY_MANY"
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			// Create disk with Access Mode
+			{
+				Config: testAccComputeDisk_accessModeSpecified(diskName, accessModeForCreate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "access_mode", accessModeForCreate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Update Access Mode
+			{
+				Config: testAccComputeDisk_accessModeSpecified(diskName, accessModeForUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_disk.foobar", "access_mode", accessModeForUpdate),
+				),
+			},
+			{
+				ResourceName:      "google_compute_disk.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeDisk_accessModeSpecified(diskName, accessMode string) string {
+	return fmt.Sprintf(`
+resource "google_compute_disk" "foobar" {
+  name = "%s"
+  type = "hyperdisk-ml"
+  zone  = "us-central1-a"
+  access_mode = "%s"
+}
+`, diskName, accessMode)
 }

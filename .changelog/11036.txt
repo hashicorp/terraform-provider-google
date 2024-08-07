@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `stack_type`, and `gateway_ip_version` fields to `google_compute_router` resource
+```

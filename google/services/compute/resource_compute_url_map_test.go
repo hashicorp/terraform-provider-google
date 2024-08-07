@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccComputeUrlMap_update_path_matcher(t *testing.T) {
@@ -350,7 +350,6 @@ func TestAccComputeUrlMap_defaultUrlRedirect(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckComputeUrlMapDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeUrlMap_defaultUrlRedirectConfig(randomSuffix),

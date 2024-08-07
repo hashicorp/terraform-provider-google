@@ -23,8 +23,8 @@ import (
 	"fmt"
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	clouddeploy "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/clouddeploy"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"strings"
 	"testing"
 
@@ -275,6 +275,7 @@ resource "google_clouddeploy_target" "primary" {
   gke {
     cluster     = "projects/%{project_name}/locations/%{region}/clusters/different-example-cluster-name"
     internal_ip = true
+    proxy_url   = "http://10.0.0.1"
   }
 
   project          = "%{project_name}"

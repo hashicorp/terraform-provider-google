@@ -1952,7 +1952,6 @@ func expandClouddomainsRegistrationDomainName(v interface{}, d tpgresource.Terra
 }
 
 func resourceClouddomainsRegistrationEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-
 	// Request body is registration object with additional fields
 	// See https://cloud.google.com/domains/docs/reference/rest/v1beta1/projects.locations.registrations/register
 

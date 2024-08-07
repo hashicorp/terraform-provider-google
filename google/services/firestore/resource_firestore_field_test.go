@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
@@ -48,28 +48,25 @@ func testAccFirestoreField_runUpdateTest(updateConfig string, useOwnProject bool
 				Config: testAccFirestoreField_firestoreFieldUpdateInitialExample(context, useOwnProject),
 			},
 			{
-				ResourceName:            fmt.Sprintf("google_firestore_field.%s", resourceName),
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ResourceName:      fmt.Sprintf("google_firestore_field.%s", resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: updateConfig,
 			},
 			{
-				ResourceName:            fmt.Sprintf("google_firestore_field.%s", resourceName),
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ResourceName:      fmt.Sprintf("google_firestore_field.%s", resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccFirestoreField_firestoreFieldUpdateInitialExample(context, useOwnProject),
 			},
 			{
-				ResourceName:            fmt.Sprintf("google_firestore_field.%s", resourceName),
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database", "collection", "field"},
+				ResourceName:      fmt.Sprintf("google_firestore_field.%s", resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -1,0 +1,3 @@
+```release-note:bug
+firestore: fixes bug where fields database, collection, document_id, and field on resources could not be updated. 
+```

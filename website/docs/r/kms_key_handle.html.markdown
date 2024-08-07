@@ -146,7 +146,7 @@ The following arguments are supported:
 * `resource_type_selector` -
   (Required)
   Selector of the resource type where we want to protect resources.
-  For example, `storage.googleapis.com/Bucket OR compute.googleapis.com/*`
+  For example, `storage.googleapis.com/Bucket`.
 
 * `location` -
   (Required)

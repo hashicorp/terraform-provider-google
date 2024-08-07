@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -62,7 +62,7 @@ data "google_project" "project" {}
 resource "google_compute_interconnect" "example-interconnect" {
   name                 = "tf-test-example-interconnect%{random_suffix}"
   customer_name        = "internal_customer" # Special customer only available for Google testing.
-  interconnect_type    = "IT_PRIVATE"        # Special type only available for Google testing.
+  interconnect_type    = "DEDICATED"
   link_type            = "LINK_TYPE_ETHERNET_10G_LR"
   location             = "https://www.googleapis.com/compute/v1/projects/${data.google_project.project.name}/global/interconnectLocations/z2z-us-east4-zone1-lciadl-a" # Special location only available for Google testing.
   requested_link_count = 1

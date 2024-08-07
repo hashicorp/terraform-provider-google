@@ -66,7 +66,7 @@ The chain must include at least one intermediate cert.`,
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.Sha256DiffSuppress,
+				DiffSuppressFunc: sha256DiffSuppress,
 				Description:      `The write-only private key in PEM format.`,
 				Sensitive:        true,
 			},
@@ -89,7 +89,6 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.
-
 
 These are in the same namespace as the managed SSL certificates.`,
 			},

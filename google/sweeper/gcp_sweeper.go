@@ -6,12 +6,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"hash/crc32"
+	"log"
 	"runtime"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
@@ -60,6 +62,45 @@ func IsSweepableTestResource(resourceName string) bool {
 		}
 	}
 	return false
+}
+
+// ListParentResourcesInLocation calls a provided list endpoint and returns the names of any resources found in the response.
+// This function is intended to be used in sweepers where the resources being swept can only be found with knowledge about existing parental resources.
+func ListParentResourcesInLocation(d *tpgresource.ResourceDataMock, config *transport_tpg.Config, listTemplate, responseField string) ([]string, error) {
+	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
+		return nil, err
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    listUrl,
+		UserAgent: config.UserAgent,
+	})
+	if err != nil {
+		log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
+		return nil, err
+	}
+
+	resourceList, ok := res[responseField]
+	if !ok {
+		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
+		return nil, fmt.Errorf("nothing found in response")
+	}
+
+	rl := resourceList.([]interface{})
+	names := []string{}
+	for _, r := range rl {
+		resource := r.(map[string]interface{})
+		if name, ok := resource["name"]; ok {
+			names = append(names, name.(string))
+		}
+
+	}
+	return names, nil
 }
 
 func AddTestSweepers(name string, sweeper func(region string) error) {

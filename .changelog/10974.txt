@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added update support for `big_query.entity_id_columns` field on `google_vertex_ai_feature_group` resource
+```

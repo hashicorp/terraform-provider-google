@@ -253,9 +253,9 @@ The following arguments are supported:
   version -- it's best to assume the behavior is undefined and
   conflicts should be avoided. For more information, including usage
   and the valid values, see:
-    http://kubernetes.io/v1.1/docs/user-guide/labels.html
+    - http://kubernetes.io/v1.1/docs/user-guide/labels.html
   An object containing a list of "key": value pairs.
-  Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+  For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 
 <a name="nested_node_configs"></a>The `node_configs` block supports:
@@ -274,9 +274,9 @@ The following arguments are supported:
   version -- it's best to assume the behavior is undefined and
   conflicts should be avoided. For more information, including usage
   and the valid values, see:
-    http://kubernetes.io/v1.1/docs/user-guide/labels.html
+    - http://kubernetes.io/v1.1/docs/user-guide/labels.html
   An object containing a list of "key": value pairs.
-  Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+  For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
 
 <a name="nested_taints"></a>The `taints` block supports:
 

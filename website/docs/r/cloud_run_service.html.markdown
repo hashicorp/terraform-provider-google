@@ -340,8 +340,8 @@ The following arguments are supported:
 * `annotations` -
   (Optional)
   Annotations is a key value map stored with a resource that
-  may be set by external tools to store and retrieve arbitrary metadata. More
-  info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+  may be set by external tools to store and retrieve arbitrary metadata.
+  More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
   **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
   If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
   or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.
@@ -394,11 +394,8 @@ The following arguments are supported:
 * `container_concurrency` -
   (Optional)
   ContainerConcurrency specifies the maximum allowed in-flight (concurrent)
-  requests per container of the Revision. Values are:
-  - `0` thread-safe, the system should manage the max concurrency. This is
-      the default value.
-  - `1` not-thread-safe. Single concurrency
-  - `2-N` thread-safe, max concurrency of N
+  requests per container of the Revision. If not specified or 0, defaults to 80 when
+  requested CPU >= 1 and defaults to 1 when requested CPU < 1.
 
 * `timeout_seconds` -
   (Optional)
@@ -998,8 +995,8 @@ this field is set to false, the revision name will still autogenerate.)
 * `annotations` -
   (Optional)
   Annotations is a key value map stored with a resource that
-  may be set by external tools to store and retrieve arbitrary metadata. More
-  info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+  may be set by external tools to store and retrieve arbitrary metadata.
+  More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
   **Note**: The Cloud Run API may add additional annotations that were not provided in your config.
   If terraform plan shows a diff where a server-side annotation is added, you can add it to your config
   or apply the lifecycle.ignore_changes rule to the metadata.0.annotations field.

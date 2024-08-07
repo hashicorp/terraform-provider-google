@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -964,6 +964,80 @@ resource "google_data_loss_prevention_job_trigger" "basic" {
 			}
 		}
 	}
+}
+`, context)
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.timespan_config_big_query",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "timespan_config_big_query" {
+    parent = "projects/%{project}"
+    description  = "BigQuery DLP Job Trigger with timespan config and row limit"
+    display_name = "bigquery-dlp-job-trigger-limit-timespan"
+
+    triggers {
+        schedule {
+            recurrence_period_duration ="86400s"
+        }
+    }
+
+    inspect_job {
+        inspect_template_name = "projects/test/locations/global/inspectTemplates/6425492983381733900" 
+        storage_config {
+            big_query_options {
+                table_reference {
+                    project_id = "project"
+                    dataset_id = "dataset"
+                    table_id   = "table"
+                }
+                sample_method = ""
+            }
+
+            timespan_config {
+                start_time = "2023-01-01T00:00:23Z"
+                timestamp_field {
+                    name = "timestamp"
+                }
+            }
+        }
+
+        actions {
+            save_findings {
+                output_config {
+                    table {
+                        project_id = "project"
+                        dataset_id = "output"
+                    }
+                }
+            }
+        }
+}
 }
 `, context)
 }
