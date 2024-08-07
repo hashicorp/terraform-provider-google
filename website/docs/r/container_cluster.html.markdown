@@ -812,6 +812,8 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
 
 <a name="nested_node_config"></a>The `node_config` block supports:
 
+* `confidential_nodes` - (Optional) Configuration for Confidential Nodes feature. Structure is [documented below](#nested_confidential_nodes).
+
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB.
 
@@ -980,6 +982,12 @@ sole_tenant_config {
 
 * `advanced_machine_features` - (Optional) Specifies options for controlling
   advanced machine features. Structure is [documented below](#nested_advanced_machine_features).
+
+
+<a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
+
+* `enabled` (Required) - Enable Confidential GKE Nodes for this node pool, to
+    enforce encryption of data in-use.
 
 <a name="nested_node_affinity"></a>The `node_affinity` block supports:
 

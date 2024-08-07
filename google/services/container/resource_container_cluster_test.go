@@ -8967,23 +8967,26 @@ func testAccContainerCluster_withConfidentialBootDisk(clusterName, npName, kmsKe
 resource "google_container_cluster" "with_confidential_boot_disk" {
   name               = "%s"
   location           = "us-central1-a"
+  confidential_nodes {
+  	enabled = true
+  }
   release_channel {
-  channel = "RAPID"
-}
+    channel = "RAPID"
+  }
   node_pool {
     name = "%s"
     initial_node_count = 1
     node_config {
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform",
-    ]
-    image_type = "COS_CONTAINERD"
-    boot_disk_kms_key = "%s"
-    machine_type = "n2-standard-2"
-    enable_confidential_storage = true
-    disk_type = "hyperdisk-balanced"
+      oauth_scopes = [
+        "https://www.googleapis.com/auth/cloud-platform",
+      ]
+      image_type = "COS_CONTAINERD"
+      boot_disk_kms_key = "%s"
+      machine_type = "n2d-standard-2"
+      enable_confidential_storage = true
+      disk_type = "hyperdisk-balanced"
+    }
   }
-}
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
@@ -9026,6 +9029,9 @@ func testAccContainerCluster_withConfidentialBootDiskNodeConfig(clusterName, kms
 resource "google_container_cluster" "with_confidential_boot_disk_node_config" {
   name               = "%s"
   location           = "us-central1-a"
+  confidential_nodes {
+  	enabled = true
+  }
   initial_node_count = 1
   release_channel {
     channel = "RAPID"
@@ -9036,7 +9042,7 @@ resource "google_container_cluster" "with_confidential_boot_disk_node_config" {
     ]
     image_type = "COS_CONTAINERD"
     boot_disk_kms_key = "%s"
-    machine_type = "n2-standard-2"
+    machine_type = "n2d-standard-2"
     enable_confidential_storage = true
     disk_type = "hyperdisk-balanced"
   }
