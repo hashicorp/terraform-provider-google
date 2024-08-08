@@ -657,14 +657,13 @@ func TestAccStorageBucket_lifecycleRulesVirtualFields(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age", "lifecycle_rule.1.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.1.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.1.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.2.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.1.condition.0.send_age_if_zero"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.1.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.2.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.1.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.2.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.1.condition.0.send_age_if_zero", "lifecycle_rule.2.condition.0.send_age_if_zero"},
 			},
 			{
 				Config: testAccStorageBucket_customAttributes_withLifecycleVirtualFieldsUpdate2(bucketName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(
 						t, "google_storage_bucket.bucket", bucketName, &bucket),
-					testAccCheckStorageBucketLifecycleConditionNoAge(nil, &bucket, 1),
 					testAccCheckStorageBucketLifecycleConditionNoAge(nil, &bucket, 2),
 				),
 			},
@@ -672,7 +671,7 @@ func TestAccStorageBucket_lifecycleRulesVirtualFields(t *testing.T) {
 				ResourceName:            "google_storage_bucket.bucket",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.1.condition.0.no_age", "lifecycle_rule.0.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.0.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.0.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.0.condition.0.send_age_if_zero", "lifecycle_rule.1.condition.0.send_age_if_zero", "lifecycle_rule.2.condition.0.send_age_if_zero"},
+				ImportStateVerifyIgnore: []string{"force_destroy", "lifecycle_rule.0.condition.0.send_days_since_noncurrent_time_if_zero", "lifecycle_rule.0.condition.0.send_days_since_custom_time_if_zero", "lifecycle_rule.0.condition.0.send_num_newer_versions_if_zero", "lifecycle_rule.0.condition.0.send_age_if_zero", "lifecycle_rule.1.condition.0.send_age_if_zero", "lifecycle_rule.2.condition.0.send_age_if_zero"},
 			},
 			{
 				Config: testAccStorageBucket_customAttributes_withLifecycle1(bucketName),
@@ -1870,6 +1869,7 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
+      send_age_if_zero = true
       age = 0
     }
   }
@@ -1917,7 +1917,6 @@ resource "google_storage_bucket" "bucket" {
      }
      condition {
       age = 10
-      no_age = false
       days_since_noncurrent_time = 0
       send_days_since_noncurrent_time_if_zero = false
       days_since_custom_time = 0
@@ -1931,7 +1930,6 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
-      no_age = true
       days_since_noncurrent_time = 0
       send_days_since_noncurrent_time_if_zero = true
       days_since_custom_time = 0
@@ -1945,6 +1943,7 @@ resource "google_storage_bucket" "bucket" {
       type = "Delete"
     }
     condition {
+      send_age_if_zero = true
       send_days_since_noncurrent_time_if_zero = true
       send_days_since_custom_time_if_zero = true
       send_num_newer_versions_if_zero = true
@@ -1966,7 +1965,6 @@ resource "google_storage_bucket" "bucket" {
      }
      condition {
       age = 10
-      no_age = false
       days_since_noncurrent_time = 0
       send_days_since_noncurrent_time_if_zero = true
       days_since_custom_time = 0
@@ -1981,7 +1979,6 @@ resource "google_storage_bucket" "bucket" {
     }
     condition {
       age = 10
-      no_age = true
       send_age_if_zero = false
       custom_time_before = "2022-09-01"
       days_since_noncurrent_time = 0
