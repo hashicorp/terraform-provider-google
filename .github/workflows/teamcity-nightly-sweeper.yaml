@@ -1,7 +1,6 @@
 name: "TeamCity: Remove branches used for nightly test"
 
-
-# TeamCity should use a newly created branches that matches the pattern `UTC-<YYYY-MM-DD>` and is the only branch matching that pattern. We rename past nightly test branches to avoid there being more than one `UTC-<YYYY-MM-DD>` branch (i.e. only one branch that matches the filter (+:UTC-*,-:UTC-nightly-tests*)). This workflow also removes renamed branches once they get past a certain age. 
+# TeamCity should use a newly created branches that matches the pattern `nightly-test` and is the only branch matching that pattern. We rename past nightly test branches to avoid there being more than one `nightly-test` branch (i.e. only one branch that matches the filter (+:nightly-test)). This workflow also removes renamed branches once they get past a certain age. 
 # ```
 
 on:
@@ -23,7 +22,7 @@ jobs:
           retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
-                  const oldBranchName = "UTC-" + dateToday;
+                  const oldBranchName = "nightly-test";
                   const newBranchName = "UTC-nightly-tests-" + dateToday;
                   
                   try{
@@ -34,7 +33,7 @@ jobs:
                     new_name: newBranchName, 
                   })
                   } catch (error){
-                    core.setFailed(error + "- Failed to rename branch; branch with name " + oldBranchName + " doesn\'t exist")
+                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests; branch with name " + oldBranchName + " doesn\'t exist")
                   }
                   console.log("Renamed branch " + oldBranchName + " to " + newBranchName)
 
