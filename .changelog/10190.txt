@@ -1,0 +1,3 @@
+```release-note:enhancement
+dns: changed `load_balancer_type` field from required to optional in `google_dns_record_set`
+```
