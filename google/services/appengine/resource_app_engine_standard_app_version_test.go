@@ -11,6 +11,7 @@ import (
 )
 
 func TestAccAppEngineStandardAppVersion_update(t *testing.T) {
+	t.Skip("https://github.com/hashicorp/terraform-provider-google/issues/18936")
 	t.Parallel()
 
 	context := map[string]interface{}{
