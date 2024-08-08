@@ -78,8 +78,11 @@ The following arguments are supported:
     See [Google Cloud Billing API Access Control](https://cloud.google.com/billing/docs/how-to/billing-access)
     for more details.
 
-* `skip_delete` - (Optional) If true, the Terraform resource can be deleted
-    without deleting the Project via the Google API. `skip_delete` is deprecated and will be removed in a future major release. The new release adds support for `deletion_policy` instead.
+* `skip_delete` - (Optional) If true, the Terraform resource can be deleted without
+    deleting the Project via the Google API. `skip_delete` is deprecated and will be
+    removed in 6.0.0. Please use deletion_policy instead. A `skip_delete` value of `false`
+    can be changed to a `deletion_policy` value of `DELETE` and a `skip_delete` value of `true`
+    to a `deletion_policy` value of `ABANDON` for equivalent behavior.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the project.
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
