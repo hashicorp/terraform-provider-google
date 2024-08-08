@@ -3,7 +3,7 @@ module github.com/hashicorp/terraform-provider-google
 go 1.21
 
 require (
-	cloud.google.com/go/bigtable v1.27.2-0.20240730134218-123c88616251
+	cloud.google.com/go/bigtable v1.28.0
 	github.com/GoogleCloudPlatform/declarative-resource-client-library v1.70.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/davecgh/go-spew v1.1.1

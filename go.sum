@@ -11,6 +11,8 @@ cloud.google.com/go/auth/oauth2adapt v0.2.3 h1:MlxF+Pd3OmSudg/b1yZ5lJwoXCEaeedAg
 cloud.google.com/go/auth/oauth2adapt v0.2.3/go.mod h1:tMQXOfZzFuNuUxOypHlQEXgdfX5cuhwU+ffUuXRJE8I=
 cloud.google.com/go/bigtable v1.27.2-0.20240730134218-123c88616251 h1:OF+V7OrVPhsXy++iTHewE4VD1kv6ikWQJbRIiq1/Kjc=
 cloud.google.com/go/bigtable v1.27.2-0.20240730134218-123c88616251/go.mod h1:avmXcmxVbLJAo9moICRYMgDyTTPoV0MA0lHKnyqV4fQ=
+cloud.google.com/go/bigtable v1.28.0 h1:c0wc/wy+9Chj8BooqW/zgaeslXsA5YEYl84VBmvwp+4=
+cloud.google.com/go/bigtable v1.28.0/go.mod h1:avmXcmxVbLJAo9moICRYMgDyTTPoV0MA0lHKnyqV4fQ=
 cloud.google.com/go/compute/metadata v0.5.0 h1:Zr0eK8JbFv6+Wi4ilXAR8FJ3wyNdpxHKJNPos6LTZOY=
 cloud.google.com/go/compute/metadata v0.5.0/go.mod h1:aHnloV2TPI38yx4s9+wAZhHykWvVCfu7hQbF+9CWoiY=
 cloud.google.com/go/iam v1.1.12 h1:JixGLimRrNGcxvJEQ8+clfLxPlbeZA6MuRJ+qJNQ5Xw=
