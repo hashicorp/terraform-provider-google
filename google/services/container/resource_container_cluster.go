@@ -205,6 +205,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterSurgeSettingsCustomizeDiff,
 			containerClusterEnableK8sBetaApisCustomizeDiff,
 			containerClusterNodeVersionCustomizeDiff,
+			tpgresource.SetDiffForLabelsWithCustomizedName("resource_labels"),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -1624,10 +1625,25 @@ func ResourceContainerCluster() *schema.Resource {
 			},
 
 			"resource_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
+
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+			"terraform_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The GCE resource labels (a map of key/value pairs) to be applied to the cluster.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"label_fingerprint": {
@@ -2127,7 +2143,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
 		ConfidentialNodes:    expandConfidentialNodes(d.Get("confidential_nodes")),
-		ResourceLabels:       tpgresource.ExpandStringMap(d, "resource_labels"),
+		ResourceLabels:       tpgresource.ExpandStringMap(d, "effective_labels"),
 		NodePoolAutoConfig:   expandNodePoolAutoConfig(d.Get("node_pool_auto_config")),
 		CostManagementConfig: expandCostManagementConfig(d.Get("cost_management_config")),
 		EnableK8sBetaApis:    expandEnableK8sBetaApis(d.Get("enable_k8s_beta_apis"), nil),
@@ -2711,8 +2727,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("resource_labels", cluster.ResourceLabels); err != nil {
-		return fmt.Errorf("Error setting resource_labels: %s", err)
+	if err := tpgresource.SetLabels(cluster.ResourceLabels, d, "resource_labels"); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(cluster.ResourceLabels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", cluster.ResourceLabels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err := d.Set("label_fingerprint", cluster.LabelFingerprint); err != nil {
 		return fmt.Errorf("Error setting label_fingerprint: %s", err)
@@ -3716,8 +3738,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s monitoring config has been updated", d.Id())
 	}
 
-	if d.HasChange("resource_labels") {
-		resourceLabels := d.Get("resource_labels").(map[string]interface{})
+	if d.HasChange("effective_labels") {
+		resourceLabels := d.Get("effective_labels").(map[string]interface{})
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := &container.SetLabelsRequest{
 			ResourceLabels:   tpgresource.ConvertStringMap(resourceLabels),
