@@ -536,14 +536,16 @@ If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_instance_count": {
-										Type:        schema.TypeInt,
-										Required:    true,
-										Description: `Maximum number of serving instances that this resource should have.`,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										RequiredWith: []string{"scaling.0.min_instance_count"},
+										Description:  `Maximum number of serving instances that this resource should have.`,
 									},
 									"min_instance_count": {
-										Type:        schema.TypeInt,
-										Required:    true,
-										Description: `Minimum number of serving instances that this resource should have.`,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										RequiredWith: []string{"scaling.0.max_instance_count"},
+										Description:  `Minimum number of serving instances that this resource should have.`,
 									},
 								},
 							},

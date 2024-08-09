@@ -572,11 +572,11 @@ The following arguments are supported:
 <a name="nested_scaling"></a>The `scaling` block supports:
 
 * `min_instance_count` -
-  (Required)
+  (Optional)
   Minimum number of serving instances that this resource should have.
 
 * `max_instance_count` -
-  (Required)
+  (Optional)
   Maximum number of serving instances that this resource should have.
 
 <a name="nested_vpc_access"></a>The `vpc_access` block supports:
