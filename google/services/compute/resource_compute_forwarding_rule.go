@@ -752,6 +752,12 @@ func resourceComputeForwardingRuleCreate(d *schema.ResourceData, meta interface{
 	}
 
 	headers := make(http.Header)
+	// Labels cannot be set in a create for PSC forwarding rules, so remove it from the CREATE request.
+	if targetProp != nil && strings.Contains(targetProp.(string), "/serviceAttachments/") {
+		if _, ok := obj["labels"]; ok {
+			delete(obj, "labels")
+		}
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "POST",

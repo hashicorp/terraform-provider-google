@@ -49,7 +49,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 				ResourceName:            "google_discovery_engine_data_store.basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location", "skip_default_schema_creation"},
 			},
 		},
 	})
@@ -58,13 +58,14 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(t *tes
 func testAccDiscoveryEngineDataStore_discoveryengineDatastoreBasicExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_discovery_engine_data_store" "basic" {
-  location                    = "global"
-  data_store_id               = "tf-test-data-store-id%{random_suffix}"
-  display_name                = "tf-test-structured-datastore"
-  industry_vertical           = "GENERIC"
-  content_config              = "NO_CONTENT"
-  solution_types              = ["SOLUTION_TYPE_SEARCH"]
-  create_advanced_site_search = false
+  location                     = "global"
+  data_store_id                = "tf-test-data-store-id%{random_suffix}"
+  display_name                 = "tf-test-structured-datastore"
+  industry_vertical            = "GENERIC"
+  content_config               = "NO_CONTENT"
+  solution_types               = ["SOLUTION_TYPE_SEARCH"]
+  create_advanced_site_search  = false
+  skip_default_schema_creation = false
 }
 `, context)
 }
@@ -88,7 +89,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ResourceName:            "google_discovery_engine_data_store.document_processing_config",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location", "skip_default_schema_creation"},
 			},
 		},
 	})
@@ -138,7 +139,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreDocumentProcessingC
 				ResourceName:            "google_discovery_engine_data_store.document_processing_config_ocr",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location"},
+				ImportStateVerifyIgnore: []string{"create_advanced_site_search", "data_store_id", "location", "skip_default_schema_creation"},
 			},
 		},
 	})

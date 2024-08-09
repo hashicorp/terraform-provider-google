@@ -1011,9 +1011,10 @@ be from 0 to 999,999,999 inclusive.`,
 							Type:     schema.TypeString,
 							Optional: true,
 							Description: `
-								Specifies which confidential computing technology to use.
-								This could be one of the following values: SEV, SEV_SNP.
-								If SEV_SNP, min_cpu_platform = "AMD Milan" is currently required.`,
+								The confidential computing technology the instance uses.
+								SEV is an AMD feature. TDX is an Intel feature. One of the following
+								values is required: SEV, SEV_SNP, TDX. If SEV_SNP, min_cpu_platform =
+								"AMD Milan" is currently required. TDX is only available in beta.`,
 							AtLeastOneOf: []string{"confidential_instance_config.0.enable_confidential_compute", "confidential_instance_config.0.confidential_instance_type"},
 						},
 					},
@@ -1987,6 +1988,9 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 				ni := &compute.NetworkInterface{
 					Fingerprint:     instNetworkInterface.Fingerprint,
 					ForceSendFields: []string{"AliasIpRanges"},
+				}
+				if commonAliasIpRanges := CheckForCommonAliasIp(instNetworkInterface, networkInterface); len(commonAliasIpRanges) > 0 {
+					ni.AliasIpRanges = commonAliasIpRanges
 				}
 				op, err := config.NewComputeClient(userAgent).Instances.UpdateNetworkInterface(project, zone, instance.Name, networkName, ni).Do()
 				if err != nil {
@@ -3010,4 +3014,21 @@ func isEmptyServiceAccountBlock(d *schema.ResourceData) bool {
 		return true
 	}
 	return false
+}
+
+// Alias ip ranges cannot be removed and created at the same time. This checks if there are any unchanged alias ip ranges
+// to be kept in between the PATCH operations on Network Interface
+func CheckForCommonAliasIp(old, new *compute.NetworkInterface) []*compute.AliasIpRange {
+	newAliasIpMap := make(map[string]bool)
+	for _, ipRange := range new.AliasIpRanges {
+		newAliasIpMap[ipRange.IpCidrRange] = true
+	}
+
+	resultAliasIpRanges := make([]*compute.AliasIpRange, 0)
+	for _, val := range old.AliasIpRanges {
+		if newAliasIpMap[val.IpCidrRange] {
+			resultAliasIpRanges = append(resultAliasIpRanges, val)
+		}
+	}
+	return resultAliasIpRanges
 }

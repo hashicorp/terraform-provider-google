@@ -1108,6 +1108,10 @@ When the field is set to false, deleting the service is allowed.
   (Optional)
   If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.
 
+* `policy` -
+  (Optional)
+  The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}
+
 <a name="nested_scaling"></a>The `scaling` block supports:
 
 * `min_instance_count` -

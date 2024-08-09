@@ -160,11 +160,13 @@ resource "google_gke_hub_feature_membership" "feature_member_1" {
     version = "1.18.2"
     config_sync {
       source_format = "hierarchy"
+      enabled       = true
       git {
         sync_repo   = "https://github.com/GoogleCloudPlatform/magic-modules"
         secret_type = "none"
       }
     }
+    management = "MANAGEMENT_AUTOMATIC"
   }
 }
 

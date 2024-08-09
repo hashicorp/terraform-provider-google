@@ -244,11 +244,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `transfer_bytes` -
   (Output)
-  Number of bytes transferred so far in current transfer.
+  Cumulative bytes transferred so far for the replication relationship.
 
 * `total_transfer_duration` -
   (Output)
-  Total time taken so far during current transfer.
+  Cumulative time taken across all transfers for the replication relationship.
 
 * `last_transfer_bytes` -
   (Output)

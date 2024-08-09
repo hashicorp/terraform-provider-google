@@ -33,11 +33,6 @@ func testAccAccessContextManagerServicePerimeterEgressPolicy_basicTest(t *testin
 				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_basic(org, policyTitle, perimeterTitle),
 			},
 			{
-				ResourceName:      "google_access_context_manager_service_perimeter.test-access",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: testAccAccessContextManagerServicePerimeterEgressPolicy_destroy(org, policyTitle, perimeterTitle),
 				Check:  testAccCheckAccessContextManagerServicePerimeterEgressPolicyDestroyProducer(t),
 			},

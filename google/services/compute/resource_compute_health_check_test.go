@@ -338,3 +338,61 @@ resource "google_compute_health_check" "foobar" {
 }
 `, hckName)
 }
+
+func TestAccComputeHealthCheck_srcRegions_update(t *testing.T) {
+	t.Parallel()
+
+	hckName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_srcRegions(hckName),
+			},
+			{
+				ResourceName:      "google_compute_health_check.src_region",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccComputeHealthCheck_srcRegions_update(hckName),
+			},
+			{
+				ResourceName:      "google_compute_health_check.src_region",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_srcRegions(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "src_region" {
+  name                = "%s"
+  description         = "Resource created for Terraform acceptance testing"
+  check_interval_sec  = 30
+  source_regions      = ["us-central1", "us-east1", "asia-south1"]
+  http_health_check {
+    port          = "80"
+  }
+}
+`, hckName)
+}
+
+func testAccComputeHealthCheck_srcRegions_update(hckName string) string {
+	return fmt.Sprintf(`
+resource "google_compute_health_check" "src_region" {
+  name                = "%s"
+  description         = "Resource updated for Terraform acceptance testing"
+  check_interval_sec  = 30
+  source_regions      = ["us-west1", "europe-north1", "asia-south1"]
+  http_health_check {
+    port          = "80"
+  }
+}
+`, hckName)
+}

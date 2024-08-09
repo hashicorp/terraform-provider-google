@@ -146,10 +146,17 @@ func GkeHubFeatureMembershipConfigmanagementSchema() *schema.Resource {
 				Elem:        GkeHubFeatureMembershipConfigmanagementHierarchyControllerSchema(),
 			},
 
+			"management": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: "Set this field to MANAGEMENT_AUTOMATIC to enable Config Sync auto-upgrades, and set this field to MANAGEMENT_MANUAL or MANAGEMENT_UNSPECIFIED to disable Config Sync auto-upgrades.",
+			},
+
 			"policy_controller": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Policy Controller configuration for the cluster.",
+				Description: "**DEPRECATED** Configuring Policy Controller through the configmanagement feature is no longer recommended. Use the policycontroller feature instead.",
 				MaxItems:    1,
 				Elem:        GkeHubFeatureMembershipConfigmanagementPolicyControllerSchema(),
 			},
@@ -179,6 +186,12 @@ func GkeHubFeatureMembershipConfigmanagementBinauthzSchema() *schema.Resource {
 func GkeHubFeatureMembershipConfigmanagementConfigSyncSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Enables the installation of ConfigSync. If set to true, ConfigSync resources will be created and the other ConfigSync fields will be applied if exist. If set to false, all other ConfigSync fields will be ignored, ConfigSync resources will be deleted. If omitted, ConfigSync resources will be managed depends on the presence of the git or oci field.",
+			},
+
 			"git": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -985,6 +998,7 @@ func expandGkeHubFeatureMembershipConfigmanagement(o interface{}) *gkehub.Featur
 		Binauthz:            expandGkeHubFeatureMembershipConfigmanagementBinauthz(obj["binauthz"]),
 		ConfigSync:          expandGkeHubFeatureMembershipConfigmanagementConfigSync(obj["config_sync"]),
 		HierarchyController: expandGkeHubFeatureMembershipConfigmanagementHierarchyController(obj["hierarchy_controller"]),
+		Management:          gkehub.FeatureMembershipConfigmanagementManagementEnumRef(obj["management"].(string)),
 		PolicyController:    expandGkeHubFeatureMembershipConfigmanagementPolicyController(obj["policy_controller"]),
 		Version:             dcl.StringOrNil(obj["version"].(string)),
 	}
@@ -998,6 +1012,7 @@ func flattenGkeHubFeatureMembershipConfigmanagement(obj *gkehub.FeatureMembershi
 		"binauthz":             flattenGkeHubFeatureMembershipConfigmanagementBinauthz(obj.Binauthz),
 		"config_sync":          flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj.ConfigSync),
 		"hierarchy_controller": flattenGkeHubFeatureMembershipConfigmanagementHierarchyController(obj.HierarchyController),
+		"management":           obj.Management,
 		"policy_controller":    flattenGkeHubFeatureMembershipConfigmanagementPolicyController(obj.PolicyController),
 		"version":              obj.Version,
 	}
@@ -1042,6 +1057,7 @@ func expandGkeHubFeatureMembershipConfigmanagementConfigSync(o interface{}) *gke
 	}
 	obj := objArr[0].(map[string]interface{})
 	return &gkehub.FeatureMembershipConfigmanagementConfigSync{
+		Enabled:                       dcl.Bool(obj["enabled"].(bool)),
 		Git:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj["git"]),
 		MetricsGcpServiceAccountEmail: dcl.String(obj["metrics_gcp_service_account_email"].(string)),
 		Oci:                           expandGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj["oci"]),
@@ -1055,6 +1071,7 @@ func flattenGkeHubFeatureMembershipConfigmanagementConfigSync(obj *gkehub.Featur
 		return nil
 	}
 	transformed := map[string]interface{}{
+		"enabled":                           obj.Enabled,
 		"git":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncGit(obj.Git),
 		"metrics_gcp_service_account_email": obj.MetricsGcpServiceAccountEmail,
 		"oci":                               flattenGkeHubFeatureMembershipConfigmanagementConfigSyncOci(obj.Oci),

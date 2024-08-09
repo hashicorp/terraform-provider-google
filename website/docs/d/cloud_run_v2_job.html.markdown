@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Run"
+subcategory: "Cloud Run (v2 API)"
 description: |-
   Get information about a Google Cloud Run v2 Job.
 ---

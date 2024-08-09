@@ -45,9 +45,9 @@ func ResourceDiscoveryEngineDataStore() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-			Update: schema.DefaultTimeout(60 * time.Minute),
-			Delete: schema.DefaultTimeout(60 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -193,6 +193,18 @@ config will be applied to all file types for Document parsing.`,
 					},
 				},
 			},
+			"skip_default_schema_creation": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `A boolean flag indicating whether to skip the default schema creation for
+the data store. Only enable this flag if you are certain that the default
+schema is incompatible with your use case.
+If set to true, you must manually create a schema for the data store
+before any documents can be ingested.
+This flag cannot be specified if 'data_store.starting_schema' is
+specified.`,
+				Default: false,
+			},
 			"solution_types": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -271,7 +283,7 @@ func resourceDiscoveryEngineDataStoreCreate(d *schema.ResourceData, meta interfa
 		obj["documentProcessingConfig"] = documentProcessingConfigProp
 	}
 
-	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores?dataStoreId={{data_store_id}}&createAdvancedSiteSearch={{create_advanced_site_search}}")
+	url, err := tpgresource.ReplaceVars(d, config, "{{DiscoveryEngineBasePath}}projects/{{project}}/locations/{{location}}/collections/default_collection/dataStores?dataStoreId={{data_store_id}}&createAdvancedSiteSearch={{create_advanced_site_search}}&skipDefaultSchemaCreation={{skip_default_schema_creation}}")
 	if err != nil {
 		return err
 	}
@@ -463,13 +475,6 @@ func resourceDiscoveryEngineDataStoreUpdate(d *schema.ResourceData, meta interfa
 			log.Printf("[DEBUG] Finished updating DataStore %q: %#v", d.Id(), res)
 		}
 
-		err = DiscoveryEngineOperationWaitTime(
-			config, res, project, "Updating DataStore", userAgent,
-			d.Timeout(schema.TimeoutUpdate))
-
-		if err != nil {
-			return err
-		}
 	}
 
 	return resourceDiscoveryEngineDataStoreRead(d, meta)
