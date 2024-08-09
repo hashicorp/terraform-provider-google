@@ -91,8 +91,28 @@ func dataSourceGoogleStorageBucketObjectRead(d *schema.ResourceData, meta interf
 	if err := d.Set("metadata", res["metadata"]); err != nil {
 		return fmt.Errorf("Error setting metadata: %s", err)
 	}
+	if err := d.Set("generation", flattenStorageBucketObjectGeneration(res["generation"], d, config)); err != nil {
+		return fmt.Errorf("Error setting generation: %s", err)
+	}
 
 	d.SetId(bucket + "-" + name)
 
 	return nil
+}
+
+func flattenStorageBucketObjectGeneration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }

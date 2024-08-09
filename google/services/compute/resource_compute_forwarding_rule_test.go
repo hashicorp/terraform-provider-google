@@ -126,17 +126,19 @@ func TestAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(t *testing.T
 				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, true),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, false),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -351,6 +353,9 @@ resource "google_compute_forwarding_rule" "default" {
   ip_address              = google_compute_address.consumer_address.id
   allow_psc_global_access = false
   %{lifecycle_block}
+  labels = {
+    "foo" = "bar"
+  }
 }
 
 // Consumer service endpoint

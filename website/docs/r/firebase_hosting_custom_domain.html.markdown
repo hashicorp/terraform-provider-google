@@ -91,6 +91,8 @@ resource "google_cloud_run_v2_service" "default" {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
     }
   }
+
+  deletion_protection = "true"
 }
 
 resource "google_firebase_hosting_version" "default" {

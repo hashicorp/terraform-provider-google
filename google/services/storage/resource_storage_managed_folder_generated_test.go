@@ -49,7 +49,7 @@ func TestAccStorageManagedFolder_storageManagedFolderBasicExample(t *testing.T) 
 				ResourceName:            "google_storage_managed_folder.folder",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"bucket"},
+				ImportStateVerifyIgnore: []string{"bucket", "force_destroy"},
 			},
 		},
 	})
@@ -64,8 +64,9 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_managed_folder" "folder" {
-  bucket = google_storage_bucket.bucket.name
-  name   = "managed/folder/name/"
+  bucket        = google_storage_bucket.bucket.name
+  name          = "managed/folder/name/"
+  force_destroy = true
 }
 `, context)
 }

@@ -35,7 +35,7 @@ func TestAccDNSManagedZone_dnsManagedZoneQuickstartExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"dns_name":      "mz.gcp.tfacc.hashicorptest.com.",
+		"dns_name":      "m-z.gcp.tfacc.hashicorptest.com.",
 		"random_suffix": acctest.RandString(t, 10),
 	}
 

@@ -275,6 +275,7 @@ resource "google_clouddeploy_target" "primary" {
   gke {
     cluster     = "projects/%{project_name}/locations/%{region}/clusters/different-example-cluster-name"
     internal_ip = true
+    proxy_url   = "http://10.0.0.1"
   }
 
   project          = "%{project_name}"

@@ -14,11 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Access Context Manager (VPC Service Controls)"
 description: |-
-  IngressPolicies match requests based on ingressFrom and ingressTo stanzas.
+  Manage a single IngressPolicy in the status (enforced) configuration for a service perimeter.
 ---
 
 # google_access_context_manager_service_perimeter_ingress_policy
 
+Manage a single IngressPolicy in the status (enforced) configuration for a service perimeter.
 IngressPolicies match requests based on ingressFrom and ingressTo stanzas. For an ingress policy to match,
 both the ingressFrom and ingressTo stanzas must be matched. If an IngressPolicy matches a request,
 the request is allowed through the perimeter boundary from outside the perimeter.
@@ -221,23 +222,4 @@ This resource provides the following
 
 ## Import
 
-
-ServicePerimeterIngressPolicy can be imported using any of these accepted formats:
-
-* `{{perimeter}}`
-
-
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ServicePerimeterIngressPolicy using one of the formats above. For example:
-
-```tf
-import {
-  id = "{{perimeter}}"
-  to = google_access_context_manager_service_perimeter_ingress_policy.default
-}
-```
-
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ServicePerimeterIngressPolicy can be imported using one of the formats above. For example:
-
-```
-$ terraform import google_access_context_manager_service_perimeter_ingress_policy.default {{perimeter}}
-```
+This resource does not support import.

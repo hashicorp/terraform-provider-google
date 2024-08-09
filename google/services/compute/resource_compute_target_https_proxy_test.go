@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	canonicalSslCertificateTemplate = "https://www.googleapis.com/compute/v1/projects/%s/global/sslCertificates/%s"
-	canonicalCertificateMapTemplate = "//certificatemanager.googleapis.com/projects/%s/locations/global/certificateMaps/%s"
+	canonicalSslCertificateTemplate  = "https://www.googleapis.com/compute/v1/projects/%s/global/sslCertificates/%s"
+	canonicalCertificateMapTemplate  = "//certificatemanager.googleapis.com/projects/%s/locations/global/certificateMaps/%s"
+	canonicalServerTlsPolicyTemplate = "//networksecurity.googleapis.com/projects/%s/locations/global/serverTlsPolicies/%s"
 )
 
 func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
@@ -37,9 +38,9 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert1-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasServerTlsPolicy(t, "tf-test-server-tls-policy-"+resourceSuffix, &proxy),
 				),
 			},
-
 			{
 				Config: testAccComputeTargetHttpsProxy_basic2(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
@@ -128,7 +129,20 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, 
 			}
 		}
 
-		return fmt.Errorf("Ssl certificate not found: expected'%s'", certUrl)
+		return fmt.Errorf("Ssl certificate not found: expected '%s'", certUrl)
+	}
+}
+
+func testAccComputeTargetHttpsProxyHasServerTlsPolicy(t *testing.T, policy string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		serverTlsPolicyUrl := fmt.Sprintf(canonicalServerTlsPolicyTemplate, config.Project, policy)
+
+		if tpgresource.ConvertSelfLinkToV1(proxy.ServerTlsPolicy) == serverTlsPolicyUrl {
+			return nil
+		}
+
+		return fmt.Errorf("Server Tls Policy not found: expected '%s'", serverTlsPolicyUrl)
 	}
 }
 
@@ -141,18 +155,21 @@ func testAccComputeTargetHttpsProxyHasCertificateMap(t *testing.T, certificateMa
 			return nil
 		}
 
-		return fmt.Errorf("certificate map not found: expected'%s'", certificateMapUrl)
+		return fmt.Errorf("certificate map not found: expected '%s'", certificateMapUrl)
 	}
 }
 
 func testAccComputeTargetHttpsProxy_basic1(id string) string {
 	return fmt.Sprintf(`
+data "google_project" "project" {}
+
 resource "google_compute_target_https_proxy" "foobar" {
-  description      = "Resource created for Terraform acceptance testing"
-  name             = "tf-test-httpsproxy-%s"
-  url_map          = google_compute_url_map.foobar.self_link
-  ssl_certificates = [google_compute_ssl_certificate.foobar1.self_link]
-  ssl_policy       = google_compute_ssl_policy.foobar.self_link
+  description       = "Resource created for Terraform acceptance testing"
+  name              = "tf-test-httpsproxy-%s"
+  url_map           = google_compute_url_map.foobar.self_link
+  ssl_certificates  = [google_compute_ssl_certificate.foobar1.self_link]
+  ssl_policy        = google_compute_ssl_policy.foobar.self_link
+  server_tls_policy = google_network_security_server_tls_policy.server_tls_policy.id
 }
 
 resource "google_compute_backend_service" "foobar" {
@@ -209,7 +226,25 @@ resource "google_compute_ssl_certificate" "foobar2" {
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
-`, id, id, id, id, id, id, id)
+
+resource "google_certificate_manager_trust_config" "trust_config" {
+  name     = "tf-test-trust-config-%s"
+  location = "global"
+
+  allowlisted_certificates  {
+    pem_certificate = file("test-fixtures/cert.pem")
+  }
+}
+
+resource "google_network_security_server_tls_policy" "server_tls_policy" {
+  name = "tf-test-server-tls-policy-%s"
+
+  mtls_policy {
+    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.trust_config.name}"
+    client_validation_mode         = "ALLOW_INVALID_OR_MISSING_CLIENT_CERT"
+  }
+}
+`, id, id, id, id, id, id, id, id, id)
 }
 
 func testAccComputeTargetHttpsProxy_basic2(id string) string {
@@ -222,7 +257,7 @@ resource "google_compute_target_https_proxy" "foobar" {
     google_compute_ssl_certificate.foobar1.self_link,
     google_compute_ssl_certificate.foobar2.self_link,
   ]
-  quic_override = "ENABLE"
+  quic_override  = "ENABLE"
   tls_early_data = "STRICT"
 }
 
@@ -286,9 +321,9 @@ resource "google_compute_ssl_certificate" "foobar2" {
 func testAccComputeTargetHttpsProxy_certificateMap(id string) string {
 	return fmt.Sprintf(`
 resource "google_compute_target_https_proxy" "foobar" {
-  description      = "Resource created for Terraform acceptance testing"
-  name             = "tf-test-httpsproxy-%s"
-  url_map          = google_compute_url_map.foobar.self_link
+  description     = "Resource created for Terraform acceptance testing"
+  name            = "tf-test-httpsproxy-%s"
+  url_map         = google_compute_url_map.foobar.self_link
   certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.map.id}"
 }
 
@@ -337,6 +372,5 @@ resource "google_certificate_manager_dns_authorization" "instance" {
   name   = "tf-test-dnsauthz-%s"
   domain = "mysite.com"
 }
-
 `, id, id, id, id, id, id, id, id)
 }

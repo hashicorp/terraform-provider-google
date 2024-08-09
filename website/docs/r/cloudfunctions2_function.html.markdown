@@ -125,7 +125,8 @@ resource "google_cloudfunctions2_function" "function" {
     max_instance_request_concurrency = 80
     available_cpu = "4"
     environment_variables = {
-        SERVICE_CONFIG_TEST = "config_test"
+        SERVICE_CONFIG_TEST      = "config_test"
+        SERVICE_CONFIG_DIFF_TEST = google_service_account.account.email
     }
     ingress_settings = "ALLOW_INTERNAL_ONLY"
     all_traffic_on_latest_revision = true

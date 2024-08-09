@@ -57,6 +57,7 @@ func testAccSecurityCenterV2FolderMuteConfig_basic(context map[string]interface{
 resource "google_folder" "folder" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder-name%{random_suffix}"
+  deletion_protection = false
 }	
 
 resource "time_sleep" "wait_1_minute" {
@@ -83,6 +84,7 @@ func testAccSecurityCenterV2FolderMuteConfig_update(context map[string]interface
 resource "google_folder" "folder" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder-name%{random_suffix}"
+  deletion_protection = false
 }
 
 resource "google_scc_v2_folder_mute_config" "default" {

@@ -61,6 +61,8 @@ The following arguments are supported:
 
 * `deletion_policy` - (Optional) The deletion policy for the service networking connection. Setting to ABANDON allows the resource to be abandoned rather than deleted. This will enable a successful terraform destroy when destroying CloudSQL instances. Use with care as it can lead to dangling resources.
 
+* `update_on_creation_fail` - (Optional) When set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -111,8 +111,6 @@ resource "google_container_cluster" "primary" {
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
     the size of the node pool to the current cluster usage. Structure is [documented below](#nested_autoscaling).
 
-* `confidential_nodes` - (Optional) Configuration for Confidential Nodes feature. Structure is [documented below](#nested_confidential_nodes).
-
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
     regional or multi-zonal clusters, this is the number of nodes per zone. Changing
     this will force recreation of the resource. WARNING: Resizing your node pool manually
@@ -200,11 +198,6 @@ cluster.
     * "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations,
       and reduce preemption risk for Spot VMs.
 
-<a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
-
-* `enabled` (Required) - Enable Confidential GKE Nodes for this cluster, to
-    enforce encryption of data in-use.
-
 <a name="nested_management"></a>The `management` block supports:
 
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired. Enabled by default.
@@ -265,7 +258,7 @@ cluster.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
 
-* `strategy` - (Default `SURGE`) The upgrade stragey to be used for upgrading the nodes.
+* `strategy` - (Default `SURGE`) The upgrade strategy to be used for upgrading the nodes.
 
 * `blue_green_settings` - (Optional) The settings to adjust [blue green upgrades](https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies#blue-green-upgrade-strategy).
     Structure is [documented below](#nested_blue_green_settings)

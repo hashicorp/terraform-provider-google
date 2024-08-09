@@ -37,10 +37,6 @@ func ResourceAccessContextManagerServicePerimeterEgressPolicy() *schema.Resource
 		Read:   resourceAccessContextManagerServicePerimeterEgressPolicyRead,
 		Delete: resourceAccessContextManagerServicePerimeterEgressPolicyDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: resourceAccessContextManagerServicePerimeterEgressPolicyImport,
-		},
-
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
@@ -428,21 +424,6 @@ func resourceAccessContextManagerServicePerimeterEgressPolicyDelete(d *schema.Re
 
 	log.Printf("[DEBUG] Finished deleting ServicePerimeterEgressPolicy %q: %#v", d.Id(), res)
 	return nil
-}
-
-func resourceAccessContextManagerServicePerimeterEgressPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*transport_tpg.Config)
-
-	// current import_formats can't import fields with forward slashes in their value
-	parts, err := tpgresource.GetImportIdQualifiers([]string{"accessPolicies/(?P<accessPolicy>[^/]+)/servicePerimeters/(?P<perimeter>[^/]+)"}, d, config, d.Id())
-	if err != nil {
-		return nil, err
-	}
-
-	if err := d.Set("perimeter", fmt.Sprintf("accessPolicies/%s/servicePerimeters/%s", parts["accessPolicy"], parts["perimeter"])); err != nil {
-		return nil, fmt.Errorf("Error setting perimeter: %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
 }
 
 func flattenNestedAccessContextManagerServicePerimeterEgressPolicyEgressFrom(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
