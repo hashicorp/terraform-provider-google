@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataflow: made provider return more descriptive errors when the `parameters` field of `google_dataflow_flex_template_job` contains Dataflow options
+```
