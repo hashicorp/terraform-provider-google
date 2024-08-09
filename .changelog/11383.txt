@@ -1,0 +1,3 @@
+```release-note:enhancement
+ancestrymanager: Prefer project number over project id to align with CAI format.
+```
