@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Managed Kafka"
 description: |-
-  An Apache Kafka for BigQuery topic.
+  A Managed Service for Apache Kafka topic.
 ---
 
 # google_managed_kafka_topic
 
-An Apache Kafka for BigQuery topic. Apache Kafka is a trademark owned by the Apache Software Foundation.
+A Managed Service for Apache Kafka topic. Apache Kafka is a trademark owned by the Apache Software Foundation.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -81,7 +81,7 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  ID of the location of the Apache Kafka for BigQuery resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.
+  ID of the location of the Kafka resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.
 
 * `cluster` -
   (Required)
