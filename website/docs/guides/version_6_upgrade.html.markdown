@@ -108,6 +108,10 @@ Description of the change and how users should adjust their configuration (if ne
 
 A `view` can no longer be created when `schema` contains required fields
 
+### `allow_resource_tags_on_deletion` is now removed
+
+Resource tags are now always allowed on table deletion.
+
 ## Resource: `google_bigquery_reservation`
 
 ### `multi_region_auxiliary` is now removed

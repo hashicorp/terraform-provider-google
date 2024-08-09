@@ -1252,14 +1252,6 @@ func ResourceBigQueryTable() *schema.Resource {
 				Description: `Whether Terraform will be prevented from destroying the instance. When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the table will fail. When the field is set to false, deleting the table is allowed.`,
 			},
 
-			"allow_resource_tags_on_deletion": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: `**Deprecated** Whether or not to allow table deletion when there are still resource tags attached.`,
-				Deprecated:  `This field is deprecated and will be removed in a future major release. The default behavior will be allowing the presence of resource tags on deletion after the next major release.`,
-			},
-
 			// TableConstraints: [Optional] Defines the primary key and foreign keys.
 			"table_constraints": {
 				Type:        schema.TypeList,
@@ -1931,17 +1923,6 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
-	}
-	if v, ok := d.GetOk("resource_tags"); ok {
-		if !d.Get("allow_resource_tags_on_deletion").(bool) {
-			var resourceTags []string
-
-			for k, v := range v.(map[string]interface{}) {
-				resourceTags = append(resourceTags, fmt.Sprintf("%s:%s", k, v.(string)))
-			}
-
-			return fmt.Errorf("cannot destroy table %v without unsetting the following resource tags or setting allow_resource_tags_on_deletion=true: %v", d.Id(), resourceTags)
-		}
 	}
 
 	config := meta.(*transport_tpg.Config)
@@ -2948,9 +2929,6 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	// Explicitly set virtual fields to default values on import
 	if err := d.Set("deletion_protection", true); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
-	}
-	if err := d.Set("allow_resource_tags_on_deletion", false); err != nil {
-		return nil, fmt.Errorf("Error setting allow_resource_tags_on_deletion: %s", err)
 	}
 
 	// Replace import id for the resource id
