@@ -206,18 +206,21 @@ The following arguments are supported:
 
 * `value_extractor` -
   (Optional)
-  A valueExtractor is required when using a distribution logs-based metric to extract the values to
-  record from a log entry. Two functions are supported for value extraction - EXTRACT(field) or
-  REGEXP_EXTRACT(field, regex). The argument are 1. field - The name of the log entry field from which
-  the value is to be extracted. 2. regex - A regular expression using the Google RE2 syntax
-  (https://github.com/google/re2/wiki/Syntax) with a single capture group to extract data from the specified
-  log entry field. The value of the field is converted to a string before applying the regex. It is an
-  error to specify a regex that does not include exactly one capture group.
+  A valueExtractor is **required when using a distribution logs-based metric** to extract the values to
+  record from a log entry. Two functions are supported for value extraction:
+    * EXTRACT(field): e.g. `value_extractor = "EXTRACT(payload.status)"`
+    * REGEXP_EXTRACT(field, regex): e.g. `value_extractor = "REGEXP_EXTRACT(payload.metadata.responce_time,\"([0-9.]+)\")"`
+
+  It takes two arguments: 
+    * "field" - The name of the log entry field from which the value is to be extracted. It called as "capture group".
+    * "regex" - A regular expression using the [Google RE2 syntax](https://github.com/google/re2/wiki/Syntax)
+  with a single capture group to extract data from the specified log entry field. The value of the field is converted
+  to a string before applying the regex. If it does not contain a correct regular expression, it will result in an error in the capture group.
 
 * `bucket_options` -
   (Optional)
-  The bucketOptions are required when the logs-based metric is using a DISTRIBUTION value type and it
-  describes the bucket boundaries used to create a histogram of the extracted values.
+  The bucketOptions are **required when the logs-based metric is using a DISTRIBUTION value type and it
+  describes the bucket boundaries** used to create a histogram of the extracted values.
   Structure is [documented below](#nested_bucket_options).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
