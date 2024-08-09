@@ -645,8 +645,7 @@ This block also contains several computed attributes, documented below.
 <a name="nested_advanced_datapath_observability_config"></a>The `advanced_datapath_observability_config` block supports:
 
 * `enable_metrics` - (Required) Whether or not to enable advanced datapath metrics.
-* `enable_relay` - (Optional) Whether or not Relay is enabled.
-* `relay_mode` - (Optional, Deprecated) Mode used to make Relay available. Deprecated in favor of `enable_relay` field. Remove this attribute's configuration as this field will be removed in the next major release and `enable_relay` will become a required field.
+* `enable_relay` - (Required) Whether or not Relay is enabled.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.

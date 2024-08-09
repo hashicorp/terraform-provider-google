@@ -201,12 +201,12 @@ An empty value now means 300.
 ### `balancing_mode` default value changed
 
 An empty value now means UTILIZATION.
- 
+
 ## Resource: `google_vpc_access_connector`
 
 ### Fields `min_throughput` and `max_throughput` no longer have default values
 
-The fields `min_throughput` and `max_throughput` no longer have default values 
+The fields `min_throughput` and `max_throughput` no longer have default values
 set by the provider. This was necessary to add conflicting field validation, also
 described in this guide.
 
@@ -216,7 +216,7 @@ will default to values present in data returned from the API.
 ### Conflicting field validation added for `min_throughput` and `min_instances`, and `max_throughput` and `max_instances`
 
 The provider will now enforce that `google_vpc_access_connector` resources can only
-include one of `min_throughput` and `min_instances` and one of `max_throughput`and 
+include one of `min_throughput` and `min_instances` and one of `max_throughput` and
 `max_instances`. Previously if a user included all four fields in a resource block
 they would experience a permadiff. This is a result of how `min_instances` and
 `max_instances` fields' values take precedence in the API, and how the API calculates
@@ -232,7 +232,7 @@ that are derived from the API.
 ### Folder deletion now prevented by default with `deletion_protection`
 
 The field `deletion_protection` has been added with a default value of `true`. This field prevents
-Terraform from destroying or recreating the Folder. In 6.0.0, existing folders will have 
+Terraform from destroying or recreating the Folder. In 6.0.0, existing folders will have
 `deletion_protection` set to `true` during the next refresh unless otherwise set in configuration.
 
 **`deletion_protection` does NOT prevent deletion outside of Terraform.**
@@ -246,9 +246,35 @@ and then run `terraform apply` to apply the change.
 
 Previously `lifecycle_rule.condition.age` attirbute was being set zero value by default and `lifecycle_rule.condition.no_age` was introduced to prevent that.
 Now `lifecycle_rule.condition.no_age` is no longer supported and `lifecycle_rule.condition.age` won't set a zero value by default.
-Removed in favor of the field `lifecycle_rule.condition.send_age_if_zero` which can be used to set zero value for `lifecycle_rule.condition.age` attribute. 
+Removed in favor of the field `lifecycle_rule.condition.send_age_if_zero` which can be used to set zero value for `lifecycle_rule.condition.age` attribute.
 
-For a seamless update, if your state today uses `no_age=true`, update it to remove `no_age` and set `send_age_if_zero=false`. If you do not use `no_age=true`, you will need to add `send_age_if_zero=true` to your state to avoid any changes after updating to 6.0.0. 
+For a seamless update, if your state today uses `no_age=true`, update it to remove `no_age` and set `send_age_if_zero=false`. If you do not use `no_age=true`, you will need to add `send_age_if_zero=true` to your state to avoid any changes after updating to 6.0.0.
+
+## Resource: `google_container_cluster`
+
+### `advanced_datapath_observability_config.relay_mode` is now removed
+
+Previously, through `relay_mode` field usage, users could both enable Dataplane V2
+Flow Observability feature (that deploys Hubble relay component) and configure
+managed load balancers. Due to users' needs to have better control over how
+Hubble relay components shall be exposed in their clusters, managed load
+balancer deployments are not supported anymore and users are expected to deploy
+their own load balancers.
+
+If `advanced_datapath_observability_config` is defined, `enable_relay` is now a
+required field instead and users are expected to use this field instead.
+
+Recommended migration from `relay_mode` to `enable_relay` depending on
+`relay_mode` value:
+* `DISABLED`: set `enable_relay` to `false`
+* `INTERNAL_VPC_LB`: set `enable_relay` to `true` and define internal load
+  balancer with VPC scope
+* `EXTERNAL_LB`: set `enable_relay` to `true` and define external load balancer
+  with public access
+
+See exported endpoints for Dataplane V2 Observability feature to learn what
+target you might wish to expose with load balancers:
+https://cloud.google.com/kubernetes-engine/docs/concepts/about-dpv2-observability#gke-dataplane-v2-observability-endpoints
 
 ## Removals
 
