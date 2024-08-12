@@ -1257,6 +1257,12 @@ func TestAccContainerNodePool_012_ConfigModeAttr(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				// Test guest_accelerator.count = 0 is the same as guest_accelerator = []
+				Config:             testAccContainerNodePool_EmptyGuestAccelerator(cluster, np, networkName, subnetworkName),
+				ExpectNonEmptyPlan: false,
+				PlanOnly:           true,
+			},
 		},
 	})
 }
@@ -3585,6 +3591,7 @@ resource "google_container_node_pool" "np" {
 
   node_config {
     guest_accelerator = []
+	machine_type = "n1-highmem-4"
   }
 }
 `, cluster, networkName, subnetworkName, np)
