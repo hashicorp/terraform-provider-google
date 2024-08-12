@@ -322,6 +322,12 @@ on the resource through Terraform and the default labels configured on the provi
 * The new output-only `effective_labels` field lists all of labels present on the resource
 in GCP, including the labels configured through Terraform, the system, and other clients.
 
+## Resource: `google_workstations_workstation_config`
+
+### `host.gce_instance.disable_ssh` now defaults to true
+
+* `disable_ssh` field now defaults to true. To enable SSH, please set `disable_ssh` to false.
+
 ## Removals
 
 ### Resource: `google_identity_platform_project_default_config` is now removed
