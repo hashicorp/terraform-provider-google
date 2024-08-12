@@ -126,6 +126,20 @@ Removed in favor of field `settings.ip_configuration.ssl_mode`.
 
 An empty value means the setting should be cleared.
 
+## Resources: `google_container_cluster`, `google_container_node_pool`, and `google_compute_instance`
+
+### `guest_accelerator = []` is no longer valid configuration
+
+To explicitly set an empty list of objects, set `guest_accelerator.count = 0`.
+
+Previously, to explicitly set `guest_accelerator` as an empty list of objects, the specific configuration `guest_accelerator = []` was necessary.
+This was to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
+This special setting causes other breakages so it is now removed, with setting `guest_accelerator.count = 0` available as an alternative form of empty `guest_accelerator` object.
+
+### `guest_accelerator.gpu_driver_installation_config = []` and `guest_accelerator.gpu_sharing_config = []` are no longer valid configuration
+
+These were never intended to be set this way. Removing the fields from configuration should not produce a diff.
+
 ## Resource: `google_domain`
 
 ### Domain deletion now prevented by default with `deletion_protection`
