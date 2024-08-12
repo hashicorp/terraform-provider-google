@@ -471,6 +471,10 @@ The `gateway_service_mesh` block supports:
   (Required)
   Required. Name of the Gateway API HTTPRoute.
     
+* `pod_selector_label` -
+  (Optional)
+  Optional. The label to use when selecting Pods for the Deployment and Service resources. This label must already be present in both resources.
+    
 * `route_update_wait_time` -
   (Optional)
   Optional. The time to wait for route updates to propagate. The maximum configurable time is 3 hours, in seconds format. If unspecified, there is no wait time.
@@ -492,6 +496,10 @@ The `service_networking` block supports:
 * `disable_pod_overprovisioning` -
   (Optional)
   Optional. Whether to disable Pod overprovisioning. If Pod overprovisioning is disabled then Cloud Deploy will limit the number of total Pods used for the deployment strategy to the number of Pods the Deployment has on the cluster.
+    
+* `pod_selector_label` -
+  (Optional)
+  Optional. The label to use when selecting Pods for the Deployment resource. This label must already be present in the Deployment.
     
 * `service` -
   (Required)
