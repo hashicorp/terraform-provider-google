@@ -427,9 +427,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 449
+// Generated resources: 450
 // Generated IAM resources: 255
-// Total generated resources: 704
+// Total generated resources: 705
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -786,6 +786,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dialogflow_cx_webhook":                                               dialogflowcx.ResourceDialogflowCXWebhook(),
 	"google_discovery_engine_chat_engine":                                        discoveryengine.ResourceDiscoveryEngineChatEngine(),
 	"google_discovery_engine_data_store":                                         discoveryengine.ResourceDiscoveryEngineDataStore(),
+	"google_discovery_engine_schema":                                             discoveryengine.ResourceDiscoveryEngineSchema(),
 	"google_discovery_engine_search_engine":                                      discoveryengine.ResourceDiscoveryEngineSearchEngine(),
 	"google_dns_managed_zone":                                                    dns.ResourceDNSManagedZone(),
 	"google_dns_managed_zone_iam_binding":                                        tpgiamresource.ResourceIamBinding(dns.DNSManagedZoneIamSchema, dns.DNSManagedZoneIamUpdaterProducer, dns.DNSManagedZoneIdParseFunc),
