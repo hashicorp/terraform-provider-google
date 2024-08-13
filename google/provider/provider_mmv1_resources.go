@@ -1214,7 +1214,7 @@ var handwrittenIAMResources = map[string]*schema.Resource{
 	"google_bigtable_table_iam_member":           tpgiamresource.ResourceIamMember(bigtable.IamBigtableTableSchema, bigtable.NewBigtableTableUpdater, bigtable.BigtableTableIdParseFunc),
 	"google_bigtable_table_iam_policy":           tpgiamresource.ResourceIamPolicy(bigtable.IamBigtableTableSchema, bigtable.NewBigtableTableUpdater, bigtable.BigtableTableIdParseFunc),
 	"google_bigquery_dataset_iam_binding":        tpgiamresource.ResourceIamBinding(bigquery.IamBigqueryDatasetSchema, bigquery.NewBigqueryDatasetIamUpdater, bigquery.BigqueryDatasetIdParseFunc),
-	"google_bigquery_dataset_iam_member":         tpgiamresource.ResourceIamMember(bigquery.IamBigqueryDatasetSchema, bigquery.NewBigqueryDatasetIamUpdater, bigquery.BigqueryDatasetIdParseFunc),
+	"google_bigquery_dataset_iam_member":         tpgiamresource.ResourceIamMember(bigquery.IamMemberBigqueryDatasetSchema, bigquery.NewBigqueryDatasetIamMemberUpdater, bigquery.BigqueryDatasetIdParseFunc),
 	"google_bigquery_dataset_iam_policy":         tpgiamresource.ResourceIamPolicy(bigquery.IamBigqueryDatasetSchema, bigquery.NewBigqueryDatasetIamUpdater, bigquery.BigqueryDatasetIdParseFunc),
 	"google_billing_account_iam_binding":         tpgiamresource.ResourceIamBinding(billing.IamBillingAccountSchema, billing.NewBillingAccountIamUpdater, billing.BillingAccountIdParseFunc),
 	"google_billing_account_iam_member":          tpgiamresource.ResourceIamMember(billing.IamBillingAccountSchema, billing.NewBillingAccountIamUpdater, billing.BillingAccountIdParseFunc),
