@@ -174,6 +174,16 @@ Previously, `containers.env` was a list, making it order-dependent. It is now a 
 
 If you were relying on accessing an individual environment variable by index (for example, `google_cloud_run_v2_service.template.containers.0.env.0.name`), then that will now need to by hash (for example, `google_cloud_run_v2_service.template.containers.0.env.<some-hash>.name`).
 
+## Resource: `google_compute_subnetwork`
+
+### `secondary_ip_range = []` is no longer valid configuration
+
+To explicitly set an empty list of objects, use `send_secondary_ip_range_if_empty = true` and completely remove `secondary_ip_range` from config.
+
+Previously, to explicitly set `secondary_ip_range` as an empty list of objects, the specific configuration `secondary_ip_range = []` was necessary.
+This was to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
+This special setting causes other breakages so it is now removed, with `send_secondary_ip_range_if_empty` available instead.
+
 ## Resource: `google_compute_backend_service`
 
 ## Resource: `google_compute_region_backend_service`
