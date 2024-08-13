@@ -69,17 +69,10 @@ func ResourceGoogleProject() *schema.Resource {
 				ValidateFunc: verify.ValidateProjectID(),
 				Description:  `The project ID. Changing this forces a new project to be created.`,
 			},
-			"skip_delete": {
-				Type:        schema.TypeBool,
-				Deprecated:  `skip_delete is deprecated and will be removed in 6.0.0. Please use deletion_policy instead. A skip_delete value of false can be changed to a deletion_policy value of DELETE and a skip_delete value of true to a deletion_policy value of ABANDON for equivalent behavior.`,
-				Optional:    true,
-				Computed:    true,
-				Description: `If true, the Terraform resource can be deleted without deleting the Project via the Google API.`,
-			},
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "DELETE",
+				Default:  "PREVENT",
 				Description: `The deletion policy for the Project. Setting PREVENT will protect the project against any destroy actions caused by a terraform apply or terraform destroy. Setting ABANDON allows the resource
 				to be abandoned rather than deleted. Possible values are: "PREVENT", "ABANDON", "DELETE"`,
 				ValidateFunc: validation.StringInSlice([]string{"PREVENT", "ABANDON", "DELETE"}, false),
@@ -318,7 +311,7 @@ func resourceGoogleProjectRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	// Explicitly set client-side fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
-		if err := d.Set("deletion_policy", "DELETE"); err != nil {
+		if err := d.Set("deletion_policy", "PREVENT"); err != nil {
 			return fmt.Errorf("Error setting deletion_policy: %s", err)
 		}
 	}
@@ -516,7 +509,7 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	deletionPolicy := d.Get("deletion_policy").(string)
-	// Only delete projects if skip_delete isn't set
+
 	if deletionPolicy == "PREVENT" {
 		return fmt.Errorf("Cannot destroy project as deletion_policy is set to PREVENT.")
 	} else if deletionPolicy == "ABANDON" {
@@ -525,19 +518,16 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		return nil
 	} else {
 		// Only delete projects if deletion_policy isn't PREVENT or ABANDON
-		// Only delete projects if skip_delete isn't set
-		if !d.Get("skip_delete").(bool) {
-			parts := strings.Split(d.Id(), "/")
-			pid := parts[len(parts)-1]
-			if err := transport_tpg.Retry(transport_tpg.RetryOptions{
-				RetryFunc: func() error {
-					_, delErr := config.NewResourceManagerClient(userAgent).Projects.Delete(pid).Do()
-					return delErr
-				},
-				Timeout: d.Timeout(schema.TimeoutDelete),
-			}); err != nil {
-				return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project %s", pid))
-			}
+		parts := strings.Split(d.Id(), "/")
+		pid := parts[len(parts)-1]
+		if err := transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() error {
+				_, delErr := config.NewResourceManagerClient(userAgent).Projects.Delete(pid).Do()
+				return delErr
+			},
+			Timeout: d.Timeout(schema.TimeoutDelete),
+		}); err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project %s", pid))
 		}
 	}
 	d.SetId("")

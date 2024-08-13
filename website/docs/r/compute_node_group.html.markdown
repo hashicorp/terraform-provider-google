@@ -120,6 +120,7 @@ resource "google_project" "guest_project" {
   project_id      = "project-id"
   name            = "project-name"
   org_id          = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_compute_node_template" "soletenant-tmpl" {

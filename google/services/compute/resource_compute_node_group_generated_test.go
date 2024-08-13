@@ -159,6 +159,7 @@ resource "google_project" "guest_project" {
   project_id      = "tf-test-project-id%{random_suffix}"
   name            = "tf-test-project-name%{random_suffix}"
   org_id          = "%{org_id}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_compute_node_template" "soletenant-tmpl" {

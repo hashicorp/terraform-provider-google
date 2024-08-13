@@ -46,6 +46,7 @@ resource "google_project" "default" {
 	name            = "%{project_name}"
 	org_id          = "%{org_id}"
 	billing_account = "%{billing_account}"
+	deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "logging_service" {

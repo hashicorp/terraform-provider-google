@@ -55,6 +55,7 @@ resource "google_project" "key_project" {
   folder_id       = google_folder.autokms_folder.folder_id
   billing_account = "000000-0000000-0000000-000000"
   depends_on      = [google_folder.autokms_folder]
+  deletion_policy = "DELETE"
 }
 
 # Create the resource project
@@ -65,6 +66,7 @@ resource "google_project" "resource_project" {
   folder_id       = google_folder.autokms_folder.folder_id
   billing_account = "000000-0000000-0000000-000000"
   depends_on      = [google_folder.autokms_folder]
+  deletion_policy = "DELETE"
 }
 
 # Enable the Cloud KMS API

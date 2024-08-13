@@ -97,6 +97,7 @@ resource "google_project" "rejected_producer_project" {
     name            = "tf-test-prj-rejected%{random_suffix}"
     org_id          = "%{org_id}"
     billing_account = "%{billing_account}"
+    deletion_policy = "DELETE"
 }
 
 resource "google_project" "accepted_producer_project" {
@@ -104,6 +105,7 @@ resource "google_project" "accepted_producer_project" {
     name            = "tf-test-prj-accepted%{random_suffix}"
     org_id          = "%{org_id}"
     billing_account = "%{billing_account}"
+    deletion_policy = "DELETE"
 }
 `, context)
 }

@@ -333,3 +333,16 @@ in GCP, including the labels configured through Terraform, the system, and other
 ### Resource: `google_identity_platform_project_default_config` is now removed
 
 `google_identity_platform_project_default_config` is removed in favor of `google_identity_platform_project_config`
+
+## Resource: `google_project`
+
+### Project deletion now prevented by default with `deletion_policy`
+
+The field `skip_delete` is removed and the default value for `deletion_policy` is now
+`PREVENT` instead of `DELETE`. The `PREVENT` value for `deletion_policy` stops Terraform
+from deleting or recreating your project. Setting this field to `ABANDON` allows the
+resource to be abandoned instead of deleted. To remove deletion protection entirely,
+explicitly set this field to `DELETE` in your configuration and run `terraform apply`. A
+`skip_delete` value of `false` can be changed to a `deletion_policy` value of `DELETE` and
+a `skip_delete` value of `true` to a `deletion_policy` value of `ABANDON` for equivalent
+behavior.
