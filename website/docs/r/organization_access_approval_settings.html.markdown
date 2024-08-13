@@ -52,6 +52,7 @@ resource "google_project" "my_project" {
   name       = "My Project"
   project_id = "your-project-id"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_kms_key_ring" "key_ring" {

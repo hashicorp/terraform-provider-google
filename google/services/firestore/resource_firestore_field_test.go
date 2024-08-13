@@ -80,6 +80,7 @@ resource "google_project" "project" {
 	project_id = "tf-test%{random_suffix}"
 	name       = "tf-test%{random_suffix}"
 	org_id     = "%{org_id}"
+	deletion_policy = "DELETE"
 }
 
 resource "time_sleep" "wait_60_seconds" {

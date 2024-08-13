@@ -34,6 +34,7 @@ resource "google_project" "project" {
   name            = "my-project"
   org_id          = "123456789"
   billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
 }
 
 resource "google_access_context_manager_access_level" "test-access" {

@@ -56,6 +56,7 @@ resource "google_project" "basic" {
   name       = "tf-test-my-project%{random_suffix}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
+  deletion_policy = "DELETE"
   labels = {
     firebase = "enabled"
   }
@@ -134,6 +135,7 @@ resource "google_project" "basic" {
   name       = "tf-test-my-project%{random_suffix}"
   org_id     = "%{org_id}"
   billing_account =  "%{billing_acct}"
+  deletion_policy = "DELETE"
   labels = {
     firebase = "enabled"
   }

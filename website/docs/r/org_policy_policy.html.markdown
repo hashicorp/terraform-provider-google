@@ -48,6 +48,7 @@ resource "google_project" "basic" {
   project_id = "id"
   name       = "id"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 ```
 ## Example Usage - Org Policy Policy Folder
@@ -119,6 +120,7 @@ resource "google_project" "basic" {
   project_id = "id"
   name       = "id"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 ```
 ## Example Usage - Org Policy Policy Dry Run Spec

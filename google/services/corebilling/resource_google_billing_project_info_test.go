@@ -61,6 +61,7 @@ resource "google_project" "project" {
   project_id = "%s"
   name       = "%[1]s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
   lifecycle {
     ignore_changes = [billing_account]
   }
