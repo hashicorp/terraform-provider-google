@@ -779,6 +779,26 @@ func TestAccContainerCluster_withReleaseChannelEnabledDefaultVersion(t *testing.
 				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
 			},
 			{
+				Config: testAccContainerCluster_withReleaseChannelEnabledDefaultVersion(clusterName, "EXTENDED", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "EXTENDED", networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_release_channel",
+				ImportStateIdPrefix:     "us-central1-a/",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_withReleaseChannelEnabled(clusterName, "UNSPECIFIED", networkName, subnetworkName),
 			},
 			{
@@ -807,7 +827,7 @@ func TestAccContainerCluster_withInvalidReleaseChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccContainerCluster_withReleaseChannelEnabled(clusterName, "CANARY", networkName, subnetworkName),
-				ExpectError: regexp.MustCompile(`expected release_channel\.0\.channel to be one of \["?UNSPECIFIED"? "?RAPID"? "?REGULAR"? "?STABLE"?\], got CANARY`),
+				ExpectError: regexp.MustCompile(`expected release_channel\.0\.channel to be one of \["?UNSPECIFIED"? "?RAPID"? "?REGULAR"? "?STABLE"? "?EXTENDED"?\], got CANARY`),
 			},
 		},
 	})
