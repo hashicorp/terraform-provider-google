@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed force diff replacement logic for `network_ip` on resource `google_compute_instance`
+```

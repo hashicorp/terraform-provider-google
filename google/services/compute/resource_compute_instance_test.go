@@ -2668,6 +2668,46 @@ func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_networkIpUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	suffix := fmt.Sprintf("%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_networkIpUpdate(suffix, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkIP(&instance, "10.3.0.3"),
+				),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_networkIpUpdateByHand(suffix, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkIP(&instance, "10.3.0.4"),
+				),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
+			{
+				Config: testAccComputeInstance_networkIpUpdateWithComputeAddress(suffix, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkIP(&instance, "10.3.0.5"),
+				),
+			},
+			computeInstanceImportStep("us-east1-d", instanceName, []string{}),
+		},
+	})
+}
+
 func TestAccComputeInstance_queueCount(t *testing.T) {
 	t.Parallel()
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
@@ -7977,6 +8017,144 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 		}
 	}
 `, suffix, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_networkIpUpdate(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-11"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+	}
+
+	resource "google_compute_address" "inst-test-address" {
+  		name    = "tf-test-compute-address-%s"
+  		region  = "us-east1"
+  		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		address_type = "INTERNAL"
+  		address = "10.3.0.5"
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "e2-medium"
+		zone         = "us-east1-d"
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			network_ip = "10.3.0.3"
+		}
+	}
+`, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_networkIpUpdateByHand(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-11"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+	}
+
+	resource "google_compute_address" "inst-test-address" {
+  		name    = "tf-test-compute-address-%s"
+  		region  = "us-east1"
+  		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		address_type = "INTERNAL"
+  		address = "10.3.0.5"
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "e2-medium"
+		zone         = "us-east1-d"
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			network_ip = "10.3.0.4"
+		}
+	}
+`, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_networkIpUpdateWithComputeAddress(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-11"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.3.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+	}
+
+	resource "google_compute_address" "inst-test-address" {
+  		name    = "tf-test-compute-address-%s"
+  		region  = "us-east1"
+  		subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+		address_type = "INTERNAL"
+  		address = "10.3.0.5"
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "e2-medium"
+		zone         = "us-east1-d"
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			network_ip = google_compute_address.inst-test-address.address
+		}
+	}
+`, suffix, suffix, suffix, instance)
 }
 
 func testAccComputeInstance_queueCountSet(instance string) string {
