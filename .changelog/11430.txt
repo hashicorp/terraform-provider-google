@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: changed enable_analytics parsing to "no preference" in analytics if omitted, instead of explicitly disabling analytics.
+```

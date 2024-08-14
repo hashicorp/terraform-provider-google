@@ -189,7 +189,7 @@ func resourceLoggingProjectBucketConfigAcquireOrCreate(parentType string, iDFunc
 				UserAgent: userAgent,
 			})
 			if res == nil {
-				log.Printf("[DEGUG] Loggin Bucket not exist %s", id)
+				log.Printf("[DEBUG] Logging Bucket does not exist %s", id)
 				// we need to pass the id in here because we don't want to set it in state
 				// until we know there won't be any errors on create
 				return resourceLoggingProjectBucketConfigCreate(d, meta, id)
@@ -214,7 +214,11 @@ func resourceLoggingProjectBucketConfigCreate(d *schema.ResourceData, meta inter
 	obj["description"] = d.Get("description")
 	obj["locked"] = d.Get("locked")
 	obj["retentionDays"] = d.Get("retention_days")
-	obj["analyticsEnabled"] = d.Get("enable_analytics")
+	// Only set analyticsEnabled if it has been explicitly preferenced.
+	analyticsRawValue := d.GetRawConfig().GetAttr("enable_analytics")
+	if !analyticsRawValue.IsNull() {
+		obj["analyticsEnabled"] = analyticsRawValue.True()
+	}
 	obj["cmekSettings"] = expandCmekSettings(d.Get("cmek_settings"))
 	obj["indexConfigs"] = expandIndexConfigs(d.Get("index_configs"))
 
