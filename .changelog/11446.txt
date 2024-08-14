@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: exposed service side id as new output field `forwarding_rule_id` on resource `google_compute_forwarding_rule`
+```
