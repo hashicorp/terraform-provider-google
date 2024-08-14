@@ -10,10 +10,10 @@ on:
         dayThreshold:
           default: '3'
     schedule:
-        - cron: '0 4 * * *'
+        - cron: '0 3 * * *' # UTC 3AM (-7)-> 8PM PST
 
 jobs:
-  nigthly-test-branch-creation:
+  rename-TC-nightly-branch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
@@ -22,7 +22,32 @@ jobs:
           retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
                   let dateToday = new Date().toJSON().slice(0, 10);
+                  const oldBranchName = "nightly-test";
+                  const newBranchName = "UTC-nightly-tests-" + dateToday;
+                  
+                  try{
+                  await github.rest.repos.renameBranch({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    branch: oldBranchName,
+                    new_name: newBranchName, 
+                  })
+                  } catch (error){
+                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests")
+                  }
+                  console.log("Renamed branch " + oldBranchName + " to " + newBranchName)
 
+  nightly-test-branch-creation:
+    needs: rename-TC-nightly-branch
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        with:
+          retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
+          script: |
+                  let dateToday = new Date().toJSON().slice(0, 10);  
                   const mainRef = await github.rest.git.getRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
@@ -39,10 +64,10 @@ jobs:
                   } catch (error){
                     core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
                   }
-                  console.log("Created Branch: " + branchName)
+                  console.log("Created Branch: " + branchName + " using commit " + commitHash + " from main.")
 
   sweeping-outdated-branches:
-    needs: nigthly-test-branch-creation
+    needs: rename-TC-nightly-branch
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
