@@ -967,7 +967,8 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	// Example client configuration for data sources and resources
+	// This is how we make provider configuration info (configured clients, default project, etc) available to resources and data sources
+	// implemented using the plugin-framework. The resources' Configure functions receive this data in the ConfigureRequest argument.
 	resp.DataSourceData = &p.FrameworkProviderConfig
 	resp.ResourceData = &p.FrameworkProviderConfig
 }
