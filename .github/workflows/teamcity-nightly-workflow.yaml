@@ -21,9 +21,15 @@ jobs:
           retries: 3
           retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
-                  let dateToday = new Date().toJSON().slice(0, 10);
+                  // Get yesterday's date, when the branch was originally made
+                  const date = new Date()
+                  date.setDate(date.getDate() -1);
+                  
+                  // Get YYYY-MM-DD string
+                  dateString = date.toJSON().slice(0, 10)
+                  
                   const oldBranchName = "nightly-test";
-                  const newBranchName = "UTC-nightly-tests-" + dateToday;
+                  const newBranchName = "UTC-nightly-tests-" + dateString;
                   
                   try{
                   await github.rest.repos.renameBranch({
