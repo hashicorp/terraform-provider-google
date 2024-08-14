@@ -378,6 +378,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_iap_web_region_backend_service_iam_policy":       tpgiamresource.DataSourceIamPolicy(iap.IapWebRegionBackendServiceIamSchema, iap.IapWebRegionBackendServiceIamUpdaterProducer),
 	"google_iap_web_type_app_engine_iam_policy":              tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeAppEngineIamSchema, iap.IapWebTypeAppEngineIamUpdaterProducer),
 	"google_iap_web_type_compute_iam_policy":                 tpgiamresource.DataSourceIamPolicy(iap.IapWebTypeComputeIamSchema, iap.IapWebTypeComputeIamUpdaterProducer),
+	"google_kms_ekm_connection_iam_policy":                   tpgiamresource.DataSourceIamPolicy(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer),
 	"google_logging_log_view_iam_policy":                     tpgiamresource.DataSourceIamPolicy(logging.LoggingLogViewIamSchema, logging.LoggingLogViewIamUpdaterProducer),
 	"google_network_security_address_group_iam_policy":       tpgiamresource.DataSourceIamPolicy(networksecurity.NetworkSecurityProjectAddressGroupIamSchema, networksecurity.NetworkSecurityProjectAddressGroupIamUpdaterProducer),
 	"google_notebooks_instance_iam_policy":                   tpgiamresource.DataSourceIamPolicy(notebooks.NotebooksInstanceIamSchema, notebooks.NotebooksInstanceIamUpdaterProducer),
@@ -428,8 +429,8 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 
 // Resources
 // Generated resources: 450
-// Generated IAM resources: 255
-// Total generated resources: 705
+// Generated IAM resources: 258
+// Total generated resources: 708
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -913,6 +914,9 @@ var generatedResources = map[string]*schema.Resource{
 	"google_kms_crypto_key":                                                      kms.ResourceKMSCryptoKey(),
 	"google_kms_crypto_key_version":                                              kms.ResourceKMSCryptoKeyVersion(),
 	"google_kms_ekm_connection":                                                  kms.ResourceKMSEkmConnection(),
+	"google_kms_ekm_connection_iam_binding":                                      tpgiamresource.ResourceIamBinding(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
+	"google_kms_ekm_connection_iam_member":                                       tpgiamresource.ResourceIamMember(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
+	"google_kms_ekm_connection_iam_policy":                                       tpgiamresource.ResourceIamPolicy(kms.KMSEkmConnectionIamSchema, kms.KMSEkmConnectionIamUpdaterProducer, kms.KMSEkmConnectionIdParseFunc),
 	"google_kms_key_ring":                                                        kms.ResourceKMSKeyRing(),
 	"google_kms_key_ring_import_job":                                             kms.ResourceKMSKeyRingImportJob(),
 	"google_kms_secret_ciphertext":                                               kms.ResourceKMSSecretCiphertext(),

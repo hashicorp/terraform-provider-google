@@ -1,0 +1,9 @@
+```release-note:new-resource
+`google_kms_ekm_connection_iam_member`
+```
+```release-note:new-resource
+`google_kms_ekm_connection_iam_policy`
+```
+```release-note:new-resource
+`google_kms_ekm_connection_iam_binding`
+```
