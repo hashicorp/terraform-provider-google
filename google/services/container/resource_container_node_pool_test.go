@@ -4635,13 +4635,17 @@ func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
 
 func testAccContainerNodePool_defaultDriverInstallation(cluster, np string) string {
 	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
 resource "google_container_cluster" "cluster" {
   name               = "%s"
   location           = "us-central1-a"
   initial_node_count = 3
   deletion_protection = false
 
-  min_master_version = "1.30.1-gke.1329003"
+  min_master_version = data.google_container_engine_versions.central1a.release_channel_latest_version["RAPID"]
   release_channel {
     channel = "RAPID"
   }
