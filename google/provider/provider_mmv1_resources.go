@@ -52,7 +52,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/dataplex"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataproc"
 	"github.com/hashicorp/terraform-provider-google/google/services/dataprocmetastore"
-	"github.com/hashicorp/terraform-provider-google/google/services/datastore"
 	"github.com/hashicorp/terraform-provider-google/google/services/datastream"
 	"github.com/hashicorp/terraform-provider-google/google/services/deploymentmanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/dialogflow"
@@ -426,9 +425,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 445
+// Generated resources: 444
 // Generated IAM resources: 255
-// Total generated resources: 700
+// Total generated resources: 699
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -764,7 +763,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_dataproc_metastore_service_iam_binding":                              tpgiamresource.ResourceIamBinding(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
 	"google_dataproc_metastore_service_iam_member":                               tpgiamresource.ResourceIamMember(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
 	"google_dataproc_metastore_service_iam_policy":                               tpgiamresource.ResourceIamPolicy(dataprocmetastore.DataprocMetastoreServiceIamSchema, dataprocmetastore.DataprocMetastoreServiceIamUpdaterProducer, dataprocmetastore.DataprocMetastoreServiceIdParseFunc),
-	"google_datastore_index":                                                     datastore.ResourceDatastoreIndex(),
 	"google_datastream_connection_profile":                                       datastream.ResourceDatastreamConnectionProfile(),
 	"google_datastream_private_connection":                                       datastream.ResourceDatastreamPrivateConnection(),
 	"google_datastream_stream":                                                   datastream.ResourceDatastreamStream(),
