@@ -106,21 +106,9 @@ The following arguments are supported:
   Cloud KMS config for AuthModule to encrypt/decrypt credentials.
   Structure is [documented below](#nested_cloud_kms_config).
 
-* `create_sample_workflows` -
-  (Optional, Deprecated)
-  Indicates if sample workflow should be created along with provisioning.
-
-  ~> **Warning:** `create_sample_workflows` is deprecated and will be removed in a future major release. Use `create_sample_integrations` instead.
-
 * `create_sample_integrations` -
   (Optional)
   Indicates if sample integrations should be created along with provisioning.
-
-* `provision_gmek` -
-  (Optional, Deprecated)
-  Indicates provision with GMEK or CMEK.
-
-  ~> **Warning:** `provision_gmek` is deprecated and will be removed in a future major release. Client would be provisioned as gmek if `cloud_kms_config` is not given.
 
 * `run_as_service_account` -
   (Optional)

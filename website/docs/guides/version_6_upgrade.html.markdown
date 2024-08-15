@@ -334,6 +334,12 @@ in GCP, including the labels configured through Terraform, the system, and other
 
 `google_identity_platform_project_default_config` is removed in favor of `google_identity_platform_project_config`
 
+## Resource: `google_integrations_client`
+
+### `create_sample_worklfows` and `provision_gmek` is now removed
+
+`create_sample_worklfows` and `provision_gmek` is now removed in favor of `create_sample_integrations`
+
 ## Resource: `google_project`
 
 ### Project deletion now prevented by default with `deletion_policy`
