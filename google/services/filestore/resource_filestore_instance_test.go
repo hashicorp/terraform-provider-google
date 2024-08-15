@@ -166,7 +166,7 @@ resource "google_filestore_instance" "instance" {
   networks {
     network           = "default"
     modes             = ["MODE_IPV4"]
-    reserved_ip_range = "172.19.30.0/29"
+    reserved_ip_range = "172.19.31.0/29"
   }
 }
 `, name)
@@ -187,7 +187,7 @@ resource "google_filestore_instance" "instance" {
   networks {
     network           = "default"
     modes             = ["MODE_IPV4"]
-    reserved_ip_range = "172.19.31.0/29"
+    reserved_ip_range = "172.19.31.8/29"
   }
 }
 `, name)
