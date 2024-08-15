@@ -99,7 +99,6 @@ type FrameworkProviderConfig struct {
 	DataplexBasePath                 string
 	DataprocBasePath                 string
 	DataprocMetastoreBasePath        string
-	DatastoreBasePath                string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
 	DialogflowBasePath               string
@@ -259,7 +258,6 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.DataplexBasePath = data.DataplexCustomEndpoint.ValueString()
 	p.DataprocBasePath = data.DataprocCustomEndpoint.ValueString()
 	p.DataprocMetastoreBasePath = data.DataprocMetastoreCustomEndpoint.ValueString()
-	p.DatastoreBasePath = data.DatastoreCustomEndpoint.ValueString()
 	p.DatastreamBasePath = data.DatastreamCustomEndpoint.ValueString()
 	p.DeploymentManagerBasePath = data.DeploymentManagerCustomEndpoint.ValueString()
 	p.DialogflowBasePath = data.DialogflowCustomEndpoint.ValueString()
@@ -841,14 +839,6 @@ func (p *FrameworkProviderConfig) HandleDefaults(ctx context.Context, data *fwmo
 		}, transport_tpg.DefaultBasePaths[transport_tpg.DataprocMetastoreBasePathKey])
 		if customEndpoint != nil {
 			data.DataprocMetastoreCustomEndpoint = types.StringValue(customEndpoint.(string))
-		}
-	}
-	if data.DatastoreCustomEndpoint.IsNull() {
-		customEndpoint := transport_tpg.MultiEnvDefault([]string{
-			"GOOGLE_DATASTORE_CUSTOM_ENDPOINT",
-		}, transport_tpg.DefaultBasePaths[transport_tpg.DatastoreBasePathKey])
-		if customEndpoint != nil {
-			data.DatastoreCustomEndpoint = types.StringValue(customEndpoint.(string))
 		}
 	}
 	if data.DatastreamCustomEndpoint.IsNull() {

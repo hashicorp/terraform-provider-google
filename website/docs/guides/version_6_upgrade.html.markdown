@@ -253,7 +253,7 @@ and then run `terraform apply` to apply the change.
 
 ### `lifecycle_rule.condition.no_age` is now removed
 
-Previously `lifecycle_rule.condition.age` attirbute was being set zero value by default and `lifecycle_rule.condition.no_age` was introduced to prevent that.
+Previously `lifecycle_rule.condition.age` attribute was being set zero value by default and `lifecycle_rule.condition.no_age` was introduced to prevent that.
 Now `lifecycle_rule.condition.no_age` is no longer supported and `lifecycle_rule.condition.age` won't set a zero value by default.
 Removed in favor of the field `lifecycle_rule.condition.send_age_if_zero` which can be used to set zero value for `lifecycle_rule.condition.age` attribute.
 
@@ -357,3 +357,7 @@ explicitly set this field to `DELETE` in your configuration and run `terraform a
 `skip_delete` value of `false` can be changed to a `deletion_policy` value of `DELETE` and
 a `skip_delete` value of `true` to a `deletion_policy` value of `ABANDON` for equivalent
 behavior.
+
+### Resource: `google_datastore_index` is now removed
+
+`google_datastore_index` is removed in favor of `google_firestore_index`
