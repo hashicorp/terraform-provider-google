@@ -66,12 +66,9 @@ resource "google_firestore_database" "database" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_firestore_database" "database" {
-  provider = google-beta
-
   project                           = "my-project-name"
   name                              = "cmek-database-id"
   location_id                       = "nam5"
@@ -91,23 +88,17 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  provider = google-beta
-
   name     = "kms-key"
   key_ring = google_kms_key_ring.key_ring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  provider = google-beta
-
   name     = "kms-key-ring"
   location = "us"
 }
 
 resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
-  provider = google-beta
-
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
@@ -148,12 +139,9 @@ resource "google_firestore_database" "datastore_mode_database" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_firestore_database" "database" {
-  provider = google-beta
-
   project                           = "my-project-name"
   name                              = "cmek-database-id"
   location_id                       = "nam5"
@@ -173,23 +161,17 @@ resource "google_firestore_database" "database" {
 }
 
 resource "google_kms_crypto_key" "crypto_key" {
-  provider = google-beta
-
   name     = "kms-key"
   key_ring = google_kms_key_ring.key_ring.id
   purpose  = "ENCRYPT_DECRYPT"
 }
 
 resource "google_kms_key_ring" "key_ring" {
-  provider = google-beta
-
   name     = "kms-key-ring"
   location = "us"
 }
 
 resource "google_kms_crypto_key_iam_binding" "firestore_cmek_keyuser" {
-  provider = google-beta
-
   crypto_key_id = google_kms_crypto_key.crypto_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
@@ -258,7 +240,7 @@ The following arguments are supported:
   Possible values are: `DELETE_PROTECTION_STATE_UNSPECIFIED`, `DELETE_PROTECTION_ENABLED`, `DELETE_PROTECTION_DISABLED`.
 
 * `cmek_config` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The CMEK (Customer Managed Encryption Key) configuration for a Firestore
   database. If not present, the database is secured by the default Google
   encryption key.

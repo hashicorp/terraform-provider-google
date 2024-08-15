@@ -1,0 +1,3 @@
+```release-note:none
+docs: fixed the typo in `ssl_mode` in `google_sql_database_instance` resource
+```

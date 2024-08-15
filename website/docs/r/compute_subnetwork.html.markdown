@@ -48,8 +48,8 @@ To get more information about Subnetwork, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/v1/subnetworks)
 * How-to Guides
-    * [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access)
     * [Cloud Networking](https://cloud.google.com/vpc/docs/using-vpc)
+    * [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=subnetwork_basic&open_in_editor=main.tf" target="_blank">
@@ -299,10 +299,8 @@ The following arguments are supported:
   to the primary ipCidrRange of the subnetwork. The alias IPs may belong
   to either primary or secondary ranges.
   **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
-  breaking users during the 0.12 upgrade. To explicitly send a list
-  of zero objects you must use the following syntax:
-  `example=[]`
-  For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).
+  breaking users during the 0.12 upgrade. To explicitly send a list of zero objects,
+  set `send_secondary_ip_range_if_empty = true`
   Structure is [documented below](#nested_secondary_ip_range).
 
 * `private_ip_google_access` -
@@ -352,6 +350,13 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `send_secondary_ip_range_if_empty` - (Optional) Controls the removal behavior of secondary_ip_range.
+When false, removing secondary_ip_range from config will not produce a diff as
+the provider will default to the API's value.
+When true, the provider will treat removing secondary_ip_range as sending an
+empty list of secondary IP ranges to the API.
+Defaults to false.
 
 
 <a name="nested_secondary_ip_range"></a>The `secondary_ip_range` block supports:

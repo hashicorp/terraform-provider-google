@@ -229,6 +229,11 @@ The following arguments are supported:
   Configuration for query insights.
   Structure is [documented below](#nested_query_insights_config).
 
+* `observability_config` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Configuration for enhanced query insights.
+  Structure is [documented below](#nested_observability_config).
+
 * `read_pool_config` -
   (Optional)
   Read pool specific config. If the instance type is READ_POOL, this configuration must be provided.
@@ -272,6 +277,40 @@ The following arguments are supported:
 * `query_plans_per_minute` -
   (Optional)
   Number of query execution plans captured by Insights per minute for all queries combined. The default value is 5. Any integer between 0 and 20 is considered valid.
+
+<a name="nested_observability_config"></a>The `observability_config` block supports:
+
+* `enabled` -
+  (Optional)
+  Observability feature status for an instance.
+
+* `preserve_comments` -
+  (Optional)
+  Preserve comments in the query string.
+
+* `track_wait_events` -
+  (Optional)
+  Record wait events during query execution for an instance.
+
+* `track_wait_event_types` -
+  (Optional)
+  Record wait event types during query execution for an instance.
+
+* `max_query_string_length` -
+  (Optional)
+  Query string length. The default value is 10240. Any integer between 1024 and 100000 is considered valid.
+
+* `record_application_tags` -
+  (Optional)
+  Record application tags for an instance. This flag is turned "on" by default.
+
+* `query_plans_per_minute` -
+  (Optional)
+  Number of query execution plans captured by Insights per minute for all queries combined. The default value is 5. Any integer between 0 and 200 is considered valid.
+
+* `track_active_queries` -
+  (Optional)
+  Track actively running queries. If not set, default value is "off".
 
 <a name="nested_read_pool_config"></a>The `read_pool_config` block supports:
 

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -49,7 +49,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentBasicExample(t *testing.T)
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -158,7 +158,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitProjectsExample(t 
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -274,7 +274,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentExplicitNetworksExample(t 
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})
@@ -401,7 +401,7 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 				ResourceName:            "google_compute_service_attachment.psc_ilb_service_attachment",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"region", "target_service"},
+				ImportStateVerifyIgnore: []string{"region"},
 			},
 		},
 	})

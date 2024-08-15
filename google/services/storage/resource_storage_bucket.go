@@ -497,6 +497,9 @@ func ResourceStorageBucket() *schema.Resource {
 							MinItems: 2,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
+								StateFunc: func(s interface{}) string {
+									return strings.ToUpper(s.(string))
+								},
 							},
 							Description: `The list of individual regions that comprise a dual-region bucket. See the docs for a list of acceptable regions. Note: If any of the data_locations changes, it will recreate the bucket.`,
 						},
@@ -1170,9 +1173,15 @@ func flattenBucketCustomPlacementConfig(cfc *storage.BucketCustomPlacementConfig
 func expandBucketDataLocations(configured interface{}) []string {
 	l := configured.(*schema.Set).List()
 
+	// Since we only want uppercase values to prevent unnecessary diffs, we can do a comparison
+	// to determine whether or not to include the value as part of the request.
+
+	// This extra check comes from the limitations of both DiffStateFunc and StateFunc towards types of Sets,Lists, and Maps.
 	req := make([]string, 0, len(l))
 	for _, raw := range l {
-		req = append(req, raw.(string))
+		if raw.(string) == strings.ToUpper(raw.(string)) {
+			req = append(req, raw.(string))
+		}
 	}
 	return req
 }

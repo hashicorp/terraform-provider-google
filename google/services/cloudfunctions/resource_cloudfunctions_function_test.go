@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcloudfunctions "github.com/hashicorp/terraform-provider-google/google/services/cloudfunctions"
@@ -460,6 +460,54 @@ func TestAccCloudFunctionsFunction_secretMount(t *testing.T) {
 			},
 			{
 				Config: testAccCloudFunctionsFunction_secretMount(projectNumber, secretName, versionName2, bucketName, functionName, "2", zipFilePath, accountId),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+		},
+	})
+}
+
+func TestAccCloudFunctionsFunction_buildServiceAccount(t *testing.T) {
+	t.Parallel()
+
+	funcResourceName := "google_cloudfunctions_function.function"
+	functionName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	bucketName := fmt.Sprintf("tf-test-bucket-%d", acctest.RandInt(t))
+	zipFilePath := acctest.CreateZIPArchiveForCloudFunctionSource(t, testHTTPTriggerPath)
+	proj := envvar.GetTestProjectFromEnv()
+	serviceAccount1 := fmt.Sprintf("tf-test-build1-%s", acctest.RandString(t, 10))
+	serviceAccount2 := fmt.Sprintf("tf-test-build2-%s", acctest.RandString(t, 10))
+	defer os.Remove(zipFilePath) // clean up
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckCloudFunctionsFunctionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudFunctionsFunction_buildServiceAccount("sa1", functionName, bucketName, zipFilePath, serviceAccount1),
+				Check: resource.TestCheckResourceAttr(funcResourceName,
+					"build_service_account",
+					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount1)),
+			},
+			{
+				ResourceName:            funcResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"build_environment_variables"},
+			},
+			{
+				Config: testAccCloudFunctionsFunction_buildServiceAccount("sa2", functionName, bucketName, zipFilePath, serviceAccount2),
+				Check: resource.TestCheckResourceAttr(funcResourceName,
+					"build_service_account",
+					fmt.Sprintf("projects/%[1]s/serviceAccounts/%s@%[1]s.iam.gserviceaccount.com", proj, serviceAccount2)),
 			},
 			{
 				ResourceName:            funcResourceName,
@@ -1098,4 +1146,68 @@ resource "google_cloudfunctions_function" "function" {
 
 }
 `, accountId, secretName, versionName, bucketName, zipFilePath, functionName, projectNumber, versionNumber)
+}
+
+func testAccCloudFunctionsFunction_buildServiceAccount(saName, functionName, bucketName, zipFilePath, serviceAccount string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {}
+
+resource "google_storage_bucket" "bucket" {
+  name     = "%s"
+  location = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "archive" {
+  name   = "index.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = "%s"
+}
+
+resource "google_service_account" "cloud_function_build_account_%[3]s" {
+  account_id   = "%s"
+  display_name = "Testing Cloud Function build service account"
+}
+
+resource "google_project_iam_member" "storage_object_admin_%[3]s" {
+	project = data.google_project.project.project_id
+  role      = "roles/storage.objectAdmin"
+  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+}
+
+resource "google_project_iam_member" "artifact_registry_writer_%[3]s" {
+	project = data.google_project.project.project_id
+  role      = "roles/artifactregistry.writer"
+  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+}
+
+resource "google_project_iam_member" "log_writer_%[3]s" {
+	project = data.google_project.project.project_id
+  role      = "roles/logging.logWriter"
+  member    = "serviceAccount:${google_service_account.cloud_function_build_account_%[3]s.email}"
+}
+
+resource "time_sleep" "wait_iam_roles_%[3]s" {
+  depends_on       = [
+		google_project_iam_member.storage_object_admin_%[3]s,
+		google_project_iam_member.artifact_registry_writer_%[3]s,
+		google_project_iam_member.log_writer_%[3]s,
+	]
+	create_duration  = "60s"
+}
+
+resource "google_cloudfunctions_function" "function" {
+	depends_on = [time_sleep.wait_iam_roles_%[3]s]
+  name    = "%[5]s"
+  runtime = "nodejs10"
+
+  source_archive_bucket = google_storage_bucket.bucket.name
+  source_archive_object = google_storage_bucket_object.archive.name
+
+  build_service_account = google_service_account.cloud_function_build_account_%[3]s.name
+
+  trigger_http = true
+  entry_point  = "helloGET"
+}
+`, bucketName, zipFilePath, saName, serviceAccount, functionName)
 }

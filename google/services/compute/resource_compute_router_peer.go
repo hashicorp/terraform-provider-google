@@ -144,6 +144,30 @@ CIDR-formatted string.`,
 Where there is more than one matching route of maximum
 length, the routes with the lowest priority value win.`,
 			},
+			"custom_learned_ip_ranges": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `The custom learned route IP address range. Must be a valid CIDR-formatted prefix. If an 
+IP address is provided without a subnet mask, it is interpreted as, for IPv4, a /32 singular IP address range, and, for IPv6, /128.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"range": {
+							Type:     schema.TypeString,
+							Required: true,
+							Description: `The IP range to advertise. The value must be a
+CIDR-formatted string.`,
+						},
+					},
+				},
+			},
+			"custom_learned_route_priority": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Description: `The user-defined custom learned route priority for a BGP session.
+This value is applied to all custom learned route ranges for the session. You can choose a value
+from 0 to 65335. If you don't provide a value, Google Cloud assigns a priority of 100 to the ranges.`,
+			},
+
 			"bfd": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -392,6 +416,18 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
 		obj["advertisedIpRanges"] = advertisedIpRangesProp
 	}
+	customLearnedIpRangesProp, err := expandNestedComputeRouterBgpPeerCustomLearnedIpRanges(d.Get("custom_learned_ip_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_learned_ip_ranges"); ok || !reflect.DeepEqual(v, customLearnedIpRangesProp) {
+		obj["customLearnedIpRanges"] = customLearnedIpRangesProp
+	}
+	customLearnedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerCustomLearnedRoutePriority(d.Get("custom_learned_route_priority"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_learned_route_priority"); ok || !reflect.DeepEqual(v, customLearnedRoutePriorityProp) {
+		obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
+	}
 	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
 	if err != nil {
 		return err
@@ -610,6 +646,12 @@ func resourceComputeRouterBgpPeerRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("advertised_ip_ranges", flattenNestedComputeRouterBgpPeerAdvertisedIpRanges(res["advertisedIpRanges"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
+	if err := d.Set("custom_learned_ip_ranges", flattenNestedComputeRouterBgpPeerCustomLearnedIpRanges(res["customLearnedIpRanges"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
+	if err := d.Set("custom_learned_route_priority", flattenNestedComputeRouterBgpPeerCustomLearnedRoutePriority(res["customLearnedRoutePriority"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
+	}
 	if err := d.Set("management_type", flattenNestedComputeRouterBgpPeerManagementType(res["managementType"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RouterBgpPeer: %s", err)
 	}
@@ -704,6 +746,18 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("advertised_ip_ranges"); ok || !reflect.DeepEqual(v, advertisedIpRangesProp) {
 		obj["advertisedIpRanges"] = advertisedIpRangesProp
+	}
+	customLearnedIpRangesProp, err := expandNestedComputeRouterBgpPeerCustomLearnedIpRanges(d.Get("custom_learned_ip_ranges"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_learned_ip_ranges"); ok || !reflect.DeepEqual(v, customLearnedIpRangesProp) {
+		obj["customLearnedIpRanges"] = customLearnedIpRangesProp
+	}
+	customLearnedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerCustomLearnedRoutePriority(d.Get("custom_learned_route_priority"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("custom_learned_route_priority"); ok || !reflect.DeepEqual(v, customLearnedRoutePriorityProp) {
+		obj["customLearnedRoutePriority"] = customLearnedRoutePriorityProp
 	}
 	bfdProp, err := expandNestedComputeRouterBgpPeerBfd(d.Get("bfd"), d, config)
 	if err != nil {
@@ -1003,7 +1057,44 @@ func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d *
 func flattenNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
+func flattenNestedComputeRouterBgpPeerCustomLearnedIpRanges(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"range": flattenNestedComputeRouterBgpPeerCustomLearnedIpRangesRange(original["range"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenNestedComputeRouterBgpPeerCustomLearnedIpRangesRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
 
+func flattenNestedComputeRouterBgpPeerCustomLearnedRoutePriority(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
 func flattenNestedComputeRouterBgpPeerManagementType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1208,7 +1299,35 @@ func expandNestedComputeRouterBgpPeerAdvertisedIpRangesRange(v interface{}, d tp
 func expandNestedComputeRouterBgpPeerAdvertisedIpRangesDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
+func expandNestedComputeRouterBgpPeerCustomLearnedIpRanges(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
 
+		transformedRange, err := expandNestedComputeRouterBgpPeerCustomLearnedIpRangesRange(original["range"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRange); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["range"] = transformedRange
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandNestedComputeRouterBgpPeerCustomLearnedIpRangesRange(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRouterBgpPeerCustomLearnedRoutePriority(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
 func expandNestedComputeRouterBgpPeerBfd(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
 	if len(l) == 0 || l[0] == nil {

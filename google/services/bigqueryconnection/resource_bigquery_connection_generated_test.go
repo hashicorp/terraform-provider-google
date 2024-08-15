@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -518,6 +518,16 @@ resource "google_sql_user" "user" {
     name = "user%{random_suffix}"
     instance = google_sql_database_instance.instance.name
     password = "tf-test-my-password%{random_suffix}"
+}
+
+data "google_bigquery_default_service_account" "bq_sa" {}
+
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "key_sa_user" {
+  project       = data.google_project.project.project_id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:${data.google_bigquery_default_service_account.bq_sa.email}"
 }
 
 resource "google_bigquery_connection" "bq-connection-cmek" {

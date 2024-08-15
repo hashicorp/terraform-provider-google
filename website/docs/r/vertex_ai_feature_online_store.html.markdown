@@ -53,16 +53,16 @@ resource "google_vertex_ai_feature_online_store" "feature_online_store" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
-  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_featureonlinestore_with_beta_fields_optimized&open_in_editor=main.tf" target="_blank">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_featureonlinestore_with_optimized&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
-## Example Usage - Vertex Ai Featureonlinestore With Beta Fields Optimized
+## Example Usage - Vertex Ai Featureonlinestore With Optimized
 
 
 ```hcl
 resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
-  provider = google-beta
+  provider = google
   name     = "example_feature_online_store_optimized"
   labels = {
     foo = "bar"
@@ -78,7 +78,7 @@ resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
 }
 
 data "google_project" "project" {
-  provider = google-beta
+  provider = google
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -144,8 +144,8 @@ The following arguments are supported:
   Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore
 
 * `dedicated_serving_endpoint` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
-  The dedicated serving endpoint for this FeatureOnlineStore, which is different from common vertex service endpoint. Only need to set when you choose Optimized storage type or enable EmbeddingManagement. Will use public endpoint by default.
+  (Optional)
+  The dedicated serving endpoint for this FeatureOnlineStore, which is different from common vertex service endpoint. Only need to be set when you choose Optimized storage type or enable EmbeddingManagement. Will use public endpoint by default.
   Structure is [documented below](#nested_dedicated_serving_endpoint).
 
 * `embedding_management` -

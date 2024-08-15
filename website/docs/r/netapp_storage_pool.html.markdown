@@ -31,12 +31,24 @@ The capacity of the pool can be split up and assigned to volumes within the pool
 component of NetApp Volumes. Billing is based on the location, service level, and capacity allocated to a pool
 independent of consumption at the volume level.
 
+Storage pools of service level Flex are available as zonal (single zone) or regional (two zones in same region) pools.
+Zonal and regional pools are high-available within the zone. On top of that, regional pools have `replica_zone` as
+hot standby zone. All volume access is served from the `zone`. If `zone` fails, `replica_zone`
+automatically becomes the active zone. This will cause state drift in your configuration.
+If a zone switch (manual or automatic) is triggered outside of Terraform, you need to adjust the `zone`
+and `replica_zone` values to reflect the current state, or Terraform will initiate a zone switch when running
+the next apply. You can trigger a manual
+[zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones)
+via Terraform by swapping the value of the `zone` and `replica_zone` parameters in your HCL code.
+Note : Regional FLEX storage pool are supported in beta provider currently.
+
 
 To get more information about storagePool, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.storagePools)
 * How-to Guides
     * [Quickstart documentation](https://cloud.google.com/netapp/volumes/docs/get-started/quickstarts/create-storage-pool)
+    * [Regional Flex zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=Storage_pool_create&open_in_editor=main.tf" target="_blank">
@@ -112,11 +124,11 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  Name of the location. Usually a region name, expect for some FLEX service level pools which require a zone name.
+  Name of the location. For zonal Flex pools specify a zone name, in all other cases a region name.
 
 * `name` -
   (Required)
-  The resource name of the storage pool. Needs to be unique per location.
+  The resource name of the storage pool. Needs to be unique per location/region.
 
 
 - - -
@@ -147,6 +159,17 @@ The following arguments are supported:
   (Optional)
   When enabled, the volumes uses Active Directory as LDAP name service for UID/GID lookups. Required to enable extended group support for NFSv3,
   using security identifiers for NFSv4.1 or principal names for kerberized NFSv4.1.
+
+* `zone` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the active zone for regional Flex pools. `zone` and `replica_zone` values can be swapped to initiate a
+  [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones).
+  If you want to create a zonal Flex pool, specify a zone name for `location` and omit `zone`.
+
+* `replica_zone` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Specifies the replica zone for regional Flex pools. `zone` and `replica_zone` values can be swapped to initiate a
+  [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

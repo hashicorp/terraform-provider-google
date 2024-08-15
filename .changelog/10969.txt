@@ -1,0 +1,3 @@
+```release-note:enhancement
+datafusion: added fields `connection_type` and `private_service_connect_config` to enable using Private Service Connect with `google_data_fusion_instance` resources
+```

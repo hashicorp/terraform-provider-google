@@ -1,0 +1,3 @@
+```release-note:bug
+alloydb: fixed a permadiff on `psc_instance_config` in `google_alloydb_instance` resource
+```

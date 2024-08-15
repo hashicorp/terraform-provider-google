@@ -422,8 +422,7 @@ The following arguments are supported:
 
 * `target_service` -
   (Required)
-  The URL of a forwarding rule that represents the service identified by
-  this service attachment.
+  The URL of a service serving the endpoint identified by this service attachment.
 
 * `nat_subnets` -
   (Required)

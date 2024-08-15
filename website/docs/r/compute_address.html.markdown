@@ -207,7 +207,6 @@ The following arguments are supported:
   * PRIVATE_SERVICE_CONNECT for a private network address that is used to
   configure Private Service Connect. Only global internal addresses can use
   this purpose.
-
   This should only be set when using an Internal address.
 
 * `network_tier` -

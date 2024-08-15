@@ -111,8 +111,6 @@ resource "google_container_cluster" "primary" {
 * `autoscaling` - (Optional) Configuration required by cluster autoscaler to adjust
     the size of the node pool to the current cluster usage. Structure is [documented below](#nested_autoscaling).
 
-* `confidential_nodes` - (Optional) Configuration for Confidential Nodes feature. Structure is [documented below](#nested_confidential_nodes).
-
 * `initial_node_count` - (Optional) The initial number of nodes for the pool. In
     regional or multi-zonal clusters, this is the number of nodes per zone. Changing
     this will force recreation of the resource. WARNING: Resizing your node pool manually
@@ -175,6 +173,9 @@ cluster.
 * `queued_provisioning` - (Optional) Specifies node pool-level settings of queued provisioning.
     Structure is [documented below](#nested_queued_provisioning).
 
+* `reservation_affinity` (Optional) The configuration of the desired reservation which instances could take capacity from.
+    Structure is [documented below](#nested_reservation_affinity).
+
 <a name="nested_autoscaling"></a>The `autoscaling` block supports (either total or per zone limits are required):
 
 * `min_node_count` - (Optional) Minimum number of nodes per zone in the NodePool.
@@ -197,11 +198,6 @@ cluster.
     * "ANY" - Instructs the cluster autoscaler to prioritize utilization of unused reservations,
       and reduce preemption risk for Spot VMs.
 
-<a name="nested_confidential_nodes"></a> The `confidential_nodes` block supports:
-
-* `enabled` (Required) - Enable Confidential GKE Nodes for this cluster, to
-    enforce encryption of data in-use.
-
 <a name="nested_management"></a>The `management` block supports:
 
 * `auto_repair` - (Optional) Whether the nodes will be automatically repaired. Enabled by default.
@@ -218,10 +214,10 @@ cluster.
 
 * `pod_range` - (Optional) The ID of the secondary range for pod IPs. If `create_pod_range` is true, this ID is used for the new range. If `create_pod_range` is false, uses an existing secondary range with this ID.
 
-* `additional_node_network_configs` - (Optional, Beta) We specify the additional node networks for this node pool using this list. Each node network corresponds to an additional interface.
+* `additional_node_network_configs` - (Optional) We specify the additional node networks for this node pool using this list. Each node network corresponds to an additional interface.
     Structure is [documented below](#nested_additional_node_network_configs)
 
-* `additional_pod_network_configs` - (Optional, Beta) We specify the additional pod networks for this node pool using this list. Each pod network corresponds to an additional alias IP range for the node.
+* `additional_pod_network_configs` - (Optional) We specify the additional pod networks for this node pool using this list. Each pod network corresponds to an additional alias IP range for the node.
     Structure is [documented below](#nested_additional_pod_network_configs)
 
 * `pod_cidr_overprovision_config` - (Optional) Configuration for node-pool level pod cidr overprovision. If not set, the cluster level setting will be inherited. Structure is [documented below](#pod_cidr_overprovision_config).
@@ -262,7 +258,7 @@ cluster.
 
 `max_surge` and `max_unavailable` must not be negative and at least one of them must be greater than zero.
 
-* `strategy` - (Default `SURGE`) The upgrade stragey to be used for upgrading the nodes.
+* `strategy` - (Default `SURGE`) The upgrade strategy to be used for upgrading the nodes.
 
 * `blue_green_settings` - (Optional) The settings to adjust [blue green upgrades](https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies#blue-green-upgrade-strategy).
     Structure is [documented below](#nested_blue_green_settings)
@@ -292,6 +288,18 @@ cluster.
 <a name="nested_queued_provisioning"></a> The `queued_provisioning` block supports:
 
 * `enabled` (Required) - Makes nodes obtainable through the [ProvisioningRequest API](https://cloud.google.com/kubernetes-engine/docs/how-to/provisioningrequest) exclusively.
+
+<a name="nested_reservation_affinity"></a>The `reservation_affinity` block supports:
+
+* `consume_reservation_type` (Required) The type of reservation consumption
+    Accepted values are:
+
+    * `"UNSPECIFIED"`: Default value. This should not be used.
+    * `"NO_RESERVATION"`: Do not consume from any reserved capacity.
+    * `"ANY_RESERVATION"`: Consume any reservation available.
+    * `"SPECIFIC_RESERVATION"`: Must consume from a specific reservation. Must specify key value fields for specifying the reservations.
+* `key` (Optional) The label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify "compute.googleapis.com/reservation-name" as the key and specify the name of your reservation as its value.
+* `values` (Optional) The list of label values of reservation resources. For example: the name of the specific reservation when using a key of "compute.googleapis.com/reservation-name"
 
 ## Attributes Reference
 

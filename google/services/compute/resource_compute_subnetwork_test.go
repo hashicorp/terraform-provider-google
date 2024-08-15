@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 
@@ -199,6 +199,92 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
 					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeSubnetwork_secondaryIpRanges_sendEmpty(t *testing.T) {
+	t.Parallel()
+
+	var subnetwork compute.Subnetwork
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	subnetworkName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeSubnetworkDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Start without secondary_ip_range at all
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+				),
+			},
+			// Add one secondary_ip_range
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_single(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
+				),
+			},
+			// Remove it with send_secondary_ip_range_if_empty = true
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
+				),
+			},
+			// Check that empty block secondary_ip_range = [] is not different
+			{
+				Config:             testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, "true"),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			// Apply two secondary_ip_range
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_double(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
+					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
+				),
+			},
+			// Remove both with send_secondary_ip_range_if_empty = true
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
+					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
+				),
+			},
+			// Apply one secondary_ip_range
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_single(cnName, subnetworkName, "false"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
+				),
+			},
+			// Check removing without send_secondary_ip_range_if_empty produces no diff (normal computed behavior)
+			{
+				Config:             testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, "false"),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: false,
+			},
+			// Remove with empty block []
+			{
+				Config: testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, "true"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
+					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 				),
 			},
 		},
@@ -617,6 +703,91 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   secondary_ip_range = []
 }
 `, cnName, subnetworkName)
+}
+
+func testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, sendEmpty string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+  name               = "%s"
+  ip_cidr_range      = "10.2.0.0/16"
+  region             = "us-central1"
+  network            = google_compute_network.custom-test.self_link
+  send_secondary_ip_range_if_empty = "%s"
+}
+`, cnName, subnetworkName, sendEmpty)
+}
+
+func testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, sendEmpty string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+  name               = "%s"
+  ip_cidr_range      = "10.2.0.0/16"
+  region             = "us-central1"
+  network            = google_compute_network.custom-test.self_link
+  secondary_ip_range = []
+  send_secondary_ip_range_if_empty = "%s"
+}
+`, cnName, subnetworkName, sendEmpty)
+}
+
+func testAccComputeSubnetwork_sendEmpty_single(cnName, subnetworkName, sendEmpty string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+  name               = "%s"
+  ip_cidr_range      = "10.2.0.0/16"
+  region             = "us-central1"
+  network            = google_compute_network.custom-test.self_link
+  secondary_ip_range {
+    range_name    = "tf-test-secondary-range-update2"
+    ip_cidr_range = "192.168.11.0/24"
+  }
+  secondary_ip_range {
+    range_name    = "tf-test-secondary-range-update1"
+    ip_cidr_range = "192.168.10.0/24"
+  }
+  send_secondary_ip_range_if_empty = "%s"
+}
+`, cnName, subnetworkName, sendEmpty)
+}
+
+func testAccComputeSubnetwork_sendEmpty_double(cnName, subnetworkName, sendEmpty string) string {
+	return fmt.Sprintf(`
+resource "google_compute_network" "custom-test" {
+  name                    = "%s"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+  name               = "%s"
+  ip_cidr_range      = "10.2.0.0/16"
+  region             = "us-central1"
+  network            = google_compute_network.custom-test.self_link
+  secondary_ip_range {
+    range_name    = "tf-test-secondary-range-update2"
+    ip_cidr_range = "192.168.11.0/24"
+  }
+  secondary_ip_range {
+    range_name    = "tf-test-secondary-range-update1"
+    ip_cidr_range = "192.168.10.0/24"
+  }
+  send_secondary_ip_range_if_empty = "%s"
+}
+`, cnName, subnetworkName, sendEmpty)
 }
 
 func testAccComputeSubnetwork_flowLogs(cnName, subnetworkName string) string {

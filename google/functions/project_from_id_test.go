@@ -7,15 +7,13 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 )
 
 func TestAccProviderFunction_project_from_id(t *testing.T) {
 	t.Parallel()
-	// Skipping due to requiring TF 1.8.0 in VCR systems : https://github.com/hashicorp/terraform-provider-google/issues/17451
-	acctest.SkipIfVcr(t)
 
 	projectId := envvar.GetTestProjectFromEnv()
 	projectIdRegex := regexp.MustCompile(fmt.Sprintf("^%s$", projectId))

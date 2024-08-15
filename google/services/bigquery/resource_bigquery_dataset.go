@@ -140,8 +140,6 @@ access to this encryption key.`,
 				Optional: true,
 				Description: `The default partition expiration for all partitioned tables in
 the dataset, in milliseconds.
-
-
 Once this property is set, all newly-created partitioned tables in
 the dataset will have an 'expirationMs' property in the 'timePartitioning'
 settings set to this value, and changing the value will only
@@ -160,8 +158,6 @@ over the default partition expiration time indicated by this property.`,
 				ValidateFunc: validateDefaultTableExpirationMs,
 				Description: `The default lifetime of all tables in the dataset, in milliseconds.
 The minimum value is 3600000 milliseconds (one hour).
-
-
 Once this property is set, all newly-created tables in the dataset
 will have an 'expirationTime' property set to the creation time plus
 the value in this property, and changing the value will only affect
@@ -232,14 +228,10 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				DiffSuppressFunc: tpgresource.CaseDiffSuppress,
 				Description: `The geographic location where the dataset should reside.
 See [official docs](https://cloud.google.com/bigquery/docs/dataset-locations).
-
-
 There are two types of locations, regional or multi-regional. A regional
 location is a specific geographic place, such as Tokyo, and a multi-regional
 location is a large geographic area, such as the United States, that
 contains at least two geographic places.
-
-
 The default value is multi-regional location 'US'.
 Changing this forces a new resource to be created.`,
 				Default: "US",
@@ -249,6 +241,16 @@ Changing this forces a new resource to be created.`,
 				Computed:    true,
 				Optional:    true,
 				Description: `Defines the time travel window in hours. The value can be from 48 to 168 hours (2 to 7 days).`,
+			},
+			"resource_tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `The tags attached to this table. Tag keys are globally unique. Tag key is expected to be
+in the namespaced format, for example "123456789012/environment" where 123456789012 is the
+ID of the parent organization or project resource for this tag key. Tag value is expected
+to be the short name, for example "Production". See [Tag definitions](/iam/docs/tags-access-control#definitions)
+for more details.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"storage_billing_model": {
 				Type:     schema.TypeString,
@@ -416,17 +418,9 @@ is 256 characters.`,
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: `A special group to grant access to. Possible values include:
-
-
 * 'projectOwners': Owners of the enclosing project.
-
-
 * 'projectReaders': Readers of the enclosing project.
-
-
 * 'projectWriters': Writers of the enclosing project.
-
-
 * 'allAuthenticatedUsers': All authenticated BigQuery users.`,
 			},
 			"user_by_email": {
@@ -555,6 +549,12 @@ func resourceBigQueryDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("storage_billing_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(storageBillingModelProp)) && (ok || !reflect.DeepEqual(v, storageBillingModelProp)) {
 		obj["storageBillingModel"] = storageBillingModelProp
+	}
+	resourceTagsProp, err := expandBigQueryDatasetResourceTags(d.Get("resource_tags"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource_tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(resourceTagsProp)) && (ok || !reflect.DeepEqual(v, resourceTagsProp)) {
+		obj["resourceTags"] = resourceTagsProp
 	}
 	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -720,6 +720,9 @@ func resourceBigQueryDatasetRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("storage_billing_model", flattenBigQueryDatasetStorageBillingModel(res["storageBillingModel"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
+	if err := d.Set("resource_tags", flattenBigQueryDatasetResourceTags(res["resourceTags"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenBigQueryDatasetTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
@@ -826,6 +829,12 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("storage_billing_model"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, storageBillingModelProp)) {
 		obj["storageBillingModel"] = storageBillingModelProp
+	}
+	resourceTagsProp, err := expandBigQueryDatasetResourceTags(d.Get("resource_tags"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("resource_tags"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, resourceTagsProp)) {
+		obj["resourceTags"] = resourceTagsProp
 	}
 	labelsProp, err := expandBigQueryDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -1268,6 +1277,10 @@ func flattenBigQueryDatasetStorageBillingModel(v interface{}, d *schema.Resource
 	return v
 }
 
+func flattenBigQueryDatasetResourceTags(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigQueryDatasetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1651,6 +1664,17 @@ func expandBigQueryDatasetDefaultCollation(v interface{}, d tpgresource.Terrafor
 
 func expandBigQueryDatasetStorageBillingModel(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandBigQueryDatasetResourceTags(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandBigQueryDatasetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

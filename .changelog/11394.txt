@@ -1,0 +1,3 @@
+```release-note:bug
+compute:  fixed issue where sub-resources managed by `google_compute_forwarding_rule` prevented resource deletion
+```

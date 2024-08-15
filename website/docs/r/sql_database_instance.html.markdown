@@ -145,7 +145,7 @@ resource "google_sql_database_instance" "instance" {
     tier = "db-f1-micro"
     ip_configuration {
       ipv4_enabled                                  = false
-      private_network                               = google_compute_network.private_network.id
+      private_network                               = google_compute_network.private_network.self_link
       enable_private_path_for_google_cloud_services = true
     }
   }
@@ -286,17 +286,19 @@ The `settings` block supports:
 
 * `collation` - (Optional) The name of server instance collation.
 
-* `connector_enforcement` - (Optional) Specifies if connections must use Cloud SQL connectors.
+* `connector_enforcement` - (Optional) Enables the enforcement of Cloud SQL Auth Proxy or Cloud SQL connectors for all the connections. If enabled, all the direct connections are rejected.
 
 * `deletion_protection_enabled` - (Optional) Enables deletion protection of an instance at the GCP level. Enabling this protection will guard against accidental deletion across all surfaces (API, gcloud, Cloud Console and Terraform) by enabling the [GCP Cloud SQL instance deletion protection](https://cloud.google.com/sql/docs/postgres/deletion-protection). Terraform provider support was introduced in version 4.48.0. Defaults to `false`.
 
 * `enable_google_ml_integration` - (Optional) Enables [Cloud SQL instances to connect to Vertex AI](https://cloud.google.com/sql/docs/postgres/integrate-cloud-sql-with-vertex-ai) and pass requests for real-time predictions and insights. Defaults to `false`.
 
-* `disk_autoresize` - (Optional) Enables auto-resizing of the storage size. Defaults to `true`.
+* `enable_dataplex_integration` - (Optional) Enables [Cloud SQL instance integration with Dataplex](https://cloud.google.com/sql/docs/mysql/dataplex-catalog-integration). MySQL, Postgres and SQL Server instances are supported for this feature. Defaults to `false`.
+
+* `disk_autoresize` - (Optional) Enables auto-resizing of the storage size. Defaults to `true`. Note that if `disk_size` is set, future `terraform apply` calls will attempt to delete the instance in order to resize the disk to the value specified in disk_size if it has been resized. To avoid this, ensure that `lifecycle.ignore_changes` is applied to `disk_size`.
 
 * `disk_autoresize_limit` - (Optional) The maximum size to which storage capacity can be automatically increased. The default value is 0, which specifies that there is no limit.
 
-* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB.
+* `disk_size` - (Optional) The size of data disk, in GB. Size of a running instance cannot be reduced but can be increased. The minimum value is 10GB. Note that this value will override the resizing from `disk_autoresize` if that feature is enabled. To avoid this, set `lifecycle.ignore_changes` on this field.
 
 * `disk_type` - (Optional) The type of data disk: PD_SSD or PD_HDD. Defaults to `PD_SSD`.
 
@@ -325,9 +327,9 @@ The optional `settings.data_cache_config` subblock supports:
 
 The optional `settings.deny_maintenance_period` subblock supports:
 
-* `end_date` - (Required) "deny maintenance period" end date. If the year of the end date is empty, the year of the start date also must be empty. In this case, it means the no maintenance interval recurs every year. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01
+* `end_date` - (Required) "deny maintenance period" end date. If the year of the end date is empty, the year of the start date also must be empty. In this case, it means the no maintenance interval recurs every year. The date is in format yyyy-m-dd (the month is without leading zeros)i.e., 2020-1-01, or 2020-11-01, or mm-dd, i.e., 11-01
 
-* `start_date` - (Required) "deny maintenance period" start date. If the year of the start date is empty, the year of the end date also must be empty. In this case, it means the deny maintenance period recurs every year. The date is in format yyyy-mm-dd i.e., 2020-11-01, or mm-dd, i.e., 11-01
+* `start_date` - (Required) "deny maintenance period" start date. If the year of the start date is empty, the year of the end date also must be empty. In this case, it means the deny maintenance period recurs every year. The date is in format yyyy-m-dd (the month is without leading zeros)i.e., 2020-1-01, or 2020-11-01, or mm-dd, i.e., 11-01
 
 * `time` - (Required) Time in UTC when the "deny maintenance period" starts on startDate and ends on endDate. The time is in format: HH:mm:SS, i.e., 00:00:00
 
@@ -377,10 +379,12 @@ This setting can be updated, but it cannot be removed after it is set.
 
 * `require_ssl` - (Optional, Deprecated) Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in `ssl_mode`. It will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.
 
-* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to `require_ssl`. To change this field, also set the correspoding value in `require_ssl`.
+* `ssl_mode` - (Optional) Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcement options compared to `require_ssl`. To change this field, also set the correspoding value in `require_ssl`.
     * For PostgreSQL instances, the value pairs are listed in the [API reference doc](https://cloud.google.com/sql/docs/postgres/admin-api/rest/v1beta4/instances#ipconfiguration) for `ssl_mode` field.
     * For MySQL instances, use the same value pairs as the PostgreSQL instances.
     * For SQL Server instances, set it to `ALLOW_UNENCRYPTED_AND_ENCRYPTED` when `require_ssl=false` and `ENCRYPTED_ONLY` otherwise.
+
+* `server_ca_mode` - (Optional) Specify how the server certificate's Certificate Authority is hosted. Supported value is `GOOGLE_MANAGED_INTERNAL_CA`.
 
 * `allocated_ip_range` - (Optional) The name of the allocated ip range for the private ip CloudSQL instance. For example: "google-managed-services-default". If set, the instance ip will be created in the allocated range. The range name must comply with [RFC 1035](https://datatracker.ietf.org/doc/html/rfc1035). Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
 
@@ -578,9 +582,9 @@ performing filtering in a Terraform config.
 `google_sql_database_instance` provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
-- `create` - Default is 40 minutes.
-- `update` - Default is 30 minutes.
-- `delete` - Default is 30 minutes.
+- `create` - Default is 90 minutes.
+- `update` - Default is 90 minutes.
+- `delete` - Default is 90 minutes.
 
 ## Import
 

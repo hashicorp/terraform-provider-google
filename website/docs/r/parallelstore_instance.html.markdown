@@ -40,7 +40,8 @@ resource "google_parallelstore_instance" "instance" {
   description = "test instance"
   capacity_gib = 12000
   network = google_compute_network.network.name
-
+  file_stripe_level = "FILE_STRIPE_LEVEL_MIN"
+  directory_stripe_level = "DIRECTORY_STRIPE_LEVEL_MIN"
   labels = {
     test = "value"
   }
@@ -54,8 +55,6 @@ resource "google_compute_network" "network" {
   mtu = 8896
   provider = google-beta
 }
-
-
 
 # Create an IP address
 resource "google_compute_global_address" "private_ip_alloc" {
@@ -83,7 +82,7 @@ The following arguments are supported:
 
 * `capacity_gib` -
   (Required)
-  Immutable. Storage capacity of Parallelstore instance in Gibibytes (GiB).
+  Required. Immutable. Storage capacity of Parallelstore instance in Gibibytes (GiB).
 
 * `location` -
   (Required)
@@ -142,6 +141,28 @@ The following arguments are supported:
   with IP range 10.0.0.0/29. If no range id is provided all ranges will be
   considered.
 
+* `file_stripe_level` -
+  (Optional)
+  Stripe level for files.
+  MIN better suited for small size files.
+  MAX higher throughput performance for larger files. 
+   Possible values:
+   FILE_STRIPE_LEVEL_UNSPECIFIED
+  FILE_STRIPE_LEVEL_MIN
+  FILE_STRIPE_LEVEL_BALANCED
+  FILE_STRIPE_LEVEL_MAX
+
+* `directory_stripe_level` -
+  (Optional)
+  Stripe level for directories.
+  MIN when directory has a small number of files.
+  MAX when directory has a large number of files. 
+   Possible values:
+   DIRECTORY_STRIPE_LEVEL_UNSPECIFIED
+  DIRECTORY_STRIPE_LEVEL_MIN
+  DIRECTORY_STRIPE_LEVEL_BALANCED
+  DIRECTORY_STRIPE_LEVEL_MAX
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -153,7 +174,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/instances/{{instance_id}}`
 
 * `name` -
-  The resource name of the instance, in the format
+  Identifier. The resource name of the instance, in the format
   `projects/{project}/locations/{location}/instances/{instance_id}`
 
 * `state` -
@@ -164,6 +185,7 @@ In addition to the arguments listed above, the following computed attributes are
   ACTIVE
   DELETING
   FAILED
+  UPGRADING
 
 * `create_time` -
   The time when the instance was created.
@@ -175,7 +197,7 @@ In addition to the arguments listed above, the following computed attributes are
   The version of DAOS software running in the instance
 
 * `access_points` -
-  List of access_points.
+  Output only. List of access_points.
   Contains a list of IPv4 addresses used for client side configuration.
 
 * `effective_reserved_ip_range` -

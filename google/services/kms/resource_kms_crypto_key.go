@@ -94,7 +94,7 @@ The resource name is in the format "projects/*/locations/*/ekmConnections/*" and
 				Optional: true,
 				ForceNew: true,
 				Description: `The period of time that versions of this key spend in the DESTROY_SCHEDULED state before transitioning to DESTROYED.
-If not specified at creation time, the default duration is 24 hours.`,
+If not specified at creation time, the default duration is 30 days.`,
 			},
 			"import_only": {
 				Type:        schema.TypeBool,

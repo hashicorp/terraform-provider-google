@@ -5,6 +5,7 @@ package functions
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/function"
 )
@@ -37,23 +38,24 @@ func (f RegionFromZoneFunction) Definition(ctx context.Context, req function.Def
 
 func (f RegionFromZoneFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	// Load arguments from function call
-	var arg0 string
-	resp.Error = function.ConcatFuncErrors(req.Arguments.GetArgument(ctx, 0, &arg0))
+	var zone string
+	resp.Error = function.ConcatFuncErrors(req.Arguments.GetArgument(ctx, 0, &zone))
 	if resp.Error != nil {
 		return
 	}
 
-	if arg0 == "" {
+	if zone == "" {
 		err := function.NewArgumentFuncError(0, "The input string cannot be empty.")
 		resp.Error = function.ConcatFuncErrors(err)
 		return
 	}
 
-	if arg0[len(arg0)-2] != '-' {
-		err := function.NewArgumentFuncError(0, fmt.Sprintf("The input string \"%s\" is not a valid zone name.", arg0))
-		resp.Error = function.ConcatFuncErrors(err)
-		return
-	}
+	zoneParts := strings.Split(zone, "-")
 
-	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, arg0[:len(arg0)-2]))
+	if len(zoneParts) < 3 {
+		err := function.NewArgumentFuncError(0, fmt.Sprintf("The input string \"%s\" is not a valid zone name.", zone))
+		resp.Error = function.ConcatFuncErrors(err)
+	} else {
+		resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, strings.Join(zoneParts[:len(zoneParts)-1], "-")))
+	}
 }

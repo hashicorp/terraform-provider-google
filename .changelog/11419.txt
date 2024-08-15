@@ -1,0 +1,3 @@
+```release-note:bug
+kms: restrict beta-only field test to beta environment
+```

@@ -138,8 +138,8 @@ func ResourceIntegrationConnectorsConnection() *schema.Resource {
 												"kms_key_name": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The [KMS key name] with which the content of the Operation is encrypted. The expected
-format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+													Description: `The [KMS key name] with which the content of the Operation is encrypted. The
+expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
 Will be empty string if google managed.`,
 												},
 											},
@@ -434,8 +434,8 @@ format as: projects/*/secrets/*/versions/*.`,
 									"kms_key_name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										Description: `The [KMS key name] with which the content of the Operation is encrypted. The expected
-format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+										Description: `The [KMS key name] with which the content of the Operation is encrypted. The
+expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
 Will be empty string if google managed.`,
 									},
 								},
@@ -584,8 +584,8 @@ Will be empty string if google managed.`,
 												"kms_key_name": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The [KMS key name] with which the content of the Operation is encrypted. The expected
-format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+													Description: `The [KMS key name] with which the content of the Operation is encrypted. The
+expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
 Will be empty string if google managed.`,
 												},
 												"type": {
@@ -695,8 +695,8 @@ format as: projects/*/secrets/*/versions/*.`,
 															"kms_key_name": {
 																Type:     schema.TypeString,
 																Optional: true,
-																Description: `The [KMS key name] with which the content of the Operation is encrypted. The expected
-format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+																Description: `The [KMS key name] with which the content of the Operation is encrypted. The
+expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
 Will be empty string if google managed.`,
 															},
 															"type": {
@@ -871,8 +871,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 												"kms_key_name": {
 													Type:     schema.TypeString,
 													Optional: true,
-													Description: `The [KMS key name] with which the content of the Operation is encrypted. The expected
-format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
+													Description: `The [KMS key name] with which the content of the Operation is encrypted. The
+expected format: projects/*/locations/*/keyRings/*/cryptoKeys/*.
 Will be empty string if google managed.`,
 												},
 												"type": {

@@ -297,7 +297,6 @@ func resourceDialogflowCXIntentCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -389,7 +388,6 @@ func resourceDialogflowCXIntentRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -550,7 +548,6 @@ func resourceDialogflowCXIntentUpdate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -617,7 +614,6 @@ func resourceDialogflowCXIntentDelete(d *schema.ResourceData, meta interface{}) 
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 

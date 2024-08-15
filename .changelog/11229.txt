@@ -1,0 +1,3 @@
+```release-note:enhancement
+cloudrunv2: added field `binary_authorization.policy` to resource `google_cloud_run_v2_job` and resource `google_cloud_run_v2_service` to support named binary authorization policy.
+```

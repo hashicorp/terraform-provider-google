@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeSslCertificate_no_name(t *testing.T) {
@@ -36,6 +37,45 @@ func TestAccComputeSslCertificate_no_name(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestUnitComputeManagedSslCertificate_AbsoluteDomainSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"new trailing dot": {
+			Old:                "sslcert.tf-test.club",
+			New:                "sslcert.tf-test.club.",
+			ExpectDiffSuppress: true,
+		},
+		"old trailing dot": {
+			Old:                "sslcert.tf-test.club.",
+			New:                "sslcert.tf-test.club",
+			ExpectDiffSuppress: true,
+		},
+		"same trailing dot": {
+			Old:                "sslcert.tf-test.club.",
+			New:                "sslcert.tf-test.club.",
+			ExpectDiffSuppress: false,
+		},
+		"different trailing dot": {
+			Old:                "sslcert.tf-test.club.",
+			New:                "sslcert.tf-test.clubs.",
+			ExpectDiffSuppress: false,
+		},
+		"different no trailing dot": {
+			Old:                "sslcert.tf-test.club",
+			New:                "sslcert.tf-test.clubs",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compute.AbsoluteDomainSuppress("managed.0.domains.", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
 }
 
 func testAccCheckComputeSslCertificateExists(t *testing.T, n string) resource.TestCheckFunc {

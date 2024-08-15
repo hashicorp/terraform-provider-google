@@ -135,7 +135,6 @@ specified, Google manages whether QUIC is used. Default value: "NONE" Possible v
 			"server_tls_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `A URL referring to a networksecurity.ServerTlsPolicy
 resource that describes how the proxy should authenticate inbound
@@ -166,6 +165,17 @@ sslCertificates and certificateManagerCertificates can not be defined together.`
 				Description: `A reference to the SslPolicy resource that will be associated with
 the TargetHttpsProxy resource. If not set, the TargetHttpsProxy
 resource will not have any SSL policy configured.`,
+			},
+			"tls_early_data": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"STRICT", "PERMISSIVE", "DISABLED", ""}),
+				Description: `Specifies whether TLS 1.3 0-RTT Data (“Early Data”) should be accepted for this service.
+Early Data allows a TLS resumption handshake to include the initial application payload
+(a HTTP request) alongside the handshake, reducing the effective round trips to “zero”.
+This applies to TLS 1.3 connections over TCP (HTTP/2) as well as over UDP (QUIC/h3). Possible values: ["STRICT", "PERMISSIVE", "DISABLED"]`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -217,6 +227,12 @@ func resourceComputeTargetHttpsProxyCreate(d *schema.ResourceData, meta interfac
 		return err
 	} else if v, ok := d.GetOkExists("quic_override"); !tpgresource.IsEmptyValue(reflect.ValueOf(quicOverrideProp)) && (ok || !reflect.DeepEqual(v, quicOverrideProp)) {
 		obj["quicOverride"] = quicOverrideProp
+	}
+	tlsEarlyDataProp, err := expandComputeTargetHttpsProxyTlsEarlyData(d.Get("tls_early_data"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("tls_early_data"); !tpgresource.IsEmptyValue(reflect.ValueOf(tlsEarlyDataProp)) && (ok || !reflect.DeepEqual(v, tlsEarlyDataProp)) {
+		obj["tlsEarlyData"] = tlsEarlyDataProp
 	}
 	certificateManagerCertificatesProp, err := expandComputeTargetHttpsProxyCertificateManagerCertificates(d.Get("certificate_manager_certificates"), d, config)
 	if err != nil {
@@ -395,6 +411,9 @@ func resourceComputeTargetHttpsProxyRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("quic_override", flattenComputeTargetHttpsProxyQuicOverride(res["quicOverride"], d, config)); err != nil {
+		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
+	}
+	if err := d.Set("tls_early_data", flattenComputeTargetHttpsProxyTlsEarlyData(res["tlsEarlyData"], d, config)); err != nil {
 		return fmt.Errorf("Error reading TargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("certificate_manager_certificates", flattenComputeTargetHttpsProxyCertificateManagerCertificates(res["certificateManagerCertificates"], d, config)); err != nil {
@@ -701,6 +720,56 @@ func resourceComputeTargetHttpsProxyUpdate(d *schema.ResourceData, meta interfac
 			return err
 		}
 	}
+	if d.HasChange("server_tls_policy") {
+		obj := make(map[string]interface{})
+
+		serverTlsPolicyProp, err := expandComputeTargetHttpsProxyServerTlsPolicy(d.Get("server_tls_policy"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
+			obj["serverTlsPolicy"] = serverTlsPolicyProp
+		}
+
+		obj, err = resourceComputeTargetHttpsProxyUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/targetHttpsProxies/{{name}}/setServerTlsPolicy")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating TargetHttpsProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating TargetHttpsProxy %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating TargetHttpsProxy", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
 
 	d.Partial(false)
 
@@ -820,6 +889,10 @@ func flattenComputeTargetHttpsProxyQuicOverride(v interface{}, d *schema.Resourc
 	return v
 }
 
+func flattenComputeTargetHttpsProxyTlsEarlyData(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeTargetHttpsProxyCertificateManagerCertificates(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -886,6 +959,10 @@ func expandComputeTargetHttpsProxyName(v interface{}, d tpgresource.TerraformRes
 }
 
 func expandComputeTargetHttpsProxyQuicOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeTargetHttpsProxyTlsEarlyData(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

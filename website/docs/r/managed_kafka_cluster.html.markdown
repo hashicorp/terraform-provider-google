@@ -14,12 +14,12 @@
 # ----------------------------------------------------------------------------
 subcategory: "Managed Kafka"
 description: |-
-  An Apache Kafka for BigQuery cluster.
+  A Managed Service for Apache Kafka cluster.
 ---
 
 # google_managed_kafka_cluster
 
-An Apache Kafka for BigQuery cluster. Apache Kafka is a trademark owned by the Apache Software Foundation.
+A Managed Service for Apache Kafka cluster. Apache Kafka is a trademark owned by the Apache Software Foundation.
 
 ~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
@@ -144,7 +144,7 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  ID of the location of the Apache Kafka for BigQuery resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.
+  ID of the location of the Kafka resource. See https://cloud.google.com/managed-kafka/docs/locations for a list of supported locations.
 
 * `cluster_id` -
   (Required)
@@ -167,7 +167,7 @@ The following arguments are supported:
 
 * `network_configs` -
   (Required)
-  Virtual Private Cloud (VPC) networks that must be granted direct access to the Kafka cluster. Minimum of 1 network is required. Maximum of 10 networks can be specified.
+  Virtual Private Cloud (VPC) subnets where IP addresses for the Kafka cluster are allocated. To make the cluster available in a VPC, you must specify at least one subnet per network. You must specify between 1 and 10 subnets. Additional subnets may be specified with additional `network_configs` blocks.
   Structure is [documented below](#nested_network_configs).
 
 
@@ -175,7 +175,7 @@ The following arguments are supported:
 
 * `subnet` -
   (Required)
-  Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. The subnet must be located in the same region as the cluster. The project may differ. A minimum of 1 subnet is required. A maximum of 10 subnets can be specified. The name of the subnet must be in the format `projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET`.
+  Name of the VPC subnet from which the cluster is accessible. Both broker and bootstrap server IP addresses and DNS entries are automatically created in the subnet. The subnet must be located in the same region as the cluster. The project may differ. The name of the subnet must be in the format `projects/PROJECT_ID/regions/REGION/subnetworks/SUBNET`.
 
 <a name="nested_capacity_config"></a>The `capacity_config` block supports:
 

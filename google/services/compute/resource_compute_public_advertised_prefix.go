@@ -80,6 +80,11 @@ except the last character, which cannot be a dash.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"shared_secret": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Output Only. The shared secret to be used for reverse DNS verification.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -238,6 +243,9 @@ func resourceComputePublicAdvertisedPrefixRead(d *schema.ResourceData, meta inte
 	if err := d.Set("ip_cidr_range", flattenComputePublicAdvertisedPrefixIpCidrRange(res["ipCidrRange"], d, config)); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
+	if err := d.Set("shared_secret", flattenComputePublicAdvertisedPrefixSharedSecret(res["sharedSecret"], d, config)); err != nil {
+		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading PublicAdvertisedPrefix: %s", err)
 	}
@@ -334,6 +342,10 @@ func flattenComputePublicAdvertisedPrefixDnsVerificationIp(v interface{}, d *sch
 }
 
 func flattenComputePublicAdvertisedPrefixIpCidrRange(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputePublicAdvertisedPrefixSharedSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 

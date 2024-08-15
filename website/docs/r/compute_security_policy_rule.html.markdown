@@ -213,6 +213,11 @@ The following arguments are supported:
   User defined CEVAL expression. A CEVAL expression is used to specify match criteria such as origin.ip, source.region_code and contents in the request header.
   Structure is [documented below](#nested_expr).
 
+* `expr_options` -
+  (Optional)
+  The configuration options available when specifying a user defined CEVAL expression (i.e., 'expr').
+  Structure is [documented below](#nested_expr_options).
+
 * `config` -
   (Optional)
   The configuration options available when specifying versionedExpr.
@@ -225,6 +230,24 @@ The following arguments are supported:
 * `expression` -
   (Required)
   Textual representation of an expression in Common Expression Language syntax. The application context of the containing message determines which well-known feature set of CEL is supported.
+
+<a name="nested_expr_options"></a>The `expr_options` block supports:
+
+* `recaptcha_options` -
+  (Required)
+  reCAPTCHA configuration options to be applied for the rule. If the rule does not evaluate reCAPTCHA tokens, this field has no effect.
+  Structure is [documented below](#nested_recaptcha_options).
+
+
+<a name="nested_recaptcha_options"></a>The `recaptcha_options` block supports:
+
+* `action_token_site_keys` -
+  (Optional)
+  A list of site keys to be used during the validation of reCAPTCHA action-tokens. The provided site keys need to be created from reCAPTCHA API under the same project where the security policy is created.
+
+* `session_token_site_keys` -
+  (Optional)
+  A list of site keys to be used during the validation of reCAPTCHA session-tokens. The provided site keys need to be created from reCAPTCHA API under the same project where the security policy is created.
 
 <a name="nested_config"></a>The `config` block supports:
 

@@ -192,7 +192,7 @@ In addition to the arguments listed above, the following computed attributes are
   Creation timestamp in RFC3339 text format.
 
 * `operational_status` -
-  The current status of this Interconnect's functionality, which can take one of the following values:
+  The current status of this Interconnect's functionality, which can take one of the following:
     - OS_ACTIVE: A valid Interconnect, which is turned up and is ready to use. Attachments may
     be provisioned on this Interconnect.
     - OS_UNPROVISIONED: An Interconnect that has not completed turnup. No attachments may be

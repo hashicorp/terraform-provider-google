@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_router_route_policy`
+```
+```release-note:enhancement
+compute: added `export_policies` and `import_policies` fields  to `google_compute_router_peer` resource
+```

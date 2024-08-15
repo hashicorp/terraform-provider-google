@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added fields `customErrorResponsePolicy` and `defaultErrorResponsePolicy` to the `google_compute_url_map` resource
+```

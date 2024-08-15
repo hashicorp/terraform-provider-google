@@ -100,23 +100,23 @@ are used as a short way to identify resources, and a resource's display name in
 the Cloud Console will be the one defined in the `name` field.
 
 When linking resources in a Terraform config though, you'll primarily want to
-use a different field, the `self_link` of a resource. Like `name`, nearly every
-resource has a `self_link`. They look like:
+use a different field, the `id` of a resource. Every Terraform resource has an
+`id`. In the Google provider they generally look like:
 
 ```
-{{API base url}}/projects/{{your project}}/{{location type}}/{{location}}/{{resource type}}/{{name}}
+projects/{{your project}}/{{location type}}/{{location}}/{{resource type}}/{{name}}
 ```
 
 For example, the instance defined earlier in a project named `foo` will have
-the `self_link`:
+the `id`:
 
 ```
-https://www.googleapis.com/compute/v1/projects/foo/zones/us-central1-c/instances/terraform-instance
+projects/foo/zones/us-central1-c/instances/terraform-instance
 ```
 
-A resource's `self_link` is a unique reference to that resource. When
+A resource's `id` is a unique reference to that resource. When
 linking two resources in Terraform, you can use Terraform interpolation to
-avoid typing out the self link! Let's use a `google_compute_network` to
+avoid typing out the id! Let's use a `google_compute_network` to
 demonstrate.
 
 Add this block to your config:
@@ -136,7 +136,7 @@ with a subnetwork in each region. Next, change the network of the
 network_interface {
 -  # A default network is created for all GCP projects
 -  network = "default"
-+  network = google_compute_network.vpc_network.self_link
++  network = google_compute_network.vpc_network.id
   access_config {
 ```
 
@@ -211,7 +211,7 @@ resource "google_compute_instance" "vm_instance" {
 
   network_interface {
     # A default network is created for all GCP projects
-    network = google_compute_network.vpc_network.self_link
+    network = google_compute_network.vpc_network.id
     access_config {
     }
   }
@@ -237,7 +237,7 @@ a virtual machine on Google Cloud Platform. The key concepts unique to GCP are:
     * and how to use a default `project` in your provider
 * What a resource being global, regional, or zonal means on GCP
     * and how to specify a default `region` and `zone`
-* How GCP uses `name` and `self_link` to identify resources
+* How GCP uses `name` and `id` to identify resources
 * How to add GCP service account credentials to Terraform
 
 Run `terraform destroy` to tear down your resources.

@@ -196,16 +196,16 @@ resource "google_artifact_registry_repository" "my-repo" {
 ```hcl
 resource "google_artifact_registry_repository" "my-repo" {
   location      = "us-central1"
-  repository_id = "centos-8"
+  repository_id = "rocky-9"
   description   = "example remote yum repository"
   format        = "YUM"
   mode          = "REMOTE_REPOSITORY"
   remote_repository_config {
-    description = "Centos 8 remote repository"
+    description = "Rocky 9 remote repository"
     yum_repository {
       public_repository {
-        repository_base = "CENTOS"
-        repository_path = "centos/8-stream/BaseOS/x86_64/os"
+        repository_base = "ROCKY"
+        repository_path = "pub/rocky/9/BaseOS/x86_64/os"
       }
     }
   }
@@ -870,7 +870,7 @@ The following arguments are supported:
 
 * `repository_path` -
   (Required)
-  Specific repository from the base, e.g. `"centos/8-stream/BaseOS/x86_64/os"`
+  Specific repository from the base, e.g. `"pub/rocky/9/BaseOS/x86_64/os"`
 
 <a name="nested_upstream_credentials"></a>The `upstream_credentials` block supports:
 

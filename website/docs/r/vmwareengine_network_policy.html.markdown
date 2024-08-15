@@ -31,7 +31,7 @@ To get more information about NetworkPolicy, see:
 
 ```hcl
 resource "google_vmwareengine_network" "network-policy-nw" {
-    name              = "standard-nw"
+    name              = "sample-network"
     location          = "global" 
     type              = "STANDARD"
     description       = "VMwareEngine standard network sample"
@@ -49,7 +49,7 @@ resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
 
 ```hcl
 resource "google_vmwareengine_network" "network-policy-nw" {
-    name              = "standard-full-nw"
+    name              = "sample-network"
     location          = "global" 
     type              = "STANDARD"
     description       = "VMwareEngine standard network sample"
@@ -57,7 +57,7 @@ resource "google_vmwareengine_network" "network-policy-nw" {
 
 resource "google_vmwareengine_network_policy" "vmw-engine-network-policy" {
     location = "us-west1"
-    name = "sample-network-policy-full"
+    name = "sample-network-policy"
     edge_services_cidr = "192.168.30.0/26"
     vmware_engine_network = google_vmwareengine_network.network-policy-nw.id
     description = "Sample Network Policy"

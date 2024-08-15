@@ -36,6 +36,7 @@ func ResourceComputeGlobalAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeGlobalAddressCreate,
 		Read:   resourceComputeGlobalAddressRead,
+		Update: resourceComputeGlobalAddressUpdate,
 		Delete: resourceComputeGlobalAddressDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,6 +45,7 @@ func ResourceComputeGlobalAddress() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -100,6 +102,16 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("IPV4"),
 				Description:      `The IP Version that will be used by this address. The default value is 'IPV4'. Possible values: ["IPV4", "IPV6"]`,
 			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels to apply to this address.  A list of key->value pairs.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"network": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -136,6 +148,19 @@ when purpose=PRIVATE_SERVICE_CONNECT`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Creation timestamp in RFC3339 text format.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"project": {
 				Type:     schema.TypeString,
@@ -208,6 +233,12 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	labelsProp, err := expandComputeGlobalAddressEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses")
 	if err != nil {
@@ -263,6 +294,66 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create GlobalAddress: %s", err)
+	}
+
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		labels := d.Get("labels")
+		terraformLables := d.Get("terraform_labels")
+
+		// Labels cannot be set in a create.  We'll have to set them here.
+		err = resourceComputeGlobalAddressRead(d, meta)
+		if err != nil {
+			return err
+		}
+
+		obj := make(map[string]interface{})
+		// d.Get("effective_labels") will have been overridden by the Read call.
+		labelsProp, err := expandComputeGlobalAddressEffectiveLabels(v, d, config)
+		if err != nil {
+			return err
+		}
+		obj["labels"] = labelsProp
+		labelFingerprintProp := d.Get("label_fingerprint")
+		obj["labelFingerprint"] = labelFingerprintProp
+
+		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+		})
+		if err != nil {
+			return fmt.Errorf("Error adding labels to ComputeGlobalAddress %q: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating ComputeGlobalAddress Labels", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+
+		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
+		if err := d.Set("labels", labels); err != nil {
+			return fmt.Errorf("Error setting back labels: %s", err)
+		}
+
+		// Set back the terraform_labels field, as it is needed to decide the value of "terraform_labels" in the state in the read function.
+		if err := d.Set("terraform_labels", terraformLables); err != nil {
+			return fmt.Errorf("Error setting back terraform_labels: %s", err)
+		}
+
+		// Set back the effective_labels field, as it is needed to decide the value of "effective_labels" in the state in the read function.
+		if err := d.Set("effective_labels", v); err != nil {
+			return fmt.Errorf("Error setting back effective_labels: %s", err)
+		}
 	}
 
 	log.Printf("[DEBUG] Finished creating GlobalAddress %q: %#v", d.Id(), res)
@@ -324,6 +415,9 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("name", flattenComputeGlobalAddressName(res["name"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
+	if err := d.Set("labels", flattenComputeGlobalAddressLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
 	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
@@ -339,11 +433,85 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenComputeGlobalAddressTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenComputeGlobalAddressEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
 	if err := d.Set("self_link", tpgresource.ConvertSelfLinkToV1(res["selfLink"].(string))); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 
 	return nil
+}
+
+func resourceComputeGlobalAddressUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for GlobalAddress: %s", err)
+	}
+	billingProject = project
+
+	d.Partial(true)
+
+	if d.HasChange("effective_labels") {
+		obj := make(map[string]interface{})
+
+		labelsProp, err := expandComputeGlobalAddressEffectiveLabels(d.Get("effective_labels"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/addresses/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating GlobalAddress %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating GlobalAddress %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating GlobalAddress", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	d.Partial(false)
+
+	return resourceComputeGlobalAddressRead(d, meta)
 }
 
 func resourceComputeGlobalAddressDelete(d *schema.ResourceData, meta interface{}) error {
@@ -438,6 +606,21 @@ func flattenComputeGlobalAddressName(v interface{}, d *schema.ResourceData, conf
 	return v
 }
 
+func flattenComputeGlobalAddressLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
 func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -474,6 +657,25 @@ func flattenComputeGlobalAddressNetwork(v interface{}, d *schema.ResourceData, c
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeGlobalAddressTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
+}
+
+func flattenComputeGlobalAddressEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandComputeGlobalAddressAddress(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -508,4 +710,15 @@ func expandComputeGlobalAddressNetwork(v interface{}, d tpgresource.TerraformRes
 		return nil, fmt.Errorf("Invalid value for network: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeGlobalAddressEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

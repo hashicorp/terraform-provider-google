@@ -32,6 +32,16 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+// Use this method when subnet is optioanl and auto_create_subnetworks = true
+// API sometimes choose a subnet so the diff needs to be ignored
+func compareOptionalSubnet(_, old, new string, _ *schema.ResourceData) bool {
+	if tpgresource.IsEmptyValue(reflect.ValueOf(new)) {
+		return true
+	}
+	// otherwise compare as self links
+	return tpgresource.CompareSelfLinkOrResourceName("", old, new, nil)
+}
+
 func ResourceComputeNetworkEndpointGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeNetworkEndpointGroupCreate,
@@ -108,7 +118,7 @@ Possible values include: GCE_VM_IP, GCE_VM_IP_PORT, NON_GCP_PRIVATE_IP_PORT, INT
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareOptionalSubnet,
+				DiffSuppressFunc: compareOptionalSubnet,
 				Description:      `Optional subnetwork to which all network endpoints in the NEG belong.`,
 			},
 			"zone": {

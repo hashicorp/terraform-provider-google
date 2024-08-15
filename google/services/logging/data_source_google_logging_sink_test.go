@@ -5,9 +5,10 @@ package logging_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	"github.com/hashicorp/terraform-provider-google/google/services/logging"
 )
 
 func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
@@ -38,6 +39,40 @@ func TestAccDataSourceGoogleLoggingSink_basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestUnitLoggingSink_OptionalSurroundingSpacesSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"surrounding spaces": {
+			Old:                "value",
+			New:                " value ",
+			ExpectDiffSuppress: true,
+		},
+		"no surrounding spaces": {
+			Old:                "value",
+			New:                "value",
+			ExpectDiffSuppress: true,
+		},
+		"one space each": {
+			Old:                " value",
+			New:                "value ",
+			ExpectDiffSuppress: true,
+		},
+		"different values": {
+			Old:                " different",
+			New:                "values ",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if logging.OptionalSurroundingSpacesSuppress("filter", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
 }
 
 func testAccDataSourceGoogleLoggingSink_basic(context map[string]interface{}) string {

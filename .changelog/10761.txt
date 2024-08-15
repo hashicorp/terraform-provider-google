@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy' resource;
+```
+```release-note:enhancement
+compute: added 'action_token_site_keys' and 'session_token_site_keys' fields to 'google_compute_security_policy_rule' resource;
+```

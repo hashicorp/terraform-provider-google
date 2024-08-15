@@ -23,8 +23,8 @@ import (
 	"fmt"
 	dcl "github.com/GoogleCloudPlatform/declarative-resource-client-library/dcl"
 	eventarc "github.com/GoogleCloudPlatform/declarative-resource-client-library/services/google/eventarc"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"strings"
 	"testing"
 

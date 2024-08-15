@@ -47,6 +47,8 @@ The following attributes are exported:
 
 * `content_type` - (Computed) [Content-Type](https://tools.ietf.org/html/rfc7231#section-3.1.1.5) of the object data. Defaults to "application/octet-stream" or "text/plain; charset=utf-8".
 
+* `generation` - (Computed) The content generation of this object. Used for object [versioning](https://cloud.google.com/storage/docs/object-versioning) and [soft delete](https://cloud.google.com/storage/docs/soft-delete).
+
 * `crc32c` - (Computed) Base 64 CRC32 hash of the uploaded data.
 
 * `md5hash` - (Computed) Base 64 MD5 hash of the uploaded data.

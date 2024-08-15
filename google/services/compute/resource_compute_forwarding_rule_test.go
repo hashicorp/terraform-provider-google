@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccComputeForwardingRule_update(t *testing.T) {
@@ -126,17 +126,19 @@ func TestAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(t *testing.T
 				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, true),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleVpcPscExampleUpdate(context, false),
 			},
 			{
-				ResourceName:      "google_compute_forwarding_rule.default",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_compute_forwarding_rule.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
 	})
@@ -235,6 +237,10 @@ func TestAccComputeForwardingRule_forwardingRuleIpAddressIpv6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleIpAddressIpv6(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_forwarding_rule.external", "forwarding_rule_id"),
+				),
 			},
 			{
 				ResourceName:            "google_compute_forwarding_rule.external",
@@ -351,6 +357,9 @@ resource "google_compute_forwarding_rule" "default" {
   ip_address              = google_compute_address.consumer_address.id
   allow_psc_global_access = false
   %{lifecycle_block}
+  labels = {
+    "foo" = "bar"
+  }
 }
 
 // Consumer service endpoint

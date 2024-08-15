@@ -1,0 +1,6 @@
+```release-note:bug
+workbench: fixed the permadiff caused by empty `accelerator_configs` in resource `google_workbench_instance`
+```
+```release-note:bug
+workbench: fixed the issue that the instance is not starting after an update in resource `google_workbench_instance`
+```

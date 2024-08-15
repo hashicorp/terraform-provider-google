@@ -517,7 +517,7 @@ func ResourceBigQueryTable() *schema.Resource {
 							Optional:    true,
 							Description: `Please see sourceFormat under ExternalDataConfiguration in Bigquery's public API documentation (https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#externaldataconfiguration) for supported formats. To use "GOOGLE_SHEETS" the scopes must include "googleapis.com/auth/drive.readonly".`,
 							ValidateFunc: validation.StringInSlice([]string{
-								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "ICEBERG", "DATASTORE_BACKUP", "PARQUET", "ORC", "BIGTABLE",
+								"CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON", "AVRO", "ICEBERG", "DATASTORE_BACKUP", "PARQUET", "ORC", "BIGTABLE", "DELTA_LAKE",
 							}, false),
 						},
 						// SourceURIs [Required] The fully-qualified URIs that point to your data in Google Cloud.
@@ -1252,6 +1252,14 @@ func ResourceBigQueryTable() *schema.Resource {
 				Description: `Whether Terraform will be prevented from destroying the instance. When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the table will fail. When the field is set to false, deleting the table is allowed.`,
 			},
 
+			"allow_resource_tags_on_deletion": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: `**Deprecated** Whether or not to allow table deletion when there are still resource tags attached.`,
+				Deprecated:  `This field is deprecated and will be removed in a future major release. The default behavior will be allowing the presence of resource tags on deletion after the next major release.`,
+			},
+
 			// TableConstraints: [Optional] Defines the primary key and foreign keys.
 			"table_constraints": {
 				Type:        schema.TypeList,
@@ -1401,6 +1409,12 @@ func ResourceBigQueryTable() *schema.Resource {
 					},
 				},
 			},
+			"resource_tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The tags attached to this table. Tag keys are globally unique. Tag key is expected to be in the namespaced format, for example "123456789012/environment" where 123456789012 is the ID of the parent organization or project resource for this tag key. Tag value is expected to be the short name, for example "Production".`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -1514,6 +1528,8 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 
 		table.TableConstraints = tableConstraints
 	}
+
+	table.ResourceTags = tpgresource.ExpandStringMap(d, "resource_tags")
 
 	return table, nil
 }
@@ -1788,6 +1804,10 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if err := d.Set("resource_tags", res.ResourceTags); err != nil {
+		return fmt.Errorf("Error setting resource tags: %s", err)
+	}
+
 	// TODO: Update when the Get API fields for TableReplicationInfo are available in the client library.
 	url, err := tpgresource.ReplaceVars(d, config, "{{BigQueryBasePath}}projects/{{project}}/datasets/{{dataset_id}}/tables/{{table_id}}")
 	if err != nil {
@@ -1909,6 +1929,18 @@ func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
 	}
+	if v, ok := d.GetOk("resource_tags"); ok {
+		if !d.Get("allow_resource_tags_on_deletion").(bool) {
+			var resourceTags []string
+
+			for k, v := range v.(map[string]interface{}) {
+				resourceTags = append(resourceTags, fmt.Sprintf("%s:%s", k, v.(string)))
+			}
+
+			return fmt.Errorf("cannot destroy table %v without unsetting the following resource tags or setting allow_resource_tags_on_deletion=true: %v", d.Id(), resourceTags)
+		}
+	}
+
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -2904,6 +2936,9 @@ func resourceBigQueryTableImport(d *schema.ResourceData, meta interface{}) ([]*s
 	// Explicitly set virtual fields to default values on import
 	if err := d.Set("deletion_protection", true); err != nil {
 		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
+	if err := d.Set("allow_resource_tags_on_deletion", false); err != nil {
+		return nil, fmt.Errorf("Error setting allow_resource_tags_on_deletion: %s", err)
 	}
 
 	// Replace import id for the resource id

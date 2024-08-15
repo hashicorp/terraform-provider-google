@@ -1,0 +1,3 @@
+```release-note:none
+doc: modified doc for `sql_statement` field in `google_dataplex_datascan` resource
+```

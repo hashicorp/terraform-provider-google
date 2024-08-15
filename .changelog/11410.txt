@@ -1,0 +1,6 @@
+```release-note:deprecation
+compute: setting `google_compute_subnetwork.secondary_ip_range = []` to explicitly set a list of empty objects is deprecated and will produce an error in the upcoming major release. Use `send_secondary_ip_range_if_empty` while removing `secondary_ip_range` from config instead.
+```
+```release-note:enhancement
+compute: added `send_secondary_ip_range_if_empty` to `google_compute_subnetwork`
+```

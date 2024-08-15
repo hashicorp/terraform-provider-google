@@ -5,7 +5,7 @@ package sweeper_test
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accessapproval"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/accesscontextmanager"
@@ -99,6 +99,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/osconfig"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/oslogin"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/privateca"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/privilegedaccessmanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/publicca"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/pubsublite"
@@ -108,9 +109,12 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycentermanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/securitycenterv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/securityposture"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/servicemanagement"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/serviceusage"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/siteverification"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sourcerepo"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/spanner"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/sql"

@@ -69,7 +69,7 @@ func ResourceApphubServiceProjectAttachment() *schema.Resource {
 				DiffSuppressFunc: ServiceProjectDiffSuppress,
 				Description: `"Immutable. Service project name in the format: \"projects/abc\"
 or \"projects/123\". As input, project name with either project id or number
-are accepted. As output, this field will contain project number. "`,
+are accepted. As output, this field will contain project number."`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
@@ -79,7 +79,7 @@ are accepted. As output, this field will contain project number. "`,
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `"Identifier. The resource name of a ServiceProjectAttachment. Format:\"projects/{host-project-id}/locations/global/serviceProjectAttachments/{service-project-id}.\" "`,
+				Description: `"Identifier. The resource name of a ServiceProjectAttachment. Format:\"projects/{host-project-id}/locations/global/serviceProjectAttachments/{service-project-id}.\""`,
 			},
 			"state": {
 				Type:        schema.TypeString,

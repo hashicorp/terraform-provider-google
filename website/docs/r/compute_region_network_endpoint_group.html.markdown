@@ -32,8 +32,8 @@ To get more information about RegionNetworkEndpointGroup, see:
 
 * [API documentation](https://cloud.google.com/compute/docs/reference/rest/beta/regionNetworkEndpointGroups)
 * How-to Guides
-    * [Serverless NEGs Official Documentation](https://cloud.google.com/load-balancing/docs/negs/serverless-neg-concepts)
     * [Internet NEGs Official Documentation](https://cloud.google.com/load-balancing/docs/negs/internet-neg-concepts)
+    * [Serverless NEGs Official Documentation](https://cloud.google.com/load-balancing/docs/negs/serverless-neg-concepts)
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_network_endpoint_group_functions&open_in_editor=main.tf" target="_blank">
@@ -139,6 +139,10 @@ resource "google_app_engine_flexible_app_version" "appengine_neg" {
   version_id = "v1"
   service    = "appengine-network-endpoint-group"
   runtime    = "nodejs"
+  flexible_runtime_settings {
+    operating_system = "ubuntu22"
+    runtime_version = "20"
+  }
 
   entrypoint {
     shell = "node ./app.js"

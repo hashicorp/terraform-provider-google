@@ -12,8 +12,8 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccHealthcareFhirStoreIdParsing(t *testing.T) {
@@ -134,7 +134,6 @@ resource "google_healthcare_fhir_store" "default" {
   disable_resource_versioning   = false
   enable_history_import         = false
   version                       = "R4"
-
 }
 
 resource "google_healthcare_dataset" "dataset" {
@@ -159,7 +158,6 @@ resource "google_healthcare_fhir_store" "default" {
 	send_full_resource               = true
 	send_previous_resource_on_delete = true
   }
-
 
   labels = {
     label1 = "labelvalue1"

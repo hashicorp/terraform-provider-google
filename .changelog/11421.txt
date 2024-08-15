@@ -1,0 +1,3 @@
+```release-note:enhancement
+pusbub: added validation to `filter` field for `google_pubsub_subscription`
+```

@@ -1,0 +1,3 @@
+```release-note:note
+Use more clear description of `connector_enforcement` field.
+```

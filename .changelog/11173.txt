@@ -1,0 +1,3 @@
+```release-note:bug
+firestore: fixed missing import of `field` for `google_firestore_field`.
+```

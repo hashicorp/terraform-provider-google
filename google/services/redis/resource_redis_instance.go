@@ -280,6 +280,12 @@ resolution and up to nine fractional digits.`,
 					},
 				},
 			},
+			"maintenance_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				Description: `The self service update maintenance version.`,
+			},
 			"persistence_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -646,6 +652,12 @@ func resourceRedisInstanceCreate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenancePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandRedisInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceVersionProp)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
 		return err
@@ -875,6 +887,9 @@ func resourceRedisInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("maintenance_schedule", flattenRedisInstanceMaintenanceSchedule(res["maintenanceSchedule"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("maintenance_version", flattenRedisInstanceMaintenanceVersion(res["maintenanceVersion"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("memory_size_gb", flattenRedisInstanceMemorySizeGb(res["memorySizeGb"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -973,6 +988,12 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 	} else if v, ok := d.GetOkExists("maintenance_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenancePolicyProp)) {
 		obj["maintenancePolicy"] = maintenancePolicyProp
 	}
+	maintenanceVersionProp, err := expandRedisInstanceMaintenanceVersion(d.Get("maintenance_version"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("maintenance_version"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceVersionProp)) {
+		obj["maintenanceVersion"] = maintenanceVersionProp
+	}
 	memorySizeGbProp, err := expandRedisInstanceMemorySizeGb(d.Get("memory_size_gb"), d, config)
 	if err != nil {
 		return err
@@ -1036,6 +1057,10 @@ func resourceRedisInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("maintenance_policy") {
 		updateMask = append(updateMask, "maintenancePolicy")
+	}
+
+	if d.HasChange("maintenance_version") {
+		updateMask = append(updateMask, "maintenanceVersion")
 	}
 
 	if d.HasChange("memory_size_gb") {
@@ -1495,6 +1520,10 @@ func flattenRedisInstanceMaintenanceScheduleScheduleDeadlineTime(v interface{}, 
 	return v
 }
 
+func flattenRedisInstanceMaintenanceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenRedisInstanceMemorySizeGb(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -1936,6 +1965,10 @@ func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeSeconds
 }
 
 func expandRedisInstanceMaintenancePolicyWeeklyMaintenanceWindowStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisInstanceMaintenanceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

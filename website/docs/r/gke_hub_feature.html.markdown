@@ -480,6 +480,11 @@ The following arguments are supported:
   (Optional)
   Version of ACM installed
 
+* `management` -
+  (Optional)
+  Set this field to MANAGEMENT_AUTOMATIC to enable Config Sync auto-upgrades, and set this field to MANAGEMENT_MANUAL or MANAGEMENT_UNSPECIFIED to disable Config Sync auto-upgrades.
+  Possible values are: `MANAGEMENT_UNSPECIFIED`, `MANAGEMENT_AUTOMATIC`, `MANAGEMENT_MANUAL`.
+
 * `config_sync` -
   (Optional)
   ConfigSync configuration for the cluster
@@ -491,6 +496,10 @@ The following arguments are supported:
 * `source_format` -
   (Optional)
   Specifies whether the Config Sync Repo is in hierarchical or unstructured mode
+
+* `enabled` -
+  (Optional)
+  Enables the installation of ConfigSync. If set to true, ConfigSync resources will be created and the other ConfigSync fields will be applied if exist. If set to false, all other ConfigSync fields will be ignored, ConfigSync resources will be deleted. If omitted, ConfigSync resources will be managed depends on the presence of the git or oci field.
 
 * `prevent_drift` -
   (Optional)

@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -274,6 +274,64 @@ resource "google_monitoring_notification_channel" "notification_channel" {
   
   labels = {
     email_address = "address@example.com"
+  }
+}
+`, context)
+}
+
+func TestAccBillingBudget_billingBudgetNotifyProjectRecipientExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_acct":  envvar.GetTestMasterBillingAccountFromEnv(t),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBillingBudgetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBillingBudget_billingBudgetNotifyProjectRecipientExample(context),
+			},
+			{
+				ResourceName:            "google_billing_budget.budget",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"billing_account"},
+			},
+		},
+	})
+}
+
+func testAccBillingBudget_billingBudgetNotifyProjectRecipientExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_billing_account" "account" {
+  billing_account = "%{billing_acct}"
+}
+
+data "google_project" "project" {
+}
+
+resource "google_billing_budget" "budget" {
+  billing_account = data.google_billing_account.account.id
+  display_name    = "Example Billing Budget%{random_suffix}"
+
+  budget_filter {
+    projects = ["projects/${data.google_project.project.number}"]
+  }
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units         = "100000"
+    }
+  }
+
+  all_updates_rule {
+    monitoring_notification_channels = []
+    enable_project_level_recipients  = true
   }
 }
 `, context)

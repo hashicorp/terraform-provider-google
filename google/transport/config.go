@@ -279,6 +279,7 @@ type Config struct {
 	OSConfigBasePath                 string
 	OSLoginBasePath                  string
 	PrivatecaBasePath                string
+	PrivilegedAccessManagerBasePath  string
 	PublicCABasePath                 string
 	PubsubBasePath                   string
 	PubsubLiteBasePath               string
@@ -288,9 +289,12 @@ type Config struct {
 	SecureSourceManagerBasePath      string
 	SecurityCenterBasePath           string
 	SecurityCenterManagementBasePath string
+	SecurityCenterV2BasePath         string
 	SecuritypostureBasePath          string
 	ServiceManagementBasePath        string
+	ServiceNetworkingBasePath        string
 	ServiceUsageBasePath             string
+	SiteVerificationBasePath         string
 	SourceRepoBasePath               string
 	SpannerBasePath                  string
 	SQLBasePath                      string
@@ -312,7 +316,6 @@ type Config struct {
 	ResourceManagerV3BasePath string
 	IAMBasePath               string
 	CloudIoTBasePath          string
-	ServiceNetworkingBasePath string
 	BigtableAdminBasePath     string
 	TagsLocationBasePath      string
 
@@ -416,6 +419,7 @@ const OrgPolicyBasePathKey = "OrgPolicy"
 const OSConfigBasePathKey = "OSConfig"
 const OSLoginBasePathKey = "OSLogin"
 const PrivatecaBasePathKey = "Privateca"
+const PrivilegedAccessManagerBasePathKey = "PrivilegedAccessManager"
 const PublicCABasePathKey = "PublicCA"
 const PubsubBasePathKey = "Pubsub"
 const PubsubLiteBasePathKey = "PubsubLite"
@@ -425,9 +429,12 @@ const SecretManagerBasePathKey = "SecretManager"
 const SecureSourceManagerBasePathKey = "SecureSourceManager"
 const SecurityCenterBasePathKey = "SecurityCenter"
 const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
+const SecurityCenterV2BasePathKey = "SecurityCenterV2"
 const SecuritypostureBasePathKey = "Securityposture"
 const ServiceManagementBasePathKey = "ServiceManagement"
+const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const ServiceUsageBasePathKey = "ServiceUsage"
+const SiteVerificationBasePathKey = "SiteVerification"
 const SourceRepoBasePathKey = "SourceRepo"
 const SpannerBasePathKey = "Spanner"
 const SQLBasePathKey = "SQL"
@@ -447,7 +454,6 @@ const DataflowBasePathKey = "Dataflow"
 const IAMBasePathKey = "IAM"
 const IamCredentialsBasePathKey = "IamCredentials"
 const ResourceManagerV3BasePathKey = "ResourceManagerV3"
-const ServiceNetworkingBasePathKey = "ServiceNetworking"
 const BigtableAdminBasePathKey = "BigtableAdmin"
 const ContainerAwsBasePathKey = "ContainerAws"
 const ContainerAzureBasePathKey = "ContainerAzure"
@@ -547,6 +553,7 @@ var DefaultBasePaths = map[string]string{
 	OSConfigBasePathKey:                 "https://osconfig.googleapis.com/v1/",
 	OSLoginBasePathKey:                  "https://oslogin.googleapis.com/v1/",
 	PrivatecaBasePathKey:                "https://privateca.googleapis.com/v1/",
+	PrivilegedAccessManagerBasePathKey:  "https://privilegedaccessmanager.googleapis.com/v1/",
 	PublicCABasePathKey:                 "https://publicca.googleapis.com/v1/",
 	PubsubBasePathKey:                   "https://pubsub.googleapis.com/v1/",
 	PubsubLiteBasePathKey:               "https://{{region}}-pubsublite.googleapis.com/v1/admin/",
@@ -556,9 +563,12 @@ var DefaultBasePaths = map[string]string{
 	SecureSourceManagerBasePathKey:      "https://securesourcemanager.googleapis.com/v1/",
 	SecurityCenterBasePathKey:           "https://securitycenter.googleapis.com/v1/",
 	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
+	SecurityCenterV2BasePathKey:         "https://securitycenter.googleapis.com/v2/",
 	SecuritypostureBasePathKey:          "https://securityposture.googleapis.com/v1/",
 	ServiceManagementBasePathKey:        "https://servicemanagement.googleapis.com/v1/",
+	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	ServiceUsageBasePathKey:             "https://serviceusage.googleapis.com/v1/",
+	SiteVerificationBasePathKey:         "https://www.googleapis.com/siteVerification/v1/",
 	SourceRepoBasePathKey:               "https://sourcerepo.googleapis.com/v1/",
 	SpannerBasePathKey:                  "https://spanner.googleapis.com/v1/",
 	SQLBasePathKey:                      "https://sqladmin.googleapis.com/sql/v1beta4/",
@@ -578,7 +588,6 @@ var DefaultBasePaths = map[string]string{
 	IAMBasePathKey:                      "https://iam.googleapis.com/v1/",
 	IamCredentialsBasePathKey:           "https://iamcredentials.googleapis.com/v1/",
 	ResourceManagerV3BasePathKey:        "https://cloudresourcemanager.googleapis.com/v3/",
-	ServiceNetworkingBasePathKey:        "https://servicenetworking.googleapis.com/v1/",
 	BigtableAdminBasePathKey:            "https://bigtableadmin.googleapis.com/v2/",
 	ContainerAwsBasePathKey:             "https://{{location}}-gkemulticloud.googleapis.com/v1/",
 	ContainerAzureBasePathKey:           "https://{{location}}-gkemulticloud.googleapis.com/v1/",
@@ -1117,6 +1126,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_PRIVATECA_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[PrivatecaBasePathKey]))
 	}
+	if d.Get("privileged_access_manager_custom_endpoint") == "" {
+		d.Set("privileged_access_manager_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_PRIVILEGED_ACCESS_MANAGER_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[PrivilegedAccessManagerBasePathKey]))
+	}
 	if d.Get("public_ca_custom_endpoint") == "" {
 		d.Set("public_ca_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_PUBLIC_CA_CUSTOM_ENDPOINT",
@@ -1162,6 +1176,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_SECURITY_CENTER_MANAGEMENT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[SecurityCenterManagementBasePathKey]))
 	}
+	if d.Get("security_center_v2_custom_endpoint") == "" {
+		d.Set("security_center_v2_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SECURITY_CENTER_V2_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SecurityCenterV2BasePathKey]))
+	}
 	if d.Get("securityposture_custom_endpoint") == "" {
 		d.Set("securityposture_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SECURITYPOSTURE_CUSTOM_ENDPOINT",
@@ -1172,10 +1191,20 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 			"GOOGLE_SERVICE_MANAGEMENT_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ServiceManagementBasePathKey]))
 	}
+	if d.Get("service_networking_custom_endpoint") == "" {
+		d.Set("service_networking_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SERVICE_NETWORKING_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[ServiceNetworkingBasePathKey]))
+	}
 	if d.Get("service_usage_custom_endpoint") == "" {
 		d.Set("service_usage_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SERVICE_USAGE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[ServiceUsageBasePathKey]))
+	}
+	if d.Get("site_verification_custom_endpoint") == "" {
+		d.Set("site_verification_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SITE_VERIFICATION_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SiteVerificationBasePathKey]))
 	}
 	if d.Get("source_repo_custom_endpoint") == "" {
 		d.Set("source_repo_custom_endpoint", MultiEnvDefault([]string{
@@ -2227,6 +2256,7 @@ func ConfigureBasePaths(c *Config) {
 	c.OSConfigBasePath = DefaultBasePaths[OSConfigBasePathKey]
 	c.OSLoginBasePath = DefaultBasePaths[OSLoginBasePathKey]
 	c.PrivatecaBasePath = DefaultBasePaths[PrivatecaBasePathKey]
+	c.PrivilegedAccessManagerBasePath = DefaultBasePaths[PrivilegedAccessManagerBasePathKey]
 	c.PublicCABasePath = DefaultBasePaths[PublicCABasePathKey]
 	c.PubsubBasePath = DefaultBasePaths[PubsubBasePathKey]
 	c.PubsubLiteBasePath = DefaultBasePaths[PubsubLiteBasePathKey]
@@ -2236,9 +2266,12 @@ func ConfigureBasePaths(c *Config) {
 	c.SecureSourceManagerBasePath = DefaultBasePaths[SecureSourceManagerBasePathKey]
 	c.SecurityCenterBasePath = DefaultBasePaths[SecurityCenterBasePathKey]
 	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
+	c.SecurityCenterV2BasePath = DefaultBasePaths[SecurityCenterV2BasePathKey]
 	c.SecuritypostureBasePath = DefaultBasePaths[SecuritypostureBasePathKey]
 	c.ServiceManagementBasePath = DefaultBasePaths[ServiceManagementBasePathKey]
+	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.ServiceUsageBasePath = DefaultBasePaths[ServiceUsageBasePathKey]
+	c.SiteVerificationBasePath = DefaultBasePaths[SiteVerificationBasePathKey]
 	c.SourceRepoBasePath = DefaultBasePaths[SourceRepoBasePathKey]
 	c.SpannerBasePath = DefaultBasePaths[SpannerBasePathKey]
 	c.SQLBasePath = DefaultBasePaths[SQLBasePathKey]
@@ -2262,7 +2295,6 @@ func ConfigureBasePaths(c *Config) {
 	c.IamCredentialsBasePath = DefaultBasePaths[IamCredentialsBasePathKey]
 	c.ResourceManagerV3BasePath = DefaultBasePaths[ResourceManagerV3BasePathKey]
 	c.IAMBasePath = DefaultBasePaths[IAMBasePathKey]
-	c.ServiceNetworkingBasePath = DefaultBasePaths[ServiceNetworkingBasePathKey]
 	c.BigQueryBasePath = DefaultBasePaths[BigQueryBasePathKey]
 	c.BigtableAdminBasePath = DefaultBasePaths[BigtableAdminBasePathKey]
 	c.TagsLocationBasePath = DefaultBasePaths[TagsLocationBasePathKey]

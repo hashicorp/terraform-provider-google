@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -31,6 +32,14 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
+
+// For managed SSL certs, if new is an absolute FQDN (trailing '.') but old isn't, treat them as equals.
+func AbsoluteDomainSuppress(k, old, new string, _ *schema.ResourceData) bool {
+	if strings.HasPrefix(k, "managed.0.domains.") {
+		return old == strings.TrimRight(new, ".") || new == strings.TrimRight(old, ".")
+	}
+	return false
+}
 
 func ResourceComputeManagedSslCertificate() *schema.Resource {
 	return &schema.Resource{
@@ -71,7 +80,7 @@ certificate is managed (as indicated by a value of 'MANAGED' in 'type').`,
 							Type:             schema.TypeList,
 							Required:         true,
 							ForceNew:         true,
-							DiffSuppressFunc: tpgresource.AbsoluteDomainSuppress,
+							DiffSuppressFunc: AbsoluteDomainSuppress,
 							Description: `Domains for which a managed SSL certificate will be valid.  Currently,
 there can be up to 100 domains in this list.`,
 							MaxItems: 100,
@@ -93,7 +102,6 @@ the regular expression '[a-z]([-a-z0-9]*[a-z0-9])?' which means the
 first character must be a lowercase letter, and all following
 characters must be a dash, lowercase letter, or digit, except the last
 character, which cannot be a dash.
-
 
 These are in the same namespace as the managed SSL certificates.`,
 			},

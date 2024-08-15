@@ -51,6 +51,8 @@ func ResourceDatastoreIndex() *schema.Resource {
 			tpgresource.DefaultProviderProject,
 		),
 
+		DeprecationMessage: "`datastore_index` is deprecated and will be removed in a future major release. Use `firestore_index` instead; this resource is deprecated because it only supports the (default) database. `firestore_index` supports both Firestore in Datastore Mode and Firestore Native indexes and supports both named and the (default) database.",
+
 		Schema: map[string]*schema.Schema{
 			"kind": {
 				Type:        schema.TypeString,

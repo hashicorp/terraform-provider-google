@@ -1,0 +1,3 @@
+```release-note:enhancement
+logging: promoted `google_logging_log_view_iam` resources from beta to GA
+```

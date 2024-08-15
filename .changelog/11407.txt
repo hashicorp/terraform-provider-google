@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed a bug with workbench instance metadata drifting when using custom containers.
+```

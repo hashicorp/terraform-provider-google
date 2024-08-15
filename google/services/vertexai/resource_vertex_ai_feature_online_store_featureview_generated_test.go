@@ -22,10 +22,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
@@ -247,6 +248,181 @@ resource "google_vertex_ai_feature_online_store_featureview" "featureview_featur
         feature_ids      = [google_vertex_ai_feature_group_feature.sample_feature.name]
        }
   }
+}
+`, context)
+}
+
+func TestAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeatureviewCrossProjectExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"random_suffix":   acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckVertexAIFeatureOnlineStoreFeatureviewDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeatureviewCrossProjectExample(context),
+			},
+			{
+				ResourceName:            "google_vertex_ai_feature_online_store_featureview.cross_project_featureview",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"feature_online_store", "feature_registry_source.0.project_number", "labels", "name", "region", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccVertexAIFeatureOnlineStoreFeatureview_vertexAiFeatureonlinestoreFeatureviewCrossProjectExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_project" "test_project" {
+}
+
+resource "google_project" "project" {
+  project_id      = "tf-test%{random_suffix}"
+  name            = "tf-test%{random_suffix}"
+  org_id          = "%{org_id}"
+  billing_account = "%{billing_account}"
+}
+
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [google_project.project]
+
+  create_duration = "60s"
+}
+
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [google_bigquery_dataset_iam_member.viewer]
+
+  create_duration = "30s"
+}
+
+resource "google_project_service" "vertexai" {
+  service = "aiplatform.googleapis.com"
+  project = google_project.project.project_id
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+  disable_on_destroy = false
+  # Needed for CI tests for permissions to propagate, should not be needed for actual usage
+  depends_on = [time_sleep.wait_60_seconds]
+}
+
+resource "google_bigquery_dataset_iam_member" "viewer" {
+  project = data.google_project.test_project.project_id
+  dataset_id = google_bigquery_dataset.sample_dataset.dataset_id
+  role       = "roles/bigquery.dataViewer"
+  member  = "serviceAccount:service-${google_project.project.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
+  depends_on = [google_vertex_ai_feature_online_store.featureonlinestore]
+}
+
+resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
+  name     = "tf_test_example_cross_project_featureview%{random_suffix}"
+  project  = google_project.project.project_id
+  labels = {
+    foo = "bar"
+  }
+  region = "us-central1"
+  bigtable {
+    auto_scaling {
+      min_node_count         = 1
+      max_node_count         = 2
+      cpu_utilization_target = 80
+    }
+  }
+  depends_on = [google_project_service.vertexai]
+}
+
+resource "google_bigquery_dataset" "sample_dataset" {
+  dataset_id                  = "tf_test_example_cross_project_featureview%{random_suffix}"
+  friendly_name               = "test"
+  description                 = "This is a test description"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "sample_table" {
+  deletion_protection = false
+  dataset_id = google_bigquery_dataset.sample_dataset.dataset_id
+  table_id   = "tf_test_example_cross_project_featureview%{random_suffix}"
+
+  schema = <<EOF
+[
+    {
+        "name": "feature_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "tf_test_example_cross_project_featureview%{random_suffix}",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "feature_timestamp",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]
+EOF
+}
+
+resource "google_vertex_ai_feature_group" "sample_feature_group" {
+  name = "tf_test_example_cross_project_featureview%{random_suffix}"
+  description = "A sample feature group"
+  region = "us-central1"
+  labels = {
+      label-one = "value-one"
+  }
+  big_query {
+    big_query_source {
+        # The source table must have a column named 'feature_timestamp' of type TIMESTAMP.
+        input_uri = "bq://${google_bigquery_table.sample_table.project}.${google_bigquery_table.sample_table.dataset_id}.${google_bigquery_table.sample_table.table_id}"
+    }
+    entity_id_columns = ["feature_id"]
+  }
+}
+
+
+
+resource "google_vertex_ai_feature_group_feature" "sample_feature" {
+  name = "tf_test_example_cross_project_featureview%{random_suffix}"
+  region = "us-central1"
+  feature_group = google_vertex_ai_feature_group.sample_feature_group.name
+  description = "A sample feature"
+  labels = {
+      label-one = "value-one"
+  }
+}
+
+
+resource "google_vertex_ai_feature_online_store_featureview" "cross_project_featureview" {
+  name                 = "tf_test_example_cross_project_featureview%{random_suffix}"
+  project              = google_project.project.project_id
+  region               = "us-central1"
+  feature_online_store = google_vertex_ai_feature_online_store.featureonlinestore.name
+  sync_config {
+    cron = "0 0 * * *"
+  }
+  feature_registry_source {
+    
+    feature_groups {
+        feature_group_id = google_vertex_ai_feature_group.sample_feature_group.name
+        feature_ids      = [google_vertex_ai_feature_group_feature.sample_feature.name]
+}
+   project_number = data.google_project.test_project.number
+
+  }
+  depends_on = [google_project_service.vertexai, time_sleep.wait_30_seconds]
 }
 `, context)
 }

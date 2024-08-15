@@ -1,0 +1,3 @@
+```release-note:enhancement
+workbench: added update support to `gce_setup.boot_disk` and `gce_setup.data_disks` fields in `google_workbench_instance` resource
+```

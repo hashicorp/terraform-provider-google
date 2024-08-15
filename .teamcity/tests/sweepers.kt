@@ -151,7 +151,7 @@ class SweeperTests {
         val cronBeta = stBeta.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
         val stProject = projectSweeper.triggers.items[0] as ScheduleTrigger
         val cronProject = stProject.schedulingPolicy as ScheduleTrigger.SchedulingPolicy.Cron
-        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the project sweeper", cronGa.hours.toString() < cronProject.hours.toString()) // Values are strings like "11", "12"
-        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the project sweeper", cronBeta.hours.toString() < cronProject.hours.toString() )
+        assertTrue("Service sweeper for the GA Nightly Test project should be triggered at an earlier hour than the project sweeper", cronGa.hours.toString().toInt() < cronProject.hours.toString().toInt()) // Converting nullable strings to ints
+        assertTrue("Service sweeper for the Beta Nightly Test project should be triggered at an earlier hour than the project sweeper", cronBeta.hours.toString().toInt() < cronProject.hours.toString().toInt() )
     }
 }

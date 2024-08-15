@@ -105,7 +105,7 @@ The following arguments are supported:
 * `mode` -
   (Optional)
   Sets which mode to use for Security Posture features.
-  Possible values are: `DISABLED`, `BASIC`.
+  Possible values are: `DISABLED`, `BASIC`, `ENTERPRISE`.
 
 * `vulnerability_mode` -
   (Optional)

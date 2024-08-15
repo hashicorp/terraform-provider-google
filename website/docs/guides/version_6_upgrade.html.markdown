@@ -1,7 +1,7 @@
 ---
-page_title: "Terraform Google Provider 6.0.0 Upgrade Guide"
+page_title: "Terraform provider for Google Cloud 6.0.0 Upgrade Guide"
 description: |-
-  Terraform Google Provider 6.0.0 Upgrade Guide
+  Terraform provider for Google Cloud 6.0.0 Upgrade Guide
 ---
 
 # Terraform Google Provider 6.0.0 Upgrade Guide
@@ -102,14 +102,135 @@ Description of the change and how users should adjust their configuration (if ne
 
 ## Resources
 
-## Resource: `google_product_resource`
+## Resource: `google_bigquery_table`
 
-### Resource-level change example header
+### View creation now validates `schema`
 
-Description of the change and how users should adjust their configuration (if needed).
+A `view` can no longer be created when `schema` contains required fields
+
+## Resource: `google_bigquery_reservation`
+
+### `multi_region_auxiliary` is now removed
+
+This field is no longer supported by the BigQuery Reservation API.
 
 ## Resource: `google_sql_database_instance`
 
 ### `settings.ip_configuration.require_ssl` is now removed
 
 Removed in favor of field `settings.ip_configuration.ssl_mode`.
+
+## Resource: `google_pubsub_topic`
+
+### `schema_settings` no longer has a default value
+
+An empty value means the setting should be cleared.
+
+## Resources: `google_container_cluster`, `google_container_node_pool`, and `google_compute_instance`
+
+### `guest_accelerator = []` is no longer valid configuration
+
+To explicitly set an empty list of objects, set `guest_accelerator.count = 0`.
+
+Previously, to explicitly set `guest_accelerator` as an empty list of objects, the specific configuration `guest_accelerator = []` was necessary.
+This was to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
+This special setting causes other breakages so it is now removed, with setting `guest_accelerator.count = 0` available as an alternative form of empty `guest_accelerator` object.
+
+### `guest_accelerator.gpu_driver_installation_config = []` and `guest_accelerator.gpu_sharing_config = []` are no longer valid configuration
+
+These were never intended to be set this way. Removing the fields from configuration should not produce a diff.
+
+## Resource: `google_domain`
+
+### Domain deletion now prevented by default with `deletion_protection`
+
+The field `deletion_protection` has been added with a default value of `true`. This field prevents
+Terraform from destroying or recreating the Domain. In 6.0.0, existing domains will have 
+`deletion_protection` set to `true` during the next refresh unless otherwise set in configuration.
+
+**`deletion_protection` does NOT prevent deletion outside of Terraform.**
+
+To disable deletion protection, explicitly set this field to `false` in configuration
+and then run `terraform apply` to apply the change.
+
+## Resource: `google_cloud_run_v2_job`
+
+### retyped `containers.env` to SET from ARRAY
+
+Previously, `containers.env` was a list, making it order-dependent. It is now a set.
+
+If you were relying on accessing an individual environment variable by index (for example, `google_cloud_run_v2_job.template.containers.0.env.0.name`), then that will now need to by hash (for example, `google_cloud_run_v2_job.template.containers.0.env.<some-hash>.name`).
+
+## Resource: `google_cloud_run_v2_service`
+
+### `liveness_probe` no longer defaults from API
+
+Cloud Run does not provide a default value for liveness probe. Now removing this field
+will remove the liveness probe from the Cloud Run service.
+
+### retyped `containers.env` to SET from ARRAY
+
+Previously, `containers.env` was a list, making it order-dependent. It is now a set.
+
+If you were relying on accessing an individual environment variable by index (for example, `google_cloud_run_v2_service.template.containers.0.env.0.name`), then that will now need to by hash (for example, `google_cloud_run_v2_service.template.containers.0.env.<some-hash>.name`).
+
+## Resource: `google_compute_subnetwork`
+
+### `secondary_ip_range = []` is no longer valid configuration
+
+To explicitly set an empty list of objects, use `send_secondary_ip_range_if_empty = true` and completely remove `secondary_ip_range` from config.
+
+Previously, to explicitly set `secondary_ip_range` as an empty list of objects, the specific configuration `secondary_ip_range = []` was necessary.
+This was to maintain compatability in behavior between Terraform versions 0.11 and 0.12 using a special setting ["attributes as blocks"](https://developer.hashicorp.com/terraform/language/attr-as-blocks).
+This special setting causes other breakages so it is now removed, with `send_secondary_ip_range_if_empty` available instead.
+
+## Resource: `google_compute_backend_service`
+
+## Resource: `google_compute_region_backend_service`
+
+### `iap.enabled` is now required in the `iap` block
+
+To apply the IAP settings to the backend service, `true` needs to be set for `enabled` field.
+
+### `outlier_detection` subfields default values removed
+
+Empty values mean the setting should be cleared.
+
+### `connection_draining_timeout_sec` default value changed
+
+An empty value now means 300.
+
+### `balancing_mode` default value changed
+
+An empty value now means UTILIZATION.
+ 
+## Resource: `google_vpc_access_connector`
+
+### Fields `min_throughput` and `max_throughput` no longer have default values
+
+The fields `min_throughput` and `max_throughput` no longer have default values 
+set by the provider. This was necessary to add conflicting field validation, also
+described in this guide.
+
+No configuration changes are needed for existing resources as these fields' values
+will default to values present in data returned from the API.
+
+### Conflicting field validation added for `min_throughput` and `min_instances`, and `max_throughput` and `max_instances`
+
+The provider will now enforce that `google_vpc_access_connector` resources can only
+include one of `min_throughput` and `min_instances` and one of `max_throughput`and 
+`max_instances`. Previously if a user included all four fields in a resource block
+they would experience a permadiff. This is a result of how `min_instances` and
+`max_instances` fields' values take precedence in the API, and how the API calculates
+values for `min_throughput` and `max_throughput` that match the number of instances.
+
+Users will need to check their configuration for any `google_vpc_access_connector`
+resource blocks that contain both fields in a conflicting pair, and remove one of those fields.
+The fields that are removed from the configuration will still have Computed values,
+that are derived from the API.
+
+## Removals
+
+### Resource: `google_identity_platform_project_default_config` is now removed
+
+`google_identity_platform_project_default_config` is removed in favor of `google_identity_platform_project_config`

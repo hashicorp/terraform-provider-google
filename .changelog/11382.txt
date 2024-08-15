@@ -1,0 +1,3 @@
+```release-note:enhancement
+parallelstore: added `file_stripe_level`, `directory_stripe_level` fields to `google_parallelstore_instance` resource
+```

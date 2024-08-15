@@ -943,6 +943,22 @@ The following arguments are supported:
   of the subject line after variable expansion will be truncated to 255 bytes
   or shorter at the latest UTF-8 character boundary.
 
+* `links` -
+  (Optional)
+  Links to content such as playbooks, repositories, and other resources. This field can contain up to 3 entries.
+  Structure is [documented below](#nested_links).
+
+
+<a name="nested_links"></a>The `links` block supports:
+
+* `display_name` -
+  (Optional)
+  A short display name for the link. The display name must not be empty or exceed 63 characters. Example: "playbook".
+
+* `url` -
+  (Optional)
+  The url of a webpage. A url can be templatized by using variables in the path or the query parameters. The total length of a URL should not exceed 2083 characters before and after variable expansion. Example: "https://my_domain.com/playbook?name=${resource.name}".
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

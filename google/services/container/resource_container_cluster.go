@@ -25,6 +25,15 @@ import (
 	"google.golang.org/api/container/v1"
 )
 
+// Single-digit hour is equivalent to hour with leading zero e.g. suppress diff 1:00 => 01:00.
+// Assume either value could be in either format.
+func Rfc3339TimeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if (len(old) == 4 && "0"+old == new) || (len(new) == 4 && "0"+new == old) {
+		return true
+	}
+	return false
+}
+
 var (
 	instanceGroupManagerURL = regexp.MustCompile(fmt.Sprintf("projects/(%s)/zones/([a-z0-9-]*)/instanceGroupManagers/([^/]*)", verify.ProjectRegex))
 
@@ -78,6 +87,7 @@ var (
 		"addons_config.0.config_connector_config",
 		"addons_config.0.gcs_fuse_csi_driver_config",
 		"addons_config.0.stateful_ha_config",
+		"addons_config.0.ray_operator_config",
 	}
 
 	privateClusterConfigKeys = []string{
@@ -468,6 +478,52 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"ray_operator_config": {
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     3,
+							Description:  `The status of the Ray Operator addon, which enabled management of Ray AI/ML jobs on GKE. Defaults to disabled; set enabled = true to enable.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"ray_cluster_logging_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										Description: `The status of Ray Logging, which scrapes Ray cluster logs to Cloud Logging. Defaults to disabled; set enabled = true to enable.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:     schema.TypeBool,
+													Required: true,
+												},
+											},
+										},
+									},
+									"ray_cluster_monitoring_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Computed:    true,
+										MaxItems:    1,
+										Description: `The status of Ray Cluster monitoring, which shows Ray cluster metrics in Cloud Console. Defaults to disabled; set enabled = true to enable.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:     schema.TypeBool,
+													Required: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -735,6 +791,13 @@ func ResourceContainerCluster() *schema.Resource {
 								},
 							},
 						},
+						"auto_provisioning_locations": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The list of Google Compute Engine zones in which the NodePool's nodes can be created by NAP.`,
+						},
 						"autoscaling_profile": {
 							Type:             schema.TypeString,
 							Default:          "BALANCED",
@@ -927,7 +990,7 @@ func ResourceContainerCluster() *schema.Resource {
 										Type:             schema.TypeString,
 										Required:         true,
 										ValidateFunc:     verify.ValidateRFC3339Time,
-										DiffSuppressFunc: tpgresource.Rfc3339TimeDiffSuppress,
+										DiffSuppressFunc: Rfc3339TimeDiffSuppress,
 									},
 									"duration": {
 										Type:     schema.TypeString,
@@ -1048,7 +1111,7 @@ func ResourceContainerCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
-							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET and CADVISOR.`,
+							Description: `GKE components exposing metrics. Valid values include SYSTEM_COMPONENTS, APISERVER, SCHEDULER, CONTROLLER_MANAGER, STORAGE, HPA, POD, DAEMONSET, DEPLOYMENT, STATEFULSET, KUBELET, CADVISOR and DCGM.`,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -1714,12 +1777,13 @@ func ResourceContainerCluster() *schema.Resource {
 						"channel": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"UNSPECIFIED", "RAPID", "REGULAR", "STABLE", "EXTENDED"}, false),
 							Description: `The selected release channel. Accepted values are:
 * UNSPECIFIED: Not set.
 * RAPID: Weekly upgrade cadence; Early testers and developers who requires new features.
 * REGULAR: Multiple per month upgrade cadence; Production users who need features not yet offered in the Stable channel.
-* STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.`,
+* STABLE: Every few months upgrade cadence; Production users who need stability above all else, and for whom frequent upgrades are too risky.
+* EXTENDED: GKE provides extended support for Kubernetes minor versions through the Extended channel. With this channel, you can stay on a minor version for up to 24 months.`,
 						},
 					},
 				},
@@ -1774,6 +1838,13 @@ func ResourceContainerCluster() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether L4ILB Subsetting is enabled for this cluster.`,
+				Default:     false,
+			},
+			"enable_multi_networking": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether multi-networking is enabled for this cluster.`,
 				Default:     false,
 			},
 			"private_ipv6_google_access": {
@@ -2063,6 +2134,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 			EnableL4ilbSubsetting:                d.Get("enable_l4_ilb_subsetting").(bool),
 			DnsConfig:                            expandDnsConfig(d.Get("dns_config")),
 			GatewayApiConfig:                     expandGatewayApiConfig(d.Get("gateway_api_config")),
+			EnableMultiNetworking:                d.Get("enable_multi_networking").(bool),
 		},
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
@@ -2583,6 +2655,9 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if err := d.Set("enable_intranode_visibility", cluster.NetworkConfig.EnableIntraNodeVisibility); err != nil {
 		return fmt.Errorf("Error setting enable_intranode_visibility: %s", err)
+	}
+	if err := d.Set("enable_multi_networking", cluster.NetworkConfig.EnableMultiNetworking); err != nil {
+		return fmt.Errorf("Error setting enable_multi_networking: %s", err)
 	}
 	if err := d.Set("private_ipv6_google_access", cluster.NetworkConfig.PrivateIpv6GoogleAccess); err != nil {
 		return fmt.Errorf("Error setting private_ipv6_google_access: %s", err)
@@ -4115,6 +4190,28 @@ func expandClusterAddonsConfig(configured interface{}) *container.AddonsConfig {
 		}
 	}
 
+	if v, ok := config["ray_operator_config"]; ok && len(v.([]interface{})) > 0 {
+		addon := v.([]interface{})[0].(map[string]interface{})
+		ac.RayOperatorConfig = &container.RayOperatorConfig{
+			Enabled:         addon["enabled"].(bool),
+			ForceSendFields: []string{"Enabled"},
+		}
+		if v, ok := addon["ray_cluster_logging_config"]; ok && len(v.([]interface{})) > 0 {
+			loggingConfig := v.([]interface{})[0].(map[string]interface{})
+			ac.RayOperatorConfig.RayClusterLoggingConfig = &container.RayClusterLoggingConfig{
+				Enabled:         loggingConfig["enabled"].(bool),
+				ForceSendFields: []string{"Enabled"},
+			}
+		}
+		if v, ok := addon["ray_cluster_monitoring_config"]; ok && len(v.([]interface{})) > 0 {
+			loggingConfig := v.([]interface{})[0].(map[string]interface{})
+			ac.RayOperatorConfig.RayClusterMonitoringConfig = &container.RayClusterMonitoringConfig{
+				Enabled:         loggingConfig["enabled"].(bool),
+				ForceSendFields: []string{"Enabled"},
+			}
+		}
+	}
+
 	return ac
 }
 
@@ -4305,6 +4402,7 @@ func expandClusterAutoscaling(configured interface{}, d *schema.ResourceData) *c
 		ResourceLimits:                   resourceLimits,
 		AutoscalingProfile:               config["autoscaling_profile"].(string),
 		AutoprovisioningNodePoolDefaults: expandAutoProvisioningDefaults(config["auto_provisioning_defaults"], d),
+		AutoprovisioningLocations:        tpgresource.ConvertStringArr(config["auto_provisioning_locations"].([]interface{})),
 	}
 }
 
@@ -5168,6 +5266,24 @@ func flattenClusterAddonsConfig(c *container.AddonsConfig) []map[string]interfac
 			},
 		}
 	}
+	if c.RayOperatorConfig != nil {
+		rayConfig := c.RayOperatorConfig
+		result["ray_operator_config"] = []map[string]interface{}{
+			{
+				"enabled": rayConfig.Enabled,
+			},
+		}
+		if rayConfig.RayClusterLoggingConfig != nil {
+			result["ray_operator_config"].([]map[string]any)[0]["ray_cluster_logging_config"] = []map[string]interface{}{{
+				"enabled": rayConfig.RayClusterLoggingConfig.Enabled,
+			}}
+		}
+		if rayConfig.RayClusterMonitoringConfig != nil {
+			result["ray_operator_config"].([]map[string]any)[0]["ray_cluster_monitoring_config"] = []map[string]interface{}{{
+				"enabled": rayConfig.RayClusterMonitoringConfig.Enabled,
+			}}
+		}
+	}
 
 	return []map[string]interface{}{result}
 }
@@ -5438,6 +5554,7 @@ func flattenClusterAutoscaling(a *container.ClusterAutoscaling) []map[string]int
 		r["resource_limits"] = resourceLimits
 		r["enabled"] = true
 		r["auto_provisioning_defaults"] = flattenAutoProvisioningDefaults(a.AutoprovisioningNodePoolDefaults)
+		r["auto_provisioning_locations"] = a.AutoprovisioningLocations
 	} else {
 		r["enabled"] = false
 	}

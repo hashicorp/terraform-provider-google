@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 
 	"google.golang.org/api/compute/v1"
@@ -327,6 +327,53 @@ func testAccCheckComputeInstanceFromTemplateDestroyProducer(t *testing.T) func(s
 
 		return nil
 	}
+}
+
+func TestAccComputeInstanceFromTemplate_confidentialInstanceConfigMain(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instance2 compute.Instance
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_confidentialInstanceConfigEnable(
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					"SEV"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.inst1", &instance),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true, "SEV"),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.inst2", &instance2),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance2, true, ""),
+				),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplate_confidentialInstanceConfigNoConfigSevSnp(
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+					"SEV_SNP"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.inst1", &instance),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, false, "SEV_SNP"),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.inst2", &instance2),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance2, false, "SEV_SNP"),
+				),
+			},
+		},
+	})
 }
 
 func testAccComputeInstanceFromTemplate_basic(instance, template string) string {
@@ -1044,4 +1091,287 @@ resource "google_compute_instance_from_template" "inst" {
   }
 }
 `, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_confidentialInstanceConfigEnable(templateDisk string, image string, template string, instance string, template2 string, instance2 string, confidentialInstanceType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image1" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_disk" "foobar1" {
+  name  = "%s"
+  image = data.google_compute_image.my_image1.self_link
+  size  = 10
+  type  = "pd-standard"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_image" "foobar1" {
+  name              = "%s"
+  source_disk       = google_compute_disk.foobar1.self_link
+}
+
+resource "google_compute_instance_template" "foobar1" {
+  name         = "%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = google_compute_image.foobar1.name
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute  = true
+    confidential_instance_type     = %q
+  }
+}
+
+resource "google_compute_instance_from_template" "inst1" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar1.self_link
+}
+
+resource "google_compute_instance_template" "foobar2" {
+  name         = "%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = google_compute_image.foobar1.name
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute  = true
+  }
+}
+
+resource "google_compute_instance_from_template" "inst2" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar2.self_link
+}
+`, templateDisk, image, template, confidentialInstanceType, instance, template2, instance2)
+}
+
+func testAccComputeInstanceFromTemplate_confidentialInstanceConfigNoConfigSevSnp(templateDisk string, image string, template string, instance string, template2 string, instance2 string, confidentialInstanceType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image1" {
+  family  = "ubuntu-2004-lts"
+  project = "ubuntu-os-cloud"
+}
+
+resource "google_compute_disk" "foobar1" {
+  name  = "%s"
+  image = data.google_compute_image.my_image1.self_link
+  size  = 10
+  type  = "pd-standard"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_image" "foobar1" {
+  name              = "%s"
+  source_disk       = google_compute_disk.foobar1.self_link
+}
+
+resource "google_compute_instance_template" "foobar3" {
+  name         = "%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = google_compute_image.foobar1.name
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute    = false
+    confidential_instance_type     = %q
+  }
+}
+
+resource "google_compute_instance_from_template" "inst1" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar3.self_link
+}
+
+resource "google_compute_instance_template" "foobar4" {
+  name         = "%s"
+  machine_type = "n2d-standard-2"
+
+  disk {
+    source_image = google_compute_image.foobar1.name
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    confidential_instance_type     = %q
+  }
+}
+
+resource "google_compute_instance_from_template" "inst2" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar4.self_link
+}
+`, templateDisk, image, template, confidentialInstanceType, instance, template2, confidentialInstanceType, instance2)
+}
+
+func testAccComputeInstanceFromTemplate_confidentialInstanceConfigNoConfigTdx(templateDisk string, image string, template string, instance string, template2 string, instance2 string, confidentialInstanceType string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image2" {
+  family  = "ubuntu-2204-lts"
+  project = "tdx-guest-images"
+}
+
+resource "google_compute_disk" "foobar2" {
+  name  = "%s"
+  image = data.google_compute_image.my_image2.self_link
+  size  = 10
+  type  = "pd-balanced"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_image" "foobar2" {
+  name              = "%s"
+  source_disk       = google_compute_disk.foobar2.self_link
+}
+
+resource "google_compute_instance_template" "foobar5" {
+  name         = "%s"
+  machine_type = "c3-standard-4"
+
+  disk {
+    source_image = google_compute_image.foobar2.name
+    auto_delete  = true
+    boot         = true
+    disk_type    = "pd-balanced"
+    type         = "PERSISTENT"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute    = false
+    confidential_instance_type     = %q
+  }
+}
+
+resource "google_compute_instance_from_template" "inst1" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar5.self_link
+}
+
+resource "google_compute_instance_template" "foobar6" {
+  name         = "%s"
+  machine_type = "c3-standard-4"
+
+  disk {
+    source_image = google_compute_image.foobar2.name
+    auto_delete  = true
+    boot         = true
+    disk_type    = "pd-balanced"
+    type         = "PERSISTENT"
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  scheduling {
+    automatic_restart = false
+    on_host_maintenance = "TERMINATE"
+  }
+
+  confidential_instance_config {
+    confidential_instance_type = %q
+  }
+}
+
+resource "google_compute_instance_from_template" "inst2" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar6.self_link
+}
+`, templateDisk, image, template, confidentialInstanceType, instance, template2, confidentialInstanceType, instance2)
 }

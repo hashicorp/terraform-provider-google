@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added update support for the 'server_tls_policy' field in 'compute_region_target_https_proxy' resource
+```

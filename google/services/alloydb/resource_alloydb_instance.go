@@ -217,6 +217,7 @@ the same instance.`,
 			},
 			"psc_instance_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Configuration for Private Service Connect (PSC) for the instance.`,
 				MaxItems:    1,

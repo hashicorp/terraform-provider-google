@@ -104,7 +104,6 @@ If it is not provided, the provider region is used.`,
 			"server_tls_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
 				Description: `A URL referring to a networksecurity.ServerTlsPolicy
 resource that describes how the proxy should authenticate inbound
@@ -114,7 +113,12 @@ set to INTERNAL_SELF_MANAGED or EXTERNAL or EXTERNAL_MANAGED.
 For details which ServerTlsPolicy resources are accepted with
 INTERNAL_SELF_MANAGED and which with EXTERNAL, EXTERNAL_MANAGED
 loadBalancingScheme consult ServerTlsPolicy documentation.
-If left blank, communications are not encrypted.`,
+If left blank, communications are not encrypted.
+
+If you remove this field from your configuration at the same time as
+deleting or recreating a referenced ServerTlsPolicy resource, you will
+receive a resourceInUseByAnotherResource error. Use lifecycle.create_before_destroy
+within the ServerTlsPolicy resource to avoid this.`,
 			},
 			"ssl_certificates": {
 				Type:     schema.TypeList,
@@ -493,6 +497,79 @@ func resourceComputeRegionTargetHttpsProxyUpdate(d *schema.ResourceData, meta in
 			return err
 		}
 	}
+	if d.HasChange("server_tls_policy") {
+		obj := make(map[string]interface{})
+
+		getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    getUrl,
+			UserAgent: userAgent,
+		})
+		if err != nil {
+			return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionTargetHttpsProxy %q", d.Id()))
+		}
+
+		obj["fingerprint"] = getRes["fingerprint"]
+
+		serverTlsPolicyProp, err := expandComputeRegionTargetHttpsProxyServerTlsPolicy(d.Get("server_tls_policy"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("server_tls_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, serverTlsPolicyProp)) {
+			obj["serverTlsPolicy"] = serverTlsPolicyProp
+		}
+
+		obj, err = resourceComputeRegionTargetHttpsProxyUpdateEncoder(d, meta, obj)
+		if err != nil {
+			return err
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/targetHttpsProxies/{{name}}")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "PATCH",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating RegionTargetHttpsProxy %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating RegionTargetHttpsProxy %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating RegionTargetHttpsProxy", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
 	if d.HasChange("ssl_policy") {
 		obj := make(map[string]interface{})
 
@@ -804,6 +881,14 @@ func resourceComputeRegionTargetHttpsProxyEncoder(d *schema.ResourceData, meta i
 		obj["sslCertificates"] = obj["certificateManagerCertificates"]
 		delete(obj, "certificateManagerCertificates")
 	}
+
+	// Send null if serverTlsPolicy is not set. Without this, Terraform would not send any value for `serverTlsPolicy`
+	// in the "PATCH" payload so if you were to remove a server TLS policy from a target HTTPS proxy, it would NOT remove
+	// the association.
+	if _, ok := obj["serverTlsPolicy"]; !ok {
+		obj["serverTlsPolicy"] = nil
+	}
+
 	return obj, nil
 }
 
@@ -817,6 +902,14 @@ func resourceComputeRegionTargetHttpsProxyUpdateEncoder(d *schema.ResourceData, 
 		obj["sslCertificates"] = obj["certificateManagerCertificates"]
 		delete(obj, "certificateManagerCertificates")
 	}
+
+	// Send null if serverTlsPolicy is not set. Without this, Terraform would not send any value for `serverTlsPolicy`
+	// in the "PATCH" payload so if you were to remove a server TLS policy from a target HTTPS proxy, it would NOT remove
+	// the association.
+	if _, ok := obj["serverTlsPolicy"]; !ok {
+		obj["serverTlsPolicy"] = nil
+	}
+
 	return obj, nil
 }
 

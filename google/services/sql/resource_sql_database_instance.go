@@ -82,6 +82,7 @@ var (
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
 		"settings.0.ip_configuration.0.psc_config",
 		"settings.0.ip_configuration.0.ssl_mode",
+		"settings.0.ip_configuration.0.server_ca_mode",
 	}
 
 	maintenanceWindowKeys = []string{
@@ -130,9 +131,9 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(40 * time.Minute),
-			Update: schema.DefaultTimeout(30 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(90 * time.Minute),
+			Update: schema.DefaultTimeout(90 * time.Minute),
+			Delete: schema.DefaultTimeout(90 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -402,6 +403,11 @@ is set to true. Defaults to ZONAL.`,
 							Optional:    true,
 							Description: `Enables Vertex AI Integration.`,
 						},
+						"enable_dataplex_integration": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Enables Dataplex Integration.`,
+						},
 						"disk_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -493,7 +499,15 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
-										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcment options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
+										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcement options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
+										AtLeastOneOf: ipConfigurationKeys,
+									},
+									"server_ca_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: validation.StringInSlice([]string{"CA_MODE_UNSPECIFIED", "GOOGLE_MANAGED_INTERNAL_CA", "GOOGLE_MANAGED_CAS_CA"}, false),
+										Description:  `Specify how the server certificate's Certificate Authority is hosted.`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 								},
@@ -572,6 +586,7 @@ is set to true. Defaults to ZONAL.`,
 						"insights_config": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -660,7 +675,7 @@ is set to true. Defaults to ZONAL.`,
 							Optional:     true,
 							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"NOT_REQUIRED", "REQUIRED"}, false),
-							Description:  `Specifies if connections must use Cloud SQL connectors.`,
+							Description:  `Enables the enforcement of Cloud SQL Auth Proxy or Cloud SQL connectors for all the connections. If enabled, all the direct connections are rejected.`,
 						},
 						"deletion_protection_enabled": {
 							Type:        schema.TypeBool,
@@ -1274,7 +1289,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		Tier:                      _settings["tier"].(string),
 		Edition:                   _settings["edition"].(string),
 		AdvancedMachineFeatures:   expandSqlServerAdvancedMachineFeatures(_settings["advanced_machine_features"].([]interface{})),
-		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration"},
+		ForceSendFields:           []string{"StorageAutoResize", "EnableGoogleMlIntegration", "EnableDataplexIntegration"},
 		ActivationPolicy:          _settings["activation_policy"].(string),
 		ActiveDirectoryConfig:     expandActiveDirectoryConfig(_settings["active_directory_config"].([]interface{})),
 		DenyMaintenancePeriods:    expandDenyMaintenancePeriod(_settings["deny_maintenance_period"].([]interface{})),
@@ -1288,6 +1303,7 @@ func expandSqlDatabaseInstanceSettings(configured []interface{}, databaseVersion
 		PricingPlan:               _settings["pricing_plan"].(string),
 		DeletionProtectionEnabled: _settings["deletion_protection_enabled"].(bool),
 		EnableGoogleMlIntegration: _settings["enable_google_ml_integration"].(bool),
+		EnableDataplexIntegration: _settings["enable_dataplex_integration"].(bool),
 		UserLabels:                tpgresource.ConvertStringMap(_settings["user_labels"].(map[string]interface{})),
 		BackupConfiguration:       expandBackupConfiguration(_settings["backup_configuration"].([]interface{})),
 		DatabaseFlags:             expandDatabaseFlags(_settings["database_flags"].(*schema.Set).List()),
@@ -1402,6 +1418,7 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 		ForceSendFields:                         forceSendFields,
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
+		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
 	}
 }
 
@@ -2112,6 +2129,7 @@ func flattenSettings(settings *sqladmin.Settings, d *schema.ResourceData) []map[
 	data["disk_autoresize_limit"] = settings.StorageAutoResizeLimit
 
 	data["enable_google_ml_integration"] = settings.EnableGoogleMlIntegration
+	data["enable_dataplex_integration"] = settings.EnableDataplexIntegration
 
 	if settings.UserLabels != nil {
 		data["user_labels"] = settings.UserLabels
@@ -2242,6 +2260,7 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
 		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
+		"server_ca_mode": ipConfiguration.ServerCaMode,
 	}
 
 	if ipConfiguration.AuthorizedNetworks != nil {

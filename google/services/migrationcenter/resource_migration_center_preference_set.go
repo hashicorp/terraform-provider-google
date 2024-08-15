@@ -84,14 +84,9 @@ func ResourceMigrationCenterPreferenceSet() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"commitment_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
- Possible values:
- COMMITMENT_PLAN_UNSPECIFIED
-COMMITMENT_PLAN_NONE
-COMMITMENT_PLAN_ONE_YEAR
-COMMITMENT_PLAN_THREE_YEARS`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: 'COMMITMENT_PLAN_UNSPECIFIED', 'COMMITMENT_PLAN_NONE', 'COMMITMENT_PLAN_ONE_YEAR', 'COMMITMENT_PLAN_THREE_YEARS'`,
 						},
 						"compute_engine_preferences": {
 							Type:        schema.TypeList,
@@ -101,13 +96,9 @@ COMMITMENT_PLAN_THREE_YEARS`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"license_type": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `License type to consider when calculating costs for virtual machine insights and recommendations. If unspecified, costs are calculated based on the default licensing plan. 
- Possible values:
- LICENSE_TYPE_UNSPECIFIED
-LICENSE_TYPE_DEFAULT
-LICENSE_TYPE_BRING_YOUR_OWN_LICENSE`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `License type to consider when calculating costs for virtual machine insights and recommendations. If unspecified, costs are calculated based on the default licensing plan. Possible values: 'LICENSE_TYPE_UNSPECIFIED', 'LICENSE_TYPE_DEFAULT', 'LICENSE_TYPE_BRING_YOUR_OWN_LICENSE'`,
 									},
 									"machine_preferences": {
 										Type:        schema.TypeList,
@@ -155,14 +146,9 @@ LICENSE_TYPE_BRING_YOUR_OWN_LICENSE`,
 							},
 						},
 						"sizing_optimization_strategy": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Sizing optimization strategy specifies the preferred strategy used when extrapolating usage data to calculate insights and recommendations for a virtual machine. If you are unsure which value to set, a moderate sizing optimization strategy is often a good value to start with. 
- Possible values:
- SIZING_OPTIMIZATION_STRATEGY_UNSPECIFIED
-SIZING_OPTIMIZATION_STRATEGY_SAME_AS_SOURCE
-SIZING_OPTIMIZATION_STRATEGY_MODERATE
-SIZING_OPTIMIZATION_STRATEGY_AGGRESSIVE`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Sizing optimization strategy specifies the preferred strategy used when extrapolating usage data to calculate insights and recommendations for a virtual machine. If you are unsure which value to set, a moderate sizing optimization strategy is often a good value to start with. Possible values: 'SIZING_OPTIMIZATION_STRATEGY_UNSPECIFIED', 'SIZING_OPTIMIZATION_STRATEGY_SAME_AS_SOURCE', 'SIZING_OPTIMIZATION_STRATEGY_MODERATE', 'SIZING_OPTIMIZATION_STRATEGY_AGGRESSIVE'`,
 						},
 						"sole_tenancy_preferences": {
 							Type:        schema.TypeList,
@@ -172,14 +158,9 @@ SIZING_OPTIMIZATION_STRATEGY_AGGRESSIVE`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"commitment_plan": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
- Possible values:
- COMMITMENT_PLAN_UNSPECIFIED
-ON_DEMAND
-COMMITMENT_1_YEAR
-COMMITMENT_3_YEAR`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: 'COMMITMENT_PLAN_UNSPECIFIED', 'ON_DEMAND', 'COMMITMENT_1_YEAR', 'COMMITMENT_3_YEAR'`,
 									},
 									"cpu_overcommit_ratio": {
 										Type:        schema.TypeFloat,
@@ -187,14 +168,9 @@ COMMITMENT_3_YEAR`,
 										Description: `CPU overcommit ratio. Acceptable values are between 1.0 and 2.0 inclusive.`,
 									},
 									"host_maintenance_policy": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Sole Tenancy nodes maintenance policy. 
- Possible values:
- HOST_MAINTENANCE_POLICY_UNSPECIFIED
-HOST_MAINTENANCE_POLICY_DEFAULT
-HOST_MAINTENANCE_POLICY_RESTART_IN_PLACE
-HOST_MAINTENANCE_POLICY_MIGRATE_WITHIN_NODE_GROUP`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Sole Tenancy nodes maintenance policy. Possible values: 'HOST_MAINTENANCE_POLICY_UNSPECIFIED', 'HOST_MAINTENANCE_POLICY_DEFAULT', 'HOST_MAINTENANCE_POLICY_RESTART_IN_PLACE', 'HOST_MAINTENANCE_POLICY_MIGRATE_WITHIN_NODE_GROUP'`,
 									},
 									"node_types": {
 										Type:        schema.TypeList,
@@ -214,14 +190,9 @@ HOST_MAINTENANCE_POLICY_MIGRATE_WITHIN_NODE_GROUP`,
 							},
 						},
 						"target_product": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Description: `Target product for assets using this preference set. Specify either target product or business goal, but not both. 
- Possible values:
- COMPUTE_MIGRATION_TARGET_PRODUCT_UNSPECIFIED
-COMPUTE_MIGRATION_TARGET_PRODUCT_COMPUTE_ENGINE
-COMPUTE_MIGRATION_TARGET_PRODUCT_VMWARE_ENGINE
-COMPUTE_MIGRATION_TARGET_PRODUCT_SOLE_TENANCY`,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Target product for assets using this preference set. Specify either target product or business goal, but not both. Possible values: 'COMPUTE_MIGRATION_TARGET_PRODUCT_UNSPECIFIED', 'COMPUTE_MIGRATION_TARGET_PRODUCT_COMPUTE_ENGINE', 'COMPUTE_MIGRATION_TARGET_PRODUCT_VMWARE_ENGINE', 'COMPUTE_MIGRATION_TARGET_PRODUCT_SOLE_TENANCY'`,
 						},
 						"vmware_engine_preferences": {
 							Type:        schema.TypeList,
@@ -231,16 +202,9 @@ COMPUTE_MIGRATION_TARGET_PRODUCT_SOLE_TENANCY`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"commitment_plan": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
- Possible values:
- COMMITMENT_PLAN_UNSPECIFIED
-ON_DEMAND
-COMMITMENT_1_YEAR_MONTHLY_PAYMENTS
-COMMITMENT_3_YEAR_MONTHLY_PAYMENTS
-COMMITMENT_1_YEAR_UPFRONT_PAYMENT
-COMMITMENT_3_YEAR_UPFRONT_PAYMENT`,
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: 'COMMITMENT_PLAN_UNSPECIFIED', 'ON_DEMAND', 'COMMITMENT_1_YEAR_MONTHLY_PAYMENTS', 'COMMITMENT_3_YEAR_MONTHLY_PAYMENTS', 'COMMITMENT_1_YEAR_UPFRONT_PAYMENT', 'COMMITMENT_3_YEAR_UPFRONT_PAYMENT',`,
 									},
 									"cpu_overcommit_ratio": {
 										Type:        schema.TypeFloat,

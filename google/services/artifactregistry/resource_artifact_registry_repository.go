@@ -572,7 +572,7 @@ remote repository. Must be in the format of
 													Type:        schema.TypeString,
 													Required:    true,
 													ForceNew:    true,
-													Description: `Specific repository from the base, e.g. '"centos/8-stream/BaseOS/x86_64/os"'`,
+													Description: `Specific repository from the base, e.g. '"pub/rocky/9/BaseOS/x86_64/os"'`,
 												},
 											},
 										},

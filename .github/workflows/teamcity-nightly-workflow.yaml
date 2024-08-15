@@ -14,6 +14,7 @@ on:
 
 jobs:
   rename-TC-nightly-branch:
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
@@ -59,13 +60,14 @@ jobs:
                     repo: context.repo.repo,
                     ref: "heads/main"
                   })
-                  const branchName = "UTC-nightly-tests-" + dateToday;
+                  const branchName = "nightly-test";
+                  const commitHash = mainRef.data.object.sha;
                   try{
                   await github.rest.git.createRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: "refs/heads/" + branchName,
-                    sha: mainRef.data.object.sha
+                    sha: commitHash
                   })
                   } catch (error){
                     core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")

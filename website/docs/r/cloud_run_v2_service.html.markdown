@@ -562,6 +562,7 @@ The following arguments are supported:
 * `max_instance_request_concurrency` -
   (Optional)
   Sets the maximum number of requests that each serving instance can receive.
+  If not specified or 0, defaults to 80 when requested CPU >= 1 and defaults to 1 when requested CPU < 1.
 
 * `session_affinity` -
   (Optional)
@@ -1089,6 +1090,10 @@ The following arguments are supported:
 * `use_default` -
   (Optional)
   If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled.
+
+* `policy` -
+  (Optional)
+  The path to a binary authorization policy. Format: projects/{project}/platforms/cloudRun/{policy-name}
 
 <a name="nested_scaling"></a>The `scaling` block supports:
 

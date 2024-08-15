@@ -239,6 +239,13 @@ resource "google_dataplex_datascan" "full_quality" {
         sql_expression = "COUNT(*) > 0"
       }
     }
+
+    rules {
+      dimension = "VALIDITY"
+      sql_assertion {
+        sql_statement = "select * from bigquery-public-data.austin_bikeshare.bikeshare_stations where station_id is null"
+      }
+    }
   }
 
 
@@ -450,6 +457,11 @@ The following arguments are supported:
   Table rule which evaluates whether the provided expression is true.
   Structure is [documented below](#nested_table_condition_expectation).
 
+* `sql_assertion` -
+  (Optional)
+  Table rule which evaluates whether any row matches invalid state.
+  Structure is [documented below](#nested_sql_assertion).
+
 
 <a name="nested_range_expectation"></a>The `range_expectation` block supports:
 
@@ -521,6 +533,12 @@ The following arguments are supported:
 * `sql_expression` -
   (Required)
   The SQL expression.
+
+<a name="nested_sql_assertion"></a>The `sql_assertion` block supports:
+
+* `sql_statement` -
+  (Required)
+  The SQL statement.
 
 <a name="nested_data_profile_spec"></a>The `data_profile_spec` block supports:
 

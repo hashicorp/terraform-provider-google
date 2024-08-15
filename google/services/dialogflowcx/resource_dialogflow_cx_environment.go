@@ -145,7 +145,6 @@ func resourceDialogflowCXEnvironmentCreate(d *schema.ResourceData, meta interfac
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -230,7 +229,6 @@ func resourceDialogflowCXEnvironmentRead(d *schema.ResourceData, meta interface{
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 
@@ -331,7 +329,6 @@ func resourceDialogflowCXEnvironmentUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-
 	// extract location from the parent
 	location := ""
 
@@ -405,7 +402,6 @@ func resourceDialogflowCXEnvironmentDelete(d *schema.ResourceData, meta interfac
 	}
 
 	headers := make(http.Header)
-
 	// extract location from the parent
 	location := ""
 

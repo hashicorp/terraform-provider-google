@@ -7,8 +7,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
 
 func TestAccComputeGlobalForwardingRule_updateTarget(t *testing.T) {
@@ -85,6 +86,144 @@ func TestAccComputeGlobalForwardingRule_ipv6(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestUnitComputeGlobalForwardingRule_PortRangeDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"different single values": {
+			Old:                "80-80",
+			New:                "443",
+			ExpectDiffSuppress: false,
+		},
+		"different ranges": {
+			Old:                "80-80",
+			New:                "443-444",
+			ExpectDiffSuppress: false,
+		},
+		"same single values": {
+			Old:                "80-80",
+			New:                "80",
+			ExpectDiffSuppress: true,
+		},
+		"same ranges": {
+			Old:                "80-80",
+			New:                "80-80",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compute.PortRangeDiffSuppress("ports", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
+
+func TestUnitComputeGlobalForwardingRule_InternalIpDiffSuppress(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"suppress - same long and short ipv6 IPs without netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000::",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long and short ipv6 IPs with netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8000::/96",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP with netmask and short ipv6 IP without netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8000::",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP without netmask and short ipv6 IP with netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000::/96",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP with netmask and reference": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - long ipv6 IP without netmask and reference": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: true,
+		},
+		"do not suppress - ipv6 IPs different netmask": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			New:                "2600:1900:4020:31cd:8000:0:0:0/95",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - reference and ipv6 IP with netmask": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "2600:1900:4020:31cd:8000:0:0:0/96",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - ipv6 IPs - 1": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8001::",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - ipv6 IPs - 2": {
+			Old:                "2600:1900:4020:31cd:8000:0:0:0",
+			New:                "2600:1900:4020:31cd:8000:0:0:8000",
+			ExpectDiffSuppress: false,
+		},
+		"suppress - ipv4 IPs": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.4",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - ipv4 IP without netmask and ipv4 IP with netmask": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.4/24",
+			ExpectDiffSuppress: true,
+		},
+		"suppress - ipv4 IP without netmask and reference": {
+			Old:                "1.2.3.4",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: true,
+		},
+		"do not suppress - reference and ipv4 IP without netmask": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "1.2.3.4",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - different ipv4 IPs": {
+			Old:                "1.2.3.4",
+			New:                "1.2.3.5",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - ipv4 IPs different netmask": {
+			Old:                "1.2.3.4/24",
+			New:                "1.2.3.5/25",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - different references": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "projects/project_id/regions/region/addresses/address-name-1",
+			ExpectDiffSuppress: false,
+		},
+		"do not suppress - same references": {
+			Old:                "projects/project_id/regions/region/addresses/address-name",
+			New:                "projects/project_id/regions/region/addresses/address-name",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compute.InternalIpDiffSuppress("ipv4/v6_compare", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Fatalf("bad: %s, '%s' => '%s' expect %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
 }
 
 func testAccComputeGlobalForwardingRule_httpProxy(fr, targetProxy, proxy, proxy2, backend, hc, urlmap string) string {

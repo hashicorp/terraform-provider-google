@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed a bug in the `google_workbench_instance` resource where specifying a network in some scenarios would cause instance creation to fail
+```

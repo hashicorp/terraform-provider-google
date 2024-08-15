@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_service_networking_vpc_service_controls`
+```

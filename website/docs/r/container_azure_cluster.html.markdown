@@ -23,7 +23,7 @@ description: |-
 An Anthos cluster running on Azure.
 
 For more information, see:
-* [Multicloud overview](https://cloud.google.com/anthos/clusters/docs/multi-cloud)
+* [Multicloud overview](https://cloud.google.com/kubernetes-engine/multi-cloud/docs)
 ## Example Usage - basic_azure_cluster
 A basic example of a containerazure azure cluster
 ```hcl

@@ -135,12 +135,7 @@ The following arguments are supported:
 
 * `target_product` -
   (Optional)
-  Target product for assets using this preference set. Specify either target product or business goal, but not both. 
-   Possible values:
-   COMPUTE_MIGRATION_TARGET_PRODUCT_UNSPECIFIED
-  COMPUTE_MIGRATION_TARGET_PRODUCT_COMPUTE_ENGINE
-  COMPUTE_MIGRATION_TARGET_PRODUCT_VMWARE_ENGINE
-  COMPUTE_MIGRATION_TARGET_PRODUCT_SOLE_TENANCY
+  Target product for assets using this preference set. Specify either target product or business goal, but not both. Possible values: `COMPUTE_MIGRATION_TARGET_PRODUCT_UNSPECIFIED`, `COMPUTE_MIGRATION_TARGET_PRODUCT_COMPUTE_ENGINE`, `COMPUTE_MIGRATION_TARGET_PRODUCT_VMWARE_ENGINE`, `COMPUTE_MIGRATION_TARGET_PRODUCT_SOLE_TENANCY`
 
 * `region_preferences` -
   (Optional)
@@ -149,21 +144,11 @@ The following arguments are supported:
 
 * `commitment_plan` -
   (Optional)
-  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
-   Possible values:
-   COMMITMENT_PLAN_UNSPECIFIED
-  COMMITMENT_PLAN_NONE
-  COMMITMENT_PLAN_ONE_YEAR
-  COMMITMENT_PLAN_THREE_YEARS
+  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: `COMMITMENT_PLAN_UNSPECIFIED`, `COMMITMENT_PLAN_NONE`, `COMMITMENT_PLAN_ONE_YEAR`, `COMMITMENT_PLAN_THREE_YEARS`
 
 * `sizing_optimization_strategy` -
   (Optional)
-  Sizing optimization strategy specifies the preferred strategy used when extrapolating usage data to calculate insights and recommendations for a virtual machine. If you are unsure which value to set, a moderate sizing optimization strategy is often a good value to start with. 
-   Possible values:
-   SIZING_OPTIMIZATION_STRATEGY_UNSPECIFIED
-  SIZING_OPTIMIZATION_STRATEGY_SAME_AS_SOURCE
-  SIZING_OPTIMIZATION_STRATEGY_MODERATE
-  SIZING_OPTIMIZATION_STRATEGY_AGGRESSIVE
+  Sizing optimization strategy specifies the preferred strategy used when extrapolating usage data to calculate insights and recommendations for a virtual machine. If you are unsure which value to set, a moderate sizing optimization strategy is often a good value to start with. Possible values: `SIZING_OPTIMIZATION_STRATEGY_UNSPECIFIED`, `SIZING_OPTIMIZATION_STRATEGY_SAME_AS_SOURCE`, `SIZING_OPTIMIZATION_STRATEGY_MODERATE`, `SIZING_OPTIMIZATION_STRATEGY_AGGRESSIVE`
 
 * `compute_engine_preferences` -
   (Optional)
@@ -196,11 +181,7 @@ The following arguments are supported:
 
 * `license_type` -
   (Optional)
-  License type to consider when calculating costs for virtual machine insights and recommendations. If unspecified, costs are calculated based on the default licensing plan. 
-   Possible values:
-   LICENSE_TYPE_UNSPECIFIED
-  LICENSE_TYPE_DEFAULT
-  LICENSE_TYPE_BRING_YOUR_OWN_LICENSE
+  License type to consider when calculating costs for virtual machine insights and recommendations. If unspecified, costs are calculated based on the default licensing plan. Possible values: `LICENSE_TYPE_UNSPECIFIED`, `LICENSE_TYPE_DEFAULT`, `LICENSE_TYPE_BRING_YOUR_OWN_LICENSE`
 
 
 <a name="nested_machine_preferences"></a>The `machine_preferences` block supports:
@@ -233,14 +214,7 @@ The following arguments are supported:
 
 * `commitment_plan` -
   (Optional)
-  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
-   Possible values:
-   COMMITMENT_PLAN_UNSPECIFIED
-  ON_DEMAND
-  COMMITMENT_1_YEAR_MONTHLY_PAYMENTS
-  COMMITMENT_3_YEAR_MONTHLY_PAYMENTS
-  COMMITMENT_1_YEAR_UPFRONT_PAYMENT
-  COMMITMENT_3_YEAR_UPFRONT_PAYMENT
+  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: `COMMITMENT_PLAN_UNSPECIFIED`, `ON_DEMAND`, `COMMITMENT_1_YEAR_MONTHLY_PAYMENTS`, `COMMITMENT_3_YEAR_MONTHLY_PAYMENTS`, `COMMITMENT_1_YEAR_UPFRONT_PAYMENT`, `COMMITMENT_3_YEAR_UPFRONT_PAYMENT`,
 
 <a name="nested_sole_tenancy_preferences"></a>The `sole_tenancy_preferences` block supports:
 
@@ -250,21 +224,11 @@ The following arguments are supported:
 
 * `host_maintenance_policy` -
   (Optional)
-  Sole Tenancy nodes maintenance policy. 
-   Possible values:
-   HOST_MAINTENANCE_POLICY_UNSPECIFIED
-  HOST_MAINTENANCE_POLICY_DEFAULT
-  HOST_MAINTENANCE_POLICY_RESTART_IN_PLACE
-  HOST_MAINTENANCE_POLICY_MIGRATE_WITHIN_NODE_GROUP
+  Sole Tenancy nodes maintenance policy. Possible values: `HOST_MAINTENANCE_POLICY_UNSPECIFIED`, `HOST_MAINTENANCE_POLICY_DEFAULT`, `HOST_MAINTENANCE_POLICY_RESTART_IN_PLACE`, `HOST_MAINTENANCE_POLICY_MIGRATE_WITHIN_NODE_GROUP`
 
 * `commitment_plan` -
   (Optional)
-  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. 
-   Possible values:
-   COMMITMENT_PLAN_UNSPECIFIED
-  ON_DEMAND
-  COMMITMENT_1_YEAR
-  COMMITMENT_3_YEAR
+  Commitment plan to consider when calculating costs for virtual machine insights and recommendations. If you are unsure which value to set, a 3 year commitment plan is often a good value to start with. Possible values: `COMMITMENT_PLAN_UNSPECIFIED`, `ON_DEMAND`, `COMMITMENT_1_YEAR`, `COMMITMENT_3_YEAR`
 
 * `node_types` -
   (Optional)

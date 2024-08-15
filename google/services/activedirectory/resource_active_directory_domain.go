@@ -61,8 +61,8 @@ func ResourceActiveDirectoryDomain() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateADDomainName(),
-				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions,
-https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.`,
+				Description: `The fully qualified domain name. e.g. mydomain.myorganization.com, with the restrictions
+of https://cloud.google.com/managed-microsoft-ad/reference/rest/v1/projects.locations.global.domains.`,
 			},
 			"locations": {
 				Type:     schema.TypeList,

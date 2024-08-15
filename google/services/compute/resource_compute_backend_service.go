@@ -809,7 +809,6 @@ The possible values are:
                      UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                      equal-weight.
 
-
 This field is applicable to either:
 
 * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
@@ -818,7 +817,6 @@ This field is applicable to either:
 * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
   Load Balancing). Only MAGLEV and WEIGHTED_MAGLEV values are possible for External
   Network Load Balancing. The default is MAGLEV.
-
 
 If session_affinity is not NONE, and this field is not set to MAGLEV, WEIGHTED_MAGLEV,
 or RING_HASH, session affinity settings will not take effect.
@@ -861,7 +859,10 @@ The default value is 1.0.`,
 				Optional: true,
 				Description: `Settings controlling eviction of unhealthy hosts from the load balancing pool.
 Applicable backend service types can be a global backend service with the
-loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.`,
+loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
+
+From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+Default values are enforce by GCP without providing them.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -1040,17 +1041,51 @@ load_balancing_scheme set to INTERNAL_SELF_MANAGED.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"aws_v4_authentication": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The configuration needed to generate a signature for access to private storage buckets that support AWS's Signature Version 4 for authentication.
+Allowed only for INTERNET_IP_PORT and INTERNET_FQDN_PORT NEG backends.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"access_key": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The access key used for s3 bucket authentication.
+Required for updating or creating a backend that uses AWS v4 signature authentication, but will not be returned as part of the configuration when queried with a REST API GET request.`,
+										Sensitive: true,
+									},
+									"access_key_id": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The identifier of an access key used for s3 bucket authentication.`,
+									},
+									"access_key_version": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The optional version identifier for the access key. You can use this to keep track of different iterations of your access key.`,
+									},
+									"origin_region": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The name of the cloud region of your origin. This is a free-form field with the name of the region your cloud uses to host your origin.
+For example, "us-east-1" for AWS or "us-ashburn-1" for OCI.`,
+									},
+								},
+							},
+						},
 						"client_tls_policy": {
 							Type:             schema.TypeString,
-							Required:         true,
-							DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+							Optional:         true,
+							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description: `ClientTlsPolicy is a resource that specifies how a client should authenticate
 connections to backends of a service. This resource itself does not affect
 configuration unless it is attached to a backend service resource.`,
 						},
 						"subject_alt_names": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							Description: `A list of alternate names to verify the subject identity in the certificate.
 If specified, the client will verify that the server certificate's subject
 alt name matches one of the specified values.`,
@@ -1079,8 +1114,10 @@ not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "C
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
-				Description: `How many seconds to wait for the backend before considering it a
-failed request. Default is 30 seconds. Valid range is [1, 86400].`,
+				Description: `The backend service timeout has a different meaning depending on the type of load balancer.
+For more information see, [Backend service settings](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices).
+The default is 30 seconds.
+The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.`,
 			},
 			"creation_timestamp": {
 				Type:        schema.TypeString,
@@ -1149,7 +1186,9 @@ UTILIZATION. Valid values are UTILIZATION, RATE (for HTTP(S))
 and CONNECTION (for TCP/SSL).
 
 See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
-for an explanation of load balancing modes. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
+for an explanation of load balancing modes.
+
+From version 6.0.0 default value will be UTILIZATION to match default GCP value. Default value: "UTILIZATION" Possible values: ["UTILIZATION", "RATE", "CONNECTION"]`,
 				Default: "UTILIZATION",
 			},
 			"capacity_scaler": {
@@ -3151,6 +3190,8 @@ func flattenComputeBackendServiceSecuritySettings(v interface{}, d *schema.Resou
 		flattenComputeBackendServiceSecuritySettingsClientTlsPolicy(original["clientTlsPolicy"], d, config)
 	transformed["subject_alt_names"] =
 		flattenComputeBackendServiceSecuritySettingsSubjectAltNames(original["subjectAltNames"], d, config)
+	transformed["aws_v4_authentication"] =
+		flattenComputeBackendServiceSecuritySettingsAwsV4Authentication(original["awsV4Authentication"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeBackendServiceSecuritySettingsClientTlsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3161,6 +3202,41 @@ func flattenComputeBackendServiceSecuritySettingsClientTlsPolicy(v interface{}, 
 }
 
 func flattenComputeBackendServiceSecuritySettingsSubjectAltNames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceSecuritySettingsAwsV4Authentication(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["access_key_id"] =
+		flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyId(original["accessKeyId"], d, config)
+	transformed["access_key"] =
+		flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKey(original["accessKey"], d, config)
+	transformed["access_key_version"] =
+		flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyVersion(original["accessKeyVersion"], d, config)
+	transformed["origin_region"] =
+		flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationOriginRegion(original["originRegion"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("security_settings.0.aws_v4_authentication.0.access_key")
+}
+
+func flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeBackendServiceSecuritySettingsAwsV4AuthenticationOriginRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -4222,18 +4298,77 @@ func expandComputeBackendServiceSecuritySettings(v interface{}, d tpgresource.Te
 		transformed["subjectAltNames"] = transformedSubjectAltNames
 	}
 
+	transformedAwsV4Authentication, err := expandComputeBackendServiceSecuritySettingsAwsV4Authentication(original["aws_v4_authentication"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAwsV4Authentication); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["awsV4Authentication"] = transformedAwsV4Authentication
+	}
+
 	return transformed, nil
 }
 
 func expandComputeBackendServiceSecuritySettingsClientTlsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	f, err := tpgresource.ParseGlobalFieldValue("regions", v.(string), "project", d, config, true)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid value for client_tls_policy: %s", err)
-	}
-	return f.RelativeLink(), nil
+	return v, nil
 }
 
 func expandComputeBackendServiceSecuritySettingsSubjectAltNames(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsAwsV4Authentication(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedAccessKeyId, err := expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyId(original["access_key_id"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessKeyId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessKeyId"] = transformedAccessKeyId
+	}
+
+	transformedAccessKey, err := expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKey(original["access_key"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["accessKey"] = transformedAccessKey
+	}
+
+	transformedAccessKeyVersion, err := expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyVersion(original["access_key_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAccessKeyVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["accessKeyVersion"] = transformedAccessKeyVersion
+	}
+
+	transformedOriginRegion, err := expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationOriginRegion(original["origin_region"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOriginRegion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["originRegion"] = transformedOriginRegion
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationAccessKeyVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeBackendServiceSecuritySettingsAwsV4AuthenticationOriginRegion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

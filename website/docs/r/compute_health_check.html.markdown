@@ -389,6 +389,21 @@ The following arguments are supported:
   The default value is 5 seconds.  It is invalid for timeoutSec to have
   greater value than checkIntervalSec.
 
+* `source_regions` -
+  (Optional)
+  The list of cloud regions from which health checks are performed. If
+  any regions are specified, then exactly 3 regions should be specified.
+  The region names must be valid names of Google Cloud regions. This can
+  only be set for global health check. If this list is non-empty, then
+  there are restrictions on what other health check fields are supported
+  and what other resources can use this health check:
+  * SSL, HTTP2, and GRPC protocols are not supported.
+  * The TCP request field is not supported.
+  * The proxyHeader field for HTTP, HTTPS, and TCP is not supported.
+  * The checkIntervalSec field must be at least 30.
+  * The health check cannot be used with BackendService nor with managed
+  instance group auto-healing.
+
 * `unhealthy_threshold` -
   (Optional)
   A so-far healthy instance will be marked unhealthy after this many

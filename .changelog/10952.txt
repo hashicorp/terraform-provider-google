@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed perma-diff on `google_compute_disk` for Ubuntu amd64 canonical LTS images
+```

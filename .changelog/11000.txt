@@ -1,0 +1,3 @@
+```release-note:bug
+logging: fixed a permadiff on `index_configs` in `google_logging_organization_bucket_config` resource
+```

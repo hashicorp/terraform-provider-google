@@ -55,6 +55,37 @@ func IsShrinkageIpCidr(_ context.Context, old, new, _ interface{}) bool {
 	return true
 }
 
+func sendSecondaryIpRangeIfEmptyDiff(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
+	// on create, return immediately as we don't need to determine if the value is empty or not
+	if diff.Id() == "" {
+		return nil
+	}
+
+	sendZero := diff.Get("send_secondary_ip_range_if_empty").(bool)
+	if !sendZero {
+		return nil
+	}
+
+	configSecondaryIpRange := diff.GetRawConfig().GetAttr("secondary_ip_range")
+	if !configSecondaryIpRange.IsKnown() {
+		return nil
+	}
+	configValueIsEmpty := configSecondaryIpRange.IsNull() || configSecondaryIpRange.LengthInt() == 0
+
+	stateSecondaryIpRange := diff.GetRawState().GetAttr("secondary_ip_range")
+	if !stateSecondaryIpRange.IsKnown() {
+		return nil
+	}
+	stateValueIsEmpty := stateSecondaryIpRange.IsNull() || stateSecondaryIpRange.LengthInt() == 0
+
+	if configValueIsEmpty && !stateValueIsEmpty {
+		log.Printf("[DEBUG] setting secondary_ip_range to newly empty")
+		diff.SetNew("secondary_ip_range", make([]interface{}, 0))
+	}
+
+	return nil
+}
+
 func ResourceComputeSubnetwork() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeSubnetworkCreate,
@@ -75,6 +106,7 @@ func ResourceComputeSubnetwork() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			resourceComputeSubnetworkSecondaryIpRangeSetStyleDiff,
 			customdiff.ForceNewIfChange("ip_cidr_range", IsShrinkageIpCidr),
+			sendSecondaryIpRangeIfEmptyDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -251,10 +283,8 @@ to the primary ipCidrRange of the subnetwork. The alias IPs may belong
 to either primary or secondary ranges.
 
 **Note**: This field uses [attr-as-block mode](https://www.terraform.io/docs/configuration/attr-as-blocks.html) to avoid
-breaking users during the 0.12 upgrade. To explicitly send a list
-of zero objects you must use the following syntax:
-'example=[]'
-For more details about this behavior, see [this section](https://www.terraform.io/docs/configuration/attr-as-blocks.html#defining-a-fixed-object-collection-value).`,
+breaking users during the 0.12 upgrade. To explicitly send a list of zero objects,
+set 'send_secondary_ip_range_if_empty = true'`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"ip_cidr_range": {
@@ -306,6 +336,16 @@ outside this subnetwork.`,
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The range of internal IPv6 addresses that are owned by this subnetwork.`,
+			},
+			"send_secondary_ip_range_if_empty": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Controls the removal behavior of secondary_ip_range.
+When false, removing secondary_ip_range from config will not produce a diff as
+the provider will default to the API's value.
+When true, the provider will treat removing secondary_ip_range as sending an
+empty list of secondary IP ranges to the API.
+Defaults to false.`,
 			},
 			"fingerprint": {
 				Type:        schema.TypeString,
@@ -557,6 +597,7 @@ func resourceComputeSubnetworkRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Subnetwork: %s", err)
 	}
@@ -1016,6 +1057,78 @@ func resourceComputeSubnetworkUpdate(d *schema.ResourceData, meta interface{}) e
 
 	d.Partial(false)
 
+	if v, ok := d.GetOk("send_secondary_ip_range_if_empty"); ok && v.(bool) {
+		if sv, ok := d.GetOk("secondary_ip_range"); ok {
+			configValue := d.GetRawConfig().GetAttr("secondary_ip_range")
+			stateValue := sv.([]interface{})
+			if configValue.LengthInt() == 0 && len(stateValue) != 0 {
+				log.Printf("[DEBUG] Sending empty secondary_ip_range in update")
+				obj := make(map[string]interface{})
+				obj["secondaryIpRanges"] = make([]interface{}, 0)
+
+				// The rest is the same as the secondary_ip_range generated update code
+				// without the secondaryIpRangesProp logic
+
+				getUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+				if err != nil {
+					return err
+				}
+
+				// err == nil indicates that the billing_project value was found
+				if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+					billingProject = bp
+				}
+
+				getRes, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "GET",
+					Project:   billingProject,
+					RawURL:    getUrl,
+					UserAgent: userAgent,
+				})
+				if err != nil {
+					return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeSubnetwork %q", d.Id()))
+				}
+
+				obj["fingerprint"] = getRes["fingerprint"]
+
+				url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/subnetworks/{{name}}")
+				if err != nil {
+					return err
+				}
+
+				headers := make(http.Header)
+
+				// err == nil indicates that the billing_project value was found
+				if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+					billingProject = bp
+				}
+
+				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+					Config:    config,
+					Method:    "PATCH",
+					Project:   billingProject,
+					RawURL:    url,
+					UserAgent: userAgent,
+					Body:      obj,
+					Timeout:   d.Timeout(schema.TimeoutUpdate),
+					Headers:   headers,
+				})
+				if err != nil {
+					return fmt.Errorf("Error updating Subnetwork %q: %s", d.Id(), err)
+				} else {
+					log.Printf("[DEBUG] Finished updating Subnetwork %q: %#v", d.Id(), res)
+				}
+
+				err = ComputeOperationWaitTime(
+					config, res, project, "Updating Subnetwork", userAgent,
+					d.Timeout(schema.TimeoutUpdate))
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return resourceComputeSubnetworkRead(d, meta)
 }
 
@@ -1092,6 +1205,8 @@ func resourceComputeSubnetworkImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }

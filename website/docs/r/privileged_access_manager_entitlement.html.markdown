@@ -21,8 +21,6 @@ description: |-
 
 An Entitlement defines the eligibility of a set of users to obtain a predefined access for some time possibly after going through an approval workflow.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 
 ## Example Usage - Privileged Access Manager Entitlement Basic
@@ -30,7 +28,6 @@ See [Provider Versions](https://terraform.io/docs/providers/google/guides/provid
 
 ```hcl
 resource "google_privileged_access_manager_entitlement" "tfentitlement" {
-    provider =  google-beta
     entitlement_id = "example-entitlement"
     location = "global"
     max_request_duration = "43200s"
@@ -39,7 +36,9 @@ resource "google_privileged_access_manager_entitlement" "tfentitlement" {
         unstructured{}
     }
     eligible_users {
-        principals = ["group:test@google.com"]
+        principals = [
+          "group:test@google.com"
+        ]
     }
     privileged_access{
         gcp_iam_access{
@@ -52,17 +51,25 @@ resource "google_privileged_access_manager_entitlement" "tfentitlement" {
         }
     }
     additional_notification_targets {
-    admin_email_recipients     = ["user@example.com"]
-    requester_email_recipients = ["user@example.com"]
+      admin_email_recipients     = [
+        "user@example.com",
+      ]
+      requester_email_recipients = [
+        "user@example.com"
+      ]
     }
     approval_workflow {
     manual_approvals {
       require_approver_justification = true
       steps {
         approvals_needed          = 1
-        approver_email_recipients = ["user@example.com"]
+        approver_email_recipients = [
+          "user@example.com"
+        ]
         approvers {
-          principals = ["group:test@google.com"]
+          principals = [
+            "group:test@google.com"
+          ]
         }
       }
     }

@@ -202,6 +202,141 @@ resource "google_compute_router_peer" "peer" {
   }
 ```
 
+## Example Usage - Router peer export and import policies
+
+```hcl
+  resource "google_compute_network" "network" {
+  provider = google-beta
+  name = "my-router-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  provider = google-beta
+  name          = "my-router-subnet"
+  network       = google_compute_network.network.self_link
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+}
+
+resource "google_compute_address" "address" {
+  provider = google-beta
+  name   = "my-router"
+  region = google_compute_subnetwork.subnetwork.region
+}
+
+resource "google_compute_ha_vpn_gateway" "vpn_gateway" {
+  provider = google-beta
+  name    = "my-router-gateway"
+  network = google_compute_network.network.self_link
+  region  = google_compute_subnetwork.subnetwork.region
+}
+
+resource "google_compute_external_vpn_gateway" "external_gateway" {
+  provider = google-beta
+  name            = "my-router-external-gateway"
+  redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
+  description     = "An externally managed VPN gateway"
+  interface {
+    id         = 0
+    ip_address = "8.8.8.8"
+  }
+}
+
+resource "google_compute_router" "router" {
+  provider = google-beta
+  name    = "my-router"
+  region  = google_compute_subnetwork.subnetwork.region
+  network = google_compute_network.network.self_link
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_vpn_tunnel" "vpn_tunnel" {
+  provider = google-beta
+  name               = "my-router"
+  region             = google_compute_subnetwork.subnetwork.region
+  vpn_gateway = google_compute_ha_vpn_gateway.vpn_gateway.id
+  peer_external_gateway           = google_compute_external_vpn_gateway.external_gateway.id
+  peer_external_gateway_interface = 0  
+  shared_secret      = "unguessable"
+  router             = google_compute_router.router.name
+  vpn_gateway_interface           = 0
+}
+
+resource "google_compute_router_interface" "router_interface" {
+  provider = google-beta
+  name       = "my-router"
+  router     = google_compute_router.router.name
+  region     = google_compute_router.router.region
+  vpn_tunnel = google_compute_vpn_tunnel.vpn_tunnel.name
+}
+
+resource "google_compute_router_route_policy" "rp-export" {
+  provider = google-beta
+	name = "my-router-rp-export"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+  type = "ROUTE_POLICY_TYPE_EXPORT"
+	terms {
+    priority = 2
+    match {
+      expression = "destination == '10.0.0.0/12'"
+      title      = "export_expression"
+      description = "acceptance expression for export"
+    }
+    actions {
+      expression = "accept()"
+    }
+  }
+  depends_on = [
+    google_compute_router_interface.router_interface
+  ]
+}
+
+resource "google_compute_router_route_policy" "rp-import" {
+  provider = google-beta
+  name = "my-router-rp-import"
+  router = google_compute_router.router.name
+  region = google_compute_router.router.region
+	type = "ROUTE_POLICY_TYPE_IMPORT"
+  terms {
+    priority = 1
+    match {
+      expression = "destination == '10.0.0.0/12'"
+      title      = "import_expression"
+      description = "acceptance expression for import"
+	  }
+    actions {
+      expression = "accept()"
+    }
+  }
+  depends_on = [
+    google_compute_router_interface.router_interface, google_compute_router_route_policy.rp-export
+  ]
+}
+
+resource "google_compute_router_peer" "router_peer" {
+  provider = google-beta
+  name                      = "my-router-peer"
+  router                    = google_compute_router.router.name
+  region                    = google_compute_router.router.region
+  peer_asn                  = 65515
+  advertised_route_priority = 100
+  interface                 = google_compute_router_interface.router_interface.name
+  md5_authentication_key {
+    name = "my-router-peer-key"
+    key = "my-router-peer-key-value"
+  }
+  import_policies           = [google_compute_router_route_policy.rp-import.name]
+  export_policies           = [google_compute_router_route_policy.rp-export.name]
+  depends_on = [
+    google_compute_router_route_policy.rp-export, google_compute_router_route_policy.rp-import, google_compute_router_interface.router_interface
+  ]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -326,6 +461,16 @@ The following arguments are supported:
 * `peer_ipv4_nexthop_address` -
   (Optional)
   IPv4 address of the BGP interface outside Google Cloud Platform.
+
+*  `export_policies` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) 
+  routers.list of export policies applied to this peer, in the order they must be evaluated. 
+  The name must correspond to an existing policy that has ROUTE_POLICY_TYPE_EXPORT type.
+
+*  `import_policies` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html)) 
+  routers.list of import policies applied to this peer, in the order they must be evaluated. 
+  The name must correspond to an existing policy that has ROUTE_POLICY_TYPE_IMPORT type.
 
 * `region` -
   (Optional)

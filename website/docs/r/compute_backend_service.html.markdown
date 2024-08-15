@@ -35,7 +35,7 @@ To get more information about BackendService, see:
     * [Official Documentation](https://cloud.google.com/compute/docs/load-balancing/http/backend-service)
 
 ~> **Warning:** All arguments including the following potentially sensitive
-values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`.
+values will be stored in the raw state as plain text: `iap.oauth2_client_secret`, `iap.oauth2_client_secret_sha256`, `security_settings.aws_v4_authentication.access_key`.
 [Read more about sensitive data in state](https://www.terraform.io/language/state/sensitive-data).
 
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -491,7 +491,6 @@ The following arguments are supported:
                        instance either reported a valid weight or had
                        UNAVAILABLE_WEIGHT. Otherwise, Load Balancing remains
                        equal-weight.
-
   This field is applicable to either:
   * A regional backend service with the service_protocol set to HTTP, HTTPS, or HTTP2,
     and loadBalancingScheme set to INTERNAL_MANAGED.
@@ -499,7 +498,6 @@ The following arguments are supported:
   * A regional backend service with loadBalancingScheme set to EXTERNAL (External Network
     Load Balancing). Only MAGLEV and WEIGHTED_MAGLEV values are possible for External
     Network Load Balancing. The default is MAGLEV.
-
   If session_affinity is not NONE, and this field is not set to MAGLEV, WEIGHTED_MAGLEV,
   or RING_HASH, session affinity settings will not take effect.
   Only ROUND_ROBIN and RING_HASH are supported when the backend service is referenced
@@ -522,6 +520,8 @@ The following arguments are supported:
   Settings controlling eviction of unhealthy hosts from the load balancing pool.
   Applicable backend service types can be a global backend service with the
   loadBalancingScheme set to INTERNAL_SELF_MANAGED or EXTERNAL_MANAGED.
+  From version 6.0.0 outlierDetection default terraform values will be removed to match default GCP value.
+  Default values are enforce by GCP without providing them.
   Structure is [documented below](#nested_outlier_detection).
 
 * `port_name` -
@@ -563,8 +563,10 @@ The following arguments are supported:
 
 * `timeout_sec` -
   (Optional)
-  How many seconds to wait for the backend before considering it a
-  failed request. Default is 30 seconds. Valid range is [1, 86400].
+  The backend service timeout has a different meaning depending on the type of load balancer.
+  For more information see, [Backend service settings](https://cloud.google.com/compute/docs/reference/rest/v1/backendServices).
+  The default is 30 seconds.
+  The full range of timeout values allowed goes from 1 through 2,147,483,647 seconds.
 
 * `log_config` -
   (Optional)
@@ -591,6 +593,7 @@ The following arguments are supported:
   and CONNECTION (for TCP/SSL).
   See the [Backend Services Overview](https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode)
   for an explanation of load balancing modes.
+  From version 6.0.0 default value will be UTILIZATION to match default GCP value.
   Default value is `UTILIZATION`.
   Possible values are: `UTILIZATION`, `RATE`, `CONNECTION`.
 
@@ -1086,16 +1089,44 @@ The following arguments are supported:
 <a name="nested_security_settings"></a>The `security_settings` block supports:
 
 * `client_tls_policy` -
-  (Required)
+  (Optional)
   ClientTlsPolicy is a resource that specifies how a client should authenticate
   connections to backends of a service. This resource itself does not affect
   configuration unless it is attached to a backend service resource.
 
 * `subject_alt_names` -
-  (Required)
+  (Optional)
   A list of alternate names to verify the subject identity in the certificate.
   If specified, the client will verify that the server certificate's subject
   alt name matches one of the specified values.
+
+* `aws_v4_authentication` -
+  (Optional)
+  The configuration needed to generate a signature for access to private storage buckets that support AWS's Signature Version 4 for authentication.
+  Allowed only for INTERNET_IP_PORT and INTERNET_FQDN_PORT NEG backends.
+  Structure is [documented below](#nested_aws_v4_authentication).
+
+
+<a name="nested_aws_v4_authentication"></a>The `aws_v4_authentication` block supports:
+
+* `access_key_id` -
+  (Optional)
+  The identifier of an access key used for s3 bucket authentication.
+
+* `access_key` -
+  (Optional)
+  The access key used for s3 bucket authentication.
+  Required for updating or creating a backend that uses AWS v4 signature authentication, but will not be returned as part of the configuration when queried with a REST API GET request.
+  **Note**: This property is sensitive and will not be displayed in the plan.
+
+* `access_key_version` -
+  (Optional)
+  The optional version identifier for the access key. You can use this to keep track of different iterations of your access key.
+
+* `origin_region` -
+  (Optional)
+  The name of the cloud region of your origin. This is a free-form field with the name of the region your cloud uses to host your origin.
+  For example, "us-east-1" for AWS or "us-ashburn-1" for OCI.
 
 <a name="nested_log_config"></a>The `log_config` block supports:
 

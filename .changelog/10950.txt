@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `description` field in `google_compute_firewall` to support empty/null values on update
+```

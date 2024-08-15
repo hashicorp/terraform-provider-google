@@ -1,0 +1,3 @@
+```release-note:none
+managedkafka: fix subnet documentation (beta) (no release note for documentation-only changes)
+```

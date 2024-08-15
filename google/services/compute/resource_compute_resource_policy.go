@@ -36,6 +36,7 @@ func ResourceComputeResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeResourcePolicyCreate,
 		Read:   resourceComputeResourcePolicyRead,
+		Update: resourceComputeResourcePolicyUpdate,
 		Delete: resourceComputeResourcePolicyDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -44,6 +45,7 @@ func ResourceComputeResourcePolicy() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -56,7 +58,6 @@ func ResourceComputeResourcePolicy() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: `The name of the resource, provided by the client when initially creating
 the resource. The resource name must be 1-63 characters long, and comply
 with RFC1035. Specifically, the name must be 1-63 characters long and
@@ -68,13 +69,11 @@ which cannot be a dash.`,
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `An optional description of this resource. Provide this property when you create the resource.`,
 			},
 			"disk_consistency_group_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Replication consistency group for asynchronous disk replication.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -92,7 +91,6 @@ which cannot be a dash.`,
 			"group_placement_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Resource policy for instances used for placement configuration.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -100,14 +98,12 @@ which cannot be a dash.`,
 						"availability_domain_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 							Description: `The number of availability domains instances will be spread across. If two instances are in different
 availability domain, they will not be put in the same low latency network`,
 						},
 						"collocation": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"COLLOCATED", ""}),
 							Description: `Collocation specifies whether to place VMs inside the same availability domain on the same low-latency network.
 Specify 'COLLOCATED' to enable collocation. Can only be specified with 'vm_count'. If compute instances are created
@@ -117,7 +113,6 @@ attached. Possible values: ["COLLOCATED"]`,
 						"vm_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
 							Description: `Number of VMs in this placement group. Google does not recommend that you use this field
 unless you use a compact policy and you want your policy to work only if it contains this
 exact number of VMs.`,
@@ -129,7 +124,6 @@ exact number of VMs.`,
 			"instance_schedule_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Resource policy for scheduling instance operations.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -137,26 +131,22 @@ exact number of VMs.`,
 						"time_zone": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							Description: `Specifies the time zone to be used in interpreting the schedule. The value of this field must be a time zone name
 from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 						},
 						"expiration_time": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The expiration time of the schedule. The timestamp is an RFC3339 string.`,
 						},
 						"start_time": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `The start time of the schedule. The timestamp is an RFC3339 string.`,
 						},
 						"vm_start_schedule": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Specifies the schedule for starting instances.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -164,7 +154,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 									"schedule": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `Specifies the frequency for the operation, using the unix-cron format.`,
 									},
 								},
@@ -174,7 +163,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 						"vm_stop_schedule": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Specifies the schedule for stopping instances.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -182,7 +170,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 									"schedule": {
 										Type:        schema.TypeString,
 										Required:    true,
-										ForceNew:    true,
 										Description: `Specifies the frequency for the operation, using the unix-cron format.`,
 									},
 								},
@@ -204,7 +191,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 			"snapshot_schedule_policy": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Policy for creating snapshots of persistent disks.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
@@ -212,7 +198,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 						"schedule": {
 							Type:        schema.TypeList,
 							Required:    true,
-							ForceNew:    true,
 							Description: `Contains one of an 'hourlySchedule', 'dailySchedule', or 'weeklySchedule'.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -220,7 +205,6 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 									"daily_schedule": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `The policy will execute every nth day at the specified time.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -228,13 +212,11 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 												"days_in_cycle": {
 													Type:        schema.TypeInt,
 													Required:    true,
-													ForceNew:    true,
 													Description: `Defines a schedule with units measured in days. The value determines how many days pass between the start of each cycle. Days in cycle for snapshot schedule policy must be 1.`,
 												},
 												"start_time": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ForceNew:     true,
 													ValidateFunc: verify.ValidateHourlyOnly,
 													Description: `This must be in UTC format that resolves to one of
 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example,
@@ -247,7 +229,6 @@ both 13:00-5 and 08:00 are valid.`,
 									"hourly_schedule": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `The policy will execute every nth hour starting at the specified time.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -255,18 +236,15 @@ both 13:00-5 and 08:00 are valid.`,
 												"hours_in_cycle": {
 													Type:        schema.TypeInt,
 													Required:    true,
-													ForceNew:    true,
 													Description: `The number of hours between snapshots.`,
 												},
 												"start_time": {
 													Type:         schema.TypeString,
 													Required:     true,
-													ForceNew:     true,
 													ValidateFunc: verify.ValidateHourlyOnly,
 													Description: `Time within the window to start the operations.
 It must be in an hourly format "HH:MM",
-where HH : [00-23] and MM : [00] GMT.
-eg: 21:00`,
+where HH : [00-23] and MM : [00] GMT. eg: 21:00`,
 												},
 											},
 										},
@@ -275,7 +253,6 @@ eg: 21:00`,
 									"weekly_schedule": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										ForceNew:    true,
 										Description: `Allows specifying a snapshot time for each day of the week.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -283,7 +260,6 @@ eg: 21:00`,
 												"day_of_weeks": {
 													Type:        schema.TypeSet,
 													Required:    true,
-													ForceNew:    true,
 													Description: `May contain up to seven (one for each day of the week) snapshot times.`,
 													MinItems:    1,
 													MaxItems:    7,
@@ -300,7 +276,6 @@ eg: 21:00`,
 						"retention_policy": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Retention policy applied to snapshots created by this resource policy.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -308,13 +283,11 @@ eg: 21:00`,
 									"max_retention_days": {
 										Type:        schema.TypeInt,
 										Required:    true,
-										ForceNew:    true,
 										Description: `Maximum age of the snapshot that is allowed to be kept.`,
 									},
 									"on_source_disk_delete": {
 										Type:         schema.TypeString,
 										Optional:     true,
-										ForceNew:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY", ""}),
 										Description: `Specifies the behavior to apply to scheduled snapshots when
 the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values: ["KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY"]`,
@@ -326,7 +299,6 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 						"snapshot_properties": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							ForceNew:    true,
 							Description: `Properties with which the snapshots are created, such as labels.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -334,7 +306,6 @@ the source disk is deleted. Default value: "KEEP_AUTO_SNAPSHOTS" Possible values
 									"chain_name": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 										Description: `Creates the new snapshot in the snapshot chain labeled with the
 specified name. The chain name must be 1-63 characters long and comply
 with RFC1035.`,
@@ -342,14 +313,12 @@ with RFC1035.`,
 									"guest_flush": {
 										Type:         schema.TypeBool,
 										Optional:     true,
-										ForceNew:     true,
 										Description:  `Whether to perform a 'guest aware' snapshot.`,
 										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
 									},
 									"labels": {
 										Type:         schema.TypeMap,
 										Optional:     true,
-										ForceNew:     true,
 										Description:  `A set of key-value pairs.`,
 										Elem:         &schema.Schema{Type: schema.TypeString},
 										AtLeastOneOf: []string{"snapshot_schedule_policy.0.snapshot_properties.0.labels", "snapshot_schedule_policy.0.snapshot_properties.0.storage_locations", "snapshot_schedule_policy.0.snapshot_properties.0.guest_flush"},
@@ -357,7 +326,6 @@ with RFC1035.`,
 									"storage_locations": {
 										Type:     schema.TypeSet,
 										Optional: true,
-										ForceNew: true,
 										Description: `Cloud Storage bucket location to store the auto snapshot
 (regional or multi-regional)`,
 										MaxItems: 1,
@@ -395,14 +363,12 @@ func computeResourcePolicySnapshotSchedulePolicyScheduleWeeklyScheduleDayOfWeeks
 			"day": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}),
 				Description:  `The day of the week to create the snapshot. e.g. MONDAY Possible values: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]`,
 			},
 			"start_time": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				Description: `Time within the window to start the operations.
 It must be in format "HH:MM", where HH : [00-23] and MM : [00-00] GMT.`,
 			},
@@ -590,6 +556,100 @@ func resourceComputeResourcePolicyRead(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func resourceComputeResourcePolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	project, err := tpgresource.GetProject(d, config)
+	if err != nil {
+		return fmt.Errorf("Error fetching project for ResourcePolicy: %s", err)
+	}
+	billingProject = project
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandComputeResourcePolicyName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+	descriptionProp, err := expandComputeResourcePolicyDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
+	snapshotSchedulePolicyProp, err := expandComputeResourcePolicySnapshotSchedulePolicy(d.Get("snapshot_schedule_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("snapshot_schedule_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, snapshotSchedulePolicyProp)) {
+		obj["snapshotSchedulePolicy"] = snapshotSchedulePolicyProp
+	}
+	groupPlacementPolicyProp, err := expandComputeResourcePolicyGroupPlacementPolicy(d.Get("group_placement_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("group_placement_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, groupPlacementPolicyProp)) {
+		obj["groupPlacementPolicy"] = groupPlacementPolicyProp
+	}
+	instanceSchedulePolicyProp, err := expandComputeResourcePolicyInstanceSchedulePolicy(d.Get("instance_schedule_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance_schedule_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, instanceSchedulePolicyProp)) {
+		obj["instanceSchedulePolicy"] = instanceSchedulePolicyProp
+	}
+	diskConsistencyGroupPolicyProp, err := expandComputeResourcePolicyDiskConsistencyGroupPolicy(d.Get("disk_consistency_group_policy"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("disk_consistency_group_policy"); ok || !reflect.DeepEqual(v, diskConsistencyGroupPolicyProp) {
+		obj["diskConsistencyGroupPolicy"] = diskConsistencyGroupPolicyProp
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/regions/{{region}}/resourcePolicies/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating ResourcePolicy %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body:      obj,
+		Timeout:   d.Timeout(schema.TimeoutUpdate),
+		Headers:   headers,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error updating ResourcePolicy %q: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] Finished updating ResourcePolicy %q: %#v", d.Id(), res)
+	}
+
+	err = ComputeOperationWaitTime(
+		config, res, project, "Updating ResourcePolicy", userAgent,
+		d.Timeout(schema.TimeoutUpdate))
+
+	if err != nil {
+		return err
+	}
+
+	return resourceComputeResourcePolicyRead(d, meta)
 }
 
 func resourceComputeResourcePolicyDelete(d *schema.ResourceData, meta interface{}) error {

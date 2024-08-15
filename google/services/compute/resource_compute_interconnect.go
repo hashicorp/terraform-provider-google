@@ -32,6 +32,10 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+func InterconnectTypeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return old == "IT_PRIVATE" && new == "DEDICATED"
+}
+
 func ResourceComputeInterconnect() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeInterconnectCreate,
@@ -63,10 +67,11 @@ func ResourceComputeInterconnect() *schema.Resource {
 crossconnect.`,
 			},
 			"interconnect_type": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"DEDICATED", "PARTNER", "IT_PRIVATE"}),
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				ValidateFunc:     verify.ValidateEnum([]string{"DEDICATED", "PARTNER", "IT_PRIVATE"}),
+				DiffSuppressFunc: InterconnectTypeDiffSuppress,
 				Description: `Type of interconnect. Note that a value IT_PRIVATE has been deprecated in favor of DEDICATED.
 Can take one of the following values:
   - PARTNER: A partner-managed interconnection shared between customers though a partner.
@@ -372,7 +377,7 @@ otherwise the request will fail with error 412 conditionNotMet.`,
 			"operational_status": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Description: `The current status of this Interconnect's functionality, which can take one of the following values:
+				Description: `The current status of this Interconnect's functionality, which can take one of the following:
   - OS_ACTIVE: A valid Interconnect, which is turned up and is ready to use. Attachments may
   be provisioned on this Interconnect.
   - OS_UNPROVISIONED: An Interconnect that has not completed turnup. No attachments may be

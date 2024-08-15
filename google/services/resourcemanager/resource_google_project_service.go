@@ -258,7 +258,8 @@ func resourceGoogleProjectServiceDelete(d *schema.ResourceData, meta interface{}
 
 	service := d.Get("service").(string)
 	disableDependencies := d.Get("disable_dependent_services").(bool)
-	if err = disableServiceUsageProjectService(service, project, d, config, disableDependencies); err != nil {
+	err = disableServiceUsageProjectService(service, project, d, config, disableDependencies)
+	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("Project Service %s", d.Id()))
 	}
 

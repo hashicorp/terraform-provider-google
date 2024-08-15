@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_kms_crypto_keys`
+```

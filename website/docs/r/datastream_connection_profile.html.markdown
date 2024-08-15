@@ -251,7 +251,6 @@ resource "google_datastream_connection_profile" "default" {
 
 ```hcl
 resource "google_sql_database_instance" "instance" {
-	provider            = google-beta
     name                = "sql-server"
     database_version    = "SQLSERVER_2019_STANDARD"
     region              = "us-central1"
@@ -287,20 +286,17 @@ resource "google_sql_database_instance" "instance" {
 }
 
 resource "google_sql_database" "db" {
-	provider   = google-beta
     name       = "db"
     instance   = google_sql_database_instance.instance.name
 }
 
 resource "google_sql_user" "user" {
-    provider = google-beta
     name     = "user"
     instance = google_sql_database_instance.instance.name
     password = "password"
 }
 
 resource "google_datastream_connection_profile" "default" {
-    provider              = google-beta
     display_name          = "SQL Server Source"
     location              = "us-central1"
     connection_profile_id = "source-profile"
@@ -367,7 +363,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_postgresql_profile).
 
 * `sql_server_profile` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   SQL Server database profile.
   Structure is [documented below](#nested_sql_server_profile).
 

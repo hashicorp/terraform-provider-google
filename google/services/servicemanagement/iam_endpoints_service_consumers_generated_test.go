@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -33,8 +33,8 @@ func TestAccServiceManagementServiceConsumersIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     envvar.GetTestProjectFromEnv(),
 		"consumer_project": envvar.GetTestProjectFromEnv(),
+		"project_name":     envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -70,8 +70,8 @@ func TestAccServiceManagementServiceConsumersIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     envvar.GetTestProjectFromEnv(),
 		"consumer_project": envvar.GetTestProjectFromEnv(),
+		"project_name":     envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -98,8 +98,8 @@ func TestAccServiceManagementServiceConsumersIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix":    acctest.RandString(t, 10),
 		"role":             "roles/servicemanagement.serviceController",
-		"project_name":     envvar.GetTestProjectFromEnv(),
 		"consumer_project": envvar.GetTestProjectFromEnv(),
+		"project_name":     envvar.GetTestProjectFromEnv(),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -54,7 +54,7 @@ func ResourceAccessContextManagerAccessPolicy() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Description: `The parent of this AccessPolicy in the Cloud Resource Hierarchy.
-Format: organizations/{organization_id}`,
+Format: 'organizations/{{organization_id}}'`,
 			},
 			"title": {
 				Type:        schema.TypeString,
@@ -65,7 +65,7 @@ Format: organizations/{organization_id}`,
 				Type:     schema.TypeList,
 				Optional: true,
 				Description: `Folder or project on which this policy is applicable.
-Format: folders/{{folder_id}} or projects/{{project_id}}`,
+Format: 'folders/{{folder_id}}' or 'projects/{{project_number}}'`,
 				MaxItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -79,7 +79,7 @@ Format: folders/{{folder_id}} or projects/{{project_id}}`,
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Resource name of the AccessPolicy. Format: {policy_id}`,
+				Description: `Resource name of the AccessPolicy. Format: '{{policy_id}}'`,
 			},
 			"update_time": {
 				Type:        schema.TypeString,
