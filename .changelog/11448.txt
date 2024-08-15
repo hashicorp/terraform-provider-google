@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: changed the behavior of `name_prefix` in multiple Compute resources to allow for a longer max length of 54 characters. See the upgrade guide and resource documentation for more details.
+```
