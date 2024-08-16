@@ -1,8 +1,5 @@
 ## 5.42.0 (Unreleased)
 
-UNKNOWN CHANGELOG TYPE:
-*  ([#19102](https://github.com/hashicorp/terraform-provider-google/pull/19102))
-
 DEPRECATIONS:
 * compute: setting `google_compute_subnetwork.secondary_ip_range = []` to explicitly set a list of empty objects is deprecated and will produce an error in the upcoming major release. Use `send_secondary_ip_range_if_empty` while removing `secondary_ip_range` from config instead. ([#19122](https://github.com/hashicorp/terraform-provider-google/pull/19122))
 
@@ -19,7 +16,7 @@ IMPROVEMENTS:
 * compute: added `send_secondary_ip_range_if_empty` to `google_compute_subnetwork` ([#19122](https://github.com/hashicorp/terraform-provider-google/pull/19122))
 * discoveryengine: added `skip_default_schema_creation` field to `google_data_store` resource ([#19017](https://github.com/hashicorp/terraform-provider-google/pull/19017))
 * dns: changed `load_balancer_type` field from required to optional in `google_dns_record_set` ([#19050](https://github.com/hashicorp/terraform-provider-google/pull/19050))
-* firestore: added `cmek_config` field to `google_firestore_database` resource (GA) ([#19107](https://github.com/hashicorp/terraform-provider-google/pull/19107))
+* firestore: added `cmek_config` field to `google_firestore_database` resource ([#19107](https://github.com/hashicorp/terraform-provider-google/pull/19107))
 * logging: changed enable_analytics parsing to "no preference" in analytics if omitted, instead of explicitly disabling analytics. ([#19126](https://github.com/hashicorp/terraform-provider-google/pull/19126))
 * servicenetworking: added `update_on_creation_fail` field to `google_service_networking_connection` resource. When it is set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure. ([#19035](https://github.com/hashicorp/terraform-provider-google/pull/19035))
 * sql: added `server_ca_mode` field to `google_sql_database_instance` resource ([#18998](https://github.com/hashicorp/terraform-provider-google/pull/18998))
