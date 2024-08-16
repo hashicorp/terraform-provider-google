@@ -95,6 +95,14 @@ projects/{network_project_id_or_number}/global/networks/{network_id}.`,
 				Description:  `Optional. The authorization mode of the Redis cluster. If not provided, auth feature is disabled for the cluster. Default value: "AUTH_MODE_DISABLED" Possible values: ["AUTH_MODE_UNSPECIFIED", "AUTH_MODE_IAM_AUTH", "AUTH_MODE_DISABLED"]`,
 				Default:      "AUTH_MODE_DISABLED",
 			},
+			"deletion_protection_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Optional. Indicates if the cluster is deletion protected or not.
+If the value if set to true, any delete cluster operation will fail.
+Default value is true.`,
+				Default: true,
+			},
 			"node_type": {
 				Type:         schema.TypeString,
 				Computed:     true,
@@ -347,6 +355,12 @@ func resourceRedisClusterCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("shard_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(shardCountProp)) && (ok || !reflect.DeepEqual(v, shardCountProp)) {
 		obj["shardCount"] = shardCountProp
 	}
+	deletionProtectionEnabledProp, err := expandRedisClusterDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(deletionProtectionEnabledProp)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
+		obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
+	}
 	redisConfigsProp, err := expandRedisClusterRedisConfigs(d.Get("redis_configs"), d, config)
 	if err != nil {
 		return err
@@ -502,6 +516,9 @@ func resourceRedisClusterRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("shard_count", flattenRedisClusterShardCount(res["shardCount"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("deletion_protection_enabled", flattenRedisClusterDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("redis_configs", flattenRedisClusterRedisConfigs(res["redisConfigs"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -543,6 +560,12 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("shard_count"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shardCountProp)) {
 		obj["shardCount"] = shardCountProp
 	}
+	deletionProtectionEnabledProp, err := expandRedisClusterDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
+		obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
+	}
 	redisConfigsProp, err := expandRedisClusterRedisConfigs(d.Get("redis_configs"), d, config)
 	if err != nil {
 		return err
@@ -569,6 +592,10 @@ func resourceRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("shard_count") {
 		updateMask = append(updateMask, "shardCount")
+	}
+
+	if d.HasChange("deletion_protection_enabled") {
+		updateMask = append(updateMask, "deletionProtectionEnabled")
 	}
 
 	if d.HasChange("redis_configs") {
@@ -958,6 +985,10 @@ func flattenRedisClusterShardCount(v interface{}, d *schema.ResourceData, config
 	return v // let terraform core handle it otherwise
 }
 
+func flattenRedisClusterDeletionProtectionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenRedisClusterRedisConfigs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1039,6 +1070,10 @@ func expandRedisClusterReplicaCount(v interface{}, d tpgresource.TerraformResour
 }
 
 func expandRedisClusterShardCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandRedisClusterDeletionProtectionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
