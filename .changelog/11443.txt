@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a malformed URL that affected updating the `server_tls_policy` property on `google_compute_target_https_proxy` resources
+```
