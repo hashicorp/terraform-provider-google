@@ -33,11 +33,12 @@ type GoogleClientConfigDataSource struct {
 type GoogleClientConfigModel struct {
 	// Id could/should be removed in future as it's not necessary in the plugin framework
 	// https://github.com/hashicorp/terraform-plugin-testing/issues/84
-	Id          types.String `tfsdk:"id"`
-	Project     types.String `tfsdk:"project"`
-	Region      types.String `tfsdk:"region"`
-	Zone        types.String `tfsdk:"zone"`
-	AccessToken types.String `tfsdk:"access_token"`
+	Id            types.String `tfsdk:"id"`
+	Project       types.String `tfsdk:"project"`
+	Region        types.String `tfsdk:"region"`
+	Zone          types.String `tfsdk:"zone"`
+	AccessToken   types.String `tfsdk:"access_token"`
+	DefaultLabels types.Map    `tfsdk:"default_labels"`
 }
 
 func (m *GoogleClientConfigModel) GetLocationDescription(providerConfig *fwtransport.FrameworkProviderConfig) fwresource.LocationDescription {
@@ -88,6 +89,12 @@ func (d *GoogleClientConfigDataSource) Schema(ctx context.Context, req datasourc
 				Computed:            true,
 				Sensitive:           true,
 			},
+			"default_labels": schema.MapAttribute{
+				Description:         "The default labels configured on the provider.",
+				MarkdownDescription: "The default labels configured on the provider.",
+				Computed:            true,
+				ElementType:         types.StringType,
+			},
 		},
 	}
 }
@@ -136,6 +143,7 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 	data.Project = d.providerConfig.Project
 	data.Region = region
 	data.Zone = zone
+	data.DefaultLabels = d.providerConfig.DefaultLabels
 
 	token, err := d.providerConfig.TokenSource.Token()
 	if err != nil {
