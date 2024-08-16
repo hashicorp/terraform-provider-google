@@ -49,12 +49,22 @@ func ResourceStorageBucket() *schema.Resource {
 			Read:   schema.DefaultTimeout(4 * time.Minute),
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 3,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceStorageBucketV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: ResourceStorageBucketStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceStorageBucketV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceStorageBucketStateUpgradeV1,
+				Version: 1,
+			},
+			{
+				Type:    resourceStorageBucketV2().CoreConfigSchema().ImpliedType(),
+				Upgrade: ResourceStorageBucketStateUpgradeV2,
+				Version: 2,
 			},
 		},
 
