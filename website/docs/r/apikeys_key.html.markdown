@@ -28,7 +28,6 @@ A basic example of a android api keys key
 resource "google_apikeys_key" "primary" {
   name         = "key"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     android_key_restrictions {
@@ -45,12 +44,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "app"
-  name       = "app"
-  org_id     = "123456789"
-}
-
 
 ```
 ## Example Usage - basic_key
@@ -59,7 +52,6 @@ A basic example of a api keys key
 resource "google_apikeys_key" "primary" {
   name         = "key"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -73,12 +65,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "app"
-  name       = "app"
-  org_id     = "123456789"
-}
-
 
 ```
 ## Example Usage - ios_key
@@ -87,7 +73,6 @@ A basic example of a ios api keys key
 resource "google_apikeys_key" "primary" {
   name         = "key"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -101,12 +86,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "app"
-  name       = "app"
-  org_id     = "123456789"
-}
-
 
 ```
 ## Example Usage - minimal_key
@@ -115,13 +94,6 @@ A minimal example of a api keys key
 resource "google_apikeys_key" "primary" {
   name         = "key"
   display_name = "sample-key"
-  project      = google_project.basic.name
-}
-
-resource "google_project" "basic" {
-  project_id = "app"
-  name       = "app"
-  org_id     = "123456789"
 }
 
 
@@ -132,7 +104,6 @@ A basic example of a server api keys key
 resource "google_apikeys_key" "primary" {
   name         = "key"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -144,12 +115,6 @@ resource "google_apikeys_key" "primary" {
       allowed_ips = ["127.0.0.1"]
     }
   }
-}
-
-resource "google_project" "basic" {
-  project_id = "app"
-  name       = "app"
-  org_id     = "123456789"
 }
 
 
