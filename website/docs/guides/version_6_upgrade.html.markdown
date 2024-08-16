@@ -234,3 +234,15 @@ that are derived from the API.
 ### Resource: `google_identity_platform_project_default_config` is now removed
 
 `google_identity_platform_project_default_config` is removed in favor of `google_identity_platform_project_config`
+
+## Resource: `google_storage_bucket`
+
+### `lifecycle_rule.condition.no_age` is now removed
+
+Previously `lifecycle_rule.condition.age` attribute was being set to zero by default and `lifecycle_rule.condition.no_age` was introduced to prevent that.
+Now `lifecycle_rule.condition.no_age` is no longer supported and `lifecycle_rule.condition.age` won't be set to zero by default.
+Removed in favor of the field `lifecycle_rule.condition.send_age_if_zero` which can be used to set a zero value for the `lifecycle_rule.condition.age` attribute. 
+
+For a seamless update, if your state today uses `no_age=true`, update it to remove `no_age` and set `send_age_if_zero=false`. If you do not use `no_age=true` and desire to continue creating rules with an `age=0` condition, you will need to add `send_age_if_zero=true` to your state to avoid any changes after updating to 6.0.0. 
+
+With the 6.0.0 update, `send_age_if_zero` will be set to `false` by default unless declared explicitly `true`, and `age=0` conditions will be removed from existing buckets next time your `lifecycle_rule.condition` configuration is updated.
