@@ -23,7 +23,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * bigquery: made `google_bigquery_dataset_iam_member` non-authoritative. To remove a bigquery dataset iam member, use an authoritative resource like `google_bigquery_dataset_iam_policy` ([#19121](https://github.com/hashicorp/terraform-provider-google/pull/19121))
-* cloudfunctions2: fixed a premadiff on `service_config.environment_variables` field in `google_cloudfunctions2_function` resource ([#19024](https://github.com/hashicorp/terraform-provider-google/pull/19024))
+* cloudfunctions2: fixed a "Provider produced inconsistent final plan" bug affecting the `service_config.environment_variables` field in `google_cloudfunctions2_function` resource ([#19024](https://github.com/hashicorp/terraform-provider-google/pull/19024))
 * cloudfunctions2: fixed a permadiff on `storage_source.generation` in `google_cloudfunctions2_function` resource ([#19031](https://github.com/hashicorp/terraform-provider-google/pull/19031))
 * compute: fixed issue where sub-resources managed by `google_compute_forwarding_rule` prevented resource deletion ([#19117](https://github.com/hashicorp/terraform-provider-google/pull/19117))
 * workbench: fixed a bug with `google_workbench_instance` metadata drifting when using custom containers. ([#19119](https://github.com/hashicorp/terraform-provider-google/pull/19119))
