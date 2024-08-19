@@ -1,4 +1,33 @@
-## 5.42.0 (Unreleased)
+## 5.43.0 (Unreleased)
+
+## 5.42.0 (August 19, 2024)
+DEPRECATIONS:
+* compute: setting `google_compute_subnetwork.secondary_ip_range = []` to explicitly set a list of empty objects is deprecated and will produce an error in the upcoming major release. Use `send_secondary_ip_range_if_empty` while removing `secondary_ip_range` from config instead. ([#19122](https://github.com/hashicorp/terraform-provider-google/pull/19122))
+
+FEATURES:
+* **New Data Source:** `google_artifact_registry_locations` ([#19047](https://github.com/hashicorp/terraform-provider-google/pull/19047))
+* **New Data Source:** `google_cloud_identity_transitive_group_memberships` ([#19038](https://github.com/hashicorp/terraform-provider-google/pull/19038))
+* **New Resource:** `google_discovery_engine_schema` ([#19124](https://github.com/hashicorp/terraform-provider-google/pull/19124))
+* **New Resource:** `google_scc_folder_notification_config` ([#19057](https://github.com/hashicorp/terraform-provider-google/pull/19057))
+* **New Resource:** `google_scc_v2_folder_notification_config` ([#19055](https://github.com/hashicorp/terraform-provider-google/pull/19055))
+* **New Resource:** `google_vertex_ai_index_endpoint_deployed_index` ([#19061](https://github.com/hashicorp/terraform-provider-google/pull/19061))
+
+IMPROVEMENTS:
+* clouddeploy: added `serial_pipeline.stages.strategy.canary.runtime_config.kubernetes.gateway_service_mesh.pod_selector_label` and `serial_pipeline.stages.strategy.canary.runtime_config.kubernetes.service_networking.pod_selector_label` fields to `google_clouddeploy_delivery_pipeline` resource ([#19100](https://github.com/hashicorp/terraform-provider-google/pull/19100))
+* compute: added `send_secondary_ip_range_if_empty` to `google_compute_subnetwork` ([#19122](https://github.com/hashicorp/terraform-provider-google/pull/19122))
+* discoveryengine: added `skip_default_schema_creation` field to `google_data_store` resource ([#19017](https://github.com/hashicorp/terraform-provider-google/pull/19017))
+* dns: changed `load_balancer_type` field from required to optional in `google_dns_record_set` ([#19050](https://github.com/hashicorp/terraform-provider-google/pull/19050))
+* firestore: added `cmek_config` field to `google_firestore_database` resource ([#19107](https://github.com/hashicorp/terraform-provider-google/pull/19107))
+* servicenetworking: added `update_on_creation_fail` field to `google_service_networking_connection` resource. When it is set to true, enforce an update of the reserved peering ranges on the existing service networking connection in case of a new connection creation failure. ([#19035](https://github.com/hashicorp/terraform-provider-google/pull/19035))
+* sql: added `server_ca_mode` field to `google_sql_database_instance` resource ([#18998](https://github.com/hashicorp/terraform-provider-google/pull/18998))
+
+BUG FIXES:
+* bigquery: made `google_bigquery_dataset_iam_member` non-authoritative. To remove a bigquery dataset iam member, use an authoritative resource like `google_bigquery_dataset_iam_policy` ([#19121](https://github.com/hashicorp/terraform-provider-google/pull/19121))
+* cloudfunctions2: fixed a "Provider produced inconsistent final plan" bug affecting the `service_config.environment_variables` field in `google_cloudfunctions2_function` resource ([#19024](https://github.com/hashicorp/terraform-provider-google/pull/19024))
+* cloudfunctions2: fixed a permadiff on `storage_source.generation` in `google_cloudfunctions2_function` resource ([#19031](https://github.com/hashicorp/terraform-provider-google/pull/19031))
+* compute: fixed issue where sub-resources managed by `google_compute_forwarding_rule` prevented resource deletion ([#19117](https://github.com/hashicorp/terraform-provider-google/pull/19117))
+* logging: changed `google_logging_project_bucket_config.enable_analytics` behavior to set "no preference" in analytics if omitted, instead of explicitly disabling analytics. ([#19126](https://github.com/hashicorp/terraform-provider-google/pull/19126))
+* workbench: fixed a bug with `google_workbench_instance` metadata drifting when using custom containers. ([#19119](https://github.com/hashicorp/terraform-provider-google/pull/19119))
 
 ## 5.41.0 (August 13, 2024)
 
