@@ -203,6 +203,12 @@ An empty value now means 300.
 ### `balancing_mode` default value changed
 
 An empty value now means UTILIZATION.
+
+## Resource: `google_redis_cluster`
+
+### `deletion_protection_enabled` field with default value added
+
+Support for the deletionProtectionEnabled field has been added. Redis clusters will now be created with a `deletion_protection_enabled = true` value by default. 
  
 ## Resource: `google_vpc_access_connector`
 
