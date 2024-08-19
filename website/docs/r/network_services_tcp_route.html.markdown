@@ -112,6 +112,7 @@ resource "google_network_services_tcp_route" "default" {
         weight = 1
       }
       original_destination = false
+      idle_timeout = "60s"
     }
   }
 }
@@ -287,6 +288,11 @@ The following arguments are supported:
 * `original_destination` -
   (Optional)
   If true, Router will use the destination IP and port of the original connection as the destination of the request.
+
+* `idle_timeout` -
+  (Optional)
+  Specifies the idle timeout for the selected route. The idle timeout is defined as the period in which there are no bytes sent or received on either the upstream or downstream connection. If not set, the default idle timeout is 30 seconds. If set to 0s, the timeout will be disabled.
+  A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
 
 
 <a name="nested_destinations"></a>The `destinations` block supports:
