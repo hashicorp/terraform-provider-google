@@ -383,17 +383,6 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 					},
 				},
 			},
-			"network": {
-				Type:             schema.TypeString,
-				Computed:         true,
-				Optional:         true,
-				Deprecated:       "`network` is deprecated and will be removed in a future major release. Instead, use `network_config` to define the network configuration.",
-				DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
-				Description: `The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
-
-"projects/{projectNumber}/global/networks/{network_id}".`,
-				ExactlyOneOf: []string{"network", "network_config.0.network", "psc_config.0.psc_enabled"},
-			},
 			"network_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -414,7 +403,7 @@ If set, the instance IPs for this cluster will be created in the allocated range
 							DiffSuppressFunc: tpgresource.ProjectNumberDiffSuppress,
 							Description: `The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP. The network must belong to the same project as the cluster.
 It is specified in the form: "projects/{projectNumber}/global/networks/{network_id}".`,
-							ExactlyOneOf: []string{"network", "network_config.0.network", "psc_config.0.psc_enabled"},
+							ExactlyOneOf: []string{"network_config.0.network", "psc_config.0.psc_enabled"},
 						},
 					},
 				},
@@ -674,12 +663,6 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
-	}
-	networkProp, err := expandAlloydbClusterNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
 	}
 	networkConfigProp, err := expandAlloydbClusterNetworkConfig(d.Get("network_config"), d, config)
 	if err != nil {
@@ -958,9 +941,6 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("continuous_backup_info", flattenAlloydbClusterContinuousBackupInfo(res["continuousBackupInfo"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
-	if err := d.Set("network", flattenAlloydbClusterNetwork(res["network"], d, config)); err != nil {
-		return fmt.Errorf("Error reading Cluster: %s", err)
-	}
 	if err := d.Set("network_config", flattenAlloydbClusterNetworkConfig(res["networkConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1040,12 +1020,6 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
-	}
-	networkProp, err := expandAlloydbClusterNetwork(d.Get("network"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
-		obj["network"] = networkProp
 	}
 	networkConfigProp, err := expandAlloydbClusterNetworkConfig(d.Get("network_config"), d, config)
 	if err != nil {
@@ -1137,10 +1111,6 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("encryption_config") {
 		updateMask = append(updateMask, "encryptionConfig")
-	}
-
-	if d.HasChange("network") {
-		updateMask = append(updateMask, "network")
 	}
 
 	if d.HasChange("network_config") {
@@ -1504,10 +1474,6 @@ func flattenAlloydbClusterContinuousBackupInfoEncryptionInfoEncryptionType(v int
 }
 
 func flattenAlloydbClusterContinuousBackupInfoEncryptionInfoKmsKeyVersions(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
-}
-
-func flattenAlloydbClusterNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2090,10 +2056,6 @@ func expandAlloydbClusterEncryptionConfig(v interface{}, d tpgresource.Terraform
 }
 
 func expandAlloydbClusterEncryptionConfigKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
-}
-
-func expandAlloydbClusterNetwork(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

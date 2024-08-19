@@ -335,6 +335,12 @@ in GCP, including the labels configured through Terraform, the system, and other
 
 ## Removals
 
+### Resource: `google_alloydb_cluster` 
+
+## `network` is now removed
+
+`network` has been removed in favor of `network_config.network`
+
 ### Resource: `google_identity_platform_project_default_config` is now removed
 
 `google_identity_platform_project_default_config` is removed in favor of `google_identity_platform_project_config`
