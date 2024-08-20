@@ -136,6 +136,7 @@ func Provider() *schema.Provider {
 			"add_terraform_attribution_label": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 
 			"terraform_attribution_label_addition_strategy": {
@@ -915,7 +916,6 @@ func ProviderConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		config.DefaultLabels[k] = v.(string)
 	}
 
-	// Attribution label is opt-in; if unset, the default for AddTerraformAttributionLabel is false.
 	config.AddTerraformAttributionLabel = d.Get("add_terraform_attribution_label").(bool)
 	if config.AddTerraformAttributionLabel {
 		config.TerraformAttributionLabelAdditionStrategy = transport_tpg.CreateOnlyAttributionStrategy

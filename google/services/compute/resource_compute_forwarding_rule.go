@@ -123,7 +123,7 @@ func ResourceComputeForwardingRule() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			forwardingRuleCustomizeDiff,
-			tpgresource.SetLabelsDiff,
+			tpgresource.SetLabelsDiffWithoutAttributionLabel,
 			tpgresource.DefaultProviderProject,
 		),
 

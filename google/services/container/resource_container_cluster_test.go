@@ -9500,6 +9500,7 @@ resource "google_container_cluster" "with_autopilot" {
 }
 
 func TestAccContainerCluster_privateRegistry(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))

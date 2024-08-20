@@ -469,6 +469,10 @@ resource "google_project" "acceptance" {
 
 func testAccProject_labels(pid, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
