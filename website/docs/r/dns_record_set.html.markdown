@@ -316,7 +316,7 @@ The following arguments are supported:
 
 <a name="nested_internal_load_balancers"></a>The `internal_load_balancers` block supports:
 
-* `load_balancer_type` - (Required) The type of load balancer. This value is case-sensitive. Possible values: ["regionalL4ilb", "regionalL7ilb", "globalL7ilb"]
+* `load_balancer_type` - (Optional) The type of load balancer. This value is case-sensitive. Possible values: ["regionalL4ilb", "regionalL7ilb", "globalL7ilb"]
 
 * `ip_address` - (Required) The frontend IP address of the load balancer.
 

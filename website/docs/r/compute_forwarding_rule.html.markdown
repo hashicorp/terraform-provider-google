@@ -1594,6 +1594,9 @@ In addition to the arguments listed above, the following computed attributes are
 * `creation_timestamp` -
   Creation timestamp in RFC3339 text format.
 
+* `forwarding_rule_id` -
+  The unique identifier number for the resource. This identifier is defined by the server.
+
 * `psc_connection_id` -
   The PSC connection id of the PSC Forwarding Rule.
 

@@ -21,7 +21,7 @@ func TestAccVmwareengineCluster_vmwareEngineClusterUpdate(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":          "southamerica-west1", // using region with low node utilization.
+		"region":          "me-west1", // region with allocated quota
 		"random_suffix":   acctest.RandString(t, 10),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
@@ -72,48 +72,23 @@ func TestAccVmwareengineCluster_vmwareEngineClusterUpdate(t *testing.T) {
 func testVmwareEngineClusterConfig(context map[string]interface{}, nodeCount int) string {
 	context["node_count"] = nodeCount
 	return acctest.Nprintf(`
-resource "google_project" "project" {
-  project_id      = "tf-test%{random_suffix}"
-  name            = "tf-test%{random_suffix}"
-  org_id          = "%{org_id}"
-  billing_account = "%{billing_account}"
-  deletion_policy = "DELETE"
-}
-
-resource "google_project_service" "vmwareengine" {
-  project = google_project.project.project_id
-  service = "vmwareengine.googleapis.com"
-}
-
-resource "time_sleep" "sleep" {
-  create_duration = "1m"
-  depends_on = [
-    google_project_service.vmwareengine,
-  ]
-}
-
 resource "google_vmwareengine_network" "cluster-nw" {
-  project = google_project.project.project_id
   name        = "tf-test-cluster-nw%{random_suffix}"
   location    = "global"
   type        = "STANDARD"
   description = "PC network description."
-
-  depends_on = [
-    time_sleep.sleep # Sleep allows permissions in the new project to propagate
-  ]
 }
 
 resource "google_vmwareengine_private_cloud" "cluster-pc" {
-  project = google_project.project.project_id
-  location    = "%{region}-a"
+  location    = "%{region}-b"
   name        = "tf-test-cluster-pc%{random_suffix}"
   description = "Sample test PC."
+  deletion_delay_hours = 0
+  send_deletion_delay_hours_if_zero = true
   network_config {
     management_cidr       = "192.168.10.0/24"
     vmware_engine_network = google_vmwareengine_network.cluster-nw.id
   }
-
   management_cluster {
     cluster_id = "tf-test-mgmt-cluster%{random_suffix}"
     node_type_configs {

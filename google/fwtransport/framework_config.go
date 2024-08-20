@@ -49,6 +49,7 @@ type FrameworkProviderConfig struct {
 	UniverseDomain             types.String
 	UserAgent                  string
 	UserProjectOverride        types.Bool
+	DefaultLabels              types.Map
 
 	// paths for client setup
 	AccessApprovalBasePath           string
@@ -333,13 +334,13 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 
 	p.Context = ctx
 	p.BillingProject = data.BillingProject
+	p.DefaultLabels = data.DefaultLabels
 	p.Project = data.Project
 	p.Region = GetRegionFromRegionSelfLink(data.Region)
 	p.Scopes = data.Scopes
 	p.Zone = data.Zone
 	p.UserProjectOverride = data.UserProjectOverride
 	p.PollInterval = 10 * time.Second
-	p.Project = data.Project
 	p.UniverseDomain = data.UniverseDomain
 	p.RequestBatcherServiceUsage = transport_tpg.NewRequestBatcher("Service Usage", ctx, batchingConfig)
 	p.RequestBatcherIam = transport_tpg.NewRequestBatcher("IAM", ctx, batchingConfig)

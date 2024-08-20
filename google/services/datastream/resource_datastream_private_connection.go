@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -416,6 +417,11 @@ func resourceDatastreamPrivateConnectionDelete(d *schema.ResourceData, meta inte
 	}
 
 	headers := make(http.Header)
+	// Add force=true query param to force deletion of private connection sub resources like Routes
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": strconv.FormatBool(true)})
+	if err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] Deleting PrivateConnection %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
