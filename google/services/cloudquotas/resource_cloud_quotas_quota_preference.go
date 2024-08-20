@@ -645,7 +645,7 @@ func expandCloudQuotasQuotaPreferenceQuotaConfigGrantedValue(v interface{}, d tp
 }
 
 func expandCloudQuotasQuotaPreferenceQuotaConfigTraceId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	return nil, nil
 }
 
 func expandCloudQuotasQuotaPreferenceQuotaConfigAnnotations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {

@@ -188,7 +188,8 @@ The following arguments are supported:
 * `distribution` -
   (Required)
   The Kubernetes distribution of the underlying attached cluster. Supported values:
-  "eks", "aks".
+  "eks", "aks", "generic". The generic distribution provides the ability to register
+  or migrate any CNCF conformant cluster.
 
 * `fleet` -
   (Required)

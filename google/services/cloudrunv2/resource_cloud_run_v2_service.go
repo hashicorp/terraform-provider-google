@@ -101,7 +101,7 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 									"args": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: `Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell`,
+										Description: `Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references are not supported in Cloud Run.`,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -1089,12 +1089,12 @@ func cloudrunv2ServiceTemplateContainersContainersEnvSchema() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Name of the environment variable. Must be a C_IDENTIFIER, and mnay not exceed 32768 characters.`,
+				Description: `Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.`,
 			},
 			"value": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Variable references $(VAR_NAME) are expanded using the previous defined environment variables in the container and any route environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "", and the maximum length is 32768 bytes`,
+				Description: `Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.`,
 			},
 			"value_source": {
 				Type:        schema.TypeList,

@@ -237,6 +237,10 @@ func TestAccComputeForwardingRule_forwardingRuleIpAddressIpv6(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccComputeForwardingRule_forwardingRuleIpAddressIpv6(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_compute_forwarding_rule.external", "forwarding_rule_id"),
+				),
 			},
 			{
 				ResourceName:            "google_compute_forwarding_rule.external",

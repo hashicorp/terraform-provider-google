@@ -528,6 +528,11 @@ For Private Service Connect forwarding rules that forward traffic to managed ser
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"forwarding_rule_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The unique identifier number for the resource. This identifier is defined by the server.`,
+			},
 			"label_fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -906,6 +911,9 @@ func resourceComputeForwardingRuleRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("is_mirroring_collector", flattenComputeForwardingRuleIsMirroringCollector(res["isMirroringCollector"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ForwardingRule: %s", err)
+	}
+	if err := d.Set("forwarding_rule_id", flattenComputeForwardingRuleForwardingRuleId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ForwardingRule: %s", err)
 	}
 	if err := d.Set("psc_connection_id", flattenComputeForwardingRulePscConnectionId(res["pscConnectionId"], d, config)); err != nil {
@@ -1319,6 +1327,23 @@ func flattenComputeForwardingRuleCreationTimestamp(v interface{}, d *schema.Reso
 
 func flattenComputeForwardingRuleIsMirroringCollector(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenComputeForwardingRuleForwardingRuleId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenComputeForwardingRulePscConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

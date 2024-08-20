@@ -84,7 +84,7 @@ func testAccCloudQuotasQuotaPreference_cloudquotasQuotaPreferenceBasicExample_ba
 			service 	= "cloudbilling.googleapis.com"
 			depends_on	= [google_project_service.compute]
 		}
-		
+
 		resource "time_sleep" "wait_120_seconds" {
 			create_duration	= "120s"
 			depends_on		= [google_project_service.billing]
@@ -149,7 +149,7 @@ func testAccCloudQuotasQuotaPreference_cloudquotasQuotaPreferenceBasicExample_in
 
 func testAccCloudQuotasQuotaPreference_cloudquotasQuotaPreferenceBasicExample_decreaseQuota(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-		resource "google_project" "new_project" {
+      		resource "google_project" "new_project" {
 			project_id      = "tf-test%{random_suffix}"
 			name            = "tf-test%{random_suffix}"
 			org_id          = "%{org_id}"

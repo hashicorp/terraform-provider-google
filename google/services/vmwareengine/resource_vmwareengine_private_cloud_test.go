@@ -20,7 +20,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"region":          "me-west1",
+		"region":          "me-west1", // region with allocated quota
 		"random_suffix":   acctest.RandString(t, 10),
 		"org_id":          envvar.GetTestOrgFromEnv(t),
 		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
@@ -35,7 +35,7 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 		CheckDestroy: testAccCheckVmwareenginePrivateCloudDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testPrivateCloudCreateConfig(context),
+				Config: testVmwareenginePrivateCloudCreateConfig(context),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_vmwareengine_private_cloud.ds",
@@ -54,10 +54,10 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				ResourceName:            "google_vmwareengine_private_cloud.vmw-engine-pc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "update_time", "type", "deletion_parameters", "deletion_delay_hours"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time", "type", "deletion_delay_hours", "send_deletion_delay_hours_if_zero"},
 			},
 			{
-				Config: testPrivateCloudUpdateConfig(context),
+				Config: testVmwareenginePrivateCloudUpdateConfig(context),
 				Check: resource.ComposeTestCheckFunc(
 					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores(
 						"data.google_vmwareengine_private_cloud.ds",
@@ -74,13 +74,54 @@ func TestAccVmwareenginePrivateCloud_vmwareEnginePrivateCloudUpdate(t *testing.T
 				ResourceName:            "google_vmwareengine_private_cloud.vmw-engine-pc",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"location", "name", "update_time", "type", "deletion_parameters", "deletion_delay_hours"},
+				ImportStateVerifyIgnore: []string{"location", "name", "update_time", "type", "deletion_delay_hours", "send_deletion_delay_hours_if_zero"},
+			},
+			{
+				Config: testVmwareengineSubnetImportConfig(context),
+				Check: resource.ComposeTestCheckFunc(
+					acctest.CheckDataSourceStateMatchesResourceStateWithIgnores("data.google_vmwareengine_subnet.subnet-ds", "google_vmwareengine_subnet.vmw-engine-subnet", map[string]struct{}{}),
+				),
+			},
+			{
+				ResourceName:            "google_vmwareengine_subnet.vmw-engine-subnet",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "name"},
+			},
+			{
+				Config: testVmwareengineSubnetUpdateConfig(context),
+			},
+			{
+				ResourceName:            "google_vmwareengine_subnet.vmw-engine-subnet",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "name"},
 			},
 		},
 	})
 }
 
-func testPrivateCloudCreateConfig(context map[string]interface{}) string {
+func testVmwareenginePrivateCloudCreateConfig(context map[string]interface{}) string {
+	return testVmwareenginePrivateCloudConfig(context, "sample description", "TIME_LIMITED", 1, 1) + testVmwareengineVcenterNSXCredentailsConfig(context)
+}
+
+func testVmwareenginePrivateCloudUpdateConfig(context map[string]interface{}) string {
+	return testVmwareenginePrivateCloudConfig(context, "sample updated description", "STANDARD", 3, 0) + testVmwareengineVcenterNSXCredentailsConfig(context)
+}
+
+func testVmwareengineSubnetImportConfig(context map[string]interface{}) string {
+	return testVmwareenginePrivateCloudConfig(context, "sample updated description", "STANDARD", 3, 0) + testVmwareengineSubnetConfig(context, "192.168.1.0/26")
+}
+
+func testVmwareengineSubnetUpdateConfig(context map[string]interface{}) string {
+	return testVmwareenginePrivateCloudConfig(context, "sample updated description", "STANDARD", 3, 0) + testVmwareengineSubnetConfig(context, "192.168.2.0/26")
+}
+
+func testVmwareenginePrivateCloudConfig(context map[string]interface{}, description, pcType string, nodeCount, delayHours int) string {
+	context["node_count"] = nodeCount
+	context["delay_hrs"] = delayHours
+	context["description"] = description
+	context["type"] = pcType
 	return acctest.Nprintf(`
 resource "google_vmwareengine_network" "default-nw" {
   name              = "tf-test-pc-nw-%{random_suffix}"
@@ -92,18 +133,19 @@ resource "google_vmwareengine_network" "default-nw" {
 resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
   location = "%{region}-b"
   name = "tf-test-sample-pc%{random_suffix}"
-  description = "test description"
-  type = "TIME_LIMITED"
-  deletion_delay_hours = 1
+  description = "%{description}"
+  type = "%{type}"
+  deletion_delay_hours = "%{delay_hrs}"
+  send_deletion_delay_hours_if_zero = true
   network_config {
-    management_cidr = "192.168.30.0/24"
+    management_cidr = "192.168.0.0/24"
     vmware_engine_network = google_vmwareengine_network.default-nw.id
   }
   management_cluster {
     cluster_id = "tf-test-sample-mgmt-cluster-custom-core-count%{random_suffix}"
     node_type_configs {
       node_type_id = "standard-72"
-      node_count = 1
+      node_count = "%{node_count}"
       custom_core_count = 32
     }
   }
@@ -116,8 +158,11 @@ data "google_vmwareengine_private_cloud" "ds" {
    	google_vmwareengine_private_cloud.vmw-engine-pc,
   ]
 }
+`, context)
+}
 
-# NSX and Vcenter Credentials are child datasources of PC and are included in the PC test due to the high deployment time involved in the Creation and deletion of a PC
+func testVmwareengineVcenterNSXCredentailsConfig(context map[string]interface{}) string {
+	return acctest.Nprintf(`
 data "google_vmwareengine_nsx_credentials" "nsx-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }
@@ -125,45 +170,23 @@ data "google_vmwareengine_nsx_credentials" "nsx-ds" {
 data "google_vmwareengine_vcenter_credentials" "vcenter-ds" {
 	parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
 }
-
 `, context)
 }
 
-func testPrivateCloudUpdateConfig(context map[string]interface{}) string {
+func testVmwareengineSubnetConfig(context map[string]interface{}, ipCidrRange string) string {
+	context["ip_cidr_range"] = ipCidrRange
 	return acctest.Nprintf(`
-resource "google_vmwareengine_network" "default-nw" {
-  name              = "tf-test-pc-nw-%{random_suffix}"
-  location          = "global"
-  type              = "STANDARD"
-  description       = "PC network description."
+resource "google_vmwareengine_subnet" "vmw-engine-subnet" {
+  name = "service-2"
+  parent =  google_vmwareengine_private_cloud.vmw-engine-pc.id
+  ip_cidr_range = "%{ip_cidr_range}"
 }
 
-resource "google_vmwareengine_private_cloud" "vmw-engine-pc" {
-  location = "%{region}-b"
-  name = "tf-test-sample-pc%{random_suffix}"
-  description = "updated description"
-  type = "STANDARD"
-  deletion_delay_hours = 0
-  send_deletion_delay_hours_if_zero = true
-  network_config {
-    management_cidr = "192.168.30.0/24"
-    vmware_engine_network = google_vmwareengine_network.default-nw.id
-  }
-  management_cluster {
-    cluster_id = "tf-test-sample-mgmt-cluster-custom-core-count%{random_suffix}"
-    node_type_configs {
-      node_type_id = "standard-72"
-      node_count = 3
-      custom_core_count = 32
-    }
-  }
-}
-
-data "google_vmwareengine_private_cloud" "ds" {
-	location = "%{region}-b"
-	name = "tf-test-sample-pc%{random_suffix}"
-	depends_on = [
-   	google_vmwareengine_private_cloud.vmw-engine-pc,
+data "google_vmwareengine_subnet" "subnet-ds" {
+  name = "service-2"
+  parent = google_vmwareengine_private_cloud.vmw-engine-pc.id
+  depends_on = [
+    google_vmwareengine_subnet.vmw-engine-subnet,
   ]
 }
 `, context)
