@@ -97,6 +97,21 @@ Previously, the max length of `name_prefix` was 37 characters since the autogene
 the total max length for names of 63 characters.
 In 6.0, providing a `name_prefix` larger than 37 characters will prompt the provider to use a shortened suffix of only 9 characters, leading to a new max of 54 characters for `name_prefix`. This shortened suffix is inevitably more prone to collisions, so use the longer max `name_prefix` length with caution.
 
+### Provider attribution label is enabled by default
+
+Version 5.0.0 introduced the `goog-terraform-provisioned = true` label that could
+be automatically added to resources, making it easy to identify resources created
+by the provider when using other tools such as `gcloud` or the GCP web console. In
+5.0.0 the label needed to be enabled explicitly; in 6.0.0 the default is to add the
+label to all newly created resources. This behavior can be disabled in the provider
+configuration. For example:
+
+```hcl
+provider "google" {
+  add_terraform_attribution_label = false
+}
+```
+
 ## Datasources
 
 ## Datasource: `google_product_datasource`

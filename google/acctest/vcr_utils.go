@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -149,6 +150,20 @@ func VcrTest(t *testing.T, c resource.TestCase) {
 	} else if isReleaseDiffEnabled() {
 		c = initializeReleaseDiffTest(c, t.Name())
 	}
+
+	// terraform_labels is a computed field to which "goog-terraform-provisioned": "true" is always
+	// added by the provider. ImportStateVerify "checks for strict equality and does not respect
+	// DiffSuppressFunc or CustomizeDiff" so any test using ImportStateVerify must ignore
+	// terraform_labels.
+	var steps []resource.TestStep
+	for _, s := range c.Steps {
+		if s.ImportStateVerify && !slices.Contains(s.ImportStateVerifyIgnore, "terraform_labels") {
+			s.ImportStateVerifyIgnore = append(s.ImportStateVerifyIgnore, "terraform_labels")
+		}
+		steps = append(steps, s)
+	}
+	c.Steps = steps
+
 	resource.Test(t, c)
 }
 

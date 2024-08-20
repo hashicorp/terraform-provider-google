@@ -138,6 +138,7 @@ provider "google" {
   default_labels = {
     default_key1 = "default_value1"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_clouddeploy_target" "primary" {
@@ -177,6 +178,7 @@ provider "google" {
   default_labels = {
     default_key1 = "default_value1"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_clouddeploy_target" "primary" {
@@ -218,6 +220,7 @@ provider "google" {
     default_key1 = "default_value1"
     my_second_label = "example-label-2"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_clouddeploy_target" "primary" {
@@ -253,6 +256,10 @@ resource "google_clouddeploy_target" "primary" {
 
 func testAccClouddeployTarget_withoutLabels(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_clouddeploy_target" "primary" {
   location = "%{region}"
   name     = "tf-test-target%{random_suffix}"
@@ -277,6 +284,79 @@ resource "google_clouddeploy_target" "primary" {
   }
 }
 `, context)
+}
+
+func TestAccClouddeployTarget_withAttributionDisabled(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"project_name":         envvar.GetTestProjectFromEnv(),
+		"region":               envvar.GetTestRegionFromEnv(),
+		"random_suffix":        acctest.RandString(t, 10),
+		"add_attribution":      "false",
+		"attribution_strategy": "CREATION_ONLY",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckClouddeployTargetDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccClouddeployTarget_createWithAttribution(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.my_first_label", "example-label-1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.my_second_label", "example-label-2"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.my_first_label", "example-label-1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.my_second_label", "example-label-2"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.default_key1", "default_value1"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_clouddeploy_target.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+			{
+				Config: testAccClouddeployTarget_updateWithAttribution(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.%", "2"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.my_first_label", "example-label-updated-1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "labels.my_second_label", "example-label-updated-2"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.my_first_label", "example-label-updated-1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.my_second_label", "example-label-updated-2"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.default_key1", "default_value1"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "effective_labels.%", "3"),
+				),
+			},
+			{
+				ResourceName:            "google_clouddeploy_target.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "annotations"},
+			},
+			{
+				Config: testAccClouddeployTarget_clearWithAttribution(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_clouddeploy_target.primary", "labels.%"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "terraform_labels.default_key1", "default_value1"),
+
+					resource.TestCheckResourceAttr("google_clouddeploy_target.primary", "effective_labels.%", "1"),
+				),
+			},
+		},
+	})
 }
 
 func TestAccClouddeployTarget_withCreationOnlyAttribution(t *testing.T) {

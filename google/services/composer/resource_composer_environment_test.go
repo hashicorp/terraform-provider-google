@@ -354,6 +354,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 }
 
 func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")

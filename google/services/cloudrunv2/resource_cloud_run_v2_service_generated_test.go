@@ -481,6 +481,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 }
 
 func TestAccCloudRunV2Service_cloudrunv2ServiceMountGcsExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -543,6 +544,7 @@ resource "google_storage_bucket" "default" {
 }
 
 func TestAccCloudRunV2Service_cloudrunv2ServiceMountNfsExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

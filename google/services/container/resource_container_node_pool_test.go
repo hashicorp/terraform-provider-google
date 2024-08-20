@@ -4604,6 +4604,7 @@ resource "google_container_node_pool" "np" {
 }
 
 func TestAccContainerNodePool_defaultDriverInstallation(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
