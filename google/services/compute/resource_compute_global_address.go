@@ -155,6 +155,12 @@ when purpose=PRIVATE_SERVICE_CONNECT`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"label_fingerprint": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: `The fingerprint used for optimistic locking of this resource.  Used
+internally during updates.`,
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -202,6 +208,12 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	labelFingerprintProp, err := expandComputeGlobalAddressLabelFingerprint(d.Get("label_fingerprint"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelFingerprintProp)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+		obj["labelFingerprint"] = labelFingerprintProp
 	}
 	ipVersionProp, err := expandComputeGlobalAddressIpVersion(d.Get("ip_version"), d, config)
 	if err != nil {
@@ -418,6 +430,9 @@ func resourceComputeGlobalAddressRead(d *schema.ResourceData, meta interface{}) 
 	if err := d.Set("labels", flattenComputeGlobalAddressLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
+	if err := d.Set("label_fingerprint", flattenComputeGlobalAddressLabelFingerprint(res["labelFingerprint"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
 	if err := d.Set("ip_version", flattenComputeGlobalAddressIpVersion(res["ipVersion"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
@@ -463,9 +478,15 @@ func resourceComputeGlobalAddressUpdate(d *schema.ResourceData, meta interface{}
 
 	d.Partial(true)
 
-	if d.HasChange("effective_labels") {
+	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
 		obj := make(map[string]interface{})
 
+		labelFingerprintProp, err := expandComputeGlobalAddressLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
 		labelsProp, err := expandComputeGlobalAddressEffectiveLabels(d.Get("effective_labels"), d, config)
 		if err != nil {
 			return err
@@ -621,6 +642,10 @@ func flattenComputeGlobalAddressLabels(v interface{}, d *schema.ResourceData, co
 	return transformed
 }
 
+func flattenComputeGlobalAddressLabelFingerprint(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeGlobalAddressIpVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -685,6 +710,10 @@ func expandComputeGlobalAddressDescription(v interface{}, d tpgresource.Terrafor
 }
 
 func expandComputeGlobalAddressName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeGlobalAddressLabelFingerprint(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
