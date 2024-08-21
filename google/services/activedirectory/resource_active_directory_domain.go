@@ -131,6 +131,17 @@ Similar to what would be chosen for an Active Directory set up on an internal ne
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: `Whether Terraform will be prevented from destroying the domain. Defaults to true.
+When a'terraform destroy' or 'terraform apply' would delete the domain,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a 'terraform apply'
+or 'terraform destroy' that would delete the domain will fail.
+When the field is set to false, deleting the domain is allowed.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -291,6 +302,12 @@ func resourceActiveDirectoryDomainRead(d *schema.ResourceData, meta interface{})
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ActiveDirectoryDomain %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Domain: %s", err)
 	}
@@ -453,6 +470,9 @@ func resourceActiveDirectoryDomainDelete(d *schema.ResourceData, meta interface{
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy domain without setting deletion_protection=false and running `terraform apply`")
+	}
 
 	log.Printf("[DEBUG] Deleting Domain %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{

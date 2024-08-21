@@ -123,57 +123,14 @@ This field follows Kubernetes annotations' namespacing, limits, and rules.`,
 										},
 									},
 									"env": {
-										Type:        schema.TypeList,
+										Type:        schema.TypeSet,
 										Optional:    true,
 										Description: `List of environment variables to set in the container.`,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {
-													Type:        schema.TypeString,
-													Required:    true,
-													Description: `Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.`,
-												},
-												"value": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: `Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.`,
-												},
-												"value_source": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: `Source for the environment variable's value.`,
-													MaxItems:    1,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"secret_key_ref": {
-																Type:        schema.TypeList,
-																Optional:    true,
-																Description: `Selects a secret and a specific version from Cloud Secret Manager.`,
-																MaxItems:    1,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"secret": {
-																			Type:        schema.TypeString,
-																			Required:    true,
-																			Description: `The name of the secret in Cloud Secret Manager. Format: {secretName} if the secret is in the same project. projects/{project}/secrets/{secretName} if the secret is in a different project.`,
-																		},
-																		"version": {
-																			Type:        schema.TypeString,
-																			Optional:    true,
-																			Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version.`,
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
-											},
-										},
+										Elem:        cloudrunv2ServiceTemplateContainersContainersEnvSchema(),
+										// Default schema.HashSchema is used.
 									},
 									"liveness_probe": {
 										Type:        schema.TypeList,
-										Computed:    true,
 										Optional:    true,
 										Description: `Periodic probe of container liveness. Container will be restarted if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes`,
 										MaxItems:    1,
@@ -1104,6 +1061,17 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 				Computed:    true,
 				Description: `The main URI in which this Service is serving traffic.`,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: `Whether Terraform will be prevented from destroying the service. Defaults to true.
+When a'terraform destroy' or 'terraform apply' would delete the service,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a 'terraform apply'
+or 'terraform destroy' that would delete the service will fail.
+When the field is set to false, deleting the service is allowed.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1112,6 +1080,53 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 			},
 		},
 		UseJSONNumber: true,
+	}
+}
+
+func cloudrunv2ServiceTemplateContainersContainersEnvSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.`,
+			},
+			"value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.`,
+			},
+			"value_source": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Source for the environment variable's value.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_key_ref": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Selects a secret and a specific version from Cloud Secret Manager.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"secret": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: `The name of the secret in Cloud Secret Manager. Format: {secretName} if the secret is in the same project. projects/{project}/secrets/{secretName} if the secret is in a different project.`,
+									},
+									"version": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The Cloud Secret Manager secret version. Can be 'latest' for the latest value or an integer for a specific version.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 }
 
@@ -1291,6 +1306,12 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("CloudRunV2Service %q", d.Id()))
 	}
 
+	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("deletion_protection"); !ok {
+		if err := d.Set("deletion_protection", true); err != nil {
+			return fmt.Errorf("Error setting deletion_protection: %s", err)
+		}
+	}
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1544,6 +1565,9 @@ func resourceCloudRunV2ServiceDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_protection").(bool) {
+		return fmt.Errorf("cannot destroy service without setting deletion_protection=false and running `terraform apply`")
+	}
 
 	log.Printf("[DEBUG] Deleting Service %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1588,6 +1612,11 @@ func resourceCloudRunV2ServiceImport(d *schema.ResourceData, meta interface{}) (
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("deletion_protection", true); err != nil {
+		return nil, fmt.Errorf("Error setting deletion_protection: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -1920,14 +1949,14 @@ func flattenCloudRunV2ServiceTemplateContainersEnv(v interface{}, d *schema.Reso
 		return v
 	}
 	l := v.([]interface{})
-	transformed := make([]interface{}, 0, len(l))
+	transformed := schema.NewSet(schema.HashResource(cloudrunv2ServiceTemplateContainersContainersEnvSchema()), []interface{}{})
 	for _, raw := range l {
 		original := raw.(map[string]interface{})
 		if len(original) < 1 {
 			// Do not include empty json objects coming back from the api
 			continue
 		}
-		transformed = append(transformed, map[string]interface{}{
+		transformed.Add(map[string]interface{}{
 			"name":         flattenCloudRunV2ServiceTemplateContainersEnvName(original["name"], d, config),
 			"value":        flattenCloudRunV2ServiceTemplateContainersEnvValue(original["value"], d, config),
 			"value_source": flattenCloudRunV2ServiceTemplateContainersEnvValueSource(original["valueSource"], d, config),
@@ -3439,6 +3468,7 @@ func expandCloudRunV2ServiceTemplateContainersArgs(v interface{}, d tpgresource.
 }
 
 func expandCloudRunV2ServiceTemplateContainersEnv(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	l := v.([]interface{})
 	req := make([]interface{}, 0, len(l))
 	for _, raw := range l {

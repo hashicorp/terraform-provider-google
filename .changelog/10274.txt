@@ -1,0 +1,6 @@
+```release-note:breaking-change
+container: removed deprecated field `advanced_datapath_observability_config.relay_mode` from `google_container_cluster` resource. Users are expected to use `enable_relay` field instead.
+```
+```release-note:breaking-change
+container: made field `advanced_datapath_observability_config.enable_relay` required in `google_container_cluster` resource
+```

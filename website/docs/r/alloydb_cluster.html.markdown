@@ -177,8 +177,9 @@ resource "google_alloydb_cluster" "restored_from_backup" {
 resource "google_alloydb_cluster" "restored_via_pitr" {
   cluster_id             = "alloydb-pitr-restored"
   location               = "us-central1"
-  network                = data.google_compute_network.default.id
-
+  network_config {
+    network = data.google_compute_network.default.id
+  }
   restore_continuous_backup_source {
     cluster = google_alloydb_cluster.source.name
     point_in_time = "2023-08-03T19:19:00.094Z"
@@ -212,7 +213,9 @@ resource "google_service_networking_connection" "vpc_connection" {
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "alloydb-primary-cluster"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network_config {
+    network = google_compute_network.default.id
+  }
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -230,7 +233,9 @@ resource "google_alloydb_instance" "primary" {
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "alloydb-secondary-cluster"
   location     = "us-east1"
-  network      = google_compute_network.default.id
+  network_config {
+    network = google_compute_network.default.id
+  }
   cluster_type = "SECONDARY"
 
   continuous_backup_config {
@@ -292,13 +297,6 @@ The following arguments are supported:
   (Optional)
   EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
   Structure is [documented below](#nested_encryption_config).
-
-* `network` -
-  (Optional, Deprecated)
-  The relative resource name of the VPC network on which the instance can be accessed. It is specified in the following form:
-  "projects/{projectNumber}/global/networks/{network_id}".
-
-  ~> **Warning:** `network` is deprecated and will be removed in a future major release. Instead, use `network_config` to define the network configuration.
 
 * `network_config` -
   (Optional)

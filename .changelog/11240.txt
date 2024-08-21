@@ -1,0 +1,3 @@
+```release-note:note
+compute: updated resource id for `compute_network_endpoints`
+```

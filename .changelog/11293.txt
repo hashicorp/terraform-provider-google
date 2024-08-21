@@ -1,0 +1,3 @@
+```release-note:breaking-change
+google_folders: added `deletion_protection` field to `folders` to make deleting them require an explicit intent. `folder` resources now cannot be destroyed unless `deletion_protection = false` is set for the resource.
+```

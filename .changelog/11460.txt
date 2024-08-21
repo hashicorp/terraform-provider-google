@@ -1,0 +1,3 @@
+```release-note:deprecation
+alloydb: `network` removed in `google_alloy_db_cluster`. Use `network_config.network` instead.
+```

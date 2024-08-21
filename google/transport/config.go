@@ -235,7 +235,6 @@ type Config struct {
 	DataplexBasePath                 string
 	DataprocBasePath                 string
 	DataprocMetastoreBasePath        string
-	DatastoreBasePath                string
 	DatastreamBasePath               string
 	DeploymentManagerBasePath        string
 	DialogflowBasePath               string
@@ -375,7 +374,6 @@ const DataPipelineBasePathKey = "DataPipeline"
 const DataplexBasePathKey = "Dataplex"
 const DataprocBasePathKey = "Dataproc"
 const DataprocMetastoreBasePathKey = "DataprocMetastore"
-const DatastoreBasePathKey = "Datastore"
 const DatastreamBasePathKey = "Datastream"
 const DeploymentManagerBasePathKey = "DeploymentManager"
 const DialogflowBasePathKey = "Dialogflow"
@@ -509,7 +507,6 @@ var DefaultBasePaths = map[string]string{
 	DataplexBasePathKey:                 "https://dataplex.googleapis.com/v1/",
 	DataprocBasePathKey:                 "https://dataproc.googleapis.com/v1/",
 	DataprocMetastoreBasePathKey:        "https://metastore.googleapis.com/v1/",
-	DatastoreBasePathKey:                "https://datastore.googleapis.com/v1/",
 	DatastreamBasePathKey:               "https://datastream.googleapis.com/v1/",
 	DeploymentManagerBasePathKey:        "https://www.googleapis.com/deploymentmanager/v2/",
 	DialogflowBasePathKey:               "https://dialogflow.googleapis.com/v2/",
@@ -905,11 +902,6 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("dataproc_metastore_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_DATAPROC_METASTORE_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[DataprocMetastoreBasePathKey]))
-	}
-	if d.Get("datastore_custom_endpoint") == "" {
-		d.Set("datastore_custom_endpoint", MultiEnvDefault([]string{
-			"GOOGLE_DATASTORE_CUSTOM_ENDPOINT",
-		}, DefaultBasePaths[DatastoreBasePathKey]))
 	}
 	if d.Get("datastream_custom_endpoint") == "" {
 		d.Set("datastream_custom_endpoint", MultiEnvDefault([]string{
@@ -2212,7 +2204,6 @@ func ConfigureBasePaths(c *Config) {
 	c.DataplexBasePath = DefaultBasePaths[DataplexBasePathKey]
 	c.DataprocBasePath = DefaultBasePaths[DataprocBasePathKey]
 	c.DataprocMetastoreBasePath = DefaultBasePaths[DataprocMetastoreBasePathKey]
-	c.DatastoreBasePath = DefaultBasePaths[DatastoreBasePathKey]
 	c.DatastreamBasePath = DefaultBasePaths[DatastreamBasePathKey]
 	c.DeploymentManagerBasePath = DefaultBasePaths[DeploymentManagerBasePathKey]
 	c.DialogflowBasePath = DefaultBasePaths[DialogflowBasePathKey]

@@ -42,6 +42,7 @@ func testAccCheckGoogleFoldersConfig(parent string, displayName string) string {
 resource "google_folder" "foobar" {
 		parent       = "%s"
 		display_name = "%s"
+		deletion_protection = false
 }
 
 data "google_folders" "root-test" {

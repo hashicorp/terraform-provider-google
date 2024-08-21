@@ -205,6 +205,7 @@ func ResourceContainerCluster() *schema.Resource {
 			containerClusterSurgeSettingsCustomizeDiff,
 			containerClusterEnableK8sBetaApisCustomizeDiff,
 			containerClusterNodeVersionCustomizeDiff,
+			tpgresource.SetDiffForLabelsWithCustomizedName("resource_labels"),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -1146,20 +1147,9 @@ func ResourceContainerCluster() *schema.Resource {
 										Description: `Whether or not the advanced datapath metrics are enabled.`,
 									},
 									"enable_relay": {
-										Type:          schema.TypeBool,
-										Optional:      true,
-										Description:   `Whether or not Relay is enabled.`,
-										Default:       false,
-										ConflictsWith: []string{"monitoring_config.0.advanced_datapath_observability_config.0.relay_mode"},
-									},
-									"relay_mode": {
-										Type:          schema.TypeString,
-										Optional:      true,
-										Computed:      true,
-										Deprecated:    "Deprecated in favor of enable_relay field. Remove this attribute's configuration as this field will be removed in the next major release and enable_relay will become a required field.",
-										Description:   `Mode used to make Relay available.`,
-										ValidateFunc:  validation.StringInSlice([]string{"DISABLED", "INTERNAL_VPC_LB", "EXTERNAL_LB"}, false),
-										ConflictsWith: []string{"monitoring_config.0.advanced_datapath_observability_config.0.enable_relay"},
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Whether or not Relay is enabled.`,
 									},
 								},
 							},
@@ -1635,10 +1625,25 @@ func ResourceContainerCluster() *schema.Resource {
 			},
 
 			"resource_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: `The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
+
+				**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+				Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+			},
+			"terraform_labels": {
 				Type:        schema.TypeMap,
-				Optional:    true,
+				Computed:    true,
+				Description: `The combination of labels configured directly on the resource and default labels configured on the provider.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The GCE resource labels (a map of key/value pairs) to be applied to the cluster.`,
+			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"label_fingerprint": {
@@ -2002,12 +2007,6 @@ func ResourceContainerCluster() *schema.Resource {
 // One quirk with this approach is that configs with mixed count=0 and count>0 accelerator blocks will
 // show a confusing diff if one of there are config changes that result in a legitimate diff as the count=0
 // blocks will not be in state.
-//
-// This could also be modelled by setting `guest_accelerator = []` in the config. However since the
-// previous syntax requires that schema.SchemaConfigModeAttr is set on the field it is advisable that
-// we have a work around for removing guest accelerators. Also Terraform 0.11 cannot use dynamic blocks
-// so this isn't a solution for module authors who want to dynamically omit guest accelerators
-// See https://github.com/hashicorp/terraform-provider-google/issues/3786
 func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	old, new := diff.GetChange("node_config.0.guest_accelerator")
 	oList := old.([]interface{})
@@ -2139,7 +2138,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		MasterAuth:           expandMasterAuth(d.Get("master_auth")),
 		NotificationConfig:   expandNotificationConfig(d.Get("notification_config")),
 		ConfidentialNodes:    expandConfidentialNodes(d.Get("confidential_nodes")),
-		ResourceLabels:       tpgresource.ExpandStringMap(d, "resource_labels"),
+		ResourceLabels:       tpgresource.ExpandStringMap(d, "effective_labels"),
 		NodePoolAutoConfig:   expandNodePoolAutoConfig(d.Get("node_pool_auto_config")),
 		CostManagementConfig: expandCostManagementConfig(d.Get("cost_management_config")),
 		EnableK8sBetaApis:    expandEnableK8sBetaApis(d.Get("enable_k8s_beta_apis"), nil),
@@ -2723,8 +2722,14 @@ func resourceContainerClusterRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if err := d.Set("resource_labels", cluster.ResourceLabels); err != nil {
-		return fmt.Errorf("Error setting resource_labels: %s", err)
+	if err := tpgresource.SetLabels(cluster.ResourceLabels, d, "resource_labels"); err != nil {
+		return fmt.Errorf("Error setting labels: %s", err)
+	}
+	if err := tpgresource.SetLabels(cluster.ResourceLabels, d, "terraform_labels"); err != nil {
+		return fmt.Errorf("Error setting terraform_labels: %s", err)
+	}
+	if err := d.Set("effective_labels", cluster.ResourceLabels); err != nil {
+		return fmt.Errorf("Error setting effective_labels: %s", err)
 	}
 	if err := d.Set("label_fingerprint", cluster.LabelFingerprint); err != nil {
 		return fmt.Errorf("Error setting label_fingerprint: %s", err)
@@ -3728,8 +3733,8 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[INFO] GKE cluster %s monitoring config has been updated", d.Id())
 	}
 
-	if d.HasChange("resource_labels") {
-		resourceLabels := d.Get("resource_labels").(map[string]interface{})
+	if d.HasChange("effective_labels") {
+		resourceLabels := d.Get("effective_labels").(map[string]interface{})
 		labelFingerprint := d.Get("label_fingerprint").(string)
 		req := &container.SetLabelsRequest{
 			ResourceLabels:   tpgresource.ConvertStringMap(resourceLabels),
@@ -5012,21 +5017,10 @@ func expandMonitoringConfig(configured interface{}) *container.MonitoringConfig 
 
 	if v, ok := config["advanced_datapath_observability_config"]; ok && len(v.([]interface{})) > 0 {
 		advanced_datapath_observability_config := v.([]interface{})[0].(map[string]interface{})
-
 		mc.AdvancedDatapathObservabilityConfig = &container.AdvancedDatapathObservabilityConfig{
-			EnableMetrics: advanced_datapath_observability_config["enable_metrics"].(bool),
-		}
-
-		enable_relay := advanced_datapath_observability_config["enable_relay"].(bool)
-		relay_mode := advanced_datapath_observability_config["relay_mode"].(string)
-		if enable_relay {
-			mc.AdvancedDatapathObservabilityConfig.EnableRelay = enable_relay
-		} else if relay_mode == "INTERNAL_VPC_LB" || relay_mode == "EXTERNAL_LB" {
-			mc.AdvancedDatapathObservabilityConfig.RelayMode = relay_mode
-		} else {
-			mc.AdvancedDatapathObservabilityConfig.EnableRelay = enable_relay
-			mc.AdvancedDatapathObservabilityConfig.RelayMode = "DISABLED"
-			mc.AdvancedDatapathObservabilityConfig.ForceSendFields = []string{"EnableRelay"}
+			EnableMetrics:   advanced_datapath_observability_config["enable_metrics"].(bool),
+			EnableRelay:     advanced_datapath_observability_config["enable_relay"].(bool),
+			ForceSendFields: []string{"EnableRelay"},
 		}
 	}
 
@@ -5819,29 +5813,10 @@ func flattenAdvancedDatapathObservabilityConfig(c *container.AdvancedDatapathObs
 		return nil
 	}
 
-	if c.EnableRelay {
-		return []map[string]interface{}{
-			{
-				"enable_metrics": c.EnableMetrics,
-				"enable_relay":   c.EnableRelay,
-			},
-		}
-	}
-
-	if c.RelayMode == "INTERNAL_VPC_LB" || c.RelayMode == "EXTERNAL_LB" {
-		return []map[string]interface{}{
-			{
-				"enable_metrics": c.EnableMetrics,
-				"relay_mode":     c.RelayMode,
-			},
-		}
-	}
-
 	return []map[string]interface{}{
 		{
 			"enable_metrics": c.EnableMetrics,
-			"enable_relay":   false,
-			"relay_mode":     "DISABLED",
+			"enable_relay":   c.EnableRelay,
 		},
 	}
 }

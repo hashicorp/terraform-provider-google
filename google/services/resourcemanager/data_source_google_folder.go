@@ -52,6 +52,10 @@ func DataSourceGoogleFolder() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -71,6 +75,10 @@ func dataSourceFolderRead(d *schema.ResourceData, meta interface{}) error {
 	// If resource doesn't exist, read will not set ID and we should return error.
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
+	}
+
+	if err := d.Set("deletion_protection", nil); err != nil {
+		return fmt.Errorf("Error setting deletion_protection: %s", err)
 	}
 
 	if v, ok := d.GetOk("lookup_organization"); ok && v.(bool) {

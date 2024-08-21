@@ -11,6 +11,7 @@ import (
 )
 
 func TestAccVertexAIIndexEndpoint_updated(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{

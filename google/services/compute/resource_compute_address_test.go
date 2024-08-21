@@ -526,6 +526,10 @@ func TestAccComputeAddress_withAttributionRemoved(t *testing.T) {
 
 func testAccComputeAddress_networkTier_withLabels(i string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_compute_address" "foobar" {
   name         = "tf-test-address-%s"
   network_tier = "STANDARD"
@@ -540,6 +544,10 @@ resource "google_compute_address" "foobar" {
 
 func testAccComputeAddress_networkTier_withLabelsUpdate(i string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_compute_address" "foobar" {
   name         = "tf-test-address-%s"
   network_tier = "STANDARD"
@@ -558,6 +566,7 @@ provider "google" {
   default_labels = {
     default_key1 = "default_value1"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_compute_address" "foobar" {
@@ -578,6 +587,7 @@ provider "google" {
   default_labels = {
     default_key1 = "default_value1"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_compute_address" "foobar" {
@@ -600,6 +610,7 @@ provider "google" {
     default_key1 = "default_value1"
     env          = "foo"
   }
+  add_terraform_attribution_label = false
 }
 
 resource "google_compute_address" "foobar" {
@@ -750,6 +761,10 @@ resource "google_compute_address" "internal_with_subnet_and_address" {
 
 func testAccComputeAddress_networkTier(i string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_compute_address" "foobar" {
   name         = "tf-test-address-%s"
   network_tier = "STANDARD"

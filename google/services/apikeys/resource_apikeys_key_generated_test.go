@@ -196,7 +196,6 @@ func testAccApikeysKey_AndroidKey(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     android_key_restrictions {
@@ -213,12 +212,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -228,7 +221,6 @@ func testAccApikeysKey_AndroidKeyUpdate0(context map[string]interface{}) string 
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     android_key_restrictions {
@@ -245,12 +237,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -260,7 +246,6 @@ func testAccApikeysKey_BasicKey(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -274,12 +259,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -289,7 +268,6 @@ func testAccApikeysKey_BasicKeyUpdate0(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key-update"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -303,12 +281,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -318,7 +290,6 @@ func testAccApikeysKey_IosKey(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -332,12 +303,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -347,7 +312,6 @@ func testAccApikeysKey_IosKeyUpdate0(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -361,12 +325,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -376,13 +334,6 @@ func testAccApikeysKey_MinimalKey(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
-}
-
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
 }
 
 
@@ -394,7 +345,6 @@ func testAccApikeysKey_ServerKey(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -408,12 +358,6 @@ resource "google_apikeys_key" "primary" {
   }
 }
 
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
-}
-
 
 `, context)
 }
@@ -423,7 +367,6 @@ func testAccApikeysKey_ServerKeyUpdate0(context map[string]interface{}) string {
 resource "google_apikeys_key" "primary" {
   name         = "tf-test-key%{random_suffix}"
   display_name = "sample-key"
-  project      = google_project.basic.name
 
   restrictions {
     api_targets {
@@ -435,12 +378,6 @@ resource "google_apikeys_key" "primary" {
       allowed_ips = ["127.0.0.2", "192.168.1.1"]
     }
   }
-}
-
-resource "google_project" "basic" {
-  project_id = "tf-test-app%{random_suffix}"
-  name       = "tf-test-app%{random_suffix}"
-  org_id     = "%{org_id}"
 }
 
 

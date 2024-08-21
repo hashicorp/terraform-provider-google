@@ -36,6 +36,7 @@ resource "google_active_directory_domain" "ad-domain" {
   domain_name       = "tfgen.org.com"
   locations         = ["us-central1"]
   reserved_ip_range = "192.168.255.0/24" 
+  deletion_protection = false
 }
 ```
 
@@ -81,6 +82,13 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the domain. Defaults to true.
+When a`terraform destroy` or `terraform apply` would delete the domain,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the domain will fail.
+When the field is set to false, deleting the domain is allowed.
 
 
 ## Attributes Reference

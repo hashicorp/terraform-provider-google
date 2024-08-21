@@ -47,6 +47,7 @@ resource "google_project" "default" {
   name       = "my-project"
   org_id     = "123456789"
   billing_account =  "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
   labels = {
     firebase = "enabled"
   }

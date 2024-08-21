@@ -629,7 +629,6 @@ func ResourceComputeInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				ConfigMode:  schema.SchemaConfigModeAttr,
 				Description: `List of the type and count of accelerator cards attached to the instance.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

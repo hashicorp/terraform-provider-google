@@ -39,9 +39,11 @@ func testAccVPCAccessConnectorDatasourceConfig(suffix string) string {
 	return fmt.Sprintf(`
 resource "google_vpc_access_connector" "connector" {
   name          = "tf-test-%s"
-  ip_cidr_range = "10.8.0.32/28"
-  network       = "default"
-  region        = "us-central1"
+  ip_cidr_range  = "10.8.0.32/28"
+  network        = "default"
+  region         = "us-central1"
+  min_throughput  = 200
+  max_throughput = 300
 }
 
 data "google_vpc_access_connector" "connector" {

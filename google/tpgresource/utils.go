@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	fwDiags "github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/id"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"golang.org/x/exp/maps"
@@ -879,4 +880,17 @@ func DefaultProviderZone(_ context.Context, diff *schema.ResourceDiff, meta inte
 	}
 
 	return nil
+}
+
+// id.UniqueId() returns a timestamp + incremental hash
+// This function truncates the timestamp to provide a prefix + 9 using
+// YYmmdd + last 3 digits of the incremental hash
+func ReducedPrefixedUniqueId(prefix string) string {
+	// uniqueID is timestamp + 8 digit counter (YYYYmmddHHMMSSssss + 12345678)
+	uniqueId := id.PrefixedUniqueId("")
+	// last three digits of the counter (678)
+	counter := uniqueId[len(uniqueId)-3:]
+	// YYmmdd of date
+	date := uniqueId[2:8]
+	return prefix + date + counter
 }

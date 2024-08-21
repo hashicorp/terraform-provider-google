@@ -41,6 +41,7 @@ resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "quota"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_service_usage_consumer_quota_override" "override" {
@@ -62,6 +63,7 @@ resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "quota"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_service_usage_consumer_quota_override" "override" {
@@ -86,6 +88,7 @@ resource "google_project" "my_project" {
   name       = "tf-test-project"
   project_id = "quota"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_service_usage_consumer_quota_override" "override" {

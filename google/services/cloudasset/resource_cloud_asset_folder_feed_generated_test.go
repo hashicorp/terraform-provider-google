@@ -99,6 +99,7 @@ resource "google_pubsub_topic" "feed_output" {
 resource "google_folder" "my_folder" {
   display_name = "Networking%{random_suffix}"
   parent       = "organizations/%{org_id}"
+  deletion_protection = false
 }
 
 # Find the project number of the project whose identity will be used for sending

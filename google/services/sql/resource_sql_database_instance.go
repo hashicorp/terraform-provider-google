@@ -76,7 +76,6 @@ var (
 	ipConfigurationKeys = []string{
 		"settings.0.ip_configuration.0.authorized_networks",
 		"settings.0.ip_configuration.0.ipv4_enabled",
-		"settings.0.ip_configuration.0.require_ssl",
 		"settings.0.ip_configuration.0.private_network",
 		"settings.0.ip_configuration.0.allocated_ip_range",
 		"settings.0.ip_configuration.0.enable_private_path_for_google_cloud_services",
@@ -1402,7 +1401,8 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 
 	_ipConfiguration := configured[0].(map[string]interface{})
 
-	forceSendFields := []string{"Ipv4Enabled", "RequireSsl"}
+	forceSendFields := []string{"Ipv4Enabled"}
+	nullFields := []string{"RequireSsl"}
 
 	if !strings.HasPrefix(databaseVersion, "SQLSERVER") {
 		forceSendFields = append(forceSendFields, "EnablePrivatePathForGoogleCloudServices")
@@ -1410,12 +1410,12 @@ func expandIpConfiguration(configured []interface{}, databaseVersion string) *sq
 
 	return &sqladmin.IpConfiguration{
 		Ipv4Enabled:                             _ipConfiguration["ipv4_enabled"].(bool),
-		RequireSsl:                              _ipConfiguration["require_ssl"].(bool),
 		PrivateNetwork:                          _ipConfiguration["private_network"].(string),
 		AllocatedIpRange:                        _ipConfiguration["allocated_ip_range"].(string),
 		AuthorizedNetworks:                      expandAuthorizedNetworks(_ipConfiguration["authorized_networks"].(*schema.Set).List()),
 		EnablePrivatePathForGoogleCloudServices: _ipConfiguration["enable_private_path_for_google_cloud_services"].(bool),
 		ForceSendFields:                         forceSendFields,
+		NullFields:                              nullFields,
 		PscConfig:                               expandPscConfig(_ipConfiguration["psc_config"].(*schema.Set).List()),
 		SslMode:                                 _ipConfiguration["ssl_mode"].(string),
 		ServerCaMode:                            _ipConfiguration["server_ca_mode"].(string),
@@ -2258,8 +2258,8 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 		"ipv4_enabled":       ipConfiguration.Ipv4Enabled,
 		"private_network":    ipConfiguration.PrivateNetwork,
 		"allocated_ip_range": ipConfiguration.AllocatedIpRange,
-		"require_ssl":        ipConfiguration.RequireSsl,
 		"enable_private_path_for_google_cloud_services": ipConfiguration.EnablePrivatePathForGoogleCloudServices,
+		"ssl_mode":       ipConfiguration.SslMode,
 		"server_ca_mode": ipConfiguration.ServerCaMode,
 	}
 

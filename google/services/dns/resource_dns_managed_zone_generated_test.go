@@ -332,6 +332,7 @@ resource "google_project" "project_1" {
   project_id      = "tf-test-project-1%{random_suffix}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project" "project_2" {
@@ -339,6 +340,7 @@ resource "google_project" "project_2" {
   project_id      = "tf-test-project-2%{random_suffix}"
   org_id          = "%{org_id}"
   billing_account = "%{billing_account}"
+  deletion_policy = "DELETE"
 }
 
 resource "google_compute_network" "network_1_project_1" {

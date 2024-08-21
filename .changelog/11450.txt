@@ -1,0 +1,3 @@
+```release-note:breaking-change
+integrations: `create_sample_workflows` and `provision_gmek` are removed from `google_integrations_client`
+```

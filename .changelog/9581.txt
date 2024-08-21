@@ -1,0 +1,6 @@
+```release-note:bug
+compute: fixed an issue regarding sending `enabled` field by default for null `iap` message in `google_compute_backend_service` and `google_compute_region_backend_service`
+```
+```release-note:breaking-change
+compute: Add new required field `enabled` in `google_compute_backend_service` and `google_compute_region_backend_service`
+```

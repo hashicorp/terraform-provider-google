@@ -45,6 +45,7 @@ resource "google_project" "project" {
   name            = "your_project_id"
   org_id          = "123456789"
   billing_account = "000000-0000000-0000000-000000"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "compute" {

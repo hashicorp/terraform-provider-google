@@ -35,6 +35,7 @@ func ResourceEdgenetworkSubnet() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceEdgenetworkSubnetCreate,
 		Read:   resourceEdgenetworkSubnetRead,
+		Update: resourceEdgenetworkSubnetUpdate,
 		Delete: resourceEdgenetworkSubnetDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -43,10 +44,12 @@ func ResourceEdgenetworkSubnet() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
+			tpgresource.SetLabelsDiff,
 			tpgresource.DefaultProviderProject,
 		),
 
@@ -102,11 +105,14 @@ Must be of the form: 'projects/{{project}}/locations/{{location}}/zones/{{zone}}
 				},
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `Labels associated with this resource.`,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Labels associated with this resource.
+
+
+**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"vlan_id": {
 				Type:        schema.TypeInt,
@@ -122,6 +128,13 @@ Must be of the form: 'projects/{{project}}/locations/{{location}}/zones/{{zone}}
 A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
 fractional digits. Examples: '2014-10-02T15:01:23Z' and '2014-10-02T15:01:23.045123456Z'.`,
 			},
+			"effective_labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				ForceNew:    true,
+				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -132,6 +145,13 @@ fractional digits. Examples: '2014-10-02T15:01:23Z' and '2014-10-02T15:01:23.045
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Current stage of the resource to the device by config push.`,
+			},
+			"terraform_labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Description: `The combination of labels configured directly on the resource
+ and default labels configured on the provider.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"update_time": {
 				Type:     schema.TypeString,
@@ -159,12 +179,6 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	obj := make(map[string]interface{})
-	labelsProp, err := expandEdgenetworkSubnetLabels(d.Get("labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
-	}
 	descriptionProp, err := expandEdgenetworkSubnetDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
@@ -194,6 +208,12 @@ func resourceEdgenetworkSubnetCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("vlan_id"); !tpgresource.IsEmptyValue(reflect.ValueOf(vlanIdProp)) && (ok || !reflect.DeepEqual(v, vlanIdProp)) {
 		obj["vlanId"] = vlanIdProp
+	}
+	labelsProp, err := expandEdgenetworkSubnetEffectiveLabels(d.Get("effective_labels"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{EdgenetworkBasePath}}projects/{{project}}/locations/{{location}}/zones/{{zone}}/subnets?subnetId={{subnet_id}}")
@@ -324,8 +344,19 @@ func resourceEdgenetworkSubnetRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("state", flattenEdgenetworkSubnetState(res["state"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Subnet: %s", err)
 	}
+	if err := d.Set("terraform_labels", flattenEdgenetworkSubnetTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnet: %s", err)
+	}
+	if err := d.Set("effective_labels", flattenEdgenetworkSubnetEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Subnet: %s", err)
+	}
 
 	return nil
+}
+
+func resourceEdgenetworkSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
+	// Only the root field "labels" and "terraform_labels" are mutable
+	return resourceEdgenetworkSubnetRead(d, meta)
 }
 
 func resourceEdgenetworkSubnetDelete(d *schema.ResourceData, meta interface{}) error {
@@ -411,7 +442,18 @@ func flattenEdgenetworkSubnetName(v interface{}, d *schema.ResourceData, config 
 }
 
 func flattenEdgenetworkSubnetLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	if v == nil {
+		return v
+	}
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
+	}
+
+	return transformed
 }
 
 func flattenEdgenetworkSubnetDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -462,15 +504,23 @@ func flattenEdgenetworkSubnetState(v interface{}, d *schema.ResourceData, config
 	return v
 }
 
-func expandEdgenetworkSubnetLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func flattenEdgenetworkSubnetTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
-		return map[string]string{}, nil
+		return v
 	}
-	m := make(map[string]string)
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
+
+	transformed := make(map[string]interface{})
+	if l, ok := d.GetOkExists("terraform_labels"); ok {
+		for k := range l.(map[string]interface{}) {
+			transformed[k] = v.(map[string]interface{})[k]
+		}
 	}
-	return m, nil
+
+	return transformed
+}
+
+func flattenEdgenetworkSubnetEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandEdgenetworkSubnetDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -495,4 +545,15 @@ func expandEdgenetworkSubnetIpv6Cidr(v interface{}, d tpgresource.TerraformResou
 
 func expandEdgenetworkSubnetVlanId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandEdgenetworkSubnetEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }

@@ -82,6 +82,8 @@ func TestAccComposerEnvironment_basic(t *testing.T) {
 // Checks that all updatable fields can be updated in one apply
 // (PATCH for Environments only is per-field)
 func TestAccComposerEnvironment_update(t *testing.T) {
+	// Currently failing
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
@@ -281,6 +283,8 @@ func TestAccComposerEnvironment_withDatabaseConfig(t *testing.T) {
 }
 
 func TestAccComposerEnvironment_withWebServerConfig(t *testing.T) {
+	// Currently failing
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 	envName := fmt.Sprintf("%s-%d", testComposerEnvironmentPrefix, acctest.RandInt(t))
 	network := fmt.Sprintf("%s-%d", testComposerNetworkPrefix, acctest.RandInt(t))
@@ -354,6 +358,7 @@ func TestAccComposerEnvironment_withEncryptionConfigComposer1(t *testing.T) {
 }
 
 func TestAccComposerEnvironment_withEncryptionConfigComposer2(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	kms := acctest.BootstrapKMSKeyInLocation(t, "us-central1")

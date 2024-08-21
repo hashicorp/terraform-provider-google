@@ -301,11 +301,6 @@ var ServicesListBeta = mapOf(
         "displayName" to "Dataprocmetastore",
         "path" to "./google-beta/services/dataprocmetastore"
     ),
-    "datastore" to mapOf(
-        "name" to "datastore",
-        "displayName" to "Datastore",
-        "path" to "./google-beta/services/datastore"
-    ),
     "datastream" to mapOf(
         "name" to "datastream",
         "displayName" to "Datastream",

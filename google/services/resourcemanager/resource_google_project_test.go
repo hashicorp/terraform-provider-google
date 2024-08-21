@@ -62,7 +62,7 @@ func TestAccProject_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			// This step creates a new project
 			{
-				Config: testAccProject_create(pid, org),
+				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 				),
@@ -98,7 +98,7 @@ func TestAccProject_billing(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 			// Update to a different  billing account
 			{
@@ -109,7 +109,7 @@ func TestAccProject_billing(t *testing.T) {
 			},
 			// Unlink the billing account
 			{
-				Config: testAccProject_create(pid, org),
+				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectHasBillingAccount(t, "google_project.acceptance", pid, ""),
 				),
@@ -139,7 +139,7 @@ func TestAccProject_labels(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "labels", "terraform_labels", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy", "labels", "terraform_labels"},
 			},
 			// update project with labels
 			{
@@ -151,7 +151,7 @@ func TestAccProject_labels(t *testing.T) {
 			},
 			// update project delete labels
 			{
-				Config: testAccProject_create(pid, org),
+				Config: testAccProject(pid, org),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckGoogleProjectExists("google_project.acceptance", pid),
 					testAccCheckGoogleProjectHasNoLabels(t, "google_project.acceptance", pid),
@@ -212,7 +212,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 			{
 				Config: testAccProject_migrateParentOrg(pid, folderDisplayName, org),
@@ -221,7 +221,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 			{
 				Config: testAccProject_migrateParentFolder(pid, folderDisplayName, org),
@@ -230,7 +230,7 @@ func TestAccProject_migrateParent(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 		},
 	})
@@ -369,7 +369,7 @@ func TestAccProject_noAllowDestroy(t *testing.T) {
 				ResourceName:            "google_project.acceptance",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"skip_delete", "deletion_policy"},
+				ImportStateVerifyIgnore: []string{"deletion_policy"},
 			},
 			{
 				Config:      testAccProject_noAllowDestroy(pid, org),
@@ -377,7 +377,7 @@ func TestAccProject_noAllowDestroy(t *testing.T) {
 				ExpectError: regexp.MustCompile("deletion_policy"),
 			},
 			{
-				Config: testAccProject_create(pid, org),
+				Config: testAccProject(pid, org),
 			},
 		},
 	})
@@ -417,8 +417,20 @@ func testAccProject_createWithoutOrg(pid string) string {
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
+  deletion_policy = "DELETE"
 }
 `, pid, pid)
+}
+
+func testAccProject(pid, org string) string {
+	return fmt.Sprintf(`
+resource "google_project" "acceptance" {
+  project_id = "%s"
+  name       = "%s"
+  org_id = "%s"
+  deletion_policy = "DELETE"
+}
+`, pid, pid, org)
 }
 
 func testAccProject_noAllowDestroy(pid, org string) string {
@@ -450,16 +462,22 @@ resource "google_project" "acceptance" {
   name            = "%s"
   org_id          = "%s"
   billing_account = "%s"
+  deletion_policy = "DELETE"
 }
 `, pid, pid, org, billing)
 }
 
 func testAccProject_labels(pid, org string, labels map[string]string) string {
 	r := fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
   labels = {`, pid, pid, org)
 
 	l := ""
@@ -478,6 +496,7 @@ resource "google_project" "acceptance" {
   name                = "%s"
   org_id              = "%s"
   billing_account     = "%s" # requires billing to enable compute API
+  deletion_policy = "DELETE"
   auto_create_network = false
 }
 `, pid, pid, org, billing)
@@ -488,6 +507,7 @@ func testAccProject_parentFolder(pid, folderName, org string) string {
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
+  deletion_policy = "DELETE"
 
   folder_id = google_folder.folder1.id
 }
@@ -495,6 +515,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, folderName, org)
 }
@@ -504,6 +525,7 @@ func testAccProject_migrateParentFolder(pid, folderName, org string) string {
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
+  deletion_policy = "DELETE"
 
   folder_id = google_folder.folder1.id
 }
@@ -511,6 +533,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, folderName, org)
 }
@@ -520,6 +543,7 @@ func testAccProject_migrateParentOrg(pid, folderName, org string) string {
 resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
+  deletion_policy = "DELETE"
 
   org_id = "%s"
 }
@@ -527,6 +551,7 @@ resource "google_project" "acceptance" {
 resource "google_folder" "folder1" {
   display_name = "%s"
   parent       = "organizations/%s"
+  deletion_protection = false
 }
 `, pid, pid, org, folderName, org)
 }

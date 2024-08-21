@@ -40,6 +40,7 @@ To get more information about Service, see:
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -61,6 +62,7 @@ resource "google_cloud_run_v2_service" "default" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
@@ -88,6 +90,7 @@ resource "google_cloud_run_v2_service" "default" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
   
   template {
@@ -177,6 +180,7 @@ resource "google_sql_database_instance" "instance" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -222,6 +226,7 @@ resource "google_compute_network" "custom_test" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   launch_stage = "GA"
   template {
     containers {
@@ -249,6 +254,7 @@ resource "google_cloud_run_v2_service" "default" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
 
   template {
     containers {
@@ -283,6 +289,7 @@ resource "google_cloud_run_v2_service" "default" {
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
@@ -343,6 +350,7 @@ resource "google_cloud_run_v2_service" "default" {
   provider = google-beta
   name     = "cloudrun-service"
   location = "us-central1"
+  deletion_protection = false
   launch_stage = "BETA"
   ingress = "INGRESS_TRAFFIC_ALL"
   template {
@@ -394,6 +402,7 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
 
   location     = "us-central1"
+  deletion_protection = false
   launch_stage = "BETA"
 
   template {
@@ -435,6 +444,7 @@ resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
 
   location     = "us-central1"
+  deletion_protection = false
   ingress      = "INGRESS_TRAFFIC_ALL"
   launch_stage = "BETA"
 
@@ -1079,6 +1089,13 @@ The following arguments are supported:
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
+
+* `deletion_protection` - (Optional) Whether Terraform will be prevented from destroying the service. Defaults to true.
+When a`terraform destroy` or `terraform apply` would delete the service,
+the command will fail if this field is not set to false in Terraform state.
+When the field is set to true or unset in Terraform state, a `terraform apply`
+or `terraform destroy` that would delete the service will fail.
+When the field is set to false, deleting the service is allowed.
 
 
 <a name="nested_binary_authorization"></a>The `binary_authorization` block supports:

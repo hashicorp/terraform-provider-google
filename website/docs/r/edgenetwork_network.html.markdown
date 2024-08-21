@@ -69,6 +69,9 @@ The following arguments are supported:
   (Optional)
   Labels associated with this resource.
 
+  **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+  Please refer to the field `effective_labels` for all of the labels present on the resource.
+
 * `description` -
   (Optional)
   A free-text description of the resource. Max length 1024 characters.
@@ -101,6 +104,13 @@ In addition to the arguments listed above, the following computed attributes are
   A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
   fractional digits. Examples: `2014-10-02T15:01:23Z` and `2014-10-02T15:01:23.045123456Z`.
 
+* `terraform_labels` -
+  The combination of labels configured directly on the resource
+   and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 
 ## Timeouts
 
@@ -108,6 +118,7 @@ This resource provides the following
 [Timeouts](https://developer.hashicorp.com/terraform/plugin/sdkv2/resources/retries-and-customizable-timeouts) configuration options:
 
 - `create` - Default is 20 minutes.
+- `update` - Default is 20 minutes.
 - `delete` - Default is 30 minutes.
 
 ## Import

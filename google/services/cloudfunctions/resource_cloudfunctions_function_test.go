@@ -973,6 +973,8 @@ resource "google_vpc_access_connector" "%s" {
   region        = "us-central1"
   ip_cidr_range = "%s"
   network       = google_compute_network.vpc.name
+  min_throughput  = 200
+  max_throughput = 300
 }
 
 resource "google_storage_bucket" "bucket" {

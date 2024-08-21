@@ -328,6 +328,15 @@ channel. Structure is [documented below](#nested_release_channel).
 
 * `resource_labels` - (Optional) The GCE resource labels (a map of key/value pairs) to be applied to the cluster.
 
+    **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
+    Please refer to the field 'effective_labels' for all of the labels present on the resource.
+
+* `terraform_labels` -
+  The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` -
+  All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 * `cost_management_config` - (Optional) Configuration for the
     [Cost Allocation](https://cloud.google.com/kubernetes-engine/docs/how-to/cost-allocations) feature.
     Structure is [documented below](#nested_cost_management_config).
@@ -645,8 +654,7 @@ This block also contains several computed attributes, documented below.
 <a name="nested_advanced_datapath_observability_config"></a>The `advanced_datapath_observability_config` block supports:
 
 * `enable_metrics` - (Required) Whether or not to enable advanced datapath metrics.
-* `enable_relay` - (Optional) Whether or not Relay is enabled.
-* `relay_mode` - (Optional, Deprecated) Mode used to make Relay available. Deprecated in favor of `enable_relay` field. Remove this attribute's configuration as this field will be removed in the next major release and `enable_relay` will become a required field.
+* `enable_relay` - (Required) Whether or not Relay is enabled.
 
 <a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
 * `daily_maintenance_window` - (Optional) structure documented below.
