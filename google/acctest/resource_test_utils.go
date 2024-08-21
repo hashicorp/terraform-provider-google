@@ -3,16 +3,39 @@
 package acctest
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
 // General test utils
+
+var _ plancheck.PlanCheck = expectNoDelete{}
+
+type expectNoDelete struct{}
+
+func (e expectNoDelete) CheckPlan(ctx context.Context, req plancheck.CheckPlanRequest, resp *plancheck.CheckPlanResponse) {
+	var result error
+	for _, rc := range req.Plan.ResourceChanges {
+		if slices.Contains(rc.Change.Actions, tfjson.ActionDelete) {
+			result = errors.Join(result, fmt.Errorf("expected no deletion of resources, but %s has planned deletion", rc.Address))
+		}
+	}
+	resp.Error = result
+}
+
+func ExpectNoDelete() plancheck.PlanCheck {
+	return expectNoDelete{}
+}
 
 // TestExtractResourceAttr navigates a test's state to find the specified resource (or data source) attribute and makes the value
 // accessible via the attributeValue string pointer.

@@ -17,8 +17,7 @@ import (
 
 // Custom Module tests cannot be run in parallel without running into 409 Conflict reponses.
 // Run them as individual steps of an update test instead.
-func TestAccSecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule(t *testing.T) {
-	t.Parallel()
+func testAccSecurityCenterManagementProjectSecurityHealthAnalyticsCustomModule(t *testing.T) {
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
