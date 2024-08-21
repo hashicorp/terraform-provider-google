@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `label_fingerprint` field to `google_compute_global_address` resource (ga)
+```
+```release-note:bug
+compute: fixed bug where the `labels` field could not be updated on `google_compute_global_address` (ga)
+```
