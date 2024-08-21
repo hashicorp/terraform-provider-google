@@ -284,6 +284,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {
@@ -300,6 +301,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {
@@ -322,6 +324,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {
@@ -338,6 +341,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {
@@ -354,6 +358,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {
@@ -370,6 +375,7 @@ resource "google_project" "acceptance" {
   project_id = "%s"
   name       = "%s"
   org_id     = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_iam_binding" "acceptance" {

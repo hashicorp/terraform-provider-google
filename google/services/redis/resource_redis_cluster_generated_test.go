@@ -34,8 +34,8 @@ func TestAccRedisCluster_redisClusterHaExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"deletion_protection_enabled": false,
+		"random_suffix":               acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -72,16 +72,14 @@ resource "google_redis_cluster" "cluster-ha" {
   redis_configs = {
     maxmemory-policy	= "volatile-ttl"
   }
+  deletion_protection_enabled = false
+
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
-
-  lifecycle {
-    prevent_destroy = %{prevent_destroy}
-  }
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
@@ -113,8 +111,8 @@ func TestAccRedisCluster_redisClusterHaSingleZoneExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"prevent_destroy": false,
-		"random_suffix":   acctest.RandString(t, 10),
+		"deletion_protection_enabled": false,
+		"random_suffix":               acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -148,13 +146,11 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
     mode = "SINGLE_ZONE"
     zone = "us-central1-f"
   }
+  deletion_protection_enabled = false
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
 
-  lifecycle {
-    prevent_destroy = %{prevent_destroy}
-  }
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {

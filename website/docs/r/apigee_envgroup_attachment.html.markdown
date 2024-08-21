@@ -37,6 +37,7 @@ resource "google_project" "project" {
   name            = "my-project"
   org_id          = ""
   billing_account = ""
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "apigee" {

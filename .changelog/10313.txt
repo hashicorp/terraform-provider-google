@@ -1,0 +1,9 @@
+```release-note:breaking-change
+vpcaccess: removed default values for `min_throughput` and `min_instances` fields on `google_vpc_access_connector` and made them default to values returned from the API when not provided by users
+```
+```release-note:breaking-change
+vpcaccess: added a conflicting fields restriction between `min_throughput` and `min_instances` fields on `google_vpc_access_connector`
+```
+```release-note:breaking-change
+vpcaccess: added a conflicting fields restriction between `max_throughput` and `max_instances` fields on `google_vpc_access_connector`
+```

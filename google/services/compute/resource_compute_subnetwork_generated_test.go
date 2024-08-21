@@ -49,7 +49,7 @@ func TestAccComputeSubnetwork_subnetworkBasicExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.network-with-private-secondary-ip-ranges",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -94,7 +94,7 @@ func TestAccComputeSubnetwork_subnetworkLoggingConfigExample(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnet-with-logging",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -141,7 +141,7 @@ func TestAccComputeSubnetwork_subnetworkIpv6Example(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-ipv6",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
 			},
 		},
 	})
@@ -187,7 +187,7 @@ func TestAccComputeSubnetwork_subnetworkInternalIpv6Example(t *testing.T) {
 				ResourceName:            "google_compute_subnetwork.subnetwork-internal-ipv6",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"network", "region"},
+				ImportStateVerifyIgnore: []string{"network", "region", "reserved_internal_range"},
 			},
 		},
 	})

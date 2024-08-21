@@ -150,7 +150,7 @@ func TestAccContainerCluster_misc(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
 			},
 			{
 				Config: testAccContainerCluster_misc_update(clusterName, networkName, subnetworkName),
@@ -159,7 +159,7 @@ func TestAccContainerCluster_misc(t *testing.T) {
 				ResourceName:            "google_container_cluster.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection"},
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
 			},
 		},
 	})
@@ -3025,24 +3025,6 @@ func TestAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityCo
 			},
 			{
 				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabled(clusterName),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
-			},
-			{
-				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigEnabledOld(clusterName),
-			},
-			{
-				ResourceName:            "google_container_cluster.primary",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
-			},
-			{
-				Config: testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabledOld(clusterName),
 			},
 			{
 				ResourceName:            "google_container_cluster.primary",
@@ -8594,56 +8576,6 @@ resource "google_container_cluster" "primary" {
 `, name, name)
 }
 
-func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigEnabledOld(name string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "container_network" {
-  name                    = "%s-nw"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = google_compute_network.container_network.name
-  network                  = google_compute_network.container_network.name
-  ip_cidr_range            = "10.0.36.0/24"
-  region                   = "us-central1"
-  private_ip_google_access = true
-
-  secondary_ip_range {
-    range_name    = "services-range"
-    ip_cidr_range = "192.168.1.0/24"
-  }
-
-  secondary_ip_range {
-    range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.64.0/22"
-  }
-}
-
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  datapath_provider = "ADVANCED_DATAPATH"
-
-  network    = google_compute_network.container_network.name
-  subnetwork = google_compute_subnetwork.container_subnetwork.name
-  ip_allocation_policy {
-    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
-    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
-  }
-
-  monitoring_config {
-    enable_components = []
-    advanced_datapath_observability_config {
-      enable_metrics = true
-      relay_mode     = "INTERNAL_VPC_LB"
-    }
-  }
-  deletion_protection = false
-}
-`, name, name)
-}
-
 func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabled(name string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "container_network" {
@@ -8687,56 +8619,6 @@ resource "google_container_cluster" "primary" {
     advanced_datapath_observability_config {
       enable_metrics = false
       enable_relay   = false
-    }
-  }
-  deletion_protection = false
-}
-`, name, name)
-}
-
-func testAccContainerCluster_withMonitoringConfigAdvancedDatapathObservabilityConfigDisabledOld(name string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "container_network" {
-  name                    = "%s-nw"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "container_subnetwork" {
-  name                     = google_compute_network.container_network.name
-  network                  = google_compute_network.container_network.name
-  ip_cidr_range            = "10.0.36.0/24"
-  region                   = "us-central1"
-  private_ip_google_access = true
-
-  secondary_ip_range {
-    range_name    = "services-range"
-    ip_cidr_range = "192.168.1.0/24"
-  }
-
-  secondary_ip_range {
-    range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.64.0/22"
-  }
-}
-
-resource "google_container_cluster" "primary" {
-  name               = "%s"
-  location           = "us-central1-a"
-  initial_node_count = 1
-  datapath_provider  = "ADVANCED_DATAPATH"
-
-  network    = google_compute_network.container_network.name
-  subnetwork = google_compute_subnetwork.container_subnetwork.name
-  ip_allocation_policy {
-    cluster_secondary_range_name  = google_compute_subnetwork.container_subnetwork.secondary_ip_range[0].range_name
-    services_secondary_range_name = google_compute_subnetwork.container_subnetwork.secondary_ip_range[1].range_name
-  }
-
-  monitoring_config {
-    enable_components = []
-    advanced_datapath_observability_config {
-      enable_metrics = false
-      relay_mode     = "DISABLED"
     }
   }
   deletion_protection = false
@@ -9638,6 +9520,7 @@ resource "google_container_cluster" "with_autopilot" {
 }
 
 func TestAccContainerCluster_privateRegistry(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -9917,4 +9800,159 @@ resource "google_container_cluster" "primary" {
   subnetwork    = "%s"
 }
 `, secretID, clusterName, networkName, subnetworkName)
+}
+
+func TestAccContainerCluster_withProviderDefaultLabels(t *testing.T) {
+	// The test failed if VCR testing is enabled, because the cached provider config is used.
+	// With the cached provider config, any changes in the provider default labels will not be applied.
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withProviderDefaultLabels(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.%", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.created-by", "terraform"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.created-by", "terraform"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "effective_labels.%", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
+			},
+			{
+				Config: testAccContainerCluster_resourceLabelsOverridesProviderDefaultLabels(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.created-by", "terraform"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.default_key1", "value1"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.default_key1", "value1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.created-by", "terraform"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "effective_labels.%", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
+			},
+			{
+				Config: testAccContainerCluster_moveResourceLabelToProviderDefaultLabels(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.%", "0"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.default_key1", "default_value1"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.created-by", "terraform"),
+
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "effective_labels.%", "2"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
+			},
+			{
+				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "resource_labels.%", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "terraform_labels.%", "0"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "effective_labels.%", "0"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"remove_default_node_pool", "deletion_protection", "resource_labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withProviderDefaultLabels(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  resource_labels = {
+    created-by = "terraform"
+  }
+}
+`, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_resourceLabelsOverridesProviderDefaultLabels(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  resource_labels = {
+    created-by = "terraform"
+	default_key1 = "value1"
+  }
+}
+`, name, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_moveResourceLabelToProviderDefaultLabels(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  default_labels = {
+    default_key1 = "default_value1"
+	created-by   = "terraform"
+  }
+}
+
+resource "google_container_cluster" "primary" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, name, networkName, subnetworkName)
 }

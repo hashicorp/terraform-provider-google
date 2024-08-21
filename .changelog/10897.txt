@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added fields `reserved_internal_range` and `secondary_ip_ranges[].reserved_internal_range` to `google_compute_subnetwork` resource
+```

@@ -189,7 +189,8 @@ func ResourceDataprocCluster() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			tpgresource.DefaultProviderProject,
-			tpgresource.SetLabelsDiff,
+			// User labels are not supported in Dataproc Virtual Cluster
+			tpgresource.SetLabelsDiffWithoutAttributionLabel,
 		),
 
 		SchemaVersion: 1,

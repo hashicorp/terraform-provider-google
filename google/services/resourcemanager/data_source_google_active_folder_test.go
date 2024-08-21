@@ -130,6 +130,7 @@ func testAccDataSourceGoogleActiveFolderConfig(parent string, displayName string
 resource "google_folder" "foobar" {
   parent       = "%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 data "google_active_folder" "my_folder" {
@@ -144,6 +145,7 @@ func testAccDataSourceGoogleActiveFolderConfig_Search(parent string, displayName
 resource "google_folder" "foobar" {
   parent       = "%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 # Wait after folder creation to limit eventual consistency errors.

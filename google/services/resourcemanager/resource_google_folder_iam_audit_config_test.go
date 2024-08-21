@@ -279,6 +279,7 @@ func testAccFolderAssociateAuditConfigBasic(org, fname, service string) string {
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {
@@ -300,6 +301,7 @@ func testAccFolderAssociateAuditConfigMultiple(org, fname, service, service2 str
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {
@@ -329,6 +331,7 @@ func testAccFolderAssociateAuditConfigUpdated(org, fname, service string) string
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {
@@ -350,6 +353,7 @@ func testAccFolderAssociateAuditConfigDropMemberFromBasic(org, fname, service st
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {
@@ -377,6 +381,7 @@ func testAccFolderAssociateAuditConfigMembers(org, fname, service string, member
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {
@@ -394,6 +399,7 @@ func testAccFolderAssociateAuditConfigLogType(org, fname, service, logType strin
 resource "google_folder" "acceptance" {
   parent       = "organizations/%s"
   display_name = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_iam_audit_config" "acceptance" {

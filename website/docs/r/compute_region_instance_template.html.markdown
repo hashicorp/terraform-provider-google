@@ -307,7 +307,14 @@ The following arguments are supported:
   this blank, Terraform will auto-generate a unique name.
 
 * `name_prefix` - (Optional) Creates a unique name beginning with the specified
-  prefix. Conflicts with `name`.
+  prefix. Conflicts with `name`. Max length is 54 characters.
+  Prefixes with lengths longer than 37 characters will use a shortened
+  UUID that will be more prone to collisions.
+
+  Resulting name for a `name_prefix` <= 37 characters:
+  `name_prefix` + YYYYmmddHHSSssss + 8 digit incremental counter
+  Resulting name for a `name_prefix` 38 - 54 characters:
+  `name_prefix` + YYmmdd + 3 digit incremental counter
 
 * `can_ip_forward` - (Optional) Whether to allow sending and receiving of
     packets with non-matching source or destination IPs. This defaults to false.

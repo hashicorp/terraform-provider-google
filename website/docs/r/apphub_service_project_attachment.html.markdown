@@ -36,6 +36,7 @@ resource "google_project" "service_project" {
   project_id ="project-1"
   name = "Service Project"
   org_id = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "time_sleep" "wait_120s" {
@@ -58,6 +59,7 @@ resource "google_project" "service_project_full" {
   project_id ="project-1"
   name = "Service Project Full"
   org_id = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "time_sleep" "wait_120s" {

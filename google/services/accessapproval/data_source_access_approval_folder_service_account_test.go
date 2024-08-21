@@ -42,6 +42,7 @@ func testAccDataSourceAccessApprovalFolderServiceAccount_basic(context map[strin
 resource "google_folder" "my_folder" {
   display_name = "tf-test-my-folder%{random_suffix}"
   parent       = "organizations/%{org_id}"
+  deletion_protection = false
 }
 
 # Wait after folder creation to limit eventual consistency errors.

@@ -36,6 +36,7 @@ resource "google_project" "project" {
   project_id = "tf-test%{random_suffix}"
   name       = "tf-test%{random_suffix}"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
   lifecycle {
     ignore_changes = [billing_account]
   }
@@ -70,7 +71,7 @@ The following arguments are supported:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `projects/{{project}}/billingInfo`
+* `id` - an identifier for the resource with format `projects/{{project}}`
 
 
 ## Timeouts

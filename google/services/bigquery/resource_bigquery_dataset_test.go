@@ -125,7 +125,7 @@ func TestAccBigQueryDataset_withComputedLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "labels.default_table_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "2"),
+					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.%", "3"),
 					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_bigquery_dataset.test", "effective_labels.default_table_expiration_ms", "3600000"),
 				),
@@ -496,6 +496,10 @@ func addOutOfBandLabels(t *testing.T, datasetID string) resource.TestCheckFunc {
 
 func testAccBigQueryDataset_withoutLabels(datasetID string) string {
 	return fmt.Sprintf(`
+provider "google" {
+  add_terraform_attribution_label = false
+}
+
 resource "google_bigquery_dataset" "test" {
   dataset_id                      = "%s"
   friendly_name                   = "foo"

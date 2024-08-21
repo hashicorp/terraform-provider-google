@@ -71,8 +71,9 @@ resource "google_alloydb_instance" "default" {
 resource "google_alloydb_cluster" "default" {
   cluster_id = "tf-test-alloydb-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = data.google_compute_network.default.id
-
+  network_config {
+    network = data.google_compute_network.default.id
+  }
   initial_user {
     password = "tf-test-alloydb-cluster%{random_suffix}"
   }
@@ -117,7 +118,9 @@ func testAccAlloydbInstance_alloydbSecondaryInstanceBasicTestExample(context map
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "tf-test-alloydb-primary-cluster%{random_suffix}"
   location   = "us-central1"
-  network    = data.google_compute_network.default.id
+  network_config {
+    network = data.google_compute_network.default.id
+  }
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -133,7 +136,9 @@ resource "google_alloydb_instance" "primary" {
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "tf-test-alloydb-secondary-cluster%{random_suffix}"
   location     = "us-east1"
-  network      = data.google_compute_network.default.id
+  network_config {
+    network = data.google_compute_network.default.id
+  }
   cluster_type = "SECONDARY"
 
   continuous_backup_config {

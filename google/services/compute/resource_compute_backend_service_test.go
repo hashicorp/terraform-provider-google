@@ -126,6 +126,15 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
+				Config: testAccComputeBackendService_withBackend(
+					serviceName, igName, itName, checkName, 10),
+			},
+			{
+				ResourceName:      "google_compute_backend_service.lipsum",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: testAccComputeBackendService_withBackendAndIAP(
 					serviceName, igName, itName, checkName, 10),
 			},
@@ -134,15 +143,6 @@ func TestAccComputeBackendService_withBackendAndIAP(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_secret"},
-			},
-			{
-				Config: testAccComputeBackendService_withBackend(
-					serviceName, igName, itName, checkName, 10),
-			},
-			{
-				ResourceName:      "google_compute_backend_service.lipsum",
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 		},
 	})
@@ -1178,6 +1178,7 @@ resource "google_compute_backend_service" "lipsum" {
   }
 
   iap {
+    enabled              = true
     oauth2_client_id     = "test"
     oauth2_client_secret = "test"
   }

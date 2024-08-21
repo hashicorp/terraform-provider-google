@@ -73,6 +73,7 @@ resource "google_project" "service_project" {
   project_id ="tf-test-project-1%{random_suffix}"
   name = "Service Project"
   org_id = "%{org_id}"
+  deletion_policy = "DELETE"
 }
 
 resource "time_sleep" "wait_120s" {
@@ -126,6 +127,7 @@ resource "google_project" "service_project_full" {
   project_id ="tf-test-project-1%{random_suffix}"
   name = "Service Project Full"
   org_id = "%{org_id}"
+  deletion_policy = "DELETE"
 }
 
 resource "time_sleep" "wait_120s" {

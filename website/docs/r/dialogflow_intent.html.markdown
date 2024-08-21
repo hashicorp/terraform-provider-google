@@ -52,6 +52,7 @@ resource "google_project" "agent_project" {
   project_id = "my-project"
   name = "my-project"
   org_id = "123456789"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "agent_project" {

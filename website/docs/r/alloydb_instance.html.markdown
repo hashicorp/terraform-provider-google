@@ -87,7 +87,9 @@ resource "google_service_networking_connection" "vpc_connection" {
 resource "google_alloydb_cluster" "primary" {
   cluster_id = "alloydb-primary-cluster"
   location   = "us-central1"
-  network    = google_compute_network.default.id
+  network_config {
+    network = google_compute_network.default.id
+  }
 }
 
 resource "google_alloydb_instance" "primary" {
@@ -105,7 +107,9 @@ resource "google_alloydb_instance" "primary" {
 resource "google_alloydb_cluster" "secondary" {
   cluster_id   = "alloydb-secondary-cluster"
   location     = "us-east1"
-  network      = google_compute_network.default.id
+  network_config {
+    network = data.google_compute_network.default.id
+  }
   cluster_type = "SECONDARY"
 
   continuous_backup_config {

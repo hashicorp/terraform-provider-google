@@ -51,16 +51,14 @@ resource "google_redis_cluster" "cluster-ha" {
   redis_configs = {
     maxmemory-policy	= "volatile-ttl"
   }
+  deletion_protection_enabled = true
+
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
@@ -106,13 +104,11 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
     mode = "SINGLE_ZONE"
     zone = "us-central1-f"
   }
+  deletion_protection_enabled = true
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "google_network_connectivity_service_connection_policy" "default" {
@@ -199,6 +195,12 @@ The following arguments are supported:
 * `replica_count` -
   (Optional)
   Optional. The number of replica nodes per shard.
+
+* `deletion_protection_enabled` -
+  (Optional)
+  Optional. Indicates if the cluster is deletion protected or not.
+  If the value if set to true, any delete cluster operation will fail.
+  Default value is true.
 
 * `redis_configs` -
   (Optional)

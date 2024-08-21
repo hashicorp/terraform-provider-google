@@ -49,6 +49,15 @@ func datasourceContainerClusterRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	// Sets the "resource_labels" field and "terraform_labels" with the value of the field "effective_labels".
+	effectiveLabels := d.Get("effective_labels")
+	if err := d.Set("resource_labels", effectiveLabels); err != nil {
+		return fmt.Errorf("Error setting labels in data source: %s", err)
+	}
+	if err := d.Set("terraform_labels", effectiveLabels); err != nil {
+		return fmt.Errorf("Error setting terraform_labels in data source: %s", err)
+	}
+
 	if d.Id() == "" {
 		return fmt.Errorf("%s not found", id)
 	}

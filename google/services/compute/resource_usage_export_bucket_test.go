@@ -41,6 +41,7 @@ resource "google_project" "base" {
   name            = "Export Bucket Base"
   org_id          = "%s"
   billing_account = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "service" {

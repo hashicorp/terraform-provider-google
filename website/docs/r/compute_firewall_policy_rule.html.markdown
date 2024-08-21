@@ -37,6 +37,7 @@ resource "google_network_security_address_group" "basic_global_networksecurity_a
 resource "google_folder" "folder" {
   display_name = "policy"
   parent       = "organizations/123456789"
+  deletion_protection = false
 }
 
 resource "google_compute_firewall_policy" "default" {

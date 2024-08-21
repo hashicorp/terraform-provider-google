@@ -35,6 +35,7 @@ func testAccDataSourceGoogleFolderOrganizationPolicy_basic(org, folder string) s
 resource "google_folder" "orgpolicy" {
   display_name = "%s"
   parent       = "%s"
+  deletion_protection = false
 }
 
 resource "google_folder_organization_policy" "resource" {

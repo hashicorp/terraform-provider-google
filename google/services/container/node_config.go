@@ -128,13 +128,10 @@ func schemaNodeConfig() *schema.Schema {
 				},
 
 				"guest_accelerator": {
-					Type:     schema.TypeList,
-					Optional: true,
-					Computed: true,
-					ForceNew: true,
-					// Legacy config mode allows removing GPU's from an existing resource
-					// See https://www.terraform.io/docs/configuration/attr-as-blocks.html
-					ConfigMode:  schema.SchemaConfigModeAttr,
+					Type:        schema.TypeList,
+					Optional:    true,
+					Computed:    true,
+					ForceNew:    true,
 					Description: `List of the type and count of accelerator cards attached to the instance.`,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -157,7 +154,6 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Computed:    true,
 								ForceNew:    true,
-								ConfigMode:  schema.SchemaConfigModeAttr,
 								Description: `Configuration for auto installation of GPU driver.`,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
@@ -182,7 +178,6 @@ func schemaNodeConfig() *schema.Schema {
 								MaxItems:    1,
 								Optional:    true,
 								ForceNew:    true,
-								ConfigMode:  schema.SchemaConfigModeAttr,
 								Description: `Configuration for GPU sharing.`,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{

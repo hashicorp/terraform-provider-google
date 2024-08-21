@@ -1594,6 +1594,9 @@ func resourceBigQueryTableCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if table.View != nil && table.Schema != nil {
+		if schemaHasRequiredFields(table.Schema) {
+			return errors.New("Schema cannot contain required fields when creating a view")
+		}
 
 		log.Printf("[INFO] Removing schema from table definition because BigQuery does not support setting schema on view creation")
 		schemaBack := table.Schema
@@ -1928,17 +1931,6 @@ func resourceBigQueryTableColumnDrop(config *transport_tpg.Config, userAgent str
 func resourceBigQueryTableDelete(d *schema.ResourceData, meta interface{}) error {
 	if d.Get("deletion_protection").(bool) {
 		return fmt.Errorf("cannot destroy table %v without setting deletion_protection=false and running `terraform apply`", d.Id())
-	}
-	if v, ok := d.GetOk("resource_tags"); ok {
-		if !d.Get("allow_resource_tags_on_deletion").(bool) {
-			var resourceTags []string
-
-			for k, v := range v.(map[string]interface{}) {
-				resourceTags = append(resourceTags, fmt.Sprintf("%s:%s", k, v.(string)))
-			}
-
-			return fmt.Errorf("cannot destroy table %v without unsetting the following resource tags or setting allow_resource_tags_on_deletion=true: %v", d.Id(), resourceTags)
-		}
 	}
 
 	config := meta.(*transport_tpg.Config)
@@ -2550,6 +2542,15 @@ func setEmptyPolicyTagsInSchema(field *bigquery.TableFieldSchema) {
 	if field.PolicyTags == nil {
 		field.PolicyTags = &bigquery.TableFieldSchemaPolicyTags{Names: []string{}}
 	}
+}
+
+func schemaHasRequiredFields(schema *bigquery.TableSchema) bool {
+	for _, field := range schema.Fields {
+		if "REQUIRED" == field.Mode {
+			return true
+		}
+	}
+	return false
 }
 
 func expandTimePartitioning(configured interface{}) *bigquery.TimePartitioning {

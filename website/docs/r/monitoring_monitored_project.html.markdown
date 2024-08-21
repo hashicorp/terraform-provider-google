@@ -41,6 +41,7 @@ resource "google_project" "basic" {
   project_id = "m-id"
   name       = "m-id-display"
   org_id     = "123456789"
+  deletion_policy = "DELETE"
 }
 ```
 

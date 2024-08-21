@@ -795,6 +795,45 @@ func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_withNamePrefix(t *testing.T) {
+	t.Parallel()
+
+	// 8 + 46 = 54 which is the valid max
+	normalPrefix := "tf-test-" + fmt.Sprintf("%046s", "")
+	reducedSuffixPrefix := "tf-test-" + fmt.Sprintf("%029s", "")
+	invalidPrefix := "tf-test-" + fmt.Sprintf("%047s", "")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceTemplate_withNamePrefix(normalPrefix),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+			{
+				Config:      testAccComputeInstanceTemplate_withNamePrefix(invalidPrefix),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("cannot be longer than 54 characters"),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_withNamePrefix(reducedSuffixPrefix),
+			},
+			{
+				ResourceName:            "google_compute_instance_template.foobar",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name_prefix"},
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_withScratchDisk(t *testing.T) {
 	t.Parallel()
 
@@ -2341,6 +2380,28 @@ resource "google_compute_instance_template" "foobar" {
 `, suffix, suffix)
 }
 
+func testAccComputeInstanceTemplate_withNamePrefix(prefix string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-12"
+	project = "debian-cloud"
+}
+resource "google_compute_instance_template" "foobar" {
+  name_prefix    = "%s"
+  machine_type   = "n1-standard-1"   // can't be e2 because of local-ssd
+  can_ip_forward = false
+  disk {
+    source_image = data.google_compute_image.my_image.name
+    auto_delete  = true
+    boot         = true
+  }
+  network_interface {
+    network = "default"
+  }
+}
+`, prefix)
+}
+
 func testAccComputeInstanceTemplate_with375GbScratchDisk(suffix string) string {
 	return fmt.Sprintf(`
 data "google_compute_image" "my_image" {
@@ -2595,6 +2656,7 @@ resource "google_project" "host_project" {
   project_id      = "%s-host"
   org_id          = "%s"
   billing_account = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "host_project" {
@@ -2611,6 +2673,7 @@ resource "google_project" "service_project" {
   project_id      = "%s-service"
   org_id          = "%s"
   billing_account = "%s"
+  deletion_policy = "DELETE"
 }
 
 resource "google_project_service" "service_project" {

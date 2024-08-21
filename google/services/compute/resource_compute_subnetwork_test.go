@@ -186,14 +186,6 @@ func TestAccComputeSubnetwork_secondaryIpRanges(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeSubnetwork_secondaryIpRanges_update4(cnName, subnetworkName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
-					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
-					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update2", "192.168.11.0/24"),
-				),
-			},
-			{
 				Config: testAccComputeSubnetwork_secondaryIpRanges_update1(cnName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
@@ -241,12 +233,6 @@ func TestAccComputeSubnetwork_secondaryIpRanges_sendEmpty(t *testing.T) {
 					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
 				),
 			},
-			// Check that empty block secondary_ip_range = [] is not different
-			{
-				Config:             testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, "true"),
-				PlanOnly:           true,
-				ExpectNonEmptyPlan: false,
-			},
 			// Apply two secondary_ip_range
 			{
 				Config: testAccComputeSubnetwork_sendEmpty_double(cnName, subnetworkName, "true"),
@@ -278,14 +264,6 @@ func TestAccComputeSubnetwork_secondaryIpRanges_sendEmpty(t *testing.T) {
 				Config:             testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, "false"),
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: false,
-			},
-			// Remove with empty block []
-			{
-				Config: testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, "true"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeSubnetworkExists(t, "google_compute_subnetwork.network-with-private-secondary-ip-ranges", &subnetwork),
-					testAccCheckComputeSubnetworkHasNotSecondaryIpRange(&subnetwork, "tf-test-secondary-range-update1", "192.168.10.0/24"),
-				),
 			},
 		},
 	})
@@ -688,23 +666,6 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
 `, cnName, subnetworkName)
 }
 
-func testAccComputeSubnetwork_secondaryIpRanges_update4(cnName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "custom-test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
-  name               = "%s"
-  ip_cidr_range      = "10.2.0.0/16"
-  region             = "us-central1"
-  network            = google_compute_network.custom-test.self_link
-  secondary_ip_range = []
-}
-`, cnName, subnetworkName)
-}
-
 func testAccComputeSubnetwork_sendEmpty_removed(cnName, subnetworkName, sendEmpty string) string {
 	return fmt.Sprintf(`
 resource "google_compute_network" "custom-test" {
@@ -717,24 +678,6 @@ resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" 
   ip_cidr_range      = "10.2.0.0/16"
   region             = "us-central1"
   network            = google_compute_network.custom-test.self_link
-  send_secondary_ip_range_if_empty = "%s"
-}
-`, cnName, subnetworkName, sendEmpty)
-}
-
-func testAccComputeSubnetwork_sendEmpty_emptyBlock(cnName, subnetworkName, sendEmpty string) string {
-	return fmt.Sprintf(`
-resource "google_compute_network" "custom-test" {
-  name                    = "%s"
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
-  name               = "%s"
-  ip_cidr_range      = "10.2.0.0/16"
-  region             = "us-central1"
-  network            = google_compute_network.custom-test.self_link
-  secondary_ip_range = []
   send_secondary_ip_range_if_empty = "%s"
 }
 `, cnName, subnetworkName, sendEmpty)
