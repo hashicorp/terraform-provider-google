@@ -509,6 +509,7 @@ func resourceGoogleProjectDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 	deletionPolicy := d.Get("deletion_policy").(string)
+
 	if deletionPolicy == "PREVENT" {
 		return fmt.Errorf("Cannot destroy project as deletion_policy is set to PREVENT.")
 	} else if deletionPolicy == "ABANDON" {
