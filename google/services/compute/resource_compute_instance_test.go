@@ -1731,20 +1731,6 @@ func TestAccComputeInstance_guestAcceleratorSkip(t *testing.T) {
 					testAccCheckComputeInstanceLacksGuestAccelerator(&instance),
 				),
 			},
-			// Recreate with guest_accelerator = []
-			{
-				Config: testAccComputeInstance_guestAcceleratorEmptyBlock(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceLacksGuestAccelerator(&instance),
-				),
-			},
-			// Check that count = 0 is the same as empty block []
-			{
-				Config:             testAccComputeInstance_guestAccelerator(instanceName, 0),
-				ExpectNonEmptyPlan: false,
-				PlanOnly:           true,
-			},
 		},
 	})
 
@@ -6524,38 +6510,6 @@ resource "google_compute_instance" "foobar" {
   }
 }
 `, instance, count)
-}
-
-func testAccComputeInstance_guestAcceleratorEmptyBlock(instance string) string {
-	return fmt.Sprintf(`
-data "google_compute_image" "my_image" {
-  family  = "debian-11"
-  project = "debian-cloud"
-}
-
-resource "google_compute_instance" "foobar" {
-  name         = "%s"
-  machine_type = "n1-standard-1"   // can't be e2 because of guest_accelerator
-  zone         = "us-east1-d"
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.my_image.self_link
-    }
-  }
-
-  network_interface {
-    network = "default"
-  }
-
-  scheduling {
-    # Instances with guest accelerators do not support live migration.
-    on_host_maintenance = "TERMINATE"
-  }
-
-  guest_accelerator = []
-}
-`, instance)
 }
 
 func testAccComputeInstance_minCpuPlatform(instance string) string {

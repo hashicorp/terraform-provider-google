@@ -2007,12 +2007,6 @@ func ResourceContainerCluster() *schema.Resource {
 // One quirk with this approach is that configs with mixed count=0 and count>0 accelerator blocks will
 // show a confusing diff if one of there are config changes that result in a legitimate diff as the count=0
 // blocks will not be in state.
-//
-// This could also be modelled by setting `guest_accelerator = []` in the config. However since the
-// previous syntax requires that schema.SchemaConfigModeAttr is set on the field it is advisable that
-// we have a work around for removing guest accelerators. Also Terraform 0.11 cannot use dynamic blocks
-// so this isn't a solution for module authors who want to dynamically omit guest accelerators
-// See https://github.com/hashicorp/terraform-provider-google/issues/3786
 func resourceNodeConfigEmptyGuestAccelerator(_ context.Context, diff *schema.ResourceDiff, meta interface{}) error {
 	old, new := diff.GetChange("node_config.0.guest_accelerator")
 	oList := old.([]interface{})

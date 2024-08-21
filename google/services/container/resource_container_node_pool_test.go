@@ -1228,45 +1228,6 @@ func TestAccContainerNodePool_regionalClusters(t *testing.T) {
 	})
 }
 
-func TestAccContainerNodePool_012_ConfigModeAttr(t *testing.T) {
-	t.Parallel()
-
-	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
-	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
-	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
-	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
-
-	acctest.VcrTest(t, resource.TestCase{
-		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccContainerNodePool_012_ConfigModeAttr1(cluster, np, networkName, subnetworkName),
-			},
-			{
-				ResourceName:      "google_container_node_pool.np",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccContainerNodePool_012_ConfigModeAttr2(cluster, np, networkName, subnetworkName),
-			},
-			{
-				ResourceName:      "google_container_node_pool.np",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				// Test guest_accelerator.count = 0 is the same as guest_accelerator = []
-				Config:             testAccContainerNodePool_EmptyGuestAccelerator(cluster, np, networkName, subnetworkName),
-				ExpectNonEmptyPlan: false,
-				PlanOnly:           true,
-			},
-		},
-	})
-}
-
 func TestAccContainerNodePool_EmptyGuestAccelerator(t *testing.T) {
 	t.Parallel()
 
@@ -3540,59 +3501,6 @@ resource "google_container_node_pool" "np" {
   initial_node_count = 1
 
   version = data.google_container_engine_versions.central1a.valid_node_versions[0]
-}
-`, cluster, networkName, subnetworkName, np)
-}
-
-func testAccContainerNodePool_012_ConfigModeAttr1(cluster, np, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-f"
-  initial_node_count = 3
-  deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
-}
-
-resource "google_container_node_pool" "np" {
-  name               = "%s"
-  location           = "us-central1-f"
-  cluster            = google_container_cluster.cluster.name
-  initial_node_count = 1
-
-  node_config {
-    guest_accelerator {
-      count = 1
-      type  = "nvidia-tesla-t4"
-    }
-	machine_type = "n1-highmem-4"
-  }
-}
-`, cluster, networkName, subnetworkName, np)
-}
-
-func testAccContainerNodePool_012_ConfigModeAttr2(cluster, np, networkName, subnetworkName string) string {
-	return fmt.Sprintf(`
-resource "google_container_cluster" "cluster" {
-  name               = "%s"
-  location           = "us-central1-f"
-  initial_node_count = 3
-  deletion_protection = false
-  network    = "%s"
-  subnetwork    = "%s"
-}
-
-resource "google_container_node_pool" "np" {
-  name               = "%s"
-  location           = "us-central1-f"
-  cluster            = google_container_cluster.cluster.name
-  initial_node_count = 1
-
-  node_config {
-    guest_accelerator = []
-	machine_type = "n1-highmem-4"
-  }
 }
 `, cluster, networkName, subnetworkName, np)
 }
