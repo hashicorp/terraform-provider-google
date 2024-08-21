@@ -220,6 +220,18 @@ Previously, `containers.env` was a list, making it order-dependent. It is now a 
 
 If you were relying on accessing an individual environment variable by index (for example, `google_cloud_run_v2_service.template.containers.0.env.0.name`), then that will now need to by hash (for example, `google_cloud_run_v2_service.template.containers.0.env.<some-hash>.name`).
 
+## Resource: `google_composer_environment`
+
+### `ip_allocation_policy = []` is no longer valid configuration
+
+There was no functional difference between setting `ip_allocation_policy = []` and not setting `ip_allocation_policy` at all. Removing the field from configuration should not produce a diff.
+
+## Resources: `google_compute_instance_from_template` and `google_compute_instance_from_machine_image`
+
+### `network_interface.alias_ip_range, network_interface.access_config, attached_disk, guest_accelerator, service_account, scratch_disk` can no longer be set to an empty block `[]`
+
+`field = []` is no longer valid configuration for these fields. Removing the fields from configuration should not produce a diff.
+
 ## Resource: `google_compute_subnetwork`
 
 ### `secondary_ip_range = []` is no longer valid configuration

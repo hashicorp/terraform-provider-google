@@ -283,10 +283,9 @@ An 'ACTIVE' subnetwork is one that is currently being used for Envoy-based load 
 A 'BACKUP' subnetwork is one that is ready to be promoted to 'ACTIVE' or is currently draining. Possible values: ["ACTIVE", "BACKUP"]`,
 			},
 			"secondary_ip_range": {
-				Type:       schema.TypeList,
-				Computed:   true,
-				Optional:   true,
-				ConfigMode: schema.SchemaConfigModeAttr,
+				Type:     schema.TypeList,
+				Computed: true,
+				Optional: true,
 				Description: `An array of configurations for secondary IP ranges for VM instances
 contained in this subnetwork. The primary IP of such VM must belong
 to the primary ipCidrRange of the subnetwork. The alias IPs may belong

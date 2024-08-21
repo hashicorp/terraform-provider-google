@@ -290,7 +290,6 @@ func ResourceComposerEnvironment() *schema.Resource {
 										Optional:    true,
 										Computed:    true,
 										ForceNew:    true,
-										ConfigMode:  schema.SchemaConfigModeAttr,
 										MaxItems:    1,
 										Description: `Configuration for controlling how IPs are allocated in the GKE cluster. Cannot be updated.`,
 										Elem: &schema.Resource{
