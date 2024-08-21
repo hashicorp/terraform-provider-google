@@ -1,5 +1,29 @@
 ## 5.43.0 (Unreleased)
 
+DEPRECATIONS:
+* storage: deprecated `lifecycle_rule.condition.no_age` field in `google_storage_bucket`. Use the new `lifecycle_rule.condition.send_age_if_zero` field instead. ([#19172](https://github.com/hashicorp/terraform-provider-google/pull/19172))
+
+FEATURES:
+* **New Resource:** `google_kms_ekm_connection_iam_binding` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_kms_ekm_connection_iam_member` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_kms_ekm_connection_iam_policy` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_scc_v2_organization_scc_big_query_exports` ([#19184](https://github.com/hashicorp/terraform-provider-google/pull/19184))
+
+IMPROVEMENTS:
+* compute: added `label_fingerprint` field to `google_compute_global_address` resource ([#19204](https://github.com/hashicorp/terraform-provider-google/pull/19204))
+* compute: exposed service side id as new output field `forwarding_rule_id` on resource `google_compute_forwarding_rule` ([#19139](https://github.com/hashicorp/terraform-provider-google/pull/19139))
+* container: added EXTENDED as a valid option for `release_channel` field in `google_container_cluster` resource ([#19141](https://github.com/hashicorp/terraform-provider-google/pull/19141))
+* logging: changed `enable_analytics` parsing to "no preference" in analytics if omitted, instead of explicitly disabling analytics in `google_logging_project_bucket_config` ([#19126](https://github.com/hashicorp/terraform-provider-google/pull/19126))
+* pusbub: added validation to `filter` field for `google_pubsub_subscription` ([#19131](https://github.com/hashicorp/terraform-provider-google/pull/19131))
+* resourcemanager: added `default_labels` field to `google_client_config` data source ([#19170](https://github.com/hashicorp/terraform-provider-google/pull/19170))
+* vmwareengine: added PC undelete support in `google_vmwareengine_private_cloud` ([#19192](https://github.com/hashicorp/terraform-provider-google/pull/19192))
+
+BUG FIXES:
+* alloydb: fixed a permadiff on `psc_instance_config` in `google_alloydb_instance` resource ([#19143](https://github.com/hashicorp/terraform-provider-google/pull/19143))
+* compute: fixed a malformed URL that affected updating the `server_tls_policy` property on `google_compute_target_https_proxy` resources ([#19164](https://github.com/hashicorp/terraform-provider-google/pull/19164))
+* compute: fixed bug where the `labels` field could not be updated on `google_compute_global_address` ([#19204](https://github.com/hashicorp/terraform-provider-google/pull/19204))
+* compute: fixed force diff replacement logic for `network_ip` on resource `google_compute_instance` ([#19135](https://github.com/hashicorp/terraform-provider-google/pull/19135))
+
 ## 5.42.0 (August 19, 2024)
 DEPRECATIONS:
 * compute: setting `google_compute_subnetwork.secondary_ip_range = []` to explicitly set a list of empty objects is deprecated and will produce an error in the upcoming major release. Use `send_secondary_ip_range_if_empty` while removing `secondary_ip_range` from config instead. ([#19122](https://github.com/hashicorp/terraform-provider-google/pull/19122))
