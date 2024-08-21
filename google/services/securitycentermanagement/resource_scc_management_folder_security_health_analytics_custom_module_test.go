@@ -18,8 +18,7 @@ import (
 
 // Custom Module tests cannot be run in parallel without running into 409 Conflict reponses.
 // Run them as individual steps of an update test instead.
-func TestAccSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule(t *testing.T) {
-	t.Parallel()
+func testAccSecurityCenterManagementFolderSecurityHealthAnalyticsCustomModule(t *testing.T) {
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
