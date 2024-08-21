@@ -27,6 +27,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"google.golang.org/api/googleapi"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
@@ -65,6 +66,52 @@ func isMultiNodePrivateCloud(d *schema.ResourceData) bool {
 		return true
 	}
 	return false
+}
+
+func isPrivateCloudInDeletedState(config *transport_tpg.Config, d *schema.ResourceData, billingProject string, userAgent string) (bool, error) {
+	baseurl, err := tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}")
+	if err != nil {
+		return false, err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    baseurl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
+			log.Printf("[DEBUG] No existing private cloud found")
+			return false, nil
+		}
+		return false, err
+	}
+	// if resource exists but is marked for deletion
+	v, ok := res["state"]
+	if ok && v.(string) == "DELETED" {
+		log.Printf("[DEBUG] The Private cloud exists and is marked for deletion.")
+		return true, nil
+	}
+	return false, nil
+}
+
+// Check if private cloud is absent or if it exists in a deleted state.
+func pollCheckForPrivateCloudAbsence(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
+	if respErr != nil {
+		if transport_tpg.IsGoogleApiErrorWithCode(respErr, 404) {
+			return transport_tpg.SuccessPollResult()
+		}
+		return transport_tpg.ErrorPollResult(respErr)
+	}
+	// if resource exists but is marked for deletion
+	log.Printf("[DEBUG] Fetching state of the private cloud.")
+	v, ok := resp["state"]
+	if ok && v.(string) == "DELETED" {
+		log.Printf("[DEBUG] The Private cloud has been successfully marked for delayed deletion.")
+		return transport_tpg.SuccessPollResult()
+	}
+	return transport_tpg.PendingStatusPollResult("found")
 }
 
 func ResourceVmwareenginePrivateCloud() *schema.Resource {
@@ -400,6 +447,21 @@ func resourceVmwareenginePrivateCloudCreate(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
+	// Check if the project exists in a deleted state
+	pcMarkedForDeletion, err := isPrivateCloudInDeletedState(config, d, billingProject, userAgent)
+	if err != nil {
+		return fmt.Errorf("Error checking if Private Cloud exists and is marked for deletion: %s", err)
+	}
+	if pcMarkedForDeletion {
+		log.Printf("[DEBUG] Private Cloud exists and is marked for deletion. Triggering UNDELETE of the Private Cloud.\n")
+		url, err = tpgresource.ReplaceVars(d, config, "{{VmwareengineBasePath}}projects/{{project}}/locations/{{location}}/privateClouds/{{name}}:undelete")
+		if err != nil {
+			return err
+		}
+		obj = make(map[string]interface{})
+	} else {
+		log.Printf("[DEBUG] Private Cloud is not found to be marked for deletion. Triggering CREATE of the Private Cloud.\n")
+	}
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:               config,
 		Method:               "POST",
@@ -742,18 +804,11 @@ func resourceVmwareenginePrivateCloudDelete(d *schema.ResourceData, meta interfa
 			if err != nil {
 				return res, err
 			}
-			// if resource exists but is marked for deletion
-			log.Printf("[DEBUG] Fetching state of the private cloud.")
-			v, ok := res["state"]
-			if ok && v.(string) == "DELETED" {
-				log.Printf("[DEBUG] The Private cloud has been successfully marked for delayed deletion.")
-				return nil, nil
-			}
 			return res, nil
 		}
 	}
 
-	err = transport_tpg.PollingWaitTime(privateCloudPollRead(d, meta), transport_tpg.PollCheckForAbsence, "Deleting PrivateCloud", d.Timeout(schema.TimeoutDelete), 10)
+	err = transport_tpg.PollingWaitTime(privateCloudPollRead(d, meta), pollCheckForPrivateCloudAbsence, "Deleting PrivateCloud", d.Timeout(schema.TimeoutDelete), 10)
 	if err != nil {
 		return fmt.Errorf("Error waiting to delete PrivateCloud: %s", err)
 	}
