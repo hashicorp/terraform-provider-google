@@ -144,7 +144,12 @@ set to INTERNAL_SELF_MANAGED or EXTERNAL or EXTERNAL_MANAGED.
 For details which ServerTlsPolicy resources are accepted with
 INTERNAL_SELF_MANAGED and which with EXTERNAL, EXTERNAL_MANAGED
 loadBalancingScheme consult ServerTlsPolicy documentation.
-If left blank, communications are not encrypted.`,
+If left blank, communications are not encrypted.
+
+If you remove this field from your configuration at the same time as
+deleting or recreating a referenced ServerTlsPolicy resource, you will
+receive a resourceInUseByAnotherResource error. Use lifecycle.create_before_destroy
+within the ServerTlsPolicy resource to avoid this.`,
 			},
 			"ssl_certificates": {
 				Type:     schema.TypeList,
@@ -1072,6 +1077,14 @@ func resourceComputeTargetHttpsProxyEncoder(d *schema.ResourceData, meta interfa
 		obj["sslCertificates"] = obj["certificateManagerCertificates"]
 		delete(obj, "certificateManagerCertificates")
 	}
+
+	// Send null if serverTlsPolicy is not set. Without this, Terraform would not send any value for `serverTlsPolicy`
+	// in the "PATCH" payload so if you were to remove a server TLS policy from a target HTTPS proxy, it would NOT remove
+	// the association.
+	if _, ok := obj["serverTlsPolicy"]; !ok {
+		obj["serverTlsPolicy"] = nil
+	}
+
 	return obj, nil
 }
 
@@ -1085,6 +1098,14 @@ func resourceComputeTargetHttpsProxyUpdateEncoder(d *schema.ResourceData, meta i
 		obj["sslCertificates"] = obj["certificateManagerCertificates"]
 		delete(obj, "certificateManagerCertificates")
 	}
+
+	// Send null if serverTlsPolicy is not set. Without this, Terraform would not send any value for `serverTlsPolicy`
+	// in the "PATCH" payload so if you were to remove a server TLS policy from a target HTTPS proxy, it would NOT remove
+	// the association.
+	if _, ok := obj["serverTlsPolicy"]; !ok {
+		obj["serverTlsPolicy"] = nil
+	}
+
 	return obj, nil
 }
 
