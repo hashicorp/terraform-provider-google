@@ -404,6 +404,10 @@ The following arguments are supported:
   INTERNAL_SELF_MANAGED and which with EXTERNAL, EXTERNAL_MANAGED
   loadBalancingScheme consult ServerTlsPolicy documentation.
   If left blank, communications are not encrypted.
+  If you remove this field from your configuration at the same time as
+  deleting or recreating a referenced ServerTlsPolicy resource, you will
+  receive a resourceInUseByAnotherResource error. Use lifecycle.create_before_destroy
+  within the ServerTlsPolicy resource to avoid this.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

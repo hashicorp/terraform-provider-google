@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: allowed disabling 'server_tls_policy' during update in 'google_compute_target_https_proxy' resources
+```

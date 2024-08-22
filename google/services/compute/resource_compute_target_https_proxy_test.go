@@ -92,7 +92,7 @@ func TestAccComputeTargetHttpsProxyServerTlsPolicy_update(t *testing.T) {
 		CheckDestroy:             testAccCheckComputeTargetHttpsProxyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeTargetHttpsProxyServerTlsPolicy_full(resourceSuffix),
+				Config: testAccComputeTargetHttpsProxyWithoutServerTlsPolicy(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
 						t, "google_compute_target_https_proxy.foobar", &proxy),
@@ -100,11 +100,19 @@ func TestAccComputeTargetHttpsProxyServerTlsPolicy_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeTargetHttpsProxyServerTlsPolicy_update(resourceSuffix),
+				Config: testAccComputeTargetHttpsProxyWithServerTlsPolicy(resourceSuffix),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeTargetHttpsProxyExists(
 						t, "google_compute_target_https_proxy.foobar", &proxy),
 					testAccComputeTargetHttpsProxyHasServerTlsPolicy(t, "tf-test-server-tls-policy-"+resourceSuffix, &proxy),
+				),
+			},
+			{
+				Config: testAccComputeTargetHttpsProxyWithoutServerTlsPolicy(resourceSuffix),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeTargetHttpsProxyExists(
+						t, "google_compute_target_https_proxy.foobar", &proxy),
+					testAccComputeTargetHttpsProxyHasNullServerTlsPolicy(t, &proxy),
 				),
 			},
 		},
@@ -419,7 +427,7 @@ resource "google_certificate_manager_dns_authorization" "instance" {
 `, id, id, id, id, id, id, id, id)
 }
 
-func testAccComputeTargetHttpsProxyServerTlsPolicy_full(id string) string {
+func testAccComputeTargetHttpsProxyWithoutServerTlsPolicy(id string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -428,7 +436,6 @@ resource "google_compute_target_https_proxy" "foobar" {
   name              = "tf-test-httpsproxy-%s"
 	url_map           = google_compute_url_map.foobar.self_link
 	ssl_certificates  = [google_compute_ssl_certificate.foobar.self_link]
-  server_tls_policy = null
 }
 
 resource "google_compute_backend_service" "foobar" {
@@ -454,28 +461,10 @@ resource "google_compute_ssl_certificate" "foobar" {
   private_key = file("test-fixtures/test.key")
   certificate = file("test-fixtures/test.crt")
 }
-
-resource "google_certificate_manager_trust_config" "trust_config" {
-  name     = "tf-test-trust-config-%s"
-  location = "global"
-
-  allowlisted_certificates  {
-    pem_certificate = file("test-fixtures/cert.pem")
-  }
+`, id, id, id, id, id)
 }
 
-resource "google_network_security_server_tls_policy" "server_tls_policy" {
-  name = "tf-test-server-tls-policy-%s"
-
-  mtls_policy {
-    client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.trust_config.name}"
-    client_validation_mode         = "ALLOW_INVALID_OR_MISSING_CLIENT_CERT"
-  }
-}
-`, id, id, id, id, id, id, id)
-}
-
-func testAccComputeTargetHttpsProxyServerTlsPolicy_update(id string) string {
+func testAccComputeTargetHttpsProxyWithServerTlsPolicy(id string) string {
 	return fmt.Sprintf(`
 data "google_project" "project" {}
 
@@ -526,6 +515,10 @@ resource "google_network_security_server_tls_policy" "server_tls_policy" {
   mtls_policy {
     client_validation_trust_config = "projects/${data.google_project.project.number}/locations/global/trustConfigs/${google_certificate_manager_trust_config.trust_config.name}"
     client_validation_mode         = "ALLOW_INVALID_OR_MISSING_CLIENT_CERT"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 `, id, id, id, id, id, id, id)
