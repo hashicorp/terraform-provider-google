@@ -38,7 +38,7 @@ To get more information about OrganizationSccBigQueryExports, see:
 
 ```hcl
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "my_dataset_id"
+  dataset_id                  = ""
   friendly_name               = "test"
   description                 = "This is a test description"
   location                    = "US"
@@ -58,7 +58,7 @@ resource "google_scc_v2_organization_scc_big_query_exports" "custom_big_query_ex
   name         = "my-export"
   big_query_export_id    = "my-export"
   organization = "123456789"
-  dataset      = "my-dataset"
+  dataset      = google_bigquery_dataset.default.id
   location     = "global"
   description  = "Cloud Security Command Center Findings Big Query Export Config"
   filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""

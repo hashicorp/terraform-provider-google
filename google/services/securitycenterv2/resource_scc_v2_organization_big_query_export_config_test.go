@@ -19,11 +19,9 @@ func TestAccSecurityCenterV2OrganizationBigQueryExportConfig_basic(t *testing.T)
 	orgID := envvar.GetTestOrgFromEnv(t)
 
 	context := map[string]interface{}{
-		"org_id":        orgID,
-		"random_suffix": randomSuffix,
-		"dataset_id":    dataset_id,
-		"dataset": fmt.Sprintf("projects/%s/datasets/%s",
-			envvar.GetTestProjectFromEnv(), dataset_id),
+		"org_id":              orgID,
+		"random_suffix":       randomSuffix,
+		"dataset_id":          dataset_id,
 		"big_query_export_id": "tf-test-export-" + randomSuffix,
 		"name": fmt.Sprintf("organizations/%s/locations/global/bigQueryExports/%s",
 			orgID, "tf-test-export-"+randomSuffix),
@@ -88,7 +86,7 @@ resource "google_scc_v2_organization_scc_big_query_exports" "default" {
   name		   = "%{name}"
   big_query_export_id    = "%{big_query_export_id}"
   organization = "%{org_id}"
-  dataset      = "%{dataset}"
+  dataset      = google_bigquery_dataset.default.id
   location     = "global"
   description  = "Cloud Security Command Center Findings Big Query Export Config"
   filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
@@ -127,7 +125,7 @@ resource "google_scc_v2_organization_scc_big_query_exports" "default" {
   name		   = "%{name}"
   big_query_export_id    = "%{big_query_export_id}"
   organization = "%{org_id}"
-  dataset      = "%{dataset}"
+  dataset      = google_bigquery_dataset.default.id
   location     = "global"
   description  = "SCC Findings Big Query Export Update"
   filter       = "state=\"ACTIVE\" AND NOT mute=\"MUTED\""
