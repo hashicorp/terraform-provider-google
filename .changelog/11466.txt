@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed overwriting of `name` field for IAM Group user for resource `google_sql_user`
+```

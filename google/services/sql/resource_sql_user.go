@@ -350,10 +350,13 @@ func resourceSqlUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, currentUser := range users.Items {
+		var username string
 		if !(strings.Contains(databaseInstance.DatabaseVersion, "POSTGRES") || currentUser.Type == "CLOUD_IAM_GROUP") {
-			name = strings.Split(name, "@")[0]
+			username = strings.Split(name, "@")[0]
+		} else {
+			username = name
 		}
-		if currentUser.Name == name {
+		if currentUser.Name == username {
 			// Host can only be empty for postgres instances,
 			// so don't compare the host if the API host is empty.
 			if host == "" || currentUser.Host == host {
