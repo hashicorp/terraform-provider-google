@@ -66,6 +66,7 @@ func testAccSecurityCenterFolderNotificationConfig_basic(context map[string]inte
 resource "google_folder" "folder" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder-name%{random_suffix}"
+  deletion_protection = false
 }
 
 resource "time_sleep" "wait_1_minute" {
@@ -99,6 +100,7 @@ func testAccSecurityCenterFolderNotificationConfig_update(context map[string]int
 resource "google_folder" "folder" {
   parent       = "organizations/%{org_id}"
   display_name = "tf-test-folder-name%{random_suffix}"
+  deletion_protection = false
 }
 
 resource "google_pubsub_topic" "scc_folder_notification_config" {

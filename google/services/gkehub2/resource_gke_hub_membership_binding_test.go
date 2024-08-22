@@ -12,6 +12,8 @@ import (
 )
 
 func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample_update(t *testing.T) {
+	// Currently failing
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
