@@ -37,6 +37,15 @@ The following arguments are supported:
 * `crypto_key` - (Required) The `id` of the Google Cloud Platform CryptoKey to which the key version belongs. This is also the `id` field of the 
 `google_kms_crypto_key` resource/datasource.
 
+* `filter` - (Optional) The filter argument is used to add a filter query parameter that limits which versions are retrieved by the data source: ?filter={{filter}}. When no value is provided there is no filtering.
+
+Example filter values if filtering on name. Note: names take the form projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}/cryptoKeys/{{cryptoKey}}/cryptoKeyVersions.
+
+* `"name:my-key-"` will retrieve cryptoKeyVersions that contain "my-key-" anywhere in their name.
+* `"name=projects/my-project/locations/global/keyRings/my-key-ring/cryptoKeys/my-key-1/cryptoKeyVersions/my-version-1"` will only retrieve a key with that exact name.
+
+[See the documentation about using filters](https://cloud.google.com/kms/docs/sorting-and-filtering)
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
