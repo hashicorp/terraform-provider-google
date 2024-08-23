@@ -1,0 +1,3 @@
+```release-note: bug
+sql: fixed importing `google_sql_user` where `host` is an IPv4 CIDR
+```
