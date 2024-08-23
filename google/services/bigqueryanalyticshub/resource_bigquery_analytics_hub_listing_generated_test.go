@@ -145,6 +145,96 @@ resource "google_bigquery_dataset" "listing" {
 `, context)
 }
 
+func TestAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(context),
+			},
+			{
+				ResourceName:            "google_bigquery_analytics_hub_listing.listing",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"data_exchange_id", "listing_id", "location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryAnalyticsHubListing_bigqueryAnalyticshubListingDcrExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "tf_test_dcr_data_exchange%{random_suffix}"
+  display_name     = "tf_test_dcr_data_exchange%{random_suffix}"
+  description      = "example dcr data exchange%{random_suffix}"
+  sharing_environment_config  {
+    dcr_exchange_config {}
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "tf_test_dcr_listing%{random_suffix}"
+  display_name     = "tf_test_dcr_listing%{random_suffix}"
+  description      = "example dcr data exchange%{random_suffix}"
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+    selected_resources {
+        table = google_bigquery_table.listing.id
+    }
+  }
+
+  restricted_export_config {
+    enabled                   = true
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id                  = "tf_test_dcr_listing%{random_suffix}"
+  friendly_name               = "tf_test_dcr_listing%{random_suffix}"
+  description                 = "example dcr data exchange%{random_suffix}"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "listing" {
+  deletion_protection = false
+  table_id   = "tf_test_dcr_listing%{random_suffix}"
+  dataset_id = google_bigquery_dataset.listing.dataset_id
+  schema = <<EOF
+[
+  {
+    "name": "name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "post_abbr",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "date",
+    "type": "DATE",
+    "mode": "NULLABLE"
+  }
+]
+EOF
+}
+`, context)
+}
+
 func testAccCheckBigqueryAnalyticsHubListingDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

@@ -44,6 +44,25 @@ resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
   description      = "example data exchange"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_data_exchange_dcr&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Data Exchange Dcr
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "data_exchange" {
+  location         = "US"
+  data_exchange_id = "dcr_data_exchange"
+  display_name     = "dcr_data_exchange"
+  description      = "example dcr data exchange"
+  sharing_environment_config  {
+    dcr_exchange_config {}
+  }
+}
+```
 
 ## Argument Reference
 
@@ -82,9 +101,25 @@ The following arguments are supported:
   (Optional)
   Base64 encoded image representing the data exchange.
 
+* `sharing_environment_config` -
+  (Optional)
+  Configurable data sharing environment option for a data exchange.
+  This field is required for data clean room exchanges.
+  Structure is [documented below](#nested_sharing_environment_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
+
+<a name="nested_sharing_environment_config"></a>The `sharing_environment_config` block supports:
+
+* `default_exchange_config` -
+  (Optional)
+  Default Analytics Hub data exchange, used for secured data sharing.
+
+* `dcr_exchange_config` -
+  (Optional)
+  Data Clean Room (DCR), used for privacy-safe and secured data sharing.
 
 ## Attributes Reference
 

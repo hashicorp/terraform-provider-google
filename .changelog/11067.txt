@@ -1,0 +1,9 @@
+```release-note:enhancement
+bigqueryanalyticshub: added `sharing_environment_config` to `google_bigquery_analytics_hub_data_exchange`
+```
+```release-note:enhancement
+bigqueryanalyticshub: added `selected_resources`, and `restrict_direct_table_access` to `google_bigquery_analytics_hub_listing`
+```
+```release-note:breaking-change
+bigqueryanalyticshub: made `bigquery_dataset` immutable in `google_bigquery_analytics_hub_listing`. Now modifying the field will recreate the resource rather than causing Terraform to report it would attempt an invalid update.
+```

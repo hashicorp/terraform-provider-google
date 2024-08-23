@@ -103,6 +103,76 @@ resource "google_bigquery_dataset" "listing" {
   location                    = "US"
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=bigquery_analyticshub_listing_dcr&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Bigquery Analyticshub Listing Dcr
+
+
+```hcl
+resource "google_bigquery_analytics_hub_data_exchange" "listing" {
+  location         = "US"
+  data_exchange_id = "dcr_data_exchange"
+  display_name     = "dcr_data_exchange"
+  description      = "example dcr data exchange"
+  sharing_environment_config  {
+    dcr_exchange_config {}
+  }
+}
+
+resource "google_bigquery_analytics_hub_listing" "listing" {
+  location         = "US"
+  data_exchange_id = google_bigquery_analytics_hub_data_exchange.listing.data_exchange_id
+  listing_id       = "dcr_listing"
+  display_name     = "dcr_listing"
+  description      = "example dcr data exchange"
+
+  bigquery_dataset {
+    dataset = google_bigquery_dataset.listing.id
+    selected_resources {
+        table = google_bigquery_table.listing.id
+    }
+  }
+
+  restricted_export_config {
+    enabled                   = true
+  }
+}
+
+resource "google_bigquery_dataset" "listing" {
+  dataset_id                  = "dcr_listing"
+  friendly_name               = "dcr_listing"
+  description                 = "example dcr data exchange"
+  location                    = "US"
+}
+
+resource "google_bigquery_table" "listing" {
+  deletion_protection = false
+  table_id   = "dcr_listing"
+  dataset_id = google_bigquery_dataset.listing.dataset_id
+  schema = <<EOF
+[
+  {
+    "name": "name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "post_abbr",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "date",
+    "type": "DATE",
+    "mode": "NULLABLE"
+  }
+]
+EOF
+}
+```
 
 ## Argument Reference
 
@@ -136,6 +206,18 @@ The following arguments are supported:
 * `dataset` -
   (Required)
   Resource name of the dataset source for this listing. e.g. projects/myproject/datasets/123
+
+* `selected_resources` -
+  (Optional)
+  Resource in this dataset that is selectively shared. This field is required for data clean room exchanges.
+  Structure is [documented below](#nested_selected_resources).
+
+
+<a name="nested_selected_resources"></a>The `selected_resources` block supports:
+
+* `table` -
+  (Optional)
+  Format: For table: projects/{projectId}/datasets/{datasetId}/tables/{tableId} Example:"projects/test_project/datasets/test_dataset/tables/test_table"
 
 - - -
 
@@ -208,6 +290,10 @@ The following arguments are supported:
 * `enabled` -
   (Optional)
   If true, enable restricted export.
+
+* `restrict_direct_table_access` -
+  (Output)
+  If true, restrict direct table access(read api/tabledata.list) on linked table.
 
 * `restrict_query_result` -
   (Optional)
