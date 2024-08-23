@@ -879,6 +879,24 @@ The following arguments are supported:
   for high resilience and `STANDARD_RESILIENCE` for standard
   resilience.
 
+* `data_retention_config` -
+  (Optional, Cloud Composer 2.0.23 or newer only)
+  Configuration setting for airflow data rentention mechanism. Structure is
+  [documented below](#nested_data_retention_config_c2).
+
+<a name="nested_data_retention_config_c2"></a>The `data_retention_config` block supports:
+* `task_logs_retention_config` - 
+  (Optional)
+  The configuration setting for Task Logs. Structure is
+  [documented below](#nested_task_logs_retention_config_c2).
+
+<a name="nested_task_logs_retention_config_c2"></a>The `task_logs_retention_config` block supports:
+* `storage_mode` - 
+  (Optional)
+  The mode of storage for Airflow workers task logs. Values for storage mode are 
+  `CLOUD_LOGGING_ONLY` to only store logs in cloud logging and 
+  `CLOUD_LOGGING_AND_CLOUD_STORAGE` to store logs in cloud logging and cloud storage.
+
 * `master_authorized_networks_config` -
   (Optional)
   Configuration options for the master authorized networks feature. Enabled
@@ -904,24 +922,6 @@ The following arguments are supported:
 * `cidr_block` -
   (Required)
   `cidr_block` must be specified in CIDR notation.
-
-* `data_retention_config` -
-  (Optional, Cloud Composer 2.0.23 or newer only)
-  Configuration setting for airflow data rentention mechanism. Structure is
-  [documented below](#nested_data_retention_config_c2).
-
-<a name="nested_data_retention_config_c2"></a>The `data_retention_config` block supports:
-* `task_logs_retention_config` - 
-  (Optional)
-  The configuration setting for Task Logs. Structure is
-  [documented below](#nested_task_logs_retention_config_c2).
-
-<a name="nested_task_logs_retention_config_c2"></a>The `task_logs_retention_config` block supports:
-* `storage_mode` - 
-  (Optional)
-  The mode of storage for Airflow workers task logs. Values for storage mode are 
-  `CLOUD_LOGGING_ONLY` to only store logs in cloud logging and 
-  `CLOUD_LOGGING_AND_CLOUD_STORAGE` to store logs in cloud logging and cloud storage.
 
 
 <a name="nested_storage_config_c2"></a>The `storage_config` block supports:
@@ -1335,7 +1335,7 @@ The following arguments are supported:
   and `ENVIRONMENT_SIZE_LARGE`.
 
 * `data_retention_config` -
-  (Optional, Cloud Composer 2.0.23 or later only)
+  (Optional)
   Configuration setting for Airflow database retention mechanism. Structure is
   [documented below](#nested_data_retention_config_c3).
 
