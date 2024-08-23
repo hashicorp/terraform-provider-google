@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed update inconsistency in `google_container_cluster`
+```

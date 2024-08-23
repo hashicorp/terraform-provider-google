@@ -1019,6 +1019,10 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 }
 
 func expandResourceManagerTags(v interface{}) *container.ResourceManagerTags {
+	if v == nil {
+		return nil
+	}
+
 	rmts := make(map[string]string)
 
 	if v != nil {
@@ -1329,6 +1333,10 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 }
 
 func flattenResourceManagerTags(c *container.ResourceManagerTags) map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+
 	rmt := make(map[string]interface{})
 
 	if c != nil {

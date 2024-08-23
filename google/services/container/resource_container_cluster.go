@@ -5073,10 +5073,11 @@ func flattenNodePoolDefaults(c *container.NodePoolDefaults) []map[string]interfa
 }
 
 func expandNodePoolAutoConfig(configured interface{}) *container.NodePoolAutoConfig {
-	l := configured.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	l, ok := configured.([]interface{})
+	if !ok || l == nil || len(l) == 0 || l[0] == nil {
 		return nil
 	}
+
 	npac := &container.NodePoolAutoConfig{}
 	config := l[0].(map[string]interface{})
 
