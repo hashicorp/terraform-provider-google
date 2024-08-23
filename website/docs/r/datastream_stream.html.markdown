@@ -505,6 +505,115 @@ resource "google_datastream_stream" "default" {
                     }
                 }
             }
+            transaction_logs {}
+        }
+    }
+
+    destination_config {
+        destination_connection_profile = google_datastream_connection_profile.destination.id
+        bigquery_destination_config {
+            data_freshness = "900s"
+            source_hierarchy_datasets {
+                dataset_template {
+                    location = "us-central1"
+                }
+            }
+        }
+    }
+
+    backfill_none {}
+}
+```
+## Example Usage - Datastream Stream Sql Server Change Tables
+
+
+```hcl
+resource "google_sql_database_instance" "instance" {
+    name                = "sql-server"
+    database_version    = "SQLSERVER_2019_STANDARD"
+    region              = "us-central1"
+    root_password       = "root-password"
+    deletion_protection = "true"
+
+    settings {
+        tier = "db-custom-2-4096"
+        ip_configuration {
+            // Datastream IPs will vary by region.
+            // https://cloud.google.com/datastream/docs/ip-allowlists-and-regions
+            authorized_networks {
+                value = "34.71.242.81"
+            }
+
+            authorized_networks {
+                value = "34.72.28.29"
+            }
+
+            authorized_networks {
+                value = "34.67.6.157"
+            }
+
+            authorized_networks {
+                value = "34.67.234.134"
+            }
+
+            authorized_networks {
+                value = "34.72.239.218"
+            }
+        }
+    }
+}
+
+resource "google_sql_database" "db" {
+    name       = "db"
+    instance   = google_sql_database_instance.instance.name
+    depends_on = [google_sql_user.user]
+}
+
+resource "google_sql_user" "user" {
+    name     = "user"
+    instance = google_sql_database_instance.instance.name
+    password = "password"
+}
+
+resource "google_datastream_connection_profile" "source" {
+    display_name          = "SQL Server Source"
+    location              = "us-central1"
+    connection_profile_id = "source-profile"
+
+    sql_server_profile {
+        hostname = google_sql_database_instance.instance.public_ip_address
+        port     = 1433
+        username = google_sql_user.user.name
+        password = google_sql_user.user.password
+        database = google_sql_database.db.name
+    }
+}
+
+resource "google_datastream_connection_profile" "destination" {
+    display_name          = "BigQuery Destination"
+    location              = "us-central1"
+    connection_profile_id = "destination-profile"
+
+    bigquery_profile {}
+}
+
+resource "google_datastream_stream" "default" {
+    display_name = "SQL Server to BigQuery"
+    location     = "us-central1"
+    stream_id    = "stream"
+
+    source_config {
+        source_connection_profile = google_datastream_connection_profile.source.id
+        sql_server_source_config {
+            include_objects {
+                schemas {
+                    schema = "schema"
+                    tables {
+                        table = "table"
+                    }
+                }
+            }
+            change_tables {}
         }
     }
 
@@ -1434,6 +1543,14 @@ The following arguments are supported:
 * `max_concurrent_backfill_tasks` -
   (Optional)
   Max concurrent backfill tasks.
+
+* `transaction_logs` -
+  (Optional)
+  CDC reader reads from transaction logs.
+
+* `change_tables` -
+  (Optional)
+  CDC reader reads from change tables.
 
 
 <a name="nested_include_objects"></a>The `include_objects` block supports:
