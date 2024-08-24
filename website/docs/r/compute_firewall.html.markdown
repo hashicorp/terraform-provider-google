@@ -59,7 +59,7 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "8080", "1000-2000"]
+    ports    = [80, 8080, "1000-2000"]
   }
 
   source_tags = ["web"]
@@ -81,7 +81,7 @@ resource "google_compute_firewall" "rules" {
 
   allow {
     protocol  = "tcp"
-    ports     = ["80", "8080", "1000-2000"]
+    ports     = [80, 8080, "1000-2000"]
   }
 
   source_tags = ["foo"]
@@ -242,7 +242,7 @@ If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor
   is only applicable for UDP or TCP protocol. Each entry must be
   either an integer or a range. If not specified, this rule
   applies to connections through any port.
-  Example inputs include: ["22"], ["80","443"], and
+  Example inputs include: [22], [80,443], and
   ["12345-12349"].
 
 <a name="nested_deny"></a>The `deny` block supports:
@@ -260,7 +260,7 @@ If logging is enabled, logs will be exported to Stackdriver. Deprecated in favor
   is only applicable for UDP or TCP protocol. Each entry must be
   either an integer or a range. If not specified, this rule
   applies to connections through any port.
-  Example inputs include: ["22"], ["80","443"], and
+  Example inputs include: [22], [80,443], and
   ["12345-12349"].
 
 <a name="nested_log_config"></a>The `log_config` block supports:
