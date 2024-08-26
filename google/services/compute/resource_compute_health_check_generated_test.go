@@ -538,6 +538,126 @@ resource "google_compute_health_check" "grpc-health-check" {
 `, context)
 }
 
+func TestAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.http-health-check-with-source-regions",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_computeHealthCheckHttpSourceRegionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "http-health-check-with-source-regions" {
+  name = "tf-test-http-health-check%{random_suffix}"
+  check_interval_sec = 30
+
+  http_health_check {
+    port = 80
+    port_specification = "USE_FIXED_PORT"
+  }
+
+  source_regions = ["us-west1", "us-central1", "us-east5"]
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.https-health-check-with-source-regions",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_computeHealthCheckHttpsSourceRegionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "https-health-check-with-source-regions" {
+  name = "tf-test-https-health-check%{random_suffix}"
+  check_interval_sec = 30
+
+  https_health_check {
+    port = 80
+    port_specification = "USE_FIXED_PORT"
+  }
+
+  source_regions = ["us-west1", "us-central1", "us-east5"]
+}
+`, context)
+}
+
+func TestAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeHealthCheckDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(context),
+			},
+			{
+				ResourceName:      "google_compute_health_check.tcp-health-check-with-source-regions",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccComputeHealthCheck_computeHealthCheckTcpSourceRegionsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_health_check" "tcp-health-check-with-source-regions" {
+  name = "tf-test-tcp-health-check%{random_suffix}"
+  check_interval_sec = 30
+
+  tcp_health_check {
+    port = 80
+    port_specification = "USE_FIXED_PORT"
+  }
+
+  source_regions = ["us-west1", "us-central1", "us-east5"]
+}
+`, context)
+}
+
 func testAccCheckComputeHealthCheckDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
