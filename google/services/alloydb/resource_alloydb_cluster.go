@@ -481,6 +481,13 @@ It is specified in the form: "projects/{projectNumber}/global/networks/{network_
 					},
 				},
 			},
+			"subscription_type": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"TRIAL", "STANDARD", ""}),
+				Description:  `The subscrition type of cluster. Possible values: ["TRIAL", "STANDARD"]`,
+			},
 			"backup_source": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -626,6 +633,35 @@ This can happen due to user-triggered updates or system actions like failover or
  and default labels configured on the provider.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"trial_metadata": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Contains information and all metadata related to TRIAL clusters.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"end_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `End time of the trial cluster.`,
+						},
+						"grace_end_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Grace end time of the trial cluster.`,
+						},
+						"start_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Start time of the trial cluster.`,
+						},
+						"upgrade_time": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Upgrade time of the trial cluster to standard cluster.`,
+						},
+					},
+				},
+			},
 			"uid": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -741,6 +777,12 @@ func resourceAlloydbClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	} else if v, ok := d.GetOkExists("maintenance_update_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(maintenanceUpdatePolicyProp)) && (ok || !reflect.DeepEqual(v, maintenanceUpdatePolicyProp)) {
 		obj["maintenanceUpdatePolicy"] = maintenanceUpdatePolicyProp
+	}
+	subscriptionTypeProp, err := expandAlloydbClusterSubscriptionType(d.Get("subscription_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subscription_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(subscriptionTypeProp)) && (ok || !reflect.DeepEqual(v, subscriptionTypeProp)) {
+		obj["subscriptionType"] = subscriptionTypeProp
 	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -986,6 +1028,12 @@ func resourceAlloydbClusterRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("maintenance_update_policy", flattenAlloydbClusterMaintenanceUpdatePolicy(res["maintenanceUpdatePolicy"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("subscription_type", flattenAlloydbClusterSubscriptionType(res["subscriptionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
+	if err := d.Set("trial_metadata", flattenAlloydbClusterTrialMetadata(res["trialMetadata"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenAlloydbClusterTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -1087,6 +1135,12 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("maintenance_update_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maintenanceUpdatePolicyProp)) {
 		obj["maintenanceUpdatePolicy"] = maintenanceUpdatePolicyProp
 	}
+	subscriptionTypeProp, err := expandAlloydbClusterSubscriptionType(d.Get("subscription_type"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("subscription_type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, subscriptionTypeProp)) {
+		obj["subscriptionType"] = subscriptionTypeProp
+	}
 	labelsProp, err := expandAlloydbClusterEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -1155,6 +1209,10 @@ func resourceAlloydbClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("maintenance_update_policy") {
 		updateMask = append(updateMask, "maintenanceUpdatePolicy")
+	}
+
+	if d.HasChange("subscription_type") {
+		updateMask = append(updateMask, "subscriptionType")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -2013,6 +2071,45 @@ func flattenAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNano
 	return v // let terraform core handle it otherwise
 }
 
+func flattenAlloydbClusterSubscriptionType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterTrialMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["start_time"] =
+		flattenAlloydbClusterTrialMetadataStartTime(original["startTime"], d, config)
+	transformed["end_time"] =
+		flattenAlloydbClusterTrialMetadataEndTime(original["endTime"], d, config)
+	transformed["upgrade_time"] =
+		flattenAlloydbClusterTrialMetadataUpgradeTime(original["upgradeTime"], d, config)
+	transformed["grace_end_time"] =
+		flattenAlloydbClusterTrialMetadataGraceEndTime(original["graceEndTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenAlloydbClusterTrialMetadataStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterTrialMetadataEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterTrialMetadataUpgradeTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAlloydbClusterTrialMetadataGraceEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenAlloydbClusterTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2664,6 +2761,10 @@ func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeSecon
 }
 
 func expandAlloydbClusterMaintenanceUpdatePolicyMaintenanceWindowsStartTimeNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandAlloydbClusterSubscriptionType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

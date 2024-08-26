@@ -370,6 +370,11 @@ The following arguments are supported:
   MaintenanceUpdatePolicy defines the policy for system updates.
   Structure is [documented below](#nested_maintenance_update_policy).
 
+* `subscription_type` -
+  (Optional)
+  The subscrition type of cluster.
+  Possible values are: `TRIAL`, `STANDARD`.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -625,6 +630,10 @@ In addition to the arguments listed above, the following computed attributes are
   Cluster created via DMS migration.
   Structure is [documented below](#nested_migration_source).
 
+* `trial_metadata` -
+  Contains information and all metadata related to TRIAL clusters.
+  Structure is [documented below](#nested_trial_metadata).
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.
@@ -695,6 +704,24 @@ In addition to the arguments listed above, the following computed attributes are
 * `source_type` -
   (Optional)
   Type of migration source.
+
+<a name="nested_trial_metadata"></a>The `trial_metadata` block contains:
+
+* `start_time` -
+  (Optional)
+  Start time of the trial cluster.
+
+* `end_time` -
+  (Optional)
+  End time of the trial cluster.
+
+* `upgrade_time` -
+  (Optional)
+  Upgrade time of the trial cluster to standard cluster.
+
+* `grace_end_time` -
+  (Optional)
+  Grace end time of the trial cluster.
 
 ## Timeouts
 
