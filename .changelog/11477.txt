@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access`
+```

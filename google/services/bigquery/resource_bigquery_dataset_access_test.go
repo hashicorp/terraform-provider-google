@@ -278,6 +278,38 @@ func TestAccBigQueryDatasetAccess_allAuthenticatedUsers(t *testing.T) {
 	})
 }
 
+func TestAccBigQueryDatasetAccess_userByEmailWithMixedCase(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_mixedCaseEmail(datasetID, "user_by_email", "alicE@google.COM"),
+			},
+		},
+	})
+}
+
+func TestAccBigQueryDatasetAccess_groupByEmailWithMixedCase(t *testing.T) {
+	t.Parallel()
+
+	datasetID := fmt.Sprintf("tf_test_%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigQueryDatasetAccess_mixedCaseEmail(datasetID, "group_by_email", "MAGIC-MODULES@gOOgle.com"),
+			},
+		},
+	})
+}
+
 func testAccCheckBigQueryDatasetAccessPresent(t *testing.T, n string, expected map[string]interface{}) resource.TestCheckFunc {
 	return testAccCheckBigQueryDatasetAccess(t, n, expected, true)
 }
@@ -530,4 +562,18 @@ resource "google_bigquery_dataset" "dataset" {
   dataset_id    = "%s"
 }
 `, datasetID)
+}
+
+func testAccBigQueryDatasetAccess_mixedCaseEmail(datasetID, accessType, email string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset_access" "mixed_case_email" {
+  dataset_id    = google_bigquery_dataset.dataset.dataset_id
+  role          = "roles/bigquery.dataEditor"
+  %s = "%s"
+}
+
+resource "google_bigquery_dataset" "dataset" {
+  dataset_id = "%s"
+}
+`, accessType, email, datasetID)
 }

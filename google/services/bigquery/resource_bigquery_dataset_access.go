@@ -61,20 +61,28 @@ func resourceBigQueryDatasetAccessIamMemberDiffSuppress(k, old, new string, d *s
 		}
 
 		if memberInState := d.Get("user_by_email").(string); memberInState != "" {
-			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
+			return strings.ToLower(memberInState) == strings.ToLower(strippedIamMember)
 		}
 
 		if memberInState := d.Get("group_by_email").(string); memberInState != "" {
-			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
+			return strings.ToLower(memberInState) == strings.ToLower(strippedIamMember)
 		}
 
 		if memberInState := d.Get("domain").(string); memberInState != "" {
-			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
+			return strings.ToLower(memberInState) == strings.ToLower(strippedIamMember)
 		}
 
 		if memberInState := d.Get("special_group").(string); memberInState != "" {
-			return strings.ToUpper(memberInState) == strings.ToUpper(strippedIamMember)
+			return strings.ToLower(memberInState) == strings.ToLower(strippedIamMember)
 		}
+	}
+
+	if memberInState := d.Get("user_by_email").(string); memberInState != "" {
+		return strings.ToLower(old) == strings.ToLower(new)
+	}
+
+	if memberInState := d.Get("group_by_email").(string); memberInState != "" {
+		return strings.ToLower(old) == strings.ToLower(new)
 	}
 
 	return false
@@ -806,11 +814,19 @@ func expandNestedBigQueryDatasetAccessRole(v interface{}, d tpgresource.Terrafor
 }
 
 func expandNestedBigQueryDatasetAccessUserByEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+
+	return strings.ToLower(v.(string)), nil
 }
 
 func expandNestedBigQueryDatasetAccessGroupByEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
-	return v, nil
+	if v == nil {
+		return nil, nil
+	}
+
+	return strings.ToLower(v.(string)), nil
 }
 
 func expandNestedBigQueryDatasetAccessDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
