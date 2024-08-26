@@ -600,7 +600,7 @@ exported:
 * `ipv6_access_type` - One of EXTERNAL, INTERNAL to indicate whether the IP can be accessed from the Internet.
 This field is always inherited from its subnetwork.
 
-* `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).`,
+* `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 

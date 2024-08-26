@@ -87,7 +87,7 @@ The following arguments are supported:
 
 * `enable_display` - Whether the instance has virtual displays enabled.
 
-* `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).`,
+* `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
