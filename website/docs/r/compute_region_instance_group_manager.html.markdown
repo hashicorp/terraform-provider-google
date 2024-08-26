@@ -320,9 +320,9 @@ version {
 }
 ```
 
-* `name` - (Required) - Version name.
-
 * `instance_template` - (Required) - The full URL to an instance template from which all new instances of this version will be created.
+
+* `name` - (Optional) - Version name.
 
 * `target_size` - (Optional) - The number of instances calculated as a fixed number or a percentage depending on the settings. Structure is [documented below](#nested_target_size).
 
