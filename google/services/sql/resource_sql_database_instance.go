@@ -443,13 +443,6 @@ is set to true. Defaults to ZONAL.`,
 										AtLeastOneOf: ipConfigurationKeys,
 										Description:  `Whether this Cloud SQL instance should be assigned a public IPV4 address. At least ipv4_enabled must be enabled or a private_network must be configured.`,
 									},
-									"require_ssl": {
-										Type:         schema.TypeBool,
-										Optional:     true,
-										AtLeastOneOf: ipConfigurationKeys,
-										Description:  `Whether SSL connections over IP are enforced or not. To change this field, also set the corresponding value in ssl_mode if it has been set too.`,
-										Deprecated:   "`require_ssl` will be fully deprecated in a future major release. For now, please use `ssl_mode` with a compatible `require_ssl` value instead.",
-									},
 									"private_network": {
 										Type:             schema.TypeString,
 										Optional:         true,
@@ -498,7 +491,7 @@ is set to true. Defaults to ZONAL.`,
 										Optional:     true,
 										Computed:     true,
 										ValidateFunc: validation.StringInSlice([]string{"ALLOW_UNENCRYPTED_AND_ENCRYPTED", "ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"}, false),
-										Description:  `Specify how SSL connection should be enforced in DB connections. This field provides more SSL enforcement options compared to require_ssl. To change this field, also set the correspoding value in require_ssl until next major release.`,
+										Description:  `Specify how SSL connection should be enforced in DB connections.`,
 										AtLeastOneOf: ipConfigurationKeys,
 									},
 									"server_ca_mode": {
@@ -2269,11 +2262,6 @@ func flattenIpConfiguration(ipConfiguration *sqladmin.IpConfiguration, d *schema
 
 	if ipConfiguration.PscConfig != nil {
 		data["psc_config"] = flattenPscConfigs(ipConfiguration.PscConfig)
-	}
-
-	// We store the ssl_mode value only if the customer already uses `ssl_mode`.
-	if _, ok := d.GetOk("settings.0.ip_configuration.0.ssl_mode"); ok {
-		data["ssl_mode"] = ipConfiguration.SslMode
 	}
 
 	return []map[string]interface{}{data}

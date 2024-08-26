@@ -369,9 +369,9 @@ Support for the deletionProtectionEnabled field has been added. Redis clusters w
 
 ## Resource: `google_sql_database_instance`
 
-### `settings.ip_configuration.require_ssl` is now removed
+### `settings.ip_configuration.require_ssl` is now removed (in 6.0.1)
 
-Removed in favor of field `settings.ip_configuration.ssl_mode`.
+Removed in favor of field `settings.ip_configuration.ssl_mode`. `settings.ip_configuration.require_ssl` was intended to be removed in 6.0.0, but is removed in 6.0.1 instead.
 
 ## Resource: `google_storage_bucket`
 

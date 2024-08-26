@@ -1,0 +1,3 @@
+```release-note:breaking-change
+sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0.
+```
