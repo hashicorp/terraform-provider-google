@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `encryption_configuration` field to `google_bigquery_data_transfer_config` resource
+```

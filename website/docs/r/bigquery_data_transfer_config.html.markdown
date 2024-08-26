@@ -70,6 +70,57 @@ resource "google_bigquery_dataset" "my_dataset" {
   location      = "asia-northeast1"
 }
 ```
+## Example Usage - Bigquerydatatransfer Config Cmek
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_project_iam_member" "permissions" {
+  project = data.google_project.project.project_id
+  role   = "roles/iam.serviceAccountTokenCreator"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-bigquerydatatransfer.iam.gserviceaccount.com"
+}
+
+resource "google_bigquery_data_transfer_config" "query_config_cmek" {
+  depends_on = [google_project_iam_member.permissions]
+
+  display_name           = ""
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  schedule               = "first sunday of quarter 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  params = {
+    destination_table_name_template = "my_table"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT name FROM tabl WHERE x = 'y'"
+  }
+
+  encryption_configuration {
+    kms_key_name = google_kms_crypto_key.crypto_key.id
+  }
+}
+
+resource "google_bigquery_dataset" "my_dataset" {
+  depends_on = [google_project_iam_member.permissions]
+
+  dataset_id    = "example_dataset"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_kms_crypto_key" "crypto_key" {
+  name     = "example-key"
+  key_ring = google_kms_key_ring.key_ring.id
+}
+
+resource "google_kms_key_ring" "key_ring" {
+  name     = "example-keyring"
+  location = "us"
+}
+```
 ## Example Usage - Bigquerydatatransfer Config Salesforce
 
 
@@ -161,6 +212,11 @@ The following arguments are supported:
   just [today-1]. Only valid if the data source supports the feature.
   Set the value to 0 to use the default value.
 
+* `encryption_configuration` -
+  (Optional)
+  Represents the encryption configuration for a transfer.
+  Structure is [documented below](#nested_encryption_configuration).
+
 * `disabled` -
   (Optional)
   When set to true, no runs are scheduled for a given transfer.
@@ -220,6 +276,12 @@ The following arguments are supported:
 * `enable_failure_email` -
   (Required)
   If true, email notifications will be sent on transfer run failures.
+
+<a name="nested_encryption_configuration"></a>The `encryption_configuration` block supports:
+
+* `kms_key_name` -
+  (Required)
+  The name of the KMS key used for encrypting BigQuery data.
 
 <a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
 
