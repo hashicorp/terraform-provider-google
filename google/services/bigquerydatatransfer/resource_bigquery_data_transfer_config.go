@@ -176,6 +176,21 @@ email address of the user who owns this transfer config.`,
 					},
 				},
 			},
+			"encryption_configuration": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Represents the encryption configuration for a transfer.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"kms_key_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The name of the KMS key used for encrypting BigQuery data.`,
+						},
+					},
+				},
+			},
 			"location": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -348,6 +363,12 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("data_refresh_window_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(dataRefreshWindowDaysProp)) && (ok || !reflect.DeepEqual(v, dataRefreshWindowDaysProp)) {
 		obj["dataRefreshWindowDays"] = dataRefreshWindowDaysProp
 	}
+	encryptionConfigurationProp, err := expandBigqueryDataTransferConfigEncryptionConfiguration(d.Get("encryption_configuration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_configuration"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigurationProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigurationProp)) {
+		obj["encryptionConfiguration"] = encryptionConfigurationProp
+	}
 	disabledProp, err := expandBigqueryDataTransferConfigDisabled(d.Get("disabled"), d, config)
 	if err != nil {
 		return err
@@ -516,6 +537,9 @@ func resourceBigqueryDataTransferConfigRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("data_refresh_window_days", flattenBigqueryDataTransferConfigDataRefreshWindowDays(res["dataRefreshWindowDays"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
+	if err := d.Set("encryption_configuration", flattenBigqueryDataTransferConfigEncryptionConfiguration(res["encryptionConfiguration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
 	if err := d.Set("disabled", flattenBigqueryDataTransferConfigDisabled(res["disabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
@@ -583,6 +607,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("data_refresh_window_days"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataRefreshWindowDaysProp)) {
 		obj["dataRefreshWindowDays"] = dataRefreshWindowDaysProp
+	}
+	encryptionConfigurationProp, err := expandBigqueryDataTransferConfigEncryptionConfiguration(d.Get("encryption_configuration"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("encryption_configuration"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigurationProp)) {
+		obj["encryptionConfiguration"] = encryptionConfigurationProp
 	}
 	disabledProp, err := expandBigqueryDataTransferConfigDisabled(d.Get("disabled"), d, config)
 	if err != nil {
@@ -835,6 +865,23 @@ func flattenBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d *sc
 	return v // let terraform core handle it otherwise
 }
 
+func flattenBigqueryDataTransferConfigEncryptionConfiguration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["kms_key_name"] =
+		flattenBigqueryDataTransferConfigEncryptionConfigurationKmsKeyName(original["kmsKeyName"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigEncryptionConfigurationKmsKeyName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenBigqueryDataTransferConfigDisabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -942,6 +989,29 @@ func expandBigqueryDataTransferConfigNotificationPubsubTopic(v interface{}, d tp
 }
 
 func expandBigqueryDataTransferConfigDataRefreshWindowDays(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigEncryptionConfiguration(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKmsKeyName, err := expandBigqueryDataTransferConfigEncryptionConfigurationKmsKeyName(original["kms_key_name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKmsKeyName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["kmsKeyName"] = transformedKmsKeyName
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigEncryptionConfigurationKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

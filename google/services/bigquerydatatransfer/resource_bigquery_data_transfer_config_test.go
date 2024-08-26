@@ -386,6 +386,29 @@ func testAccBigqueryDataTransferConfig_scheduledQuery_update(t *testing.T) {
 	})
 }
 
+func testAccBigqueryDataTransferConfig_CMEK(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
+	random_suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_CMEK_basic(random_suffix),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.query_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
 func testAccBigqueryDataTransferConfig_scheduledQuery_no_destination(t *testing.T) {
 	// Uses time.Now
 	acctest.SkipIfVcr(t)
@@ -768,6 +791,74 @@ resource "google_bigquery_data_transfer_config" "copy_config" {
   }
 }
 `, random_suffix, random_suffix, random_suffix)
+}
+
+func testAccBigqueryDataTransferConfig_CMEK_basic(random_suffix string) string {
+	return fmt.Sprintf(`
+data "google_project" "project" {
+}
+
+resource "google_kms_key_ring" "example_keyring" {
+  name     = "keyring-test-%s"
+  location = "us-central1"
+}
+
+resource "google_kms_crypto_key" "example_crypto_key" {
+  name = "crypto-key-%s"
+  key_ring = google_kms_key_ring.example_keyring.id
+  purpose = "ENCRYPT_DECRYPT"
+}
+
+resource "google_service_account" "bqwriter%s" {
+  account_id = "bqwriter%s"
+}
+
+resource "google_project_iam_member" "data_editor" {
+  project = data.google_project.project.project_id
+
+  role   = "roles/bigquery.dataEditor"
+  member = "serviceAccount:${google_service_account.bqwriter%s.email}"
+}
+
+data "google_iam_policy" "owner" {
+  binding {
+    role = "roles/bigquery.dataOwner"
+
+    members = [
+      "serviceAccount:${google_service_account.bqwriter%s.email}",
+    ]
+  }
+}
+
+resource "google_bigquery_dataset_iam_policy" "dataset" {
+  dataset_id  = google_bigquery_dataset.my_dataset.dataset_id
+  policy_data = data.google_iam_policy.owner.policy_data
+}
+
+resource "google_bigquery_data_transfer_config" "query_config" {
+  depends_on = [ google_kms_crypto_key.example_crypto_key ]
+  encryption_configuration {
+    kms_key_name = google_kms_crypto_key.example_crypto_key.id
+  }
+  display_name           = "my-query-%s"
+  location               = "us-central1"
+  data_source_id         = "scheduled_query"
+  schedule               = "first sunday of quarter 00:00"
+  destination_dataset_id = google_bigquery_dataset.my_dataset.dataset_id
+  params = {
+    destination_table_name_template = "my_table"
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT name FROM table WHERE x = 'y'"
+  }
+}
+
+resource "google_bigquery_dataset" "my_dataset" {
+  dataset_id    = "my_dataset_%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "us-central1"
+}
+`, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix, random_suffix)
 }
 
 func testAccBigqueryDataTransferConfig_update_params_force_new(random_suffix, path, table string) string {
