@@ -854,9 +854,7 @@ resource "google_bigquery_data_transfer_config" "salesforce_config" {
   params = {
     "connector.authentication.oauth.clientId"     = ""
     "connector.authentication.oauth.clientSecret" = ""
-    "connector.authentication.username"           = ""
-    "connector.authentication.password"           = ""
-    "connector.authentication.securityToken"      = ""
+    "connector.authentication.oauth.myDomain"     = "MyDomain"
     "assets"                                      = "[\"asset-a\",\"asset-b\"]"
   }
 }
