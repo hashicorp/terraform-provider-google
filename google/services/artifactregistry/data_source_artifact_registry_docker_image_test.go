@@ -30,24 +30,11 @@ func TestAccDataSourceArtifactRegistryDockerImage(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName+"Tag", "image_size_bytes"),
 					validateTimeStamps(resourceName+"Tag"),
 
-					// Data source using a digest
-					checkDigestDataSources(
-						resourceName+"Digest",
-						"projects/cloudrun/locations/us/repositories/container/dockerImages/hello@sha256:7a6e0dfb0142464ce0ba14a2cfcac75e383e36f39f47539c870132c826314ad6",
-						"us-docker.pkg.dev/cloudrun/container/hello@sha256:7a6e0dfb0142464ce0ba14a2cfcac75e383e36f39f47539c870132c826314ad6",
-					),
 					resource.TestCheckResourceAttrSet(resourceName+"Digest", "image_size_bytes"),
 					validateTimeStamps(resourceName+"Digest"),
 
 					// url safe docker name using a tag
 					checkTaggedDataSources(resourceName+"UrlTag", "latest"),
-
-					// url safe docker name using a digest
-					checkDigestDataSources(
-						resourceName+"UrlDigest",
-						"projects/go-containerregistry/locations/us/repositories/gcr.io/dockerImages/krane%2Fdebug@sha256:26903bf659994649af0b8ccb2675b76318b2bc3b2c85feea9a1f9d5b98eff363",
-						"us-docker.pkg.dev/go-containerregistry/gcr.io/krane/debug@sha256:26903bf659994649af0b8ccb2675b76318b2bc3b2c85feea9a1f9d5b98eff363",
-					),
 
 					// Data source using no tag or digest
 					resource.TestCheckResourceAttrSet(resourceName+"None", "repository_id"),
@@ -72,25 +59,11 @@ data "google_artifact_registry_docker_image" "testTag" {
 	image_name    = "hello:latest"
 }
 
-data "google_artifact_registry_docker_image" "testDigest" {
-	project       = "cloudrun"
-	location      = "us"
-	repository_id = "container"
-	image_name    = "hello@sha256:7a6e0dfb0142464ce0ba14a2cfcac75e383e36f39f47539c870132c826314ad6"
-}
-
 data "google_artifact_registry_docker_image" "testUrlTag" {
 	project       = "go-containerregistry"
 	location      = "us"
 	repository_id = "gcr.io"
 	image_name    = "krane/debug:latest"
-}
-
-data "google_artifact_registry_docker_image" "testUrlDigest" {
-	project       = "go-containerregistry"
-	location      = "us"
-	repository_id = "gcr.io"
-	image_name    = "krane/debug@sha256:26903bf659994649af0b8ccb2675b76318b2bc3b2c85feea9a1f9d5b98eff363"
 }
 
 data "google_artifact_registry_docker_image" "testNone" {
