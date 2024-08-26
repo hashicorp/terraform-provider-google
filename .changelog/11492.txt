@@ -1,0 +1,3 @@
+```release-note:bug
+artifactregistry: Fixed https://github.com/hashicorp/terraform-provider-google/issues/18955
+```
