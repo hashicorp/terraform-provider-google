@@ -115,6 +115,66 @@ func TestAccCloudTasksQueue_TimeUnitDiff(t *testing.T) {
 	})
 }
 
+func TestAccCloudTasksQueue_HttpTargetOIDC_update(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	serviceAccountID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_HttpTargetOIDC(name, serviceAccountID),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudTasksQueue_basic(name),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccCloudTasksQueue_HttpTargetOAuth_update(t *testing.T) {
+	t.Parallel()
+
+	name := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	serviceAccountID := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_HttpTargetOAuth(name, serviceAccountID),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccCloudTasksQueue_basic(name),
+			},
+			{
+				ResourceName:      "google_cloud_tasks_queue.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCloudTasksQueue_basic(name string) string {
 	return fmt.Sprintf(`
 resource "google_cloud_tasks_queue" "default" {
@@ -225,4 +285,98 @@ resource "google_cloud_tasks_queue" "default" {
   }
 }
 `, cloudTaskName)
+}
+
+func testAccCloudTasksQueue_HttpTargetOIDC(name, serviceAccountID string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_tasks_queue" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oidc.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oidc_token {
+      service_account_email = google_service_account.test.email
+      audience              = "https://oidc.example.com"
+    }
+  }
+}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Tasks Queue OIDC Service Account"
+}
+
+`, name, serviceAccountID)
+}
+
+func testAccCloudTasksQueue_HttpTargetOAuth(name, serviceAccountID string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_tasks_queue" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oidc.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oauth_token {
+      service_account_email = google_service_account.test.email
+      scope                 = "openid https://www.googleapis.com/auth/userinfo.email"
+    }
+  }
+}
+
+resource "google_service_account" "test" {
+  account_id   = "%s"
+  display_name = "Tasks Queue OAuth Service Account"
+}
+
+`, name, serviceAccountID)
 }

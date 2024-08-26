@@ -74,6 +74,108 @@ resource "google_cloud_tasks_queue" "advanced_configuration" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_tasks_queue_http_target_oidc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Tasks Queue Http Target Oidc
+
+
+```hcl
+resource "google_cloud_tasks_queue" "http_target_oidc" {
+  name     = "cloud-tasks-queue-http-target-oidc"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oidc.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oidc_token {
+      service_account_email = google_service_account.oidc_service_account.email
+      audience              = "https://oidc.example.com"
+    }
+  }
+}
+
+resource "google_service_account" "oidc_service_account" {
+  account_id   = "example-oidc"
+  display_name = "Tasks Queue OIDC Service Account"
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_tasks_queue_http_target_oauth&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Cloud Tasks Queue Http Target Oauth
+
+
+```hcl
+resource "google_cloud_tasks_queue" "http_target_oauth" {
+  name     = "cloud-tasks-queue-http-target-oauth"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oauth.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oauth_token {
+      service_account_email = google_service_account.oauth_service_account.email
+      scope                 = "openid https://www.googleapis.com/auth/userinfo.email"
+    }
+  }
+}
+
+resource "google_service_account" "oauth_service_account" {
+  account_id   = "example-oauth"
+  display_name = "Tasks Queue OAuth Service Account"
+}
+```
 
 ## Argument Reference
 
@@ -118,6 +220,11 @@ The following arguments are supported:
   (Optional)
   Configuration options for writing logs to Stackdriver Logging.
   Structure is [documented below](#nested_stackdriver_logging_config).
+
+* `http_target` -
+  (Optional)
+  Modifies HTTP target for HTTP tasks.
+  Structure is [documented below](#nested_http_target).
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -213,6 +320,146 @@ The following arguments are supported:
   Specifies the fraction of operations to write to Stackdriver Logging.
   This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
   default and means that no operations are logged.
+
+<a name="nested_http_target"></a>The `http_target` block supports:
+
+* `http_method` -
+  (Optional)
+  The HTTP method to use for the request.
+  When specified, it overrides HttpRequest for the task.
+  Note that if the value is set to GET the body of the task will be ignored at execution time.
+  Possible values are: `HTTP_METHOD_UNSPECIFIED`, `POST`, `GET`, `HEAD`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`.
+
+* `uri_override` -
+  (Optional)
+  URI override.
+  When specified, overrides the execution URI for all the tasks in the queue.
+  Structure is [documented below](#nested_uri_override).
+
+* `header_overrides` -
+  (Optional)
+  HTTP target headers.
+  This map contains the header field names and values.
+  Headers will be set when running the CreateTask and/or BufferTask.
+  These headers represent a subset of the headers that will be configured for the task's HTTP request.
+  Some HTTP request headers will be ignored or replaced.
+  Headers which can have multiple values (according to RFC2616) can be specified using comma-separated values.
+  The size of the headers must be less than 80KB. Queue-level headers to override headers of all the tasks in the queue.
+  Structure is [documented below](#nested_header_overrides).
+
+* `oauth_token` -
+  (Optional)
+  If specified, an OAuth token is generated and attached as the Authorization header in the HTTP request.
+  This type of authorization should generally be used only when calling Google APIs hosted on *.googleapis.com.
+  Note that both the service account email and the scope MUST be specified when using the queue-level authorization override.
+  Structure is [documented below](#nested_oauth_token).
+
+* `oidc_token` -
+  (Optional)
+  If specified, an OIDC token is generated and attached as an Authorization header in the HTTP request.
+  This type of authorization can be used for many scenarios, including calling Cloud Run, or endpoints where you intend to validate the token yourself.
+  Note that both the service account email and the audience MUST be specified when using the queue-level authorization override.
+  Structure is [documented below](#nested_oidc_token).
+
+
+<a name="nested_uri_override"></a>The `uri_override` block supports:
+
+* `scheme` -
+  (Optional)
+  Scheme override.
+  When specified, the task URI scheme is replaced by the provided value (HTTP or HTTPS).
+  Possible values are: `HTTP`, `HTTPS`.
+
+* `host` -
+  (Optional)
+  Host override.
+  When specified, replaces the host part of the task URL.
+  For example, if the task URL is "https://www.google.com", and host value
+  is set to "example.net", the overridden URI will be changed to "https://example.net".
+  Host value cannot be an empty string (INVALID_ARGUMENT).
+
+* `port` -
+  (Optional)
+  Port override.
+  When specified, replaces the port part of the task URI.
+  For instance, for a URI http://www.google.com/foo and port=123, the overridden URI becomes http://www.google.com:123/foo.
+  Note that the port value must be a positive integer.
+  Setting the port to 0 (Zero) clears the URI port.
+
+* `path_override` -
+  (Optional)
+  URI path.
+  When specified, replaces the existing path of the task URL.
+  Setting the path value to an empty string clears the URI path segment.
+  Structure is [documented below](#nested_path_override).
+
+* `query_override` -
+  (Optional)
+  URI query.
+  When specified, replaces the query part of the task URI. Setting the query value to an empty string clears the URI query segment.
+  Structure is [documented below](#nested_query_override).
+
+* `uri_override_enforce_mode` -
+  (Optional)
+  URI Override Enforce Mode
+  When specified, determines the Target UriOverride mode. If not specified, it defaults to ALWAYS.
+  Possible values are: `ALWAYS`, `IF_NOT_EXISTS`.
+
+
+<a name="nested_path_override"></a>The `path_override` block supports:
+
+* `path` -
+  (Optional)
+  The URI path (e.g., /users/1234). Default is an empty string.
+
+<a name="nested_query_override"></a>The `query_override` block supports:
+
+* `query_params` -
+  (Optional)
+  The query parameters (e.g., qparam1=123&qparam2=456). Default is an empty string.
+
+<a name="nested_header_overrides"></a>The `header_overrides` block supports:
+
+* `header` -
+  (Required)
+  Header embodying a key and a value.
+  Structure is [documented below](#nested_header).
+
+
+<a name="nested_header"></a>The `header` block supports:
+
+* `key` -
+  (Required)
+  The Key of the header.
+
+* `value` -
+  (Required)
+  The Value of the header.
+
+<a name="nested_oauth_token"></a>The `oauth_token` block supports:
+
+* `service_account_email` -
+  (Required)
+  Service account email to be used for generating OAuth token.
+  The service account must be within the same project as the queue.
+  The caller must have iam.serviceAccounts.actAs permission for the service account.
+
+* `scope` -
+  (Optional)
+  OAuth scope to be used for generating OAuth access token.
+  If not specified, "https://www.googleapis.com/auth/cloud-platform" will be used.
+
+<a name="nested_oidc_token"></a>The `oidc_token` block supports:
+
+* `service_account_email` -
+  (Required)
+  Service account email to be used for generating OIDC token.
+  The service account must be within the same project as the queue.
+  The caller must have iam.serviceAccounts.actAs permission for the service account.
+
+* `audience` -
+  (Optional)
+  Audience to be used when generating OIDC token. If not specified, the URI specified in target will be used.
 
 ## Attributes Reference
 
