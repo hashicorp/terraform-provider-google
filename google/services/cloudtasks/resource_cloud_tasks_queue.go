@@ -30,6 +30,7 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
 func suppressOmittedMaxDuration(k, old, new string, d *schema.ResourceData) bool {
@@ -101,6 +102,207 @@ By default, the task is sent to the version which is the default version when th
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The host that the task is sent to.`,
+						},
+					},
+				},
+			},
+			"http_target": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Modifies HTTP target for HTTP tasks.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"header_overrides": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `HTTP target headers.
+
+This map contains the header field names and values.
+Headers will be set when running the CreateTask and/or BufferTask.
+
+These headers represent a subset of the headers that will be configured for the task's HTTP request.
+Some HTTP request headers will be ignored or replaced.
+
+Headers which can have multiple values (according to RFC2616) can be specified using comma-separated values.
+
+The size of the headers must be less than 80KB. Queue-level headers to override headers of all the tasks in the queue.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"header": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: `Header embodying a key and a value.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The Key of the header.`,
+												},
+												"value": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: `The Value of the header.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"http_method": {
+							Type:         schema.TypeString,
+							Computed:     true,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"HTTP_METHOD_UNSPECIFIED", "POST", "GET", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS", ""}),
+							Description: `The HTTP method to use for the request.
+
+When specified, it overrides HttpRequest for the task.
+Note that if the value is set to GET the body of the task will be ignored at execution time. Possible values: ["HTTP_METHOD_UNSPECIFIED", "POST", "GET", "HEAD", "PUT", "DELETE", "PATCH", "OPTIONS"]`,
+						},
+						"oauth_token": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `If specified, an OAuth token is generated and attached as the Authorization header in the HTTP request.
+
+This type of authorization should generally be used only when calling Google APIs hosted on *.googleapis.com.
+Note that both the service account email and the scope MUST be specified when using the queue-level authorization override.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Service account email to be used for generating OAuth token.
+The service account must be within the same project as the queue.
+The caller must have iam.serviceAccounts.actAs permission for the service account.`,
+									},
+									"scope": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Optional: true,
+										Description: `OAuth scope to be used for generating OAuth access token.
+If not specified, "https://www.googleapis.com/auth/cloud-platform" will be used.`,
+									},
+								},
+							},
+							ConflictsWith: []string{},
+						},
+						"oidc_token": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `If specified, an OIDC token is generated and attached as an Authorization header in the HTTP request.
+
+This type of authorization can be used for many scenarios, including calling Cloud Run, or endpoints where you intend to validate the token yourself.
+Note that both the service account email and the audience MUST be specified when using the queue-level authorization override.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"service_account_email": {
+										Type:     schema.TypeString,
+										Required: true,
+										Description: `Service account email to be used for generating OIDC token.
+The service account must be within the same project as the queue.
+The caller must have iam.serviceAccounts.actAs permission for the service account.`,
+									},
+									"audience": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Optional:    true,
+										Description: `Audience to be used when generating OIDC token. If not specified, the URI specified in target will be used.`,
+									},
+								},
+							},
+							ConflictsWith: []string{},
+						},
+						"uri_override": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `URI override.
+
+When specified, overrides the execution URI for all the tasks in the queue.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"host": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Host override.
+
+When specified, replaces the host part of the task URL.
+For example, if the task URL is "https://www.google.com", and host value
+is set to "example.net", the overridden URI will be changed to "https://example.net".
+Host value cannot be an empty string (INVALID_ARGUMENT).`,
+									},
+									"path_override": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `URI path.
+
+When specified, replaces the existing path of the task URL.
+Setting the path value to an empty string clears the URI path segment.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"path": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `The URI path (e.g., /users/1234). Default is an empty string.`,
+												},
+											},
+										},
+									},
+									"port": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Port override.
+
+When specified, replaces the port part of the task URI.
+For instance, for a URI http://www.google.com/foo and port=123, the overridden URI becomes http://www.google.com:123/foo.
+Note that the port value must be a positive integer.
+Setting the port to 0 (Zero) clears the URI port.`,
+									},
+									"query_override": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `URI query.
+
+When specified, replaces the query part of the task URI. Setting the query value to an empty string clears the URI query segment.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"query_params": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Optional:    true,
+													Description: `The query parameters (e.g., qparam1=123&qparam2=456). Default is an empty string.`,
+												},
+											},
+										},
+									},
+									"scheme": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"HTTP", "HTTPS", ""}),
+										Description: `Scheme override.
+
+When specified, the task URI scheme is replaced by the provided value (HTTP or HTTPS). Possible values: ["HTTP", "HTTPS"]`,
+									},
+									"uri_override_enforce_mode": {
+										Type:         schema.TypeString,
+										Computed:     true,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"ALWAYS", "IF_NOT_EXISTS", ""}),
+										Description: `URI Override Enforce Mode
+
+When specified, determines the Target UriOverride mode. If not specified, it defaults to ALWAYS. Possible values: ["ALWAYS", "IF_NOT_EXISTS"]`,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -290,6 +492,12 @@ func resourceCloudTasksQueueCreate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(stackdriverLoggingConfigProp)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
 		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
+	httpTargetProp, err := expandCloudTasksQueueHttpTarget(d.Get("http_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http_target"); !tpgresource.IsEmptyValue(reflect.ValueOf(httpTargetProp)) && (ok || !reflect.DeepEqual(v, httpTargetProp)) {
+		obj["httpTarget"] = httpTargetProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues")
 	if err != nil {
@@ -394,6 +602,9 @@ func resourceCloudTasksQueueRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("stackdriver_logging_config", flattenCloudTasksQueueStackdriverLoggingConfig(res["stackdriverLoggingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Queue: %s", err)
 	}
+	if err := d.Set("http_target", flattenCloudTasksQueueHttpTarget(res["httpTarget"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Queue: %s", err)
+	}
 
 	return nil
 }
@@ -438,6 +649,12 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("stackdriver_logging_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, stackdriverLoggingConfigProp)) {
 		obj["stackdriverLoggingConfig"] = stackdriverLoggingConfigProp
 	}
+	httpTargetProp, err := expandCloudTasksQueueHttpTarget(d.Get("http_target"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http_target"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, httpTargetProp)) {
+		obj["httpTarget"] = httpTargetProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{CloudTasksBasePath}}projects/{{project}}/locations/{{location}}/queues/{{name}}")
 	if err != nil {
@@ -462,6 +679,10 @@ func resourceCloudTasksQueueUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("stackdriver_logging_config") {
 		updateMask = append(updateMask, "stackdriverLoggingConfig")
+	}
+
+	if d.HasChange("http_target") {
+		updateMask = append(updateMask, "httpTarget")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -732,6 +953,191 @@ func flattenCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, 
 	return v
 }
 
+func flattenCloudTasksQueueHttpTarget(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["http_method"] =
+		flattenCloudTasksQueueHttpTargetHttpMethod(original["httpMethod"], d, config)
+	transformed["uri_override"] =
+		flattenCloudTasksQueueHttpTargetUriOverride(original["uriOverride"], d, config)
+	transformed["header_overrides"] =
+		flattenCloudTasksQueueHttpTargetHeaderOverrides(original["headerOverrides"], d, config)
+	transformed["oauth_token"] =
+		flattenCloudTasksQueueHttpTargetOauthToken(original["oauthToken"], d, config)
+	transformed["oidc_token"] =
+		flattenCloudTasksQueueHttpTargetOidcToken(original["oidcToken"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetHttpMethod(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverride(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["scheme"] =
+		flattenCloudTasksQueueHttpTargetUriOverrideScheme(original["scheme"], d, config)
+	transformed["host"] =
+		flattenCloudTasksQueueHttpTargetUriOverrideHost(original["host"], d, config)
+	transformed["port"] =
+		flattenCloudTasksQueueHttpTargetUriOverridePort(original["port"], d, config)
+	transformed["path_override"] =
+		flattenCloudTasksQueueHttpTargetUriOverridePathOverride(original["pathOverride"], d, config)
+	transformed["query_override"] =
+		flattenCloudTasksQueueHttpTargetUriOverrideQueryOverride(original["queryOverride"], d, config)
+	transformed["uri_override_enforce_mode"] =
+		flattenCloudTasksQueueHttpTargetUriOverrideUriOverrideEnforceMode(original["uriOverrideEnforceMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetUriOverrideScheme(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverrideHost(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverridePort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverridePathOverride(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["path"] =
+		flattenCloudTasksQueueHttpTargetUriOverridePathOverridePath(original["path"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetUriOverridePathOverridePath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverrideQueryOverride(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["query_params"] =
+		flattenCloudTasksQueueHttpTargetUriOverrideQueryOverrideQueryParams(original["queryParams"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetUriOverrideQueryOverrideQueryParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetUriOverrideUriOverrideEnforceMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetHeaderOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"header": flattenCloudTasksQueueHttpTargetHeaderOverridesHeader(original["header"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCloudTasksQueueHttpTargetHeaderOverridesHeader(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["key"] =
+		flattenCloudTasksQueueHttpTargetHeaderOverridesHeaderKey(original["key"], d, config)
+	transformed["value"] =
+		flattenCloudTasksQueueHttpTargetHeaderOverridesHeaderValue(original["value"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetHeaderOverridesHeaderKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetHeaderOverridesHeaderValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetOauthToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenCloudTasksQueueHttpTargetOauthTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
+	transformed["scope"] =
+		flattenCloudTasksQueueHttpTargetOauthTokenScope(original["scope"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetOauthTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetOauthTokenScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetOidcToken(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["service_account_email"] =
+		flattenCloudTasksQueueHttpTargetOidcTokenServiceAccountEmail(original["serviceAccountEmail"], d, config)
+	transformed["audience"] =
+		flattenCloudTasksQueueHttpTargetOidcTokenAudience(original["audience"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudTasksQueueHttpTargetOidcTokenServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudTasksQueueHttpTargetOidcTokenAudience(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandCloudTasksQueueName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return tpgresource.ReplaceVars(d, config, "projects/{{project}}/locations/{{location}}/queues/{{name}}")
 }
@@ -924,5 +1330,296 @@ func expandCloudTasksQueueStackdriverLoggingConfig(v interface{}, d tpgresource.
 }
 
 func expandCloudTasksQueueStackdriverLoggingConfigSamplingRatio(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTarget(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedHttpMethod, err := expandCloudTasksQueueHttpTargetHttpMethod(original["http_method"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHttpMethod); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["httpMethod"] = transformedHttpMethod
+	}
+
+	transformedUriOverride, err := expandCloudTasksQueueHttpTargetUriOverride(original["uri_override"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUriOverride); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uriOverride"] = transformedUriOverride
+	}
+
+	transformedHeaderOverrides, err := expandCloudTasksQueueHttpTargetHeaderOverrides(original["header_overrides"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHeaderOverrides); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["headerOverrides"] = transformedHeaderOverrides
+	}
+
+	transformedOauthToken, err := expandCloudTasksQueueHttpTargetOauthToken(original["oauth_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOauthToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oauthToken"] = transformedOauthToken
+	}
+
+	transformedOidcToken, err := expandCloudTasksQueueHttpTargetOidcToken(original["oidc_token"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedOidcToken); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["oidcToken"] = transformedOidcToken
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetHttpMethod(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScheme, err := expandCloudTasksQueueHttpTargetUriOverrideScheme(original["scheme"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScheme); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scheme"] = transformedScheme
+	}
+
+	transformedHost, err := expandCloudTasksQueueHttpTargetUriOverrideHost(original["host"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedHost); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["host"] = transformedHost
+	}
+
+	transformedPort, err := expandCloudTasksQueueHttpTargetUriOverridePort(original["port"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPort); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["port"] = transformedPort
+	}
+
+	transformedPathOverride, err := expandCloudTasksQueueHttpTargetUriOverridePathOverride(original["path_override"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPathOverride); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pathOverride"] = transformedPathOverride
+	}
+
+	transformedQueryOverride, err := expandCloudTasksQueueHttpTargetUriOverrideQueryOverride(original["query_override"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryOverride); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryOverride"] = transformedQueryOverride
+	}
+
+	transformedUriOverrideEnforceMode, err := expandCloudTasksQueueHttpTargetUriOverrideUriOverrideEnforceMode(original["uri_override_enforce_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUriOverrideEnforceMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["uriOverrideEnforceMode"] = transformedUriOverrideEnforceMode
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverrideScheme(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverrideHost(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverridePort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverridePathOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPath, err := expandCloudTasksQueueHttpTargetUriOverridePathOverridePath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverridePathOverridePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverrideQueryOverride(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedQueryParams, err := expandCloudTasksQueueHttpTargetUriOverrideQueryOverrideQueryParams(original["query_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedQueryParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["queryParams"] = transformedQueryParams
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverrideQueryOverrideQueryParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetUriOverrideUriOverrideEnforceMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetHeaderOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedHeader, err := expandCloudTasksQueueHttpTargetHeaderOverridesHeader(original["header"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedHeader); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["header"] = transformedHeader
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCloudTasksQueueHttpTargetHeaderOverridesHeader(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedKey, err := expandCloudTasksQueueHttpTargetHeaderOverridesHeaderKey(original["key"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedKey); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["key"] = transformedKey
+	}
+
+	transformedValue, err := expandCloudTasksQueueHttpTargetHeaderOverridesHeaderValue(original["value"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValue); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["value"] = transformedValue
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetHeaderOverridesHeaderKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetHeaderOverridesHeaderValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetOauthToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandCloudTasksQueueHttpTargetOauthTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedScope, err := expandCloudTasksQueueHttpTargetOauthTokenScope(original["scope"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScope); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scope"] = transformedScope
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetOauthTokenServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetOauthTokenScope(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetOidcToken(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServiceAccountEmail, err := expandCloudTasksQueueHttpTargetOidcTokenServiceAccountEmail(original["service_account_email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccountEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccountEmail"] = transformedServiceAccountEmail
+	}
+
+	transformedAudience, err := expandCloudTasksQueueHttpTargetOidcTokenAudience(original["audience"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAudience); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["audience"] = transformedAudience
+	}
+
+	return transformed, nil
+}
+
+func expandCloudTasksQueueHttpTargetOidcTokenServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudTasksQueueHttpTargetOidcTokenAudience(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

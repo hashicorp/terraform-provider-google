@@ -121,6 +121,148 @@ resource "google_cloud_tasks_queue" "advanced_configuration" {
 `, context)
 }
 
+func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudTasksQueueDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_tasks_queue.http_target_oidc",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudTasksQueue_cloudTasksQueueHttpTargetOidcExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_tasks_queue" "http_target_oidc" {
+  name     = "tf-test-cloud-tasks-queue-http-target-oidc%{random_suffix}"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oidc.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oidc_token {
+      service_account_email = google_service_account.oidc_service_account.email
+      audience              = "https://oidc.example.com"
+    }
+  }
+}
+
+resource "google_service_account" "oidc_service_account" {
+  account_id   = "example-oidc"
+  display_name = "Tasks Queue OIDC Service Account"
+}
+`, context)
+}
+
+func TestAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudTasksQueueDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_tasks_queue.http_target_oauth",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccCloudTasksQueue_cloudTasksQueueHttpTargetOauthExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_tasks_queue" "http_target_oauth" {
+  name     = "tf-test-cloud-tasks-queue-http-target-oauth%{random_suffix}"
+  location = "us-central1"
+
+  http_target {
+    http_method = "POST"
+    uri_override {
+      scheme = "HTTPS"
+      host   = "oauth.example.com"
+      port   = 8443
+      path_override {
+        path = "/users/1234"
+      }
+      query_override {
+        query_params = "qparam1=123&qparam2=456"
+      }
+      uri_override_enforce_mode = "IF_NOT_EXISTS"
+    }
+    header_overrides {
+      header {
+        key   = "AddSomethingElse"
+        value = "MyOtherValue"
+      }
+    }
+    header_overrides {
+      header {
+        key   = "AddMe"
+        value = "MyValue"
+      }
+    }
+    oauth_token {
+      service_account_email = google_service_account.oauth_service_account.email
+      scope                 = "openid https://www.googleapis.com/auth/userinfo.email"
+    }
+  }
+}
+
+resource "google_service_account" "oauth_service_account" {
+  account_id   = "example-oauth"
+  display_name = "Tasks Queue OAuth Service Account"
+}
+`, context)
+}
+
 func testAccCheckCloudTasksQueueDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
