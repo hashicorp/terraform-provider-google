@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added `accelerators` field to `google_compute_node_template` resource
+```
