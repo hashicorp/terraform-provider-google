@@ -16,7 +16,7 @@ import (
 )
 
 func TestFrameworkProvider_impl(t *testing.T) {
-	var _ provider.ProviderWithMetaSchema = New("test")
+	var _ provider.ProviderWithMetaSchema = New()
 }
 
 func TestFrameworkProvider_CredentialsValidator(t *testing.T) {
