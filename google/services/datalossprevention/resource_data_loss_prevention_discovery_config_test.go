@@ -513,6 +513,20 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 
 func testAccDataLossPreventionDiscoveryConfig_dlpDiscoveryConfigActions(context map[string]interface{}) string {
 	return acctest.Nprintf(`
+data "google_project" "project" {
+	project_id = "%{project}"
+}
+
+resource "google_tags_tag_key" "tag_key" {
+	parent = "projects/${data.google_project.project.number}"
+	short_name = "environment"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+	parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
+	short_name = "prod"
+}
+
 resource "google_data_loss_prevention_inspect_template" "basic" {
 	parent = "projects/%{project}"
 	description = "Description"
@@ -527,6 +541,12 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 
 resource "google_pubsub_topic" "basic" {
 	name = "test-topic"
+}
+
+resource "google_project_iam_member" "tag_role" {
+    project = "%{project}"
+    role    = "roles/resourcemanager.tagUser"
+    member = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
 }
 
 resource "google_data_loss_prevention_discovery_config" "basic" {
@@ -565,7 +585,26 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 			detail_of_message = "TABLE_PROFILE"
 		}
     }
+	actions {
+        tag_resources {
+            tag_conditions {
+                tag {
+                    namespaced_value = "%{project}/environment/prod"
+                }
+                sensitivity_score {
+                    score = "SENSITIVITY_HIGH"
+                }
+            }
+            profile_generations_to_tag = ["PROFILE_GENERATION_NEW", "PROFILE_GENERATION_UPDATE"]
+            lower_data_risk_to_low = true
+        }
+    }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
+	depends_on = [
+		google_project_iam_member.tag_role,
+		google_tags_tag_key.tag_key,
+		google_tags_tag_value.tag_value,
+	]
 }
 `, context)
 }
@@ -723,26 +762,29 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
 	status = "RUNNING"
 
 	targets {
-        big_query_target {
-            filter {
-                other_tables {}
-            }
-            conditions {
-                type_collection = "BIG_QUERY_COLLECTION_ALL_TYPES"
-            }
-            cadence {
-                schema_modified_cadence {
-                    types = ["SCHEMA_NEW_COLUMNS"]
-                    frequency = "UPDATE_FREQUENCY_DAILY"
-                }
-                table_modified_cadence {
-                    types = ["TABLE_MODIFIED_TIMESTAMP"]
-                    frequency = "UPDATE_FREQUENCY_DAILY"
-                }
-            }
-        }
-    }
-    inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
+		big_query_target {
+			filter {
+				other_tables {}
+			}
+			conditions {
+				type_collection = "BIG_QUERY_COLLECTION_ALL_TYPES"
+			}
+			cadence {
+				schema_modified_cadence {
+					types = ["SCHEMA_NEW_COLUMNS"]
+					frequency = "UPDATE_FREQUENCY_DAILY"
+				}
+				table_modified_cadence {
+					types = ["TABLE_MODIFIED_TIMESTAMP"]
+					frequency = "UPDATE_FREQUENCY_DAILY"
+				}
+				inspect_template_modified_cadence {
+					frequency = "UPDATE_FREQUENCY_DAILY"
+				}
+			}
+		}
+	}
+	inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"]
 }
 `, context)
 }
@@ -899,6 +941,9 @@ resource "google_data_loss_prevention_discovery_config" "basic" {
                     frequency = "UPDATE_FREQUENCY_DAILY"
                 }
                 refresh_frequency = "UPDATE_FREQUENCY_MONTHLY"
+                inspect_template_modified_cadence {
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
             }
         }
     }
