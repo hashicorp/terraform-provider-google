@@ -32,7 +32,7 @@ fun googleSubProjectBeta(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the Beta version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google-beta
-        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration(daysOfWeek="1-5,7"))) // All nights except Friday (6) for Beta; feature branch testing happens on Fridays and TeamCity numbers days Sun=1...Sat=7
+        subProject(nightlyTests(betaId, ProviderNameBeta, HashiCorpVCSRootBeta, betaConfig, NightlyTriggerConfiguration()))
 
         // MM Upstream project that uses modular-magician/terraform-provider-google-beta
         subProject(mmUpstream(betaId, ProviderNameBeta, ModularMagicianVCSRootBeta, HashiCorpVCSRootBeta, vcrConfig, NightlyTriggerConfiguration()))
