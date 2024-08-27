@@ -356,7 +356,7 @@ Example - "3.5s".`,
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateRegexp(`^.{1,256}$`),
+				ValidateFunc: verify.ValidateRegexp(`^.{0,256}$`),
 				Description: `The subscription only delivers the messages that match the filter.
 Pub/Sub automatically acknowledges the messages that don't match the filter. You can filter messages
 by their attributes. The maximum length of a filter is 256 bytes. After creating the subscription,

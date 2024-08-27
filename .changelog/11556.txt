@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources
+```
