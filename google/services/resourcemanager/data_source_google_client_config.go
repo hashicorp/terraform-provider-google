@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-provider-google/google/fwmodels"
 	"github.com/hashicorp/terraform-provider-google/google/fwresource"
@@ -121,7 +120,6 @@ func (d *GoogleClientConfigDataSource) Configure(ctx context.Context, req dataso
 func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data GoogleClientConfigModel
 	var metaData *fwmodels.ProviderMetaModel
-	var diags diag.Diagnostics
 
 	// Read Provider meta into the meta model
 	resp.Diagnostics.Append(req.ProviderMeta.Get(ctx, &metaData)...)
@@ -147,7 +145,7 @@ func (d *GoogleClientConfigDataSource) Read(ctx context.Context, req datasource.
 
 	token, err := d.providerConfig.TokenSource.Token()
 	if err != nil {
-		diags.AddError("Error setting access_token", err.Error())
+		resp.Diagnostics.AddError("Error setting access_token", err.Error())
 		return
 	}
 	data.AccessToken = types.StringValue(token.AccessToken)
