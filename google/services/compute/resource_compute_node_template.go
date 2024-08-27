@@ -52,6 +52,31 @@ func ResourceComputeNodeTemplate() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
+			"accelerators": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `List of the type and count of accelerator cards attached to the
+node template`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"accelerator_count": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+							Description: `The number of the guest accelerator cards exposed to this
+node template.`,
+						},
+						"accelerator_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Description: `Full or partial URL of the accelerator type resource to expose
+to this node template.`,
+						},
+					},
+				},
+			},
 			"cpu_overcommit_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -226,6 +251,12 @@ func resourceComputeNodeTemplateCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("server_binding"); !tpgresource.IsEmptyValue(reflect.ValueOf(serverBindingProp)) && (ok || !reflect.DeepEqual(v, serverBindingProp)) {
 		obj["serverBinding"] = serverBindingProp
 	}
+	acceleratorsProp, err := expandComputeNodeTemplateAccelerators(d.Get("accelerators"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("accelerators"); !tpgresource.IsEmptyValue(reflect.ValueOf(acceleratorsProp)) && (ok || !reflect.DeepEqual(v, acceleratorsProp)) {
+		obj["accelerators"] = acceleratorsProp
+	}
 	cpuOvercommitTypeProp, err := expandComputeNodeTemplateCpuOvercommitType(d.Get("cpu_overcommit_type"), d, config)
 	if err != nil {
 		return err
@@ -356,6 +387,9 @@ func resourceComputeNodeTemplateRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("server_binding", flattenComputeNodeTemplateServerBinding(res["serverBinding"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NodeTemplate: %s", err)
+	}
+	if err := d.Set("accelerators", flattenComputeNodeTemplateAccelerators(res["accelerators"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NodeTemplate: %s", err)
 	}
 	if err := d.Set("cpu_overcommit_type", flattenComputeNodeTemplateCpuOvercommitType(res["cpuOvercommitType"], d, config)); err != nil {
@@ -514,6 +548,46 @@ func flattenComputeNodeTemplateServerBindingType(v interface{}, d *schema.Resour
 	return v
 }
 
+func flattenComputeNodeTemplateAccelerators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"accelerator_count": flattenComputeNodeTemplateAcceleratorsAcceleratorCount(original["acceleratorCount"], d, config),
+			"accelerator_type":  flattenComputeNodeTemplateAcceleratorsAcceleratorType(original["acceleratorType"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenComputeNodeTemplateAcceleratorsAcceleratorCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeNodeTemplateAcceleratorsAcceleratorType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeNodeTemplateCpuOvercommitType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -613,6 +687,43 @@ func expandComputeNodeTemplateServerBinding(v interface{}, d tpgresource.Terrafo
 }
 
 func expandComputeNodeTemplateServerBindingType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateAccelerators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedAcceleratorCount, err := expandComputeNodeTemplateAcceleratorsAcceleratorCount(original["accelerator_count"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAcceleratorCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["acceleratorCount"] = transformedAcceleratorCount
+		}
+
+		transformedAcceleratorType, err := expandComputeNodeTemplateAcceleratorsAcceleratorType(original["accelerator_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedAcceleratorType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["acceleratorType"] = transformedAcceleratorType
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandComputeNodeTemplateAcceleratorsAcceleratorCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeNodeTemplateAcceleratorsAcceleratorType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
