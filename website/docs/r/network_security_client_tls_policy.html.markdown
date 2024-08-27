@@ -21,8 +21,6 @@ description: |-
 
 ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service. This resource itself does not affect configuration unless it is attached to a backend service resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ClientTlsPolicy, see:
 
@@ -40,7 +38,6 @@ To get more information about ClientTlsPolicy, see:
 
 ```hcl
 resource "google_network_security_client_tls_policy" "default" {
-  provider               = google-beta
   name                   = "my-client-tls-policy"
   labels                 = {
     foo = "bar"
@@ -59,7 +56,6 @@ resource "google_network_security_client_tls_policy" "default" {
 
 ```hcl
 resource "google_network_security_client_tls_policy" "default" {
-  provider               = google-beta
   name                   = "my-client-tls-policy"
   labels                 = {
     foo = "bar"
@@ -73,11 +69,6 @@ resource "google_network_security_client_tls_policy" "default" {
   server_validation_ca {
     grpc_endpoint {
       target_uri = "unix:mypath"
-    }
-  }
-  server_validation_ca {
-    grpc_endpoint {
-      target_uri = "unix:mypath1"
     }
   }
 }
