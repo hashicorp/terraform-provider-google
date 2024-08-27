@@ -99,6 +99,28 @@ resource "google_data_loss_prevention_discovery_config" "actions" {
             detail_of_message = "TABLE_PROFILE"
         }
     }
+    actions {
+        tag_resources {
+            tag_conditions {
+                tag {
+                    namespaced_value = "123456/environment/prod"
+                }
+                sensitivity_score {
+                    score = "SENSITIVITY_HIGH"
+                }
+            }
+            tag_conditions {
+                tag {
+                    namespaced_value = "123456/environment/test"
+                }
+                sensitivity_score {
+                    score = "SENSITIVITY_LOW"
+                }
+            }
+            profile_generations_to_tag = ["PROFILE_GENERATION_NEW", "PROFILE_GENERATION_UPDATE"]
+            lower_data_risk_to_low = true
+        }
+    }
     inspect_templates = ["projects/%{project}/inspectTemplates/${google_data_loss_prevention_inspect_template.basic.name}"] 
 }
 
@@ -116,6 +138,26 @@ resource "google_data_loss_prevention_inspect_template" "basic" {
 			name = "EMAIL_ADDRESS"
 		}
     }
+}
+
+data "google_project" "project" {
+	project_id = "%{project}"
+}
+
+resource "google_tags_tag_key" "tag_key" {
+	parent = "projects/${data.google_project.project.number}"
+	short_name = "environment"
+}
+
+resource "google_tags_tag_value" "tag_value" {
+	parent = "tagKeys/${google_tags_tag_key.tag_key.name}"
+	short_name = "prod"
+}
+
+resource "google_project_iam_member" "tag_role" {
+    project = "%{project}"
+    role    = "roles/resourcemanager.tagUser"
+    member = "serviceAccount:service-${data.google_project.project.number}@dlp-api.iam.gserviceaccount.com"
 }
 ```
 ## Example Usage - Dlp Discovery Config Org Running
@@ -216,6 +258,9 @@ resource "google_data_loss_prevention_discovery_config" "conditions_cadence" {
                 }
                 table_modified_cadence {
                     types = ["TABLE_MODIFIED_TIMESTAMP"]
+                    frequency = "UPDATE_FREQUENCY_DAILY"
+                }
+                inspect_template_modified_cadence {
                     frequency = "UPDATE_FREQUENCY_DAILY"
                 }
             }
@@ -544,6 +589,11 @@ The following arguments are supported:
   Publish a message into the Pub/Sub topic.
   Structure is [documented below](#nested_pub_sub_notification).
 
+* `tag_resources` -
+  (Optional)
+  Publish a message into the Pub/Sub topic.
+  Structure is [documented below](#nested_tag_resources).
+
 
 <a name="nested_export_data"></a>The `export_data` block supports:
 
@@ -621,6 +671,49 @@ The following arguments are supported:
   (Optional)
   The minimum sensitivity level that triggers the condition.
   Possible values are: `HIGH`, `MEDIUM_OR_HIGH`.
+
+<a name="nested_tag_resources"></a>The `tag_resources` block supports:
+
+* `tag_conditions` -
+  (Optional)
+  The tags to associate with different conditions.
+  Structure is [documented below](#nested_tag_conditions).
+
+* `profile_generations_to_tag` -
+  (Optional)
+  The profile generations for which the tag should be attached to resources. If you attach a tag to only new profiles, then if the sensitivity score of a profile subsequently changes, its tag doesn't change. By default, this field includes only new profiles. To include both new and updated profiles for tagging, this field should explicitly include both `PROFILE_GENERATION_NEW` and `PROFILE_GENERATION_UPDATE`.
+  Each value may be one of: `PROFILE_GENERATION_NEW`, `PROFILE_GENERATION_UPDATE`.
+
+* `lower_data_risk_to_low` -
+  (Optional)
+  Whether applying a tag to a resource should lower the risk of the profile for that resource. For example, in conjunction with an [IAM deny policy](https://cloud.google.com/iam/docs/deny-overview), you can deny all principals a permission if a tag value is present, mitigating the risk of the resource. This also lowers the data risk of resources at the lower levels of the resource hierarchy. For example, reducing the data risk of a table data profile also reduces the data risk of the constituent column data profiles.
+
+
+<a name="nested_tag_conditions"></a>The `tag_conditions` block supports:
+
+* `tag` -
+  (Optional)
+  The tag value to attach to resources.
+  Structure is [documented below](#nested_tag).
+
+* `sensitivity_score` -
+  (Optional)
+  Conditions attaching the tag to a resource on its profile having this sensitivity score.
+  Structure is [documented below](#nested_sensitivity_score).
+
+
+<a name="nested_tag"></a>The `tag` block supports:
+
+* `namespaced_value` -
+  (Optional)
+  The namespaced name for the tag value to attach to resources. Must be in the format `{parent_id}/{tag_key_short_name}/{short_name}`, for example, "123456/environment/prod".
+
+<a name="nested_sensitivity_score"></a>The `sensitivity_score` block supports:
+
+* `score` -
+  (Required)
+  The sensitivity score applied to the resource.
+  Possible values are: `SENSITIVITY_LOW`, `SENSITIVITY_MODERATE`, `SENSITIVITY_HIGH`.
 
 <a name="nested_targets"></a>The `targets` block supports:
 
@@ -774,6 +867,11 @@ The following arguments are supported:
   Governs when to update profile when a table is modified.
   Structure is [documented below](#nested_table_modified_cadence).
 
+* `inspect_template_modified_cadence` -
+  (Optional)
+  Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
+  Structure is [documented below](#nested_inspect_template_modified_cadence).
+
 
 <a name="nested_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
 
@@ -797,6 +895,13 @@ The following arguments are supported:
 * `frequency` -
   (Optional)
   How frequently data profiles can be updated when tables are modified. Defaults to never.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+
+* `frequency` -
+  (Optional)
+  How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
 <a name="nested_cloud_sql_target"></a>The `cloud_sql_target` block supports:
@@ -914,6 +1019,11 @@ The following arguments are supported:
   Data changes (non-schema changes) in Cloud SQL tables can't trigger reprofiling. If you set this field, profiles are refreshed at this frequency regardless of whether the underlying tables have changes. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
+* `inspect_template_modified_cadence` -
+  (Optional)
+  Governs when to update data profiles when the inspection rules defined by the `InspectTemplate` change. If not set, changing the template will not cause a data profile to update.
+  Structure is [documented below](#nested_inspect_template_modified_cadence).
+
 
 <a name="nested_schema_modified_cadence"></a>The `schema_modified_cadence` block supports:
 
@@ -925,6 +1035,13 @@ The following arguments are supported:
 * `frequency` -
   (Optional)
   Frequency to regenerate data profiles when the schema is modified. Defaults to monthly.
+  Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
+
+<a name="nested_inspect_template_modified_cadence"></a>The `inspect_template_modified_cadence` block supports:
+
+* `frequency` -
+  (Required)
+  How frequently data profiles can be updated when the template is modified. Defaults to never.
   Possible values are: `UPDATE_FREQUENCY_NEVER`, `UPDATE_FREQUENCY_DAILY`, `UPDATE_FREQUENCY_MONTHLY`.
 
 <a name="nested_cloud_storage_target"></a>The `cloud_storage_target` block supports:

@@ -1,0 +1,6 @@
+```release-note:enhancement
+dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config`
+```
+```release-note:enhancement
+dlp: added `tag_resources` field to `google_data_loss_prevention_discovery_config`.
+```
