@@ -305,9 +305,9 @@ Currently, this field is specific to gateways of type 'SECURE_WEB_GATEWAY.`,
 			"delete_swg_autogen_router_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `When deleting a gateway of type 'SECURE_WEB_GATEWAY', this boolean option will also delete auto generated router by the gateway creation.
 If there is no other gateway of type 'SECURE_WEB_GATEWAY' remaining for that region and network it will be deleted.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,

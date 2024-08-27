@@ -1652,10 +1652,11 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
 			"desired_state": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "NOT_STARTED",
-				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream, and 'PAUSED' to pause the stream.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream, and 'PAUSED' to pause the stream.
+Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED`,
+				Default: "NOT_STARTED",
 			},
 			"project": {
 				Type:     schema.TypeString,

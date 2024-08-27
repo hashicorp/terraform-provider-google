@@ -529,10 +529,11 @@ Format for SMB volumes: '\\\\netbios_prefix-four_random_hex_letters.domain_name\
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "DEFAULT",
 				Description: `Policy to determine if the volume should be deleted forcefully.
 Volumes may have nested snapshot resources. Deleting such a volume will fail.
-Setting this parameter to FORCE will delete volumes including nested snapshots.`,
+Setting this parameter to FORCE will delete volumes including nested snapshots.
+Possible values: DEFAULT, FORCE.`,
+				Default: "DEFAULT",
 			},
 			"project": {
 				Type:     schema.TypeString,

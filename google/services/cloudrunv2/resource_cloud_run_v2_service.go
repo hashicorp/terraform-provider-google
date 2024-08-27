@@ -1064,13 +1064,13 @@ If reconciliation failed, trafficStatuses, observedGeneration, and latestReadyRe
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
 				Description: `Whether Terraform will be prevented from destroying the service. Defaults to true.
 When a'terraform destroy' or 'terraform apply' would delete the service,
 the command will fail if this field is not set to false in Terraform state.
 When the field is set to true or unset in Terraform state, a 'terraform apply'
 or 'terraform destroy' that would delete the service will fail.
 When the field is set to false, deleting the service is allowed.`,
+				Default: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

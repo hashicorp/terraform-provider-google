@@ -297,7 +297,6 @@ data in relation to the source volume data.`,
 			"delete_destination_volume": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `A destination volume is created as part of replication creation. The destination volume will not became
 under Terraform management unless you import it manually. If you delete the replication, this volume
 will remain.
@@ -305,32 +304,33 @@ Setting this parameter to true will delete the *current* destination volume when
 replication. If you reversed the replication direction, this will be your former source volume!
 For production use, it is recommended to keep this parameter false to avoid accidental volume
 deletion. Handle with care. Default is false.`,
+				Default: false,
 			},
 			"replication_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
 				Description: `Set to false to stop/break the mirror. Stopping the mirror makes the destination volume read-write
 and act independently from the source volume.
 Set to true to enable/resume the mirror. WARNING: Resuming a mirror overwrites any changes
 done to the destination volume with the content of the source volume.`,
+				Default: true,
 			},
 			"force_stopping": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `Only replications with mirror_state=MIRRORED can be stopped. A replication in mirror_state=TRANSFERRING
 currently receives an update and stopping the update might be undesirable. Set this parameter to true
 to stop anyway. All data transferred to the destination will be discarded and content of destination
 volume will remain at the state of the last successful update. Default is false.`,
+				Default: false,
 			},
 			"wait_for_mirror": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `Replication resource state is independent of mirror_state. With enough data, it can take many hours
 for mirror_state to reach MIRRORED. If you want Terraform to wait for the mirror to finish on
 create/stop/resume operations, set this parameter to true. Default is false.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,

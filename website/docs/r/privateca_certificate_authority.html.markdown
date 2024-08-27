@@ -765,6 +765,7 @@ or `terraform destroy` that would delete the CertificateAuthority will fail.
 When the field is set to false, deleting the CertificateAuthority is allowed.
 
 * `desired_state` - (Optional) Desired state of the CertificateAuthority. Set this field to `STAGED` to create a `STAGED` root CA.
+Possible values: ENABLED, DISABLED, STAGED.
 
 
 <a name="nested_subordinate_config"></a>The `subordinate_config` block supports:

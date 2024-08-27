@@ -566,8 +566,8 @@ the population of this value.`,
 			"desired_state": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "ACTIVE",
 				Description: `Desired state of the Notebook Instance. Set this field to 'ACTIVE' to start the Instance, and 'STOPPED' to stop the Instance.`,
+				Default:     "ACTIVE",
 			},
 			"project": {
 				Type:     schema.TypeString,

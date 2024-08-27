@@ -277,9 +277,9 @@ or node_count must be present in terraform.`,
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `When deleting a spanner instance, this boolean option will delete all backups of this instance.
 This must be set to true if you created a backup manually in the console.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,
