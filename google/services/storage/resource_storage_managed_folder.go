@@ -82,11 +82,11 @@ trailing '/'. For example, 'example_dir/example_dir2/'.`,
 			"force_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `Allows the deletion of a managed folder even if contains
 objects. If a non-empty managed folder is deleted, any objects
 within the folder will remain in a simulated folder with the
 same name.`,
+				Default: false,
 			},
 			"self_link": {
 				Type:     schema.TypeString,

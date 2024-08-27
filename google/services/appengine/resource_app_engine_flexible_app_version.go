@@ -878,14 +878,14 @@ Reserved names,"default", "latest", and any name with the prefix "ah-".`,
 			"noop_on_destroy": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: `If set to 'true', the application version will not be deleted.`,
+				Default:     false,
 			},
 			"delete_service_on_destroy": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: `If set to 'true', the service will be deleted if it is the last version.`,
+				Default:     false,
 			},
 			"project": {
 				Type:     schema.TypeString,

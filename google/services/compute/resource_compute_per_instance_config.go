@@ -174,39 +174,39 @@ func ResourceComputePerInstanceConfig() *schema.Resource {
 			"minimal_action": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "NONE",
 				Description: `The minimal action to perform on the instance during an update.
 Default is 'NONE'. Possible values are:
 * REPLACE
 * RESTART
 * REFRESH
 * NONE`,
+				Default: "NONE",
 			},
 			"most_disruptive_allowed_action": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "REPLACE",
 				Description: `The most disruptive action to perform on the instance during an update.
 Default is 'REPLACE'. Possible values are:
 * REPLACE
 * RESTART
 * REFRESH
 * NONE`,
+				Default: "REPLACE",
 			},
 			"remove_instance_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `When true, deleting this config will immediately remove the underlying instance.
 When false, deleting this config will use the behavior as determined by remove_instance_on_destroy.`,
+				Default: false,
 			},
 			"remove_instance_state_on_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `When true, deleting this config will immediately remove any specified state from the underlying instance.
 When false, deleting this config will *not* immediately remove any state from the underlying instance.
 State will be removed on the next instance recreation or update.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,

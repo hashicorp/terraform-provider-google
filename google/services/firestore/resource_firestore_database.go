@@ -208,12 +208,12 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "ABANDON",
 				Description: `Deletion behavior for this database.
 If the deletion policy is 'ABANDON', the database will be removed from Terraform state but not deleted from Google Cloud upon destruction.
 If the deletion policy is 'DELETE', the database will both be removed from Terraform state and deleted from Google Cloud upon destruction.
 The default value is 'ABANDON'.
 See also 'delete_protection'.`,
+				Default: "ABANDON",
 			},
 			"project": {
 				Type:     schema.TypeString,

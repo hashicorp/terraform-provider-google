@@ -165,6 +165,7 @@ The following arguments are supported:
 * `deletion_policy` - (Optional) Policy to determine if the volume should be deleted forcefully.
 Volumes may have nested snapshot resources. Deleting such a volume will fail.
 Setting this parameter to FORCE will delete volumes including nested snapshots.
+Possible values: DEFAULT, FORCE.
 
 
 <a name="nested_export_policy"></a>The `export_policy` block supports:

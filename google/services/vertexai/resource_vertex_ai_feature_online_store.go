@@ -205,8 +205,8 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"force_destroy": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: `If set to true, any FeatureViews and Features for this FeatureOnlineStore will also be deleted.`,
+				Default:     false,
 			},
 			"project": {
 				Type:     schema.TypeString,

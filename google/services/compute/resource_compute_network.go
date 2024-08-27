@@ -150,9 +150,9 @@ is selected by GCP.`,
 			"delete_default_routes_on_create": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 				Description: `If set to 'true', default routes ('0.0.0.0/0') will be deleted
 immediately after network creation. Defaults to 'false'.`,
+				Default: false,
 			},
 			"project": {
 				Type:     schema.TypeString,

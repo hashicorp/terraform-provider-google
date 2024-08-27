@@ -98,13 +98,13 @@ func ResourceSecretManagerSecretVersion() *schema.Resource {
 			"deletion_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "DELETE",
 				Description: `The deletion policy for the secret version. Setting 'ABANDON' allows the resource
 to be abandoned rather than deleted. Setting 'DISABLE' allows the resource to be
 disabled rather than deleted. Default is 'DELETE'. Possible values are:
   * DELETE
   * DISABLE
   * ABANDON`,
+				Default: "DELETE",
 			},
 			"is_secret_data_base64": {
 				Type:        schema.TypeBool,

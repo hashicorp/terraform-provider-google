@@ -799,8 +799,8 @@ The milliseconds portion (".SSS") is optional.`,
 			"desired_state": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "ACTIVE",
 				Description: `Desired state of the Workbench Instance. Set this field to 'ACTIVE' to start the Instance, and 'STOPPED' to stop the Instance.`,
+				Default:     "ACTIVE",
 			},
 			"project": {
 				Type:     schema.TypeString,

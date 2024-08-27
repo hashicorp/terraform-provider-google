@@ -566,8 +566,8 @@ This field is only used for INTERNAL load balancing.`,
 			"recreate_closed_psc": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
 				Description: `This is used in PSC consumer ForwardingRule to make terraform recreate the ForwardingRule when the status is closed`,
+				Default:     false,
 			},
 			"project": {
 				Type:     schema.TypeString,

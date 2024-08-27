@@ -188,13 +188,13 @@ update the database's version_retention_period.`,
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
 				Description: `Whether Terraform will be prevented from destroying the database. Defaults to true.
 When a'terraform destroy' or 'terraform apply' would delete the database,
 the command will fail if this field is not set to false in Terraform state.
 When the field is set to true or unset in Terraform state, a 'terraform apply'
 or 'terraform destroy' that would delete the database will fail.
 When the field is set to false, deleting the database is allowed.`,
+				Default: true,
 			},
 			"project": {
 				Type:     schema.TypeString,

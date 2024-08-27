@@ -396,8 +396,8 @@ the Workload Identity Pool.`,
 			"deletion_policy": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Description: `Policy to determine what flags to send on delete. Possible values: DELETE, DELETE_IGNORE_ERRORS`,
 				Default:     "DELETE",
-				Description: `Policy to determine what flags to send on delete.`,
 			},
 			"project": {
 				Type:     schema.TypeString,

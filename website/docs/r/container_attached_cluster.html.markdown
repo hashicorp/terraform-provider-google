@@ -267,7 +267,7 @@ The following arguments are supported:
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
-* `deletion_policy` - (Optional) Policy to determine what flags to send on delete.
+* `deletion_policy` - (Optional) Policy to determine what flags to send on delete. Possible values: DELETE, DELETE_IGNORE_ERRORS
 
 <a name="nested_logging_config"></a>The `logging_config` block supports:
 
