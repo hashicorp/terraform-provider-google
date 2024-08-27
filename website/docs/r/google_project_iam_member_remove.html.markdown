@@ -29,7 +29,7 @@ and
 ## Example Usage
 
 ```hcl
-data "google_project" "target_project {}
+data "google_project" "target_project" {}
 
 resource "google_project_iam_member_remove" "foo" {
   role     = "roles/editor"
