@@ -16,6 +16,7 @@ import (
 
 const (
 	canonicalSslCertificateTemplate  = "https://www.googleapis.com/compute/v1/projects/%s/global/sslCertificates/%s"
+	canonicalSslPolicyTemplate       = "https://www.googleapis.com/compute/v1/projects/%s/global/sslPolicies/%s"
 	canonicalCertificateMapTemplate  = "//certificatemanager.googleapis.com/projects/%s/locations/global/certificateMaps/%s"
 	canonicalServerTlsPolicyTemplate = "//networksecurity.googleapis.com/projects/%s/locations/global/serverTlsPolicies/%s"
 )
@@ -39,6 +40,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert1-"+resourceSuffix, &proxy),
 					testAccComputeTargetHttpsProxyHasServerTlsPolicy(t, "tf-test-server-tls-policy-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslPolicy(t, "tf-test-httpsproxy-sslpolicy-"+resourceSuffix, &proxy),
 				),
 			},
 			{
@@ -49,6 +51,7 @@ func TestAccComputeTargetHttpsProxy_update(t *testing.T) {
 					testAccComputeTargetHttpsProxyDescription("Resource created for Terraform acceptance testing", &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert1-"+resourceSuffix, &proxy),
 					testAccComputeTargetHttpsProxyHasSslCertificate(t, "tf-test-httpsproxy-cert2-"+resourceSuffix, &proxy),
+					testAccComputeTargetHttpsProxyHasSslPolicy(t, "tf-test-httpsproxy-sslpolicy2-"+resourceSuffix, &proxy),
 					testAccComputeTargetHttpsProxyHasNullServerTlsPolicy(t, &proxy),
 				),
 			},
@@ -174,6 +177,19 @@ func testAccComputeTargetHttpsProxyHasSslCertificate(t *testing.T, cert string, 
 	}
 }
 
+func testAccComputeTargetHttpsProxyHasSslPolicy(t *testing.T, sslPolicy string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := acctest.GoogleProviderConfig(t)
+		sslPolicyUrl := fmt.Sprintf(canonicalSslPolicyTemplate, config.Project, sslPolicy)
+
+		if tpgresource.ConvertSelfLinkToV1(proxy.SslPolicy) == sslPolicyUrl {
+			return nil
+		}
+
+		return fmt.Errorf("Ssl Policy not found: expected '%s'", sslPolicyUrl)
+	}
+}
+
 func testAccComputeTargetHttpsProxyHasServerTlsPolicy(t *testing.T, policy string, proxy *compute.TargetHttpsProxy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acctest.GoogleProviderConfig(t)
@@ -258,7 +274,7 @@ resource "google_compute_url_map" "foobar" {
 }
 
 resource "google_compute_ssl_policy" "foobar" {
-  name            = "tf-test-sslproxy-%s"
+  name            = "tf-test-httpsproxy-sslpolicy-%s"
   description     = "my-description"
   min_tls_version = "TLS_1_2"
   profile         = "MODERN"
@@ -308,6 +324,7 @@ resource "google_compute_target_https_proxy" "foobar" {
     google_compute_ssl_certificate.foobar1.self_link,
     google_compute_ssl_certificate.foobar2.self_link,
   ]
+  ssl_policy        = google_compute_ssl_policy.foobar2.self_link
   quic_override     = "ENABLE"
   tls_early_data    = "STRICT"
   server_tls_policy = null
@@ -347,8 +364,8 @@ resource "google_compute_url_map" "foobar" {
   }
 }
 
-resource "google_compute_ssl_policy" "foobar" {
-  name            = "tf-test-sslproxy-%s"
+resource "google_compute_ssl_policy" "foobar2" {
+  name            = "tf-test-httpsproxy-sslpolicy2-%s"
   description     = "my-description"
   min_tls_version = "TLS_1_2"
   profile         = "MODERN"
