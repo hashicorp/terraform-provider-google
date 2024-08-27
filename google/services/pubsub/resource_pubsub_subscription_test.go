@@ -400,6 +400,47 @@ func TestUnitPubsubSubscription_IgnoreMissingKeyInMap(t *testing.T) {
 	}
 }
 
+func TestAccPubsubSubscription_filter(t *testing.T) {
+	t.Parallel()
+
+	topic := fmt.Sprintf("tf-test-topic-%s", acctest.RandString(t, 10))
+	subscriptionShort := fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_filter(topic, subscriptionShort, "attributes.foo = \\\"bar\\\""),
+				Check: resource.ComposeTestCheckFunc(
+					// Test schema
+					resource.TestCheckResourceAttr("google_pubsub_subscription.foo", "filter", "attributes.foo = \"bar\""),
+				),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccPubsubSubscription_filter(topic, subscriptionShort, ""),
+				Check: resource.ComposeTestCheckFunc(
+					// Test schema
+					resource.TestCheckResourceAttr("google_pubsub_subscription.foo", "filter", ""),
+				),
+			},
+			{
+				ResourceName:      "google_pubsub_subscription.foo",
+				ImportStateId:     subscriptionShort,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccPubsubSubscription_emptyTTL(topic, subscription string) string {
 	return fmt.Sprintf(`
 resource "google_pubsub_topic" "foo" {
@@ -797,4 +838,18 @@ func testAccCheckPubsubSubscriptionCache404(t *testing.T, subName string) resour
 		}
 		return nil
 	}
+}
+
+func testAccPubsubSubscription_filter(topic, subscription, filter string) string {
+	return fmt.Sprintf(`
+resource "google_pubsub_topic" "foo" {
+  name = "%s"
+}
+
+resource "google_pubsub_subscription" "foo" {
+  name   = "%s"
+  topic  = google_pubsub_topic.foo.id
+  filter = "%s"
+}
+`, topic, subscription, filter)
 }
