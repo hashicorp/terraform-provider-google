@@ -265,6 +265,141 @@ resource "google_database_migration_service_connection_profile" "alloydbprofile"
   depends_on = [google_service_networking_connection.vpc_connection]
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_connection_profile_existing_mysql&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Connection Profile Existing Mysql
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_sql_database_instance" "destination_csql" {
+  name             = "destination-csql"
+  database_version = "MYSQL_5_7"
+  settings {
+    tier = "db-n1-standard-1"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_database_migration_service_connection_profile" "existing-mysql" {
+  location              = "us-central1"
+  connection_profile_id = "destination-cp"
+  display_name          = "destination-cp_display"
+  labels = {
+    foo = "bar"
+  }
+  mysql {
+    cloud_sql_id = "destination-csql"
+  }
+  depends_on = [google_sql_database_instance.destination_csql]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_connection_profile_existing_postgres&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Connection Profile Existing Postgres
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_sql_database_instance" "destination_csql" {
+  name             = "destination-csql"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-custom-2-13312"
+    deletion_protection_enabled = false
+  }
+  deletion_protection = false
+}
+
+resource "google_database_migration_service_connection_profile" "existing-psql" {
+  location              = "us-central1"
+  connection_profile_id = "destination-cp"
+  display_name          = "destination-cp_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    cloud_sql_id = "destination-csql"
+  }
+  depends_on = [google_sql_database_instance.destination_csql]
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_connection_profile_existing_alloydb&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Database Migration Service Connection Profile Existing Alloydb
+
+
+```hcl
+data "google_project" "project" {
+}
+
+resource "google_alloydb_cluster" "destination_alloydb" {
+  cluster_id = "destination-alloydb"
+  location   = "us-central1"
+  network_config {
+    network = google_compute_network.default.id
+  }
+  database_version = "POSTGRES_15"
+
+  initial_user {
+    user     = "destination-alloydb"
+    password = "destination-alloydb"
+  }
+}
+
+resource "google_alloydb_instance" "destination_alloydb_primary" {
+  cluster       = google_alloydb_cluster.destination_alloydb.name
+  instance_id   = "destination-alloydb-primary"
+  instance_type = "PRIMARY"
+
+  depends_on = [google_service_networking_connection.vpc_connection]
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          =  "destination-alloydb"
+  address_type  = "INTERNAL"
+  purpose       = "VPC_PEERING"
+  prefix_length = 16
+  network       = google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "vpc_connection" {
+  network                 = google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+
+resource "google_compute_network" "default" {
+  name = "destination-alloydb"
+}
+
+resource "google_database_migration_service_connection_profile" "existing-alloydb" {
+  location              = "us-central1"
+  connection_profile_id = "destination-cp"
+  display_name          = "destination-cp_display"
+  labels = {
+    foo = "bar"
+  }
+  postgresql {
+    alloydb_cluster_id = "destination-alloydb"
+  }
+  depends_on = [google_alloydb_cluster.destination_alloydb, google_alloydb_instance.destination_alloydb_primary]
+}
+```
 
 ## Argument Reference
 
@@ -326,20 +461,20 @@ The following arguments are supported:
 <a name="nested_mysql"></a>The `mysql` block supports:
 
 * `host` -
-  (Required)
-  Required. The IP or hostname of the source MySQL database.
+  (Optional)
+  The IP or hostname of the source MySQL database.
 
 * `port` -
-  (Required)
-  Required. The network port of the source MySQL database.
+  (Optional)
+  The network port of the source MySQL database.
 
 * `username` -
-  (Required)
-  Required. The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.
+  (Optional)
+  The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.
 
 * `password` -
-  (Required)
-  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
+  (Optional)
+  Input only. The password for the user that Database Migration Service will be using to connect to the database.
   This field is not returned on request, and the value is encrypted when stored in Database Migration Service.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -384,20 +519,20 @@ The following arguments are supported:
 <a name="nested_postgresql"></a>The `postgresql` block supports:
 
 * `host` -
-  (Required)
-  Required. The IP or hostname of the source MySQL database.
+  (Optional)
+  The IP or hostname of the source MySQL database.
 
 * `port` -
-  (Required)
-  Required. The network port of the source MySQL database.
+  (Optional)
+  The network port of the source MySQL database.
 
 * `username` -
-  (Required)
-  Required. The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.
+  (Optional)
+  The username that Database Migration Service will use to connect to the database. The value is encrypted when stored in Database Migration Service.
 
 * `password` -
-  (Required)
-  Required. Input only. The password for the user that Database Migration Service will be using to connect to the database.
+  (Optional)
+  Input only. The password for the user that Database Migration Service will be using to connect to the database.
   This field is not returned on request, and the value is encrypted when stored in Database Migration Service.
   **Note**: This property is sensitive and will not be displayed in the plan.
 
@@ -413,6 +548,10 @@ The following arguments are supported:
 * `cloud_sql_id` -
   (Optional)
   If the source is a Cloud SQL database, use this field to provide the Cloud SQL instance ID of the source.
+
+* `alloydb_cluster_id` -
+  (Optional)
+  If the connected database is an AlloyDB instance, use this field to provide the AlloyDB cluster ID.
 
 * `network_architecture` -
   (Output)

@@ -1,0 +1,3 @@
+```release-note:enhancement
+Support creating DMS connection profiles that link to existing Cloud SQL instances/AlloyDB clusters. 
+```
