@@ -78,8 +78,8 @@ string with a length limit of 128 characters.`,
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"GENERIC", "MEDIA"}),
-				Description:  `The industry vertical that the data store registers. Possible values: ["GENERIC", "MEDIA"]`,
+				ValidateFunc: verify.ValidateEnum([]string{"GENERIC", "MEDIA", "HEALTHCARE_FHIR"}),
+				Description:  `The industry vertical that the data store registers. Possible values: ["GENERIC", "MEDIA", "HEALTHCARE_FHIR"]`,
 			},
 			"location": {
 				Type:     schema.TypeString,
@@ -104,6 +104,38 @@ PUBLIC_WEBSITE contentConfig), this flag will be ignored.`,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"chunking_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Whether chunking mode is enabled.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"layout_based_chunking_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configuration for the layout based chunking.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"chunk_size": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `The token size limit for each chunk.
+Supported values: 100-500 (inclusive). Default value: 500.`,
+												},
+												"include_ancestor_headings": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Description: `Whether to include appending different levels of headings to chunks from the middle of the document to prevent context loss.
+Default value: False.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"default_parsing_config": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -117,6 +149,16 @@ config will be applied to all file types for Document parsing.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Configurations applied to digital parser.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"layout_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to layout parser.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
@@ -159,6 +201,16 @@ config will be applied to all file types for Document parsing.`,
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: `Configurations applied to digital parser.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{},
+										},
+										ExactlyOneOf: []string{},
+									},
+									"layout_parsing_config": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Configurations applied to layout parser.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
@@ -209,10 +261,10 @@ specified.`,
 				Type:        schema.TypeList,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `The solutions that the data store enrolls. Possible values: ["SOLUTION_TYPE_RECOMMENDATION", "SOLUTION_TYPE_SEARCH", "SOLUTION_TYPE_CHAT"]`,
+				Description: `The solutions that the data store enrolls. Possible values: ["SOLUTION_TYPE_RECOMMENDATION", "SOLUTION_TYPE_SEARCH", "SOLUTION_TYPE_CHAT", "SOLUTION_TYPE_GENERATIVE_CHAT"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"SOLUTION_TYPE_RECOMMENDATION", "SOLUTION_TYPE_SEARCH", "SOLUTION_TYPE_CHAT"}),
+					ValidateFunc: verify.ValidateEnum([]string{"SOLUTION_TYPE_RECOMMENDATION", "SOLUTION_TYPE_SEARCH", "SOLUTION_TYPE_CHAT", "SOLUTION_TYPE_GENERATIVE_CHAT"}),
 				},
 			},
 			"create_time": {
@@ -591,6 +643,8 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d *s
 	transformed := make(map[string]interface{})
 	transformed["name"] =
 		flattenDiscoveryEngineDataStoreDocumentProcessingConfigName(original["name"], d, config)
+	transformed["chunking_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfig(original["chunkingConfig"], d, config)
 	transformed["default_parsing_config"] =
 		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(original["defaultParsingConfig"], d, config)
 	transformed["parsing_config_overrides"] =
@@ -598,6 +652,52 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d *s
 	return []interface{}{transformed}
 }
 func flattenDiscoveryEngineDataStoreDocumentProcessingConfigName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["layout_based_chunking_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfig(original["layoutBasedChunkingConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["chunk_size"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigChunkSize(original["chunkSize"], d, config)
+	transformed["include_ancestor_headings"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigIncludeAncestorHeadings(original["includeAncestorHeadings"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigChunkSize(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigIncludeAncestorHeadings(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -614,6 +714,8 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig
 		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(original["digitalParsingConfig"], d, config)
 	transformed["ocr_parsing_config"] =
 		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigOcrParsingConfig(original["ocrParsingConfig"], d, config)
+	transformed["layout_parsing_config"] =
+		flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfig(original["layoutParsingConfig"], d, config)
 	return []interface{}{transformed}
 }
 func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigDigitalParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -641,6 +743,14 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig
 	return v
 }
 
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -653,6 +763,7 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrid
 			"file_type":              k,
 			"digital_parsing_config": flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesDigitalParsingConfig(original["digitalParsingConfig"], d, config),
 			"ocr_parsing_config":     flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfig(original["ocrParsingConfig"], d, config),
+			"layout_parsing_config":  flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfig(original["layoutParsingConfig"], d, config),
 		})
 	}
 	return transformed
@@ -680,6 +791,14 @@ func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrid
 }
 func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
 }
 
 func flattenDiscoveryEngineDataStoreCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -718,6 +837,13 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d tpg
 		transformed["name"] = transformedName
 	}
 
+	transformedChunkingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfig(original["chunking_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedChunkingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["chunkingConfig"] = transformedChunkingConfig
+	}
+
 	transformedDefaultParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(original["default_parsing_config"], d, config)
 	if err != nil {
 		return nil, err
@@ -736,6 +862,64 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfig(v interface{}, d tpg
 }
 
 func expandDiscoveryEngineDataStoreDocumentProcessingConfigName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedLayoutBasedChunkingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfig(original["layout_based_chunking_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["layoutBasedChunkingConfig"] = transformedLayoutBasedChunkingConfig
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedChunkSize, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigChunkSize(original["chunk_size"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedChunkSize); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["chunkSize"] = transformedChunkSize
+	}
+
+	transformedIncludeAncestorHeadings, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigIncludeAncestorHeadings(original["include_ancestor_headings"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIncludeAncestorHeadings); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["includeAncestorHeadings"] = transformedIncludeAncestorHeadings
+	}
+
+	return transformed, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigChunkSize(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigChunkingConfigLayoutBasedChunkingConfigIncludeAncestorHeadings(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -760,6 +944,13 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfig(
 		return nil, err
 	} else if val := reflect.ValueOf(transformedOcrParsingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["ocrParsingConfig"] = transformedOcrParsingConfig
+	}
+
+	transformedLayoutParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfig(original["layout_parsing_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["layoutParsingConfig"] = transformedLayoutParsingConfig
 	}
 
 	return transformed, nil
@@ -803,6 +994,21 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigO
 	return v, nil
 }
 
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigDefaultParsingConfigLayoutParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
+}
+
 func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverrides(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]interface{}, error) {
 	if v == nil {
 		return map[string]interface{}{}, nil
@@ -824,6 +1030,13 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverride
 			return nil, err
 		} else if val := reflect.ValueOf(transformedOcrParsingConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["ocrParsingConfig"] = transformedOcrParsingConfig
+		}
+
+		transformedLayoutParsingConfig, err := expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfig(original["layout_parsing_config"], d, config)
+		if err != nil {
+			return nil, err
+		} else {
+			transformed["layoutParsingConfig"] = transformedLayoutParsingConfig
 		}
 
 		transformedFileType, err := tpgresource.ExpandString(original["file_type"], d, config)
@@ -871,4 +1084,19 @@ func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverride
 
 func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesOcrParsingConfigUseNativeText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandDiscoveryEngineDataStoreDocumentProcessingConfigParsingConfigOverridesLayoutParsingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
+
+	return transformed, nil
 }

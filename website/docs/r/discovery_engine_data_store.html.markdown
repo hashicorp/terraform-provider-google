@@ -95,7 +95,7 @@ The following arguments are supported:
 * `industry_vertical` -
   (Required)
   The industry vertical that the data store registers.
-  Possible values are: `GENERIC`, `MEDIA`.
+  Possible values are: `GENERIC`, `MEDIA`, `HEALTHCARE_FHIR`.
 
 * `content_config` -
   (Required)
@@ -118,7 +118,7 @@ The following arguments are supported:
 * `solution_types` -
   (Optional)
   The solutions that the data store enrolls.
-  Each value may be one of: `SOLUTION_TYPE_RECOMMENDATION`, `SOLUTION_TYPE_SEARCH`, `SOLUTION_TYPE_CHAT`.
+  Each value may be one of: `SOLUTION_TYPE_RECOMMENDATION`, `SOLUTION_TYPE_SEARCH`, `SOLUTION_TYPE_CHAT`, `SOLUTION_TYPE_GENERATIVE_CHAT`.
 
 * `document_processing_config` -
   (Optional)
@@ -152,6 +152,11 @@ The following arguments are supported:
   The full resource name of the Document Processing Config. Format:
   `projects/{project}/locations/{location}/collections/{collection_id}/dataStores/{data_store_id}/documentProcessingConfig`.
 
+* `chunking_config` -
+  (Optional)
+  Whether chunking mode is enabled.
+  Structure is [documented below](#nested_chunking_config).
+
 * `default_parsing_config` -
   (Optional)
   Configurations for default Document parser. If not specified, this resource
@@ -168,6 +173,26 @@ The following arguments are supported:
   Structure is [documented below](#nested_parsing_config_overrides).
 
 
+<a name="nested_chunking_config"></a>The `chunking_config` block supports:
+
+* `layout_based_chunking_config` -
+  (Optional)
+  Configuration for the layout based chunking.
+  Structure is [documented below](#nested_layout_based_chunking_config).
+
+
+<a name="nested_layout_based_chunking_config"></a>The `layout_based_chunking_config` block supports:
+
+* `chunk_size` -
+  (Optional)
+  The token size limit for each chunk.
+  Supported values: 100-500 (inclusive). Default value: 500.
+
+* `include_ancestor_headings` -
+  (Optional)
+  Whether to include appending different levels of headings to chunks from the middle of the document to prevent context loss.
+  Default value: False.
+
 <a name="nested_default_parsing_config"></a>The `default_parsing_config` block supports:
 
 * `digital_parsing_config` -
@@ -178,6 +203,10 @@ The following arguments are supported:
   (Optional)
   Configurations applied to OCR parser. Currently it only applies to PDFs.
   Structure is [documented below](#nested_ocr_parsing_config).
+
+* `layout_parsing_config` -
+  (Optional)
+  Configurations applied to layout parser.
 
 
 <a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
@@ -198,6 +227,10 @@ The following arguments are supported:
   (Optional)
   Configurations applied to OCR parser. Currently it only applies to PDFs.
   Structure is [documented below](#nested_ocr_parsing_config).
+
+* `layout_parsing_config` -
+  (Optional)
+  Configurations applied to layout parser.
 
 
 <a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
