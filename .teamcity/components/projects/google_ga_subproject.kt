@@ -31,7 +31,7 @@ fun googleSubProjectGa(allConfig: AllContextParameters): Project {
         description = "Subproject containing builds for testing the GA version of the Google provider"
 
         // Nightly Test project that uses hashicorp/terraform-provider-google
-        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration(daysOfWeek="1-4,6-7"))) // All nights except Thursday (5) for GA; feature branch testing happens on Thursdays and TeamCity numbers days Sun=1...Sat=7
+        subProject(nightlyTests(gaId, ProviderNameGa, HashiCorpVCSRootGa, gaConfig, NightlyTriggerConfiguration()))
 
         // MM Upstream project that uses modular-magician/terraform-provider-google
         subProject(mmUpstream(gaId, ProviderNameGa, ModularMagicianVCSRootGa, HashiCorpVCSRootGa, vcrConfig, NightlyTriggerConfiguration()))
