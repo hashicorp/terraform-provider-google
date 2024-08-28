@@ -8,7 +8,48 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
+	"github.com/hashicorp/terraform-provider-google/google/services/compute"
 )
+
+// Value returned from the API will always be in format "HH:MM", so we need the suppress only on new values
+func TestHourlyFormatSuppressDiff(t *testing.T) {
+	cases := map[string]struct {
+		Old, New           string
+		ExpectDiffSuppress bool
+	}{
+		"Same value": {
+			Old:                "01:00",
+			New:                "01:00",
+			ExpectDiffSuppress: false,
+		},
+		"Same value but different format": {
+			Old:                "01:00",
+			New:                "1:00",
+			ExpectDiffSuppress: true,
+		},
+		"Changed value": {
+			Old:                "01:00",
+			New:                "02:00",
+			ExpectDiffSuppress: false,
+		},
+		"Changed value but different format": {
+			Old:                "01:00",
+			New:                "2:00",
+			ExpectDiffSuppress: false,
+		},
+		"Check interference with unaffected values": {
+			Old:                "11:00",
+			New:                "22:00",
+			ExpectDiffSuppress: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if compute.HourlyFormatSuppressDiff("", tc.Old, tc.New, nil) != tc.ExpectDiffSuppress {
+			t.Errorf("bad: %s, %q => %q expect DiffSuppress to return %t", tn, tc.Old, tc.New, tc.ExpectDiffSuppress)
+		}
+	}
+}
 
 func TestAccComputeResourcePolicy_attached(t *testing.T) {
 	t.Parallel()

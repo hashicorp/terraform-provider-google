@@ -32,6 +32,12 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
+// Suppresses a diff on cases like 1:00 when it should be 01:00.
+// Because API will normalize this value
+func HourlyFormatSuppressDiff(_, old, new string, _ *schema.ResourceData) bool {
+	return old == "0"+new
+}
+
 func ResourceComputeResourcePolicy() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceComputeResourcePolicyCreate,
@@ -215,9 +221,10 @@ from the tz database: http://en.wikipedia.org/wiki/Tz_database.`,
 													Description: `Defines a schedule with units measured in days. The value determines how many days pass between the start of each cycle. Days in cycle for snapshot schedule policy must be 1.`,
 												},
 												"start_time": {
-													Type:         schema.TypeString,
-													Required:     true,
-													ValidateFunc: verify.ValidateHourlyOnly,
+													Type:             schema.TypeString,
+													Required:         true,
+													ValidateFunc:     verify.ValidateHourlyOnly,
+													DiffSuppressFunc: HourlyFormatSuppressDiff,
 													Description: `This must be in UTC format that resolves to one of
 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example,
 both 13:00-5 and 08:00 are valid.`,
@@ -239,9 +246,10 @@ both 13:00-5 and 08:00 are valid.`,
 													Description: `The number of hours between snapshots.`,
 												},
 												"start_time": {
-													Type:         schema.TypeString,
-													Required:     true,
-													ValidateFunc: verify.ValidateHourlyOnly,
+													Type:             schema.TypeString,
+													Required:         true,
+													ValidateFunc:     verify.ValidateHourlyOnly,
+													DiffSuppressFunc: HourlyFormatSuppressDiff,
 													Description: `Time within the window to start the operations.
 It must be in an hourly format "HH:MM",
 where HH : [00-23] and MM : [00] GMT. eg: 21:00`,
