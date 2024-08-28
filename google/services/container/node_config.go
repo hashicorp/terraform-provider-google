@@ -71,6 +71,18 @@ func schemaContainerdConfig() *schema.Schema {
 	}
 }
 
+// Note: this is a bool internally, but implementing as an enum internally to
+// make it easier to accept API level defaults.
+func schemaInsecureKubeletReadonlyPortEnabled() *schema.Schema {
+	return &schema.Schema{
+		Type:         schema.TypeString,
+		Optional:     true,
+		Computed:     true,
+		Description:  "Controls whether the kubelet read-only port is enabled. It is strongly recommended to set this to `FALSE`. Possible values: `TRUE`, `FALSE`.",
+		ValidateFunc: validation.StringInSlice([]string{"FALSE", "TRUE"}, false),
+	}
+}
+
 func schemaLoggingVariant() *schema.Schema {
 	return &schema.Schema{
 		Type:         schema.TypeString,
@@ -547,6 +559,7 @@ func schemaNodeConfig() *schema.Schema {
 								Optional:    true,
 								Description: `Set the CPU CFS quota period value 'cpu.cfs_period_us'.`,
 							},
+							"insecure_kubelet_readonly_port_enabled": schemaInsecureKubeletReadonlyPortEnabled(),
 							"pod_pids_limit": {
 								Type:        schema.TypeInt,
 								Optional:    true,
@@ -727,6 +740,12 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 
 	nodeConfigDefaults := &container.NodeConfigDefaults{}
 	nodeConfigDefaults.ContainerdConfig = expandContainerdConfig(config["containerd_config"])
+	if v, ok := config["insecure_kubelet_readonly_port_enabled"]; ok {
+		nodeConfigDefaults.NodeKubeletConfig = &container.NodeKubeletConfig{
+			InsecureKubeletReadonlyPortEnabled: expandInsecureKubeletReadonlyPortEnabled(v),
+			ForceSendFields:                    []string{"InsecureKubeletReadonlyPortEnabled"},
+		}
+	}
 	if variant, ok := config["logging_variant"]; ok {
 		nodeConfigDefaults.LoggingConfig = &container.NodePoolLoggingConfig{
 			VariantConfig: &container.LoggingVariantConfig{
@@ -1054,6 +1073,13 @@ func expandWorkloadMetadataConfig(v interface{}) *container.WorkloadMetadataConf
 	return wmc
 }
 
+func expandInsecureKubeletReadonlyPortEnabled(v interface{}) bool {
+	if v == "TRUE" {
+		return true
+	}
+	return false
+}
+
 func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	if v == nil {
 		return nil
@@ -1073,6 +1099,10 @@ func expandKubeletConfig(v interface{}) *container.NodeKubeletConfig {
 	}
 	if cpuCfsQuotaPeriod, ok := cfg["cpu_cfs_quota_period"]; ok {
 		kConfig.CpuCfsQuotaPeriod = cpuCfsQuotaPeriod.(string)
+	}
+	if insecureKubeletReadonlyPortEnabled, ok := cfg["insecure_kubelet_readonly_port_enabled"]; ok {
+		kConfig.InsecureKubeletReadonlyPortEnabled = expandInsecureKubeletReadonlyPortEnabled(insecureKubeletReadonlyPortEnabled)
+		kConfig.ForceSendFields = append(kConfig.ForceSendFields, "InsecureKubeletReadonlyPortEnabled")
 	}
 	if podPidsLimit, ok := cfg["pod_pids_limit"]; ok {
 		kConfig.PodPidsLimit = int64(podPidsLimit.(int))
@@ -1263,6 +1293,8 @@ func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]int
 
 	result[0]["containerd_config"] = flattenContainerdConfig(c.ContainerdConfig)
 
+	result[0]["insecure_kubelet_readonly_port_enabled"] = flattenInsecureKubeletReadonlyPortEnabled(c.NodeKubeletConfig)
+
 	result[0]["logging_variant"] = flattenLoggingVariant(c.LoggingConfig)
 
 	return result
@@ -1432,6 +1464,14 @@ func flattenSecondaryBootDisks(c []*container.SecondaryBootDisk) []map[string]in
 	return result
 }
 
+func flattenInsecureKubeletReadonlyPortEnabled(c *container.NodeKubeletConfig) string {
+	// Convert bool from the API to the enum values used internally
+	if c != nil && c.InsecureKubeletReadonlyPortEnabled {
+		return "TRUE"
+	}
+	return "FALSE"
+}
+
 func flattenLoggingVariant(c *container.NodePoolLoggingConfig) string {
 	variant := "DEFAULT"
 	if c != nil && c.VariantConfig != nil && c.VariantConfig.Variant != "" {
@@ -1523,10 +1563,11 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"cpu_cfs_quota":        c.CpuCfsQuota,
-			"cpu_cfs_quota_period": c.CpuCfsQuotaPeriod,
-			"cpu_manager_policy":   c.CpuManagerPolicy,
-			"pod_pids_limit":       c.PodPidsLimit,
+			"cpu_cfs_quota":                          c.CpuCfsQuota,
+			"cpu_cfs_quota_period":                   c.CpuCfsQuotaPeriod,
+			"cpu_manager_policy":                     c.CpuManagerPolicy,
+			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
+			"pod_pids_limit":                         c.PodPidsLimit,
 		})
 	}
 	return result
