@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -497,10 +498,17 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, true, 2048),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "static", "100ms", networkName, subnetworkName, "TRUE", true, 2048),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled", "TRUE"),
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.pod_pids_limit", "2048"),
 				),
@@ -511,10 +519,17 @@ func TestAccContainerNodePool_withKubeletConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, false, 1024),
+				Config: testAccContainerNodePool_withKubeletConfig(cluster, np, "", "", networkName, subnetworkName, "FALSE", false, 1024),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
 						"node_config.0.kubelet_config.0.cpu_cfs_quota", "false"),
+					resource.TestCheckResourceAttr("google_container_node_pool.with_kubelet_config",
+						"node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled", "FALSE"),
 				),
 			},
 			{
@@ -542,7 +557,7 @@ func TestAccContainerNodePool_withInvalidKubeletCpuManagerPolicy(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, true, 1024),
+				Config:      testAccContainerNodePool_withKubeletConfig(cluster, np, "dontexist", "100us", networkName, subnetworkName, "TRUE", false, 1024),
 				ExpectError: regexp.MustCompile(`.*to be one of \["?static"? "?none"? "?"?\].*`),
 			},
 		},
@@ -2936,7 +2951,7 @@ resource "google_container_node_pool" "with_workload_metadata_config" {
 `, projectID, cluster, networkName, subnetworkName, np)
 }
 
-func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName string, quota bool, podPidsLimit int) string {
+func testAccContainerNodePool_withKubeletConfig(cluster, np, policy, period, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled string, quota bool, podPidsLimit int) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-central1-a"
@@ -2962,10 +2977,11 @@ resource "google_container_node_pool" "with_kubelet_config" {
   node_config {
     image_type = "COS_CONTAINERD"
     kubelet_config {
-      cpu_manager_policy   = %q
-      cpu_cfs_quota        = %v
-      cpu_cfs_quota_period = %q
-      pod_pids_limit			 = %d
+      cpu_manager_policy                     = %q
+      cpu_cfs_quota                          = %v
+      cpu_cfs_quota_period                   = %q
+      insecure_kubelet_readonly_port_enabled = "%s"
+      pod_pids_limit                         = %d
     }
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
@@ -2974,7 +2990,7 @@ resource "google_container_node_pool" "with_kubelet_config" {
     logging_variant = "DEFAULT"
   }
 }
-`, cluster, networkName, subnetworkName, np, policy, quota, period, podPidsLimit)
+`, cluster, networkName, subnetworkName, np, policy, quota, period, insecureKubeletReadonlyPortEnabled, podPidsLimit)
 }
 
 func testAccContainerNodePool_withLinuxNodeConfig(cluster, np, tcpMem, networkName, subnetworkName string) string {
