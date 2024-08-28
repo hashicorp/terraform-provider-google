@@ -49,6 +49,25 @@ resource "google_bigtable_table" "table" {
 
   column_family {
     family = "family-second"
+    type   = "intsum"
+  }
+
+  column_family {
+    family = "family-third"
+    type   = <<EOF
+        {
+					"aggregateType": {
+						"max": {},
+						"inputType": {
+							"int64Type": {
+								"encoding": {
+									"bigEndianBytes": {}
+								}
+							}
+						}
+					}
+				}
+        EOF
   }
 
   change_stream_retention = "24h0m0s"
@@ -88,6 +107,7 @@ to delete/recreate the entire `google_bigtable_table` resource.
 `column_family` supports the following arguments:
 
 * `family` - (Optional) The name of the column family.
+* `type`   - (Optional) The type of the column family.
 
 ## Attributes Reference
 
