@@ -457,6 +457,29 @@ func TestAccContainerCluster_withMultiNetworking(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAdditiveVPC(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAdditiveVPC(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.cluster",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withMasterAuthConfig_NoCert(t *testing.T) {
 	t.Parallel()
 
@@ -638,6 +661,23 @@ resource "google_container_cluster" "cluster" {
   deletion_protection = false
 }
 `, clusterName, clusterName)
+}
+
+func testAccContainerCluster_withAdditiveVPC(clusterName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%s"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  dns_config {
+    cluster_dns = "CLOUD_DNS"
+    additive_vpc_scope_dns_domain = "test.com"
+    cluster_dns_scope = "CLUSTER_SCOPE"
+  }
+  deletion_protection = false
+}
+`, clusterName)
 }
 
 func TestAccContainerCluster_withNetworkPolicyEnabled(t *testing.T) {
