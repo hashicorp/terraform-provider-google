@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
@@ -1314,6 +1315,145 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"node_config.0.taint", "deletion_protection"},
+			},
+		},
+	})
+}
+
+// This is for node_config.kubelet_config, which affects the default node-pool
+// (default-pool) when created via the google_container_cluster resource
+func TestAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfigUpdates(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfig(clusterName, networkName, subnetworkName, "TRUE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_in_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfig(clusterName, networkName, subnetworkName, "FALSE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_in_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func TestAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodePool(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePoolName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodePool(clusterName, nodePoolName, networkName, subnetworkName, "TRUE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_in_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// This is for `node_pool_defaults.node_config_defaults` - the default settings
+// for newly created nodepools
+func TestAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdates(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Test API default (no value set in config) first
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdateBaseline(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_node_pool_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdate(clusterName, networkName, subnetworkName, "TRUE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_node_pool_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdate(clusterName, networkName, subnetworkName, "FALSE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_node_pool_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdate(clusterName, networkName, subnetworkName, "TRUE"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_insecure_kubelet_readonly_port_enabled_node_pool_update",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 		},
 	})
@@ -5712,6 +5852,84 @@ resource "google_container_cluster" "with_node_config" {
   subnetwork    = "%s"
 }
 `, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfig(clusterName, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_insecure_kubelet_readonly_port_enabled_in_node_config" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    kubelet_config {
+      # Must be set when kubelet_config is, but causes permadrift unless set to
+      # undocumented empty value
+      cpu_manager_policy                     = ""
+      insecure_kubelet_readonly_port_enabled = "%s"
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, insecureKubeletReadonlyPortEnabled, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodePool(clusterName, nodePoolName, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_insecure_kubelet_readonly_port_enabled_in_node_pool" {
+  name               = "%s"
+  location           = "us-central1-f"
+
+  node_pool {
+    name               = "%s"
+    initial_node_count = 1
+    node_config {
+      kubelet_config {
+        cpu_manager_policy                     = "static"
+        insecure_kubelet_readonly_port_enabled = "%s"
+      }
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, nodePoolName, insecureKubeletReadonlyPortEnabled, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdateBaseline(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_insecure_kubelet_readonly_port_enabled_node_pool_update" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withInsecureKubeletReadonlyPortEnabledDefaultsUpdate(clusterName, networkName, subnetworkName, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_insecure_kubelet_readonly_port_enabled_node_pool_update" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_pool_defaults {
+    node_config_defaults {
+      insecure_kubelet_readonly_port_enabled = "%s"
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+}
+`, clusterName, insecureKubeletReadonlyPortEnabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withLoggingVariantInNodeConfig(clusterName, loggingVariant, networkName, subnetworkName string) string {
