@@ -319,7 +319,7 @@ resource "google_composer_environment" "example" {
 
   config {
 
-    enable_private_ip_environment = true
+    enable_private_environment = true
 
     # ... other configuration parameters
   }
