@@ -21,8 +21,6 @@ description: |-
 
 ClientTlsPolicy is a resource that specifies how a client should authenticate connections to backends of a service. This resource itself does not affect configuration unless it is attached to a backend service resource.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ServerTlsPolicy, see:
 
@@ -38,7 +36,6 @@ To get more information about ServerTlsPolicy, see:
 
 ```hcl
 resource "google_network_security_server_tls_policy" "default" {
-  provider               = google-beta
   name                   = "my-server-tls-policy"
   labels                 = {
     foo = "bar"
@@ -56,16 +53,6 @@ resource "google_network_security_server_tls_policy" "default" {
         target_uri = "unix:mypath"
       }
     }
-    client_validation_ca {
-      grpc_endpoint {
-        target_uri = "unix:abc/mypath"
-      }
-    }
-    client_validation_ca {
-      certificate_provider_instance {
-        plugin_instance = "google_cloud_private_spiffe"
-      }
-    }
   }
 }
 ```
@@ -79,7 +66,6 @@ resource "google_network_security_server_tls_policy" "default" {
 
 ```hcl
 resource "google_network_security_server_tls_policy" "default" {
-  provider               = google-beta
   name                   = "my-server-tls-policy"
   labels                 = {
     foo = "bar"
@@ -102,7 +88,6 @@ resource "google_network_security_server_tls_policy" "default" {
 
 ```hcl
 resource "google_network_security_server_tls_policy" "default" {
-  provider               = google-beta
   name                   = "my-server-tls-policy"
   labels                 = {
     foo = "bar"
@@ -127,11 +112,9 @@ resource "google_network_security_server_tls_policy" "default" {
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_network_security_server_tls_policy" "default" {
-  provider = google-beta
   name     = "my-server-tls-policy"
 
   description = "my description"
@@ -149,7 +132,6 @@ resource "google_network_security_server_tls_policy" "default" {
 }
 
 resource "google_certificate_manager_trust_config" "default" {
-  provider    = google-beta
   name        = "my-trust-config"
   description = "sample trust config description"
   location    = "global"
