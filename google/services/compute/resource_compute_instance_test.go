@@ -8582,3 +8582,79 @@ resource "google_compute_instance" "foobar" {
 }
 `, instanceName, zone, storagePoolUrl)
 }
+
+func TestAccComputeInstance_bootAndAttachedDisk_interface(t *testing.T) {
+	t.Parallel()
+
+	instanceName1 := fmt.Sprintf("tf-test-vm1-%s", acctest.RandString(t, 10))
+	diskName1 := fmt.Sprintf("tf-test-disk1-%s", acctest.RandString(t, 10))
+	instanceName2 := fmt.Sprintf("tf-test-vm2-%s", acctest.RandString(t, 10))
+	diskName2 := fmt.Sprintf("tf-test-disk2-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_bootAndAttachedDisk_interface(instanceName1, diskName1, envvar.GetTestZoneFromEnv(), "h3-standard-88", "NVME", false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.interface", "NVME"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "machine_type", "h3-standard-88"),
+				),
+			},
+			//computeInstanceImportStep("us-central1-a", instanceName1, []string{"desired_status","allow_stopping_for_update"}),
+			{
+				Config: testAccComputeInstance_bootAndAttachedDisk_interface(instanceName2, diskName2, envvar.GetTestZoneFromEnv(), "n2-standard-8", "SCSI", true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.interface", "SCSI"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "machine_type", "n2-standard-8"),
+				),
+			},
+			//computeInstanceImportStep("us-central1-a", instanceName2, []string{"desired_status","allow_stopping_for_update"}),
+		},
+	})
+}
+
+func testAccComputeInstance_bootAndAttachedDisk_interface(instanceName, diskName, zone, machineType, bootDiskInterface string, allowStoppingForUpdate bool) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family    = "ubuntu-2204-lts"
+  project   = "ubuntu-os-cloud"
+}
+
+data "google_project" "project" {}
+
+resource "google_compute_disk" "foorbarattach" {
+  name = "%s"
+  size = 100
+  type = "pd-balanced"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_instance" "foobar" {
+	name = "%s"
+	machine_type= "%s"
+	zone = "%s"
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+			type = "pd-balanced"
+			size = 500
+                }
+                interface = "%s"
+
+	}
+
+  	attached_disk {
+              source = google_compute_disk.foorbarattach.self_link
+  	}
+	
+	network_interface {
+		network = "default"
+        }
+        allow_stopping_for_update = %t
+        desired_status = "RUNNING"
+
+}
+`, diskName, instanceName, machineType, zone, bootDiskInterface, allowStoppingForUpdate)
+}

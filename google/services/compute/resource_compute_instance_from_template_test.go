@@ -1254,3 +1254,83 @@ resource "google_compute_instance_from_template" "inst2" {
 }
 `, templateDisk, image, template, confidentialInstanceType, instance, template2, confidentialInstanceType, instance2)
 }
+
+func TestAccComputeInstanceFromTemplateWithOverride_interface(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	resourceName := "google_compute_instance_from_template.foobar"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplateWithOverride_interface(instanceName, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "boot_disk.0.interface", "SCSI"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeInstanceFromTemplateWithOverride_interface(instance, template string) string {
+	return fmt.Sprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_disk" "foobarboot" {
+  name  = "%s"
+  image = data.google_compute_image.my_image.self_link
+  size  = 10
+  type  = "pd-ssd"
+  zone  = "us-central1-a"
+}
+
+resource "google_compute_disk" "foobarattach" {
+  name = "%s"
+  size = 100
+  type = "pd-balanced"
+  zone = "us-central1-a"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name         = "%s"
+  machine_type = "n1-standard-1"  // can't be e2 because of local-ssd
+
+  disk {
+    source      = google_compute_disk.foobarboot.name
+    auto_delete = false
+    boot        = true
+  }
+
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+
+  source_instance_template = google_compute_instance_template.foobar.self_link
+
+   attached_disk {
+    source =  google_compute_disk.foobarattach.name
+  }
+   // Overrides
+  boot_disk {
+    interface = "SCSI"
+    source =  google_compute_disk.foobarboot.name
+  }
+}
+`, template, instance, template, instance)
+}

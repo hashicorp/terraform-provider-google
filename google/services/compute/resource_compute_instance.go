@@ -200,6 +200,13 @@ func ResourceComputeInstance() *schema.Resource {
 							Description: `The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key that protects this resource.`,
 						},
 
+						"interface": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringInSlice([]string{"SCSI", "NVME"}, false),
+							Description:  `The disk interface used for attaching this disk. One of SCSI or NVME. (This field is shared with attached_disk and only used for specific cases, please don't specify this field without advice from Google.)`,
+						},
+
 						"kms_key_self_link": {
 							Type:             schema.TypeString,
 							Optional:         true,
@@ -1586,6 +1593,7 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 					di["disk_encryption_key_sha256"] = key.Sha256
 				}
 			}
+
 			// We want the disks to remain in the order we set in the config, so if a disk
 			// is present in the config, make sure it's at the correct index. Otherwise, append it.
 			if inConfig {
@@ -2561,6 +2569,10 @@ func expandAttachedDisk(diskConfig map[string]interface{}, d *schema.ResourceDat
 		disk.DeviceName = v.(string)
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.interface"); ok && v != "" {
+		disk.Interface = v.(string)
+	}
+
 	keyValue, keyOk := diskConfig["disk_encryption_key_raw"]
 	if keyOk {
 		if keyValue != "" {
@@ -2761,6 +2773,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 		disk.DeviceName = v.(string)
 	}
 
+	if v, ok := d.GetOk("boot_disk.0.interface"); ok {
+		disk.Interface = v.(string)
+	}
+
 	if v, ok := d.GetOk("boot_disk.0.disk_encryption_key_raw"); ok {
 		if v != "" {
 			disk.DiskEncryptionKey = &compute.CustomerEncryptionKey{
@@ -2860,6 +2876,9 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 		// disk_encryption_key_raw is not returned from the API, so copy it from what the user
 		// originally specified to avoid diffs.
 		"disk_encryption_key_raw": d.Get("boot_disk.0.disk_encryption_key_raw"),
+	}
+	if _, ok := d.GetOk("boot_disk.0.interface"); ok {
+		result["interface"] = disk.Interface
 	}
 
 	diskDetails, err := getDisk(disk.Source, d, config)
