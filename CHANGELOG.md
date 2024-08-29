@@ -1,4 +1,12 @@
-## 5.43.0 (Unreleased)
+## 5.43.1 (Unreleased)
+
+NOTES:
+* 5.43.1 is a backport release, and some changes will not appear in 6.X series releases until 6.1.0
+
+BUG FIXES:
+* pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
+
+## 5.43.0 (August 26, 2024)
 
 DEPRECATIONS:
 * storage: deprecated `lifecycle_rule.condition.no_age` field in `google_storage_bucket`. Use the new `lifecycle_rule.condition.send_age_if_zero` field instead. ([#19172](https://github.com/hashicorp/terraform-provider-google/pull/19172))
