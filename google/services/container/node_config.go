@@ -736,6 +736,22 @@ func schemaNodeConfig() *schema.Schema {
 	}
 }
 
+// Separate since this currently only supports a single value -- a subset of
+// the overall NodeKubeletConfig
+func schemaNodePoolAutoConfigNodeKubeletConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		MaxItems:    1,
+		Description: `Node kubelet configs.`,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"insecure_kubelet_readonly_port_enabled": schemaInsecureKubeletReadonlyPortEnabled(),
+			},
+		},
+	}
+}
+
 func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefaults {
 	configs := configured.([]interface{})
 	if len(configs) == 0 || configs[0] == nil {
@@ -1565,6 +1581,16 @@ func flattenKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface
 			"cpu_manager_policy":                     c.CpuManagerPolicy,
 			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
 			"pod_pids_limit":                         c.PodPidsLimit,
+		})
+	}
+	return result
+}
+
+func flattenNodePoolAutoConfigNodeKubeletConfig(c *container.NodeKubeletConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"insecure_kubelet_readonly_port_enabled": flattenInsecureKubeletReadonlyPortEnabled(c),
 		})
 	}
 	return result

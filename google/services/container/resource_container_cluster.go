@@ -1368,6 +1368,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Description: `Node pool configs that apply to all auto-provisioned node pools in autopilot clusters and node auto-provisioning enabled clusters.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"node_kubelet_config": schemaNodePoolAutoConfigNodeKubeletConfig(),
 						"network_tags": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -4012,6 +4013,24 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
+	if d.HasChange("node_pool_auto_config.0.node_kubelet_config") {
+		req := &container.UpdateClusterRequest{
+			Update: &container.ClusterUpdate{
+				DesiredNodePoolAutoConfigKubeletConfig: expandKubeletConfig(
+					d.Get("node_pool_auto_config.0.node_kubelet_config"),
+				),
+			},
+		}
+
+		updateF := updateFunc(req, "updating GKE cluster node pool auto config node_kubelet_config parameters")
+		// Call update serially.
+		if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] GKE cluster %s node pool auto config node_kubelet_config parameters have been updated", d.Id())
+	}
+
 	if d.HasChange("node_pool_auto_config.0.network_tags.0.tags") {
 		tags := d.Get("node_pool_auto_config.0.network_tags.0.tags").([]interface{})
 
@@ -5163,6 +5182,10 @@ func expandNodePoolAutoConfig(configured interface{}) *container.NodePoolAutoCon
 	npac := &container.NodePoolAutoConfig{}
 	config := l[0].(map[string]interface{})
 
+	if v, ok := config["node_kubelet_config"]; ok {
+		npac.NodeKubeletConfig = expandKubeletConfig(v)
+	}
+
 	if v, ok := config["network_tags"]; ok && len(v.([]interface{})) > 0 {
 		npac.NetworkTags = expandNodePoolAutoConfigNetworkTags(v)
 	}
@@ -5937,6 +5960,9 @@ func flattenNodePoolAutoConfig(c *container.NodePoolAutoConfig) []map[string]int
 	}
 
 	result := make(map[string]interface{})
+	if c.NodeKubeletConfig != nil {
+		result["node_kubelet_config"] = flattenNodePoolAutoConfigNodeKubeletConfig(c.NodeKubeletConfig)
+	}
 	if c.NetworkTags != nil {
 		result["network_tags"] = flattenNodePoolAutoConfigNetworkTags(c.NetworkTags)
 	}

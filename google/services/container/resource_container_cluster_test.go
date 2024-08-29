@@ -2910,6 +2910,51 @@ func TestAccContainerCluster_withAutopilotNetworkTags(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAutopilotKubeletConfig(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilotKubeletConfigBaseline(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotKubeletConfigUpdates(clusterName, "FALSE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotKubeletConfigUpdates(clusterName, "TRUE"),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot_kubelet_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAutopilotResourceManagerTags(t *testing.T) {
 	t.Parallel()
 
@@ -9342,6 +9387,37 @@ resource "google_container_cluster" "without_confidential_boot_disk" {
   subnetwork    = "%s"
 }
 `, clusterName, npName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withAutopilotKubeletConfigBaseline(name string) string {
+	return fmt.Sprintf(`
+  resource "google_container_cluster" "with_autopilot_kubelet_config" {
+    name                = "%s"
+    location            = "us-central1"
+    initial_node_count  = 1
+    enable_autopilot    = true
+    deletion_protection = false
+  }
+`, name)
+}
+
+func testAccContainerCluster_withAutopilotKubeletConfigUpdates(name, insecureKubeletReadonlyPortEnabled string) string {
+	return fmt.Sprintf(`
+  resource "google_container_cluster" "with_autopilot_kubelet_config" {
+    name               = "%s"
+    location           = "us-central1"
+    initial_node_count = 1
+
+    node_pool_auto_config {
+      node_kubelet_config {
+        insecure_kubelet_readonly_port_enabled = "%s"
+      }
+    }
+
+    enable_autopilot    = true
+    deletion_protection = false
+  }
+`, name, insecureKubeletReadonlyPortEnabled)
 }
 
 func testAccContainerCluster_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {
