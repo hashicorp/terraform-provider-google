@@ -40,8 +40,9 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.6.2"
+    version = "1.19.0"
     config_sync {
+      enabled = true
       git {
         sync_repo = "https://github.com/hashicorp/terraform"
       }
@@ -81,8 +82,9 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   feature = google_gke_hub_feature.feature.name
   membership = google_gke_hub_membership.membership.membership_id
   configmanagement {
-    version = "1.15.1"
+    version = "1.19.0"
     config_sync {
+      enabled = true
       oci {
         sync_repo = "us-central1-docker.pkg.dev/sample-project/config-repo/config-sync-gke:latest"
         policy_dir = "config-connector"
@@ -174,8 +176,9 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   membership = google_gke_hub_membership.membership.membership_id
   membership_location = google_gke_hub_membership.membership.location
   configmanagement {
-    version = "1.6.2"
+    version = "1.19.0"
     config_sync {
+      enabled = true
       git {
         sync_repo = "https://github.com/hashicorp/terraform"
       }
@@ -306,26 +309,41 @@ The following arguments are supported:
 
 
 <a name="nested_configmanagement"></a>The `configmanagement` block supports:
-    
-* `binauthz` -
-  (Optional)
-  Binauthz configuration for the cluster. Structure is [documented below](#nested_binauthz).
-    
+
 * `config_sync` -
   (Optional)
   Config Sync configuration for the cluster. Structure is [documented below](#nested_config_sync).
-    
+
+* `management` -
+  (Optional)
+  Set this field to MANAGEMENT_AUTOMATIC to enable
+  [Config Sync auto-upgrades](http://cloud/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config),
+  and set this field to MANAGEMENT_MANUAL or MANAGEMENT_UNSPECIFIED to disable Config Sync auto-upgrades.
+  This field was introduced in Terraform version [5.41.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.41.0).
+
+* `version` -
+  (Optional)
+  Version of ACM installed.
+
+* `binauthz` -
+  (Optional, Deprecated)
+  Binauthz configuration for the cluster. Structure is [documented below](#nested_binauthz).
+  This field will be ignored and should not be set.
+
 * `hierarchy_controller` -
   (Optional)
   Hierarchy Controller configuration for the cluster. Structure is [documented below](#nested_hierarchy_controller).
+  Configuring Hierarchy Controller through the configmanagement feature is no longer recommended.
+  Use open source Kubernetes [Hierarchical Namespace Controller (HNC)](https://github.com/kubernetes-sigs/hierarchical-namespaces) instead.
+  Follow the [instructions](https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/how-to/migrate-hierarchy-controller)
+  to migrate from Hierarchy Controller to HNC.
     
 * `policy_controller` -
   (Optional)
   Policy Controller configuration for the cluster. Structure is [documented below](#nested_policy_controller).
-    
-* `version` -
-  (Optional)
-  Version of ACM installed.
+  Configuring Policy Controller through the configmanagement feature is no longer recommended.
+  Use the policycontroller feature instead.
+
     
 <a name="nested_binauthz"></a>The `binauthz` block supports:
     
@@ -334,7 +352,13 @@ The following arguments are supported:
   Whether binauthz is enabled in this cluster.
     
 <a name="nested_config_sync"></a>The `config_sync` block supports:
-    
+
+* `enabled` -
+  (Optional)
+  Whether Config Sync is enabled in the cluster. This field was introduced in Terraform version
+  [5.41.0](https://github.com/hashicorp/terraform-provider-google/releases/tag/v5.41.0), and
+  needs to be set to `true` explicitly to install Config Sync.
+
 * `git` -
   (Optional) Structure is [documented below](#nested_git).
 
