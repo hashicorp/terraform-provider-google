@@ -221,13 +221,14 @@ of Google's network that the interconnect is connected to.`,
 				Type:     schema.TypeList,
 				Optional: true,
 				ForceNew: true,
-				Description: `interconnects.list of features requested for this Interconnect connection. Options: MACSEC (
+				Description: `interconnects.list of features requested for this Interconnect connection. Options: IF_MACSEC (
 If specified then the connection is created on MACsec capable hardware ports. If not
 specified, the default value is false, which allocates non-MACsec capable ports first if
-available). Possible values: ["MACSEC"]`,
+available). Note that MACSEC is still technically allowed for compatibility reasons, but it
+does not work with the API, and will be removed in an upcoming major version. Possible values: ["MACSEC", "IF_MACSEC"]`,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: verify.ValidateEnum([]string{"MACSEC"}),
+					ValidateFunc: verify.ValidateEnum([]string{"MACSEC", "IF_MACSEC"}),
 				},
 			},
 			"available_features": {
