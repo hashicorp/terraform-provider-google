@@ -2,7 +2,6 @@
 
 ## 6.1.0 (September 3rd, 2024)
 BREAKING CHANGES:
-* sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
 * bigqueryanalyticshub: made `bigquery_dataset` immutable in `google_bigquery_analytics_hub_listing`. Now modifying the field will recreate the resource rather than causing Terraform to report it would attempt an invalid update. ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
 * sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
 
@@ -15,28 +14,27 @@ IMPROVEMENTS:
 * Update Google Go API dependency to v0.193.0 ([#19254](https://github.com/hashicorp/terraform-provider-google/pull/19254))
 * alloydb: added `subscription_type` and `trial_metadata` field to `google_alloydb_cluster` resource ([#19262](https://github.com/hashicorp/terraform-provider-google/pull/19262))
 * bigquery: added `encryption_configuration` field to `google_bigquery_data_transfer_config` resource ([#19267](https://github.com/hashicorp/terraform-provider-google/pull/19267))
-* bigqueryanalyticshub: added `selected_resources`, and `restrict_direct_table_access` to `google_bigquery_analytics_hub_listing` ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
-* bigqueryanalyticshub: added `sharing_environment_config` to `google_bigquery_analytics_hub_data_exchange` ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
+* bigqueryanalyticshub: added `selected_resources`, and `restrict_direct_table_access` to `google_bigquery_analytics_hub_listing` resource ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
+* bigqueryanalyticshub: added `sharing_environment_config` to `google_bigquery_analytics_hub_data_exchange` resource ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
 * cloudtasks: added `http_target` field to `google_cloud_tasks_queue` resource ([#19253](https://github.com/hashicorp/terraform-provider-google/pull/19253))
 * compute: added `accelerators` field to `google_compute_node_template` resource ([#19292](https://github.com/hashicorp/terraform-provider-google/pull/19292))
-* compute: allowed disabling 'server_tls_policy' during update in 'google_compute_target_https_proxy' resources ([#19233](https://github.com/hashicorp/terraform-provider-google/pull/19233))
-* container: added `secret_manager_config` field to `google_container_cluster` resource (ga)) ([#19288](https://github.com/hashicorp/terraform-provider-google/pull/19288))
+* compute: allowed disabling `server_tls_policy` during update in `google_compute_target_https_proxy` resources ([#19233](https://github.com/hashicorp/terraform-provider-google/pull/19233))
+* container: added `secret_manager_config` field to `google_container_cluster` resource (ga) ([#19288](https://github.com/hashicorp/terraform-provider-google/pull/19288))
 * datastream: added `transaction_logs` and `change_tables` to the `datastream_stream` resource ([#19248](https://github.com/hashicorp/terraform-provider-google/pull/19248))
-* discoveryengine: Added `chunking_config` and `layout_parsing_config` fields to google_discovery_engine_data_store` resource ([#19274](https://github.com/hashicorp/terraform-provider-google/pull/19274))
-* dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config` ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
-* dlp: added `tag_resources` field to `google_data_loss_prevention_discovery_config`. ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
+* discoveryengine: Added `chunking_config` and `layout_parsing_config` fields to `google_discovery_engine_data_store` resource ([#19274](https://github.com/hashicorp/terraform-provider-google/pull/19274))
+* dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config` resource ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
+* dlp: added `tag_resources` field to `google_data_loss_prevention_discovery_config` resource ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
 * networksecurity: `google_network_security_client_tls_policy` in v1 ([#19293](https://github.com/hashicorp/terraform-provider-google/pull/19293))
 
 BUG FIXES:
-* pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
 * artifactregistry: Fixed https://github.com/hashicorp/terraform-provider-google/issues/18955 ([#19256](https://github.com/hashicorp/terraform-provider-google/pull/19256))
-* bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access` ([#19259](https://github.com/hashicorp/terraform-provider-google/pull/19259))
-* container: fixed update inconsistency in `google_container_cluster` ([#19247](https://github.com/hashicorp/terraform-provider-google/pull/19247))
+* bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access` resource ([#19259](https://github.com/hashicorp/terraform-provider-google/pull/19259))
+* container: fixed update inconsistency in `google_container_cluster` resource ([#19247](https://github.com/hashicorp/terraform-provider-google/pull/19247))
 * netapp: Adding sweepers for all resources due to tests being run in multiple regions ([#19285](https://github.com/hashicorp/terraform-provider-google/pull/19285))
 * pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
 * resourcemanager: fixed a bug where data.google_client_config failed silently when inadequate credentials were used to configure the provider ([#19286](https://github.com/hashicorp/terraform-provider-google/pull/19286))
 * sql: fixed importing `google_sql_user` where `host` is an IPv4 CIDR ([#19243](https://github.com/hashicorp/terraform-provider-google/pull/19243))
-* sql: fixed overwriting of `name` field for IAM Group user for resource `google_sql_user` ([#19234](https://github.com/hashicorp/terraform-provider-google/pull/19234))
+* sql: fixed overwriting of `name` field for IAM Group user in `google_sql_user` resource ([#19234](https://github.com/hashicorp/terraform-provider-google/pull/19234))
 
 ## 5.43.1 (August 30, 2024)
 
