@@ -12,7 +12,7 @@
 #     .github/CONTRIBUTING.md.
 #
 # ----------------------------------------------------------------------------
-subcategory: "Backup and DR"
+subcategory: "Backup and DR Service"
 description: |-
   A Backup and DR Management Server (Also referred as Management Console)
 ---
