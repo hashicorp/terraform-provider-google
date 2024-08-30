@@ -1,4 +1,131 @@
-## 5.43.0 (Unreleased)
+
+
+## 6.1.0 (September 3rd, 2024)
+BREAKING CHANGES:
+* sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
+* bigqueryanalyticshub: made `bigquery_dataset` immutable in `google_bigquery_analytics_hub_listing`. Now modifying the field will recreate the resource rather than causing Terraform to report it would attempt an invalid update. ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
+* sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
+
+FEATURES:
+* **New Data Source:** `google_kms_crypto_key_latest_version` ([#19249](https://github.com/hashicorp/terraform-provider-google/pull/19249))
+* **New Data Source:** `google_kms_crypto_key_versions` ([#19241](https://github.com/hashicorp/terraform-provider-google/pull/19241))
+
+IMPROVEMENTS:
+* Support creating DMS connection profiles that link to existing Cloud SQL instances/AlloyDB clusters. ([#19291](https://github.com/hashicorp/terraform-provider-google/pull/19291))
+* Update Google Go API dependency to v0.193.0 ([#19254](https://github.com/hashicorp/terraform-provider-google/pull/19254))
+* alloydb: added `subscription_type` and `trial_metadata` field to `google_alloydb_cluster` resource ([#19262](https://github.com/hashicorp/terraform-provider-google/pull/19262))
+* bigquery: added `encryption_configuration` field to `google_bigquery_data_transfer_config` resource ([#19267](https://github.com/hashicorp/terraform-provider-google/pull/19267))
+* bigqueryanalyticshub: added `selected_resources`, and `restrict_direct_table_access` to `google_bigquery_analytics_hub_listing` ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
+* bigqueryanalyticshub: added `sharing_environment_config` to `google_bigquery_analytics_hub_data_exchange` ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
+* cloudtasks: added `http_target` field to `google_cloud_tasks_queue` resource ([#19253](https://github.com/hashicorp/terraform-provider-google/pull/19253))
+* compute: added `accelerators` field to `google_compute_node_template` resource ([#19292](https://github.com/hashicorp/terraform-provider-google/pull/19292))
+* compute: allowed disabling 'server_tls_policy' during update in 'google_compute_target_https_proxy' resources ([#19233](https://github.com/hashicorp/terraform-provider-google/pull/19233))
+* container: added `secret_manager_config` field to `google_container_cluster` resource (ga)) ([#19288](https://github.com/hashicorp/terraform-provider-google/pull/19288))
+* datastream: added `transaction_logs` and `change_tables` to the `datastream_stream` resource ([#19248](https://github.com/hashicorp/terraform-provider-google/pull/19248))
+* discoveryengine: Added `chunking_config` and `layout_parsing_config` fields to google_discovery_engine_data_store` resource ([#19274](https://github.com/hashicorp/terraform-provider-google/pull/19274))
+* dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config` ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
+* dlp: added `tag_resources` field to `google_data_loss_prevention_discovery_config`. ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
+* networksecurity: `google_network_security_client_tls_policy` in v1 ([#19293](https://github.com/hashicorp/terraform-provider-google/pull/19293))
+
+BUG FIXES:
+* pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
+* artifactregistry: Fixed https://github.com/hashicorp/terraform-provider-google/issues/18955 ([#19256](https://github.com/hashicorp/terraform-provider-google/pull/19256))
+* bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access` ([#19259](https://github.com/hashicorp/terraform-provider-google/pull/19259))
+* container: fixed update inconsistency in `google_container_cluster` ([#19247](https://github.com/hashicorp/terraform-provider-google/pull/19247))
+* netapp: Adding sweepers for all resources due to tests being run in multiple regions ([#19285](https://github.com/hashicorp/terraform-provider-google/pull/19285))
+* pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
+* resourcemanager: fixed a bug where data.google_client_config failed silently when inadequate credentials were used to configure the provider ([#19286](https://github.com/hashicorp/terraform-provider-google/pull/19286))
+* sql: fixed importing `google_sql_user` where `host` is an IPv4 CIDR ([#19243](https://github.com/hashicorp/terraform-provider-google/pull/19243))
+* sql: fixed overwriting of `name` field for IAM Group user for resource `google_sql_user` ([#19234](https://github.com/hashicorp/terraform-provider-google/pull/19234))
+
+## 5.43.1 (August 30, 2024)
+
+NOTES:
+* 5.43.1 is a backport release, and some changes will not appear in 6.X series releases until 6.1.0
+
+BUG FIXES:
+* pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
+
+## 6.0.1 (August 26, 2024)
+
+BREAKING CHANGES:
+
+* sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
+
+## 6.0.0 (August 26, 2024)
+
+[Terraform Google Provider 6.0.0 Upgrade Guide](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/version_6_upgrade)
+
+BREAKING CHANGES:
+* provider: changed provider labels to add the `goog-terraform-provisioned: true` label by default. ([#19190](https://github.com/hashicorp/terraform-provider-google/pull/19190))
+* activedirectory: added `deletion_protection` field to `google_active_directory_domain` resource. This field defaults to `true`, preventing accidental deletions. To delete the resource, you must first set `deletion_protection = false` before destroying the resource. ([#18906](https://github.com/hashicorp/terraform-provider-google/pull/18906))
+* alloydb: removed `network` in `google_alloy_db_cluster`. Use `network_config.network` instead. ([#19181](https://github.com/hashicorp/terraform-provider-google/pull/19181))
+* bigquery: added client-side validation to prevent table view creation if schema contains required fields for `google_bigquery_table` resource ([#18767](https://github.com/hashicorp/terraform-provider-google/pull/18767))
+* bigquery: removed `allow_resource_tags_on_deletion` from `google_bigquery_table`. Resource tags are now always allowed on table deletion. ([#19077](https://github.com/hashicorp/terraform-provider-google/pull/19077))
+* bigqueryreservation: removed `multi_region_auxiliary` from `google_bigquery_reservation` ([#18922](https://github.com/hashicorp/terraform-provider-google/pull/18922))
+* billing: revised the format of `id` for `google_billing_project_info` ([#18823](https://github.com/hashicorp/terraform-provider-google/pull/18823))
+* cloudrunv2: added `deletion_protection` field to `google_cloudrunv2_service`.  This field defaults to `true`, preventing accidental deletions. To delete the resource, you must first set `deletion_protection = false` before destroying the resource.([#19019](https://github.com/hashicorp/terraform-provider-google/pull/19019))
+* cloudrunv2: changed `liveness_probe` to no longer infer a default value from api on `google_cloud_run_v2_service`. Removing this field and applying the change will now  remove liveness probe from the Cloud Run service. ([#18764](https://github.com/hashicorp/terraform-provider-google/pull/18764))
+* cloudrunv2: retyped `containers.env` to SET from ARRAY for `google_cloud_run_v2_service` and `google_cloud_run_v2_job`. ([#18855](https://github.com/hashicorp/terraform-provider-google/pull/18855))
+* composer: `ip_allocation_policy = []` in `google_composer_environment` is no longer valid configuration. Removing the field from configuration should not produce a diff. ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* compute: added new required field `enabled` in `google_compute_backend_service` and `google_compute_region_backend_service` ([#18772](https://github.com/hashicorp/terraform-provider-google/pull/18772))
+* compute: changed `certifcate_id` in `google_compute_managed_ssl_certificate` to correctly be output only. ([#19069](https://github.com/hashicorp/terraform-provider-google/pull/19069))
+* compute: revised and in some cases removed default values  of `connection_draining_timeout_sec`, `balancing_mode` and `outlier_detection` in `google_compute_region_backend_service` and `google_compute_backend_service`. ([#18720](https://github.com/hashicorp/terraform-provider-google/pull/18720))
+* compute: revised the format of `id`  for `compute_network_endpoints` ([#18844](https://github.com/hashicorp/terraform-provider-google/pull/18844))
+* compute: `guest_accelerator = []` is no longer valid configuration in `google_compute_instance`. To explicitly set an empty list of objects, set guest_accelerator.count = 0. ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* compute: `google_compute_instance_from_template` and `google_compute_instance_from_machine_image` `network_interface.alias_ip_range, network_interface.access_config, attached_disk, guest_accelerator, service_account, scratch_disk` can no longer be set to an empty block `[]`. Removing the fields from configuration should not produce a diff. ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* compute: `secondary_ip_ranges = []` in `google_compute_subnetwork` is no longer valid configuration. To set an explicitly empty list, use `send_secondary_ip_range_if_empty` and completely remove `secondary_ip_range` from config.  ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* container: made `advanced_datapath_observability_config.enable_relay` required in `google_container_cluster` ([#19060](https://github.com/hashicorp/terraform-provider-google/pull/19060))
+* container: removed deprecated field `advanced_datapath_observability_config.relay_mode` from `google_container_cluster` resource. Users are expected to use `enable_relay` field instead. ([#19060](https://github.com/hashicorp/terraform-provider-google/pull/19060))
+* container: three label-related fields are now in `google_container_cluster` resource. `resource_labels` field is non-authoritative and only manages the labels defined by the users on the resource through Terraform. The new output-only `terraform_labels` field merges the labels defined by the users on the resource through Terraform and the default labels configured on the provider. The new output-only `effective_labels` field lists all of labels present on the resource in GCP, including the labels configured through Terraform, the system, and other clients. ([#19062](https://github.com/hashicorp/terraform-provider-google/pull/19062))
+* container: made three fields `resource_labels`, `terraform_labels`, and `effective_labels` be present in `google_container_cluster` datasources. All three fields will have all of labels present on the resource in GCP including the labels configured through Terraform, the system, and other clients, equivalent to `effective_labels` on the resource. ([#19062](https://github.com/hashicorp/terraform-provider-google/pull/19062))
+* container: `guest_accelerator = []` is no longer valid configuration in `google_container_cluster` and `google_container_node_pool`. To explicitly set an empty list of objects, set guest_accelerator.count = 0. ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* container: `guest_accelerator.gpu_driver_installation_config = []` and `guest_accelerator.gpu_sharing_config = []` are no longer valid configuration in `google_container_cluster` and `google_container_node_pool`. Removing the fields from configuration should not produce a diff. ([#19207](https://github.com/hashicorp/terraform-provider-google/pull/19207))
+* datastore: removed `google_datastore_index` in favor of `google_firestore_index` ([#19160](https://github.com/hashicorp/terraform-provider-google/pull/19160))
+* edgenetwork: three label-related fields are now in `google_edgenetwork_network ` and `google_edgenetwork_subnet` resources. `labels` field is non-authoritative and only manages the labels defined by the users on the resource through Terraform. The new output-only `terraform_labels` field merges the labels defined by the users on the resource through Terraform and the default labels configured on the provider. The new output-only `effective_labels` field lists all of labels present on the resource in GCP, including the labels configured through Terraform, the system, and other clients. ([#19062](https://github.com/hashicorp/terraform-provider-google/pull/19062))
+* identityplatform: removed resource `google_identity_platform_project_default_config` in favor of `google_identity_platform_project_config` ([#18992](https://github.com/hashicorp/terraform-provider-google/pull/18992))
+* pubsub: allowed `schema_settings` in `google_pubsub_topic` to be removed ([#18631](https://github.com/hashicorp/terraform-provider-google/pull/18631))
+* integrations: removed `create_sample_workflows` and `provision_gmek` from `google_integrations_client` ([#19148](https://github.com/hashicorp/terraform-provider-google/pull/19148))
+* redis: added a `deletion_protection_enabled` field to the `google_redis_cluster` resource.  This field defaults to `true`, preventing accidental deletions. To delete the resource, you must first set `deletion_protection_enabled = false` before destroying the resource. ([#19173](https://github.com/hashicorp/terraform-provider-google/pull/19173))
+* resourcemanager: added `deletion_protection` field to `google_folder` to make deleting them require an explicit intent. Folder resources now cannot be destroyed unless `deletion_protection = false` is set for the resource. ([#19021](https://github.com/hashicorp/terraform-provider-google/pull/19021))
+* resourcemanager: made `deletion_policy` in `google_project` 'PREVENT' by default. This makes deleting them require an explicit intent. `google_project` resources cannot be destroyed unless `deletion_policy` is set to 'ABANDON' or 'DELETE' for the resource. ([#19114](https://github.com/hashicorp/terraform-provider-google/pull/19114))
+* sql: removed `settings.ip_configuration.require_ssl` in `google_sql_database_instance`. Please use `settings.ip_configuration.ssl_mode` instead. ([#18843](https://github.com/hashicorp/terraform-provider-google/pull/18843))
+* storage: removed `no_age` field from  `lifecycle_rule.condition` in the `google_storage_bucket` resource ([#19048](https://github.com/hashicorp/terraform-provider-google/pull/19048))
+* vpcaccess: removed default values for `min_throughput` and `min_instances` fields on `google_vpc_access_connector` and made them default to values returned from the API when not provided by users ([#18697](https://github.com/hashicorp/terraform-provider-google/pull/18697))
+* vpcaccess: added a conflicting fields restriction between `min_throughput` and `min_instances` fields on `google_vpc_access_connector` ([#18697](https://github.com/hashicorp/terraform-provider-google/pull/18697))
+* vpcaccess: added a conflicting fields restriction between `max_throughput` and `max_instances` fields on `google_vpc_access_connector` ([#18697](https://github.com/hashicorp/terraform-provider-google/pull/18697))
+* workstation: defaulted `host.gce_instance.disable_ssh` to true for `google_workstations_workstation_config` ([#19101](https://github.com/hashicorp/terraform-provider-google/pull/19101))
+IMPROVEMENTS:
+* compute: added fields `reserved_internal_range` and `secondary_ip_ranges[].reserved_internal_range` to `google_compute_subnetwork` resource ([#19151](https://github.com/hashicorp/terraform-provider-google/pull/19151))
+* compute: changed the behavior of `name_prefix` in multiple Compute resources to allow for a longer max length of 54 characters. See the upgrade guide and resource documentation for more details. ([#19152](https://github.com/hashicorp/terraform-provider-google/pull/19152))
+BUG FIXES:
+* compute: fixed an issue regarding sending `enabled` field by default for null `iap` message in `google_compute_backend_service` and `google_compute_region_backend_service` ([#18772](https://github.com/hashicorp/terraform-provider-google/pull/18772))
+
+## 5.43.0 (August 26, 2024)
+
+DEPRECATIONS:
+* storage: deprecated `lifecycle_rule.condition.no_age` field in `google_storage_bucket`. Use the new `lifecycle_rule.condition.send_age_if_zero` field instead. ([#19172](https://github.com/hashicorp/terraform-provider-google/pull/19172))
+
+FEATURES:
+* **New Resource:** `google_kms_ekm_connection_iam_binding` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_kms_ekm_connection_iam_member` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_kms_ekm_connection_iam_policy` ([#19132](https://github.com/hashicorp/terraform-provider-google/pull/19132))
+* **New Resource:** `google_scc_v2_organization_scc_big_query_exports` ([#19184](https://github.com/hashicorp/terraform-provider-google/pull/19184))
+
+IMPROVEMENTS:
+* compute: added `label_fingerprint` field to `google_compute_global_address` resource ([#19204](https://github.com/hashicorp/terraform-provider-google/pull/19204))
+* compute: exposed service side id as new output field `forwarding_rule_id` on resource `google_compute_forwarding_rule` ([#19139](https://github.com/hashicorp/terraform-provider-google/pull/19139))
+* container: added EXTENDED as a valid option for `release_channel` field in `google_container_cluster` resource ([#19141](https://github.com/hashicorp/terraform-provider-google/pull/19141))
+* logging: changed `enable_analytics` parsing to "no preference" in analytics if omitted, instead of explicitly disabling analytics in `google_logging_project_bucket_config` ([#19126](https://github.com/hashicorp/terraform-provider-google/pull/19126))
+* pusbub: added validation to `filter` field in resource `google_pubsub_subscription` ([#19131](https://github.com/hashicorp/terraform-provider-google/pull/19131))
+* resourcemanager: added `default_labels` field to `google_client_config` data source ([#19170](https://github.com/hashicorp/terraform-provider-google/pull/19170))
+* vmwareengine: added PC undelete support in `google_vmwareengine_private_cloud` ([#19192](https://github.com/hashicorp/terraform-provider-google/pull/19192))
+
+BUG FIXES:
+* alloydb: fixed a permadiff on `psc_instance_config` in `google_alloydb_instance` resource ([#19143](https://github.com/hashicorp/terraform-provider-google/pull/19143))
+* compute: fixed a malformed URL that affected updating the `server_tls_policy` property on `google_compute_target_https_proxy` resources ([#19164](https://github.com/hashicorp/terraform-provider-google/pull/19164))
+* compute: fixed bug where the `labels` field could not be updated on `google_compute_global_address` ([#19204](https://github.com/hashicorp/terraform-provider-google/pull/19204))
+* compute: fixed force diff replacement logic for `network_ip` on resource `google_compute_instance` ([#19135](https://github.com/hashicorp/terraform-provider-google/pull/19135))
 
 ## 5.42.0 (August 19, 2024)
 DEPRECATIONS:
