@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fix `google_compute_interconnect` to support correct `available_features` option of `IF_MACSEC`
+```
