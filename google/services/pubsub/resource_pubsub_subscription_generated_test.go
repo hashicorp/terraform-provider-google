@@ -483,6 +483,7 @@ resource "google_pubsub_subscription" "example" {
 
     max_bytes = 1000
     max_duration = "300s"
+    max_messages = 1000
   }
   depends_on = [
     google_storage_bucket.example,
@@ -551,9 +552,11 @@ resource "google_pubsub_subscription" "example" {
 
     max_bytes = 1000
     max_duration = "300s"
+    max_messages = 1000
 
     avro_config {
       write_metadata = true
+      use_topic_schema = true
     }
   }
   depends_on = [
