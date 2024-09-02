@@ -348,6 +348,7 @@ resource "google_pubsub_subscription" "example" {
 
     max_bytes = 1000
     max_duration = "300s"
+    max_messages = 1000
   }
   depends_on = [
     google_storage_bucket.example,
@@ -396,9 +397,11 @@ resource "google_pubsub_subscription" "example" {
 
     max_bytes = 1000
     max_duration = "300s"
+    max_messages = 1000
 
     avro_config {
       write_metadata = true
+      use_topic_schema = true
     }
   }
   depends_on = [
@@ -673,6 +676,10 @@ The following arguments are supported:
   The maximum bytes that can be written to a Cloud Storage file before a new file is created. Min 1 KB, max 10 GiB.
   The maxBytes limit may be exceeded in cases where messages are larger than the limit.
 
+* `max_messages` -
+  (Optional)
+  The maximum messages that can be written to a Cloud Storage file before a new file is created. Min 1000 messages.
+
 * `state` -
   (Output)
   An output-only field that indicates whether or not the subscription can receive messages.
@@ -694,6 +701,10 @@ The following arguments are supported:
 * `write_metadata` -
   (Optional)
   When true, write the subscription name, messageId, publishTime, attributes, and orderingKey as additional fields in the output.
+
+* `use_topic_schema` -
+  (Optional)
+  When true, the output Cloud Storage file will be serialized using the topic schema, if it exists.
 
 <a name="nested_push_config"></a>The `push_config` block supports:
 

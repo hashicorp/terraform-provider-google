@@ -203,6 +203,11 @@ If all three are empty, then the subscriber will pull and ack messages using API
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"use_topic_schema": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: `When true, the output Cloud Storage file will be serialized using the topic schema, if it exists.`,
+									},
 									"write_metadata": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -239,6 +244,11 @@ The maxBytes limit may be exceeded in cases where messages are larger than the l
 May not exceed the subscription's acknowledgement deadline.
 A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".`,
 							Default: "300s",
+						},
+						"max_messages": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `The maximum messages that can be written to a Cloud Storage file before a new file is created. Min 1000 messages.`,
 						},
 						"service_account_email": {
 							Type:     schema.TypeString,
@@ -1178,6 +1188,8 @@ func flattenPubsubSubscriptionCloudStorageConfig(v interface{}, d *schema.Resour
 		flattenPubsubSubscriptionCloudStorageConfigMaxDuration(original["maxDuration"], d, config)
 	transformed["max_bytes"] =
 		flattenPubsubSubscriptionCloudStorageConfigMaxBytes(original["maxBytes"], d, config)
+	transformed["max_messages"] =
+		flattenPubsubSubscriptionCloudStorageConfigMaxMessages(original["maxMessages"], d, config)
 	transformed["state"] =
 		flattenPubsubSubscriptionCloudStorageConfigState(original["state"], d, config)
 	transformed["avro_config"] =
@@ -1223,6 +1235,23 @@ func flattenPubsubSubscriptionCloudStorageConfigMaxBytes(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
+func flattenPubsubSubscriptionCloudStorageConfigMaxMessages(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenPubsubSubscriptionCloudStorageConfigState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1238,9 +1267,15 @@ func flattenPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d *sch
 	transformed := make(map[string]interface{})
 	transformed["write_metadata"] =
 		flattenPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(original["writeMetadata"], d, config)
+	transformed["use_topic_schema"] =
+		flattenPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(original["useTopicSchema"], d, config)
 	return []interface{}{transformed}
 }
 func flattenPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1599,6 +1634,13 @@ func expandPubsubSubscriptionCloudStorageConfig(v interface{}, d tpgresource.Ter
 		transformed["maxBytes"] = transformedMaxBytes
 	}
 
+	transformedMaxMessages, err := expandPubsubSubscriptionCloudStorageConfigMaxMessages(original["max_messages"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMaxMessages); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["maxMessages"] = transformedMaxMessages
+	}
+
 	transformedState, err := expandPubsubSubscriptionCloudStorageConfigState(original["state"], d, config)
 	if err != nil {
 		return nil, err
@@ -1647,6 +1689,10 @@ func expandPubsubSubscriptionCloudStorageConfigMaxBytes(v interface{}, d tpgreso
 	return v, nil
 }
 
+func expandPubsubSubscriptionCloudStorageConfigMaxMessages(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandPubsubSubscriptionCloudStorageConfigState(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1667,10 +1713,21 @@ func expandPubsubSubscriptionCloudStorageConfigAvroConfig(v interface{}, d tpgre
 		transformed["writeMetadata"] = transformedWriteMetadata
 	}
 
+	transformedUseTopicSchema, err := expandPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(original["use_topic_schema"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUseTopicSchema); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["useTopicSchema"] = transformedUseTopicSchema
+	}
+
 	return transformed, nil
 }
 
 func expandPubsubSubscriptionCloudStorageConfigAvroConfigWriteMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandPubsubSubscriptionCloudStorageConfigAvroConfigUseTopicSchema(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
