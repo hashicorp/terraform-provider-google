@@ -77,6 +77,17 @@ resource "google_redis_cluster" "cluster-ha" {
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -145,6 +156,17 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
   zone_distribution_config {
     mode = "SINGLE_ZONE"
     zone = "us-central1-f"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
   }
   deletion_protection_enabled = false
   depends_on = [

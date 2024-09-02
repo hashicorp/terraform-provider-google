@@ -56,6 +56,17 @@ resource "google_redis_cluster" "cluster-ha" {
   zone_distribution_config {
     mode = "MULTI_ZONE"
   }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
+  }
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]
@@ -103,6 +114,17 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
   zone_distribution_config {
     mode = "SINGLE_ZONE"
     zone = "us-central1-f"
+  }
+  maintenance_policy {
+    weekly_maintenance_window {
+      day = "MONDAY"
+      start_time {
+        hours = 1
+        minutes = 0
+        seconds = 0
+        nanos = 0
+      }
+    }
   }
   deletion_protection_enabled = true
   depends_on = [
@@ -208,6 +230,11 @@ The following arguments are supported:
   Please check Memorystore documentation for the list of supported parameters:
   https://cloud.google.com/memorystore/docs/cluster/supported-instance-configurations
 
+* `maintenance_policy` -
+  (Optional)
+  Maintenance policy for a cluster
+  Structure is [documented below](#nested_maintenance_policy).
+
 * `region` -
   (Optional)
   The name of the region of the Redis cluster.
@@ -227,6 +254,76 @@ The following arguments are supported:
 * `zone` -
   (Optional)
   Immutable. The zone for single zone Memorystore Redis cluster.
+
+<a name="nested_maintenance_policy"></a>The `maintenance_policy` block supports:
+
+* `create_time` -
+  (Output)
+  Output only. The time when the policy was created.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `update_time` -
+  (Output)
+  Output only. The time when the policy was last updated.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `weekly_maintenance_window` -
+  (Optional)
+  Optional. Maintenance window that is applied to resources covered by this policy.
+  Minimum 1. For the current version, the maximum number
+  of weekly_window is expected to be one.
+  Structure is [documented below](#nested_weekly_maintenance_window).
+
+
+<a name="nested_weekly_maintenance_window"></a>The `weekly_maintenance_window` block supports:
+
+* `day` -
+  (Required)
+  Required. The day of week that maintenance updates occur.
+  - DAY_OF_WEEK_UNSPECIFIED: The day of the week is unspecified.
+  - MONDAY: Monday
+  - TUESDAY: Tuesday
+  - WEDNESDAY: Wednesday
+  - THURSDAY: Thursday
+  - FRIDAY: Friday
+  - SATURDAY: Saturday
+  - SUNDAY: Sunday
+  Possible values are: `DAY_OF_WEEK_UNSPECIFIED`, `MONDAY`, `TUESDAY`, `WEDNESDAY`, `THURSDAY`, `FRIDAY`, `SATURDAY`, `SUNDAY`.
+
+* `duration` -
+  (Output)
+  Output only. Duration of the maintenance window.
+  The current window is fixed at 1 hour.
+  A duration in seconds with up to nine fractional digits,
+  terminated by 's'. Example: "3.5s".
+
+* `start_time` -
+  (Required)
+  Required. Start time of the window in UTC time.
+  Structure is [documented below](#nested_start_time).
+
+
+<a name="nested_start_time"></a>The `start_time` block supports:
+
+* `hours` -
+  (Optional)
+  Hours of day in 24 hour format. Should be from 0 to 23.
+  An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+
+* `minutes` -
+  (Optional)
+  Minutes of hour of day. Must be from 0 to 59.
+
+* `seconds` -
+  (Optional)
+  Seconds of minutes of the time. Must normally be from 0 to 59.
+  An API may allow the value 60 if it allows leap-seconds.
+
+* `nanos` -
+  (Optional)
+  Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
 
 ## Attributes Reference
 
@@ -264,6 +361,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `precise_size_gb` -
   Output only. Redis memory precise size in GB for the entire cluster.
+
+* `maintenance_schedule` -
+  Upcoming maintenance schedule.
+  Structure is [documented below](#nested_maintenance_schedule).
 
 
 <a name="nested_discovery_endpoints"></a>The `discovery_endpoints` block contains:
@@ -330,6 +431,27 @@ In addition to the arguments listed above, the following computed attributes are
 * `target_replica_count` -
   (Optional)
   Target number of replica nodes per shard.
+
+<a name="nested_maintenance_schedule"></a>The `maintenance_schedule` block contains:
+
+* `start_time` -
+  (Output)
+  Output only. The start time of any upcoming scheduled maintenance for this cluster.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `end_time` -
+  (Output)
+  Output only. The end time of any upcoming scheduled maintenance for this cluster.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
+
+* `schedule_deadline_time` -
+  (Output)
+  Output only. The deadline that the maintenance schedule start time
+  can not go beyond, including reschedule.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond
+  resolution and up to nine fractional digits.
 
 ## Timeouts
 
