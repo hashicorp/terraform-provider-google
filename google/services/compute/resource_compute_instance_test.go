@@ -2656,6 +2656,23 @@ func TestAccComputeInstance_subnetworkUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_subnetworkProjectMustMatchError(t *testing.T) {
+	t.Parallel()
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	suffix := fmt.Sprintf("%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstance_subnetworkProjectExpectError(suffix, instanceName),
+				ExpectError: regexp.MustCompile("must match subnetwork_project"),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_networkIpUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -7975,6 +7992,45 @@ func testAccComputeInstance_subnetworkUpdateTwo(suffix, instance string) string 
 		}
 	}
 `, suffix, suffix, suffix, suffix, instance)
+}
+
+func testAccComputeInstance_subnetworkProjectExpectError(suffix, instance string) string {
+	return fmt.Sprintf(`
+	data "google_compute_image" "my_image" {
+		family  = "debian-11"
+		project = "debian-cloud"
+	}
+
+	resource "google_compute_network" "inst-test-network" {
+		name = "tf-test-network-%s"
+		auto_create_subnetworks = false
+	}
+
+	resource "google_compute_subnetwork" "inst-test-subnetwork" {
+		name          = "tf-test-compute-subnet-%s"
+		ip_cidr_range = "10.0.0.0/16"
+		region        = "us-east1"
+		network       = google_compute_network.inst-test-network.id
+	}
+
+	resource "google_compute_instance" "foobar" {
+		name         = "%s"
+		machine_type = "e2-medium"
+		zone         = "us-east1-d"
+		allow_stopping_for_update = true
+
+		boot_disk {
+			initialize_params {
+				image = data.google_compute_image.my_image.id
+			}
+		}
+
+		network_interface {
+			subnetwork = google_compute_subnetwork.inst-test-subnetwork.id
+			subnetwork_project = "placeholder"
+		}
+	}
+`, suffix, suffix, instance)
 }
 
 func testAccComputeInstance_networkIpUpdate(suffix, instance string) string {

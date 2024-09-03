@@ -1,0 +1,3 @@
+```release-note:bug
+compute: validated that `network_interface.subnetwork_project` should match with the project in `network_interface. subnetwork` field when `network_interface.subnetwork` has full self_link in `google_compute_instance` resource
+```
