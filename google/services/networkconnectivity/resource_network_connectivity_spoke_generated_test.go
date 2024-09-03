@@ -83,6 +83,10 @@ resource "google_network_connectivity_spoke" "primary"  {
       "198.51.100.0/24",
       "10.10.0.0/16"
     ]
+    include_export_ranges = [
+      "198.51.100.0/23", 
+      "10.0.0.0/8"
+    ]
     uri = google_compute_network.network.self_link
   }
 }
