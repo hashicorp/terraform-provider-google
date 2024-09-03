@@ -309,3 +309,165 @@ func testAccCloudRunV2Job_cloudrunv2JobWithDirectVPCAndNamedBinAuthPolicyUpdate(
   }
 `, context)
 }
+
+func TestAccCloudRunV2Job_cloudrunv2JobWithGcsUpdate(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithGcsVolume(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    deletion_protection = false
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+        }
+      }
+    }
+
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithGcsVolume(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    deletion_protection = false
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+          volume_mounts {
+            name = "gcs"
+            mount_path = "/mnt/gcs"
+          }
+        }
+        volumes {
+          name = "gcs"
+          gcs {
+            bucket = "gcp-public-data-landsat"
+            read_only = true
+          }
+        }
+      }
+    }
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
+`, context)
+}
+
+func TestAccCloudRunV2Job_cloudrunv2JobWithNfsUpdate(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	jobName := fmt.Sprintf("tf-test-cloudrun-service%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"job_name": jobName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2JobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithNoVolume(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobWithNfsVolume(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobWithNfsVolume(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_cloud_run_v2_job" "default" {
+    name     = "%{job_name}"
+    location = "us-central1"
+    deletion_protection = false
+    template {
+      template {
+        containers {
+          image = "us-docker.pkg.dev/cloudrun/container/job"
+          volume_mounts {
+            name = "nfs"
+            mount_path = "/mnt/nfs"
+          }
+        }
+        volumes {
+          name = "nfs"
+          nfs {
+            server = "10.0.10.10"
+            path = "/"
+            read_only = true
+          }
+        }
+      }
+    }
+    lifecycle {
+      ignore_changes = [
+        launch_stage,
+      ]
+    }
+  }
+`, context)
+}

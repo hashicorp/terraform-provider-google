@@ -1,0 +1,6 @@
+```release-note:enhancement
+cloudrun: added support for nfs and csi volumes (for cloud storage fuse) for google_cloud_run_service (ga)
+```
+```release-note:enhancement
+cloudrunv2: added support for nfs and gcs volumes for google_cloud_run_v2_job (ga)
+```

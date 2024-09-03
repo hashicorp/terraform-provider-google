@@ -998,3 +998,110 @@ resource "google_cloud_run_service" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunService_csiVolume(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	project := envvar.GetTestProjectFromEnv()
+	name := "tftest-cloudrun-" + acctest.RandString(t, 6)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunService_cloudRunServiceWithNoVolume(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+			{
+				Config: testAccCloudRunService_cloudRunServiceUpdateWithGcsVolume(name, project),
+			},
+			{
+				ResourceName:            "google_cloud_run_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"metadata.0.resource_version", "metadata.0.annotations", "metadata.0.labels", "metadata.0.terraform_labels", "status.0.conditions"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunService_cloudRunServiceWithNoVolume(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+    annotations = {
+      generated-by = "magic-modules"
+    }
+  }
+
+  template {
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata.0.annotations,
+    ]
+  }
+}
+`, name, project)
+}
+
+func testAccCloudRunService_cloudRunServiceUpdateWithGcsVolume(name, project string) string {
+	return fmt.Sprintf(`
+resource "google_cloud_run_service" "default" {
+  name     = "%s"
+  location = "us-central1"
+
+  metadata {
+    namespace = "%s"
+    annotations = {
+      generated-by = "magic-modules"
+    }
+  }
+
+  template {
+    metadata {
+      annotations = {
+        "run.googleapis.com/execution-environment" = "gen2"
+      }
+    }
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        volume_mounts {
+          name = "vol1"
+          mount_path = "/mnt/vol1"
+        }
+      }
+      volumes {
+        name = "vol1"
+        csi {
+          driver = "gcsfuse.run.googleapis.com"
+          read_only = true
+          volume_attributes = {
+            bucketName = "gcp-public-data-landsat"
+          }
+        }
+      }
+    }
+  }
+
+}
+`, name, project)
+}
