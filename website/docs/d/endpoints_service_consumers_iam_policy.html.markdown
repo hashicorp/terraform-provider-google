@@ -26,6 +26,7 @@ Retrieves the current IAM policy data for serviceconsumers
 
 ```hcl
 data "google_endpoints_service_consumers_iam_policy" "policy" {
+
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
 }

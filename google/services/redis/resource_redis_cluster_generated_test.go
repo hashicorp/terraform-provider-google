@@ -72,7 +72,7 @@ resource "google_redis_cluster" "cluster-ha" {
   redis_configs = {
     maxmemory-policy	= "volatile-ttl"
   }
-  deletion_protection_enabled = false
+  deletion_protection_enabled = %{deletion_protection_enabled}
 
   zone_distribution_config {
     mode = "MULTI_ZONE"
@@ -168,7 +168,7 @@ resource "google_redis_cluster" "cluster-ha-single-zone" {
       }
     }
   }
-  deletion_protection_enabled = false
+  deletion_protection_enabled = %{deletion_protection_enabled}
   depends_on = [
     google_network_connectivity_service_connection_policy.default
   ]

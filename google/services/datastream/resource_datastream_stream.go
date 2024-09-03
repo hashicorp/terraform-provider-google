@@ -999,7 +999,6 @@ negative. If not set (or set to 0), the system's default value will be used.`,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ConflictsWith: []string{},
 									},
 									"exclude_objects": {
 										Type:        schema.TypeList,
@@ -1205,7 +1204,6 @@ https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?v
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{},
 										},
-										ConflictsWith: []string{},
 									},
 								},
 							},
