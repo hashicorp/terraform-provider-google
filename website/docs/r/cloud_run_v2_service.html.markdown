@@ -403,7 +403,7 @@ resource "google_cloud_run_v2_service" "default" {
 
   location     = "us-central1"
   deletion_protection = false
-  launch_stage = "BETA"
+
 
   template {
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
@@ -446,7 +446,6 @@ resource "google_cloud_run_v2_service" "default" {
   location     = "us-central1"
   deletion_protection = false
   ingress      = "INGRESS_TRAFFIC_ALL"
-  launch_stage = "BETA"
 
   template {
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
@@ -981,7 +980,7 @@ The following arguments are supported:
 
 * `gcs` -
   (Optional)
-  Cloud Storage bucket mounted as a volume using GCSFuse. This feature is only supported in the gen2 execution environment and requires launch-stage to be set to ALPHA or BETA.
+  Cloud Storage bucket mounted as a volume using GCSFuse. This feature is only supported in the gen2 execution environment.
   Structure is [documented below](#nested_gcs).
 
 * `nfs` -

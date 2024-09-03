@@ -251,6 +251,51 @@ A duration in seconds with up to nine fractional digits, ending with 's'. Exampl
 														},
 													},
 												},
+												"gcs": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `Cloud Storage bucket mounted as a volume using GCSFuse.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"bucket": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Name of the cloud storage bucket to back the volume. The resource service account must have permission to access the bucket.`,
+															},
+															"read_only": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `If true, mount this volume as read-only in all mounts. If false, mount this volume as read-write.`,
+															},
+														},
+													},
+												},
+												"nfs": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: `NFS share mounted as a volume.`,
+													MaxItems:    1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"server": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: `Hostname or IP address of the NFS server.`,
+															},
+															"path": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Path that is exported by the NFS server.`,
+															},
+															"read_only": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: `If true, mount this volume as read-only in all mounts.`,
+															},
+														},
+													},
+												},
 												"secret": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -1579,6 +1624,8 @@ func flattenCloudRunV2JobTemplateTemplateVolumes(v interface{}, d *schema.Resour
 			"name":               flattenCloudRunV2JobTemplateTemplateVolumesName(original["name"], d, config),
 			"secret":             flattenCloudRunV2JobTemplateTemplateVolumesSecret(original["secret"], d, config),
 			"cloud_sql_instance": flattenCloudRunV2JobTemplateTemplateVolumesCloudSqlInstance(original["cloudSqlInstance"], d, config),
+			"gcs":                flattenCloudRunV2JobTemplateTemplateVolumesGcs(original["gcs"], d, config),
+			"nfs":                flattenCloudRunV2JobTemplateTemplateVolumesNfs(original["nfs"], d, config),
 		})
 	}
 	return transformed
@@ -1684,6 +1731,58 @@ func flattenCloudRunV2JobTemplateTemplateVolumesCloudSqlInstance(v interface{}, 
 	return []interface{}{transformed}
 }
 func flattenCloudRunV2JobTemplateTemplateVolumesCloudSqlInstanceInstances(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateVolumesGcs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["bucket"] =
+		flattenCloudRunV2JobTemplateTemplateVolumesGcsBucket(original["bucket"], d, config)
+	transformed["read_only"] =
+		flattenCloudRunV2JobTemplateTemplateVolumesGcsReadOnly(original["readOnly"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2JobTemplateTemplateVolumesGcsBucket(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateVolumesGcsReadOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateVolumesNfs(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["server"] =
+		flattenCloudRunV2JobTemplateTemplateVolumesNfsServer(original["server"], d, config)
+	transformed["path"] =
+		flattenCloudRunV2JobTemplateTemplateVolumesNfsPath(original["path"], d, config)
+	transformed["read_only"] =
+		flattenCloudRunV2JobTemplateTemplateVolumesNfsReadOnly(original["readOnly"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2JobTemplateTemplateVolumesNfsServer(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateVolumesNfsPath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCloudRunV2JobTemplateTemplateVolumesNfsReadOnly(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2507,6 +2606,20 @@ func expandCloudRunV2JobTemplateTemplateVolumes(v interface{}, d tpgresource.Ter
 			transformed["cloudSqlInstance"] = transformedCloudSqlInstance
 		}
 
+		transformedGcs, err := expandCloudRunV2JobTemplateTemplateVolumesGcs(original["gcs"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedGcs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["gcs"] = transformedGcs
+		}
+
+		transformedNfs, err := expandCloudRunV2JobTemplateTemplateVolumesNfs(original["nfs"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedNfs); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["nfs"] = transformedNfs
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2625,6 +2738,85 @@ func expandCloudRunV2JobTemplateTemplateVolumesCloudSqlInstance(v interface{}, d
 }
 
 func expandCloudRunV2JobTemplateTemplateVolumesCloudSqlInstanceInstances(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesGcs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedBucket, err := expandCloudRunV2JobTemplateTemplateVolumesGcsBucket(original["bucket"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedBucket); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["bucket"] = transformedBucket
+	}
+
+	transformedReadOnly, err := expandCloudRunV2JobTemplateTemplateVolumesGcsReadOnly(original["read_only"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReadOnly); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["readOnly"] = transformedReadOnly
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesGcsBucket(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesGcsReadOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesNfs(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedServer, err := expandCloudRunV2JobTemplateTemplateVolumesNfsServer(original["server"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServer); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["server"] = transformedServer
+	}
+
+	transformedPath, err := expandCloudRunV2JobTemplateTemplateVolumesNfsPath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	transformedReadOnly, err := expandCloudRunV2JobTemplateTemplateVolumesNfsReadOnly(original["read_only"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedReadOnly); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["readOnly"] = transformedReadOnly
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesNfsServer(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesNfsPath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2JobTemplateTemplateVolumesNfsReadOnly(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
