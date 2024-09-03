@@ -63,6 +63,10 @@ resource "google_network_connectivity_spoke" "primary"  {
       "198.51.100.0/24",
       "10.10.0.0/16"
     ]
+    include_export_ranges = [
+      "198.51.100.0/23", 
+      "10.0.0.0/8"
+    ]
     uri = google_compute_network.network.self_link
   }
 }
@@ -241,6 +245,10 @@ The following arguments are supported:
 * `exclude_export_ranges` -
   (Optional)
   IP ranges encompassing the subnets to be excluded from peering.
+
+* `include_export_ranges` -
+  (Optional)
+  IP ranges allowed to be included from peering.
 
 ## Attributes Reference
 
