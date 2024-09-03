@@ -34,7 +34,7 @@ import (
 )
 
 // Custom function to wait for mirrorState target states
-func NetAppVolumeReplicationWaitForMirror(d *schema.ResourceData, meta interface{}, targetState string) error {
+func NetappVolumeReplicationWaitForMirror(d *schema.ResourceData, meta interface{}, targetState string) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -429,7 +429,7 @@ func resourceNetappVolumeReplicationCreate(d *schema.ResourceData, meta interfac
 
 	if d.Get("wait_for_mirror").(bool) == true {
 		// Wait for mirrorState=MIRRORED before treating the resource as created
-		err = NetAppVolumeReplicationWaitForMirror(d, meta, "MIRRORED")
+		err = NetappVolumeReplicationWaitForMirror(d, meta, "MIRRORED")
 		if err != nil {
 			return fmt.Errorf("Error waiting for volume replication to reach mirror_state==MIRRORED: %s", err)
 		}
@@ -737,7 +737,7 @@ func resourceNetappVolumeReplicationUpdate(d *schema.ResourceData, meta interfac
 
 		// If user specified to wait for mirror operations, wait to reach target state
 		if d.Get("wait_for_mirror").(bool) == true {
-			err = NetAppVolumeReplicationWaitForMirror(d, meta, targetState)
+			err = NetappVolumeReplicationWaitForMirror(d, meta, targetState)
 			if err != nil {
 				return fmt.Errorf("Error waiting for volume replication to reach mirror_state==%s: %s", targetState, err)
 			}

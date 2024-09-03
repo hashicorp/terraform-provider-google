@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccNetappbackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
+func TestAccNetappBackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -40,10 +40,10 @@ func TestAccNetappbackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetappbackupPolicyDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetappBackupPolicyDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetappbackupPolicy_netappBackupPolicyFullExample(context),
+				Config: testAccNetappBackupPolicy_netappBackupPolicyFullExample(context),
 			},
 			{
 				ResourceName:            "google_netapp_backup_policy.test_backup_policy_full",
@@ -55,7 +55,7 @@ func TestAccNetappbackupPolicy_netappBackupPolicyFullExample(t *testing.T) {
 	})
 }
 
-func testAccNetappbackupPolicy_netappBackupPolicyFullExample(context map[string]interface{}) string {
+func testAccNetappBackupPolicy_netappBackupPolicyFullExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_backup_policy" "test_backup_policy_full" {
   name          = "tf-test-test-backup-policy-full%{random_suffix}"
@@ -72,7 +72,7 @@ resource "google_netapp_backup_policy" "test_backup_policy_full" {
 `, context)
 }
 
-func testAccCheckNetappbackupPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckNetappBackupPolicyDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_netapp_backup_policy" {
@@ -103,7 +103,7 @@ func testAccCheckNetappbackupPolicyDestroyProducer(t *testing.T) func(s *terrafo
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("NetappbackupPolicy still exists at %s", url)
+				return fmt.Errorf("NetappBackupPolicy still exists at %s", url)
 			}
 		}
 

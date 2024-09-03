@@ -22,7 +22,7 @@ description: |-
 ActiveDirectory is the public representation of the active directory config.
 
 
-To get more information about activeDirectory, see:
+To get more information about ActiveDirectory, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.activeDirectories)
 * How-to Guides
@@ -204,14 +204,14 @@ This resource provides the following
 ## Import
 
 
-activeDirectory can be imported using any of these accepted formats:
+ActiveDirectory can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}`
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import activeDirectory using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ActiveDirectory using one of the formats above. For example:
 
 ```tf
 import {
@@ -220,7 +220,7 @@ import {
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), activeDirectory can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ActiveDirectory can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_netapp_active_directory.default projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}

@@ -32,15 +32,15 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func ResourceNetappactiveDirectory() *schema.Resource {
+func ResourceNetappActiveDirectory() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetappactiveDirectoryCreate,
-		Read:   resourceNetappactiveDirectoryRead,
-		Update: resourceNetappactiveDirectoryUpdate,
-		Delete: resourceNetappactiveDirectoryDelete,
+		Create: resourceNetappActiveDirectoryCreate,
+		Read:   resourceNetappActiveDirectoryRead,
+		Update: resourceNetappActiveDirectoryUpdate,
+		Delete: resourceNetappActiveDirectoryDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceNetappactiveDirectoryImport,
+			State: resourceNetappActiveDirectoryImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -218,7 +218,7 @@ Use when Active Directory domain controllers in multiple regions are configured.
 	}
 }
 
-func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappActiveDirectoryCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -226,109 +226,109 @@ func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{
 	}
 
 	obj := make(map[string]interface{})
-	domainProp, err := expandNetappactiveDirectoryDomain(d.Get("domain"), d, config)
+	domainProp, err := expandNetappActiveDirectoryDomain(d.Get("domain"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("domain"); !tpgresource.IsEmptyValue(reflect.ValueOf(domainProp)) && (ok || !reflect.DeepEqual(v, domainProp)) {
 		obj["domain"] = domainProp
 	}
-	siteProp, err := expandNetappactiveDirectorySite(d.Get("site"), d, config)
+	siteProp, err := expandNetappActiveDirectorySite(d.Get("site"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("site"); !tpgresource.IsEmptyValue(reflect.ValueOf(siteProp)) && (ok || !reflect.DeepEqual(v, siteProp)) {
 		obj["site"] = siteProp
 	}
-	dnsProp, err := expandNetappactiveDirectoryDns(d.Get("dns"), d, config)
+	dnsProp, err := expandNetappActiveDirectoryDns(d.Get("dns"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dns"); !tpgresource.IsEmptyValue(reflect.ValueOf(dnsProp)) && (ok || !reflect.DeepEqual(v, dnsProp)) {
 		obj["dns"] = dnsProp
 	}
-	netBiosPrefixProp, err := expandNetappactiveDirectoryNetBiosPrefix(d.Get("net_bios_prefix"), d, config)
+	netBiosPrefixProp, err := expandNetappActiveDirectoryNetBiosPrefix(d.Get("net_bios_prefix"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("net_bios_prefix"); !tpgresource.IsEmptyValue(reflect.ValueOf(netBiosPrefixProp)) && (ok || !reflect.DeepEqual(v, netBiosPrefixProp)) {
 		obj["netBiosPrefix"] = netBiosPrefixProp
 	}
-	organizationalUnitProp, err := expandNetappactiveDirectoryOrganizationalUnit(d.Get("organizational_unit"), d, config)
+	organizationalUnitProp, err := expandNetappActiveDirectoryOrganizationalUnit(d.Get("organizational_unit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("organizational_unit"); !tpgresource.IsEmptyValue(reflect.ValueOf(organizationalUnitProp)) && (ok || !reflect.DeepEqual(v, organizationalUnitProp)) {
 		obj["organizationalUnit"] = organizationalUnitProp
 	}
-	aesEncryptionProp, err := expandNetappactiveDirectoryAesEncryption(d.Get("aes_encryption"), d, config)
+	aesEncryptionProp, err := expandNetappActiveDirectoryAesEncryption(d.Get("aes_encryption"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("aes_encryption"); !tpgresource.IsEmptyValue(reflect.ValueOf(aesEncryptionProp)) && (ok || !reflect.DeepEqual(v, aesEncryptionProp)) {
 		obj["aesEncryption"] = aesEncryptionProp
 	}
-	usernameProp, err := expandNetappactiveDirectoryUsername(d.Get("username"), d, config)
+	usernameProp, err := expandNetappActiveDirectoryUsername(d.Get("username"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("username"); !tpgresource.IsEmptyValue(reflect.ValueOf(usernameProp)) && (ok || !reflect.DeepEqual(v, usernameProp)) {
 		obj["username"] = usernameProp
 	}
-	passwordProp, err := expandNetappactiveDirectoryPassword(d.Get("password"), d, config)
+	passwordProp, err := expandNetappActiveDirectoryPassword(d.Get("password"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("password"); !tpgresource.IsEmptyValue(reflect.ValueOf(passwordProp)) && (ok || !reflect.DeepEqual(v, passwordProp)) {
 		obj["password"] = passwordProp
 	}
-	backupOperatorsProp, err := expandNetappactiveDirectoryBackupOperators(d.Get("backup_operators"), d, config)
+	backupOperatorsProp, err := expandNetappActiveDirectoryBackupOperators(d.Get("backup_operators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backup_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupOperatorsProp)) && (ok || !reflect.DeepEqual(v, backupOperatorsProp)) {
 		obj["backupOperators"] = backupOperatorsProp
 	}
-	administratorsProp, err := expandNetappactiveDirectoryAdministrators(d.Get("administrators"), d, config)
+	administratorsProp, err := expandNetappActiveDirectoryAdministrators(d.Get("administrators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("administrators"); !tpgresource.IsEmptyValue(reflect.ValueOf(administratorsProp)) && (ok || !reflect.DeepEqual(v, administratorsProp)) {
 		obj["administrators"] = administratorsProp
 	}
-	securityOperatorsProp, err := expandNetappactiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
+	securityOperatorsProp, err := expandNetappActiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("security_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(securityOperatorsProp)) && (ok || !reflect.DeepEqual(v, securityOperatorsProp)) {
 		obj["securityOperators"] = securityOperatorsProp
 	}
-	kdcHostnameProp, err := expandNetappactiveDirectoryKdcHostname(d.Get("kdc_hostname"), d, config)
+	kdcHostnameProp, err := expandNetappActiveDirectoryKdcHostname(d.Get("kdc_hostname"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kdc_hostname"); !tpgresource.IsEmptyValue(reflect.ValueOf(kdcHostnameProp)) && (ok || !reflect.DeepEqual(v, kdcHostnameProp)) {
 		obj["kdcHostname"] = kdcHostnameProp
 	}
-	kdcIpProp, err := expandNetappactiveDirectoryKdcIp(d.Get("kdc_ip"), d, config)
+	kdcIpProp, err := expandNetappActiveDirectoryKdcIp(d.Get("kdc_ip"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kdc_ip"); !tpgresource.IsEmptyValue(reflect.ValueOf(kdcIpProp)) && (ok || !reflect.DeepEqual(v, kdcIpProp)) {
 		obj["kdcIp"] = kdcIpProp
 	}
-	nfsUsersWithLdapProp, err := expandNetappactiveDirectoryNfsUsersWithLdap(d.Get("nfs_users_with_ldap"), d, config)
+	nfsUsersWithLdapProp, err := expandNetappActiveDirectoryNfsUsersWithLdap(d.Get("nfs_users_with_ldap"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("nfs_users_with_ldap"); !tpgresource.IsEmptyValue(reflect.ValueOf(nfsUsersWithLdapProp)) && (ok || !reflect.DeepEqual(v, nfsUsersWithLdapProp)) {
 		obj["nfsUsersWithLdap"] = nfsUsersWithLdapProp
 	}
-	descriptionProp, err := expandNetappactiveDirectoryDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetappActiveDirectoryDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	ldapSigningProp, err := expandNetappactiveDirectoryLdapSigning(d.Get("ldap_signing"), d, config)
+	ldapSigningProp, err := expandNetappActiveDirectoryLdapSigning(d.Get("ldap_signing"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ldap_signing"); !tpgresource.IsEmptyValue(reflect.ValueOf(ldapSigningProp)) && (ok || !reflect.DeepEqual(v, ldapSigningProp)) {
 		obj["ldapSigning"] = ldapSigningProp
 	}
-	encryptDcConnectionsProp, err := expandNetappactiveDirectoryEncryptDcConnections(d.Get("encrypt_dc_connections"), d, config)
+	encryptDcConnectionsProp, err := expandNetappActiveDirectoryEncryptDcConnections(d.Get("encrypt_dc_connections"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("encrypt_dc_connections"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptDcConnectionsProp)) && (ok || !reflect.DeepEqual(v, encryptDcConnectionsProp)) {
 		obj["encryptDcConnections"] = encryptDcConnectionsProp
 	}
-	labelsProp, err := expandNetappactiveDirectoryEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetappActiveDirectoryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
@@ -340,12 +340,12 @@ func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new activeDirectory: %#v", obj)
+	log.Printf("[DEBUG] Creating new ActiveDirectory: %#v", obj)
 	billingProject := ""
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for activeDirectory: %s", err)
+		return fmt.Errorf("Error fetching project for ActiveDirectory: %s", err)
 	}
 	billingProject = project
 
@@ -366,7 +366,7 @@ func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating activeDirectory: %s", err)
+		return fmt.Errorf("Error creating ActiveDirectory: %s", err)
 	}
 
 	// Store the ID now
@@ -377,21 +377,21 @@ func resourceNetappactiveDirectoryCreate(d *schema.ResourceData, meta interface{
 	d.SetId(id)
 
 	err = NetappOperationWaitTime(
-		config, res, project, "Creating activeDirectory", userAgent,
+		config, res, project, "Creating ActiveDirectory", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create activeDirectory: %s", err)
+		return fmt.Errorf("Error waiting to create ActiveDirectory: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating activeDirectory %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating ActiveDirectory %q: %#v", d.Id(), res)
 
-	return resourceNetappactiveDirectoryRead(d, meta)
+	return resourceNetappActiveDirectoryRead(d, meta)
 }
 
-func resourceNetappactiveDirectoryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappActiveDirectoryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -407,7 +407,7 @@ func resourceNetappactiveDirectoryRead(d *schema.ResourceData, meta interface{})
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for activeDirectory: %s", err)
+		return fmt.Errorf("Error fetching project for ActiveDirectory: %s", err)
 	}
 	billingProject = project
 
@@ -426,84 +426,84 @@ func resourceNetappactiveDirectoryRead(d *schema.ResourceData, meta interface{})
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappactiveDirectory %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappActiveDirectory %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetappactiveDirectoryCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("create_time", flattenNetappActiveDirectoryCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("state", flattenNetappactiveDirectoryState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("state", flattenNetappActiveDirectoryState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("domain", flattenNetappactiveDirectoryDomain(res["domain"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("domain", flattenNetappActiveDirectoryDomain(res["domain"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("site", flattenNetappactiveDirectorySite(res["site"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("site", flattenNetappActiveDirectorySite(res["site"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("dns", flattenNetappactiveDirectoryDns(res["dns"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("dns", flattenNetappActiveDirectoryDns(res["dns"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("net_bios_prefix", flattenNetappactiveDirectoryNetBiosPrefix(res["netBiosPrefix"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("net_bios_prefix", flattenNetappActiveDirectoryNetBiosPrefix(res["netBiosPrefix"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("organizational_unit", flattenNetappactiveDirectoryOrganizationalUnit(res["organizationalUnit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("organizational_unit", flattenNetappActiveDirectoryOrganizationalUnit(res["organizationalUnit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("aes_encryption", flattenNetappactiveDirectoryAesEncryption(res["aesEncryption"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("aes_encryption", flattenNetappActiveDirectoryAesEncryption(res["aesEncryption"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("username", flattenNetappactiveDirectoryUsername(res["username"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("username", flattenNetappActiveDirectoryUsername(res["username"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("backup_operators", flattenNetappactiveDirectoryBackupOperators(res["backupOperators"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("backup_operators", flattenNetappActiveDirectoryBackupOperators(res["backupOperators"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("administrators", flattenNetappactiveDirectoryAdministrators(res["administrators"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("administrators", flattenNetappActiveDirectoryAdministrators(res["administrators"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("security_operators", flattenNetappactiveDirectorySecurityOperators(res["securityOperators"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("security_operators", flattenNetappActiveDirectorySecurityOperators(res["securityOperators"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("kdc_hostname", flattenNetappactiveDirectoryKdcHostname(res["kdcHostname"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("kdc_hostname", flattenNetappActiveDirectoryKdcHostname(res["kdcHostname"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("kdc_ip", flattenNetappactiveDirectoryKdcIp(res["kdcIp"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("kdc_ip", flattenNetappActiveDirectoryKdcIp(res["kdcIp"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("nfs_users_with_ldap", flattenNetappactiveDirectoryNfsUsersWithLdap(res["nfsUsersWithLdap"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("nfs_users_with_ldap", flattenNetappActiveDirectoryNfsUsersWithLdap(res["nfsUsersWithLdap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("description", flattenNetappactiveDirectoryDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("description", flattenNetappActiveDirectoryDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("ldap_signing", flattenNetappactiveDirectoryLdapSigning(res["ldapSigning"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("ldap_signing", flattenNetappActiveDirectoryLdapSigning(res["ldapSigning"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("encrypt_dc_connections", flattenNetappactiveDirectoryEncryptDcConnections(res["encryptDcConnections"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("encrypt_dc_connections", flattenNetappActiveDirectoryEncryptDcConnections(res["encryptDcConnections"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("labels", flattenNetappactiveDirectoryLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("labels", flattenNetappActiveDirectoryLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("state_details", flattenNetappactiveDirectoryStateDetails(res["stateDetails"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("state_details", flattenNetappActiveDirectoryStateDetails(res["stateDetails"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("terraform_labels", flattenNetappactiveDirectoryTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("terraform_labels", flattenNetappActiveDirectoryTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
-	if err := d.Set("effective_labels", flattenNetappactiveDirectoryEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading activeDirectory: %s", err)
+	if err := d.Set("effective_labels", flattenNetappActiveDirectoryEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ActiveDirectory: %s", err)
 	}
 
 	return nil
 }
 
-func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappActiveDirectoryUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -514,114 +514,114 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for activeDirectory: %s", err)
+		return fmt.Errorf("Error fetching project for ActiveDirectory: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	domainProp, err := expandNetappactiveDirectoryDomain(d.Get("domain"), d, config)
+	domainProp, err := expandNetappActiveDirectoryDomain(d.Get("domain"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("domain"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, domainProp)) {
 		obj["domain"] = domainProp
 	}
-	siteProp, err := expandNetappactiveDirectorySite(d.Get("site"), d, config)
+	siteProp, err := expandNetappActiveDirectorySite(d.Get("site"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("site"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, siteProp)) {
 		obj["site"] = siteProp
 	}
-	dnsProp, err := expandNetappactiveDirectoryDns(d.Get("dns"), d, config)
+	dnsProp, err := expandNetappActiveDirectoryDns(d.Get("dns"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dns"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dnsProp)) {
 		obj["dns"] = dnsProp
 	}
-	netBiosPrefixProp, err := expandNetappactiveDirectoryNetBiosPrefix(d.Get("net_bios_prefix"), d, config)
+	netBiosPrefixProp, err := expandNetappActiveDirectoryNetBiosPrefix(d.Get("net_bios_prefix"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("net_bios_prefix"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, netBiosPrefixProp)) {
 		obj["netBiosPrefix"] = netBiosPrefixProp
 	}
-	organizationalUnitProp, err := expandNetappactiveDirectoryOrganizationalUnit(d.Get("organizational_unit"), d, config)
+	organizationalUnitProp, err := expandNetappActiveDirectoryOrganizationalUnit(d.Get("organizational_unit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("organizational_unit"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, organizationalUnitProp)) {
 		obj["organizationalUnit"] = organizationalUnitProp
 	}
-	aesEncryptionProp, err := expandNetappactiveDirectoryAesEncryption(d.Get("aes_encryption"), d, config)
+	aesEncryptionProp, err := expandNetappActiveDirectoryAesEncryption(d.Get("aes_encryption"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("aes_encryption"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, aesEncryptionProp)) {
 		obj["aesEncryption"] = aesEncryptionProp
 	}
-	usernameProp, err := expandNetappactiveDirectoryUsername(d.Get("username"), d, config)
+	usernameProp, err := expandNetappActiveDirectoryUsername(d.Get("username"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("username"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, usernameProp)) {
 		obj["username"] = usernameProp
 	}
-	passwordProp, err := expandNetappactiveDirectoryPassword(d.Get("password"), d, config)
+	passwordProp, err := expandNetappActiveDirectoryPassword(d.Get("password"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("password"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, passwordProp)) {
 		obj["password"] = passwordProp
 	}
-	backupOperatorsProp, err := expandNetappactiveDirectoryBackupOperators(d.Get("backup_operators"), d, config)
+	backupOperatorsProp, err := expandNetappActiveDirectoryBackupOperators(d.Get("backup_operators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("backup_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupOperatorsProp)) {
 		obj["backupOperators"] = backupOperatorsProp
 	}
-	administratorsProp, err := expandNetappactiveDirectoryAdministrators(d.Get("administrators"), d, config)
+	administratorsProp, err := expandNetappActiveDirectoryAdministrators(d.Get("administrators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("administrators"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, administratorsProp)) {
 		obj["administrators"] = administratorsProp
 	}
-	securityOperatorsProp, err := expandNetappactiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
+	securityOperatorsProp, err := expandNetappActiveDirectorySecurityOperators(d.Get("security_operators"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("security_operators"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityOperatorsProp)) {
 		obj["securityOperators"] = securityOperatorsProp
 	}
-	kdcHostnameProp, err := expandNetappactiveDirectoryKdcHostname(d.Get("kdc_hostname"), d, config)
+	kdcHostnameProp, err := expandNetappActiveDirectoryKdcHostname(d.Get("kdc_hostname"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kdc_hostname"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kdcHostnameProp)) {
 		obj["kdcHostname"] = kdcHostnameProp
 	}
-	kdcIpProp, err := expandNetappactiveDirectoryKdcIp(d.Get("kdc_ip"), d, config)
+	kdcIpProp, err := expandNetappActiveDirectoryKdcIp(d.Get("kdc_ip"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("kdc_ip"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, kdcIpProp)) {
 		obj["kdcIp"] = kdcIpProp
 	}
-	nfsUsersWithLdapProp, err := expandNetappactiveDirectoryNfsUsersWithLdap(d.Get("nfs_users_with_ldap"), d, config)
+	nfsUsersWithLdapProp, err := expandNetappActiveDirectoryNfsUsersWithLdap(d.Get("nfs_users_with_ldap"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("nfs_users_with_ldap"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nfsUsersWithLdapProp)) {
 		obj["nfsUsersWithLdap"] = nfsUsersWithLdapProp
 	}
-	descriptionProp, err := expandNetappactiveDirectoryDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetappActiveDirectoryDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	ldapSigningProp, err := expandNetappactiveDirectoryLdapSigning(d.Get("ldap_signing"), d, config)
+	ldapSigningProp, err := expandNetappActiveDirectoryLdapSigning(d.Get("ldap_signing"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("ldap_signing"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, ldapSigningProp)) {
 		obj["ldapSigning"] = ldapSigningProp
 	}
-	encryptDcConnectionsProp, err := expandNetappactiveDirectoryEncryptDcConnections(d.Get("encrypt_dc_connections"), d, config)
+	encryptDcConnectionsProp, err := expandNetappActiveDirectoryEncryptDcConnections(d.Get("encrypt_dc_connections"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("encrypt_dc_connections"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptDcConnectionsProp)) {
 		obj["encryptDcConnections"] = encryptDcConnectionsProp
 	}
-	labelsProp, err := expandNetappactiveDirectoryEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetappActiveDirectoryEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
@@ -633,7 +633,7 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	log.Printf("[DEBUG] Updating activeDirectory %q: %#v", d.Id(), obj)
+	log.Printf("[DEBUG] Updating ActiveDirectory %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
 
@@ -734,13 +734,13 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error updating activeDirectory %q: %s", d.Id(), err)
+			return fmt.Errorf("Error updating ActiveDirectory %q: %s", d.Id(), err)
 		} else {
-			log.Printf("[DEBUG] Finished updating activeDirectory %q: %#v", d.Id(), res)
+			log.Printf("[DEBUG] Finished updating ActiveDirectory %q: %#v", d.Id(), res)
 		}
 
 		err = NetappOperationWaitTime(
-			config, res, project, "Updating activeDirectory", userAgent,
+			config, res, project, "Updating ActiveDirectory", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -748,10 +748,10 @@ func resourceNetappactiveDirectoryUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	return resourceNetappactiveDirectoryRead(d, meta)
+	return resourceNetappActiveDirectoryRead(d, meta)
 }
 
-func resourceNetappactiveDirectoryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappActiveDirectoryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -762,7 +762,7 @@ func resourceNetappactiveDirectoryDelete(d *schema.ResourceData, meta interface{
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for activeDirectory: %s", err)
+		return fmt.Errorf("Error fetching project for ActiveDirectory: %s", err)
 	}
 	billingProject = project
 
@@ -780,7 +780,7 @@ func resourceNetappactiveDirectoryDelete(d *schema.ResourceData, meta interface{
 
 	headers := make(http.Header)
 
-	log.Printf("[DEBUG] Deleting activeDirectory %q", d.Id())
+	log.Printf("[DEBUG] Deleting ActiveDirectory %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -792,22 +792,22 @@ func resourceNetappactiveDirectoryDelete(d *schema.ResourceData, meta interface{
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "activeDirectory")
+		return transport_tpg.HandleNotFoundError(err, d, "ActiveDirectory")
 	}
 
 	err = NetappOperationWaitTime(
-		config, res, project, "Deleting activeDirectory", userAgent,
+		config, res, project, "Deleting ActiveDirectory", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting activeDirectory %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting ActiveDirectory %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceNetappactiveDirectoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNetappActiveDirectoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
 		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/activeDirectories/(?P<name>[^/]+)$",
@@ -827,79 +827,79 @@ func resourceNetappactiveDirectoryImport(d *schema.ResourceData, meta interface{
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNetappactiveDirectoryCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryDomain(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectorySite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectorySite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryDns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryDns(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryNetBiosPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryNetBiosPrefix(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryOrganizationalUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryOrganizationalUnit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryAesEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryAesEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryUsername(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryBackupOperators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryBackupOperators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryAdministrators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryAdministrators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectorySecurityOperators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectorySecurityOperators(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryKdcHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryKdcHostname(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryKdcIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryKdcIp(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryNfsUsersWithLdap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryNfsUsersWithLdap(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryLdapSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryLdapSigning(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryEncryptDcConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryEncryptDcConnections(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -914,11 +914,11 @@ func flattenNetappactiveDirectoryLabels(v interface{}, d *schema.ResourceData, c
 	return transformed
 }
 
-func flattenNetappactiveDirectoryStateDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryStateDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappactiveDirectoryTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -933,79 +933,79 @@ func flattenNetappactiveDirectoryTerraformLabels(v interface{}, d *schema.Resour
 	return transformed
 }
 
-func flattenNetappactiveDirectoryEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappActiveDirectoryEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNetappactiveDirectoryDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryDomain(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectorySite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectorySite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryDns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryDns(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryNetBiosPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryNetBiosPrefix(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryOrganizationalUnit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryOrganizationalUnit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryAesEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryAesEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryUsername(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryPassword(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryBackupOperators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryBackupOperators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryAdministrators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryAdministrators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectorySecurityOperators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectorySecurityOperators(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryKdcHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryKdcHostname(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryKdcIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryKdcIp(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryNfsUsersWithLdap(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryNfsUsersWithLdap(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryLdapSigning(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryLdapSigning(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryEncryptDcConnections(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappActiveDirectoryEncryptDcConnections(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappactiveDirectoryEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetappActiveDirectoryEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

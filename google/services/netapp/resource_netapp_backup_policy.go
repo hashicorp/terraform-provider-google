@@ -32,15 +32,15 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func ResourceNetappbackupPolicy() *schema.Resource {
+func ResourceNetappBackupPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetappbackupPolicyCreate,
-		Read:   resourceNetappbackupPolicyRead,
-		Update: resourceNetappbackupPolicyUpdate,
-		Delete: resourceNetappbackupPolicyDelete,
+		Create: resourceNetappBackupPolicyCreate,
+		Read:   resourceNetappBackupPolicyRead,
+		Update: resourceNetappBackupPolicyUpdate,
+		Delete: resourceNetappBackupPolicyDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceNetappbackupPolicyImport,
+			State: resourceNetappBackupPolicyImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -143,7 +143,7 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 	}
 }
 
-func resourceNetappbackupPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappBackupPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -151,37 +151,37 @@ func resourceNetappbackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	obj := make(map[string]interface{})
-	dailyBackupLimitProp, err := expandNetappbackupPolicyDailyBackupLimit(d.Get("daily_backup_limit"), d, config)
+	dailyBackupLimitProp, err := expandNetappBackupPolicyDailyBackupLimit(d.Get("daily_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("daily_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(dailyBackupLimitProp)) && (ok || !reflect.DeepEqual(v, dailyBackupLimitProp)) {
 		obj["dailyBackupLimit"] = dailyBackupLimitProp
 	}
-	weeklyBackupLimitProp, err := expandNetappbackupPolicyWeeklyBackupLimit(d.Get("weekly_backup_limit"), d, config)
+	weeklyBackupLimitProp, err := expandNetappBackupPolicyWeeklyBackupLimit(d.Get("weekly_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("weekly_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(weeklyBackupLimitProp)) && (ok || !reflect.DeepEqual(v, weeklyBackupLimitProp)) {
 		obj["weeklyBackupLimit"] = weeklyBackupLimitProp
 	}
-	monthlyBackupLimitProp, err := expandNetappbackupPolicyMonthlyBackupLimit(d.Get("monthly_backup_limit"), d, config)
+	monthlyBackupLimitProp, err := expandNetappBackupPolicyMonthlyBackupLimit(d.Get("monthly_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("monthly_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(monthlyBackupLimitProp)) && (ok || !reflect.DeepEqual(v, monthlyBackupLimitProp)) {
 		obj["monthlyBackupLimit"] = monthlyBackupLimitProp
 	}
-	descriptionProp, err := expandNetappbackupPolicyDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetappBackupPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	enabledProp, err := expandNetappbackupPolicyEnabled(d.Get("enabled"), d, config)
+	enabledProp, err := expandNetappBackupPolicyEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
 		obj["enabled"] = enabledProp
 	}
-	labelsProp, err := expandNetappbackupPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetappBackupPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(labelsProp)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
@@ -193,12 +193,12 @@ func resourceNetappbackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new backupPolicy: %#v", obj)
+	log.Printf("[DEBUG] Creating new BackupPolicy: %#v", obj)
 	billingProject := ""
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for backupPolicy: %s", err)
+		return fmt.Errorf("Error fetching project for BackupPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -219,7 +219,7 @@ func resourceNetappbackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating backupPolicy: %s", err)
+		return fmt.Errorf("Error creating BackupPolicy: %s", err)
 	}
 
 	// Store the ID now
@@ -230,21 +230,21 @@ func resourceNetappbackupPolicyCreate(d *schema.ResourceData, meta interface{}) 
 	d.SetId(id)
 
 	err = NetappOperationWaitTime(
-		config, res, project, "Creating backupPolicy", userAgent,
+		config, res, project, "Creating BackupPolicy", userAgent,
 		d.Timeout(schema.TimeoutCreate))
 
 	if err != nil {
 		// The resource didn't actually create
 		d.SetId("")
-		return fmt.Errorf("Error waiting to create backupPolicy: %s", err)
+		return fmt.Errorf("Error waiting to create BackupPolicy: %s", err)
 	}
 
-	log.Printf("[DEBUG] Finished creating backupPolicy %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating BackupPolicy %q: %#v", d.Id(), res)
 
-	return resourceNetappbackupPolicyRead(d, meta)
+	return resourceNetappBackupPolicyRead(d, meta)
 }
 
-func resourceNetappbackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -260,7 +260,7 @@ func resourceNetappbackupPolicyRead(d *schema.ResourceData, meta interface{}) er
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for backupPolicy: %s", err)
+		return fmt.Errorf("Error fetching project for BackupPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -279,51 +279,51 @@ func resourceNetappbackupPolicyRead(d *schema.ResourceData, meta interface{}) er
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappbackupPolicy %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("NetappBackupPolicy %q", d.Id()))
 	}
 
 	if err := d.Set("project", project); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
 
-	if err := d.Set("create_time", flattenNetappbackupPolicyCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("create_time", flattenNetappBackupPolicyCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("labels", flattenNetappbackupPolicyLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("labels", flattenNetappBackupPolicyLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("state", flattenNetappbackupPolicyState(res["state"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("state", flattenNetappBackupPolicyState(res["state"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("daily_backup_limit", flattenNetappbackupPolicyDailyBackupLimit(res["dailyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("daily_backup_limit", flattenNetappBackupPolicyDailyBackupLimit(res["dailyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("weekly_backup_limit", flattenNetappbackupPolicyWeeklyBackupLimit(res["weeklyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("weekly_backup_limit", flattenNetappBackupPolicyWeeklyBackupLimit(res["weeklyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("monthly_backup_limit", flattenNetappbackupPolicyMonthlyBackupLimit(res["monthlyBackupLimit"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("monthly_backup_limit", flattenNetappBackupPolicyMonthlyBackupLimit(res["monthlyBackupLimit"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("description", flattenNetappbackupPolicyDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("description", flattenNetappBackupPolicyDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("enabled", flattenNetappbackupPolicyEnabled(res["enabled"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("enabled", flattenNetappBackupPolicyEnabled(res["enabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("assigned_volume_count", flattenNetappbackupPolicyAssignedVolumeCount(res["assignedVolumeCount"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("assigned_volume_count", flattenNetappBackupPolicyAssignedVolumeCount(res["assignedVolumeCount"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("terraform_labels", flattenNetappbackupPolicyTerraformLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("terraform_labels", flattenNetappBackupPolicyTerraformLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
-	if err := d.Set("effective_labels", flattenNetappbackupPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
-		return fmt.Errorf("Error reading backupPolicy: %s", err)
+	if err := d.Set("effective_labels", flattenNetappBackupPolicyEffectiveLabels(res["labels"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackupPolicy: %s", err)
 	}
 
 	return nil
 }
 
-func resourceNetappbackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -334,42 +334,42 @@ func resourceNetappbackupPolicyUpdate(d *schema.ResourceData, meta interface{}) 
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for backupPolicy: %s", err)
+		return fmt.Errorf("Error fetching project for BackupPolicy: %s", err)
 	}
 	billingProject = project
 
 	obj := make(map[string]interface{})
-	dailyBackupLimitProp, err := expandNetappbackupPolicyDailyBackupLimit(d.Get("daily_backup_limit"), d, config)
+	dailyBackupLimitProp, err := expandNetappBackupPolicyDailyBackupLimit(d.Get("daily_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("daily_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dailyBackupLimitProp)) {
 		obj["dailyBackupLimit"] = dailyBackupLimitProp
 	}
-	weeklyBackupLimitProp, err := expandNetappbackupPolicyWeeklyBackupLimit(d.Get("weekly_backup_limit"), d, config)
+	weeklyBackupLimitProp, err := expandNetappBackupPolicyWeeklyBackupLimit(d.Get("weekly_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("weekly_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, weeklyBackupLimitProp)) {
 		obj["weeklyBackupLimit"] = weeklyBackupLimitProp
 	}
-	monthlyBackupLimitProp, err := expandNetappbackupPolicyMonthlyBackupLimit(d.Get("monthly_backup_limit"), d, config)
+	monthlyBackupLimitProp, err := expandNetappBackupPolicyMonthlyBackupLimit(d.Get("monthly_backup_limit"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("monthly_backup_limit"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, monthlyBackupLimitProp)) {
 		obj["monthlyBackupLimit"] = monthlyBackupLimitProp
 	}
-	descriptionProp, err := expandNetappbackupPolicyDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandNetappBackupPolicyDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	enabledProp, err := expandNetappbackupPolicyEnabled(d.Get("enabled"), d, config)
+	enabledProp, err := expandNetappBackupPolicyEnabled(d.Get("enabled"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("enabled"); ok || !reflect.DeepEqual(v, enabledProp) {
 		obj["enabled"] = enabledProp
 	}
-	labelsProp, err := expandNetappbackupPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
+	labelsProp, err := expandNetappBackupPolicyEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
@@ -381,7 +381,7 @@ func resourceNetappbackupPolicyUpdate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	log.Printf("[DEBUG] Updating backupPolicy %q: %#v", d.Id(), obj)
+	log.Printf("[DEBUG] Updating BackupPolicy %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
 
@@ -434,13 +434,13 @@ func resourceNetappbackupPolicyUpdate(d *schema.ResourceData, meta interface{}) 
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error updating backupPolicy %q: %s", d.Id(), err)
+			return fmt.Errorf("Error updating BackupPolicy %q: %s", d.Id(), err)
 		} else {
-			log.Printf("[DEBUG] Finished updating backupPolicy %q: %#v", d.Id(), res)
+			log.Printf("[DEBUG] Finished updating BackupPolicy %q: %#v", d.Id(), res)
 		}
 
 		err = NetappOperationWaitTime(
-			config, res, project, "Updating backupPolicy", userAgent,
+			config, res, project, "Updating BackupPolicy", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
 
 		if err != nil {
@@ -448,10 +448,10 @@ func resourceNetappbackupPolicyUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	return resourceNetappbackupPolicyRead(d, meta)
+	return resourceNetappBackupPolicyRead(d, meta)
 }
 
-func resourceNetappbackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNetappBackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -462,7 +462,7 @@ func resourceNetappbackupPolicyDelete(d *schema.ResourceData, meta interface{}) 
 
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return fmt.Errorf("Error fetching project for backupPolicy: %s", err)
+		return fmt.Errorf("Error fetching project for BackupPolicy: %s", err)
 	}
 	billingProject = project
 
@@ -480,7 +480,7 @@ func resourceNetappbackupPolicyDelete(d *schema.ResourceData, meta interface{}) 
 
 	headers := make(http.Header)
 
-	log.Printf("[DEBUG] Deleting backupPolicy %q", d.Id())
+	log.Printf("[DEBUG] Deleting BackupPolicy %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -492,22 +492,22 @@ func resourceNetappbackupPolicyDelete(d *schema.ResourceData, meta interface{}) 
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "backupPolicy")
+		return transport_tpg.HandleNotFoundError(err, d, "BackupPolicy")
 	}
 
 	err = NetappOperationWaitTime(
-		config, res, project, "Deleting backupPolicy", userAgent,
+		config, res, project, "Deleting BackupPolicy", userAgent,
 		d.Timeout(schema.TimeoutDelete))
 
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting backupPolicy %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting BackupPolicy %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceNetappbackupPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceNetappBackupPolicyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
 		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/backupPolicies/(?P<name>[^/]+)$",
@@ -527,11 +527,11 @@ func resourceNetappbackupPolicyImport(d *schema.ResourceData, meta interface{}) 
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenNetappbackupPolicyCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappbackupPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -546,11 +546,11 @@ func flattenNetappbackupPolicyLabels(v interface{}, d *schema.ResourceData, conf
 	return transformed
 }
 
-func flattenNetappbackupPolicyState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappbackupPolicyDailyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyDailyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -567,7 +567,7 @@ func flattenNetappbackupPolicyDailyBackupLimit(v interface{}, d *schema.Resource
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNetappbackupPolicyWeeklyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyWeeklyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -584,7 +584,7 @@ func flattenNetappbackupPolicyWeeklyBackupLimit(v interface{}, d *schema.Resourc
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNetappbackupPolicyMonthlyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyMonthlyBackupLimit(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -601,15 +601,15 @@ func flattenNetappbackupPolicyMonthlyBackupLimit(v interface{}, d *schema.Resour
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNetappbackupPolicyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappbackupPolicyEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenNetappbackupPolicyAssignedVolumeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyAssignedVolumeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
 		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
@@ -626,7 +626,7 @@ func flattenNetappbackupPolicyAssignedVolumeCount(v interface{}, d *schema.Resou
 	return v // let terraform core handle it otherwise
 }
 
-func flattenNetappbackupPolicyTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
 	}
@@ -641,31 +641,31 @@ func flattenNetappbackupPolicyTerraformLabels(v interface{}, d *schema.ResourceD
 	return transformed
 }
 
-func flattenNetappbackupPolicyEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenNetappBackupPolicyEffectiveLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandNetappbackupPolicyDailyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappBackupPolicyDailyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappbackupPolicyWeeklyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappBackupPolicyWeeklyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappbackupPolicyMonthlyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappBackupPolicyMonthlyBackupLimit(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappbackupPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappBackupPolicyDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappbackupPolicyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandNetappBackupPolicyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandNetappbackupPolicyEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+func expandNetappBackupPolicyEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
 	}

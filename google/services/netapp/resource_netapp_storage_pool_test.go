@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
-func TestAccNetappstoragePool_storagePoolCreateExample_update(t *testing.T) {
+func TestAccNetappStoragePool_storagePoolCreateExample_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -21,7 +21,7 @@ func TestAccNetappstoragePool_storagePoolCreateExample_update(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetappstoragePool_storagePoolCreateExample_full(context),
+				Config: testAccNetappStoragePool_storagePoolCreateExample_full(context),
 			},
 			{
 				ResourceName:            "google_netapp_storage_pool.test_pool",
@@ -30,7 +30,7 @@ func TestAccNetappstoragePool_storagePoolCreateExample_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
 			},
 			{
-				Config: testAccNetappstoragePool_storagePoolCreateExample_update(context),
+				Config: testAccNetappStoragePool_storagePoolCreateExample_update(context),
 			},
 			{
 				ResourceName:            "google_netapp_storage_pool.test_pool",
@@ -42,7 +42,7 @@ func TestAccNetappstoragePool_storagePoolCreateExample_update(t *testing.T) {
 	})
 }
 
-func testAccNetappstoragePool_storagePoolCreateExample_full(context map[string]interface{}) string {
+func testAccNetappStoragePool_storagePoolCreateExample_full(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
 resource "google_compute_network" "peering_network" {
@@ -84,7 +84,7 @@ resource "google_netapp_storage_pool" "test_pool" {
 `, context)
 }
 
-func testAccNetappstoragePool_storagePoolCreateExample_update(context map[string]interface{}) string {
+func testAccNetappStoragePool_storagePoolCreateExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 
 resource "google_compute_network" "peering_network" {

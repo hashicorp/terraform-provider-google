@@ -30,7 +30,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccNetappbackup_netappBackupExample(t *testing.T) {
+func TestAccNetappBackup_netappBackupExample(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -41,10 +41,10 @@ func TestAccNetappbackup_netappBackupExample(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckNetappbackupDestroyProducer(t),
+		CheckDestroy:             testAccCheckNetappBackupDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetappbackup_netappBackupExample(context),
+				Config: testAccNetappBackup_netappBackupExample(context),
 			},
 			{
 				ResourceName:            "google_netapp_backup.test_backup",
@@ -56,7 +56,7 @@ func TestAccNetappbackup_netappBackupExample(t *testing.T) {
 	})
 }
 
-func testAccNetappbackup_netappBackupExample(context map[string]interface{}) string {
+func testAccNetappBackup_netappBackupExample(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_compute_network" "default" {
   name = "%{network_name}"
@@ -97,7 +97,7 @@ resource "google_netapp_backup" "test_backup" {
 `, context)
 }
 
-func testAccCheckNetappbackupDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckNetappBackupDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_netapp_backup" {
@@ -128,7 +128,7 @@ func testAccCheckNetappbackupDestroyProducer(t *testing.T) func(s *terraform.Sta
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("Netappbackup still exists at %s", url)
+				return fmt.Errorf("NetappBackup still exists at %s", url)
 			}
 		}
 

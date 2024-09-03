@@ -23,7 +23,7 @@ A backup vault is the location where backups are stored. You can only create one
 A vault can hold multiple backups for multiple volumes in that region.
 
 
-To get more information about backupVault, see:
+To get more information about BackupVault, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.backupVaults)
 * How-to Guides
@@ -107,14 +107,14 @@ This resource provides the following
 ## Import
 
 
-backupVault can be imported using any of these accepted formats:
+BackupVault can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/backupVaults/{{name}}`
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import backupVault using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BackupVault using one of the formats above. For example:
 
 ```tf
 import {
@@ -123,7 +123,7 @@ import {
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), backupVault can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), BackupVault can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_netapp_backup_vault.default projects/{{project}}/locations/{{location}}/backupVaults/{{name}}
