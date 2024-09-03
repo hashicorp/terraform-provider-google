@@ -1,0 +1,3 @@
+```release-note:bug
+storage: fix 429 error in `google_storage_bucket` resource
+```
