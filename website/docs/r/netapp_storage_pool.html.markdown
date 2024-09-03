@@ -43,7 +43,7 @@ via Terraform by swapping the value of the `zone` and `replica_zone` parameters 
 Note : Regional FLEX storage pool are supported in beta provider currently.
 
 
-To get more information about storagePool, see:
+To get more information about StoragePool, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.storagePools)
 * How-to Guides
@@ -210,14 +210,14 @@ This resource provides the following
 ## Import
 
 
-storagePool can be imported using any of these accepted formats:
+StoragePool can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/storagePools/{{name}}`
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import storagePool using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import StoragePool using one of the formats above. For example:
 
 ```tf
 import {
@@ -226,7 +226,7 @@ import {
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), storagePool can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), StoragePool can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_netapp_storage_pool.default projects/{{project}}/locations/{{location}}/storagePools/{{name}}

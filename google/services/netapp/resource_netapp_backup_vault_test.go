@@ -15,7 +15,7 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func TestAccNetappbackupVault_netappBackupVaultExample_update(t *testing.T) {
+func TestAccNetappBackupVault_NetappBackupVaultExample_update(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
@@ -27,7 +27,7 @@ func TestAccNetappbackupVault_netappBackupVaultExample_update(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetappbackupVault_netappBackupVaultExample_basic(context),
+				Config: testAccNetappBackupVault_NetappBackupVaultExample_basic(context),
 			},
 			{
 				ResourceName:            "google_netapp_backup_vault.test_backup_vault",
@@ -36,7 +36,7 @@ func TestAccNetappbackupVault_netappBackupVaultExample_update(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"location", "name", "labels", "terraform_labels"},
 			},
 			{
-				Config: testAccNetappbackupVault_netappBackupVaultExample_update(context),
+				Config: testAccNetappBackupVault_NetappBackupVaultExample_update(context),
 			},
 			{
 				ResourceName:            "google_netapp_backup_vault.test_backup_vault",
@@ -48,7 +48,7 @@ func TestAccNetappbackupVault_netappBackupVaultExample_update(t *testing.T) {
 	})
 }
 
-func testAccNetappbackupVault_netappBackupVaultExample_basic(context map[string]interface{}) string {
+func testAccNetappBackupVault_NetappBackupVaultExample_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_backup_vault" "test_backup_vault" {
   name = "tf-test-test-backup-vault%{random_suffix}"
@@ -57,7 +57,7 @@ resource "google_netapp_backup_vault" "test_backup_vault" {
 `, context)
 }
 
-func testAccNetappbackupVault_netappBackupVaultExample_update(context map[string]interface{}) string {
+func testAccNetappBackupVault_NetappBackupVaultExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_netapp_backup_vault" "test_backup_vault" {
   name = "tf-test-test-backup-vault%{random_suffix}"
@@ -71,7 +71,7 @@ resource "google_netapp_backup_vault" "test_backup_vault" {
 `, context)
 }
 
-func testAccCheckNetappbackupVaultDestroyProducer(t *testing.T) func(s *terraform.State) error {
+func testAccCheckNetappBackupVaultDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
 			if rs.Type != "google_netapp_backup_vault" {
@@ -102,7 +102,7 @@ func testAccCheckNetappbackupVaultDestroyProducer(t *testing.T) func(s *terrafor
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
-				return fmt.Errorf("NetappbackupVault still exists at %s", url)
+				return fmt.Errorf("NetappBackupVault still exists at %s", url)
 			}
 		}
 

@@ -24,7 +24,7 @@ Backup policies allow you to attach a backup schedule to a volume.
 The policy defines how many backups to retain at daily, weekly, or monthly intervals.
 
 
-To get more information about backupPolicy, see:
+To get more information about BackupPolicy, see:
 
 * [API documentation](https://cloud.google.com/netapp/volumes/docs/reference/rest/v1/projects.locations.backupPolicies)
 * How-to Guides
@@ -137,14 +137,14 @@ This resource provides the following
 ## Import
 
 
-backupPolicy can be imported using any of these accepted formats:
+BackupPolicy can be imported using any of these accepted formats:
 
 * `projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}`
 * `{{project}}/{{location}}/{{name}}`
 * `{{location}}/{{name}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import backupPolicy using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import BackupPolicy using one of the formats above. For example:
 
 ```tf
 import {
@@ -153,7 +153,7 @@ import {
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), backupPolicy can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), BackupPolicy can be imported using one of the formats above. For example:
 
 ```
 $ terraform import google_netapp_backup_policy.default projects/{{project}}/locations/{{location}}/backupPolicies/{{name}}
