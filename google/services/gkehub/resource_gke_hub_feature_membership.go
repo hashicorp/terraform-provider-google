@@ -341,7 +341,7 @@ func GkeHubFeatureMembershipConfigmanagementHierarchyControllerSchema() *schema.
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Whether Hierarchy Controller is enabled in this cluster.",
+				Description: "**DEPRECATED** Configuring Hierarchy Controller through the configmanagement feature is no longer recommended. Use https://github.com/kubernetes-sigs/hierarchical-namespaces instead.",
 			},
 		},
 	}

@@ -55,7 +55,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 			{
 				Config: testAccAssuredWorkloadsWorkload_BasicHandWrittenUpdate0(context),
@@ -64,7 +64,7 @@ func TestAccAssuredWorkloadsWorkload_BasicHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -91,7 +91,7 @@ func TestAccAssuredWorkloadsWorkload_FullHandWritten(t *testing.T) {
 				ResourceName:            "google_assured_workloads_workload.primary",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "labels", "terraform_labels"},
+				ImportStateVerifyIgnore: []string{"billing_account", "kms_settings", "resource_settings", "provisioned_resources_parent", "partner_services_billing_account", "labels", "terraform_labels"},
 			},
 		},
 	})
@@ -200,6 +200,7 @@ func testAccCheckAssuredWorkloadsWorkloadDestroyProducer(t *testing.T) func(s *t
 				BillingAccount:                dcl.String(rs.Primary.Attributes["billing_account"]),
 				EnableSovereignControls:       dcl.Bool(rs.Primary.Attributes["enable_sovereign_controls"] == "true"),
 				Partner:                       assuredworkloads.WorkloadPartnerEnumRef(rs.Primary.Attributes["partner"]),
+				PartnerServicesBillingAccount: dcl.String(rs.Primary.Attributes["partner_services_billing_account"]),
 				ProvisionedResourcesParent:    dcl.String(rs.Primary.Attributes["provisioned_resources_parent"]),
 				ViolationNotificationsEnabled: dcl.Bool(rs.Primary.Attributes["violation_notifications_enabled"] == "true"),
 				CreateTime:                    dcl.StringOrNil(rs.Primary.Attributes["create_time"]),
