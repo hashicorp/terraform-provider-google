@@ -1306,3 +1306,141 @@ func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *t
 
 	return accessToken, nil
 }
+
+const sharedTagKeyPrefix = "tf-bootstrap-tagkey"
+
+func BootstrapSharedTestTagKey(t *testing.T, testId string) string {
+	org := envvar.GetTestOrgFromEnv(t)
+	sharedTagKey := fmt.Sprintf("%s-%s", sharedTagKeyPrefix, testId)
+	tagKeyName := fmt.Sprintf("%s/%s", org, sharedTagKey)
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test tag key %q", sharedTagKey)
+	getURL := fmt.Sprintf("%stagKeys/namespaced?name=%s", config.TagsBasePath, tagKeyName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
+		log.Printf("[DEBUG] TagKey %q not found, bootstrapping", sharedTagKey)
+		tagKeyObj := map[string]interface{}{
+			"parent":      "organizations/" + org,
+			"shortName":   sharedTagKey,
+			"description": "Bootstrapped tag key for Terraform Acceptance testing",
+		}
+
+		_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    config.TagsBasePath + "tagKeys/",
+			UserAgent: config.UserAgent,
+			Body:      tagKeyObj,
+			Timeout:   10 * time.Minute,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared tag key %q: %s", sharedTagKey, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for shared tag key creation to finish")
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+
+	if err != nil {
+		t.Fatalf("Error getting shared tag key %q: %s", sharedTagKey, err)
+	}
+
+	return sharedTagKey
+}
+
+const sharedTagValuePrefix = "tf-bootstrap-tagvalue"
+
+func BootstrapSharedTestTagValue(t *testing.T, testId string, tagKey string) string {
+	org := envvar.GetTestOrgFromEnv(t)
+	sharedTagValue := fmt.Sprintf("%s-%s", sharedTagValuePrefix, testId)
+	tagKeyName := fmt.Sprintf("%s/%s", org, tagKey)
+	tagValueName := fmt.Sprintf("%s/%s", tagKeyName, sharedTagValue)
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		return ""
+	}
+
+	log.Printf("[DEBUG] Getting shared test tag value %q", sharedTagValue)
+	getURL := fmt.Sprintf("%stagValues/namespaced?name=%s", config.TagsBasePath, tagValueName)
+	_, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 403) {
+		log.Printf("[DEBUG] TagValue %q not found, bootstrapping", sharedTagValue)
+		log.Printf("[DEBUG] Fetching permanent id for tagkey %s", tagKeyName)
+		tagKeyGetURL := fmt.Sprintf("%stagKeys/namespaced?name=%s", config.TagsBasePath, tagKeyName)
+		tagKeyResponse, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   config.Project,
+			RawURL:    tagKeyGetURL,
+			UserAgent: config.UserAgent,
+			Timeout:   2 * time.Minute,
+		})
+		if err != nil {
+			t.Fatalf("Error getting tag key id for %s : %s", tagKeyName, err)
+		}
+		tagKeyObj := map[string]interface{}{
+			"parent":      tagKeyResponse["name"].(string),
+			"shortName":   sharedTagValue,
+			"description": "Bootstrapped tag value for Terraform Acceptance testing",
+		}
+
+		_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   config.Project,
+			RawURL:    config.TagsBasePath + "tagValues/",
+			UserAgent: config.UserAgent,
+			Body:      tagKeyObj,
+			Timeout:   10 * time.Minute,
+		})
+		if err != nil {
+			t.Fatalf("Error bootstrapping shared tag value %q: %s", sharedTagValue, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for shared tag value creation to finish")
+	}
+
+	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   config.Project,
+		RawURL:    getURL,
+		UserAgent: config.UserAgent,
+		Timeout:   2 * time.Minute,
+	})
+
+	if err != nil {
+		t.Fatalf("Error getting shared tag value %q: %s", sharedTagValue, err)
+	}
+
+	return sharedTagValue
+}

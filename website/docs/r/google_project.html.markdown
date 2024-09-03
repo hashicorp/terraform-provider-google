@@ -20,6 +20,8 @@ doc for more information.
 
 ~> It is recommended to use the `constraints/compute.skipDefaultNetworkCreation` [constraint](/docs/providers/google/r/google_organization_policy.html) to remove the default network instead of setting `auto_create_network` to false, when possible.
 
+~> It may take a while for the attached tag bindings to be deleted after the project is scheduled to be deleted. 
+
 To get more information about projects, see:
 
 * [API documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects)
@@ -48,6 +50,17 @@ resource "google_project" "my_project-in-a-folder" {
 resource "google_folder" "department1" {
   display_name = "Department 1"
   parent       = "organizations/1234567"
+}
+```
+
+To create a project with a tag
+
+```hcl
+resource "google_project" "my_project" {
+  name       = "My Project"
+  project_id = "your-project-id"
+  org_id     = "1234567"
+  tags = {"1234567/env":"staging"}
 }
 ```
 
@@ -99,6 +112,8 @@ The following arguments are supported:
    against any destroy actions caused by a terraform apply or terraform destroy. Setting ABANDON allows the resource 
    to be abandoned rather than deleted, i.e., the Terraform resource can be deleted without deleting the Project via 
    the Google API. Possible values are: "PREVENT", "ABANDON", "DELETE". Default value is `PREVENT`.
+
+* `tags` - (Optional) A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored when empty. The field is immutable and causes resource replacement when mutated.
 
 ## Attributes Reference
 
