@@ -93,6 +93,36 @@ var (
 	}
 )
 
+// This checks if the project provided in subnetwork's self_link matches
+// the project provided in subnetwork_project not to produce a confusing plan diff.
+func validateSubnetworkProject(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	// separate func to allow unit testing
+	return ValidateSubnetworkProjectFunc(d)
+}
+
+func ValidateSubnetworkProjectFunc(d tpgresource.TerraformResourceDiff) error {
+	oldCount, newCount := d.GetChange("network_interface.#")
+	if oldCount.(int) != newCount.(int) {
+		return nil
+	}
+	for i := 0; i < newCount.(int); i++ {
+		prefix := fmt.Sprintf("network_interface.%d", i)
+		subnetworkProject := d.Get(prefix + ".subnetwork_project")
+		subnetwork := d.Get(prefix + ".subnetwork")
+
+		_, err := tpgresource.GetRelativePath(subnetwork.(string))
+		if err != nil {
+			log.Printf("[DEBUG] Subnetwork %q is not a selflink", subnetwork)
+			return nil
+		}
+
+		if tpgresource.GetProjectFromRegionalSelfLink(subnetwork.(string)) != subnetworkProject.(string) {
+			return fmt.Errorf("project in subnetwork's self_link %q must match subnetwork_project %q", subnetwork, subnetworkProject)
+		}
+	}
+	return nil
+}
+
 // network_interface.[d].network_ip can only change when subnet/network
 // is also changing. Validate that if network_ip is changing this scenario
 // holds up to par.
@@ -1166,6 +1196,7 @@ be from 0 to 999,999,999 inclusive.`,
 				suppressEmptyGuestAcceleratorDiff,
 			),
 			desiredStatusDiff,
+			validateSubnetworkProject,
 			forceNewIfNetworkIPNotUpdatable,
 			tpgresource.SetLabelsDiff,
 		),

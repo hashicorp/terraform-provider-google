@@ -172,3 +172,14 @@ func GetRegionFromRegionalSelfLink(selfLink string) string {
 	}
 	return selfLink
 }
+
+func GetProjectFromRegionalSelfLink(selfLink string) string {
+	re := regexp.MustCompile("projects/([a-zA-Z0-9-]*)/(?:locations|regions)/[a-zA-Z0-9-]*")
+	switch {
+	case re.MatchString(selfLink):
+		if res := re.FindStringSubmatch(selfLink); len(res) == 2 && res[1] != "" {
+			return res[1]
+		}
+	}
+	return selfLink
+}

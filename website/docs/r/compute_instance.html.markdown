@@ -372,7 +372,7 @@ is desired, you will need to modify your state file manually using
 
 
 *  `subnetwork_project` - (Optional) The project in which the subnetwork belongs.
-   If the `subnetwork` is a self_link, this field is ignored in favor of the project
+   If the `subnetwork` is a self_link, this field is set to the project
    defined in the subnetwork self_link. If the `subnetwork` is a name and this
    field is not provided, the provider project is used.
 
