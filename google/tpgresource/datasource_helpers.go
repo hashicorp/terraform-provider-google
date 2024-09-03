@@ -73,3 +73,9 @@ func AddRequiredFieldsToSchema(schema map[string]*schema.Schema, keys ...string)
 func AddOptionalFieldsToSchema(schema map[string]*schema.Schema, keys ...string) {
 	FixDatasourceSchemaFlags(schema, false, keys...)
 }
+
+func DeleteFieldsFromSchema(schema map[string]*schema.Schema, keys ...string) {
+	for _, key := range keys {
+		delete(schema, key)
+	}
+}

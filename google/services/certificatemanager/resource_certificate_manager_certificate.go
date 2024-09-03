@@ -276,6 +276,14 @@ Leaf certificate comes first, followed by intermediate ones if any.`,
 				Description: `All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.`,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"san_dnsnames": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of Subject Alternative Names of dnsName type defined in the certificate (see RFC 5280 4.2.1.6)`,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"terraform_labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -438,6 +446,9 @@ func resourceCertificateManagerCertificateRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("scope", flattenCertificateManagerCertificateScope(res["scope"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Certificate: %s", err)
+	}
+	if err := d.Set("san_dnsnames", flattenCertificateManagerCertificateSanDnsnames(res["sanDnsnames"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Certificate: %s", err)
 	}
 	if err := d.Set("managed", flattenCertificateManagerCertificateManaged(res["managed"], d, config)); err != nil {
@@ -637,6 +648,10 @@ func flattenCertificateManagerCertificateLabels(v interface{}, d *schema.Resourc
 }
 
 func flattenCertificateManagerCertificateScope(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCertificateManagerCertificateSanDnsnames(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
