@@ -2,7 +2,6 @@
 
 ## 6.1.0 (September 3rd, 2024)
 BREAKING CHANGES:
-* bigqueryanalyticshub: made `bigquery_dataset` immutable in `google_bigquery_analytics_hub_listing`. Now modifying the field will recreate the resource rather than causing Terraform to report it would attempt an invalid update. ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
 * sql: removed `settings.ip_configuration.require_ssl` from `google_sql_database_instance` in favor of `settings.ip_configuration.ssl_mode`. This field was intended to be removed in 6.0.0. ([#19263](https://github.com/hashicorp/terraform-provider-google/pull/19263))
 
 FEATURES:
@@ -29,6 +28,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * artifactregistry: Fixed https://github.com/hashicorp/terraform-provider-google/issues/18955 ([#19256](https://github.com/hashicorp/terraform-provider-google/pull/19256))
 * bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access` resource ([#19259](https://github.com/hashicorp/terraform-provider-google/pull/19259))
+* bigqueryanalyticshub: made `bigquery_dataset` immutable in `google_bigquery_analytics_hub_listing` as it was not updatable in the API. Now modifying the field in Terraform will correctly recreate the resource rather than causing Terraform to report it would attempt an invalid update. ([#19244](https://github.com/hashicorp/terraform-provider-google/pull/19244))
 * container: fixed update inconsistency in `google_container_cluster` resource ([#19247](https://github.com/hashicorp/terraform-provider-google/pull/19247))
 * netapp: Adding sweepers for all resources due to tests being run in multiple regions ([#19285](https://github.com/hashicorp/terraform-provider-google/pull/19285))
 * pubsub: fixed a validation bug that didn't allow empty filter definitions for `google_pubsub_subscription` resources ([#19284](https://github.com/hashicorp/terraform-provider-google/pull/19284))
