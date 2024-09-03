@@ -123,8 +123,8 @@ The following arguments are supported:
   characters may be allowed in the future. Therefore, you are advised to use
   an internal label representation, such as JSON, which doesn't rely upon
   specific characters being disallowed.  For example, representing labels
-  as the string:  `name + \"_\" + value` would prove problematic if we were to
-  allow `\"_\"` in a future release. "
+  as the string:  `name + "_" + value` would prove problematic if we were to
+  allow `"_"` in a future release. "
 
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.

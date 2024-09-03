@@ -111,6 +111,7 @@ resource "google_tpu_node" "tpu" {
 
   description = "Terraform Google Provider test TPU"
   use_service_networking = true
+
   network = data.google_compute_network.network.id
 
   labels = {
