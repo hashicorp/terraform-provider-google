@@ -1,0 +1,3 @@
+```release-note:enhancement
+resourcemanager: added `tags` field to `google_project` to allow setting tags for projects at creation time
+```
