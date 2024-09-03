@@ -495,6 +495,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/certificates/{{name}}`
 
+* `san_dnsnames` -
+  The list of Subject Alternative Names of dnsName type defined in the certificate (see RFC 5280 4.2.1.6)
+
 * `terraform_labels` -
   The combination of labels configured directly on the resource
    and default labels configured on the provider.

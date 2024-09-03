@@ -34,6 +34,7 @@ import (
 	appengine "google.golang.org/api/appengine/v1"
 	"google.golang.org/api/bigquery/v2"
 	"google.golang.org/api/bigtableadmin/v2"
+	"google.golang.org/api/certificatemanager/v1"
 	"google.golang.org/api/cloudbilling/v1"
 	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/api/cloudfunctions/v1"
@@ -1518,6 +1519,20 @@ func (c *Config) getTokenSource(clientScopes []string, initialCredentialsOnly bo
 // while most only want the host URL, some older ones also want the version and some
 // of those "projects" as well. You can find out if this is required by looking at
 // the basePath value in the client library file.
+func (c *Config) NewCertificateManagerClient(userAgent string) *certificatemanager.Service {
+	certificateManagerClientBasePath := RemoveBasePathVersion(c.CertificateManagerBasePath)
+	log.Printf("[INFO] Instantiating Certificate Manager client for path %s", certificateManagerClientBasePath)
+	clientCertificateManager, err := certificatemanager.NewService(c.Context, option.WithHTTPClient(c.Client))
+	if err != nil {
+		log.Printf("[WARN] Error creating client certificate manager: %s", err)
+		return nil
+	}
+	clientCertificateManager.UserAgent = userAgent
+	clientCertificateManager.BasePath = certificateManagerClientBasePath
+
+	return clientCertificateManager
+}
+
 func (c *Config) NewComputeClient(userAgent string) *compute.Service {
 	log.Printf("[INFO] Instantiating GCE client for path %s", c.ComputeBasePath)
 	clientCompute, err := compute.NewService(c.Context, option.WithHTTPClient(c.Client))
