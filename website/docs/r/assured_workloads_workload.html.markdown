@@ -40,7 +40,7 @@ resource "google_assured_workloads_workload" "primary" {
   provisioned_resources_parent = "folders/519620126891"
 
   resource_settings {
-    display_name  = "folder-display-name"
+    display_name  = "{{name}}"
     resource_type = "CONSUMER_FOLDER"
   }
 
@@ -98,6 +98,47 @@ resource "google_assured_workloads_workload" "primary" {
 }
 
 ```
+## Example Usage - split_billing_partner_workload
+A Split billing partner test of the assuredworkloads api
+```hcl
+resource "google_assured_workloads_workload" "primary" {
+  compliance_regime = "ASSURED_WORKLOADS_FOR_PARTNERS"
+  display_name      = "display"
+  location          = "europe-west8"
+  organization      = "123456789"
+  billing_account   = "billingAccounts/000000-0000000-0000000-000000"
+  partner           = "SOVEREIGN_CONTROLS_BY_PSN"
+
+  partner_permissions {
+    assured_workloads_monitoring = true
+    data_logs_viewer             = true
+    service_access_approver      = true
+  }
+
+  partner_services_billing_account = "billingAccounts/01BF3F-2C6DE5-30C607"
+
+  resource_settings {
+    resource_type = "CONSUMER_FOLDER"
+  }
+
+  resource_settings {
+    resource_type = "ENCRYPTION_KEYS_PROJECT"
+  }
+
+  resource_settings {
+    resource_id   = "ring"
+    resource_type = "KEYRING"
+  }
+
+  violation_notifications_enabled = true
+
+  labels = {
+    label-one = "value-one"
+  }
+  provider          = google-beta
+}
+
+```
 
 ## Argument Reference
 
@@ -105,7 +146,7 @@ The following arguments are supported:
 
 * `compliance_regime` -
   (Required)
-  Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS, HIPAA, HITRUST, EU_REGIONS_AND_SUPPORT, CA_REGIONS_AND_SUPPORT, ITAR, AU_REGIONS_AND_US_SUPPORT, ASSURED_WORKLOADS_FOR_PARTNERS, ISR_REGIONS, ISR_REGIONS_AND_SUPPORT, CA_PROTECTED_B, IL5, IL2, JP_REGIONS_AND_SUPPORT
+  Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS, HIPAA, HITRUST, EU_REGIONS_AND_SUPPORT, CA_REGIONS_AND_SUPPORT, ITAR, AU_REGIONS_AND_US_SUPPORT, ASSURED_WORKLOADS_FOR_PARTNERS, ISR_REGIONS, ISR_REGIONS_AND_SUPPORT, CA_PROTECTED_B, IL5, IL2, JP_REGIONS_AND_SUPPORT, KSA_REGIONS_AND_SUPPORT_WITH_SOVEREIGNTY_CONTROLS, REGIONAL_CONTROLS
   
 * `display_name` -
   (Required)
@@ -144,11 +185,15 @@ Please refer to the field `effective_labels` for all of the labels present on th
   
 * `partner` -
   (Optional)
-  Optional. Partner regime associated with this workload. Possible values: PARTNER_UNSPECIFIED, LOCAL_CONTROLS_BY_S3NS, SOVEREIGN_CONTROLS_BY_T_SYSTEMS, SOVEREIGN_CONTROLS_BY_SIA_MINSAIT, SOVEREIGN_CONTROLS_BY_PSN
+  Optional. Partner regime associated with this workload. Possible values: PARTNER_UNSPECIFIED, LOCAL_CONTROLS_BY_S3NS, SOVEREIGN_CONTROLS_BY_T_SYSTEMS, SOVEREIGN_CONTROLS_BY_SIA_MINSAIT, SOVEREIGN_CONTROLS_BY_PSN, SOVEREIGN_CONTROLS_BY_CNTXT, SOVEREIGN_CONTROLS_BY_CNTXT_NO_EKM
   
 * `partner_permissions` -
   (Optional)
   Optional. Permissions granted to the AW Partner SA account for the customer workload
+  
+* `partner_services_billing_account` -
+  (Optional)
+  Optional. Input only. Billing account necessary for purchasing services from Sovereign Partners. This field is required for creating SIA/PSN/CNTXT partner workloads. The caller should have 'billing.resourceAssociations.create' IAM permission on this billing-account. The format of this string is billingAccounts/AAAAAA-BBBBBB-CCCCCC.
   
 * `provisioned_resources_parent` -
   (Optional)

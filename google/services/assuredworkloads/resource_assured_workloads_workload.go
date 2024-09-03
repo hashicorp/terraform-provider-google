@@ -60,7 +60,7 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS, HIPAA, HITRUST, EU_REGIONS_AND_SUPPORT, CA_REGIONS_AND_SUPPORT, ITAR, AU_REGIONS_AND_US_SUPPORT, ASSURED_WORKLOADS_FOR_PARTNERS, ISR_REGIONS, ISR_REGIONS_AND_SUPPORT, CA_PROTECTED_B, IL5, IL2, JP_REGIONS_AND_SUPPORT",
+				Description: "Required. Immutable. Compliance Regime associated with this workload. Possible values: COMPLIANCE_REGIME_UNSPECIFIED, IL4, CJIS, FEDRAMP_HIGH, FEDRAMP_MODERATE, US_REGIONAL_ACCESS, HIPAA, HITRUST, EU_REGIONS_AND_SUPPORT, CA_REGIONS_AND_SUPPORT, ITAR, AU_REGIONS_AND_US_SUPPORT, ASSURED_WORKLOADS_FOR_PARTNERS, ISR_REGIONS, ISR_REGIONS_AND_SUPPORT, CA_PROTECTED_B, IL5, IL2, JP_REGIONS_AND_SUPPORT, KSA_REGIONS_AND_SUPPORT_WITH_SOVEREIGNTY_CONTROLS, REGIONAL_CONTROLS",
 			},
 
 			"display_name": {
@@ -118,7 +118,7 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: "Optional. Partner regime associated with this workload. Possible values: PARTNER_UNSPECIFIED, LOCAL_CONTROLS_BY_S3NS, SOVEREIGN_CONTROLS_BY_T_SYSTEMS, SOVEREIGN_CONTROLS_BY_SIA_MINSAIT, SOVEREIGN_CONTROLS_BY_PSN",
+				Description: "Optional. Partner regime associated with this workload. Possible values: PARTNER_UNSPECIFIED, LOCAL_CONTROLS_BY_S3NS, SOVEREIGN_CONTROLS_BY_T_SYSTEMS, SOVEREIGN_CONTROLS_BY_SIA_MINSAIT, SOVEREIGN_CONTROLS_BY_PSN, SOVEREIGN_CONTROLS_BY_CNTXT, SOVEREIGN_CONTROLS_BY_CNTXT_NO_EKM",
 			},
 
 			"partner_permissions": {
@@ -128,6 +128,13 @@ func ResourceAssuredWorkloadsWorkload() *schema.Resource {
 				Description: "Optional. Permissions granted to the AW Partner SA account for the customer workload",
 				MaxItems:    1,
 				Elem:        AssuredWorkloadsWorkloadPartnerPermissionsSchema(),
+			},
+
+			"partner_services_billing_account": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. Input only. Billing account necessary for purchasing services from Sovereign Partners. This field is required for creating SIA/PSN/CNTXT partner workloads. The caller should have 'billing.resourceAssociations.create' IAM permission on this billing-account. The format of this string is billingAccounts/AAAAAA-BBBBBB-CCCCCC.",
 			},
 
 			"provisioned_resources_parent": {
@@ -391,6 +398,7 @@ func resourceAssuredWorkloadsWorkloadCreate(d *schema.ResourceData, meta interfa
 		KmsSettings:                   expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Partner:                       assuredworkloads.WorkloadPartnerEnumRef(d.Get("partner").(string)),
 		PartnerPermissions:            expandAssuredWorkloadsWorkloadPartnerPermissions(d.Get("partner_permissions")),
+		PartnerServicesBillingAccount: dcl.String(d.Get("partner_services_billing_account").(string)),
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
@@ -458,6 +466,7 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 		KmsSettings:                   expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Partner:                       assuredworkloads.WorkloadPartnerEnumRef(d.Get("partner").(string)),
 		PartnerPermissions:            expandAssuredWorkloadsWorkloadPartnerPermissions(d.Get("partner_permissions")),
+		PartnerServicesBillingAccount: dcl.String(d.Get("partner_services_billing_account").(string)),
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
@@ -516,6 +525,9 @@ func resourceAssuredWorkloadsWorkloadRead(d *schema.ResourceData, meta interface
 	if err = d.Set("partner_permissions", flattenAssuredWorkloadsWorkloadPartnerPermissions(res.PartnerPermissions)); err != nil {
 		return fmt.Errorf("error setting partner_permissions in state: %s", err)
 	}
+	if err = d.Set("partner_services_billing_account", res.PartnerServicesBillingAccount); err != nil {
+		return fmt.Errorf("error setting partner_services_billing_account in state: %s", err)
+	}
 	if err = d.Set("provisioned_resources_parent", res.ProvisionedResourcesParent); err != nil {
 		return fmt.Errorf("error setting provisioned_resources_parent in state: %s", err)
 	}
@@ -572,6 +584,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		KmsSettings:                   expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Partner:                       assuredworkloads.WorkloadPartnerEnumRef(d.Get("partner").(string)),
 		PartnerPermissions:            expandAssuredWorkloadsWorkloadPartnerPermissions(d.Get("partner_permissions")),
+		PartnerServicesBillingAccount: dcl.String(d.Get("partner_services_billing_account").(string)),
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
@@ -589,6 +602,7 @@ func resourceAssuredWorkloadsWorkloadUpdate(d *schema.ResourceData, meta interfa
 		KmsSettings:                   expandAssuredWorkloadsWorkloadKmsSettings(tpgdclresource.OldValue(d.GetChange("kms_settings"))),
 		Partner:                       assuredworkloads.WorkloadPartnerEnumRef(tpgdclresource.OldValue(d.GetChange("partner")).(string)),
 		PartnerPermissions:            expandAssuredWorkloadsWorkloadPartnerPermissions(tpgdclresource.OldValue(d.GetChange("partner_permissions"))),
+		PartnerServicesBillingAccount: dcl.String(tpgdclresource.OldValue(d.GetChange("partner_services_billing_account")).(string)),
 		ProvisionedResourcesParent:    dcl.String(tpgdclresource.OldValue(d.GetChange("provisioned_resources_parent")).(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(tpgdclresource.OldValue(d.GetChange("resource_settings"))),
 		ViolationNotificationsEnabled: dcl.Bool(tpgdclresource.OldValue(d.GetChange("violation_notifications_enabled")).(bool)),
@@ -642,6 +656,7 @@ func resourceAssuredWorkloadsWorkloadDelete(d *schema.ResourceData, meta interfa
 		KmsSettings:                   expandAssuredWorkloadsWorkloadKmsSettings(d.Get("kms_settings")),
 		Partner:                       assuredworkloads.WorkloadPartnerEnumRef(d.Get("partner").(string)),
 		PartnerPermissions:            expandAssuredWorkloadsWorkloadPartnerPermissions(d.Get("partner_permissions")),
+		PartnerServicesBillingAccount: dcl.String(d.Get("partner_services_billing_account").(string)),
 		ProvisionedResourcesParent:    dcl.String(d.Get("provisioned_resources_parent").(string)),
 		ResourceSettings:              expandAssuredWorkloadsWorkloadResourceSettingsArray(d.Get("resource_settings")),
 		ViolationNotificationsEnabled: dcl.Bool(d.Get("violation_notifications_enabled").(bool)),
