@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed a bug where `advertised_route_priority` was accidentally set to 0 during updates in 'google_compute_router_peer'
+```
