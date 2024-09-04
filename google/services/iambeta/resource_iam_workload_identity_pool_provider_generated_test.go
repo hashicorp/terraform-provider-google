@@ -373,6 +373,108 @@ EOT
 `, context)
 }
 
+func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509BasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509BasicExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workload_identity_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_provider_id"},
+			},
+		},
+	})
+}
+
+func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509BasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.subject.dn.cn"
+  }
+  x509 {
+    trust_store {
+        trust_anchors {
+            pem_certificate = file("test-fixtures/trust_anchor.pem")
+        }
+    }
+  }
+}
+`, context)
+}
+
+func TestAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509FullExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509FullExample(context),
+			},
+			{
+				ResourceName:            "google_iam_workload_identity_pool_provider.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"workload_identity_pool_id", "workload_identity_pool_provider_id"},
+			},
+		},
+	})
+}
+
+func testAccIAMBetaWorkloadIdentityPoolProvider_iamWorkloadIdentityPoolProviderX509FullExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "tf-test-example-pool%{random_suffix}"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "tf-test-example-prvdr%{random_suffix}"
+  display_name                       = "Name of provider"
+  description                        = "X.509 identity pool provider for automated test"
+  disabled                           = true
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.subject.dn.cn"
+  }
+  x509 {
+    trust_store {
+        trust_anchors {
+            pem_certificate = file("test-fixtures/trust_anchor.pem")
+        }
+        intermediate_cas {
+            pem_certificate = file("test-fixtures/intermediate_ca.pem")
+        }
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckIAMBetaWorkloadIdentityPoolProviderDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

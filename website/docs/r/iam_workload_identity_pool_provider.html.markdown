@@ -231,6 +231,68 @@ EOT
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_provider_x509_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Provider X509 Basic
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "example-pool"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "example-prvdr"
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.subject.dn.cn"
+  }
+  x509 {
+    trust_store {
+        trust_anchors {
+            pem_certificate = file("test-fixtures/trust_anchor.pem")
+        }
+    }
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=iam_workload_identity_pool_provider_x509_full&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Iam Workload Identity Pool Provider X509 Full
+
+
+```hcl
+resource "google_iam_workload_identity_pool" "pool" {
+  workload_identity_pool_id = "example-pool"
+}
+
+resource "google_iam_workload_identity_pool_provider" "example" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "example-prvdr"
+  display_name                       = "Name of provider"
+  description                        = "X.509 identity pool provider for automated test"
+  disabled                           = true
+  attribute_mapping                  = {
+    "google.subject"        = "assertion.subject.dn.cn"
+  }
+  x509 {
+    trust_store {
+        trust_anchors {
+            pem_certificate = file("test-fixtures/trust_anchor.pem")
+        }
+        intermediate_cas {
+            pem_certificate = file("test-fixtures/intermediate_ca.pem")
+        }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -353,6 +415,12 @@ The following arguments are supported:
   An SAML 2.0 identity provider. Not compatible with the property oidc or aws.
   Structure is [documented below](#nested_saml).
 
+* `x509` -
+  (Optional)
+  An X.509-type identity provider represents a CA. It is trusted to assert a
+  client identity if the client has a certificate that chains up to this CA.
+  Structure is [documented below](#nested_x509).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -414,6 +482,49 @@ The following arguments are supported:
 * `idp_metadata_xml` -
   (Required)
   SAML Identity provider configuration metadata xml doc.
+
+<a name="nested_x509"></a>The `x509` block supports:
+
+* `trust_store` -
+  (Required)
+  A Trust store, use this trust store as a wrapper to config the trust
+  anchor and optional intermediate cas to help build the trust chain for
+  the incoming end entity certificate. Follow the x509 guidelines to
+  define those PEM encoded certs. Only 1 trust store is currently
+  supported.
+  Structure is [documented below](#nested_trust_store).
+
+
+<a name="nested_trust_store"></a>The `trust_store` block supports:
+
+* `trust_anchors` -
+  (Required)
+  List of Trust Anchors to be used while performing validation
+  against a given TrustStore. The incoming end entity's certificate
+  must be chained up to one of the trust anchors here.
+  Structure is [documented below](#nested_trust_anchors).
+
+* `intermediate_cas` -
+  (Optional)
+  Set of intermediate CA certificates used for building the trust chain to
+  trust anchor.
+  IMPORTANT: Intermediate CAs are only supported when configuring x509 federation.
+  Structure is [documented below](#nested_intermediate_cas).
+
+
+<a name="nested_trust_anchors"></a>The `trust_anchors` block supports:
+
+* `pem_certificate` -
+  (Optional)
+  PEM certificate of the PKI used for validation. Must only contain one
+  ca certificate(either root or intermediate cert).
+
+<a name="nested_intermediate_cas"></a>The `intermediate_cas` block supports:
+
+* `pem_certificate` -
+  (Optional)
+  PEM certificate of the PKI used for validation. Must only contain one
+  ca certificate(either root or intermediate cert).
 
 ## Attributes Reference
 
