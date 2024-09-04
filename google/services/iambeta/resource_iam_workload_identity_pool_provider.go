@@ -202,7 +202,7 @@ For OIDC providers, the following rules apply:
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "oidc", "saml"},
+				ExactlyOneOf: []string{"aws", "oidc", "saml", "x509"},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -280,7 +280,7 @@ the following fields:
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "oidc", "saml"},
+				ExactlyOneOf: []string{"aws", "oidc", "saml", "x509"},
 			},
 			"saml": {
 				Type:        schema.TypeList,
@@ -296,7 +296,67 @@ the following fields:
 						},
 					},
 				},
-				ExactlyOneOf: []string{"aws", "oidc", "saml"},
+				ExactlyOneOf: []string{"aws", "oidc", "saml", "x509"},
+			},
+			"x509": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `An X.509-type identity provider represents a CA. It is trusted to assert a
+client identity if the client has a certificate that chains up to this CA.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"trust_store": {
+							Type:     schema.TypeList,
+							Required: true,
+							Description: `A Trust store, use this trust store as a wrapper to config the trust
+anchor and optional intermediate cas to help build the trust chain for
+the incoming end entity certificate. Follow the x509 guidelines to
+define those PEM encoded certs. Only 1 trust store is currently
+supported.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"trust_anchors": {
+										Type:     schema.TypeList,
+										Required: true,
+										Description: `List of Trust Anchors to be used while performing validation
+against a given TrustStore. The incoming end entity's certificate
+must be chained up to one of the trust anchors here.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"pem_certificate": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `PEM certificate of the PKI used for validation. Must only contain one
+ca certificate(either root or intermediate cert).`,
+												},
+											},
+										},
+									},
+									"intermediate_cas": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Set of intermediate CA certificates used for building the trust chain to
+trust anchor.
+IMPORTANT: Intermediate CAs are only supported when configuring x509 federation.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"pem_certificate": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Description: `PEM certificate of the PKI used for validation. Must only contain one
+ca certificate(either root or intermediate cert).`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				ExactlyOneOf: []string{"aws", "oidc", "saml", "x509"},
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -381,6 +441,12 @@ func resourceIAMBetaWorkloadIdentityPoolProviderCreate(d *schema.ResourceData, m
 		return err
 	} else if v, ok := d.GetOkExists("saml"); !tpgresource.IsEmptyValue(reflect.ValueOf(samlProp)) && (ok || !reflect.DeepEqual(v, samlProp)) {
 		obj["saml"] = samlProp
+	}
+	x509Prop, err := expandIAMBetaWorkloadIdentityPoolProviderX509(d.Get("x509"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("x509"); !tpgresource.IsEmptyValue(reflect.ValueOf(x509Prop)) && (ok || !reflect.DeepEqual(v, x509Prop)) {
+		obj["x509"] = x509Prop
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers?workloadIdentityPoolProviderId={{workload_identity_pool_provider_id}}")
@@ -523,6 +589,9 @@ func resourceIAMBetaWorkloadIdentityPoolProviderRead(d *schema.ResourceData, met
 	if err := d.Set("saml", flattenIAMBetaWorkloadIdentityPoolProviderSaml(res["saml"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
 	}
+	if err := d.Set("x509", flattenIAMBetaWorkloadIdentityPoolProviderX509(res["x509"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkloadIdentityPoolProvider: %s", err)
+	}
 
 	return nil
 }
@@ -591,6 +660,12 @@ func resourceIAMBetaWorkloadIdentityPoolProviderUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("saml"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, samlProp)) {
 		obj["saml"] = samlProp
 	}
+	x509Prop, err := expandIAMBetaWorkloadIdentityPoolProviderX509(d.Get("x509"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("x509"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, x509Prop)) {
+		obj["x509"] = x509Prop
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{IAMBetaBasePath}}projects/{{project}}/locations/global/workloadIdentityPools/{{workload_identity_pool_id}}/providers/{{workload_identity_pool_provider_id}}")
 	if err != nil {
@@ -633,6 +708,10 @@ func resourceIAMBetaWorkloadIdentityPoolProviderUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("saml") {
 		updateMask = append(updateMask, "saml")
+	}
+
+	if d.HasChange("x509") {
+		updateMask = append(updateMask, "x509")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -844,6 +923,78 @@ func flattenIAMBetaWorkloadIdentityPoolProviderSamlIdpMetadataXml(v interface{},
 	return v
 }
 
+func flattenIAMBetaWorkloadIdentityPoolProviderX509(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["trust_store"] =
+		flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStore(original["trustStore"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["trust_anchors"] =
+		flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchors(original["trustAnchors"], d, config)
+	transformed["intermediate_cas"] =
+		flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCas(original["intermediateCas"], d, config)
+	return []interface{}{transformed}
+}
+func flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchors(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"pem_certificate": flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchorsPemCertificate(original["pemCertificate"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchorsPemCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCas(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"pem_certificate": flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCasPemCertificate(original["pemCertificate"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCasPemCertificate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandIAMBetaWorkloadIdentityPoolProviderDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -959,6 +1110,103 @@ func expandIAMBetaWorkloadIdentityPoolProviderSaml(v interface{}, d tpgresource.
 }
 
 func expandIAMBetaWorkloadIdentityPoolProviderSamlIdpMetadataXml(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTrustStore, err := expandIAMBetaWorkloadIdentityPoolProviderX509TrustStore(original["trust_store"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrustStore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["trustStore"] = transformedTrustStore
+	}
+
+	return transformed, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509TrustStore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTrustAnchors, err := expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchors(original["trust_anchors"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTrustAnchors); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["trustAnchors"] = transformedTrustAnchors
+	}
+
+	transformedIntermediateCas, err := expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCas(original["intermediate_cas"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIntermediateCas); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["intermediateCas"] = transformedIntermediateCas
+	}
+
+	return transformed, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchors(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPemCertificate, err := expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchorsPemCertificate(original["pem_certificate"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPemCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pemCertificate"] = transformedPemCertificate
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreTrustAnchorsPemCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCas(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedPemCertificate, err := expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCasPemCertificate(original["pem_certificate"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPemCertificate); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["pemCertificate"] = transformedPemCertificate
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandIAMBetaWorkloadIdentityPoolProviderX509TrustStoreIntermediateCasPemCertificate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
