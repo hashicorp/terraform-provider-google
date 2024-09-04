@@ -60,7 +60,7 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	if err := d.Set("network_inferface", networkInterfaces); err != nil {
+	if err := d.Set("network_interface", networkInterfaces); err != nil {
 		return err
 	}
 
