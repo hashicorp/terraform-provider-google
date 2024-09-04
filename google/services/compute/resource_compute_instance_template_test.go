@@ -796,6 +796,9 @@ func TestAccComputeInstanceTemplate_invalidDiskType(t *testing.T) {
 }
 
 func TestAccComputeInstanceTemplate_withNamePrefix(t *testing.T) {
+	// Randomness from generated name suffix
+	acctest.SkipIfVcr(t)
+
 	t.Parallel()
 
 	// 8 + 46 = 54 which is the valid max
