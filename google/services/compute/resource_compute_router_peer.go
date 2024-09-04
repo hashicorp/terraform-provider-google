@@ -395,7 +395,7 @@ func resourceComputeRouterBgpPeerCreate(d *schema.ResourceData, meta interface{}
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
+	} else if v, ok := d.GetOk("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
 		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
 	}
 	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
@@ -726,7 +726,7 @@ func resourceComputeRouterBgpPeerUpdate(d *schema.ResourceData, meta interface{}
 	advertisedRoutePriorityProp, err := expandNestedComputeRouterBgpPeerAdvertisedRoutePriority(d.Get("advertised_route_priority"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
+	} else if v, ok := d.GetOk("advertised_route_priority"); ok || !reflect.DeepEqual(v, advertisedRoutePriorityProp) {
 		obj["advertisedRoutePriority"] = advertisedRoutePriorityProp
 	}
 	advertiseModeProp, err := expandNestedComputeRouterBgpPeerAdvertiseMode(d.Get("advertise_mode"), d, config)
