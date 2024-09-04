@@ -44,6 +44,15 @@ func TestAccSecurityCenterV2ProjectNotificationConfig_updateStreamingConfigFilte
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"project", "location", "config_id"},
 			},
+			{
+				Config: testAccSecurityCenterV2ProjectNotificationConfig_emptyStreamingConfigFilter(context),
+			},
+			{
+				ResourceName:            "google_scc_v2_project_notification_config.custom_notification_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "location", "config_id"},
+			},
 		},
 	})
 }
@@ -63,6 +72,26 @@ resource "google_scc_v2_project_notification_config" "custom_notification_config
 
   streaming_config {
     filter = "category = \"OPEN_FIREWALL\""
+  }
+}
+`, context)
+}
+
+func testAccSecurityCenterV2ProjectNotificationConfig_emptyStreamingConfigFilter(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "scc_v2_project_notification" {
+  name = "tf-test-my-topic%{random_suffix}"
+}
+
+resource "google_scc_v2_project_notification_config" "custom_notification_config" {
+  config_id    = "tf-test-my-config%{random_suffix}"
+  project      = "%{project}"
+  description  = "My custom Cloud Security Command Center Finding Notification Configuration"
+  pubsub_topic =  google_pubsub_topic.scc_v2_project_notification.id
+  location     = "global"
+
+  streaming_config {
+    filter = ""
   }
 }
 `, context)

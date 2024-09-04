@@ -154,7 +154,7 @@ func resourceSecurityCenterNotificationConfigCreate(d *schema.ResourceData, meta
 	streamingConfigProp, err := expandSecurityCenterNotificationConfigStreamingConfig(d.Get("streaming_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("streaming_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(streamingConfigProp)) && (ok || !reflect.DeepEqual(v, streamingConfigProp)) {
+	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
@@ -295,7 +295,7 @@ func resourceSecurityCenterNotificationConfigUpdate(d *schema.ResourceData, meta
 	streamingConfigProp, err := expandSecurityCenterNotificationConfigStreamingConfig(d.Get("streaming_config"), d, config)
 	if err != nil {
 		return err
-	} else if v, ok := d.GetOkExists("streaming_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, streamingConfigProp)) {
+	} else if v, ok := d.GetOkExists("streaming_config"); ok || !reflect.DeepEqual(v, streamingConfigProp) {
 		obj["streamingConfig"] = streamingConfigProp
 	}
 
@@ -441,9 +441,6 @@ func flattenSecurityCenterNotificationConfigStreamingConfig(v interface{}, d *sc
 		return nil
 	}
 	original := v.(map[string]interface{})
-	if len(original) == 0 {
-		return nil
-	}
 	transformed := make(map[string]interface{})
 	transformed["filter"] =
 		flattenSecurityCenterNotificationConfigStreamingConfigFilter(original["filter"], d, config)
@@ -463,8 +460,13 @@ func expandSecurityCenterNotificationConfigPubsubTopic(v interface{}, d tpgresou
 
 func expandSecurityCenterNotificationConfigStreamingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	l := v.([]interface{})
-	if len(l) == 0 || l[0] == nil {
+	if len(l) == 0 {
 		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
 	}
 	raw := l[0]
 	original := raw.(map[string]interface{})
@@ -473,7 +475,7 @@ func expandSecurityCenterNotificationConfigStreamingConfig(v interface{}, d tpgr
 	transformedFilter, err := expandSecurityCenterNotificationConfigStreamingConfigFilter(original["filter"], d, config)
 	if err != nil {
 		return nil, err
-	} else if val := reflect.ValueOf(transformedFilter); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+	} else {
 		transformed["filter"] = transformedFilter
 	}
 
