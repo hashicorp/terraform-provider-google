@@ -44,6 +44,17 @@ func TestAccSecurityCenterV2OrganizationNotificationConfig_basic(t *testing.T) {
 					"config_id",
 				},
 			},
+			{
+				Config: testAccSecurityCenterV2OrganizationNotificationConfig_empty(context),
+			},
+			{
+				ResourceName:      "google_scc_v2_organization_notification_config.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"config_id",
+				},
+			},
 		},
 	})
 }
@@ -83,6 +94,26 @@ resource "google_scc_v2_organization_notification_config" "default" {
 
   streaming_config {
     filter = "severity = \"CRITICAL\""
+  }
+}
+`, context)
+}
+
+func testAccSecurityCenterV2OrganizationNotificationConfig_empty(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "scc_v2_organization_notification_config" {
+  name = "tf-test-topic-%{random_suffix}"
+}
+
+resource "google_scc_v2_organization_notification_config" "default" {
+  config_id    = "tf-test-config-%{random_suffix}"
+  organization = "%{org_id}"
+  location     = "global"
+  description  = "An updated test organization notification config"
+  pubsub_topic = google_pubsub_topic.scc_v2_organization_notification_config.id
+
+  streaming_config {
+    filter = ""
   }
 }
 `, context)
