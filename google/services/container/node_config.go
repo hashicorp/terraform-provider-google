@@ -93,19 +93,17 @@ func schemaLoggingVariant() *schema.Schema {
 	}
 }
 
-func schemaGcfsConfig(forceNew bool) *schema.Schema {
+func schemaGcfsConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		Optional:    true,
 		MaxItems:    1,
 		Description: `GCFS configuration for this node.`,
-		ForceNew:    forceNew,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"enabled": {
 					Type:        schema.TypeBool,
 					Required:    true,
-					ForceNew:    forceNew,
 					Description: `Whether or not GCFS is enabled`,
 				},
 			},
@@ -314,7 +312,7 @@ func schemaNodeConfig() *schema.Schema {
 					},
 				},
 
-				"gcfs_config": schemaGcfsConfig(true),
+				"gcfs_config": schemaGcfsConfig(),
 
 				"gvnic": {
 					Type:        schema.TypeList,
