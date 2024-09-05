@@ -10,10 +10,11 @@ on:
         dayThreshold:
           default: '3'
     schedule:
-        - cron: '0 3 * * *' # 3AM UTC (-7)-> 8PM PST # teamcity builds are triggered @ 4AM UTC
+        - cron: '0 3 * * *' # UTC 3AM (-7)-> 8PM PST
 
 jobs:
-  nightly-test-branch-creation:
+  rename-TC-nightly-branch:
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
@@ -21,8 +22,39 @@ jobs:
           retries: 3
           retry-exempt-status-codes: 400, 401, 403, 404, 422
           script: |
-                  let dateToday = new Date().toJSON().slice(0, 10);
+                  // Get yesterday's date, when the branch was originally made
+                  const date = new Date()
+                  date.setDate(date.getDate() -1);
+                  
+                  // Get YYYY-MM-DD string
+                  dateString = date.toJSON().slice(0, 10)
+                  
+                  const oldBranchName = "nightly-test";
+                  const newBranchName = "UTC-nightly-tests-" + dateString;
+                  
+                  try{
+                  await github.rest.repos.renameBranch({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    branch: oldBranchName,
+                    new_name: newBranchName, 
+                  })
+                  } catch (error){
+                    core.setFailed(error + "- Failed to rename branch to be used running tonight\'s tests")
+                  }
+                  console.log("Renamed branch " + oldBranchName + " to " + newBranchName)
 
+  nightly-test-branch-creation:
+    needs: rename-TC-nightly-branch
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        with:
+          retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
+          script: |
+                  let dateToday = new Date().toJSON().slice(0, 10);  
                   const mainRef = await github.rest.git.getRef({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
@@ -41,3 +73,66 @@ jobs:
                     core.setFailed(error + "- Failed to create new branch to be used running tonight\'s tests; branch with name " + branchName + " already exists")
                   }
                   console.log("Created Branch: " + branchName + " using commit " + commitHash + " from main.")
+
+  sweeping-outdated-branches:
+    needs: rename-TC-nightly-branch
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        env:
+          DAYS_THRESHOLD: ${{ inputs.dayThreshold || '3'}} # this allows the default value to be 3 when triggered on schedule
+        with:
+          retries: 3
+          retry-exempt-status-codes: 400, 401, 403, 404, 422
+          script: |
+            const { DAYS_THRESHOLD } = process.env
+            console.log(`Removing nightly-test branches not made in the last ${DAYS_THRESHOLD} days`)
+        
+            function dateDifference(dateToday, branchDate){
+                dateToday = new Date(dateToday)
+                branchDate = new Date(branchDate)
+                return (dateToday - branchDate) / 86_400_000 // calculates the difference in days based on milliseconds
+            }
+            
+            async function branchSweeper(daysThreshold){
+                let dateToday = new Date().toJSON().slice(0, 10);
+                console.log("Today\'s date: ",dateToday);
+                // grab the list of branches then iterate through the list checking for the difference in days
+                const branchList = await github.rest.repos.listBranches({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    protected: false
+                  })
+
+                const filteredBranches = branchList.data.filter( (branch) => {
+                  const branchDate = /^UTC-nightly-tests-\d{4}-\d{2}-\d{2}$/g.exec(branch.name)
+                  return branchDate != null  // skips if regex fails (is successful if matches with UTC-nightly-test branch format)
+                })
+
+                let branchesToDelete = []
+                
+                for (let i = 0; i < filteredBranches.length; i++) {
+                    const branchName = filteredBranches.at(i).name
+                    const branchDate = /\d{4}-\d{1,2}-\d{1,2}/g.exec(branchName)
+                    if (dateDifference(dateToday, branchDate[0]) >= daysThreshold) { // only happens if difference is greater than or equal to 3, we only want to keep the last 3 night branches
+                      branchesToDelete.push(branchName)
+                    }
+                }
+                
+                console.log("branches to be deleted: " + branchesToDelete)
+
+                for (let i = 0; i < branchesToDelete.length; i++) {
+                  const resp = await github.rest.git.deleteRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: "heads/" + branchesToDelete[i],
+                    })
+                  if (resp.status == "422"){
+                      console.error("Branch doesn\'t exist")
+                  } else{
+                    console.log("Deleted branch: " + branchesToDelete[i])
+                  } 
+                }
+            }
+          
+            branchSweeper(DAYS_THRESHOLD)
