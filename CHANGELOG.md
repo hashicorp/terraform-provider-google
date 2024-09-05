@@ -12,13 +12,12 @@ IMPROVEMENTS:
 * cloudrun: added support for nfs and csi volumes (for cloud storage fuse) for google_cloud_run_service ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
 * cloudrunv2: added support for nfs and gcs volumes for google_cloud_run_v2_job ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
 * compute: added `boot_disk.interface` field to `google_compute_instance` resource ([#19319](https://github.com/hashicorp/terraform-provider-google/pull/19319))
-* container: added `node_kublet_config` support for autopilot clusters. ([#19320](https://github.com/hashicorp/terraform-provider-google/pull/19320))
+* container: added `node_pool_auto_config.node_kublet_config.insecure_kubelet_readonly_port_enabled` field to `google_container_cluster`. ([#19320](https://github.com/hashicorp/terraform-provider-google/pull/19320))
 * container: added `insecure_kubelet_readonly_port_enabled` to `node_pool.node_config.kubelet_config` and `node_config.kubelet_config` in `google_container_node_pool` resource. ([#19312](https://github.com/hashicorp/terraform-provider-google/pull/19312))
 * container: added `insecure_kubelet_readonly_port_enabled` to `node_pool_defaults.node_config_defaults`, `node_pool.node_config.kubelet_config`, and `node_config.kubelet_config` in `google_container_cluster` resource. ([#19312](https://github.com/hashicorp/terraform-provider-google/pull/19312))
+* container: Added support for in-place updates for `google_compute_node_pool.node_config.gcfs_config` and `google_container_cluster.node_config.gcfs_cluster` and `google_container_cluster.node_pool.node_config.gcfs_cluster` ([#8101](https://github.com/hashicorp/terraform-provider-google-beta/pull/8101))
 * container: promoted the `additive_vpc_scope_dns_domain` field on the `google_container_cluster` resource to GA ([#19313](https://github.com/hashicorp/terraform-provider-google/pull/19313))
-* gkehub: added documentation for the `configmanagement.management` and `configmanagement.config_sync.enabled` fields to `google_gke_hub_feature_membership` resource ([#19329](https://github.com/hashicorp/terraform-provider-google/pull/19329))
 * iambeta: added `x509` field to `google_iam_workload_identity_pool_provider ` resource ([#19375](https://github.com/hashicorp/terraform-provider-google/pull/19375))
-* kms: updated the `google_kms_autokey_config` resource's `folder` field to accept values that are either full resource names (`folders/{folder_id}`) or just the folder id (`{folder_id}` only) ([#19364](https://github.com/hashicorp/terraform-provider-google/pull/19364))
 * networkconnectivity: added `include_export_ranges` to `google_network_connectivity_spoke` ([#19346](https://github.com/hashicorp/terraform-provider-google/pull/19346))
 * pubsub: added `cloud_storage_config.max_messages` and `cloud_storage_config.avro_config.use_topic_schema` fields to `google_pubsub_subscription` resource ([#19338](https://github.com/hashicorp/terraform-provider-google/pull/19338))
 * redis: added the `maintenance_policy` field to the `google_redis_cluster` resource ([#19341](https://github.com/hashicorp/terraform-provider-google/pull/19341))
@@ -27,11 +26,12 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: fixed `google_compute_interconnect` to support correct `available_features` option of `IF_MACSEC` ([#19330](https://github.com/hashicorp/terraform-provider-google/pull/19330))
-* compute: fixed a bug where `advertised_route_priority` was accidentally set to 0 during updates in 'google_compute_router_peer' ([#19366](https://github.com/hashicorp/terraform-provider-google/pull/19366))
+* compute: fixed a bug where `advertised_route_priority` was accidentally set to 0 during updates in `google_compute_router_peer` ([#19366](https://github.com/hashicorp/terraform-provider-google/pull/19366))
 * compute: fixed a permadiff caused by setting `start_time` in an incorrect H:mm format in `google_compute_resource_policies` resources ([#19297](https://github.com/hashicorp/terraform-provider-google/pull/19297))
-* compute: fixed `network_interface.subnetwork_project` validation to match with the project in `network_interface. subnetwork` field when `network_interface.subnetwork` has full self_link in `google_compute_instance` resource ([#19348](https://github.com/hashicorp/terraform-provider-google/pull/19348))
-* container: removed unnecessary force replacement in node pool `gcfs_config` ([#19365](https://github.com/hashicorp/terraform-provider-google/pull/19365))
-* storage: fixed a 429 error in `google_storage_bucket` resource ([#19353](https://github.com/hashicorp/terraform-provider-google/pull/19353))
+* compute: fixed `network_interface.subnetwork_project` validation to match with the project in `network_interface.subnetwork` field when `network_interface.subnetwork` has full self_link in `google_compute_instance` resource ([#19348](https://github.com/hashicorp/terraform-provider-google/pull/19348))
+* container: removed unnecessary force replacement in node pool `gcfs_config` ([#19365](https://github.com/hashicorp/terraform-provider-google/pull/19365)
+* kms: updated the `google_kms_autokey_config` resource's `folder` field to accept values that are either full resource names (`folders/{folder_id}`) or just the folder id (`{folder_id}` only) ([#19364](https://github.com/hashicorp/terraform-provider-google/pull/19364)))
+* storage: added retry support for 429 errors in `google_storage_bucket` resource ([#19353](https://github.com/hashicorp/terraform-provider-google/pull/19353))
 
 
 ## 6.1.0 (September 4, 2024)
