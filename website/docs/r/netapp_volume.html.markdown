@@ -159,6 +159,15 @@ The following arguments are supported:
   Backup configuration for the volume.
   Structure is [documented below](#nested_backup_config).
 
+* `large_capacity` -
+  (Optional)
+  Optional. Flag indicating if the volume will be a large capacity volume or a regular volume.
+
+* `multiple_endpoints` -
+  (Optional)
+  Optional. Flag indicating if the volume will have an IP address per node for volumes supporting multiple IP endpoints.
+  Only the volume with largeCapacity will be allowed to have multiple endpoints.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
