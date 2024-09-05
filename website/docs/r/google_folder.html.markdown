@@ -20,6 +20,8 @@ resource must have `roles/resourcemanager.folderCreator`. See the
 [Access Control for Folders Using IAM](https://cloud.google.com/resource-manager/docs/access-control-folders)
 doc for more information.
 
+~> It may take a while for the attached tag bindings to be deleted after the folder is scheduled to be deleted. 
+
 ## Example Usage
 
 ```hcl
@@ -34,6 +36,13 @@ resource "google_folder" "team-abc" {
   display_name = "Team ABC"
   parent       = google_folder.department1.name
 }
+
+# Folder with a tag
+resource "google_folder" "department1" {
+  display_name = "Department 1"
+  parent       = "organizations/1234567"
+  tags = {"1234567/env":"staging"}
+}
 ```
 
 ## Argument Reference
@@ -45,6 +54,8 @@ The following arguments are supported:
 
 * `parent` - (Required) The resource name of the parent Folder or Organization.
     Must be of the form `folders/{folder_id}` or `organizations/{org_id}`.
+
+* `tags` - (Optional) A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored when empty. The field is immutable and causes resource replacement when  mutated.
 
 ## Attributes Reference
 

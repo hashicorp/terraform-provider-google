@@ -73,6 +73,13 @@ func ResourceGoogleFolder() *schema.Resource {
 				Default:     true,
 				Description: `When the field is set to true or unset in Terraform state, a terraform apply or terraform destroy that would delete the instance will fail. When the field is set to false, deleting the instance is allowed.`,
 			},
+			"tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored when empty.`,
+			},
 		},
 		UseJSONNumber: true,
 	}
@@ -88,14 +95,19 @@ func resourceGoogleFolderCreate(d *schema.ResourceData, meta interface{}) error 
 	displayName := d.Get("display_name").(string)
 	parent := d.Get("parent").(string)
 
+	folder := &resourceManagerV3.Folder{
+		DisplayName: displayName,
+		Parent:      parent,
+	}
+	if _, ok := d.GetOk("tags"); ok {
+		folder.Tags = tpgresource.ExpandStringMap(d, "tags")
+	}
+
 	var op *resourceManagerV3.Operation
 	err = transport_tpg.Retry(transport_tpg.RetryOptions{
 		RetryFunc: func() error {
 			var reqErr error
-			op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Create(&resourceManagerV3.Folder{
-				DisplayName: displayName,
-				Parent:      parent,
-			}).Do()
+			op, reqErr = config.NewResourceManagerV3Client(userAgent).Folders.Create(folder).Do()
 			return reqErr
 		},
 		Timeout: d.Timeout(schema.TimeoutCreate),
