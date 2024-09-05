@@ -34,6 +34,11 @@ import (
 )
 
 type FrameworkProviderConfig struct {
+	// Temporary, as we'll replace use of FrameworkProviderConfig with transport_tpg.Config soon
+	// transport_tpg.Config has a Credentials field, hence this change is needed
+	Credentials types.String
+	// End temporary
+
 	BillingProject             types.String
 	Client                     *http.Client
 	Context                    context.Context
@@ -332,6 +337,12 @@ func (p *FrameworkProviderConfig) LoadAndValidateFramework(ctx context.Context, 
 	p.WorkbenchBasePath = data.WorkbenchCustomEndpoint.ValueString()
 	p.WorkflowsBasePath = data.WorkflowsCustomEndpoint.ValueString()
 
+	// Temporary
+	p.Credentials = data.Credentials
+	// End temporary
+
+	// Copy values from the ProviderModel struct containing data about the provider configuration (present only when responsing to ConfigureProvider rpc calls)
+	// to the FrameworkProviderConfig struct that will be passed and available to all resources/data sources
 	p.Context = ctx
 	p.BillingProject = data.BillingProject
 	p.DefaultLabels = data.DefaultLabels
