@@ -220,6 +220,17 @@ Format: 'projects/{{projectId}}/locations/{{location}}/backupVaults/{{backupVaul
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"large_capacity": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Optional. Flag indicating if the volume will be a large capacity volume or a regular volume.`,
+			},
+			"multiple_endpoints": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Optional. Flag indicating if the volume will have an IP address per node for volumes supporting multiple IP endpoints.
+Only the volume with largeCapacity will be allowed to have multiple endpoints.`,
+			},
 			"restore_parameters": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -644,6 +655,18 @@ func resourceNetappVolumeCreate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(backupConfigProp)) && (ok || !reflect.DeepEqual(v, backupConfigProp)) {
 		obj["backupConfig"] = backupConfigProp
 	}
+	largeCapacityProp, err := expandNetappVolumeLargeCapacity(d.Get("large_capacity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("large_capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(largeCapacityProp)) && (ok || !reflect.DeepEqual(v, largeCapacityProp)) {
+		obj["largeCapacity"] = largeCapacityProp
+	}
+	multipleEndpointsProp, err := expandNetappVolumeMultipleEndpoints(d.Get("multiple_endpoints"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multiple_endpoints"); !tpgresource.IsEmptyValue(reflect.ValueOf(multipleEndpointsProp)) && (ok || !reflect.DeepEqual(v, multipleEndpointsProp)) {
+		obj["multipleEndpoints"] = multipleEndpointsProp
+	}
 	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -839,6 +862,12 @@ func resourceNetappVolumeRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("backup_config", flattenNetappVolumeBackupConfig(res["backupConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
+	if err := d.Set("large_capacity", flattenNetappVolumeLargeCapacity(res["largeCapacity"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
+	if err := d.Set("multiple_endpoints", flattenNetappVolumeMultipleEndpoints(res["multipleEndpoints"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Volume: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenNetappVolumeTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Volume: %s", err)
 	}
@@ -925,6 +954,18 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 	} else if v, ok := d.GetOkExists("backup_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, backupConfigProp)) {
 		obj["backupConfig"] = backupConfigProp
 	}
+	largeCapacityProp, err := expandNetappVolumeLargeCapacity(d.Get("large_capacity"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("large_capacity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, largeCapacityProp)) {
+		obj["largeCapacity"] = largeCapacityProp
+	}
+	multipleEndpointsProp, err := expandNetappVolumeMultipleEndpoints(d.Get("multiple_endpoints"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("multiple_endpoints"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, multipleEndpointsProp)) {
+		obj["multipleEndpoints"] = multipleEndpointsProp
+	}
 	labelsProp, err := expandNetappVolumeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -981,6 +1022,14 @@ func resourceNetappVolumeUpdate(d *schema.ResourceData, meta interface{}) error 
 		updateMask = append(updateMask, "backup_config.backup_policies",
 			"backup_config.backup_vault",
 			"backup_config.scheduled_backup_enabled")
+	}
+
+	if d.HasChange("large_capacity") {
+		updateMask = append(updateMask, "largeCapacity")
+	}
+
+	if d.HasChange("multiple_endpoints") {
+		updateMask = append(updateMask, "multipleEndpoints")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -1662,6 +1711,14 @@ func flattenNetappVolumeBackupConfigScheduledBackupEnabled(v interface{}, d *sch
 	return v
 }
 
+func flattenNetappVolumeLargeCapacity(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetappVolumeMultipleEndpoints(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappVolumeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -2198,6 +2255,14 @@ func expandNetappVolumeBackupConfigBackupVault(v interface{}, d tpgresource.Terr
 }
 
 func expandNetappVolumeBackupConfigScheduledBackupEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeLargeCapacity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappVolumeMultipleEndpoints(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
