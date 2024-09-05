@@ -1,4 +1,14 @@
-## 5.43.1 (Unreleased)
+## 5.44.0 (Unreleased)
+
+NOTES:
+* 5.44.0 is a backport release, intended to pull in critical container improvements from 6.2.0
+
+IMPROVEMENTS:
+* container: added `insecure_kubelet_readonly_port_enabled` to `node_pool.node_config.kubelet_config` and `node_config.kubelet_config` in `google_container_node_pool` resource. ([#19312](https://github.com/hashicorp/terraform-provider-google/pull/19312))
+* container: added `insecure_kubelet_readonly_port_enabled` to `node_pool_defaults.node_config_defaults`, `node_pool.node_config.kubelet_config`, and `node_config.kubelet_config` in `google_container_cluster` resource. ([#19312](https://github.com/hashicorp/terraform-provider-google/pull/19312))
+* container: added `node_kublet_config` support for autopilot clusters. ([#19320](https://github.com/hashicorp/terraform-provider-google/pull/19320))
+
+## 5.43.1 (August 30, 2024)
 
 NOTES:
 * 5.43.1 is a backport release, and some changes will not appear in 6.X series releases until 6.1.0
