@@ -108,6 +108,7 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_dataproc_metastore_service" "default" {
   service_id = "metastore-srv"
   location   = "us-central1"
+  tier       = "DEVELOPER"
 
   hive_metastore_config {
     version = "3.1.2"
