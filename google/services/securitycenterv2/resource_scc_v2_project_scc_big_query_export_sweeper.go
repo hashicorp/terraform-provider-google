@@ -30,12 +30,12 @@ import (
 )
 
 func init() {
-	sweeper.AddTestSweepers("SecurityCenterV2FolderSccBigQueryExports", testSweepSecurityCenterV2FolderSccBigQueryExports)
+	sweeper.AddTestSweepers("SecurityCenterV2ProjectSccBigQueryExport", testSweepSecurityCenterV2ProjectSccBigQueryExport)
 }
 
 // At the time of writing, the CI only passes us-central1 as the region
-func testSweepSecurityCenterV2FolderSccBigQueryExports(region string) error {
-	resourceName := "SecurityCenterV2FolderSccBigQueryExports"
+func testSweepSecurityCenterV2ProjectSccBigQueryExport(region string) error {
+	resourceName := "SecurityCenterV2ProjectSccBigQueryExport"
 	log.Printf("[INFO][SWEEPER_LOG] Starting sweeper for %s", resourceName)
 
 	config, err := sweeper.SharedConfigForRegion(region)
@@ -64,7 +64,7 @@ func testSweepSecurityCenterV2FolderSccBigQueryExports(region string) error {
 		},
 	}
 
-	listTemplate := strings.Split("https://securitycenter.googleapis.com/v2/folders/{{folder}}/locations/{{location}}/bigQueryExports", "?")[0]
+	listTemplate := strings.Split("https://securitycenter.googleapis.com/v2/projects/{{project}}/locations/{{location}}/bigQueryExports", "?")[0]
 	listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 	if err != nil {
 		log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
@@ -83,7 +83,7 @@ func testSweepSecurityCenterV2FolderSccBigQueryExports(region string) error {
 		return nil
 	}
 
-	resourceList, ok := res["folderSccBigQueryExportss"]
+	resourceList, ok := res["projectSccBigQueryExports"]
 	if !ok {
 		log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
 		return nil
@@ -112,7 +112,7 @@ func testSweepSecurityCenterV2FolderSccBigQueryExports(region string) error {
 			continue
 		}
 
-		deleteTemplate := "https://securitycenter.googleapis.com/v2/folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"
+		deleteTemplate := "https://securitycenter.googleapis.com/v2/projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"
 		deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
