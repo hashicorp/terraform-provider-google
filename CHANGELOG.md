@@ -15,7 +15,7 @@ IMPROVEMENTS:
 * cloudtasks: added `http_target` field to `google_cloud_tasks_queue` resource ([#19253](https://github.com/hashicorp/terraform-provider-google/pull/19253))
 * compute: added `accelerators` field to `google_compute_node_template` resource ([#19292](https://github.com/hashicorp/terraform-provider-google/pull/19292))
 * compute: allowed disabling `server_tls_policy` during update in `google_compute_target_https_proxy` resources ([#19233](https://github.com/hashicorp/terraform-provider-google/pull/19233))
-* container: added `secret_manager_config` field to `google_container_cluster` resource (ga) ([#19288](https://github.com/hashicorp/terraform-provider-google/pull/19288))
+* container: added `secret_manager_config` field to `google_container_cluster` resource ([#19288](https://github.com/hashicorp/terraform-provider-google/pull/19288))
 * datastream: added `transaction_logs` and `change_tables` to the `datastream_stream` resource ([#19248](https://github.com/hashicorp/terraform-provider-google/pull/19248))
 * discoveryengine: added `chunking_config` and `layout_parsing_config` fields to `google_discovery_engine_data_store` resource ([#19274](https://github.com/hashicorp/terraform-provider-google/pull/19274))
 * dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config` resource ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
