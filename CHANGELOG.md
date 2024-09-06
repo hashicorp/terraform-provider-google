@@ -3,8 +3,8 @@
 FEATURES:
 * **New Data Source:** `google_certificate_manager_certificates` ([#19361](https://github.com/hashicorp/terraform-provider-google/pull/19361))
 * **New Resource:** `google_network_security_server_tls_policy` ([#19314](https://github.com/hashicorp/terraform-provider-google/pull/19314))
-* **New Resource:** `google_scc_v2_folder_scc_big_query_exports` ([#19327](https://github.com/hashicorp/terraform-provider-google/pull/19327))
-* **New Resource:** `google_scc_v2_project_scc_big_query_exports` ([#19311](https://github.com/hashicorp/terraform-provider-google/pull/19311))
+* **New Resource:** `google_scc_v2_folder_scc_big_query_export` ([#19327](https://github.com/hashicorp/terraform-provider-google/pull/19327))
+* **New Resource:** `google_scc_v2_project_scc_big_query_export` ([#19311](https://github.com/hashicorp/terraform-provider-google/pull/19311))
 
 IMPROVEMENTS:
 * assuredworkload: added field `partner_service_billing_account` to `google_assured_workloads_workload` ([#19358](https://github.com/hashicorp/terraform-provider-google/pull/19358))
