@@ -4,7 +4,6 @@ package compute_test
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 	"regexp"
 	"sort"
@@ -20,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	tpgcompute "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
-	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 	"github.com/stretchr/testify/assert"
 
 	"google.golang.org/api/compute/v1"
@@ -8541,24 +8539,17 @@ resource "google_compute_instance" "foobar" {
 }
 
 func TestAccComputeInstance_bootDisk_storagePoolSpecified(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
-	storagePoolName := fmt.Sprintf("tf-test-storage-pool-%s", acctest.RandString(t, 10))
-	storagePoolUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePools/%s", envvar.GetTestProjectFromEnv(), envvar.GetTestZoneFromEnv(), storagePoolName)
+	storagePoolNameLong := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-balanced")
 
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				PreConfig: setupTestingStoragePool_HyperdiskBalanced(t, storagePoolName),
-				Config:    testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolUrl, envvar.GetTestZoneFromEnv()),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_compute_instance.foobar", "boot_disk.0.initialize_params.0.storage_pool", storagePoolName),
-				),
+				Config: testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolNameLong, envvar.GetTestZoneFromEnv()),
 			},
 			{
 				ResourceName:      "google_compute_instance.foobar",
@@ -8567,46 +8558,6 @@ func TestAccComputeInstance_bootDisk_storagePoolSpecified(t *testing.T) {
 			},
 		},
 	})
-
-	cleanupTestingStoragePool(t, storagePoolName)
-}
-
-func setupTestingStoragePool_HyperdiskBalanced(t *testing.T, storagePoolName string) func() {
-	return func() {
-		config := acctest.GoogleProviderConfig(t)
-		headers := make(http.Header)
-		project := envvar.GetTestProjectFromEnv()
-		zone := envvar.GetTestZoneFromEnv()
-		url := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools", config.ComputeBasePath, project, zone)
-		storagePoolTypeUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePoolTypes/hyperdisk-balanced", project, zone)
-		defaultTimeout := 20 * time.Minute
-		obj := make(map[string]interface{})
-		obj["name"] = storagePoolName
-		obj["poolProvisionedCapacityGb"] = 10240
-		obj["poolProvisionedIops"] = 10000
-		obj["poolProvisionedThroughput"] = 1024
-		obj["storagePoolType"] = storagePoolTypeUrl
-		obj["capacityProvisioningType"] = "ADVANCED"
-
-		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   project,
-			RawURL:    url,
-			UserAgent: config.UserAgent,
-			Body:      obj,
-			Timeout:   defaultTimeout,
-			Headers:   headers,
-		})
-		if err != nil {
-			t.Errorf("Error creating StoragePool: %s", err)
-		}
-
-		err = tpgcompute.ComputeOperationWaitTime(config, res, project, "Creating StoragePool", config.UserAgent, defaultTimeout)
-		if err != nil {
-			t.Errorf("Error waiting to create StoragePool: %s", err)
-		}
-	}
 }
 
 func testAccComputeInstance_bootDisk_storagePoolSpecified(instanceName, storagePoolUrl, zone string) string {
