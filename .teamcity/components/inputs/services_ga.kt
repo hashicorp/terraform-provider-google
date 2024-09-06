@@ -486,6 +486,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Memcache",
         "path" to "./google/services/memcache"
     ),
+    "memorystore" to mapOf(
+        "name" to "memorystore",
+        "displayName" to "Memorystore",
+        "path" to "./google/services/memorystore"
+    ),
     "migrationcenter" to mapOf(
         "name" to "migrationcenter",
         "displayName" to "Migrationcenter",
