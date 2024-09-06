@@ -158,6 +158,46 @@ resource "google_kms_crypto_key_iam_member" "crypto_key_member_2" {
 `, context)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.endpoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceEndpointExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "endpoint" {
+  service_id = "tf-test-metastore-endpoint%{random_suffix}"
+  location   = "us-central1"
+  tier       = "DEVELOPER"
+
+  hive_metastore_config {
+    version           = "3.1.2"
+    endpoint_protocol = "GRPC"
+  }
+}
+`, context)
+}
+
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceAuxExample(t *testing.T) {
 	t.Parallel()
 
