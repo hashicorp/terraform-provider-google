@@ -1109,6 +1109,78 @@ func BootstrapFirewallForDataprocSharedNetwork(t *testing.T, firewallName string
 	return firewall.Name
 }
 
+const SharedStoragePoolPrefix = "tf-bootstrap-storage-pool-"
+
+func BootstrapComputeStoragePool(t *testing.T, storagePoolName, storagePoolType string) string {
+	projectID := envvar.GetTestProjectFromEnv()
+	zone := envvar.GetTestZoneFromEnv()
+
+	storagePoolName = SharedStoragePoolPrefix + storagePoolType + "-" + storagePoolName
+
+	config := BootstrapConfig(t)
+	if config == nil {
+		t.Fatal("Could not bootstrap config.")
+	}
+
+	computeService := config.NewComputeClient(config.UserAgent)
+	if computeService == nil {
+		t.Fatal("Could not create compute client.")
+	}
+
+	_, err := computeService.StoragePools.Get(projectID, zone, storagePoolName).Do()
+	if err != nil && transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+		log.Printf("[DEBUG] Storage pool %q not found, bootstrapping", storagePoolName)
+
+		url := fmt.Sprintf("%sprojects/%s/zones/%s/storagePools", config.ComputeBasePath, projectID, zone)
+		storagePoolTypeUrl := fmt.Sprintf("/projects/%s/zones/%s/storagePoolTypes/%s", projectID, zone, storagePoolType)
+
+		storagePoolObj := map[string]interface{}{
+			"name":                      storagePoolName,
+			"poolProvisionedCapacityGb": 10240,
+			"poolProvisionedThroughput": 180,
+			"storagePoolType":           storagePoolTypeUrl,
+			"capacityProvisioningType":  "ADVANCED",
+		}
+
+		if storagePoolType == "hyperdisk-balanced" {
+			storagePoolObj["poolProvisionedIops"] = 10000
+			storagePoolObj["poolProvisionedThroughput"] = 1024
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   projectID,
+			RawURL:    url,
+			UserAgent: config.UserAgent,
+			Body:      storagePoolObj,
+			Timeout:   20 * time.Minute,
+		})
+
+		log.Printf("Response is, %s", res)
+		if err != nil {
+			t.Fatalf("Error bootstrapping storage pool %s: %s", storagePoolName, err)
+		}
+
+		log.Printf("[DEBUG] Waiting for storage pool creation to finish")
+		err = tpgcompute.ComputeOperationWaitTime(config, res, projectID, "Error bootstrapping storage pool", config.UserAgent, 4*time.Minute)
+		if err != nil {
+			t.Fatalf("Error bootstrapping test storage pool %s: %s", storagePoolName, err)
+		}
+	}
+
+	storagePool, err := computeService.StoragePools.Get(projectID, zone, storagePoolName).Do()
+
+	if storagePool == nil {
+		t.Fatalf("Error getting storage pool %s: is nil", storagePoolName)
+	}
+
+	if err != nil {
+		t.Fatalf("Error getting storage pool %s: %s", storagePoolName, err)
+	}
+	return storagePool.SelfLink
+}
+
 func SetupProjectsAndGetAccessToken(org, billing, pid, service string, config *transport_tpg.Config) (string, error) {
 	// Create project-1 and project-2
 	rmService := config.NewResourceManagerClient(config.UserAgent)
