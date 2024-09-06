@@ -20,7 +20,7 @@ IMPROVEMENTS:
 * discoveryengine: added `chunking_config` and `layout_parsing_config` fields to `google_discovery_engine_data_store` resource ([#19274](https://github.com/hashicorp/terraform-provider-google/pull/19274))
 * dlp: added `inspect_template_modified_cadence` field to `big_query_target` and `cloud_sql_target` in `google_data_loss_prevention_discovery_config` resource ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
 * dlp: added `tag_resources` field to `google_data_loss_prevention_discovery_config` resource ([#19282](https://github.com/hashicorp/terraform-provider-google/pull/19282))
-* networksecurity: `google_network_security_client_tls_policy` in v1 ([#19293](https://github.com/hashicorp/terraform-provider-google/pull/19293))
+* networksecurity: promoted `google_network_security_client_tls_policy` to GA ([#19293](https://github.com/hashicorp/terraform-provider-google/pull/19293))
 
 BUG FIXES:
 * bigquery: fixed an error which could occur with email field values containing non-lower-case characters in `google_bigquery_dataset_access` resource ([#19259](https://github.com/hashicorp/terraform-provider-google/pull/19259))
