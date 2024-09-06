@@ -1652,7 +1652,9 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 			"desired_state": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream, and 'PAUSED' to pause the stream.
+				Description: `Desired state of the Stream. Set this field to 'RUNNING' to start the stream,
+'NOT_STARTED' to create the stream without starting and 'PAUSED' to pause
+the stream from a 'RUNNING' state.
 Possible values: NOT_STARTED, RUNNING, PAUSED. Default: NOT_STARTED`,
 				Default: "NOT_STARTED",
 			},
