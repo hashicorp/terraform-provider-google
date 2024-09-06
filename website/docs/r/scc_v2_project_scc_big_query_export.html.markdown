@@ -17,7 +17,7 @@ description: |-
   A Cloud Security Command Center (Cloud SCC) Big Query Export Config.
 ---
 
-# google_scc_v2_folder_scc_big_query_exports
+# google_scc_v2_project_scc_big_query_export
 
 A Cloud Security Command Center (Cloud SCC) Big Query Export Config.
 It represents exporting Security Command Center data, including assets, findings, and security marks
@@ -27,23 +27,16 @@ in [SCC Standard/Premium](https://cloud.google.com/security-command-center/docs/
 Without doing so, you may run into errors during resource creation.
 
 
-To get more information about FolderSccBigQueryExports, see:
+To get more information about ProjectSccBigQueryExport, see:
 
-* [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/folders.locations.bigQueryExports)
+* [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/projects.locations.bigQueryExports)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs/how-to-analyze-findings-in-big-query)
 
-## Example Usage - Scc V2 Folder Big Query Export Config Basic
+## Example Usage - Scc V2 Project Big Query Export Config Basic
 
 
 ```hcl
-resource "google_folder" "folder" {
-  parent       = "organizations/123456789"
-  display_name = "folder-name"
-
-  deletion_protection = false
-}
-
 resource "google_bigquery_dataset" "default" {
   dataset_id                  = "my_dataset_id"
   friendly_name               = "test"
@@ -61,9 +54,10 @@ resource "google_bigquery_dataset" "default" {
   }
 }
 
-resource "google_scc_v2_folder_scc_big_query_exports" "custom_big_query_export_config" {
+resource "google_scc_v2_project_scc_big_query_export" "custom_big_query_export_config" {
+  name         = "my-export"
   big_query_export_id    = "my-export"
-  folder       = google_folder.folder.folder_id
+  project      = "my-project-name"
   dataset      = google_bigquery_dataset.default.id
   location     = "global"
   description  = "Cloud Security Command Center Findings Big Query Export Config"
@@ -76,16 +70,9 @@ resource "google_scc_v2_folder_scc_big_query_exports" "custom_big_query_export_c
 The following arguments are supported:
 
 
-* `folder` -
-  (Required)
-  The folder where Cloud Security Command Center Big Query Export
-  Config lives in.
-
 * `big_query_export_id` -
   (Required)
-  This must be unique within the organization.  It must consist of only lowercase letters,
-  numbers, and hyphens, must start with a letter, must end with either a letter or a number,
-  and must be 63 characters or less.
+  This must be unique within the organization.
 
 
 - - -
@@ -125,18 +112,21 @@ The following arguments are supported:
 
 * `location` -
   (Optional)
-  The BigQuery export configuration is stored in this location. If not provided, Use global as default.
+  location Id is provided by organization. If not provided, Use global as default.
+
+* `project` - (Optional) The ID of the project in which the resource belongs.
+    If it is not provided, the provider project is used.
 
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `id` - an identifier for the resource with format `folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
+* `id` - an identifier for the resource with format `projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
 
 * `name` -
   The resource name of this export, in the format
-  `folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`.
+  `projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`.
   This field is provided in responses, and is ignored when provided in create requests.
 
 * `create_time` -
@@ -169,24 +159,30 @@ This resource provides the following
 ## Import
 
 
-FolderSccBigQueryExports can be imported using any of these accepted formats:
+ProjectSccBigQueryExport can be imported using any of these accepted formats:
 
-* `folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
-* `{{folder}}/{{location}}/{{big_query_export_id}}`
+* `projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
+* `{{project}}/{{location}}/{{big_query_export_id}}`
+* `{{location}}/{{big_query_export_id}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import FolderSccBigQueryExports using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import ProjectSccBigQueryExport using one of the formats above. For example:
 
 ```tf
 import {
-  id = "folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"
-  to = google_scc_v2_folder_scc_big_query_exports.default
+  id = "projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"
+  to = google_scc_v2_project_scc_big_query_export.default
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), FolderSccBigQueryExports can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), ProjectSccBigQueryExport can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_scc_v2_folder_scc_big_query_exports.default folders/{{folder}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}
-$ terraform import google_scc_v2_folder_scc_big_query_exports.default {{folder}}/{{location}}/{{big_query_export_id}}
+$ terraform import google_scc_v2_project_scc_big_query_export.default projects/{{project}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}
+$ terraform import google_scc_v2_project_scc_big_query_export.default {{project}}/{{location}}/{{big_query_export_id}}
+$ terraform import google_scc_v2_project_scc_big_query_export.default {{location}}/{{big_query_export_id}}
 ```
+
+## User Project Overrides
+
+This resource supports [User Project Overrides](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#user_project_override).
