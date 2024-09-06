@@ -1,0 +1,3 @@
+```release-note:note
+Update docs for new image types support for`google_gkeonprem_vmware_node_pool`
+```
