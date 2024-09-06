@@ -130,6 +130,38 @@ func TestAccComputeInstanceFromTemplateWithOverride_localSsdRecoveryTimeout(t *t
 	})
 }
 
+func TestAccComputeInstanceFromTemplate_diskResourcePolicies(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	templateName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceFromTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceFromTemplate_diskResourcePoliciesCreate(suffix, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstanceFromTemplate_diskResourcePoliciesUpdate(suffix, templateName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance_from_template.foobar", &instance),
+				),
+			},
+			{
+				Config:      testAccComputeInstanceFromTemplate_diskResourcePoliciesTwoPolicies(suffix, templateName),
+				ExpectError: regexp.MustCompile("Too many list items"),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceFromTemplate_overrideBootDisk(t *testing.T) {
 	t.Parallel()
 
@@ -1333,4 +1365,160 @@ resource "google_compute_instance_from_template" "foobar" {
   }
 }
 `, template, instance, template, instance)
+}
+
+func testAccComputeInstanceFromTemplate_diskResourcePoliciesCreate(suffix, template string) string {
+	return fmt.Sprintf(`
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+  
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%s"
+  region = "us-central1"
+  machine_type = "n1-standard-1"
+  disk {
+    resource_policies = [ google_compute_resource_policy.test-snapshot-policy.name ]
+    source_image = data.google_compute_image.my_image.self_link
+  }
+  network_interface {
+      network = "default"
+  }
+}
+  
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+  source_instance_template = google_compute_region_instance_template.foobar.id
+}
+`, suffix, suffix, template, template)
+}
+
+func testAccComputeInstanceFromTemplate_diskResourcePoliciesUpdate(suffix, template string) string {
+	return fmt.Sprintf(`
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+  
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%s"
+  region = "us-central1"
+  machine_type = "n1-standard-1" 
+  disk {
+    resource_policies = [ google_compute_resource_policy.test-snapshot-policy2.name ]
+    source_image = data.google_compute_image.my_image.self_link
+  }
+  network_interface {
+      network = "default"
+  }
+}
+  
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+  source_instance_template = google_compute_region_instance_template.foobar.id
+}
+`, suffix, suffix, template, template)
+}
+
+func testAccComputeInstanceFromTemplate_diskResourcePoliciesTwoPolicies(suffix, template string) string {
+	return fmt.Sprintf(`
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%s"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+  
+resource "google_compute_region_instance_template" "foobar" {
+  name         = "%s"
+  region = "us-central1"
+  machine_type = "n1-standard-1" 
+  disk {
+    resource_policies = [ google_compute_resource_policy.test-snapshot-policy.name, google_compute_resource_policy.test-snapshot-policy2.name ]
+    source_image = data.google_compute_image.my_image.self_link
+  }
+  network_interface {
+      network = "default"
+  }
+}
+  
+resource "google_compute_instance_from_template" "foobar" {
+  name = "%s"
+  zone = "us-central1-a"
+  source_instance_template = google_compute_region_instance_template.foobar.id
+}
+  `, suffix, suffix, template, template)
 }

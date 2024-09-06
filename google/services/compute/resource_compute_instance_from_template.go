@@ -248,6 +248,15 @@ func adjustInstanceFromTemplateDisks(d *schema.ResourceData, config *transport_t
 						// only have the name (since they're global).
 						disk.InitializeParams.DiskType = fmt.Sprintf("zones/%s/diskTypes/%s", zone.Name, dt)
 					}
+					if rp := disk.InitializeParams.ResourcePolicies; len(rp) > 0 {
+						// Instances need a URL for the resource policy, but instance templates
+						// only have the name (since they're global).
+						for i := range rp {
+							rp[i], _ = parseUniqueId(rp[i]) // in some cases the API translation doesn't work and returns entire url when only name is provided. And allows for id to be passed as well
+							rp[i] = fmt.Sprintf("projects/%s/regions/%s/resourcePolicies/%s", project, regionFromUrl(zone.Region), rp[i])
+						}
+						disk.InitializeParams.ResourcePolicies = rp
+					}
 				}
 				disks = append(disks, disk)
 				break
