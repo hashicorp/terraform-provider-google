@@ -9,8 +9,8 @@ FEATURES:
 IMPROVEMENTS:
 * assuredworkload: added field `partner_service_billing_account` to `google_assured_workloads_workload` ([#19358](https://github.com/hashicorp/terraform-provider-google/pull/19358))
 * bigtable: added support for `column_family.type` in `google_bigtable_table` ([#19302](https://github.com/hashicorp/terraform-provider-google/pull/19302))
-* cloudrun: added support for nfs and csi volumes (for cloud storage fuse) for google_cloud_run_service ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
-* cloudrunv2: added support for nfs and gcs volumes for google_cloud_run_v2_job ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
+* cloudrun: promoted support for nfs and csi volumes (for Cloud Storage FUSE) for `google_cloud_run_service` to GA ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
+* cloudrunv2: promoted support for nfs and gcs volumes for `google_cloud_run_v2_job` to GA ([#19359](https://github.com/hashicorp/terraform-provider-google/pull/19359))
 * compute: added `boot_disk.interface` field to `google_compute_instance` resource ([#19319](https://github.com/hashicorp/terraform-provider-google/pull/19319))
 * container: added `node_pool_auto_config.node_kublet_config.insecure_kubelet_readonly_port_enabled` field to `google_container_cluster`. ([#19320](https://github.com/hashicorp/terraform-provider-google/pull/19320))
 * container: added `insecure_kubelet_readonly_port_enabled` to `node_pool.node_config.kubelet_config` and `node_config.kubelet_config` in `google_container_node_pool` resource. ([#19312](https://github.com/hashicorp/terraform-provider-google/pull/19312))
