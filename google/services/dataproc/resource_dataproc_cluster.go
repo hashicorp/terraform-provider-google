@@ -2893,6 +2893,9 @@ func flattenSecurityConfig(d *schema.ResourceData, sc *dataproc.SecurityConfig) 
 }
 
 func flattenKerberosConfig(d *schema.ResourceData, kfg *dataproc.KerberosConfig) []map[string]interface{} {
+	if kfg == nil {
+		return nil
+	}
 	data := map[string]interface{}{
 		"enable_kerberos":                       kfg.EnableKerberos,
 		"root_principal_password_uri":           kfg.RootPrincipalPasswordUri,

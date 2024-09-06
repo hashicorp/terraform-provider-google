@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: updated `google_dataproc_cluster` to protect against handling nil KerberosConfig values
+```
