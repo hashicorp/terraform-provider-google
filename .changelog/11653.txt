@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: setting `network_ip` to "" will no longer cause diff and will be treated the same as `null`
+```
