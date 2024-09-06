@@ -328,6 +328,42 @@ func TestAccComputeInstance_resourceManagerTags(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_diskResourcePolicies(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": acctest.RandString(t, 10),
+		"instance_name": instanceName,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_diskResourcePoliciesOnePolicy(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_diskResourcePoliciesOnePolicyUpdate(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config:      testAccComputeInstance_diskResourcePoliciesTwoPolicies(context),
+				ExpectError: regexp.MustCompile("Too many list items"),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_machineTypeUrl(t *testing.T) {
 	t.Parallel()
 
@@ -4345,6 +4381,156 @@ resource "google_compute_instance" "foobar" {
     resource_manager_tags = {
       "tagKeys/${google_tags_tag_key.key.name}"     = "tagValues/${google_tags_tag_value.value.name}"
       "tagKeys/${google_tags_tag_key.key_new.name}" = "tagValues/${google_tags_tag_value.value_new.name}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstance_diskResourcePoliciesOnePolicy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+	  resource_policies = [google_compute_resource_policy.test-snapshot-policy.id]
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstance_diskResourcePoliciesOnePolicyUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+	  resource_policies = [google_compute_resource_policy.test-snapshot-policy2.id]
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstance_diskResourcePoliciesTwoPolicies(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy" {
+  name    = "test-policy-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "11:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_resource_policy" "test-snapshot-policy2" {
+  name    = "test-policy2-%{random_suffix}"
+  snapshot_schedule_policy {
+    schedule {
+      hourly_schedule {
+        hours_in_cycle = 1
+        start_time     = "22:00"
+      }
+    }
+  }
+}
+
+resource "google_compute_instance" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  zone           = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+	  resource_policies = [google_compute_resource_policy.test-snapshot-policy2.id, google_compute_resource_policy.test-snapshot-policy.id]
+      image = data.google_compute_image.my_image.self_link
     }
   }
 

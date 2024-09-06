@@ -71,6 +71,7 @@ var (
 		"boot_disk.0.initialize_params.0.provisioned_throughput",
 		"boot_disk.0.initialize_params.0.enable_confidential_compute",
 		"boot_disk.0.initialize_params.0.storage_pool",
+		"boot_disk.0.initialize_params.0.resource_policies",
 	}
 
 	schedulingKeys = []string{
@@ -302,6 +303,17 @@ func ResourceComputeInstance() *schema.Resource {
 										ForceNew:     true,
 										AtLeastOneOf: initializeParamsKeys,
 										Description:  `A map of resource manager tags. Resource manager tag keys and values have the same definition as resource manager tags. Keys must be in the format tagKeys/{tag_key_id}, and values are in the format tagValues/456. The field is ignored (both PUT & PATCH) when empty.`,
+									},
+
+									"resource_policies": {
+										Type:             schema.TypeList,
+										Elem:             &schema.Schema{Type: schema.TypeString},
+										Optional:         true,
+										ForceNew:         true,
+										AtLeastOneOf:     initializeParamsKeys,
+										DiffSuppressFunc: tpgresource.CompareSelfLinkRelativePaths,
+										MaxItems:         1,
+										Description:      `A list of self_links of resource policies to attach to the instance's boot disk. Modifying this list will cause the instance to recreate. Currently a max of 1 resource policy is supported.`,
 									},
 
 									"provisioned_iops": {
@@ -2886,6 +2898,10 @@ func expandBootDisk(d *schema.ResourceData, config *transport_tpg.Config, projec
 			disk.InitializeParams.ResourceManagerTags = tpgresource.ExpandStringMap(d, "boot_disk.0.initialize_params.0.resource_manager_tags")
 		}
 
+		if _, ok := d.GetOk("boot_disk.0.initialize_params.0.resource_policies"); ok {
+			disk.InitializeParams.ResourcePolicies = tpgresource.ConvertStringArr(d.Get("boot_disk.0.initialize_params.0.resource_policies").([]interface{}))
+		}
+
 		if v, ok := d.GetOk("boot_disk.0.initialize_params.0.storage_pool"); ok {
 			disk.InitializeParams.StoragePool = v.(string)
 		}
@@ -2931,6 +2947,7 @@ func flattenBootDisk(d *schema.ResourceData, disk *compute.AttachedDisk, config 
 			"size":                        diskDetails.SizeGb,
 			"labels":                      diskDetails.Labels,
 			"resource_manager_tags":       d.Get("boot_disk.0.initialize_params.0.resource_manager_tags"),
+			"resource_policies":           diskDetails.ResourcePolicies,
 			"provisioned_iops":            diskDetails.ProvisionedIops,
 			"provisioned_throughput":      diskDetails.ProvisionedThroughput,
 			"enable_confidential_compute": diskDetails.EnableConfidentialCompute,
