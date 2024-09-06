@@ -308,6 +308,23 @@ than 255 UTF-8 encoded bytes.`,
 					},
 				},
 			},
+			"security_posture_config": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Description: `Enable/Disable Security Posture API features for the cluster.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vulnerability_mode": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"VULNERABILITY_DISABLED", "VULNERABILITY_ENTERPRISE"}),
+							Description:  `Sets the mode of the Kubernetes security posture API's workload vulnerability scanning. Possible values: ["VULNERABILITY_DISABLED", "VULNERABILITY_ENTERPRISE"]`,
+						},
+					},
+				},
+			},
 			"cluster_region": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -483,6 +500,12 @@ func resourceContainerAttachedClusterCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("proxy_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(proxyConfigProp)) && (ok || !reflect.DeepEqual(v, proxyConfigProp)) {
 		obj["proxyConfig"] = proxyConfigProp
+	}
+	securityPostureConfigProp, err := expandContainerAttachedClusterSecurityPostureConfig(d.Get("security_posture_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("security_posture_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(securityPostureConfigProp)) && (ok || !reflect.DeepEqual(v, securityPostureConfigProp)) {
+		obj["securityPostureConfig"] = securityPostureConfigProp
 	}
 	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
@@ -672,6 +695,9 @@ func resourceContainerAttachedClusterRead(d *schema.ResourceData, meta interface
 	if err := d.Set("proxy_config", flattenContainerAttachedClusterProxyConfig(res["proxyConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
+	if err := d.Set("security_posture_config", flattenContainerAttachedClusterSecurityPostureConfig(res["securityPostureConfig"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Cluster: %s", err)
+	}
 	if err := d.Set("effective_annotations", flattenContainerAttachedClusterEffectiveAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Cluster: %s", err)
 	}
@@ -749,6 +775,12 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 	} else if v, ok := d.GetOkExists("proxy_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, proxyConfigProp)) {
 		obj["proxyConfig"] = proxyConfigProp
 	}
+	securityPostureConfigProp, err := expandContainerAttachedClusterSecurityPostureConfig(d.Get("security_posture_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("security_posture_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, securityPostureConfigProp)) {
+		obj["securityPostureConfig"] = securityPostureConfigProp
+	}
 	annotationsProp, err := expandContainerAttachedClusterEffectiveAnnotations(d.Get("effective_annotations"), d, config)
 	if err != nil {
 		return err
@@ -801,6 +833,10 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		updateMask = append(updateMask, "proxyConfig")
 	}
 
+	if d.HasChange("security_posture_config") {
+		updateMask = append(updateMask, "securityPostureConfig")
+	}
+
 	if d.HasChange("effective_annotations") {
 		updateMask = append(updateMask, "annotations")
 	}
@@ -831,9 +867,12 @@ func resourceContainerAttachedClusterUpdate(d *schema.ResourceData, meta interfa
 		newUpdateMask = append(newUpdateMask, "proxy_config.kubernetes_secret.name")
 		newUpdateMask = append(newUpdateMask, "proxy_config.kubernetes_secret.namespace")
 	}
+	if d.HasChange("security_posture_config") {
+		newUpdateMask = append(newUpdateMask, "security_posture_config.vulnerability_mode")
+	}
 	// Pull out any other set fields from the generated mask.
 	for _, mask := range updateMask {
-		if mask == "authorization" || mask == "loggingConfig" || mask == "monitoringConfig" || mask == "binaryAuthorization" || mask == "proxyConfig" {
+		if mask == "authorization" || mask == "loggingConfig" || mask == "monitoringConfig" || mask == "binaryAuthorization" || mask == "proxyConfig" || mask == "securityPostureConfig" {
 			continue
 		}
 		newUpdateMask = append(newUpdateMask, mask)
@@ -1279,6 +1318,23 @@ func flattenContainerAttachedClusterProxyConfigKubernetesSecretNamespace(v inter
 	return v
 }
 
+func flattenContainerAttachedClusterSecurityPostureConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["vulnerability_mode"] =
+		flattenContainerAttachedClusterSecurityPostureConfigVulnerabilityMode(original["vulnerabilityMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenContainerAttachedClusterSecurityPostureConfigVulnerabilityMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenContainerAttachedClusterEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1602,6 +1658,29 @@ func expandContainerAttachedClusterProxyConfigKubernetesSecretName(v interface{}
 }
 
 func expandContainerAttachedClusterProxyConfigKubernetesSecretNamespace(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandContainerAttachedClusterSecurityPostureConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedVulnerabilityMode, err := expandContainerAttachedClusterSecurityPostureConfigVulnerabilityMode(original["vulnerability_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVulnerabilityMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["vulnerabilityMode"] = transformedVulnerabilityMode
+	}
+
+	return transformed, nil
+}
+
+func expandContainerAttachedClusterSecurityPostureConfigVulnerabilityMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

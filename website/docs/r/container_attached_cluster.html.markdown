@@ -118,6 +118,9 @@ resource "google_container_attached_cluster" "primary" {
       namespace = "default"
     }
   }
+  security_posture_config {
+    vulnerability_mode = "VULNERABILITY_ENTERPRISE"
+  }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -264,6 +267,11 @@ The following arguments are supported:
   Support for proxy configuration.
   Structure is [documented below](#nested_proxy_config).
 
+* `security_posture_config` -
+  (Optional)
+  Enable/Disable Security Posture API features for the cluster.
+  Structure is [documented below](#nested_security_posture_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -340,6 +348,13 @@ The following arguments are supported:
 * `namespace` -
   (Required)
   Namespace of the kubernetes secret containing the proxy config.
+
+<a name="nested_security_posture_config"></a>The `security_posture_config` block supports:
+
+* `vulnerability_mode` -
+  (Required)
+  Sets the mode of the Kubernetes security posture API's workload vulnerability scanning.
+  Possible values are: `VULNERABILITY_DISABLED`, `VULNERABILITY_ENTERPRISE`.
 
 ## Attributes Reference
 
