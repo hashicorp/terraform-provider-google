@@ -1,0 +1,3 @@
+```release-note:bug
+dns: added a mutex to `google_dns_record_set` to prevent conflicts when multiple resources attempt to operate on the same record set
+```
