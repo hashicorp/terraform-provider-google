@@ -4603,3 +4603,144 @@ resource "google_container_node_pool" "np" {
 }
 `, cluster, np)
 }
+
+func TestAccContainerNodePool_storagePools(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	location := envvar.GetTestZoneFromEnv()
+
+	storagePoolNameURL := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-balanced")
+	storagePoolResourceName, err := extractSPName(storagePoolNameURL)
+	if err != nil {
+		t.Fatal("Failed to extract Storage Pool resource name from URL.")
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_storagePools(cluster, np, networkName, subnetworkName, storagePoolResourceName, location),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.storage_pools.0", storagePoolResourceName),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_storagePools(cluster, np, networkName, subnetworkName, storagePoolResourceName, location string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "cluster" {
+  name               = "%[1]s"
+  location           = "%[6]s"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%[3]s"
+  subnetwork    = "%[4]s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%[2]s"
+  location           = "%[6]s"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "c3-standard-4"
+    image_type = "COS_CONTAINERD"
+    storage_pools = ["%[5]s"]
+	disk_type = "hyperdisk-balanced"
+  }
+}
+`, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
+}
+
+func TestAccContainerNodePool_withMachineDiskStoragePoolsUpdate(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	nodePool := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	location := envvar.GetTestZoneFromEnv()
+
+	storagePoolNameURL := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-balanced")
+	storagePoolResourceName, err := extractSPName(storagePoolNameURL)
+	if err != nil {
+		t.Fatal("Failed to extract Storage Pool resource name from URL.")
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_basic(cluster, nodePool, networkName, subnetworkName),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_withDiskMachineAndStoragePoolUpdate(cluster, nodePool, networkName, subnetworkName, storagePoolResourceName, location),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.storage_pools.0", storagePoolResourceName),
+				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// autoscaling.# = 0 is equivalent to no autoscaling at all,
+				// but will still cause an import diff
+				ImportStateVerifyIgnore: []string{"autoscaling.#", "node_config.0.taint", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerNodePool_withDiskMachineAndStoragePoolUpdate(cluster, np, networkName, subnetworkName, storagePoolResourceName, location string) string {
+	return fmt.Sprintf(`
+provider "google" {
+  alias                 = "user-project-override"
+  user_project_override = true
+}
+resource "google_container_cluster" "cluster" {
+  provider           = google.user-project-override
+  name               = "%[1]s"
+  location           = "%[6]s"
+  initial_node_count = 3
+  deletion_protection = false
+  network    = "%[3]s"
+  subnetwork    = "%[4]s"
+}
+
+resource "google_container_node_pool" "np" {
+  provider           = google.user-project-override
+  name               = "%[1]s"
+  location           = "%[6]s"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 2
+
+  node_config {
+	machine_type    = "c3-standard-4"
+    disk_size_gb    = 50
+    disk_type       = "hyperdisk-balanced"
+	storage_pools = ["%[5]s"]
+  }
+}
+`, cluster, np, networkName, subnetworkName, storagePoolResourceName, location)
+}
