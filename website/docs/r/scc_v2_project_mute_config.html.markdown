@@ -38,7 +38,7 @@ To get more information about ProjectMuteConfig, see:
 ```hcl
 resource "google_scc_v2_project_mute_config" "default" {
   mute_config_id    = "my-config"
-  project = ""
+  project = "my-project-name"
   location     = "global"
   description  = "My custom Cloud Security Command Center Finding Project mute Configuration"
   filter = "severity = \"HIGH\""
