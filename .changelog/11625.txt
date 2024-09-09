@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `connected_endpoints.consumer_network` and `connected_endpoints.psc_connection_id` fields to `google_compute_service_attachment` resource
+```
+```release-note:enhancement
+compute: added `propagated_connection_limit` and `connected_endpoints.propagated_connection_count` fields to `google_compute_service_attachment` resource (beta)
+```

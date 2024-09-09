@@ -189,10 +189,20 @@ If true, update will affect both PENDING and ACCEPTED/REJECTED PSC endpoints. Fo
 attachment.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"consumer_network": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The url of the consumer network.`,
+						},
 						"endpoint": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The URL of the consumer forwarding rule.`,
+						},
+						"psc_connection_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The PSC connection id of the connected endpoint.`,
 						},
 						"status": {
 							Type:     schema.TypeString,
@@ -697,8 +707,10 @@ func flattenComputeServiceAttachmentConnectedEndpoints(v interface{}, d *schema.
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"endpoint": flattenComputeServiceAttachmentConnectedEndpointsEndpoint(original["endpoint"], d, config),
-			"status":   flattenComputeServiceAttachmentConnectedEndpointsStatus(original["status"], d, config),
+			"endpoint":          flattenComputeServiceAttachmentConnectedEndpointsEndpoint(original["endpoint"], d, config),
+			"status":            flattenComputeServiceAttachmentConnectedEndpointsStatus(original["status"], d, config),
+			"consumer_network":  flattenComputeServiceAttachmentConnectedEndpointsConsumerNetwork(original["consumerNetwork"], d, config),
+			"psc_connection_id": flattenComputeServiceAttachmentConnectedEndpointsPscConnectionId(original["pscConnectionId"], d, config),
 		})
 	}
 	return transformed
@@ -708,6 +720,14 @@ func flattenComputeServiceAttachmentConnectedEndpointsEndpoint(v interface{}, d 
 }
 
 func flattenComputeServiceAttachmentConnectedEndpointsStatus(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentConnectedEndpointsConsumerNetwork(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeServiceAttachmentConnectedEndpointsPscConnectionId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
