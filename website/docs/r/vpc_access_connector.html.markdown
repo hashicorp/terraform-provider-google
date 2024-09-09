@@ -100,8 +100,8 @@ The following arguments are supported:
 * `min_throughput` -
   (Optional)
   Minimum throughput of the connector in Mbps. Default and min is 200. Refers to the expected throughput when using an e2-micro machine type.
-  Value must be a multiple of 100 from 200 through 900. Must be lower than the value specified by max_throughput. If both min_throughput and
-  min_instances are provided, min_instances takes precedence over min_throughput. The use of min_throughput is discouraged in favor of min_instances.
+  Value must be a multiple of 100 from 200 through 900. Must be lower than the value specified by max_throughput.
+  Only one of `min_throughput` and `min_instances` can be specified. The use of min_throughput is discouraged in favor of min_instances.
 
 * `min_instances` -
   (Optional)
@@ -117,8 +117,7 @@ The following arguments are supported:
   (Optional)
   Maximum throughput of the connector in Mbps, must be greater than `min_throughput`. Default is 300. Refers to the expected throughput
   when using an e2-micro machine type. Value must be a multiple of 100 from 300 through 1000. Must be higher than the value specified by
-  min_throughput. If both max_throughput and max_instances are provided, max_instances takes precedence over max_throughput. The use of
-  max_throughput is discouraged in favor of max_instances.
+  min_throughput. Only one of `max_throughput` and `max_instances` can be specified. The use of max_throughput is discouraged in favor of max_instances.
 
 * `subnet` -
   (Optional)
