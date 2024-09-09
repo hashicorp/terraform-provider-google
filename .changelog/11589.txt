@@ -1,0 +1,3 @@
+```release-note:none
+netapp: modified manual sweepers to continue or other locations if no resource found
+```

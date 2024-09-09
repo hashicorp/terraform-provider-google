@@ -57,7 +57,7 @@ func testSweepNetappVolumeSnapshot(region string) error {
 		listUrl, err := tpgresource.ReplaceVars(d, config, listTemplate)
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] error preparing sweeper list url: %s", err)
-			return nil
+			continue
 		}
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -69,13 +69,13 @@ func testSweepNetappVolumeSnapshot(region string) error {
 		})
 		if err != nil {
 			log.Printf("[INFO][SWEEPER_LOG] Error in response from request %s: %s", listUrl, err)
-			return nil
+			continue
 		}
 
 		resourceList, ok := res["volumeSnapshots"]
 		if !ok {
 			log.Printf("[INFO][SWEEPER_LOG] Nothing found in response.")
-			return nil
+			continue
 		}
 
 		rl := resourceList.([]interface{})
@@ -87,7 +87,7 @@ func testSweepNetappVolumeSnapshot(region string) error {
 			obj := ri.(map[string]interface{})
 			if obj["name"] == nil {
 				log.Printf("[INFO][SWEEPER_LOG] %s resource name was nil", resourceName)
-				return nil
+				continue
 			}
 
 			name := tpgresource.GetResourceNameFromSelfLink(obj["name"].(string))
@@ -101,7 +101,7 @@ func testSweepNetappVolumeSnapshot(region string) error {
 			deleteUrl, err := tpgresource.ReplaceVars(d, config, deleteTemplate)
 			if err != nil {
 				log.Printf("[INFO][SWEEPER_LOG] error preparing delete url: %s", err)
-				return nil
+				continue
 			}
 			deleteUrl = deleteUrl + name
 
