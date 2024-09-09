@@ -267,8 +267,7 @@ The following arguments are supported:
 
 * `authorization_mode` -
   (Optional)
-  Optional. Immutable. Authorization mode of the instance. 
-   Possible values:
+  Optional. Immutable. Authorization mode of the instance. Possible values:
    AUTH_DISABLED
   IAM_AUTH
 
