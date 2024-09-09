@@ -25,7 +25,7 @@ const val DefaultDaysOfWeek = "*"
 const val DefaultDaysOfMonth = "*"
 
 // This represents the default branch to be used for testing
-const val DefaultBranchName = "refs/heads/main"
+const val DefaultBranchName = "refs/heads/nightly-test"
 
 // Value used to make long-running builds fail due to a timeout
 const val DefaultBuildTimeoutDuration = 60 * 12 // 12 hours in minutes

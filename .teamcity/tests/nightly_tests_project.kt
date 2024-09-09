@@ -39,12 +39,12 @@ class NightlyTestProjectsTests {
 
             assertTrue("Build configuration `${bt.name}` should contain a CRON/'schedulingTrigger' trigger", found)
 
-            // Check that nightly test is being ran on main branch
-            var isDefault: Boolean = false
-            if (schedulingTrigger.branchFilter == "+:refs/heads/main"){
-                isDefault = true
+            // Check that nightly test is being ran on the nightly-test branch
+            var isNightlyTestBranch: Boolean = false
+            if (schedulingTrigger.branchFilter == "+:refs/heads/nightly-test"){
+                isNightlyTestBranch = true
             }
-            assertTrue("Build configuration `${bt.name} is using the default branch;", isDefault)
+            assertTrue("Build configuration `${bt.name}` is using the nightly-test branch filter;", isNightlyTestBranch)
         }
     }
 }
