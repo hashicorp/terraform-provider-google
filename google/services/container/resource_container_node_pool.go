@@ -1448,13 +1448,25 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 
 		if d.HasChange("node_config.0.disk_size_gb") ||
 			d.HasChange("node_config.0.disk_type") ||
-			d.HasChange("node_config.0.machine_type") {
+			d.HasChange("node_config.0.machine_type") ||
+			d.HasChange("node_config.0.storage_pools") {
 			req := &container.UpdateNodePoolRequest{
 				Name:        name,
 				DiskSizeGb:  int64(d.Get("node_config.0.disk_size_gb").(int)),
 				DiskType:    d.Get("node_config.0.disk_type").(string),
 				MachineType: d.Get("node_config.0.machine_type").(string),
 			}
+			if v, ok := d.GetOk("node_config.0.storage_pools"); ok {
+				spList := v.([]interface{})
+				storagePools := []string{}
+				for _, v := range spList {
+					if v != nil {
+						storagePools = append(storagePools, v.(string))
+					}
+				}
+				req.StoragePools = storagePools
+			}
+
 			updateF := func() error {
 				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
 				if config.UserProjectOverride {
@@ -1469,14 +1481,14 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 				return ContainerOperationWait(config, op,
 					nodePoolInfo.project,
 					nodePoolInfo.location,
-					"updating GKE node pool disk_size_gb/disk_type/machine_type", userAgent,
+					"updating GKE node pool disk_size_gb/disk_type/machine_type/storage_pools", userAgent,
 					timeout)
 			}
 
 			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
 				return err
 			}
-			log.Printf("[INFO] Updated disk disk_size_gb/disk_type/machine_type for Node Pool %s", d.Id())
+			log.Printf("[INFO] Updated disk disk_size_gb/disk_type/machine_type/storage_pools for Node Pool %s", d.Id())
 		}
 
 		if d.HasChange(prefix + "node_config.0.taint") {

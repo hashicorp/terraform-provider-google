@@ -430,6 +430,14 @@ func schemaNodeConfig() *schema.Schema {
 					Description: `The list of instance tags applied to all nodes.`,
 				},
 
+				"storage_pools": {
+					Type:        schema.TypeList,
+					ForceNew:    true,
+					Optional:    true,
+					Elem:        &schema.Schema{Type: schema.TypeString},
+					Description: `The list of Storage Pools where boot disks are provisioned.`,
+				},
+
 				"shielded_instance_config": {
 					Type:        schema.TypeList,
 					Optional:    true,
@@ -973,6 +981,16 @@ func expandNodeConfig(v interface{}) *container.NodeConfig {
 		nc.Tags = tags
 	}
 
+	if v, ok := nodeConfig["storage_pools"]; ok {
+		spList := v.([]interface{})
+		storagePools := []string{}
+		for _, v := range spList {
+			if v != nil {
+				storagePools = append(storagePools, v.(string))
+			}
+		}
+		nc.StoragePools = storagePools
+	}
 	if v, ok := nodeConfig["shielded_instance_config"]; ok && len(v.([]interface{})) > 0 {
 		conf := v.([]interface{})[0].(map[string]interface{})
 		nc.ShieldedInstanceConfig = &container.ShieldedInstanceConfig{
@@ -1353,6 +1371,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"tags":                               c.Tags,
 		"preemptible":                        c.Preemptible,
 		"secondary_boot_disks":               flattenSecondaryBootDisks(c.SecondaryBootDisks),
+		"storage_pools":                      c.StoragePools,
 		"spot":                               c.Spot,
 		"min_cpu_platform":                   c.MinCpuPlatform,
 		"shielded_instance_config":           flattenShieldedInstanceConfig(c.ShieldedInstanceConfig),

@@ -10379,3 +10379,126 @@ resource "google_container_cluster" "primary" {
 }
 `, name, networkName, subnetworkName)
 }
+
+func TestAccContainerCluster_storagePoolsWithNodePool(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	location := envvar.GetTestZoneFromEnv()
+
+	storagePoolNameURL := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-balanced")
+	storagePoolResourceName, err := extractSPName(storagePoolNameURL)
+	if err != nil {
+		t.Fatal("Failed to extract Storage Pool resource name from URL.")
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_storagePoolsWithNodePool(cluster, location, networkName, subnetworkName, np, storagePoolResourceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.storage_pools_with_node_pool", "node_pool.0.node_config.0.storage_pools.0", storagePoolResourceName),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.storage_pools_with_node_pool",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_storagePoolsWithNodePool(cluster, location, networkName, subnetworkName, np, storagePoolResourceName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "storage_pools_with_node_pool" {
+  name               = "%s"
+  location           = "%s"
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  node_pool {
+    name = "%s"
+    initial_node_count = 1
+    node_config {
+      machine_type = "c3-standard-4"
+      image_type = "COS_CONTAINERD"
+      storage_pools = ["%s"]
+	  disk_type = "hyperdisk-balanced"
+    }
+  }
+}
+`, cluster, location, networkName, subnetworkName, np, storagePoolResourceName)
+}
+
+func TestAccContainerCluster_storagePoolsWithNodeConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	location := envvar.GetTestZoneFromEnv()
+
+	storagePoolNameURL := acctest.BootstrapComputeStoragePool(t, "basic-1", "hyperdisk-balanced")
+	storagePoolResourceName, err := extractSPName(storagePoolNameURL)
+	if err != nil {
+		t.Fatal("Failed to extract Storage Pool resource name from URL.")
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerNodePoolDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_storagePoolsWithNodeConfig(cluster, location, networkName, subnetworkName, storagePoolResourceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.storage_pools_with_node_config", "node_config.0.storage_pools.0", storagePoolResourceName),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.storage_pools_with_node_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_storagePoolsWithNodeConfig(cluster, location, networkName, subnetworkName, storagePoolResourceName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "storage_pools_with_node_config" {
+  name               = "%s"
+  location           = "%s"
+  initial_node_count = 1
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+  node_config {
+    machine_type = "c3-standard-4"
+    image_type = "COS_CONTAINERD"
+    storage_pools = ["%s"]
+	disk_type = "hyperdisk-balanced"
+  }
+}
+`, cluster, location, networkName, subnetworkName, storagePoolResourceName)
+}
+
+func extractSPName(url string) (string, error) {
+	re := regexp.MustCompile(`https://www\.googleapis\.com/compute/beta/(projects/[^"]+)`)
+	matches := re.FindStringSubmatch(url)
+
+	if len(matches) > 1 {
+		return matches[1], nil
+	} else {
+		return "", fmt.Errorf("no match found")
+	}
+}

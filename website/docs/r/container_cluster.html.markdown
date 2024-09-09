@@ -941,6 +941,8 @@ gvnic {
 
 * `shielded_instance_config` - (Optional) Shielded Instance options. Structure is [documented below](#nested_shielded_instance_config).
 
+* `storage_pools` - (Optional) The list of Storage Pools where boot disks are provisioned.
+
 * `tags` - (Optional) The list of instance tags applied to all nodes. Tags are used to identify
     valid sources or targets for network firewalls.
 
