@@ -377,6 +377,14 @@ func resourceDnsRecordSetCreate(d *schema.ResourceData, meta interface{}) error 
 		chg.Deletions = deletions
 	}
 
+	// Mutex
+	lockName := fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s/%s", project, zone, name, rType)
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
 	log.Printf("[DEBUG] DNS Record create request: %#v", chg)
 	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
 	if err != nil {
@@ -470,7 +478,9 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	name := d.Get("name").(string)
 	zone := d.Get("managed_zone").(string)
+	rType := d.Get("type").(string)
 
 	// NS and SOA records on the root zone must always have a value,
 	// so we short-circuit delete this allows terraform delete to work,
@@ -512,6 +522,14 @@ func resourceDnsRecordSetDelete(d *schema.ResourceData, meta interface{}) error 
 			},
 		},
 	}
+
+	// Mutex
+	lockName := fmt.Sprintf("projects/%s/managedZones/%s/rrsets/%s/%s", project, zone, name, rType)
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
 
 	log.Printf("[DEBUG] DNS Record delete request: %#v", chg)
 	chg, err = config.NewDnsClient(userAgent).Changes.Create(project, zone, chg).Do()
