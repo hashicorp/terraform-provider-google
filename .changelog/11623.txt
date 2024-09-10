@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_developer_connect_connection`
+```
+```release-note:new-resource
+`google_developer_connect_git_repository_link`
+```

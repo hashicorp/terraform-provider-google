@@ -311,6 +311,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Deploymentmanager",
         "path" to "./google-beta/services/deploymentmanager"
     ),
+    "developerconnect" to mapOf(
+        "name" to "developerconnect",
+        "displayName" to "Developerconnect",
+        "path" to "./google-beta/services/developerconnect"
+    ),
     "dialogflow" to mapOf(
         "name" to "dialogflow",
         "displayName" to "Dialogflow",
