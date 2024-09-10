@@ -92,6 +92,16 @@ Accepted format is '//certificatemanager.googleapis.com/projects/{project}/locat
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"http_keep_alive_timeout_sec": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Description: `Specifies how long to keep a connection open, after completing a response,
+while there is no matching traffic (in seconds). If an HTTP keepalive is
+not specified, a default value (600 seconds) will be used. For Regioanl
+HTTP(S) load balancer, the minimum allowed value is 5 seconds and the
+maximum allowed value is 600 seconds.`,
+			},
 			"region": {
 				Type:             schema.TypeString,
 				Computed:         true,
@@ -208,6 +218,12 @@ func resourceComputeRegionTargetHttpsProxyCreate(d *schema.ResourceData, meta in
 		return err
 	} else if v, ok := d.GetOkExists("url_map"); !tpgresource.IsEmptyValue(reflect.ValueOf(urlMapProp)) && (ok || !reflect.DeepEqual(v, urlMapProp)) {
 		obj["urlMap"] = urlMapProp
+	}
+	httpKeepAliveTimeoutSecProp, err := expandComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(d.Get("http_keep_alive_timeout_sec"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("http_keep_alive_timeout_sec"); !tpgresource.IsEmptyValue(reflect.ValueOf(httpKeepAliveTimeoutSecProp)) && (ok || !reflect.DeepEqual(v, httpKeepAliveTimeoutSecProp)) {
+		obj["httpKeepAliveTimeoutSec"] = httpKeepAliveTimeoutSecProp
 	}
 	serverTlsPolicyProp, err := expandComputeRegionTargetHttpsProxyServerTlsPolicy(d.Get("server_tls_policy"), d, config)
 	if err != nil {
@@ -359,6 +375,9 @@ func resourceComputeRegionTargetHttpsProxyRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("url_map", flattenComputeRegionTargetHttpsProxyUrlMap(res["urlMap"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
+	}
+	if err := d.Set("http_keep_alive_timeout_sec", flattenComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(res["httpKeepAliveTimeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionTargetHttpsProxy: %s", err)
 	}
 	if err := d.Set("server_tls_policy", flattenComputeRegionTargetHttpsProxyServerTlsPolicy(res["serverTlsPolicy"], d, config)); err != nil {
@@ -780,6 +799,23 @@ func flattenComputeRegionTargetHttpsProxyUrlMap(v interface{}, d *schema.Resourc
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionTargetHttpsProxyServerTlsPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -857,6 +893,10 @@ func expandComputeRegionTargetHttpsProxyUrlMap(v interface{}, d tpgresource.Terr
 		return nil, fmt.Errorf("Invalid value for url_map: %s", err)
 	}
 	return f.RelativeLink(), nil
+}
+
+func expandComputeRegionTargetHttpsProxyHttpKeepAliveTimeoutSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandComputeRegionTargetHttpsProxyServerTlsPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

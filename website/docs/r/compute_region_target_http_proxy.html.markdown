@@ -85,6 +85,63 @@ resource "google_compute_region_health_check" "default" {
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_target_http_proxy_http_keep_alive_timeout&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Region Target Http Proxy Http Keep Alive Timeout
+
+
+```hcl
+resource "google_compute_region_target_http_proxy" "default" {
+  region                      = "us-central1"
+  name                        = "test-http-keep-alive-timeout-proxy"
+  http_keep_alive_timeout_sec = 600
+  url_map                     = google_compute_region_url_map.default.id
+}
+
+resource "google_compute_region_url_map" "default" {
+  region          = "us-central1"
+  name            = "url-map"
+  default_service = google_compute_region_backend_service.default.id
+
+  host_rule {
+    hosts        = ["mysite.com"]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_region_backend_service.default.id
+
+    path_rule {
+      paths   = ["/*"]
+      service = google_compute_region_backend_service.default.id
+    }
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  region                = "us-central1"
+  name                  = "backend-service"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "INTERNAL_MANAGED"
+
+  health_checks = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_health_check" "default" {
+  region = "us-central1"
+  name   = "http-health-check"
+
+  http_health_check {
+    port = 80
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=region_target_http_proxy_https_redirect&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
@@ -136,6 +193,14 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource.
+
+* `http_keep_alive_timeout_sec` -
+  (Optional)
+  Specifies how long to keep a connection open, after completing a response,
+  while there is no matching traffic (in seconds). If an HTTP keepalive is
+  not specified, a default value (600 seconds) will be used. For Regional
+  HTTP(S) load balancer, the minimum allowed value is 5 seconds and the
+  maximum allowed value is 600 seconds.
 
 * `region` -
   (Optional)
