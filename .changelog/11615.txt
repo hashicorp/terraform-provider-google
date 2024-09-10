@@ -1,0 +1,3 @@
+```release-note:note
+fixed TestAccComputeInstance_confidentialHyperDiskBootDisk for `google_compute_instance`
+```

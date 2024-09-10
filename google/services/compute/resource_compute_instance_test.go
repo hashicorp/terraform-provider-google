@@ -2046,27 +2046,29 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 }
 
 func TestAccComputeInstance_confidentialHyperDiskBootDisk(t *testing.T) {
-	// Currently failing
-	acctest.SkipIfVcr(t)
 	t.Parallel()
 	kms := acctest.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-hyperdisk-key1")
 
 	context_1 := map[string]interface{}{
-		"instance_name":        fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
-		"confidential_compute": true,
-		"key_ring":             kms.KeyRing.Name,
-		"key_name":             kms.CryptoKey.Name,
-		"zone":                 "us-central1-a",
-		"machine_type":         "n2-standard-16",
+		"instance_name":                fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"confidential_compute":         true,
+		"key_ring":                     kms.KeyRing.Name,
+		"key_name":                     kms.CryptoKey.Name,
+		"zone":                         "us-central1-a",
+		"machine_type":                 "n2d-standard-16",
+		"confidential_instance_config": "confidential_instance_config { \n \t enable_confidential_compute = true \n }",
+		"min_cpu_platform":             "AMD Milan",
 	}
 
 	context_2 := map[string]interface{}{
-		"instance_name":        context_1["instance_name"],
-		"confidential_compute": false,
-		"key_ring":             context_1["key_ring"],
-		"key_name":             context_1["key_name"],
-		"zone":                 context_1["zone"],
-		"machine_type":         "c3d-standard-16",
+		"instance_name":                context_1["instance_name"],
+		"confidential_compute":         false,
+		"key_ring":                     context_1["key_ring"],
+		"key_name":                     context_1["key_name"],
+		"zone":                         context_1["zone"],
+		"machine_type":                 "c3d-standard-16",
+		"confidential_instance_config": "", //having enable_confidential_compute = false will cause permadiff.
+		"min_cpu_platform":             "AMD Genoa",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -7754,10 +7756,18 @@ resource "google_kms_crypto_key_iam_member" "crypto_key" {
   member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
+resource "google_kms_crypto_key_iam_member" "crypto_key_2" {
+  crypto_key_id = "%{key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+}
+
 resource "google_compute_instance" "foobar" {
   name         = "%{instance_name}"
   machine_type = "%{machine_type}"
   zone         = "%{zone}"
+  %{confidential_instance_config}
+  min_cpu_platform = "%{min_cpu_platform}"
 
   boot_disk {
 
