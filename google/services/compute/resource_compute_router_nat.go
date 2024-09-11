@@ -324,7 +324,10 @@ Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible va
 				Type:     schema.TypeSet,
 				Optional: true,
 				Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
-is set to MANUAL_ONLY.`,
+is set to MANUAL_ONLY.
+If this field is used alongside with a count created list of address resources 'google_compute_address.foobar.*.self_link',
+the access level resource for the address resource must have a 'lifecycle' block with 'create_before_destroy = true' so
+the number of resources can be increased/decreased without triggering the 'resourceInUseByAnotherResource' error.`,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
