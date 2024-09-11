@@ -1,0 +1,3 @@
+```release-note:enhancement
+apigee: Added in-place update for `consumer_accept_list` field in `google_apigee_instance`.
+```

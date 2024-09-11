@@ -60,6 +60,7 @@ func ResourceApigeeInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeInstanceCreate,
 		Read:   resourceApigeeInstanceRead,
+		Update: resourceApigeeInstanceUpdate,
 		Delete: resourceApigeeInstanceDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -68,6 +69,7 @@ func ResourceApigeeInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
@@ -95,7 +97,6 @@ in the format 'organizations/{{org_name}}'.`,
 				Type:             schema.TypeList,
 				Computed:         true,
 				Optional:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: projectListDiffSuppress,
 				Description: `Optional. Customer accept list represents the list of projects (id/number) on customer
 side that can privately connect to the service attachment. It is an optional field
@@ -360,6 +361,86 @@ func resourceApigeeInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourceApigeeInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	consumerAcceptListProp, err := expandApigeeInstanceConsumerAcceptList(d.Get("consumer_accept_list"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("consumer_accept_list"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, consumerAcceptListProp)) {
+		obj["consumerAcceptList"] = consumerAcceptListProp
+	}
+
+	lockName, err := tpgresource.ReplaceVars(d, config, "{{org_id}}/apigeeInstances")
+	if err != nil {
+		return err
+	}
+	transport_tpg.MutexStore.Lock(lockName)
+	defer transport_tpg.MutexStore.Unlock(lockName)
+
+	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{org_id}}/instances/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Updating Instance %q: %#v", d.Id(), obj)
+	headers := make(http.Header)
+	updateMask := []string{}
+
+	if d.HasChange("consumer_accept_list") {
+		updateMask = append(updateMask, "consumerAcceptList")
+	}
+	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
+	// won't set it
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	// if updateMask is empty we are not updating anything so skip the post
+	if len(updateMask) > 0 {
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 obj,
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			Headers:              headers,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsApigeeRetryableError},
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Instance %q: %#v", d.Id(), res)
+		}
+
+		err = ApigeeOperationWaitTime(
+			config, res, "Updating Instance", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceApigeeInstanceRead(d, meta)
 }
 
 func resourceApigeeInstanceDelete(d *schema.ResourceData, meta interface{}) error {
