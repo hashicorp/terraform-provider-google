@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloyDB: added `enableOutboundPublicIp` field to `google_alloydb_instance` resource
+```

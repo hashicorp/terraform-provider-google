@@ -380,6 +380,10 @@ The following arguments are supported:
   please also clear the list of the authorized external networks set on
   the same instance.
 
+* `enable_outbound_public_ip` -
+  (Optional)
+  Enabling outbound public ip for the instance.
+
 
 <a name="nested_authorized_external_networks"></a>The `authorized_external_networks` block supports:
 
@@ -418,6 +422,11 @@ In addition to the arguments listed above, the following computed attributes are
   The public IP addresses for the Instance. This is available ONLY when
   networkConfig.enablePublicIp is set to true. This is the connection
   endpoint for an end-user application.
+
+* `outbound_public_ip_addresses` -
+  The outbound public IP addresses for the instance. This is available ONLY when
+  networkConfig.enableOutboundPublicIp is set to true. These IP addresses are used
+  for outbound connections.
 
 * `terraform_labels` -
   The combination of labels configured directly on the resource
