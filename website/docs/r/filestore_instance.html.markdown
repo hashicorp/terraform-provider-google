@@ -297,6 +297,14 @@ The following arguments are supported:
   (Optional)
   KMS key name used for data encryption.
 
+* `deletion_protection_enabled` -
+  (Optional)
+  Indicates whether the instance is protected against deletion.
+
+* `deletion_protection_reason` -
+  (Optional)
+  The reason for enabling deletion protection.
+
 * `zone` -
   (Optional, Deprecated)
   The name of the Filestore zone of the instance.
