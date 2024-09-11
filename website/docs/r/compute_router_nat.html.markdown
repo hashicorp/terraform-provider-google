@@ -21,6 +21,9 @@ description: |-
 
 A NAT service created in a router.
 
+~> **Note:** Recreating a `google_compute_address` that is being used by `google_compute_router_nat` will give a `resourceInUseByAnotherResource` error.
+Use `lifecycle.create_before_destroy` on this address resource to avoid this type of error as shown in the Manual Ips example.
+
 
 To get more information about RouterNat, see:
 
@@ -91,6 +94,10 @@ resource "google_compute_address" "address" {
   count  = 2
   name   = "nat-manual-ip-${count.index}"
   region = google_compute_subnetwork.subnet.region
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_compute_router_nat" "nat_manual" {
@@ -293,6 +300,9 @@ The following arguments are supported:
   (Optional)
   Self-links of NAT IPs. Only valid if natIpAllocateOption
   is set to MANUAL_ONLY.
+  If this field is used alongside with a count created list of address resources `google_compute_address.foobar.*.self_link`,
+  the access level resource for the address resource must have a `lifecycle` block with `create_before_destroy = true` so
+  the number of resources can be increased/decreased without triggering the `resourceInUseByAnotherResource` error.
 
 * `drain_nat_ips` -
   (Optional)

@@ -1,0 +1,3 @@
+```release-note:bug
+compute: added guidance in documentation to resolve dependency issues that block deletion of `google_compute_address` resources when they're referenced in `google_compute_router_nat` resources, specifically  when using `count` references
+```
