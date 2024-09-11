@@ -217,6 +217,16 @@ addresses reserved for this instance.`,
 				Description: `The service tier of the instance.
 Possible values include: STANDARD, PREMIUM, BASIC_HDD, BASIC_SSD, HIGH_SCALE_SSD, ZONAL, REGIONAL and ENTERPRISE`,
 			},
+			"deletion_protection_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Indicates whether the instance is protected against deletion.`,
+			},
+			"deletion_protection_reason": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The reason for enabling deletion protection.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -327,6 +337,18 @@ func resourceFilestoreInstanceCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("kms_key_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(kmsKeyNameProp)) && (ok || !reflect.DeepEqual(v, kmsKeyNameProp)) {
 		obj["kmsKeyName"] = kmsKeyNameProp
+	}
+	deletionProtectionEnabledProp, err := expandFilestoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(deletionProtectionEnabledProp)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
+		obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
+	}
+	deletionProtectionReasonProp, err := expandFilestoreInstanceDeletionProtectionReason(d.Get("deletion_protection_reason"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_reason"); !tpgresource.IsEmptyValue(reflect.ValueOf(deletionProtectionReasonProp)) && (ok || !reflect.DeepEqual(v, deletionProtectionReasonProp)) {
+		obj["deletionProtectionReason"] = deletionProtectionReasonProp
 	}
 	labelsProp, err := expandFilestoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -486,6 +508,12 @@ func resourceFilestoreInstanceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("kms_key_name", flattenFilestoreInstanceKmsKeyName(res["kmsKeyName"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("deletion_protection_enabled", flattenFilestoreInstanceDeletionProtectionEnabled(res["deletionProtectionEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
+	if err := d.Set("deletion_protection_reason", flattenFilestoreInstanceDeletionProtectionReason(res["deletionProtectionReason"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenFilestoreInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -524,6 +552,18 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("file_shares"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fileSharesProp)) {
 		obj["fileShares"] = fileSharesProp
 	}
+	deletionProtectionEnabledProp, err := expandFilestoreInstanceDeletionProtectionEnabled(d.Get("deletion_protection_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionEnabledProp)) {
+		obj["deletionProtectionEnabled"] = deletionProtectionEnabledProp
+	}
+	deletionProtectionReasonProp, err := expandFilestoreInstanceDeletionProtectionReason(d.Get("deletion_protection_reason"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("deletion_protection_reason"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deletionProtectionReasonProp)) {
+		obj["deletionProtectionReason"] = deletionProtectionReasonProp
+	}
 	labelsProp, err := expandFilestoreInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -546,6 +586,14 @@ func resourceFilestoreInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("file_shares") {
 		updateMask = append(updateMask, "fileShares")
+	}
+
+	if d.HasChange("deletion_protection_enabled") {
+		updateMask = append(updateMask, "deletionProtectionEnabled")
+	}
+
+	if d.HasChange("deletion_protection_reason") {
+		updateMask = append(updateMask, "deletionProtectionReason")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -867,6 +915,14 @@ func flattenFilestoreInstanceKmsKeyName(v interface{}, d *schema.ResourceData, c
 	return v
 }
 
+func flattenFilestoreInstanceDeletionProtectionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenFilestoreInstanceDeletionProtectionReason(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenFilestoreInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1090,6 +1146,14 @@ func expandFilestoreInstanceNetworksConnectMode(v interface{}, d tpgresource.Ter
 }
 
 func expandFilestoreInstanceKmsKeyName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceDeletionProtectionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandFilestoreInstanceDeletionProtectionReason(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
