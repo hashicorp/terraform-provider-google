@@ -577,7 +577,7 @@ The following arguments are supported:
   retain_acked_messages is true, then this also configures the retention
   of acknowledged messages, and thus configures how far back in time a
   subscriptions.seek can be done. Defaults to 7 days. Cannot be more
-  than 7 days (`"604800s"`) or less than 10 minutes (`"600s"`).
+  than 31 days (`"2678400s"`) or less than 10 minutes (`"600s"`).
   A duration in seconds with up to nine fractional digits, terminated
   by 's'. Example: `"600.5s"`.
 
