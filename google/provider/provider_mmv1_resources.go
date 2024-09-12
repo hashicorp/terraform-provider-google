@@ -102,6 +102,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/services/redis"
 	"github.com/hashicorp/terraform-provider-google/google/services/resourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/secretmanager"
+	"github.com/hashicorp/terraform-provider-google/google/services/secretmanagerregional"
 	"github.com/hashicorp/terraform-provider-google/google/services/securesourcemanager"
 	"github.com/hashicorp/terraform-provider-google/google/services/securitycenter"
 	"github.com/hashicorp/terraform-provider-google/google/services/securitycentermanagement"
@@ -390,6 +391,7 @@ var generatedIAMDatasources = map[string]*schema.Resource{
 	"google_pubsub_schema_iam_policy":                        tpgiamresource.DataSourceIamPolicy(pubsub.PubsubSchemaIamSchema, pubsub.PubsubSchemaIamUpdaterProducer),
 	"google_pubsub_topic_iam_policy":                         tpgiamresource.DataSourceIamPolicy(pubsub.PubsubTopicIamSchema, pubsub.PubsubTopicIamUpdaterProducer),
 	"google_secret_manager_secret_iam_policy":                tpgiamresource.DataSourceIamPolicy(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer),
+	"google_secret_manager_regional_secret_iam_policy":       tpgiamresource.DataSourceIamPolicy(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer),
 	"google_secure_source_manager_instance_iam_policy":       tpgiamresource.DataSourceIamPolicy(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer),
 	"google_secure_source_manager_repository_iam_policy":     tpgiamresource.DataSourceIamPolicy(securesourcemanager.SecureSourceManagerRepositoryIamSchema, securesourcemanager.SecureSourceManagerRepositoryIamUpdaterProducer),
 	"google_scc_source_iam_policy":                           tpgiamresource.DataSourceIamPolicy(securitycenter.SecurityCenterSourceIamSchema, securitycenter.SecurityCenterSourceIamUpdaterProducer),
@@ -430,9 +432,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 455
-// Generated IAM resources: 258
-// Total generated resources: 713
+// Generated resources: 456
+// Generated IAM resources: 261
+// Total generated resources: 717
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1024,6 +1026,10 @@ var generatedResources = map[string]*schema.Resource{
 	"google_secret_manager_secret_iam_member":                                    tpgiamresource.ResourceIamMember(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
 	"google_secret_manager_secret_iam_policy":                                    tpgiamresource.ResourceIamPolicy(secretmanager.SecretManagerSecretIamSchema, secretmanager.SecretManagerSecretIamUpdaterProducer, secretmanager.SecretManagerSecretIdParseFunc),
 	"google_secret_manager_secret_version":                                       secretmanager.ResourceSecretManagerSecretVersion(),
+	"google_secret_manager_regional_secret":                                      secretmanagerregional.ResourceSecretManagerRegionalRegionalSecret(),
+	"google_secret_manager_regional_secret_iam_binding":                          tpgiamresource.ResourceIamBinding(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer, secretmanagerregional.SecretManagerRegionalRegionalSecretIdParseFunc),
+	"google_secret_manager_regional_secret_iam_member":                           tpgiamresource.ResourceIamMember(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer, secretmanagerregional.SecretManagerRegionalRegionalSecretIdParseFunc),
+	"google_secret_manager_regional_secret_iam_policy":                           tpgiamresource.ResourceIamPolicy(secretmanagerregional.SecretManagerRegionalRegionalSecretIamSchema, secretmanagerregional.SecretManagerRegionalRegionalSecretIamUpdaterProducer, secretmanagerregional.SecretManagerRegionalRegionalSecretIdParseFunc),
 	"google_secure_source_manager_instance":                                      securesourcemanager.ResourceSecureSourceManagerInstance(),
 	"google_secure_source_manager_instance_iam_binding":                          tpgiamresource.ResourceIamBinding(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),
 	"google_secure_source_manager_instance_iam_member":                           tpgiamresource.ResourceIamMember(securesourcemanager.SecureSourceManagerInstanceIamSchema, securesourcemanager.SecureSourceManagerInstanceIamUpdaterProducer, securesourcemanager.SecureSourceManagerInstanceIdParseFunc),

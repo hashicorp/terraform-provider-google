@@ -616,6 +616,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Secretmanager",
         "path" to "./google-beta/services/secretmanager"
     ),
+    "secretmanagerregional" to mapOf(
+        "name" to "secretmanagerregional",
+        "displayName" to "Secretmanagerregional",
+        "path" to "./google-beta/services/secretmanagerregional"
+    ),
     "securesourcemanager" to mapOf(
         "name" to "securesourcemanager",
         "displayName" to "Securesourcemanager",

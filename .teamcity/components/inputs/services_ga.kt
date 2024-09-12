@@ -611,6 +611,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Secretmanager",
         "path" to "./google/services/secretmanager"
     ),
+    "secretmanagerregional" to mapOf(
+        "name" to "secretmanagerregional",
+        "displayName" to "Secretmanagerregional",
+        "path" to "./google/services/secretmanagerregional"
+    ),
     "securesourcemanager" to mapOf(
         "name" to "securesourcemanager",
         "displayName" to "Securesourcemanager",
