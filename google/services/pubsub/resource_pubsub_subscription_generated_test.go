@@ -139,6 +139,55 @@ resource "google_pubsub_subscription" "example" {
 `, context)
 }
 
+func TestAccPubsubSubscription_pubsubSubscriptionPullFilterExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPubsubSubscriptionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPubsubSubscription_pubsubSubscriptionPullFilterExample(context),
+			},
+			{
+				ResourceName:            "google_pubsub_subscription.example",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels", "topic"},
+			},
+		},
+	})
+}
+
+func testAccPubsubSubscription_pubsubSubscriptionPullFilterExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_pubsub_topic" "example" {
+  name = "tf-test-example-topic%{random_suffix}"
+}
+
+resource "google_pubsub_subscription" "example" {
+  name  = "tf-test-example-subscription%{random_suffix}"
+  topic = google_pubsub_topic.example.id
+
+  labels = {
+    foo = "bar"
+  }
+
+  filter = <<EOF
+    attributes.foo = "foo"
+    AND attributes.bar = "bar"
+  EOF
+
+  ack_deadline_seconds = 20
+}
+`, context)
+}
+
 func TestAccPubsubSubscription_pubsubSubscriptionDeadLetterExample(t *testing.T) {
 	t.Parallel()
 
