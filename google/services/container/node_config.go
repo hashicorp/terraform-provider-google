@@ -551,7 +551,7 @@ func schemaNodeConfig() *schema.Schema {
 						Schema: map[string]*schema.Schema{
 							"cpu_manager_policy": {
 								Type:         schema.TypeString,
-								Required:     true,
+								Optional:     true,
 								ValidateFunc: validation.StringInSlice([]string{"static", "none", ""}, false),
 								Description:  `Control the CPU management policy on the node.`,
 							},
