@@ -430,9 +430,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 454
+// Generated resources: 455
 // Generated IAM resources: 258
-// Total generated resources: 712
+// Total generated resources: 713
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -1053,6 +1053,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_scc_v2_folder_scc_big_query_export":                                  securitycenterv2.ResourceSecurityCenterV2FolderSccBigQueryExport(),
 	"google_scc_v2_organization_mute_config":                                     securitycenterv2.ResourceSecurityCenterV2OrganizationMuteConfig(),
 	"google_scc_v2_organization_notification_config":                             securitycenterv2.ResourceSecurityCenterV2OrganizationNotificationConfig(),
+	"google_scc_v2_organization_scc_big_query_export":                            securitycenterv2.ResourceSecurityCenterV2OrganizationSccBigQueryExport(),
 	"google_scc_v2_organization_scc_big_query_exports":                           securitycenterv2.ResourceSecurityCenterV2OrganizationSccBigQueryExports(),
 	"google_scc_v2_organization_source":                                          securitycenterv2.ResourceSecurityCenterV2OrganizationSource(),
 	"google_scc_v2_organization_source_iam_binding":                              tpgiamresource.ResourceIamBinding(securitycenterv2.SecurityCenterV2OrganizationSourceIamSchema, securitycenterv2.SecurityCenterV2OrganizationSourceIamUpdaterProducer, securitycenterv2.SecurityCenterV2OrganizationSourceIdParseFunc),
