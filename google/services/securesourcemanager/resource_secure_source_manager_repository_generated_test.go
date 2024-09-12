@@ -34,7 +34,8 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -60,12 +61,22 @@ func testAccSecureSourceManagerRepository_secureSourceManagerRepositoryBasicExam
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "tf-test-my-instance%{random_suffix}"
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 resource "google_secure_source_manager_repository" "default" {
     location = "us-central1"
     repository_id = "tf-test-my-repository%{random_suffix}"
     instance = google_secure_source_manager_instance.instance.name
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 `, context)
 }
@@ -74,7 +85,8 @@ func TestAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -100,6 +112,11 @@ func testAccSecureSourceManagerRepository_secureSourceManagerRepositoryInitialCo
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "tf-test-my-instance%{random_suffix}"
+
+    # For preventing accidental deletions
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -113,6 +130,11 @@ resource "google_secure_source_manager_repository" "default" {
       gitignores = ["python"]
       license = "mit"
       readme = "default"
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
     }
 }
 `, context)

@@ -39,12 +39,22 @@ To get more information about Repository, see:
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "my-instance"
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
+    }
 }
 
 resource "google_secure_source_manager_repository" "default" {
     location = "us-central1"
     repository_id = "my-repository"
     instance = google_secure_source_manager_instance.instance.name
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
+    }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -59,6 +69,11 @@ resource "google_secure_source_manager_repository" "default" {
 resource "google_secure_source_manager_instance" "instance" {
     location = "us-central1"
     instance_id = "my-instance"
+
+    # For preventing accidental deletions
+    lifecycle {
+      prevent_destroy = "true"
+    }
 }
 
 resource "google_secure_source_manager_repository" "default" {
@@ -72,6 +87,11 @@ resource "google_secure_source_manager_repository" "default" {
       gitignores = ["python"]
       license = "mit"
       readme = "default"
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
     }
 }
 ```
