@@ -171,6 +171,11 @@ The following arguments are supported:
   Specifies the replica zone for regional Flex pools. `zone` and `replica_zone` values can be swapped to initiate a
   [zone switch](https://cloud.google.com/netapp/volumes/docs/configure-and-use/storage-pools/edit-or-delete-storage-pool#switch_active_and_replica_zones).
 
+* `allow_auto_tiering` -
+  (Optional)
+  Optional. True if the storage pool supports Auto Tiering enabled volumes. Default is false.
+  Auto-tiering can be enabled after storage pool creation but it can't be disabled once enabled.
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 

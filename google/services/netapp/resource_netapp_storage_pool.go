@@ -93,6 +93,13 @@ func ResourceNetappStoragePool() *schema.Resource {
 				Description: `Specifies the Active Directory policy to be used. Format: 'projects/{{project}}/locations/{{location}}/activeDirectories/{{name}}'.
 The policy needs to be in the same location as the storage pool.`,
 			},
+			"allow_auto_tiering": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `Optional. True if the storage pool supports Auto Tiering enabled volumes. Default is false.
+Auto-tiering can be enabled after storage pool creation but it can't be disabled once enabled.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -210,6 +217,12 @@ func resourceNetappStoragePoolCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("ldap_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(ldapEnabledProp)) && (ok || !reflect.DeepEqual(v, ldapEnabledProp)) {
 		obj["ldapEnabled"] = ldapEnabledProp
+	}
+	allowAutoTieringProp, err := expandNetappStoragePoolAllowAutoTiering(d.Get("allow_auto_tiering"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("allow_auto_tiering"); !tpgresource.IsEmptyValue(reflect.ValueOf(allowAutoTieringProp)) && (ok || !reflect.DeepEqual(v, allowAutoTieringProp)) {
+		obj["allowAutoTiering"] = allowAutoTieringProp
 	}
 	labelsProp, err := expandNetappStoragePoolEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -347,6 +360,9 @@ func resourceNetappStoragePoolRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("encryption_type", flattenNetappStoragePoolEncryptionType(res["encryptionType"], d, config)); err != nil {
+		return fmt.Errorf("Error reading StoragePool: %s", err)
+	}
+	if err := d.Set("allow_auto_tiering", flattenNetappStoragePoolAllowAutoTiering(res["allowAutoTiering"], d, config)); err != nil {
 		return fmt.Errorf("Error reading StoragePool: %s", err)
 	}
 	if err := d.Set("terraform_labels", flattenNetappStoragePoolTerraformLabels(res["labels"], d, config)); err != nil {
@@ -676,6 +692,10 @@ func flattenNetappStoragePoolEncryptionType(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenNetappStoragePoolAllowAutoTiering(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetappStoragePoolTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -720,6 +740,10 @@ func expandNetappStoragePoolKmsConfig(v interface{}, d tpgresource.TerraformReso
 }
 
 func expandNetappStoragePoolLdapEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetappStoragePoolAllowAutoTiering(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

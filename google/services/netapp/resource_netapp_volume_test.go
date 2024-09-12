@@ -231,7 +231,6 @@ resource "google_netapp_storage_pool" "default" {
     capacity_gib = "2048"
     network = data.google_compute_network.default.id
 }
-    
 resource "google_netapp_storage_pool" "default2" {
     name = "tf-test-pool%{random_suffix}"
     location = "us-west2"
@@ -660,4 +659,98 @@ func testAccNetappVolume_volumeBasicExample_cleanupScheduledBackup(t *testing.T,
 		}
 		return nil
 	}
+}
+
+func TestAccNetappVolume_autoTieredNetappVolume_update(t *testing.T) {
+	context := map[string]interface{}{
+		"network_name":  acctest.BootstrapSharedServiceNetworkingConnection(t, "gcnv-network-config-1", acctest.ServiceNetworkWithParentService("netapp.servicenetworking.goog")),
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetappVolumeDestroyProducer(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetappVolume_autoTieredVolume_default(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetappVolume_autoTieredVolume_custom(context),
+			},
+			{
+				ResourceName:            "google_netapp_volume.test_volume",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"restore_parameters", "location", "name", "deletion_policy", "labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetappVolume_autoTieredVolume_default(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-west2"
+    service_level = "PREMIUM"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+    allow_auto_tiering = true
+}
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west2"
+    name = "tf-test-volume%{random_suffix}"
+    capacity_gib = "100"
+    share_name = "tf-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default.name
+    protocols = ["NFSV3"]
+    tiering_policy {
+        cooling_threshold_days = 31
+        tier_action = "ENABLED"
+    }
+}
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
+}
+
+func testAccNetappVolume_autoTieredVolume_custom(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_netapp_storage_pool" "default" {
+    name = "tf-test-pool%{random_suffix}"
+    location = "us-west2"
+    service_level = "PREMIUM"
+    capacity_gib = "2048"
+    network = data.google_compute_network.default.id
+    allow_auto_tiering = true
+}
+
+resource "google_netapp_volume" "test_volume" {
+    location = "us-west2"
+    name = "tf-test-volume%{random_suffix}"
+    capacity_gib = "100"
+    share_name = "tf-test-volume%{random_suffix}"
+    storage_pool = google_netapp_storage_pool.default.name
+    protocols = ["NFSV3"]
+    tiering_policy {
+        cooling_threshold_days = 20
+        tier_action = "ENABLED"
+    }
+}
+
+data "google_compute_network" "default" {
+    name = "%{network_name}"
+}
+`, context)
 }
