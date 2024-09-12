@@ -1,0 +1,3 @@
+```release-note:bug
+pubsub: allowed `google_pubsub_subscription` `filter` field to contain line breaks
+```
