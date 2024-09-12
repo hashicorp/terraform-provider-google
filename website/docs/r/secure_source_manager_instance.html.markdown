@@ -43,6 +43,11 @@ resource "google_secure_source_manager_instance" "default" {
     labels = {
       "foo" = "bar"
     }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
+    }
 }
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
@@ -79,6 +84,11 @@ resource "google_secure_source_manager_instance" "default" {
     depends_on = [
       google_kms_crypto_key_iam_member.crypto_key_binding
     ]
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "true"
+    }
 }
 
 data "google_project" "project" {}
@@ -154,6 +164,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "true"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds
@@ -243,6 +259,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "true"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds
@@ -431,6 +453,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "true"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds

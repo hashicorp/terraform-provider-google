@@ -31,9 +31,10 @@ func TestAccSecureSourceManagerInstanceIamBindingGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/securesourcemanager.instanceManager",
-		"admin_role":    "roles/securesourcemanager.instanceOwner",
+		"random_suffix":   acctest.RandString(t, 10),
+		"role":            "roles/securesourcemanager.instanceManager",
+		"admin_role":      "roles/securesourcemanager.instanceOwner",
+		"prevent_destroy": false,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -67,9 +68,10 @@ func TestAccSecureSourceManagerInstanceIamMemberGenerated(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/securesourcemanager.instanceManager",
-		"admin_role":    "roles/securesourcemanager.instanceOwner",
+		"random_suffix":   acctest.RandString(t, 10),
+		"role":            "roles/securesourcemanager.instanceManager",
+		"admin_role":      "roles/securesourcemanager.instanceOwner",
+		"prevent_destroy": false,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -96,9 +98,10 @@ func TestAccSecureSourceManagerInstanceIamPolicyGenerated(t *testing.T) {
 	// This may skip test, so do it first
 	sa := envvar.GetTestServiceAccountFromEnv(t)
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
-		"role":          "roles/securesourcemanager.instanceManager",
-		"admin_role":    "roles/securesourcemanager.instanceOwner",
+		"random_suffix":   acctest.RandString(t, 10),
+		"role":            "roles/securesourcemanager.instanceManager",
+		"admin_role":      "roles/securesourcemanager.instanceOwner",
+		"prevent_destroy": false,
 	}
 	context["service_account"] = sa
 
@@ -137,6 +140,11 @@ resource "google_secure_source_manager_instance" "default" {
     labels = {
       "foo" = "bar"
     }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 resource "google_secure_source_manager_instance_iam_member" "foo" {
@@ -156,6 +164,11 @@ resource "google_secure_source_manager_instance" "default" {
     instance_id = "tf-test-my-instance%{random_suffix}"
     labels = {
       "foo" = "bar"
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
     }
 }
 
@@ -196,6 +209,11 @@ resource "google_secure_source_manager_instance" "default" {
     labels = {
       "foo" = "bar"
     }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 data "google_iam_policy" "foo" {
@@ -218,6 +236,11 @@ resource "google_secure_source_manager_instance" "default" {
     labels = {
       "foo" = "bar"
     }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 resource "google_secure_source_manager_instance_iam_binding" "foo" {
@@ -237,6 +260,11 @@ resource "google_secure_source_manager_instance" "default" {
     instance_id = "tf-test-my-instance%{random_suffix}"
     labels = {
       "foo" = "bar"
+    }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
     }
 }
 

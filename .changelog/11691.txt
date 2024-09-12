@@ -1,0 +1,3 @@
+```release-note:none
+add lifecycle prevent destroy to Secure Source Manager instance and repository examples
+```

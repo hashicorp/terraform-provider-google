@@ -34,7 +34,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceBasicExample(
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -63,6 +64,11 @@ resource "google_secure_source_manager_instance" "default" {
     labels = {
       "foo" = "bar"
     }
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 `, context)
 }
@@ -71,7 +77,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstanceCmekExample(t
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -119,6 +126,11 @@ resource "google_secure_source_manager_instance" "default" {
     depends_on = [
       google_kms_crypto_key_iam_member.crypto_key_binding
     ]
+
+    # Prevent accidental deletions.
+    lifecycle {
+      prevent_destroy = "%{prevent_destroy}"
+    }
 }
 
 data "google_project" "project" {}
@@ -129,7 +141,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivateExampl
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -217,6 +230,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "%{prevent_destroy}"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds
@@ -238,7 +257,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscBac
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -329,6 +349,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "%{prevent_destroy}"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds
@@ -449,7 +475,8 @@ func TestAccSecureSourceManagerInstance_secureSourceManagerInstancePrivatePscEnd
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"random_suffix": acctest.RandString(t, 10),
+		"prevent_destroy": false,
+		"random_suffix":   acctest.RandString(t, 10),
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -540,6 +567,12 @@ resource "google_secure_source_manager_instance" "default" {
     is_private = true
     ca_pool = google_privateca_ca_pool.ca_pool.id
   }
+
+  # Prevent accidental deletions.
+  lifecycle {
+    prevent_destroy = "%{prevent_destroy}"
+  }
+
   depends_on = [
     google_privateca_certificate_authority.root_ca,
     time_sleep.wait_120_seconds
