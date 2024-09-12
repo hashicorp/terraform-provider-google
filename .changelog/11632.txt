@@ -1,0 +1,3 @@
+```release-note:bug
+dns: fixed permadiff on `dnssec_config` field of `google_dns_managed_zone` resource
+```
