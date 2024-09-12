@@ -97,6 +97,7 @@ Must be unique within the project.`,
 			},
 			"dnssec_config": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `DNSSEC configuration`,
 				MaxItems:    1,
