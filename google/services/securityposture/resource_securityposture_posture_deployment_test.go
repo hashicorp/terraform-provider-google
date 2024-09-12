@@ -15,7 +15,7 @@ func TestAccSecurityPosturePostureDeployment_securityposturePostureDeployment_up
 	t.Parallel()
 
 	context := map[string]interface{}{
-		"org_id":         envvar.GetTestOrgFromEnv(t),
+		"org_id":         envvar.GetTestOrgTargetFromEnv(t),
 		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"random_suffix":  acctest.RandString(t, 10),
 	}
