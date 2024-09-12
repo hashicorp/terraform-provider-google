@@ -206,7 +206,7 @@ func (d *GoogleProviderConfigPluginFrameworkDataSource) Read(ctx context.Context
 	// Copy all values from the provider config into this data source
 
 	data.Credentials = d.providerConfig.Credentials
-	// TODO(SarahFrench) - access_token
+	data.AccessToken = d.providerConfig.AccessToken
 	// TODO(SarahFrench) - impersonate_service_account
 	// TODO(SarahFrench) - impersonate_service_account_delegates
 	data.Project = d.providerConfig.Project

@@ -20,6 +20,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
+	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
+	"github.com/hashicorp/terraform-provider-google/google/verify"
+	googleoauth "golang.org/x/oauth2/google"
 )
 
 func CheckDataSourceStateMatchesResourceState(dataSourceName, resourceName string) func(*terraform.State) error {
@@ -200,6 +203,31 @@ func CreateZIPArchiveForCloudFunctionSource(t *testing.T, sourcePath string) str
 		t.Fatal(err.Error())
 	}
 	return tmpfile.Name()
+}
+
+func GetAccessTokenFromTestCredsFromEnv(t *testing.T) string {
+	credentials := envvar.GetTestCredsFromEnv()
+
+	if credentials == "" {
+		t.Fatalf("no creds provided in test environment: one of %s must be set for acceptance tests", strings.Join(envvar.CredsEnvVars, ", "))
+	}
+
+	// Environment might return a path or a JSON
+	contents, _, err := verify.PathOrContents(credentials)
+	if err != nil {
+		t.Fatalf("error determining if creds in test environment are a path or contents: %s", err)
+	}
+	// Get googleoauth.Credentials
+	c, err := googleoauth.CredentialsFromJSON(context.Background(), []byte(contents), transport_tpg.DefaultClientScopes...)
+	if err != nil {
+		t.Fatalf("invalid test credentials: %s", err)
+	}
+	// Get value for access_token
+	token, err := c.TokenSource.Token()
+	if err != nil {
+		t.Fatalf("Unable to generate test access token: %s", err)
+	}
+	return token.AccessToken
 }
 
 // providerConfigEnvNames returns a list of all the environment variables that could be set by a user to configure the provider
