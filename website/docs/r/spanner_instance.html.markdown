@@ -43,6 +43,7 @@ resource "google_spanner_instance" "example" {
   config       = "regional-us-central1"
   display_name = "Test Spanner Instance"
   num_nodes    = 2
+  edition      = "STANDARD"
   labels = {
     "foo" = "bar"
   }
@@ -170,6 +171,11 @@ The following arguments are supported:
   OUTPUT_ONLY fields and reflect the current compute capacity allocated to
   the instance.
   Structure is [documented below](#nested_autoscaling_config).
+
+* `edition` -
+  (Optional)
+  The edition selected for this instance. Different editions provide different capabilities at different price points.
+  Possible values are: `EDITION_UNSPECIFIED`, `STANDARD`, `ENTERPRISE`, `ENTERPRISE_PLUS`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
