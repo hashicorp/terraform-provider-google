@@ -286,6 +286,7 @@ type Config struct {
 	RedisBasePath                    string
 	ResourceManagerBasePath          string
 	SecretManagerBasePath            string
+	SecretManagerRegionalBasePath    string
 	SecureSourceManagerBasePath      string
 	SecurityCenterBasePath           string
 	SecurityCenterManagementBasePath string
@@ -425,6 +426,7 @@ const PubsubLiteBasePathKey = "PubsubLite"
 const RedisBasePathKey = "Redis"
 const ResourceManagerBasePathKey = "ResourceManager"
 const SecretManagerBasePathKey = "SecretManager"
+const SecretManagerRegionalBasePathKey = "SecretManagerRegional"
 const SecureSourceManagerBasePathKey = "SecureSourceManager"
 const SecurityCenterBasePathKey = "SecurityCenter"
 const SecurityCenterManagementBasePathKey = "SecurityCenterManagement"
@@ -558,6 +560,7 @@ var DefaultBasePaths = map[string]string{
 	RedisBasePathKey:                    "https://redis.googleapis.com/v1/",
 	ResourceManagerBasePathKey:          "https://cloudresourcemanager.googleapis.com/v1/",
 	SecretManagerBasePathKey:            "https://secretmanager.googleapis.com/v1/",
+	SecretManagerRegionalBasePathKey:    "https://secretmanager.{{location}}.rep.googleapis.com/v1/",
 	SecureSourceManagerBasePathKey:      "https://securesourcemanager.googleapis.com/v1/",
 	SecurityCenterBasePathKey:           "https://securitycenter.googleapis.com/v1/",
 	SecurityCenterManagementBasePathKey: "https://securitycentermanagement.googleapis.com/v1/",
@@ -1153,6 +1156,11 @@ func SetEndpointDefaults(d *schema.ResourceData) error {
 		d.Set("secret_manager_custom_endpoint", MultiEnvDefault([]string{
 			"GOOGLE_SECRET_MANAGER_CUSTOM_ENDPOINT",
 		}, DefaultBasePaths[SecretManagerBasePathKey]))
+	}
+	if d.Get("secret_manager_regional_custom_endpoint") == "" {
+		d.Set("secret_manager_regional_custom_endpoint", MultiEnvDefault([]string{
+			"GOOGLE_SECRET_MANAGER_REGIONAL_CUSTOM_ENDPOINT",
+		}, DefaultBasePaths[SecretManagerRegionalBasePathKey]))
 	}
 	if d.Get("secure_source_manager_custom_endpoint") == "" {
 		d.Set("secure_source_manager_custom_endpoint", MultiEnvDefault([]string{
@@ -2269,6 +2277,7 @@ func ConfigureBasePaths(c *Config) {
 	c.RedisBasePath = DefaultBasePaths[RedisBasePathKey]
 	c.ResourceManagerBasePath = DefaultBasePaths[ResourceManagerBasePathKey]
 	c.SecretManagerBasePath = DefaultBasePaths[SecretManagerBasePathKey]
+	c.SecretManagerRegionalBasePath = DefaultBasePaths[SecretManagerRegionalBasePathKey]
 	c.SecureSourceManagerBasePath = DefaultBasePaths[SecureSourceManagerBasePathKey]
 	c.SecurityCenterBasePath = DefaultBasePaths[SecurityCenterBasePathKey]
 	c.SecurityCenterManagementBasePath = DefaultBasePaths[SecurityCenterManagementBasePathKey]
