@@ -32,15 +32,15 @@ import (
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
-func ResourceSecurityCenterV2OrganizationSccBigQueryExports() *schema.Resource {
+func ResourceSecurityCenterV2OrganizationSccBigQueryExport() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate,
-		Read:   resourceSecurityCenterV2OrganizationSccBigQueryExportsRead,
-		Update: resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate,
-		Delete: resourceSecurityCenterV2OrganizationSccBigQueryExportsDelete,
+		Create: resourceSecurityCenterV2OrganizationSccBigQueryExportCreate,
+		Read:   resourceSecurityCenterV2OrganizationSccBigQueryExportRead,
+		Update: resourceSecurityCenterV2OrganizationSccBigQueryExportUpdate,
+		Delete: resourceSecurityCenterV2OrganizationSccBigQueryExportDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: resourceSecurityCenterV2OrganizationSccBigQueryExportsImport,
+			State: resourceSecurityCenterV2OrganizationSccBigQueryExportImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -48,8 +48,6 @@ func ResourceSecurityCenterV2OrganizationSccBigQueryExports() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
-
-		DeprecationMessage: "`google_scc_v2_organization_scc_big_query_exports` is deprecated and will be removed in a future major release. Use `google_scc_v2_organization_scc_big_query_export` instead.",
 
 		Schema: map[string]*schema.Schema{
 			"big_query_export_id": {
@@ -151,7 +149,7 @@ Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
 	}
 }
 
-func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceSecurityCenterV2OrganizationSccBigQueryExportCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -159,25 +157,25 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.Reso
 	}
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsName(d.Get("name"), d, config)
+	nameProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	descriptionProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	datasetProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsDataset(d.Get("dataset"), d, config)
+	datasetProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportDataset(d.Get("dataset"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dataset"); !tpgresource.IsEmptyValue(reflect.ValueOf(datasetProp)) && (ok || !reflect.DeepEqual(v, datasetProp)) {
 		obj["dataset"] = datasetProp
 	}
-	filterProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsFilter(d.Get("filter"), d, config)
+	filterProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(filterProp)) && (ok || !reflect.DeepEqual(v, filterProp)) {
@@ -189,7 +187,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.Reso
 		return err
 	}
 
-	log.Printf("[DEBUG] Creating new OrganizationSccBigQueryExports: %#v", obj)
+	log.Printf("[DEBUG] Creating new OrganizationSccBigQueryExport: %#v", obj)
 	billingProject := ""
 
 	// err == nil indicates that the billing_project value was found
@@ -209,7 +207,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.Reso
 		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating OrganizationSccBigQueryExports: %s", err)
+		return fmt.Errorf("Error creating OrganizationSccBigQueryExport: %s", err)
 	}
 
 	// Store the ID now
@@ -219,12 +217,12 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsCreate(d *schema.Reso
 	}
 	d.SetId(id)
 
-	log.Printf("[DEBUG] Finished creating OrganizationSccBigQueryExports %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished creating OrganizationSccBigQueryExport %q: %#v", d.Id(), res)
 
-	return resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d, meta)
+	return resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d, meta)
 }
 
-func resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d *schema.ResourceData, meta interface{}) error {
+func resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -253,38 +251,38 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d *schema.Resour
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2OrganizationSccBigQueryExports %q", d.Id()))
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SecurityCenterV2OrganizationSccBigQueryExport %q", d.Id()))
 	}
 
-	if err := d.Set("name", flattenSecurityCenterV2OrganizationSccBigQueryExportsName(res["name"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("name", flattenSecurityCenterV2OrganizationSccBigQueryExportName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("description", flattenSecurityCenterV2OrganizationSccBigQueryExportsDescription(res["description"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("description", flattenSecurityCenterV2OrganizationSccBigQueryExportDescription(res["description"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("dataset", flattenSecurityCenterV2OrganizationSccBigQueryExportsDataset(res["dataset"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("dataset", flattenSecurityCenterV2OrganizationSccBigQueryExportDataset(res["dataset"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("create_time", flattenSecurityCenterV2OrganizationSccBigQueryExportsCreateTime(res["createTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("create_time", flattenSecurityCenterV2OrganizationSccBigQueryExportCreateTime(res["createTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("update_time", flattenSecurityCenterV2OrganizationSccBigQueryExportsUpdateTime(res["updateTime"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("update_time", flattenSecurityCenterV2OrganizationSccBigQueryExportUpdateTime(res["updateTime"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("most_recent_editor", flattenSecurityCenterV2OrganizationSccBigQueryExportsMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("most_recent_editor", flattenSecurityCenterV2OrganizationSccBigQueryExportMostRecentEditor(res["mostRecentEditor"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("principal", flattenSecurityCenterV2OrganizationSccBigQueryExportsPrincipal(res["principal"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("principal", flattenSecurityCenterV2OrganizationSccBigQueryExportPrincipal(res["principal"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
-	if err := d.Set("filter", flattenSecurityCenterV2OrganizationSccBigQueryExportsFilter(res["filter"], d, config)); err != nil {
-		return fmt.Errorf("Error reading OrganizationSccBigQueryExports: %s", err)
+	if err := d.Set("filter", flattenSecurityCenterV2OrganizationSccBigQueryExportFilter(res["filter"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OrganizationSccBigQueryExport: %s", err)
 	}
 
 	return nil
 }
 
-func resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceSecurityCenterV2OrganizationSccBigQueryExportUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -294,25 +292,25 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate(d *schema.Reso
 	billingProject := ""
 
 	obj := make(map[string]interface{})
-	nameProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsName(d.Get("name"), d, config)
+	nameProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportName(d.Get("name"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
 	}
-	descriptionProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsDescription(d.Get("description"), d, config)
+	descriptionProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportDescription(d.Get("description"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
 		obj["description"] = descriptionProp
 	}
-	datasetProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsDataset(d.Get("dataset"), d, config)
+	datasetProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportDataset(d.Get("dataset"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("dataset"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, datasetProp)) {
 		obj["dataset"] = datasetProp
 	}
-	filterProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportsFilter(d.Get("filter"), d, config)
+	filterProp, err := expandSecurityCenterV2OrganizationSccBigQueryExportFilter(d.Get("filter"), d, config)
 	if err != nil {
 		return err
 	} else if v, ok := d.GetOkExists("filter"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, filterProp)) {
@@ -324,7 +322,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate(d *schema.Reso
 		return err
 	}
 
-	log.Printf("[DEBUG] Updating OrganizationSccBigQueryExports %q: %#v", d.Id(), obj)
+	log.Printf("[DEBUG] Updating OrganizationSccBigQueryExport %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
 
@@ -369,17 +367,17 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsUpdate(d *schema.Reso
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error updating OrganizationSccBigQueryExports %q: %s", d.Id(), err)
+			return fmt.Errorf("Error updating OrganizationSccBigQueryExport %q: %s", d.Id(), err)
 		} else {
-			log.Printf("[DEBUG] Finished updating OrganizationSccBigQueryExports %q: %#v", d.Id(), res)
+			log.Printf("[DEBUG] Finished updating OrganizationSccBigQueryExport %q: %#v", d.Id(), res)
 		}
 
 	}
 
-	return resourceSecurityCenterV2OrganizationSccBigQueryExportsRead(d, meta)
+	return resourceSecurityCenterV2OrganizationSccBigQueryExportRead(d, meta)
 }
 
-func resourceSecurityCenterV2OrganizationSccBigQueryExportsDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceSecurityCenterV2OrganizationSccBigQueryExportDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*transport_tpg.Config)
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
@@ -402,7 +400,7 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsDelete(d *schema.Reso
 
 	headers := make(http.Header)
 
-	log.Printf("[DEBUG] Deleting OrganizationSccBigQueryExports %q", d.Id())
+	log.Printf("[DEBUG] Deleting OrganizationSccBigQueryExport %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "DELETE",
@@ -414,14 +412,14 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsDelete(d *schema.Reso
 		Headers:   headers,
 	})
 	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "OrganizationSccBigQueryExports")
+		return transport_tpg.HandleNotFoundError(err, d, "OrganizationSccBigQueryExport")
 	}
 
-	log.Printf("[DEBUG] Finished deleting OrganizationSccBigQueryExports %q: %#v", d.Id(), res)
+	log.Printf("[DEBUG] Finished deleting OrganizationSccBigQueryExport %q: %#v", d.Id(), res)
 	return nil
 }
 
-func resourceSecurityCenterV2OrganizationSccBigQueryExportsImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceSecurityCenterV2OrganizationSccBigQueryExportImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
 		"^organizations/(?P<organization>[^/]+)/locations/(?P<location>[^/]+)/bigQueryExports/(?P<big_query_export_id>[^/]+)$",
@@ -453,50 +451,50 @@ func resourceSecurityCenterV2OrganizationSccBigQueryExportsImport(d *schema.Reso
 	return []*schema.ResourceData{d}, nil
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportDataset(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsMostRecentEditor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportMostRecentEditor(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportPrincipal(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func flattenSecurityCenterV2OrganizationSccBigQueryExportsFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+func flattenSecurityCenterV2OrganizationSccBigQueryExportFilter(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
-func expandSecurityCenterV2OrganizationSccBigQueryExportsName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSecurityCenterV2OrganizationSccBigQueryExportName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterV2OrganizationSccBigQueryExportsDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSecurityCenterV2OrganizationSccBigQueryExportDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterV2OrganizationSccBigQueryExportsDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSecurityCenterV2OrganizationSccBigQueryExportDataset(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
-func expandSecurityCenterV2OrganizationSccBigQueryExportsFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+func expandSecurityCenterV2OrganizationSccBigQueryExportFilter(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }

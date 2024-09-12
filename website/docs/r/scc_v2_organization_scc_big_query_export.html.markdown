@@ -17,8 +17,7 @@ description: |-
   A Cloud Security Command Center (Cloud SCC) Big Query Export Config.
 ---
 
-# google_scc_v2_organization_scc_big_query_exports
-~> **Warning:** `google_scc_v2_organization_scc_big_query_exports` is deprecated and will be removed in a future major release. Use `google_scc_v2_organization_scc_big_query_export` instead.
+# google_scc_v2_organization_scc_big_query_export
 
 A Cloud Security Command Center (Cloud SCC) Big Query Export Config.
 It represents exporting Security Command Center data, including assets, findings, and security marks
@@ -28,13 +27,13 @@ in [SCC Standard/Premium](https://cloud.google.com/security-command-center/docs/
 Without doing so, you may run into errors during resource creation.
 
 
-To get more information about OrganizationSccBigQueryExports, see:
+To get more information about OrganizationSccBigQueryExport, see:
 
 * [API documentation](https://cloud.google.com/security-command-center/docs/reference/rest/v2/organizations.locations.bigQueryExports)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/security-command-center/docs/how-to-analyze-findings-in-big-query)
 
-## Example Usage - Scc V2 Organization Big Query Exports Config Basic
+## Example Usage - Scc V2 Organization Big Query Export Config Basic
 
 
 ```hcl
@@ -55,7 +54,7 @@ resource "google_bigquery_dataset" "default" {
   }
 }
 
-resource "google_scc_v2_organization_scc_big_query_exports" "custom_big_query_export_config" {
+resource "google_scc_v2_organization_scc_big_query_export" "custom_big_query_export_config" {
   name         = "my-export"
   big_query_export_id    = "my-export"
   organization = "123456789"
@@ -163,24 +162,24 @@ This resource provides the following
 ## Import
 
 
-OrganizationSccBigQueryExports can be imported using any of these accepted formats:
+OrganizationSccBigQueryExport can be imported using any of these accepted formats:
 
 * `organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}`
 * `{{organization}}/{{location}}/{{big_query_export_id}}`
 
 
-In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationSccBigQueryExports using one of the formats above. For example:
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import OrganizationSccBigQueryExport using one of the formats above. For example:
 
 ```tf
 import {
   id = "organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}"
-  to = google_scc_v2_organization_scc_big_query_exports.default
+  to = google_scc_v2_organization_scc_big_query_export.default
 }
 ```
 
-When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), OrganizationSccBigQueryExports can be imported using one of the formats above. For example:
+When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), OrganizationSccBigQueryExport can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_scc_v2_organization_scc_big_query_exports.default organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}
-$ terraform import google_scc_v2_organization_scc_big_query_exports.default {{organization}}/{{location}}/{{big_query_export_id}}
+$ terraform import google_scc_v2_organization_scc_big_query_export.default organizations/{{organization}}/locations/{{location}}/bigQueryExports/{{big_query_export_id}}
+$ terraform import google_scc_v2_organization_scc_big_query_export.default {{organization}}/{{location}}/{{big_query_export_id}}
 ```
