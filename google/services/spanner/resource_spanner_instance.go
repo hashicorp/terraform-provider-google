@@ -229,6 +229,13 @@ This number is on a scale from 0 (no utilization) to 100 (full utilization).`,
 				},
 				ExactlyOneOf: []string{"num_nodes", "processing_units", "autoscaling_config"},
 			},
+			"edition": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS", ""}),
+				Description:  `The edition selected for this instance. Different editions provide different capabilities at different price points. Possible values: ["EDITION_UNSPECIFIED", "STANDARD", "ENTERPRISE", "ENTERPRISE_PLUS"]`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -335,6 +342,12 @@ func resourceSpannerInstanceCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("autoscaling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoscalingConfigProp)) && (ok || !reflect.DeepEqual(v, autoscalingConfigProp)) {
 		obj["autoscalingConfig"] = autoscalingConfigProp
+	}
+	editionProp, err := expandSpannerInstanceEdition(d.Get("edition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(editionProp)) && (ok || !reflect.DeepEqual(v, editionProp)) {
+		obj["edition"] = editionProp
 	}
 	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -515,6 +528,9 @@ func resourceSpannerInstanceRead(d *schema.ResourceData, meta interface{}) error
 	if err := d.Set("autoscaling_config", flattenSpannerInstanceAutoscalingConfig(res["autoscalingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("edition", flattenSpannerInstanceEdition(res["edition"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("terraform_labels", flattenSpannerInstanceTerraformLabels(res["labels"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -564,6 +580,12 @@ func resourceSpannerInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("autoscaling_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoscalingConfigProp)) {
 		obj["autoscalingConfig"] = autoscalingConfigProp
+	}
+	editionProp, err := expandSpannerInstanceEdition(d.Get("edition"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("edition"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, editionProp)) {
+		obj["edition"] = editionProp
 	}
 	labelsProp, err := expandSpannerInstanceEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -945,6 +967,10 @@ func flattenSpannerInstanceAutoscalingConfigAutoscalingTargetsStorageUtilization
 	return v // let terraform core handle it otherwise
 }
 
+func flattenSpannerInstanceEdition(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSpannerInstanceTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1110,6 +1136,10 @@ func expandSpannerInstanceAutoscalingConfigAutoscalingTargetsStorageUtilizationP
 	return v, nil
 }
 
+func expandSpannerInstanceEdition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandSpannerInstanceEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1149,6 +1179,9 @@ func resourceSpannerInstanceUpdateEncoder(d *schema.ResourceData, meta interface
 	newObj := make(map[string]interface{})
 	newObj["instance"] = obj
 	updateMask := make([]string, 0)
+	if d.HasChange("edition") {
+		updateMask = append(updateMask, "edition")
+	}
 	if d.HasChange("num_nodes") {
 		updateMask = append(updateMask, "nodeCount")
 	}

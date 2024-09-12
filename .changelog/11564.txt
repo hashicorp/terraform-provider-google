@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_spanner_backup_schedule`
+```
+```release-note:enhancement
+spanner: added `edition` field to `google_spanner_instance` resource
+```
