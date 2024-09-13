@@ -1,0 +1,3 @@
+```release-note:none
+docs: added an example for Config Sync auto-upgrades into `google_gkehub_feature_membership` resource
+```
