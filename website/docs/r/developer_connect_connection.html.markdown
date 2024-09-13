@@ -237,13 +237,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `stage` -
   (Output)
-  Output only. Current step of the installation process. 
-   Possible values:
-   STAGE_UNSPECIFIED
-  PENDING_CREATE_APP
-  PENDING_USER_OAUTH
-  PENDING_INSTALL_APP
-  COMPLETE
+  Output only. Current step of the installation process.
+  Possible values: `STAGE_UNSPECIFIED`, `PENDING_CREATE_APP`, `PENDING_USER_OAUTH`, `PENDING_INSTALL_APP`, `COMPLETE`
 
 * `message` -
   (Optional)
