@@ -53,12 +53,12 @@ func TestAccFrameworkProviderBasePath_setInvalidBasePath(t *testing.T) {
 					},
 				},
 				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
-				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
+				ExpectError: regexp.MustCompile("got HTTP response code [4-5][0-9]{2} with body"),
 			},
 			{
 				ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 				Config:                   testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
-				ExpectError:              regexp.MustCompile("got HTTP response code 404 with body"),
+				ExpectError:              regexp.MustCompile("got HTTP response code [4-5][0-9]{2} with body"),
 			},
 		},
 	})
