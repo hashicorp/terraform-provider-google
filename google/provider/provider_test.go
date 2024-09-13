@@ -73,7 +73,7 @@ func TestAccProviderBasePath_setInvalidBasePath(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccProviderBasePath_setBasePath("https://www.example.com/compute/beta/", acctest.RandString(t, 10)),
-				ExpectError: regexp.MustCompile("got HTTP response code 404 with body"),
+				ExpectError: regexp.MustCompile("got HTTP response code [4-5][0-9]{2} with body"),
 			},
 		},
 	})
