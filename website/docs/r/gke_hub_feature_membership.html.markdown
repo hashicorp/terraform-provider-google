@@ -8,7 +8,55 @@ description: |-
 
 Contains information about a GKEHub Feature Memberships. Feature Memberships configure GKEHub Features that apply to specific memberships rather than the project as a whole. The google_gke_hub is the Fleet API.
 
-## Example Usage - Config Management
+## Example Usage - Config Management with Config Sync auto-upgrades and without Git/OCI
+
+With [Config Sync auto-upgrades](https://cloud.devsite.corp.google.com/kubernetes-engine/enterprise/config-sync/docs/how-to/upgrade-config-sync#auto-upgrade-config), Google assumes responsibility for automatically upgrading Config Sync versions
+and overseeing the lifecycle of its components.
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "configmanagement"
+  location = "global"
+
+  labels = {
+    foo = "bar"
+  }
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  configmanagement {
+    # Don't use the `version` field with Config Sync auto-upgrades.
+    # To disable Config Sync auto-upgrades, you need to set the field `management` to
+    # `MANAGEMENT_MANUAL` if it has been set previously. Removing the field does not work.
+    management= "MANAGEMENT_AUTOMATIC"
+    config_sync {
+      # The field `enabled` was introduced in Terraform version 5.41.0, and
+      # needs to be set to `true` explicitly to install Config Sync.
+      enabled = true
+    }
+  }
+}
+```
+
+## Example Usage - Config Management with Git
 
 ```hcl
 resource "google_container_cluster" "cluster" {
@@ -50,6 +98,7 @@ resource "google_gke_hub_feature_membership" "feature_member" {
   }
 }
 ```
+
 ## Example Usage - Config Management with OCI
 
 ```hcl
@@ -97,51 +146,6 @@ resource "google_gke_hub_feature_membership" "feature_member" {
 }
 ```
 
-## Example Usage - Multi Cluster Service Discovery
-
-```hcl
-resource "google_gke_hub_feature" "feature" {
-  name = "multiclusterservicediscovery"
-  location = "global"
-  labels = {
-    foo = "bar"
-  }
-}
-```
-
-## Example Usage - Service Mesh
-
-```hcl
-resource "google_container_cluster" "cluster" {
-  name               = "my-cluster"
-  location           = "us-central1-a"
-  initial_node_count = 1
-}
-
-resource "google_gke_hub_membership" "membership" {
-  membership_id = "my-membership"
-  endpoint {
-    gke_cluster {
-      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
-    }
-  }
-}
-
-resource "google_gke_hub_feature" "feature" {
-  name = "servicemesh"
-  location = "global"
-}
-
-resource "google_gke_hub_feature_membership" "feature_member" {
-  location = "global"
-  feature = google_gke_hub_feature.feature.name
-  membership = google_gke_hub_membership.membership.membership_id
-  mesh {
-    management = "MANAGEMENT_AUTOMATIC"
-  }
-}
-```
-
 ## Example Usage - Config Management with Regional Membership
 
 ```hcl
@@ -183,6 +187,51 @@ resource "google_gke_hub_feature_membership" "feature_member" {
         sync_repo = "https://github.com/hashicorp/terraform"
       }
     }
+  }
+}
+```
+
+## Example Usage - Multi Cluster Service Discovery
+
+```hcl
+resource "google_gke_hub_feature" "feature" {
+  name = "multiclusterservicediscovery"
+  location = "global"
+  labels = {
+    foo = "bar"
+  }
+}
+```
+
+## Example Usage - Service Mesh
+
+```hcl
+resource "google_container_cluster" "cluster" {
+  name               = "my-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+}
+
+resource "google_gke_hub_membership" "membership" {
+  membership_id = "my-membership"
+  endpoint {
+    gke_cluster {
+      resource_link = "//container.googleapis.com/${google_container_cluster.cluster.id}"
+    }
+  }
+}
+
+resource "google_gke_hub_feature" "feature" {
+  name = "servicemesh"
+  location = "global"
+}
+
+resource "google_gke_hub_feature_membership" "feature_member" {
+  location = "global"
+  feature = google_gke_hub_feature.feature.name
+  membership = google_gke_hub_membership.membership.membership_id
+  mesh {
+    management = "MANAGEMENT_AUTOMATIC"
   }
 }
 ```
