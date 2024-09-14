@@ -233,12 +233,6 @@ The following arguments are supported:
   Configurations applied to layout parser.
 
 
-<a name="nested_ocr_parsing_config"></a>The `ocr_parsing_config` block supports:
-
-* `use_native_text` -
-  (Optional)
-  If true, will use native text instead of OCR text on pages containing native text.
-
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
