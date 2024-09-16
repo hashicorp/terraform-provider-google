@@ -295,8 +295,8 @@ The following arguments are supported:
 
 * `name` -
   (Required)
-  The resource name of the Pub/Sub topic that will be published to, in the following
-  format: projects/*/topics/*. For publication to succeed, the Secret Manager Service
+  The resource name of the Pub/Sub topic that will be published to, in the following format:
+  projects/*/topics/*. For publication to succeed, the Secret Manager Service
   Agent service account must have pubsub.publisher permissions on the topic.
 
 <a name="nested_rotation"></a>The `rotation` block supports:
