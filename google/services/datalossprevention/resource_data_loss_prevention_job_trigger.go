@@ -5801,7 +5801,6 @@ func expandDataLossPreventionJobTriggerInspectJobActionsPublishToStackdriver(v i
 }
 
 func resourceDataLossPreventionJobTriggerEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-
 	newObj := make(map[string]interface{})
 	newObj["jobTrigger"] = obj
 	triggerIdProp, ok := d.GetOk("trigger_id")
