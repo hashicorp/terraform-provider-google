@@ -107,13 +107,14 @@ The following arguments are supported:
 
 * `location` -
   (Required)
-  Resource ID segment making up resource `name`. It identifies the resource within its parent collection as described in https://google.aip.dev/122. See documentation for resource type `developerconnect.googleapis.com/GitRepositoryLink`.
+  Resource ID segment making up resource `name`. It identifies the resource
+  within its parent collection as described in https://google.aip.dev/122. See documentation
+  for resource type `developerconnect.googleapis.com/GitRepositoryLink`.
 
 * `connection_id` -
   (Required)
-  Required. Id of the requesting object
-  If auto-generating Id server-side, remove this field and
-  connection_id from the method_signature of Create RPC
+  Required. Id of the requesting object. If auto-generating Id server-side,
+  remove this field and connection_id from the method_signature of Create RPC.
 
 
 - - -
@@ -126,26 +127,26 @@ The following arguments are supported:
 
 * `labels` -
   (Optional)
-  Optional. Labels as key value pairs 
+  Optional. Labels as key value pairs
+
   **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
   Please refer to the field `effective_labels` for all of the labels present on the resource.
 
 * `disabled` -
   (Optional)
-  Optional. If disabled is set to true, functionality is disabled for this connection.
-  Repository based API methods and webhooks processing for repositories in
-  this connection will be disabled.
+  Optional. If disabled is set to true, functionality is disabled for this connection. Repository based API methods and webhooks processing for repositories in this connection will be disabled.
 
 * `annotations` -
   (Optional)
-  Optional. Allows clients to store small amounts of arbitrary data. 
+  Optional. Allows clients to store small amounts of arbitrary data.
+
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
 * `etag` -
   (Optional)
-  Optional. This checksum is computed by the server based on the value of other
-  fields, and may be sent on update and delete requests to ensure the
+  Optional. This checksum is computed by the server based on the value
+  of other fields, and may be sent on update and delete requests to ensure the
   client has an up-to-date value before proceeding.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
@@ -156,17 +157,17 @@ The following arguments are supported:
 
 * `github_app` -
   (Required)
-  Required. Immutable. The GitHub Application that was installed to the GitHub user or
-  organization. 
-   Possible values:
-   GIT_HUB_APP_UNSPECIFIED
-  DEVELOPER_CONNECT
-  FIREBASE
+  Required. Immutable. The GitHub Application that was installed to
+  the GitHub user or organization.
+  Possible values:
+    GIT_HUB_APP_UNSPECIFIED
+    DEVELOPER_CONNECT
+    FIREBASE"
 
 * `authorizer_credential` -
   (Optional)
-  Represents an OAuth token of the account that authorized the Connection,
-  and associated metadata.
+  Represents an OAuth token of the account that authorized the Connection,and
+  associated metadata.
   Structure is [documented below](#nested_authorizer_credential).
 
 * `app_installation_id` -
@@ -175,16 +176,17 @@ The following arguments are supported:
 
 * `installation_uri` -
   (Output)
-  Output only. The URI to navigate to in order to manage the installation associated
-  with this GitHubConfig.
+  Output only. The URI to navigate to in order to manage the installation
+  associated with this GitHubConfig.
 
 
 <a name="nested_authorizer_credential"></a>The `authorizer_credential` block supports:
 
 * `oauth_token_secret_version` -
   (Required)
-  Required. A SecretManager resource containing the OAuth token that authorizes
-  the connection. Format: `projects/*/secrets/*/versions/*`.
+  Required. A SecretManager resource containing the OAuth token
+  that authorizes the connection.
+  Format: `projects/*/secrets/*/versions/*`.
 
 * `username` -
   (Output)
@@ -210,14 +212,13 @@ In addition to the arguments listed above, the following computed attributes are
   Output only. [Output only] Delete timestamp
 
 * `installation_state` -
-  Describes stage and necessary actions to be taken by the
-  user to complete the installation. Used for GitHub and GitHub Enterprise
-  based connections.
+  Describes stage and necessary actions to be taken by the user to complete the installation.
+  Used for GitHub and GitHub Enterprise based connections.
   Structure is [documented below](#nested_installation_state).
 
 * `reconciling` -
-  Output only. Set to true when the connection is being set up or updated in the
-  background.
+  Output only. Set to true when the connection is being set up or updated
+  in the background.
 
 * `uid` -
   Output only. A system-assigned unique identifier for a the GitRepositoryLink.
@@ -238,17 +239,22 @@ In addition to the arguments listed above, the following computed attributes are
 * `stage` -
   (Output)
   Output only. Current step of the installation process.
-  Possible values: `STAGE_UNSPECIFIED`, `PENDING_CREATE_APP`, `PENDING_USER_OAUTH`, `PENDING_INSTALL_APP`, `COMPLETE`
+  Possible values:
+    STAGE_UNSPECIFIED
+    PENDING_CREATE_APP
+    PENDING_USER_OAUTH
+    PENDING_INSTALL_APP
+    COMPLETE
 
 * `message` -
   (Optional)
-  Output only. Message of what the user should do next to continue the installation.
-  Empty string if the installation is already complete.
+  Output only. Message of what the user should do next to continue
+  the installation.Empty string if the installation is already complete.
 
 * `action_uri` -
   (Optional)
-  Output only. Link to follow for next action. Empty string if the installation is already
-  complete.
+  Output only. Link to follow for next action. Empty string if the
+  installation is already complete.
 
 ## Timeouts
 
