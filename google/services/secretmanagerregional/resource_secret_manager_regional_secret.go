@@ -175,8 +175,8 @@ operations are called on the regional secret or its versions.`,
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: `The resource name of the Pub/Sub topic that will be published to, in the following
-format: projects/*/topics/*. For publication to succeed, the Secret Manager Service
+							Description: `The resource name of the Pub/Sub topic that will be published to, in the following format:
+projects/*/topics/*. For publication to succeed, the Secret Manager Service
 Agent service account must have pubsub.publisher permissions on the topic.`,
 						},
 					},
