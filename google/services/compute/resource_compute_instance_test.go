@@ -7750,18 +7750,6 @@ data "google_compute_image" "my_image" {
 
 data "google_project" "project" {}
 
-resource "google_kms_crypto_key_iam_member" "crypto_key" {
-  crypto_key_id = "%{key_name}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
-}
-
-resource "google_kms_crypto_key_iam_member" "crypto_key_2" {
-  crypto_key_id = "%{key_name}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
-}
-
 resource "google_compute_instance" "foobar" {
   name         = "%{instance_name}"
   machine_type = "%{machine_type}"
@@ -7783,7 +7771,6 @@ resource "google_compute_instance" "foobar" {
   network_interface {
     network = "default"
   }
-  depends_on = [google_kms_crypto_key_iam_member.crypto_key]
 
 }
 `, context)
