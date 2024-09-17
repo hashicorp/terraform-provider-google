@@ -97,6 +97,7 @@ func schemaGcfsConfig() *schema.Schema {
 	return &schema.Schema{
 		Type:        schema.TypeList,
 		Optional:    true,
+		Computed:    true,
 		MaxItems:    1,
 		Description: `GCFS configuration for this node.`,
 		Elem: &schema.Resource{

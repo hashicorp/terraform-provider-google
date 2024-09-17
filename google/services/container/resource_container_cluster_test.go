@@ -1360,6 +1360,49 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodeConfigGcfsConfig(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName, false),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_gcfs_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName, true),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_gcfs_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 // Note: Updates for these are currently known to be broken (b/361634104), and
 // so are not tested here.
 // They can probably be made similar to, or consolidated with,
@@ -6004,6 +6047,26 @@ resource "google_container_cluster" "with_node_config" {
   subnetwork    = "%s"
 }
 `, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config_gcfs_config" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    gcfs_config {
+      enabled = %t
+    }
+  }
+
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, clusterName, enabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withNodeConfigKubeletConfigSettings(clusterName, networkName, subnetworkName string) string {
