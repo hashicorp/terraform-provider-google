@@ -79,6 +79,58 @@ resource "google_dataproc_metastore_service" "default" {
 `, context)
 }
 
+func TestAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"deletion_protection": false,
+		"random_suffix":       acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataprocMetastoreServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(context),
+			},
+			{
+				ResourceName:            "google_dataproc_metastore_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "service_id", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccDataprocMetastoreService_dataprocMetastoreServiceDeletionProtectionExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_dataproc_metastore_service" "default" {
+    service_id          = "tf-test-metastore-srv%{random_suffix}"
+    location            = "us-central1"
+    port                = 9080
+    tier                = "DEVELOPER"
+    deletion_protection = "%{deletion_protection}"
+  
+    maintenance_window {
+      hour_of_day = 2
+      day_of_week = "SUNDAY"
+    }
+  
+    hive_metastore_config {
+      version = "2.3.6"
+    }
+  
+    labels = {
+      env = "test"
+    }
+  }
+  
+`, context)
+}
+
 func TestAccDataprocMetastoreService_dataprocMetastoreServiceCmekTestExample(t *testing.T) {
 	acctest.SkipIfVcr(t)
 	t.Parallel()
