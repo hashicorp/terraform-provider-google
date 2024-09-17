@@ -1593,9 +1593,9 @@ resource "google_container_node_pool" "np" {
   node_config {
     machine_type = "n1-standard-8"
     image_type = "COS_CONTAINERD"
-	gcfs_config {
-  		enabled = true
-	}
+    gcfs_config {
+      enabled = true
+    }
     secondary_boot_disks {
       disk_image = ""
       mode = "CONTAINER_IMAGE_CACHE"
@@ -1612,9 +1612,9 @@ resource "google_container_node_pool" "np-no-mode" {
   node_config {
     machine_type = "n1-standard-8"
     image_type = "COS_CONTAINERD"
-	gcfs_config {
-  		enabled = true
-	}
+    gcfs_config {
+      enabled = true
+    }
     secondary_boot_disks {
       disk_image = ""
     }
@@ -1638,10 +1638,14 @@ func TestAccContainerNodePool_gcfsConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerNodePool_gcfsConfig(cluster, np, networkName, subnetworkName, true),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("google_container_node_pool.np",
-						"node_config.0.gcfs_config.0.enabled", "true"),
-				),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccContainerNodePool_gcfsConfig(cluster, np, networkName, subnetworkName, false),
 			},
 			{
 				ResourceName:      "google_container_node_pool.np",

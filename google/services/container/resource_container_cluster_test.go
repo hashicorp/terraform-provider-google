@@ -1320,6 +1320,83 @@ func TestAccContainerCluster_withNodeConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withNodeConfigGcfsConfig(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName, false),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_gcfs_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName, true),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_gcfs_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+// Note: Updates for these are currently known to be broken (b/361634104), and
+// so are not tested here.
+// They can probably be made similar to, or consolidated with,
+// TestAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfigUpdates
+// after that's resolved.
+func TestAccContainerCluster_withNodeConfigKubeletConfigSettings(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withNodeConfigKubeletConfigSettings(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						acctest.ExpectNoDelete(),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_config_kubelet_config_settings",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 // This is for node_config.kubelet_config, which affects the default node-pool
 // (default-pool) when created via the google_container_cluster resource
 func TestAccContainerCluster_withInsecureKubeletReadonlyPortEnabledInNodeConfigUpdates(t *testing.T) {
@@ -5921,6 +5998,48 @@ resource "google_container_cluster" "with_node_config" {
   deletion_protection = false
   network    = "%s"
   subnetwork    = "%s"
+}
+`, clusterName, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigGcfsConfig(clusterName, networkName, subnetworkName string, enabled bool) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config_gcfs_config" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    gcfs_config {
+      enabled = %t
+    }
+  }
+
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+`, clusterName, enabled, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigKubeletConfigSettings(clusterName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config_kubelet_config_settings" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_config {
+    kubelet_config {
+      cpu_manager_policy   = "static"
+      cpu_cfs_quota        = true
+      cpu_cfs_quota_period = "100ms"
+      pod_pids_limit       = 2048
+    }
+  }
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
 }
 `, clusterName, networkName, subnetworkName)
 }
