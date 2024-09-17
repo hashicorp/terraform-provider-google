@@ -1782,6 +1782,39 @@ func nodePoolUpdate(d *schema.ResourceData, meta interface{}, nodePoolInfo *Node
 			log.Printf("[INFO] Updated workload_metadata_config for node pool %s", name)
 		}
 
+		if d.HasChange(prefix + "node_config.0.gcfs_config") {
+			gcfsEnabled := bool(d.Get(prefix + "node_config.0.gcfs_config.0.enabled").(bool))
+			req := &container.UpdateNodePoolRequest{
+				NodePoolId: name,
+				GcfsConfig: &container.GcfsConfig{
+					Enabled: gcfsEnabled,
+				},
+			}
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op,
+					nodePoolInfo.project,
+					nodePoolInfo.location,
+					"updating GKE node pool gcfs_config", userAgent,
+					timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] Updated gcfs_config for node pool %s", name)
+		}
+
 		if d.HasChange(prefix + "node_config.0.kubelet_config") {
 			req := &container.UpdateNodePoolRequest{
 				NodePoolId: name,

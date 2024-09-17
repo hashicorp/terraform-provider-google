@@ -3603,6 +3603,55 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 				log.Printf("[INFO] GKE cluster %s: default-pool setting for insecure_kubelet_readonly_port_enabled updated to %s", d.Id(), it)
 			}
 		}
+
+		if d.HasChange("node_config.0.gcfs_config") {
+
+			defaultPool := "default-pool"
+
+			timeout := d.Timeout(schema.TimeoutCreate)
+
+			nodePoolInfo, err := extractNodePoolInformationFromCluster(d, config, clusterName)
+			if err != nil {
+				return err
+			}
+
+			// Acquire write-lock on nodepool.
+			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
+
+			gcfsEnabled := d.Get("node_config.0.gcfs_config.0.enabled").(bool)
+
+			// While we're getting the value from the drepcated field in
+			// node_config.kubelet_config, the actual setting that needs to be updated
+			// is on the default nodepool.
+			req := &container.UpdateNodePoolRequest{
+				Name: defaultPool,
+				GcfsConfig: &container.GcfsConfig{
+					Enabled: gcfsEnabled,
+				},
+			}
+
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+				}
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
+					return err
+				}
+
+				// Wait until it's updated
+				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
+					"updating GKE node pool gcfs_config", userAgent, timeout)
+			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s: %s setting for gcfs_config updated to %t", d.Id(), defaultPool, gcfsEnabled)
+		}
+
 	}
 
 	if d.HasChange("notification_config") {
