@@ -98,6 +98,27 @@ resource "google_looker_instance" "looker-instance" {
   }  
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_fips&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Looker Instance Fips
+
+
+```hcl
+resource "google_looker_instance" "looker-instance" {
+  name               = "my-instance-fips"
+  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region             = "us-central1"
+  public_ip_enabled  = true
+  fips_enabled = true
+  oauth_config {
+    client_id = "my-client-id"
+    client_secret = "my-client-secret"
+  }  
+}
+```
 ## Example Usage - Looker Instance Enterprise Full
 
 
@@ -238,6 +259,10 @@ The following arguments are supported:
   (Optional)
   Looker instance encryption settings.
   Structure is [documented below](#nested_encryption_config).
+
+* `fips_enabled` -
+  (Optional)
+  FIPS 140-2 Encryption enablement for Looker (Google Cloud Core).
 
 * `maintenance_window` -
   (Optional)

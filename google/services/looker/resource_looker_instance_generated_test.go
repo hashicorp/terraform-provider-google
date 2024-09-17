@@ -139,6 +139,47 @@ resource "google_looker_instance" "looker-instance" {
 `, context)
 }
 
+func TestAccLookerInstance_lookerInstanceFipsExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLookerInstance_lookerInstanceFipsExample(context),
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+		},
+	})
+}
+
+func testAccLookerInstance_lookerInstanceFipsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_looker_instance" "looker-instance" {
+  name               = "tf-test-my-instance-fips%{random_suffix}"
+  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region             = "us-central1"
+  public_ip_enabled  = true
+  fips_enabled = true
+  oauth_config {
+    client_id = "tf-test-my-client-id%{random_suffix}"
+    client_secret = "tf-test-my-client-secret%{random_suffix}"
+  }  
+}
+`, context)
+}
+
 func TestAccLookerInstance_lookerInstanceEnterpriseFullTestExample(t *testing.T) {
 	t.Parallel()
 

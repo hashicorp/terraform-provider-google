@@ -248,6 +248,11 @@ a year.`,
 					},
 				},
 			},
+			"fips_enabled": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `FIPS 140-2 Encryption enablement for Looker (Google Cloud Core).`,
+			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -482,6 +487,12 @@ func resourceLookerInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(encryptionConfigProp)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
 	}
+	fipsEnabledProp, err := expandLookerInstanceFipsEnabled(d.Get("fips_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fips_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(fipsEnabledProp)) && (ok || !reflect.DeepEqual(v, fipsEnabledProp)) {
+		obj["fipsEnabled"] = fipsEnabledProp
+	}
 	maintenanceWindowProp, err := expandLookerInstanceMaintenanceWindow(d.Get("maintenance_window"), d, config)
 	if err != nil {
 		return err
@@ -659,6 +670,9 @@ func resourceLookerInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err := d.Set("encryption_config", flattenLookerInstanceEncryptionConfig(res["encryptionConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
+	if err := d.Set("fips_enabled", flattenLookerInstanceFipsEnabled(res["fipsEnabled"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Instance: %s", err)
+	}
 	if err := d.Set("ingress_private_ip", flattenLookerInstanceIngressPrivateIp(res["ingressPrivateIp"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Instance: %s", err)
 	}
@@ -739,6 +753,12 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	} else if v, ok := d.GetOkExists("encryption_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, encryptionConfigProp)) {
 		obj["encryptionConfig"] = encryptionConfigProp
 	}
+	fipsEnabledProp, err := expandLookerInstanceFipsEnabled(d.Get("fips_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("fips_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, fipsEnabledProp)) {
+		obj["fipsEnabled"] = fipsEnabledProp
+	}
 	maintenanceWindowProp, err := expandLookerInstanceMaintenanceWindow(d.Get("maintenance_window"), d, config)
 	if err != nil {
 		return err
@@ -805,6 +825,10 @@ func resourceLookerInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("encryption_config") {
 		updateMask = append(updateMask, "encryptionConfig")
+	}
+
+	if d.HasChange("fips_enabled") {
+		updateMask = append(updateMask, "fipsEnabled")
 	}
 
 	if d.HasChange("maintenance_window") {
@@ -1251,6 +1275,10 @@ func flattenLookerInstanceEncryptionConfigKmsKeyState(v interface{}, d *schema.R
 }
 
 func flattenLookerInstanceEncryptionConfigKmsKeyNameVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenLookerInstanceFipsEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1735,6 +1763,10 @@ func expandLookerInstanceEncryptionConfigKmsKeyState(v interface{}, d tpgresourc
 }
 
 func expandLookerInstanceEncryptionConfigKmsKeyNameVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandLookerInstanceFipsEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
