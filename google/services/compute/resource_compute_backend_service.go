@@ -632,6 +632,7 @@ For internal load balancing, a URL to a HealthCheck resource must be specified i
 			},
 			"iap": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Settings for enabling Cloud Identity Aware Proxy`,
 				MaxItems:    1,
