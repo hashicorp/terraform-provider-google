@@ -57,6 +57,37 @@ resource "google_dataproc_metastore_service" "default" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=dataproc_metastore_service_deletion_protection&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Dataproc Metastore Service Deletion Protection
+
+
+```hcl
+resource "google_dataproc_metastore_service" "default" {
+    service_id          = "metastore-srv"
+    location            = "us-central1"
+    port                = 9080
+    tier                = "DEVELOPER"
+    deletion_protection = "true"
+  
+    maintenance_window {
+      hour_of_day = 2
+      day_of_week = "SUNDAY"
+    }
+  
+    hive_metastore_config {
+      version = "2.3.6"
+    }
+  
+    labels = {
+      env = "test"
+    }
+  }
+  
+```
 ## Example Usage - Dataproc Metastore Service Cmek Example
 
 
@@ -418,6 +449,10 @@ The following arguments are supported:
   (Optional)
   The configuration of scheduled backup for the metastore service.
   Structure is [documented below](#nested_scheduled_backup).
+
+* `deletion_protection` -
+  (Optional)
+  Indicates if the dataproc metastore should be protected against accidental deletions.
 
 * `maintenance_window` -
   (Optional)
