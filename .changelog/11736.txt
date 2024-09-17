@@ -1,0 +1,3 @@
+```release-note:bug
+computed: fixed an issue where `iap` fields would not default to the API's value in `google_compute_backend` and `google_compute_region_backend`
+```
