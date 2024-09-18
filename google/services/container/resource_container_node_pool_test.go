@@ -641,6 +641,40 @@ func TestAccContainerNodePool_withCgroupMode(t *testing.T) {
 	})
 }
 
+func TestAccContainerNodePool_withHugepageConfig(t *testing.T) {
+	t.Parallel()
+
+	cluster := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	np := fmt.Sprintf("tf-test-np-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerNodePool_withHugepageConfig(cluster, np, networkName, subnetworkName, 1),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Perform an update.
+			{
+				Config: testAccContainerNodePool_withHugepageConfig(cluster, np, networkName, subnetworkName, 2),
+			},
+			{
+				ResourceName:      "google_container_node_pool.np",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccContainerNodePool_withNetworkConfig(t *testing.T) {
 	t.Parallel()
 
@@ -3221,6 +3255,45 @@ resource "google_container_node_pool" "with_tier1_net" {
 }
 
 `, network, cluster, np, np, np, np, netTier)
+}
+
+func testAccContainerNodePool_withHugepageConfig(cluster, np, networkName, subnetworkName string, hugepage int) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location = "us-central1-a"
+}
+
+resource "google_container_cluster" "cluster" {
+  name                = "%s"
+  location            = "us-central1-a"
+  initial_node_count  = 1
+  min_master_version  = data.google_container_engine_versions.central1a.latest_master_version
+  deletion_protection = false
+  network             = "%s"
+  subnetwork          = "%s"
+}
+
+resource "google_container_node_pool" "np" {
+  name               = "%s"
+  location           = "us-central1-a"
+  cluster            = google_container_cluster.cluster.name
+  initial_node_count = 1
+  node_config {
+    image_type   = "COS_CONTAINERD"
+	machine_type = "c2d-standard-2" # This is required for hugepage_size_1g https://cloud.google.com/kubernetes-engine/docs/how-to/node-system-config#huge-page-options
+    linux_node_config {
+      hugepages_config {
+	    hugepage_size_2m = %d
+	    hugepage_size_1g = %d
+	  }
+    }
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+  }
+}
+`, cluster, networkName, subnetworkName, np, hugepage, hugepage)
 }
 
 func testAccContainerNodePool_withMultiNicNetworkConfig(cluster, np, network string) string {

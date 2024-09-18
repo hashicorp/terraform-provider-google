@@ -597,6 +597,26 @@ func schemaNodeConfig() *schema.Schema {
 								Description:      `cgroupMode specifies the cgroup mode to be used on the node.`,
 								DiffSuppressFunc: tpgresource.EmptyOrDefaultStringSuppress("CGROUP_MODE_UNSPECIFIED"),
 							},
+							"hugepages_config": {
+								Type:        schema.TypeList,
+								Optional:    true,
+								MaxItems:    1,
+								Description: `Amounts for 2M and 1G hugepages.`,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"hugepage_size_2m": {
+											Type:        schema.TypeInt,
+											Optional:    true,
+											Description: `Amount of 2M hugepages.`,
+										},
+										"hugepage_size_1g": {
+											Type:        schema.TypeInt,
+											Optional:    true,
+											Description: `Amount of 1G hugepages.`,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -1166,6 +1186,10 @@ func expandLinuxNodeConfig(v interface{}) *container.LinuxNodeConfig {
 		linuxNodeConfig.CgroupMode = cgroupMode
 	}
 
+	if v, ok := cfg["hugepages_config"]; ok {
+		linuxNodeConfig.Hugepages = expandHugepagesConfig(v)
+	}
+
 	return linuxNodeConfig
 }
 
@@ -1188,6 +1212,32 @@ func expandCgroupMode(cfg map[string]interface{}) string {
 	}
 
 	return cgroupMode.(string)
+}
+
+func expandHugepagesConfig(v interface{}) *container.HugepagesConfig {
+	if v == nil {
+		return nil
+	}
+	ls := v.([]interface{})
+	if len(ls) == 0 {
+		return nil
+	}
+	if ls[0] == nil {
+		return &container.HugepagesConfig{}
+	}
+	cfg := ls[0].(map[string]interface{})
+
+	hugepagesConfig := &container.HugepagesConfig{}
+
+	if v, ok := cfg["hugepage_size_2m"]; ok {
+		hugepagesConfig.HugepageSize2m = int64(v.(int))
+	}
+
+	if v, ok := cfg["hugepage_size_1g"]; ok {
+		hugepagesConfig.HugepageSize1g = int64(v.(int))
+	}
+
+	return hugepagesConfig
 }
 
 func expandContainerdConfig(v interface{}) *container.ContainerdConfig {
@@ -1621,8 +1671,20 @@ func flattenLinuxNodeConfig(c *container.LinuxNodeConfig) []map[string]interface
 	result := []map[string]interface{}{}
 	if c != nil {
 		result = append(result, map[string]interface{}{
-			"sysctls":     c.Sysctls,
-			"cgroup_mode": c.CgroupMode,
+			"sysctls":          c.Sysctls,
+			"cgroup_mode":      c.CgroupMode,
+			"hugepages_config": flattenHugepagesConfig(c.Hugepages),
+		})
+	}
+	return result
+}
+
+func flattenHugepagesConfig(c *container.HugepagesConfig) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	if c != nil {
+		result = append(result, map[string]interface{}{
+			"hugepage_size_2m": c.HugepageSize2m,
+			"hugepage_size_1g": c.HugepageSize1g,
 		})
 	}
 	return result
