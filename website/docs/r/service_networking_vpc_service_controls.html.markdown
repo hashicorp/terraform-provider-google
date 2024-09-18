@@ -16,7 +16,6 @@ subcategory: "Service Networking"
 description: |-
   Manages the VPC Service Controls configuration for a service
   networking connection
-
   When enabled, Google Cloud makes the following
   route configuration changes in the service producer VPC network:
   - Removes the IPv4 default route (destination 0.

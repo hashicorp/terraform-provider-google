@@ -25,7 +25,6 @@ An Instance is an installation of an Extension into a user's project.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about Instance, see:
-
 * How-to Guides
     * [Official Documentation](https://firebase.google.com/products/extensions)
 

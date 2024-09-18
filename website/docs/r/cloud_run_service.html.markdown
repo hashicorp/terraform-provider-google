@@ -257,7 +257,6 @@ The following arguments are supported:
   The location of the cloud run instance. eg us-central1
 
 
-
 <a name="nested_traffic"></a>The `traffic` block supports:
 
 * `revision_name` -

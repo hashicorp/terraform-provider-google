@@ -26,7 +26,6 @@ Retrieves the current IAM policy data for regionalsecret
 
 ```hcl
 data "google_secret_manager_regional_secret_iam_policy" "policy" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id

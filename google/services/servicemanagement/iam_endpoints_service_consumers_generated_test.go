@@ -147,7 +147,6 @@ EOF
 }
 
 resource "google_endpoints_service_consumers_iam_member" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   role = "%{role}"
@@ -181,14 +180,12 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_endpoints_service_consumers_iam_policy" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   policy_data = data.google_iam_policy.foo.policy_data
 }
 
 data "google_endpoints_service_consumers_iam_policy" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   depends_on = [
@@ -219,7 +216,6 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_endpoints_service_consumers_iam_policy" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   policy_data = data.google_iam_policy.foo.policy_data
@@ -245,7 +241,6 @@ EOF
 }
 
 resource "google_endpoints_service_consumers_iam_binding" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   role = "%{role}"
@@ -272,7 +267,6 @@ EOF
 }
 
 resource "google_endpoints_service_consumers_iam_binding" "foo" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   role = "%{role}"
