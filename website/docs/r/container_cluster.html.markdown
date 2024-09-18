@@ -1328,6 +1328,14 @@ linux_node_config {
     * `CGROUP_MODE_V1`: CGROUP_MODE_V1 specifies to use cgroupv1 for the cgroup configuration on the node image.
     * `CGROUP_MODE_V2`: CGROUP_MODE_V2 specifies to use cgroupv2 for the cgroup configuration on the node image.
 
+* `hugepages_config` - (Optional) Amounts for 2M and 1G hugepages. Structure is [documented below](#nested_hugepages_config).
+
+<a name="nested_hugepages_config"></a>The `hugepages_config` block supports:
+
+* `hugepage_size_2m` - (Optional) Amount of 2M hugepages.
+
+* `hugepage_size_1g` - (Optional) Amount of 1G hugepages.
+
 <a name="nested_containerd_config"></a>The `containerd_config` block supports:
 
 * `private_registry_access_config` (Optional) - Configuration for private container registries. There are two fields in this config:
