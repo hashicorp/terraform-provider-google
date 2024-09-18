@@ -223,6 +223,33 @@ resource "google_looker_instance" "looker-instance" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=looker_instance_psc&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Looker Instance Psc
+
+
+```hcl
+resource "google_looker_instance" "looker-instance" {
+  name               = "my-instance"
+  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region             = "us-central1"
+  private_ip_enabled = false
+  public_ip_enabled  = false
+  psc_enabled        = true
+  oauth_config {
+    client_id = "my-client-id"
+    client_secret = "my-client-secret"
+  }
+  psc_config {
+    allowed_vpcs = ["projects/test-project/global/networks/test"]
+    # update only
+    # service_attachments = [{local_fqdn: "www.local-fqdn.com" target_service_attachment_uri: "projects/my-project/regions/us-east1/serviceAttachments/sa"}]
+  }
+}
+```
 
 ## Argument Reference
 
@@ -291,6 +318,15 @@ The following arguments are supported:
 * `private_ip_enabled` -
   (Optional)
   Whether private IP is enabled on the Looker instance.
+
+* `psc_config` -
+  (Optional)
+  Information for Private Service Connect (PSC) setup for a Looker instance.
+  Structure is [documented below](#nested_psc_config).
+
+* `psc_enabled` -
+  (Optional)
+  Whether Public Service Connect (PSC) is enabled on the Looker instance
 
 * `public_ip_enabled` -
   (Optional)
@@ -466,6 +502,36 @@ The following arguments are supported:
 * `client_secret` -
   (Required)
   The client secret for the Oauth config.
+
+<a name="nested_psc_config"></a>The `psc_config` block supports:
+
+* `allowed_vpcs` -
+  (Optional)
+  List of VPCs that are allowed ingress into the Looker instance.
+
+* `looker_service_attachment_uri` -
+  (Output)
+  URI of the Looker service attachment.
+
+* `service_attachments` -
+  (Optional)
+  List of egress service attachment configurations.
+  Structure is [documented below](#nested_service_attachments).
+
+
+<a name="nested_service_attachments"></a>The `service_attachments` block supports:
+
+* `connection_status` -
+  (Output)
+  Status of the service attachment connection.
+
+* `local_fqdn` -
+  (Optional)
+  Fully qualified domain name that will be used in the private DNS record created for the service attachment.
+
+* `target_service_attachment_uri` -
+  (Optional)
+  URI of the service attachment to connect to.
 
 <a name="nested_user_metadata"></a>The `user_metadata` block supports:
 

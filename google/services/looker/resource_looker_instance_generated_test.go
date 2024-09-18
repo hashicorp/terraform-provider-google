@@ -321,6 +321,53 @@ resource "google_looker_instance" "looker-instance" {
 `, context)
 }
 
+func TestAccLookerInstance_lookerInstancePscExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckLookerInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLookerInstance_lookerInstancePscExample(context),
+			},
+			{
+				ResourceName:            "google_looker_instance.looker-instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "oauth_config", "region"},
+			},
+		},
+	})
+}
+
+func testAccLookerInstance_lookerInstancePscExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_looker_instance" "looker-instance" {
+  name               = "tf-test-my-instance%{random_suffix}"
+  platform_edition   = "LOOKER_CORE_ENTERPRISE_ANNUAL"
+  region             = "us-central1"
+  private_ip_enabled = false
+  public_ip_enabled  = false
+  psc_enabled        = true
+  oauth_config {
+    client_id = "tf-test-my-client-id%{random_suffix}"
+    client_secret = "tf-test-my-client-secret%{random_suffix}"
+  }
+  psc_config {
+    allowed_vpcs = ["projects/test-project/global/networks/test"]
+    # update only
+    # service_attachments = [{local_fqdn: "www.local-fqdn.com" target_service_attachment_uri: "projects/my-project/regions/us-east1/serviceAttachments/sa"}]
+  }
+}
+`, context)
+}
+
 func testAccCheckLookerInstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
