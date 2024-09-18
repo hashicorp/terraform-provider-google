@@ -1,0 +1,6 @@
+```release-note:new-datasource
+`google_secret_manager_regional_secret_version`
+```
+```release-note:enhancement
+secretmanagerregional: added `version_aliases` field to `google_secret_manager_regional_secret` resource
+```

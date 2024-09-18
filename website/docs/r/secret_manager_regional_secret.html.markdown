@@ -243,6 +243,16 @@ The following arguments are supported:
   **Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.
   Please refer to the field `effective_annotations` for all of the annotations present on the resource.
 
+* `version_aliases` -
+  (Optional)
+  Mapping from version alias to version name.
+  A version alias is a string with a maximum length of 63 characters and can contain
+  uppercase and lowercase letters, numerals, and the hyphen (-) and underscore ('_')
+  characters. An alias string must start with a letter and cannot be the string
+  'latest' or 'NEW'. No more than 50 aliases can be assigned to a given secret.
+  An object containing a list of "key": value pairs. Example:
+  { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
 * `customer_managed_encryption` -
   (Optional)
   The customer-managed encryption configuration of the regional secret.

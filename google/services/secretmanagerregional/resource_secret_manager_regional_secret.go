@@ -188,6 +188,20 @@ Agent service account must have pubsub.publisher permissions on the topic.`,
 				Description: `The TTL for the regional secret. A duration in seconds with up to nine fractional digits,
 terminated by 's'. Example: "3.5s". Only one of 'ttl' or 'expire_time' can be provided.`,
 			},
+			"version_aliases": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `Mapping from version alias to version name.
+
+A version alias is a string with a maximum length of 63 characters and can contain
+uppercase and lowercase letters, numerals, and the hyphen (-) and underscore ('_')
+characters. An alias string must start with a letter and cannot be the string
+'latest' or 'NEW'. No more than 50 aliases can be assigned to a given secret.
+
+An object containing a list of "key": value pairs. Example:
+{ "name": "wrench", "mass": "1.3kg", "count": "3" }.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"version_destroy_ttl": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -246,6 +260,12 @@ func resourceSecretManagerRegionalRegionalSecretCreate(d *schema.ResourceData, m
 	}
 
 	obj := make(map[string]interface{})
+	versionAliasesProp, err := expandSecretManagerRegionalRegionalSecretVersionAliases(d.Get("version_aliases"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version_aliases"); !tpgresource.IsEmptyValue(reflect.ValueOf(versionAliasesProp)) && (ok || !reflect.DeepEqual(v, versionAliasesProp)) {
+		obj["versionAliases"] = versionAliasesProp
+	}
 	customerManagedEncryptionProp, err := expandSecretManagerRegionalRegionalSecretCustomerManagedEncryption(d.Get("customer_managed_encryption"), d, config)
 	if err != nil {
 		return err
@@ -398,6 +418,9 @@ func resourceSecretManagerRegionalRegionalSecretRead(d *schema.ResourceData, met
 	if err := d.Set("annotations", flattenSecretManagerRegionalRegionalSecretAnnotations(res["annotations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
+	if err := d.Set("version_aliases", flattenSecretManagerRegionalRegionalSecretVersionAliases(res["versionAliases"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionalSecret: %s", err)
+	}
 	if err := d.Set("customer_managed_encryption", flattenSecretManagerRegionalRegionalSecretCustomerManagedEncryption(res["customerManagedEncryption"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionalSecret: %s", err)
 	}
@@ -442,6 +465,12 @@ func resourceSecretManagerRegionalRegionalSecretUpdate(d *schema.ResourceData, m
 	billingProject = project
 
 	obj := make(map[string]interface{})
+	versionAliasesProp, err := expandSecretManagerRegionalRegionalSecretVersionAliases(d.Get("version_aliases"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("version_aliases"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, versionAliasesProp)) {
+		obj["versionAliases"] = versionAliasesProp
+	}
 	customerManagedEncryptionProp, err := expandSecretManagerRegionalRegionalSecretCustomerManagedEncryption(d.Get("customer_managed_encryption"), d, config)
 	if err != nil {
 		return err
@@ -499,6 +528,10 @@ func resourceSecretManagerRegionalRegionalSecretUpdate(d *schema.ResourceData, m
 	log.Printf("[DEBUG] Updating RegionalSecret %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
 	updateMask := []string{}
+
+	if d.HasChange("version_aliases") {
+		updateMask = append(updateMask, "versionAliases")
+	}
 
 	if d.HasChange("customer_managed_encryption") {
 		updateMask = append(updateMask, "customerManagedEncryption")
@@ -677,6 +710,10 @@ func flattenSecretManagerRegionalRegionalSecretAnnotations(v interface{}, d *sch
 	return transformed
 }
 
+func flattenSecretManagerRegionalRegionalSecretVersionAliases(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenSecretManagerRegionalRegionalSecretCustomerManagedEncryption(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -768,6 +805,17 @@ func flattenSecretManagerRegionalRegionalSecretEffectiveLabels(v interface{}, d 
 
 func flattenSecretManagerRegionalRegionalSecretEffectiveAnnotations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func expandSecretManagerRegionalRegionalSecretVersionAliases(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
 }
 
 func expandSecretManagerRegionalRegionalSecretCustomerManagedEncryption(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
