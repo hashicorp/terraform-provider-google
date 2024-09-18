@@ -270,6 +270,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_project_service":                              resourcemanager.DataSourceGoogleProjectService(),
 	"google_pubsub_subscription":                          pubsub.DataSourceGooglePubsubSubscription(),
 	"google_pubsub_topic":                                 pubsub.DataSourceGooglePubsubTopic(),
+	"google_secret_manager_regional_secret_version":       secretmanagerregional.DataSourceSecretManagerRegionalRegionalSecretVersion(),
 	"google_secret_manager_regional_secret":               secretmanagerregional.DataSourceSecretManagerRegionalRegionalSecret(),
 	"google_secret_manager_secret":                        secretmanager.DataSourceSecretManagerSecret(),
 	"google_secret_manager_secrets":                       secretmanager.DataSourceSecretManagerSecrets(),

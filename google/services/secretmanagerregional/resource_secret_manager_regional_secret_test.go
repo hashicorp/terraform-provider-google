@@ -501,58 +501,57 @@ func TestAccSecretManagerRegionalRegionalSecret_versionDestroyTtlUpdate(t *testi
 	})
 }
 
-// TODO: Uncomment once google_secret_manager_regional_secret_version is added
-// func TestAccSecretManagerRegionalRegionalSecret_versionAliasesUpdate(t *testing.T) {
-// 	t.Parallel()
-//
-// 	context := map[string]interface{}{
-// 		"random_suffix": acctest.RandString(t, 10),
-// 	}
-//
-// 	acctest.VcrTest(t, resource.TestCase{
-// 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-// 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-// 		CheckDestroy:             testAccCheckSecretManagerRegionalRegionalSecretDestroyProducer(t),
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context),
-// 			},
-// 			{
-// 				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"ttl", "annotations", "labels", "location", "secret_id", "terraform_labels"},
-// 			},
-// 			{
-// 				Config: testAccSecretManagerRegionalSecret_versionAliasesBasic(context),
-// 			},
-// 			{
-// 				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"ttl", "annotations", "labels", "location", "secret_id", "terraform_labels"},
-// 			},
-// 			{
-// 				Config: testAccSecretManagerRegionalSecret_versionAliasesUpdate(context),
-// 			},
-// 			{
-// 				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"ttl", "annotations", "labels", "location", "secret_id", "terraform_labels"},
-// 			},
-// 			{
-// 				Config: testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context),
-// 			},
-// 			{
-// 				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
-// 				ImportState:             true,
-// 				ImportStateVerify:       true,
-// 				ImportStateVerifyIgnore: []string{"ttl", "annotations", "labels", "location", "secret_id", "terraform_labels"},
-// 			},
-// 		},
-// 	})
-// }
+func TestAccSecretManagerRegionalRegionalSecret_versionAliasesUpdate(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSecretManagerRegionalRegionalSecretDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerRegionalSecret_versionAliasesBasic(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerRegionalSecret_versionAliasesUpdate(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels"},
+			},
+			{
+				Config: testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context),
+			},
+			{
+				ResourceName:            "google_secret_manager_regional_secret.regional-secret-with-version-aliases",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "labels", "location", "secret_id", "terraform_labels"},
+			},
+		},
+	})
+}
 
 func testAccSecretManagerRegionalSecret_basic(context map[string]interface{}) string {
 	return acctest.Nprintf(`
@@ -1184,130 +1183,129 @@ resource "google_secret_manager_regional_secret" "regional-secret-with-version-d
 `, context)
 }
 
-// TODO: Uncomment once google_secret_manager_regional_secret_version is added
-// func testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context map[string]interface{}) string {
-// 	return acctest.Nprintf(`
-// resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
-//   secret_id = "tf-test-reg-secret%{random_suffix}"
-//   location = "us-central1"
-//
-//   labels = {
-//     mylabel = "mykey"
-//   }
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-1"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-2"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-3"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-4"
-// }
-// `, context)
-// }
-//
-// func testAccSecretManagerRegionalSecret_versionAliasesBasic(context map[string]interface{}) string {
-// 	return acctest.Nprintf(`
-// resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
-//   secret_id = "tf-test-reg-secret%{random_suffix}"
-//   location = "us-central1"
-//
-//   version_aliases = {
-//     firstalias = "1",
-//     secondalias = "2",
-//     thirdalias = "3",
-//     otheralias = "2",
-//     somealias = "3"
-//   }
-//
-//   labels = {
-//     mylabel = "mykey"
-//   }
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-1"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-2"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-3"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-4"
-// }
-// `, context)
-// }
-//
-// func testAccSecretManagerRegionalSecret_versionAliasesUpdate(context map[string]interface{}) string {
-// 	return acctest.Nprintf(`
-// resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
-//   secret_id = "tf-test-reg-secret%{random_suffix}"
-//   location = "us-central1"
-//
-//   version_aliases = {
-//     firstalias = "1",
-//     secondaliasupdated = "2",
-//     otheralias = "1",
-//     somealias = "3",
-//     fourthalias = "4"
-//   }
-//
-//   labels = {
-//     mylabel = "mykey"
-//   }
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-1"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-2"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-3"
-// }
-//
-// resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
-//   secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
-//
-//   secret_data = "very secret data keep it down %{random_suffix}-4"
-// }
-// `, context)
-// }
+func testAccSecretManagerRegionalSecret_basicRegionalSecretWithVersions(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-central1"
+
+  labels = {
+    mylabel = "mykey"
+  }
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-1"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-2"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-3"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-4"
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecret_versionAliasesBasic(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-central1"
+
+  version_aliases = {
+    firstalias = "1",
+    secondalias = "2",
+    thirdalias = "3",
+    otheralias = "2",
+    somealias = "3"
+  }
+
+  labels = {
+    mylabel = "mykey"
+  }
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-1"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-2"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-3"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-4"
+}
+`, context)
+}
+
+func testAccSecretManagerRegionalSecret_versionAliasesUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_secret_manager_regional_secret" "regional-secret-with-version-aliases" {
+  secret_id = "tf-test-reg-secret%{random_suffix}"
+  location = "us-central1"
+
+  version_aliases = {
+    firstalias = "1",
+    secondaliasupdated = "2",
+    otheralias = "1",
+    somealias = "3",
+    fourthalias = "4"
+  }
+
+  labels = {
+    mylabel = "mykey"
+  }
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-1" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-1"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-2" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-2"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-3" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-3"
+}
+
+resource "google_secret_manager_regional_secret_version" "reg-secret-version-4" {
+  secret = google_secret_manager_regional_secret.regional-secret-with-version-aliases.id
+
+  secret_data = "very secret data keep it down %{random_suffix}-4"
+}
+`, context)
+}
