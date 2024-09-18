@@ -120,6 +120,7 @@ resource "google_vertex_ai_feature_online_store" "featureonlinestore" {
 data "google_project" "project" {
   provider = google
 }
+
 `, context)
 }
 

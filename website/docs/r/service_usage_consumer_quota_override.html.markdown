@@ -27,7 +27,6 @@ producer overrides, or the default limit of the service.
 See [Provider Versions](https://terraform.io/docs/providers/google/guides/provider_versions.html) for more details on beta resources.
 
 To get more information about ConsumerQuotaOverride, see:
-
 * How-to Guides
     * [Managing Service Quota](https://cloud.google.com/service-usage/docs/manage-quota )
     * [REST API documentation](https://cloud.google.com/service-usage/docs/reference/rest/v1beta1/services.consumerQuotaMetrics.limits.consumerOverrides)
