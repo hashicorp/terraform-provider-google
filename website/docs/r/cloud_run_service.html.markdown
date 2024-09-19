@@ -53,6 +53,46 @@ resource "google_cloud_run_service" "default" {
   }
 }
 ```
+## Example Usage - Cloud Run Service Gpu
+
+
+```hcl
+resource "google_cloud_run_service" "default" {
+  provider = google-beta
+  name     = "cloudrun-srv"
+  location = "us-central1"
+
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+    }
+  }
+
+  template {
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale": "1"
+        "run.googleapis.com/cpu-throttling": "false"
+      }
+    }
+    spec {
+      containers {
+        image = "gcr.io/cloudrun/hello"
+        resources {
+          limits = {
+            "cpu" = "4"
+            "memory" = "16Gi"
+            "nvidia.com/gpu" = "1"
+          }
+        }
+      }
+      node_selector = {
+        "run.googleapis.com/accelerator" = "nvidia-l4"
+      }
+    }
+  }
+}
+```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloud_run_service_sql&open_in_editor=main.tf" target="_blank">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
@@ -390,6 +430,12 @@ The following arguments are supported:
   (Required)
   Containers defines the unit of execution for this Revision.
   Structure is [documented below](#nested_containers).
+
+* `node_selector` -
+  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  Node Selector describes the hardware requirements of the resources.
+  Use the following node selector keys to configure features on a Revision:
+    - `run.googleapis.com/accelerator` sets the [type of GPU](https://cloud.google.com/run/docs/configuring/services/gpu) required by the Revision to run.
 
 * `container_concurrency` -
   (Optional)
