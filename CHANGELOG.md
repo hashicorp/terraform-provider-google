@@ -18,12 +18,12 @@ FEATURES:
 * **New Resource:** `google_spanner_backup_schedule` ([#19449](https://github.com/hashicorp/terraform-provider-google/pull/19449))
 
 IMPROVEMENTS:
-* alloyDB: added `enable_outbound_public_ip` field to `google_alloydb_instance` resource ([#19444](https://github.com/hashicorp/terraform-provider-google/pull/19444))
+* alloydb: added `enable_outbound_public_ip` field to `google_alloydb_instance` resource ([#19444](https://github.com/hashicorp/terraform-provider-google/pull/19444))
 * apigee: added in-place update for `consumer_accept_list` field in `google_apigee_instance` resource ([#19442](https://github.com/hashicorp/terraform-provider-google/pull/19442))
 * compute: added `interface` field to `google_compute_attached_disk` resource ([#19440](https://github.com/hashicorp/terraform-provider-google/pull/19440))
 * compute: added in-place update in `google_compute_interconnect` resource, except for `remote_location` and `requested_features` fields ([#19508](https://github.com/hashicorp/terraform-provider-google/pull/19508))
 * filestore: added `deletion_protection_enabled` and `deletion_protection_reason` fields to `google_filestore_instance` resource ([#19446](https://github.com/hashicorp/terraform-provider-google/pull/19446))
-* looker: added `fips_enabled` field to resource `google_looker_instance` resource ([#19511](https://github.com/hashicorp/terraform-provider-google/pull/19511))
+* looker: added `fips_enabled` field to `google_looker_instance` resource ([#19511](https://github.com/hashicorp/terraform-provider-google/pull/19511))
 * metastore: added `deletion_protection` field to `google_dataproc_metastore_service` resource ([#19505](https://github.com/hashicorp/terraform-provider-google/pull/19505))
 * netapp: added `allow_auto_tiering` field to `google_netapp_storage_pool` resource ([#19454](https://github.com/hashicorp/terraform-provider-google/pull/19454))
 * netapp: added `tiering_policy` field to `google_netapp_volume` resource ([#19454](https://github.com/hashicorp/terraform-provider-google/pull/19454))
@@ -32,8 +32,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 * compute: fixed a permadiff on `iap` field in `google_compute_backend` and `google_compute_region_backend` resources ([#19509](https://github.com/hashicorp/terraform-provider-google/pull/19509))
-* container: fixed a permadiff on `node_config.gcfs_config` in `google_container_cluster` and `google_container_node_pool` resource ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
-* container: fixed the in-place update for `node_config.gcfs_config` in `google_container_cluster` and `google_container_node_pool` resource ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
+* container: fixed a permadiff on `node_config.gcfs_config` field in `google_container_cluster` and `google_container_node_pool` resources ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
+* container: fixed the in-place update for `node_config.gcfs_config` field in `google_container_cluster` and `google_container_node_pool` resources ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
 * container: made `node_config.kubelet_config.cpu_manager_policy` field optional to fix its update in `google_container_cluster` resource ([#19464](https://github.com/hashicorp/terraform-provider-google/pull/19464))
 * dns: fixed a permadiff on `dnssec_config` field in `google_dns_managed_zone` resource ([#19456](https://github.com/hashicorp/terraform-provider-google/pull/19456))
 * pubsub: allowed `filter` field to contain line breaks in `google_pubsub_subscription` resource ([#19451](https://github.com/hashicorp/terraform-provider-google/pull/19451))
