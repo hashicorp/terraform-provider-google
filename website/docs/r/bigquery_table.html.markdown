@@ -104,6 +104,8 @@ The following arguments are supported:
     By defining these properties, the data source can then be queried as
     if it were a standard BigQuery table. Structure is [documented below](#nested_external_data_configuration).
 
+* `biglake_configuration` - (Optional) Specifies the configuration of a BigLake managed table. Structure is [documented below](#nested_biglake_configuration)
+
 * `friendly_name` - (Optional) A descriptive name for the table.
 
 * `max_staleness`: (Optional) The maximum staleness of data that could be
@@ -491,6 +493,20 @@ The following arguments are supported:
 
 * `replication_interval_ms` (Optional) - The interval at which the source
     materialized view is polled for updates. The default is 300000.
+
+<a name="nested_biglake_configuration"></a>The `biglake_configuration` block supports:
+
+* `connection_id` - (Required) The connection specifying the credentials to be used to
+    read and write to external storage, such as Cloud Storage. The connection_id can
+    have the form "&lt;project\_id&gt;.&lt;location\_id&gt;.&lt;connection\_id&gt;" or
+    projects/&lt;project\_id&gt;/locations/&lt;location\_id&gt;/connections/&lt;connection\_id&gt;".
+
+* `storage_uri` - (Required) The fully qualified location prefix of the external folder where table data
+  is stored. The '*' wildcard character is not allowed. The URI should be in the format "gs://bucket/path_to_table/"
+
+* `file_format` - (Required) The file format the table data is stored in.
+
+* `table_format` - (Required) The table format the metadata only snapshots are stored in.
 
 ## Attributes Reference
 

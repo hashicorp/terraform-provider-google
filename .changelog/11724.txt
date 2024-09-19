@@ -1,0 +1,3 @@
+```release-note:enhancement
+bigquery: added `biglake_configuration` to `google_bigquery_table` to support BigLake Managed Tables
+```
