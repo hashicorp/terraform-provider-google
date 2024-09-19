@@ -892,6 +892,53 @@ func ResourceBigQueryTable() *schema.Resource {
 				},
 			},
 
+			// BiglakeConfiguration [Optional] Specifies the configuration of a BigLake managed table.
+			"biglake_configuration": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				ForceNew:    true,
+				Description: "Specifies the configuration of a BigLake managed table.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						// ConnectionId: [Required] The connection specifying the credentials to be used to read
+						// and write to external storage, such as Cloud Storage. The connection_id can have the
+						// form "&lt;project\_id&gt;.&lt;location\_id&gt;.&lt;connection\_id&gt;" or
+						// "projects/&lt;project\_id&gt;/locations/&lt;location\_id&gt;/connections/&lt;connection\_id&gt;".
+						"connection_id": {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: bigQueryTableConnectionIdSuppress,
+							ForceNew:         true,
+							Description:      `The connection specifying the credentials to be used to read and write to external storage, such as Cloud Storage. The connection_id can have the form "&lt;project\_id&gt;.&lt;location\_id&gt;.&lt;connection\_id&gt;" or "projects/&lt;project\_id&gt;/locations/&lt;location\_id&gt;/connections/&lt;connection\_id&gt;".`,
+						},
+						// StorageUri: [Required] The fully qualified location prefix of the external folder where
+						// table data is stored. The '*' wildcard character is not allowed.
+						// The URI should be in the format "gs://bucket/path_to_table/"
+						"storage_uri": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The fully qualified location prefix of the external folder where table data is stored. The '*' wildcard character is not allowed. The URI should be in the format "gs://bucket/path_to_table/"`,
+						},
+						// FileFormat: [Required] The file format the data is stored in.
+						"file_format": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: "The file format the data is stored in.",
+						},
+						// TableFormat: [Required]
+						"table_format": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: "The table format the metadata only snapshots are stored in.",
+						},
+					},
+				},
+			},
+
 			// FriendlyName: [Optional] A descriptive name for this table.
 			"friendly_name": {
 				Type:        schema.TypeString,
