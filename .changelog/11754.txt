@@ -1,0 +1,3 @@
+```release-note:new-datasource
+`google_secret_manager_regional_secret_version_access`
+```
