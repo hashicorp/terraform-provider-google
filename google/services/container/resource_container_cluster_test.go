@@ -3072,6 +3072,32 @@ func TestAccContainerCluster_withAutopilotKubeletConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withAutopilot_withNodePoolDefaults(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilot_withNodePoolDefaults(clusterName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withAutopilotResourceManagerTags(t *testing.T) {
 	t.Parallel()
 
@@ -9540,6 +9566,25 @@ func testAccContainerCluster_withAutopilotKubeletConfigUpdates(name, insecureKub
     deletion_protection = false
   }
 `, name, insecureKubeletReadonlyPortEnabled)
+}
+
+func testAccContainerCluster_withAutopilot_withNodePoolDefaults(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1"
+  enable_autopilot    = true
+
+  node_pool_defaults {
+    node_config_defaults {
+    }
+  }
+
+  deletion_protection = false
+  network    = "%s"
+  subnetwork    = "%s"
+ }
+`, name, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_resourceManagerTags(projectID, clusterName, networkName, subnetworkName, randomSuffix string) string {

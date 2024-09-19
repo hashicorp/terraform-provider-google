@@ -766,7 +766,6 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 	if v, ok := config["insecure_kubelet_readonly_port_enabled"]; ok {
 		nodeConfigDefaults.NodeKubeletConfig = &container.NodeKubeletConfig{
 			InsecureKubeletReadonlyPortEnabled: expandInsecureKubeletReadonlyPortEnabled(v),
-			ForceSendFields:                    []string{"InsecureKubeletReadonlyPortEnabled"},
 		}
 	}
 	if variant, ok := config["logging_variant"]; ok {
