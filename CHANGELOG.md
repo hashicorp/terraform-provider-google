@@ -1,6 +1,14 @@
 ## 5.44.0 (Unreleased)
 
 NOTES:
+* 5.44.1 is a backport release, intended to pull in critical container fix for issues introduced in 5.44.0
+
+BUG FIXES::
+* container: fixed a bug where specifying `node_pool_defaults.node_config_defaults` with `enable_autopilot = true` will cause `google_container_cluster` resource creation failure. ([#19543](https://github.com/hashicorp/terraform-provider-google/pull/19543))
+
+## 5.44.0 (September 9, 2024)
+
+NOTES:
 * 5.44.0 is a backport release, intended to pull in critical container improvements from 6.2.0
 
 IMPROVEMENTS:
