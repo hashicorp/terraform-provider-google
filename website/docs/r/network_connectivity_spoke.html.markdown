@@ -135,6 +135,203 @@ resource "google_network_connectivity_spoke" "primary" {
         ip_address = "10.0.0.2"
     }
     site_to_site_data_transfer = true
+    include_import_ranges = ["ALL_IPV4_RANGES"]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_vpn_tunnel_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Vpn Tunnel Basic
+
+
+```hcl
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "basic-hub1"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "basic-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "basic-subnetwork"
+  ip_cidr_range = "10.0.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_ha_vpn_gateway" "gateway" {
+  name    = "vpn-gateway"
+  network = google_compute_network.network.id
+}
+
+resource "google_compute_external_vpn_gateway" "external_vpn_gw" {
+  name            = "external-vpn-gateway"
+  redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
+  description     = "An externally managed VPN gateway"
+  interface {
+    id         = 0
+    ip_address = "8.8.8.8"
+  }
+}
+
+resource "google_compute_router" "router" {
+  name    = "external-vpn-gateway"
+  region  = "us-central1"
+  network = google_compute_network.network.name
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_vpn_tunnel" "tunnel1" {
+  name                            = "tunnel1"
+  region                          = "us-central1"
+  vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
+  peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
+  peer_external_gateway_interface = 0
+  shared_secret                   = "a secret message"
+  router                          = google_compute_router.router.id
+  vpn_gateway_interface           = 0
+}
+
+resource "google_compute_vpn_tunnel" "tunnel2" {
+  name                            = "tunnel2"
+  region                          = "us-central1"
+  vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
+  peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
+  peer_external_gateway_interface = 0
+  shared_secret                   = "a secret message"
+  router                          = " ${google_compute_router.router.id}"
+  vpn_gateway_interface           = 1
+}
+
+resource "google_compute_router_interface" "router_interface1" {
+  name       = "router-interface1"
+  router     = google_compute_router.router.name
+  region     = "us-central1"
+  ip_range   = "169.254.0.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel1.name
+}
+
+resource "google_compute_router_peer" "router_peer1" {
+  name                      = "router-peer1"
+  router                    = google_compute_router.router.name
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.0.2"
+  peer_asn                  = 64515
+  advertised_route_priority = 100
+  interface                 = google_compute_router_interface.router_interface1.name
+}
+
+resource "google_compute_router_interface" "router_interface2" {
+  name       = "router-interface2"
+  router     = google_compute_router.router.name
+  region     = "us-central1"
+  ip_range   = "169.254.1.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel2.name
+}
+
+resource "google_compute_router_peer" "router_peer2" {
+  name                      = "router-peer2"
+  router                    = google_compute_router.router.name
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 64515
+  advertised_route_priority = 100
+  interface                 = google_compute_router_interface.router_interface2.name
+}
+
+resource "google_network_connectivity_spoke" "tunnel1" {
+  name        = "vpn-tunnel-1-spoke"
+  location    = "us-central1"
+  description = "A sample spoke with a linked VPN Tunnel"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpn_tunnels {
+    uris                       = [google_compute_vpn_tunnel.tunnel1.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
+  }
+}
+
+resource "google_network_connectivity_spoke" "tunnel2" {
+  name        = "vpn-tunnel-2-spoke"
+  location    = "us-central1"
+  description = "A sample spoke with a linked VPN Tunnel"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpn_tunnels {
+    uris                       = [google_compute_vpn_tunnel.tunnel2.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
+  }
+}
+```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_connectivity_spoke_interconnect_attachment_basic&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Network Connectivity Spoke Interconnect Attachment Basic
+
+
+```hcl
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "basic-hub1"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "basic-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "router" {
+  name    = "external-vpn-gateway"
+  region  = "us-central1"
+  network = google_compute_network.network.name
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_interconnect_attachment" "interconnect-attachment" {
+  name                     = "partner-interconnect1"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  mtu                      = 1500
+  region                   = "us-central1"
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name        = "interconnect-attachment-spoke"
+  location    = "us-central1"
+  description = "A sample spoke with a linked Interconnect Attachment"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_interconnect_attachments {
+    uris                       = [google_compute_interconnect_attachment.interconnect-attachment.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
   }
 }
 ```
@@ -204,6 +401,11 @@ The following arguments are supported:
   (Required)
   A value that controls whether site-to-site data transfer is enabled for these resources. Note that data transfer is available only in supported locations.
 
+* `include_import_ranges` -
+  (Optional)
+  IP ranges allowed to be included during import from hub (does not control transit connectivity).
+  The only allowed value for now is "ALL_IPV4_RANGES".
+
 <a name="nested_linked_interconnect_attachments"></a>The `linked_interconnect_attachments` block supports:
 
 * `uris` -
@@ -213,6 +415,11 @@ The following arguments are supported:
 * `site_to_site_data_transfer` -
   (Required)
   A value that controls whether site-to-site data transfer is enabled for these resources. Note that data transfer is available only in supported locations.
+
+* `include_import_ranges` -
+  (Optional)
+  IP ranges allowed to be included during import from hub (does not control transit connectivity).
+  The only allowed value for now is "ALL_IPV4_RANGES".
 
 <a name="nested_linked_router_appliance_instances"></a>The `linked_router_appliance_instances` block supports:
 
@@ -224,6 +431,11 @@ The following arguments are supported:
 * `site_to_site_data_transfer` -
   (Required)
   A value that controls whether site-to-site data transfer is enabled for these resources. Note that data transfer is available only in supported locations.
+
+* `include_import_ranges` -
+  (Optional)
+  IP ranges allowed to be included during import from hub (does not control transit connectivity).
+  The only allowed value for now is "ALL_IPV4_RANGES".
 
 
 <a name="nested_instances"></a>The `instances` block supports:

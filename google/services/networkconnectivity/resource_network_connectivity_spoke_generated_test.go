@@ -175,6 +175,243 @@ resource "google_network_connectivity_spoke" "primary" {
         ip_address = "10.0.0.2"
     }
     site_to_site_data_transfer = true
+    include_import_ranges = ["ALL_IPV4_RANGES"]
+  }
+}
+`, context)
+}
+
+func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_spoke.tunnel1",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "tf-test-basic-hub1%{random_suffix}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-basic-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnetwork" {
+  name          = "tf-test-basic-subnetwork%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/28"
+  region        = "us-central1"
+  network       = google_compute_network.network.self_link
+}
+
+resource "google_compute_ha_vpn_gateway" "gateway" {
+  name    = "tf-test-vpn-gateway%{random_suffix}"
+  network = google_compute_network.network.id
+}
+
+resource "google_compute_external_vpn_gateway" "external_vpn_gw" {
+  name            = "tf-test-external-vpn-gateway%{random_suffix}"
+  redundancy_type = "SINGLE_IP_INTERNALLY_REDUNDANT"
+  description     = "An externally managed VPN gateway"
+  interface {
+    id         = 0
+    ip_address = "8.8.8.8"
+  }
+}
+
+resource "google_compute_router" "router" {
+  name    = "tf-test-external-vpn-gateway%{random_suffix}"
+  region  = "us-central1"
+  network = google_compute_network.network.name
+  bgp {
+    asn = 64514
+  }
+}
+
+resource "google_compute_vpn_tunnel" "tunnel1" {
+  name                            = "tunnel1%{random_suffix}"
+  region                          = "us-central1"
+  vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
+  peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
+  peer_external_gateway_interface = 0
+  shared_secret                   = "a secret message"
+  router                          = google_compute_router.router.id
+  vpn_gateway_interface           = 0
+}
+
+resource "google_compute_vpn_tunnel" "tunnel2" {
+  name                            = "tunnel2%{random_suffix}"
+  region                          = "us-central1"
+  vpn_gateway                     = google_compute_ha_vpn_gateway.gateway.id
+  peer_external_gateway           = google_compute_external_vpn_gateway.external_vpn_gw.id
+  peer_external_gateway_interface = 0
+  shared_secret                   = "a secret message"
+  router                          = " ${google_compute_router.router.id}"
+  vpn_gateway_interface           = 1
+}
+
+resource "google_compute_router_interface" "router_interface1" {
+  name       = "tf-test-router-interface1%{random_suffix}"
+  router     = google_compute_router.router.name
+  region     = "us-central1"
+  ip_range   = "169.254.0.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel1.name
+}
+
+resource "google_compute_router_peer" "router_peer1" {
+  name                      = "tf-test-router-peer1%{random_suffix}"
+  router                    = google_compute_router.router.name
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.0.2"
+  peer_asn                  = 64515
+  advertised_route_priority = 100
+  interface                 = google_compute_router_interface.router_interface1.name
+}
+
+resource "google_compute_router_interface" "router_interface2" {
+  name       = "tf-test-router-interface2%{random_suffix}"
+  router     = google_compute_router.router.name
+  region     = "us-central1"
+  ip_range   = "169.254.1.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel2.name
+}
+
+resource "google_compute_router_peer" "router_peer2" {
+  name                      = "tf-test-router-peer2%{random_suffix}"
+  router                    = google_compute_router.router.name
+  region                    = "us-central1"
+  peer_ip_address           = "169.254.1.2"
+  peer_asn                  = 64515
+  advertised_route_priority = 100
+  interface                 = google_compute_router_interface.router_interface2.name
+}
+
+resource "google_network_connectivity_spoke" "tunnel1" {
+  name        = "tf-test-vpn-tunnel-1-spoke%{random_suffix}"
+  location    = "us-central1"
+  description = "A sample spoke with a linked VPN Tunnel"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpn_tunnels {
+    uris                       = [google_compute_vpn_tunnel.tunnel1.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
+  }
+}
+
+resource "google_network_connectivity_spoke" "tunnel2" {
+  name        = "tf-test-vpn-tunnel-2-spoke%{random_suffix}"
+  location    = "us-central1"
+  description = "A sample spoke with a linked VPN Tunnel"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_vpn_tunnels {
+    uris                       = [google_compute_vpn_tunnel.tunnel2.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
+  }
+}
+`, context)
+}
+
+func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachmentBasicExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivitySpokeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachmentBasicExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_spoke.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"hub", "labels", "location", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivitySpoke_networkConnectivitySpokeInterconnectAttachmentBasicExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_hub" "basic_hub" {
+  name        = "tf-test-basic-hub1%{random_suffix}"
+  description = "A sample hub"
+  labels = {
+    label-two = "value-one"
+  }
+}
+
+resource "google_compute_network" "network" {
+  name                    = "tf-test-basic-network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_router" "router" {
+  name    = "tf-test-external-vpn-gateway%{random_suffix}"
+  region  = "us-central1"
+  network = google_compute_network.network.name
+  bgp {
+    asn = 16550
+  }
+}
+
+resource "google_compute_interconnect_attachment" "interconnect-attachment" {
+  name                     = "tf-test-partner-interconnect1%{random_suffix}"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  type                     = "PARTNER"
+  router                   = google_compute_router.router.id
+  mtu                      = 1500
+  region                   = "us-central1"
+}
+
+resource "google_network_connectivity_spoke" "primary" {
+  name        = "tf-test-interconnect-attachment-spoke%{random_suffix}"
+  location    = "us-central1"
+  description = "A sample spoke with a linked Interconnect Attachment"
+  labels = {
+    label-one = "value-one"
+  }
+  hub = google_network_connectivity_hub.basic_hub.id
+  linked_interconnect_attachments {
+    uris                       = [google_compute_interconnect_attachment.interconnect-attachment.self_link]
+    site_to_site_data_transfer = true
+    include_import_ranges      = ["ALL_IPV4_RANGES"]
   }
 }
 `, context)
