@@ -1,0 +1,3 @@
+```release-note:bug
+bigquery: fixed bug of sending both `schema` and `external_data_configuration.schema` when updating `google_bigquery_table`
+```
