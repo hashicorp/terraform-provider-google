@@ -3564,44 +3564,38 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			// Acquire write-lock on nodepool.
 			npLockKey := nodePoolInfo.nodePoolLockKey(defaultPool)
 
-			// Note: probably long term this should be handled broadly for all the
-			// items in kubelet_config in a simpler / DRYer way.
+			// Still should be further consolidated / DRYed up
 			// See b/361634104
-			if d.HasChange("node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled") {
-				it := d.Get("node_config.0.kubelet_config.0.insecure_kubelet_readonly_port_enabled").(string)
+			it := d.Get("node_config.0.kubelet_config")
 
-				// While we're getting the value from the drepcated field in
-				// node_config.kubelet_config, the actual setting that needs to be updated
-				// is on the default nodepool.
-				req := &container.UpdateNodePoolRequest{
-					Name: defaultPool,
-					KubeletConfig: &container.NodeKubeletConfig{
-						InsecureKubeletReadonlyPortEnabled: expandInsecureKubeletReadonlyPortEnabled(it),
-						ForceSendFields:                    []string{"InsecureKubeletReadonlyPortEnabled"},
-					},
+			// While we're getting the value from fields in
+			// node_config.kubelet_config, the actual setting that needs to be
+			// updated is on the default nodepool.
+			req := &container.UpdateNodePoolRequest{
+				Name:          defaultPool,
+				KubeletConfig: expandKubeletConfig(it),
+			}
+
+			updateF := func() error {
+				clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
+				if config.UserProjectOverride {
+					clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
 				}
-
-				updateF := func() error {
-					clusterNodePoolsUpdateCall := config.NewContainerClient(userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(defaultPool), req)
-					if config.UserProjectOverride {
-						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
-					}
-					op, err := clusterNodePoolsUpdateCall.Do()
-					if err != nil {
-						return err
-					}
-
-					// Wait until it's updated
-					return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
-						"updating GKE node pool insecure_kubelet_readonly_port_enabled", userAgent, timeout)
-				}
-
-				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				op, err := clusterNodePoolsUpdateCall.Do()
+				if err != nil {
 					return err
 				}
 
-				log.Printf("[INFO] GKE cluster %s: default-pool setting for insecure_kubelet_readonly_port_enabled updated to %s", d.Id(), it)
+				// Wait until it's updated
+				return ContainerOperationWait(config, op, nodePoolInfo.project, nodePoolInfo.location,
+					"updating GKE node pool kubelet_config", userAgent, timeout)
 			}
+
+			if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s: kubelet_config updated", d.Id())
 		}
 
 		if d.HasChange("node_config.0.gcfs_config") {

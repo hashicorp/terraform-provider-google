@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed `node_config.kubelet_config` updates in `google_container_cluster` resource
+```
