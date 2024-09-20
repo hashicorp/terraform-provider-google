@@ -1897,6 +1897,11 @@ func resourceBigQueryTableUpdate(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	if table.ExternalDataConfiguration != nil && table.ExternalDataConfiguration.Schema != nil {
+		log.Printf("[INFO] Removing ExternalDataConfiguration.Schema when updating BigQuery table %s", d.Id())
+		table.ExternalDataConfiguration.Schema = nil
+	}
+
 	log.Printf("[INFO] Updating BigQuery table: %s", d.Id())
 
 	project, err := tpgresource.GetProject(d, config)
