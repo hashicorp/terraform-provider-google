@@ -924,10 +924,11 @@ func ResourceComposerEnvironment() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Optional. Name of an existing Cloud Storage bucket to be used by the environment.`,
+							Type:             schema.TypeString,
+							Required:         true,
+							ForceNew:         true,
+							DiffSuppressFunc: gscBucketNameDiffSuppress,
+							Description:      `Optional. Name of an existing Cloud Storage bucket to be used by the environment.`,
 						},
 					},
 				},
@@ -2700,4 +2701,12 @@ func validateComposerInternalIpv4CidrBlock(v any, k string) (warns []string, err
 		errs = append(errs, fmt.Errorf("Composer Internal IPv4 CIDR range must have size /20"))
 	}
 	return
+}
+
+func gscBucketNameDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	prefix := "gs://"
+	if prefix+old == new || old == prefix+new {
+		return true
+	}
+	return false
 }
