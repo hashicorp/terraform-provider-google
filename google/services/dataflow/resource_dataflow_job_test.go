@@ -277,12 +277,12 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "4"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_key1", "default_value1"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "6"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
 				),
 			},
 			{
@@ -299,12 +299,12 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_expiration_ms", "3600000"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_key1", "value1"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "4"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_key1", "value1"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "6"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
 				),
 			},
 			{
@@ -322,12 +322,12 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_expiration_ms", "3600000"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_key1", "value1"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "4"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_key1", "value1"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "6"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
 				),
 			},
 			{
@@ -344,12 +344,12 @@ func TestAccDataflowJob_withProviderDefaultLabels(t *testing.T) {
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_expiration_ms", "3600000"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "labels.default_key1", "value1"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "3"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.%", "4"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_key1", "value1"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.env", "foo"),
 					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "terraform_labels.default_expiration_ms", "3600000"),
 
-					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "6"),
+					resource.TestCheckResourceAttr("google_dataflow_job.big_data", "effective_labels.%", "7"),
 				),
 			},
 			{
