@@ -436,9 +436,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 466
+// Generated resources: 467
 // Generated IAM resources: 261
-// Total generated resources: 727
+// Total generated resources: 728
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -933,6 +933,7 @@ var generatedResources = map[string]*schema.Resource{
 	"google_kms_secret_ciphertext":                                               kms.ResourceKMSSecretCiphertext(),
 	"google_logging_folder_settings":                                             logging.ResourceLoggingFolderSettings(),
 	"google_logging_linked_dataset":                                              logging.ResourceLoggingLinkedDataset(),
+	"google_logging_log_scope":                                                   logging.ResourceLoggingLogScope(),
 	"google_logging_log_view":                                                    logging.ResourceLoggingLogView(),
 	"google_logging_log_view_iam_binding":                                        tpgiamresource.ResourceIamBinding(logging.LoggingLogViewIamSchema, logging.LoggingLogViewIamUpdaterProducer, logging.LoggingLogViewIdParseFunc),
 	"google_logging_log_view_iam_member":                                         tpgiamresource.ResourceIamMember(logging.LoggingLogViewIamSchema, logging.LoggingLogViewIamUpdaterProducer, logging.LoggingLogViewIdParseFunc),
