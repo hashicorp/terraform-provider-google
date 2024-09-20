@@ -436,9 +436,9 @@ var handwrittenIAMDatasources = map[string]*schema.Resource{
 }
 
 // Resources
-// Generated resources: 467
+// Generated resources: 466
 // Generated IAM resources: 261
-// Total generated resources: 728
+// Total generated resources: 727
 var generatedResources = map[string]*schema.Resource{
 	"google_folder_access_approval_settings":                                     accessapproval.ResourceAccessApprovalFolderSettings(),
 	"google_organization_access_approval_settings":                               accessapproval.ResourceAccessApprovalOrganizationSettings(),
@@ -868,7 +868,6 @@ var generatedResources = map[string]*schema.Resource{
 	"google_healthcare_dicom_store":                                              healthcare.ResourceHealthcareDicomStore(),
 	"google_healthcare_fhir_store":                                               healthcare.ResourceHealthcareFhirStore(),
 	"google_healthcare_hl7_v2_store":                                             healthcare.ResourceHealthcareHl7V2Store(),
-	"google_healthcare_pipeline_job":                                             healthcare.ResourceHealthcarePipelineJob(),
 	"google_healthcare_workspace":                                                healthcare.ResourceHealthcareWorkspace(),
 	"google_iam_access_boundary_policy":                                          iam2.ResourceIAM2AccessBoundaryPolicy(),
 	"google_iam_deny_policy":                                                     iam2.ResourceIAM2DenyPolicy(),
