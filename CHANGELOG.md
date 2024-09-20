@@ -1,9 +1,13 @@
 ## 5.44.1 (Unreleased)
 
 NOTES:
-* 5.44.1 is a backport release, intended to pull in critical container fix for issues introduced in 5.44.0
+* 5.44.1 is a backport release, intended to pull in critical container improvements and fixes for issues introduced in 5.44.0
+
+IMPROVEMENTS:
+* container: added in-place update support for `gcfs_config` in in `google_container_cluster` and `google_container_node_pool` ([#19365](https://github.com/hashicorp/terraform-provider-google/pull/19365)) ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
 
 BUG FIXES::
+* container: fixed a permadiff on `gcfs_config` in `google_container_cluster` and `google_container_node_pool` ([#19512](https://github.com/hashicorp/terraform-provider-google/pull/19512))
 * container: fixed a bug where specifying `node_pool_defaults.node_config_defaults` with `enable_autopilot = true` will cause `google_container_cluster` resource creation failure. ([#19543](https://github.com/hashicorp/terraform-provider-google/pull/19543))
 
 ## 5.44.0 (September 9, 2024)
