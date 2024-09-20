@@ -1,0 +1,3 @@
+```release-note:bug
+bigquerydatapolicy: fixed permadiff in `google_bigquery_datapolicy_data_policy` policy tag
+```
