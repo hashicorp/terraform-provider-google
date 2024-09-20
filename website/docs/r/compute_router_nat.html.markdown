@@ -296,6 +296,11 @@ The following arguments are supported:
   Platform, or `MANUAL_ONLY` for only user-allocated NAT IP addresses.
   Possible values are: `MANUAL_ONLY`, `AUTO_ONLY`.
 
+* `initial_nat_ips` -
+  (Optional)
+  Self-links of NAT IPs to be used as initial value for creation alongside a RouterNatAddress resource.
+  Conflicts with natIps and drainNatIps. Only valid if natIpAllocateOption is set to MANUAL_ONLY.
+
 * `nat_ips` -
   (Optional)
   Self-links of NAT IPs. Only valid if natIpAllocateOption

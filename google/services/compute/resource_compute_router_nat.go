@@ -231,6 +231,7 @@ project-level default tier is used. Possible values: ["PREMIUM", "STANDARD"]`,
 			},
 			"drain_nat_ips": {
 				Type:     schema.TypeSet,
+				Computed: true,
 				Optional: true,
 				Description: `A list of URLs of the IP resources to be drained. These IPs must be
 valid static external IPs that have been assigned to the NAT.`,
@@ -279,6 +280,19 @@ Supported values include:
 				Description: `Timeout (in seconds) for ICMP connections. Defaults to 30s if not set.`,
 				Default:     30,
 			},
+			"initial_nat_ips": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: true,
+				Description: `Self-links of NAT IPs to be used as initial value for creation alongside a RouterNatAddress resource.
+Conflicts with natIps and drainNatIps. Only valid if natIpAllocateOption is set to MANUAL_ONLY.`,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				},
+				Set:           computeRouterNatIPsHash,
+				ConflictsWith: []string{"nat_ips", "drain_nat_ips"},
+			},
 			"log_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -322,6 +336,7 @@ Platform, or 'MANUAL_ONLY' for only user-allocated NAT IP addresses. Possible va
 			},
 			"nat_ips": {
 				Type:     schema.TypeSet,
+				Computed: true,
 				Optional: true,
 				Description: `Self-links of NAT IPs. Only valid if natIpAllocateOption
 is set to MANUAL_ONLY.
@@ -524,6 +539,12 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("nat_ip_allocate_option"); !tpgresource.IsEmptyValue(reflect.ValueOf(natIpAllocateOptionProp)) && (ok || !reflect.DeepEqual(v, natIpAllocateOptionProp)) {
 		obj["natIpAllocateOption"] = natIpAllocateOptionProp
 	}
+	initialNatIpsProp, err := expandNestedComputeRouterNatInitialNatIps(d.Get("initial_nat_ips"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("initial_nat_ips"); ok || !reflect.DeepEqual(v, initialNatIpsProp) {
+		obj["initialNatIps"] = initialNatIpsProp
+	}
 	natIpsProp, err := expandNestedComputeRouterNatNatIps(d.Get("nat_ips"), d, config)
 	if err != nil {
 		return err
@@ -625,6 +646,11 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("auto_network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoNetworkTierProp)) && (ok || !reflect.DeepEqual(v, autoNetworkTierProp)) {
 		obj["autoNetworkTier"] = autoNetworkTierProp
+	}
+
+	obj, err = resourceComputeRouterNatEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
@@ -927,6 +953,11 @@ func resourceComputeRouterNatUpdate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("auto_network_tier"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, autoNetworkTierProp)) {
 		obj["autoNetworkTier"] = autoNetworkTierProp
+	}
+
+	obj, err = resourceComputeRouterNatEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	lockName, err := tpgresource.ReplaceVars(d, config, "router/{{region}}/{{router}}")
@@ -1364,6 +1395,23 @@ func expandNestedComputeRouterNatNatIpAllocateOption(v interface{}, d tpgresourc
 	return v, nil
 }
 
+func expandNestedComputeRouterNatInitialNatIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			return nil, fmt.Errorf("Invalid value for initial_nat_ips: nil")
+		}
+		f, err := tpgresource.ParseRegionalFieldValue("addresses", raw.(string), "project", "region", "zone", d, config, true)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value for initial_nat_ips: %s", err)
+		}
+		req = append(req, f.RelativeLink())
+	}
+	return req, nil
+}
+
 func expandNestedComputeRouterNatNatIps(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	v = v.(*schema.Set).List()
 	l := v.([]interface{})
@@ -1649,6 +1697,24 @@ func expandNestedComputeRouterNatEnableEndpointIndependentMapping(v interface{},
 
 func expandNestedComputeRouterNatAutoNetworkTier(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceComputeRouterNatEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// initial_nat_ips uses the same api_name as nat_ips
+	if tpgresource.IsEmptyValue(reflect.ValueOf(obj["initialNatIps"])) {
+		return obj, nil
+	}
+
+	newObj := make(map[string]interface{})
+	for key, value := range obj {
+		newObj[key] = value
+	}
+
+	newObj["natIps"] = obj["initialNatIps"]
+	delete(newObj, "initialNatIps")
+
+	log.Printf("[DEBUG] Replacing initialNatIps value \n oldObj: %+v \n newObj: %+v", obj, newObj)
+	return newObj, nil
 }
 
 func flattenNestedComputeRouterNat(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {

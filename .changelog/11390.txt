@@ -1,0 +1,6 @@
+```release-note:new-resource
+`google_compute_router_nat_address`
+```
+```release-note:enhancement
+compute: added 'initial_nat_ip' field to 'google_compute_router_nat' resource, to enable use of the fine-grained resource `google_compute_router_nat_address`
+```
