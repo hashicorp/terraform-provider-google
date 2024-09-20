@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_compute_region_network_firewall_policy_with_rules` (beta)
+```
