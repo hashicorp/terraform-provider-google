@@ -202,6 +202,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_compute_regions":                               compute.DataSourceGoogleComputeRegions(),
 	"google_compute_region_disk":                           compute.DataSourceGoogleComputeRegionDisk(),
 	"google_compute_region_instance_group":                 compute.DataSourceGoogleComputeRegionInstanceGroup(),
+	"google_compute_region_instance_group_manager":         compute.DataSourceGoogleComputeRegionInstanceGroupManager(),
 	"google_compute_region_instance_template":              compute.DataSourceGoogleComputeRegionInstanceTemplate(),
 	"google_compute_region_network_endpoint_group":         compute.DataSourceGoogleComputeRegionNetworkEndpointGroup(),
 	"google_compute_region_ssl_certificate":                compute.DataSourceGoogleRegionComputeSslCertificate(),
