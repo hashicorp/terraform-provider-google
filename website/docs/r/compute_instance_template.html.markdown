@@ -641,6 +641,8 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `on_instance_stop_action` - (Optional) Specifies the action to be performed when the instance is terminated using `max_run_duration` and `STOP` `instance_termination_action`. Only support `true` `discard_local_ssd` at this point. Structure is [documented below](#nested_on_instance_stop_action).
 
+* `host_error_timeout_seconds` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.
+
 * `maintenance_interval` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the frequency of planned maintenance events. The accepted values are: `PERIODIC`.
 
 * `local_ssd_recovery_timeout` -  (Optional) (https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
