@@ -1073,8 +1073,8 @@ be from 0 to 999,999,999 inclusive.`,
 			"desired_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED"}, false),
-				Description:  `Desired status of the instance. Either "RUNNING" or "TERMINATED".`,
+				ValidateFunc: validation.StringInSlice([]string{"RUNNING", "TERMINATED", "SUSPENDED"}, false),
+				Description:  `Desired status of the instance. Either "RUNNING", "SUSPENDED" or "TERMINATED".`,
 			},
 			"current_status": {
 				Type:     schema.TypeString,
@@ -2314,18 +2314,30 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 	needToStopInstanceBeforeUpdating := scopesChange || d.HasChange("service_account.0.email") || d.HasChange("machine_type") || d.HasChange("min_cpu_platform") || d.HasChange("enable_display") || d.HasChange("shielded_instance_config") || len(updatesToNIWhileStopped) > 0 || bootRequiredSchedulingChange || d.HasChange("advanced_machine_features")
 
 	if d.HasChange("desired_status") && !needToStopInstanceBeforeUpdating {
-		desiredStatus := d.Get("desired_status").(string)
+		previousStatus, desiredStatus := d.GetChange("desired_status")
 
 		if desiredStatus != "" {
 			var op *compute.Operation
 
 			if desiredStatus == "RUNNING" {
-				op, err = startInstanceOperation(d, config)
-				if err != nil {
-					return errwrap.Wrapf("Error starting instance: {{err}}", err)
+				if previousStatus == "SUSPENDED" {
+					op, err = config.NewComputeClient(userAgent).Instances.Resume(project, zone, instance.Name).Do()
+					if err != nil {
+						return err
+					}
+				} else {
+					op, err = startInstanceOperation(d, config)
+					if err != nil {
+						return errwrap.Wrapf("Error starting instance: {{err}}", err)
+					}
 				}
 			} else if desiredStatus == "TERMINATED" {
 				op, err = config.NewComputeClient(userAgent).Instances.Stop(project, zone, instance.Name).Do()
+				if err != nil {
+					return err
+				}
+			} else if desiredStatus == "SUSPENDED" {
+				op, err = config.NewComputeClient(userAgent).Instances.Suspend(project, zone, instance.Name).Do()
 				if err != nil {
 					return err
 				}

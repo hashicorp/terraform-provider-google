@@ -2648,6 +2648,52 @@ func TestAccComputeInstance_updateTerminated_desiredStatusRunning_notAllowStoppi
 	})
 }
 
+func TestAccComputeInstance_desiredStatus_suspended(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	context_1 := map[string]interface{}{
+		"instance_name":  fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10)),
+		"desired_status": "RUNNING",
+	}
+	context_2 := map[string]interface{}{
+		"instance_name":  context_1["instance_name"],
+		"desired_status": "SUSPENDED",
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_desiredStatus_suspended(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatus_suspended(context_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, "SUSPENDED"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_desiredStatus_suspended(context_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						t, "google_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasStatus(&instance, "RUNNING"), // this mimics resume method behavior
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_resourcePolicyCollocate(t *testing.T) {
 	t.Parallel()
 
@@ -7909,6 +7955,33 @@ resource "google_compute_instance" "foobar" {
 	allow_stopping_for_update = %t
 }
 `, instance, machineType, desiredStatusConfigSection, allowStoppingForUpdate)
+}
+
+func testAccComputeInstance_desiredStatus_suspended(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-11"
+	project = "debian-cloud"
+}
+
+resource "google_compute_instance" "foobar" {
+	name           = "%{instance_name}"
+	machine_type   = "e2-medium"
+	zone           = "us-central1-a"
+
+	boot_disk {
+		initialize_params{
+			image = "${data.google_compute_image.my_image.self_link}"
+		}
+	}
+
+	network_interface {
+		network = "default"
+	}
+
+	desired_status = "%{desired_status}"
+}
+`, context)
 }
 
 func testAccComputeInstance_desiredStatusTerminatedUpdate(instance string) string {

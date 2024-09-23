@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: add "SUSPENDED" as a possible value to `desired_state` on `google_compute_instance`
+```
