@@ -98,6 +98,13 @@ Note that only MACHINE commitments should have a Type specified. Possible values
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"existing_reservations": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Specifies the already existing reservations to attach to the Commitment.`,
+			},
 			"license_resource": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -281,6 +288,12 @@ func resourceComputeRegionCommitmentCreate(d *schema.ResourceData, meta interfac
 	} else if v, ok := d.GetOkExists("auto_renew"); !tpgresource.IsEmptyValue(reflect.ValueOf(autoRenewProp)) && (ok || !reflect.DeepEqual(v, autoRenewProp)) {
 		obj["autoRenew"] = autoRenewProp
 	}
+	existingReservationsProp, err := expandComputeRegionCommitmentExistingReservations(d.Get("existing_reservations"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("existing_reservations"); !tpgresource.IsEmptyValue(reflect.ValueOf(existingReservationsProp)) && (ok || !reflect.DeepEqual(v, existingReservationsProp)) {
+		obj["existingReservations"] = existingReservationsProp
+	}
 	regionProp, err := expandComputeRegionCommitmentRegion(d.Get("region"), d, config)
 	if err != nil {
 		return err
@@ -426,6 +439,9 @@ func resourceComputeRegionCommitmentRead(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading RegionCommitment: %s", err)
 	}
 	if err := d.Set("auto_renew", flattenComputeRegionCommitmentAutoRenew(res["autoRenew"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionCommitment: %s", err)
+	}
+	if err := d.Set("existing_reservations", flattenComputeRegionCommitmentExistingReservations(res["existingReservations"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionCommitment: %s", err)
 	}
 	if err := d.Set("region", flattenComputeRegionCommitmentRegion(res["region"], d, config)); err != nil {
@@ -590,6 +606,10 @@ func flattenComputeRegionCommitmentAutoRenew(v interface{}, d *schema.ResourceDa
 	return v
 }
 
+func flattenComputeRegionCommitmentExistingReservations(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionCommitmentRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -711,6 +731,10 @@ func expandComputeRegionCommitmentLicenseResourceCoresPerLicense(v interface{}, 
 }
 
 func expandComputeRegionCommitmentAutoRenew(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionCommitmentExistingReservations(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
