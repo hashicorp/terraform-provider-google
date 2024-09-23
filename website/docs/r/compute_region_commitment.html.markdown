@@ -132,6 +132,10 @@ The following arguments are supported:
   If the field is set to true, the commitment will be automatically renewed for either
   one or three years according to the terms of the existing commitment.
 
+* `existing_reservations` -
+  (Optional)
+  Specifies the already existing reservations to attach to the Commitment.
+
 * `region` -
   (Optional)
   URL of the region where this commitment may be used.
