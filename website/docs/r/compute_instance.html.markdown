@@ -150,7 +150,7 @@ The following arguments are supported:
 * `description` - (Optional) A brief description of this resource.
 
 * `desired_status` - (Optional) Desired status of the instance. Either
-`"RUNNING"` or `"TERMINATED"`.
+`"RUNNING"`, `"SUSPENDED"` or `"TERMINATED"`.
 
 * `deletion_protection` - (Optional) Enable deletion protection on this instance. Defaults to false.
     **Note:** you must disable deletion protection before removing the resource (e.g., via `terraform destroy`), or the instance cannot be deleted and the Terraform run will not complete successfully.
