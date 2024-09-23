@@ -264,6 +264,7 @@ var handwrittenDatasources = map[string]*schema.Resource{
 	"google_netblock_ip_ranges":                            resourcemanager.DataSourceGoogleNetblockIpRanges(),
 	"google_organization":                                  resourcemanager.DataSourceGoogleOrganization(),
 	"google_privateca_certificate_authority":               privateca.DataSourcePrivatecaCertificateAuthority(),
+	"google_privileged_access_manager_entitlement":         privilegedaccessmanager.DataSourceGooglePrivilegedAccessManagerEntitlement(),
 	"google_project":                                       resourcemanager.DataSourceGoogleProject(),
 	"google_projects":                                      resourcemanager.DataSourceGoogleProjects(),
 	"google_project_organization_policy":                   resourcemanager.DataSourceGoogleProjectOrganizationPolicy(),
