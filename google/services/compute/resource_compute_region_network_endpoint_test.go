@@ -146,6 +146,101 @@ resource "google_compute_region_network_endpoint" "add2" {
 `, context) + testAccComputeRegionNetworkEndpoint_noRegionNetworkEndpoints(context)
 }
 
+func TestAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapExample(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	negId := fmt.Sprintf("projects/%s/regions/%s/networkEndpointGroups/tf-test-portmap-neg%s",
+		envvar.GetTestProjectFromEnv(), envvar.GetTestRegionFromEnv(), context["random_suffix"])
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapExample(context),
+			},
+			{
+				ResourceName:            "google_compute_region_network_endpoint.region_network_endpoint_portmap",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance", "region", "region_network_endpoint_group"},
+			},
+			{
+				// Delete all endpoints
+				Config: testAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapNoEndpointExample(context),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeRegionNetworkEndpointWithPortsDestroyed(t, negId, "80"),
+				),
+			},
+		},
+	})
+}
+
+func testAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapNoEndpointExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "default" {
+  name                    = "network%{random_suffix}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "subnetwork%{random_suffix}"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = "us-central1"
+  network       = google_compute_network.default.id
+}
+
+resource "google_compute_region_network_endpoint_group" default {
+  name                  = "tf-test-portmap-neg%{random_suffix}"
+  region                = "us-central1"
+  network               = google_compute_network.default.id
+  subnetwork            = google_compute_subnetwork.default.id
+
+  network_endpoint_type = "GCE_VM_IP_PORTMAP"
+}
+
+data "google_compute_image" "my_image" {
+  family  = "debian-11"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance" "default" {
+  name         = "instance%{random_suffix}"
+  machine_type = "e2-medium"
+  zone = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+    access_config {
+    }
+  }
+}
+`, context)
+}
+
+func testAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_region_network_endpoint" "region_network_endpoint_portmap" {
+  region_network_endpoint_group = google_compute_region_network_endpoint_group.default.name
+  region = "us-central1"
+  instance   = google_compute_instance.default.self_link
+  port       = 80
+  ip_address = google_compute_instance.default.network_interface[0].network_ip
+  client_destination_port = 8080
+}
+`, context) + testAccComputeRegionNetworkEndpoint_regionNetworkEndpointPortmapNoEndpointExample(context)
+}
+
 func testAccComputeRegionNetworkEndpoint_noRegionNetworkEndpoints(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 resource "google_compute_region_network_endpoint_group" "neg" {

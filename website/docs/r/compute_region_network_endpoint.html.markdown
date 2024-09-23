@@ -102,7 +102,6 @@ resource "google_compute_network" "default" {
 resource "google_compute_network" "default" {
   name                    = "network"
   auto_create_subnetworks = false
-  provider           = google-beta
 }
 
 resource "google_compute_subnetwork" "default" {
@@ -110,7 +109,6 @@ resource "google_compute_subnetwork" "default" {
   ip_cidr_range = "10.0.0.0/16"
   region        = "us-central1"
   network       = google_compute_network.default.id
-  provider           = google-beta
 }
 
 resource "google_compute_region_network_endpoint_group" default {
@@ -120,7 +118,6 @@ resource "google_compute_region_network_endpoint_group" default {
   subnetwork            = google_compute_subnetwork.default.id
 
   network_endpoint_type = "GCE_VM_IP_PORTMAP"
-  provider           = google-beta
 }
 
 resource "google_compute_region_network_endpoint" "region_network_endpoint_portmap" {
@@ -130,13 +127,11 @@ resource "google_compute_region_network_endpoint" "region_network_endpoint_portm
   port       = 80
   ip_address = google_compute_instance.default.network_interface[0].network_ip
   client_destination_port = 8080
-  provider           = google-beta
 }
 
 data "google_compute_image" "my_image" {
   family  = "debian-11"
   project = "debian-cloud"
-  provider           = google-beta
 }
 
 resource "google_compute_instance" "default" {
@@ -155,7 +150,6 @@ resource "google_compute_instance" "default" {
     access_config {
     }
   }
-  provider           = google-beta
 }
 ```
 
@@ -187,11 +181,11 @@ The following arguments are supported:
   This can only be specified when network_endpoint_type of the NEG is INTERNET_FQDN_PORT.
 
 * `client_destination_port` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Client destination port for the `GCE_VM_IP_PORTMAP` NEG.
 
 * `instance` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   The name for a specific VM instance that the IP address belongs to.
   This is required for network endpoints of type GCE_VM_IP_PORTMAP.
 
