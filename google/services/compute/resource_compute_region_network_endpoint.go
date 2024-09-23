@@ -67,6 +67,12 @@ func ResourceComputeRegionNetworkEndpoint() *schema.Resource {
 				DiffSuppressFunc: tpgresource.CompareResourceNames,
 				Description:      `The network endpoint group this endpoint is part of.`,
 			},
+			"client_destination_port": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Client destination port for the 'GCE_VM_IP_PORTMAP' NEG.`,
+			},
 			"fqdn": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -75,6 +81,14 @@ func ResourceComputeRegionNetworkEndpoint() *schema.Resource {
 
 This can only be specified when network_endpoint_type of the NEG is INTERNET_FQDN_PORT.`,
 				AtLeastOneOf: []string{"fqdn", "ip_address"},
+			},
+			"instance": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `The name for a specific VM instance that the IP address belongs to.
+This is required for network endpoints of type GCE_VM_IP_PORTMAP.`,
 			},
 			"ip_address": {
 				Type:     schema.TypeString,
@@ -128,6 +142,18 @@ func resourceComputeRegionNetworkEndpointCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("fqdn"); !tpgresource.IsEmptyValue(reflect.ValueOf(fqdnProp)) && (ok || !reflect.DeepEqual(v, fqdnProp)) {
 		obj["fqdn"] = fqdnProp
+	}
+	clientDestinationPortProp, err := expandNestedComputeRegionNetworkEndpointClientDestinationPort(d.Get("client_destination_port"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("client_destination_port"); !tpgresource.IsEmptyValue(reflect.ValueOf(clientDestinationPortProp)) && (ok || !reflect.DeepEqual(v, clientDestinationPortProp)) {
+		obj["clientDestinationPort"] = clientDestinationPortProp
+	}
+	instanceProp, err := expandNestedComputeRegionNetworkEndpointInstance(d.Get("instance"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("instance"); !tpgresource.IsEmptyValue(reflect.ValueOf(instanceProp)) && (ok || !reflect.DeepEqual(v, instanceProp)) {
+		obj["instance"] = instanceProp
 	}
 
 	obj, err = resourceComputeRegionNetworkEndpointEncoder(d, meta, obj)
@@ -281,6 +307,12 @@ func resourceComputeRegionNetworkEndpointRead(d *schema.ResourceData, meta inter
 	if err := d.Set("fqdn", flattenNestedComputeRegionNetworkEndpointFqdn(res["fqdn"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
 	}
+	if err := d.Set("client_destination_port", flattenNestedComputeRegionNetworkEndpointClientDestinationPort(res["clientDestinationPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
+	}
+	if err := d.Set("instance", flattenNestedComputeRegionNetworkEndpointInstance(res["instance"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpoint: %s", err)
+	}
 
 	return nil
 }
@@ -347,6 +379,24 @@ func resourceComputeRegionNetworkEndpointDelete(d *schema.ResourceData, meta int
 	}
 	if fqdnProp != "" {
 		toDelete["fqdn"] = fqdnProp
+	}
+
+	// Instance
+	instanceProp, err := expandNestedComputeRegionNetworkEndpointInstance(d.Get("instance"), d, config)
+	if err != nil {
+		return err
+	}
+	if instanceProp != "" {
+		toDelete["instance"] = instanceProp
+	}
+
+	// Client Destination Port
+	clientDestinationPortProp, err := expandNestedComputeRegionNetworkEndpointClientDestinationPort(d.Get("client_destination_port"), d, config)
+	if err != nil {
+		return err
+	}
+	if clientDestinationPortProp != "" && d.Get("client_destination_port").(int) > 0 {
+		toDelete["clientDestinationPort"] = clientDestinationPortProp
 	}
 
 	obj = map[string]interface{}{
@@ -418,6 +468,21 @@ func flattenNestedComputeRegionNetworkEndpointFqdn(v interface{}, d *schema.Reso
 	return v
 }
 
+func flattenNestedComputeRegionNetworkEndpointClientDestinationPort(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles int given in float64 format
+	if floatVal, ok := v.(float64); ok {
+		return int(floatVal)
+	}
+	return v
+}
+
+func flattenNestedComputeRegionNetworkEndpointInstance(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
 func expandNestedComputeRegionNetworkEndpointPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -427,6 +492,14 @@ func expandNestedComputeRegionNetworkEndpointIpAddress(v interface{}, d tpgresou
 }
 
 func expandNestedComputeRegionNetworkEndpointFqdn(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRegionNetworkEndpointClientDestinationPort(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNestedComputeRegionNetworkEndpointInstance(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
