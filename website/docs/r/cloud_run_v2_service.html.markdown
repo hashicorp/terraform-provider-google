@@ -1172,7 +1172,7 @@ The following arguments are supported:
   For more information, see https://cloud.google.com/run/docs/configuring/custom-audiences.
 
 * `scaling` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html))
+  (Optional)
   Scaling settings that apply to the whole service
   Structure is [documented below](#nested_scaling).
 

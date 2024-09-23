@@ -800,6 +800,21 @@ If no value is specified, GA is assumed. Set the launch stage to a preview stage
 
 For example, if ALPHA is provided as input, but only BETA and GA-level features are used, this field will be BETA on output. Possible values: ["UNIMPLEMENTED", "PRELAUNCH", "EARLY_ACCESS", "ALPHA", "BETA", "GA", "DEPRECATED"]`,
 			},
+			"scaling": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Scaling settings that apply to the whole service`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"min_instance_count": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Minimum number of instances for the service, to be divided among all revisions receiving traffic.`,
+						},
+					},
+				},
+			},
 			"traffic": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -1180,6 +1195,12 @@ func resourceCloudRunV2ServiceCreate(d *schema.ResourceData, meta interface{}) e
 	} else if v, ok := d.GetOkExists("custom_audiences"); !tpgresource.IsEmptyValue(reflect.ValueOf(customAudiencesProp)) && (ok || !reflect.DeepEqual(v, customAudiencesProp)) {
 		obj["customAudiences"] = customAudiencesProp
 	}
+	scalingProp, err := expandCloudRunV2ServiceScaling(d.Get("scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(scalingProp)) && (ok || !reflect.DeepEqual(v, scalingProp)) {
+		obj["scaling"] = scalingProp
+	}
 	templateProp, err := expandCloudRunV2ServiceTemplate(d.Get("template"), d, config)
 	if err != nil {
 		return err
@@ -1367,6 +1388,9 @@ func resourceCloudRunV2ServiceRead(d *schema.ResourceData, meta interface{}) err
 	if err := d.Set("custom_audiences", flattenCloudRunV2ServiceCustomAudiences(res["customAudiences"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
+	if err := d.Set("scaling", flattenCloudRunV2ServiceScaling(res["scaling"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Service: %s", err)
+	}
 	if err := d.Set("template", flattenCloudRunV2ServiceTemplate(res["template"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Service: %s", err)
 	}
@@ -1470,6 +1494,12 @@ func resourceCloudRunV2ServiceUpdate(d *schema.ResourceData, meta interface{}) e
 		return err
 	} else if v, ok := d.GetOkExists("custom_audiences"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, customAudiencesProp)) {
 		obj["customAudiences"] = customAudiencesProp
+	}
+	scalingProp, err := expandCloudRunV2ServiceScaling(d.Get("scaling"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("scaling"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, scalingProp)) {
+		obj["scaling"] = scalingProp
 	}
 	templateProp, err := expandCloudRunV2ServiceTemplate(d.Get("template"), d, config)
 	if err != nil {
@@ -1734,6 +1764,36 @@ func flattenCloudRunV2ServiceBinaryAuthorizationPolicy(v interface{}, d *schema.
 
 func flattenCloudRunV2ServiceCustomAudiences(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenCloudRunV2ServiceScaling(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["min_instance_count"] =
+		flattenCloudRunV2ServiceScalingMinInstanceCount(original["minInstanceCount"], d, config)
+	return []interface{}{transformed}
+}
+func flattenCloudRunV2ServiceScalingMinInstanceCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
 }
 
 func flattenCloudRunV2ServiceTemplate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3089,6 +3149,29 @@ func expandCloudRunV2ServiceBinaryAuthorizationPolicy(v interface{}, d tpgresour
 }
 
 func expandCloudRunV2ServiceCustomAudiences(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCloudRunV2ServiceScaling(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedMinInstanceCount, err := expandCloudRunV2ServiceScalingMinInstanceCount(original["min_instance_count"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinInstanceCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minInstanceCount"] = transformedMinInstanceCount
+	}
+
+	return transformed, nil
+}
+
+func expandCloudRunV2ServiceScalingMinInstanceCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
