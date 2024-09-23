@@ -1,0 +1,6 @@
+```release-note:bug
+compute: added `macsec.fail_open` field to `google_compute_interconnect`
+```
+```release-note:deprecation
+compute: deprecated `macsec.pre_shared_keys.fail_open` field in `google_compute_interconnect`. Use the new `macsec.fail_open` field instead
+```
