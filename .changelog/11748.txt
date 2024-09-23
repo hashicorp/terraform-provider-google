@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added support for manually setting `gcp_filestore_csi_driver_config` in the addons configuration in `google_container_cluster` for autopilot clusters.
+```

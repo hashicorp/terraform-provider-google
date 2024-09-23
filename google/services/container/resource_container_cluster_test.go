@@ -10647,3 +10647,70 @@ func extractSPName(url string) (string, error) {
 		return "", fmt.Errorf("no match found")
 	}
 }
+
+func TestAccContainerCluster_withAutopilotGcpFilestoreCsiDriver(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", randomSuffix)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
+		CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_withAutopilotGcpFilestoreCsiDriverDefault(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autopilot_gcp_filestore", "addons_config.0.gcp_filestore_csi_driver_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot_gcp_filestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withAutopilotGcpFilestoreCsiDriverUpdated(clusterName),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autopilot_gcp_filestore",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_withAutopilotGcpFilestoreCsiDriverDefault(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_autopilot_gcp_filestore" {
+  name                = "%s"
+  location            = "us-central1"
+  enable_autopilot    = true
+  deletion_protection = false
+}
+`, name)
+}
+
+func testAccContainerCluster_withAutopilotGcpFilestoreCsiDriverUpdated(name string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_autopilot_gcp_filestore" {
+  name                = "%s"
+  location            = "us-central1"
+  enable_autopilot    = true
+  deletion_protection = false
+
+  addons_config {
+    gcp_filestore_csi_driver_config {
+      enabled = false
+    }
+  }
+}
+`, name)
+}
