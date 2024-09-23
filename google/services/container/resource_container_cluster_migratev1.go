@@ -131,13 +131,12 @@ func resourceContainerClusterResourceV1() *schema.Resource {
 							},
 						},
 						"gcp_filestore_csi_driver_config": {
-							Type:          schema.TypeList,
-							Optional:      true,
-							Computed:      true,
-							AtLeastOneOf:  addonsConfigKeys,
-							MaxItems:      1,
-							Description:   `The status of the Filestore CSI driver addon, which allows the usage of filestore instance as volumes. Defaults to disabled; set enabled = true to enable.`,
-							ConflictsWith: []string{"enable_autopilot"},
+							Type:         schema.TypeList,
+							Optional:     true,
+							Computed:     true,
+							AtLeastOneOf: addonsConfigKeys,
+							MaxItems:     1,
+							Description:  `The status of the Filestore CSI driver addon, which allows the usage of filestore instance as volumes. Defaults to disabled for Standard clusters; set enabled = true to enable. It is enabled by default for Autopilot clusters; set enabled = true to enable it explicitly.`,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
