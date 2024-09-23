@@ -970,3 +970,101 @@ resource "google_cloud_run_v2_service" "default" {
 }
 `, context)
 }
+
+func TestAccCloudRunV2Service_cloudrunv2ServiceWithServiceMinInstances(t *testing.T) {
+	t.Parallel()
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2ServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithMinInstances(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+			{
+				Config: testAccCloudRunV2Service_cloudrunv2ServiceWithNoMinInstances(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"name", "location", "annotations", "labels", "terraform_labels", "launch_stage", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Service_cloudrunv2ServiceWithNoMinInstances(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  description = "description creating"
+  location = "us-central1"
+  deletion_protection = false
+  annotations = {
+    generated-by = "magic-modules"
+  }
+  ingress = "INGRESS_TRAFFIC_ALL"
+  labels = {
+    label-1 = "value-1"
+  }
+  client = "client-1"
+  client_version = "client-version-1"
+  template {
+    containers {
+      name = "container-1"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+
+`, context)
+}
+func testAccCloudRunV2Service_cloudrunv2ServiceWithMinInstances(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_service" "default" {
+  name     = "tf-test-cloudrun-service%{random_suffix}"
+  description = "description creating"
+  location = "us-central1"
+  deletion_protection = false
+  annotations = {
+    generated-by = "magic-modules"
+  }
+  ingress = "INGRESS_TRAFFIC_ALL"
+  labels = {
+    label-1 = "value-1"
+  }
+  client = "client-1"
+  client_version = "client-version-1"
+  scaling {
+    min_instance_count = 1
+  }
+  template {
+    containers {
+      name = "container-1"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
+  }
+}
+
+`, context)
+}
