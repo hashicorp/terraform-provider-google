@@ -603,6 +603,8 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `instance_termination_action` - (Optional) Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot)
 
+* `host_error_timeout_seconds` - (Optional) [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html) Specifies the time in seconds for host error detection, the value must be within the range of [90, 330] with the increment of 30, if unset, the default behavior of host error recovery will be used.
+
 * `max_run_duration` -  (Optional)  The duration of the instance. Instance will run and be terminated after then, the termination action could be defined in `instance_termination_action`. Only support `DELETE` `instance_termination_action` at this point. Structure is [documented below](#nested_max_run_duration).
 
 <a name="nested_max_run_duration"></a>The `max_run_duration` block supports:
