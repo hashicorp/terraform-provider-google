@@ -163,8 +163,9 @@ or re-establishing a MACsec secure link.`,
  letter, or digit, except the last character, which cannot be a dash.`,
 									},
 									"fail_open": {
-										Type:     schema.TypeBool,
-										Optional: true,
+										Type:       schema.TypeBool,
+										Optional:   true,
+										Deprecated: "`failOpen` is deprecated and will be removed in a future major release. Use other `failOpen` instead.",
 										Description: `If set to true, the Interconnect connection is configured with a should-secure
 MACsec security policy, that allows the Google router to fallback to cleartext
 traffic if the MKA session cannot be established. By default, the Interconnect
@@ -182,6 +183,15 @@ hours apart.`,
 									},
 								},
 							},
+						},
+						"fail_open": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Description: `If set to true, the Interconnect connection is configured with a should-secure
+MACsec security policy, that allows the Google router to fallback to cleartext
+traffic if the MKA session cannot be established. By default, the Interconnect
+connection is configured with a must-secure security policy that drops all traffic
+if the MKA session cannot be established with your router.`,
 						},
 					},
 				},
@@ -1106,6 +1116,8 @@ func flattenComputeInterconnectMacsec(v interface{}, d *schema.ResourceData, con
 	transformed := make(map[string]interface{})
 	transformed["pre_shared_keys"] =
 		flattenComputeInterconnectMacsecPreSharedKeys(original["preSharedKeys"], d, config)
+	transformed["fail_open"] =
+		flattenComputeInterconnectMacsecFailOpen(original["failOpen"], d, config)
 	return []interface{}{transformed}
 }
 func flattenComputeInterconnectMacsecPreSharedKeys(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1137,6 +1149,10 @@ func flattenComputeInterconnectMacsecPreSharedKeysStartTime(v interface{}, d *sc
 }
 
 func flattenComputeInterconnectMacsecPreSharedKeysFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeInterconnectMacsecFailOpen(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1231,6 +1247,13 @@ func expandComputeInterconnectMacsec(v interface{}, d tpgresource.TerraformResou
 		transformed["preSharedKeys"] = transformedPreSharedKeys
 	}
 
+	transformedFailOpen, err := expandComputeInterconnectMacsecFailOpen(original["fail_open"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedFailOpen); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["failOpen"] = transformedFailOpen
+	}
+
 	return transformed, nil
 }
 
@@ -1279,6 +1302,10 @@ func expandComputeInterconnectMacsecPreSharedKeysStartTime(v interface{}, d tpgr
 }
 
 func expandComputeInterconnectMacsecPreSharedKeysFailOpen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeInterconnectMacsecFailOpen(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

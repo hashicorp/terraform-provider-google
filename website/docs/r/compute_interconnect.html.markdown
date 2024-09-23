@@ -156,6 +156,14 @@ The following arguments are supported:
   or re-establishing a MACsec secure link.
   Structure is [documented below](#nested_pre_shared_keys).
 
+* `fail_open` -
+  (Optional)
+  If set to true, the Interconnect connection is configured with a should-secure
+  MACsec security policy, that allows the Google router to fallback to cleartext
+  traffic if the MKA session cannot be established. By default, the Interconnect
+  connection is configured with a must-secure security policy that drops all traffic
+  if the MKA session cannot be established with your router.
+
 
 <a name="nested_pre_shared_keys"></a>The `pre_shared_keys` block supports:
 
@@ -176,12 +184,14 @@ The following arguments are supported:
   hours apart.
 
 * `fail_open` -
-  (Optional)
+  (Optional, Deprecated)
   If set to true, the Interconnect connection is configured with a should-secure
   MACsec security policy, that allows the Google router to fallback to cleartext
   traffic if the MKA session cannot be established. By default, the Interconnect
   connection is configured with a must-secure security policy that drops all traffic
   if the MKA session cannot be established with your router.
+
+  ~> **Warning:** `failOpen` is deprecated and will be removed in a future major release. Use other `failOpen` instead.
 
 ## Attributes Reference
 
