@@ -53,6 +53,9 @@ func dataSourceGoogleComputeInstanceRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("machine_type", tpgresource.GetResourceNameFromSelfLink(instance.MachineType)); err != nil {
 		return fmt.Errorf("Error setting machine_type: %s", err)
 	}
+	if err := d.Set("hostname", instance.Hostname); err != nil {
+		return fmt.Errorf("Error setting hostname: %s", err)
+	}
 
 	// Set the networks
 	// Use the first external IP found for the default connection info.
