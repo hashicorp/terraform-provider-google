@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added import support for `projects/{{project}}/meta-data/{{key}}` syntax for `google_compute_project_metadata_item` resource
+```
