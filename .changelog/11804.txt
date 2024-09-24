@@ -1,0 +1,6 @@
+```release-note:enhancement
+containeraws: added `kubelet_config` field group to the `google_container_aws_node_pool` resource
+```
+```release-note:enhancement
+assuredworkloads: added `HEALTHCARE_AND_LIFE_SCIENCES_CONTROLS` and `HEALTHCARE_AND_LIFE_SCIENCES_CONTROLS_WITH_US_SUPPORT` enum values to `compliance_regime` in the `google_assuredworkload_workload` resource
+```

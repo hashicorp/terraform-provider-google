@@ -123,6 +123,15 @@ func ResourceContainerAwsNodePool() *schema.Resource {
 				Description: "All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.",
 			},
 
+			"kubelet_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The kubelet configuration for the node pool.",
+				MaxItems:    1,
+				Elem:        ContainerAwsNodePoolKubeletConfigSchema(),
+			},
+
 			"management": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -446,6 +455,42 @@ func ContainerAwsNodePoolMaxPodsConstraintSchema() *schema.Resource {
 	}
 }
 
+func ContainerAwsNodePoolKubeletConfigSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cpu_cfs_quota": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Whether or not to enable CPU CFS quota. Defaults to true.",
+			},
+
+			"cpu_cfs_quota_period": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The CPU CFS quota period to use for the node. Defaults to \"100ms\".",
+			},
+
+			"cpu_manager_policy": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The CpuManagerPolicy to use for the node. Defaults to \"none\".",
+			},
+
+			"pod_pids_limit": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Optional. The maximum number of PIDs in each pod running on the node. The limit scales automatically based on underlying machine size if left unset.",
+			},
+		},
+	}
+}
+
 func ContainerAwsNodePoolManagementSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -511,6 +556,7 @@ func resourceContainerAwsNodePoolCreate(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		KubeletConfig:     expandContainerAwsNodePoolKubeletConfig(d.Get("kubelet_config")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
@@ -570,6 +616,7 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		KubeletConfig:     expandContainerAwsNodePoolKubeletConfig(d.Get("kubelet_config")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
@@ -624,6 +671,9 @@ func resourceContainerAwsNodePoolRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("effective_annotations", res.Annotations); err != nil {
 		return fmt.Errorf("error setting effective_annotations in state: %s", err)
 	}
+	if err = d.Set("kubelet_config", flattenContainerAwsNodePoolKubeletConfig(res.KubeletConfig)); err != nil {
+		return fmt.Errorf("error setting kubelet_config in state: %s", err)
+	}
 	if err = d.Set("management", tpgresource.FlattenContainerAwsNodePoolManagement(res.Management, d, config)); err != nil {
 		return fmt.Errorf("error setting management in state: %s", err)
 	}
@@ -674,6 +724,7 @@ func resourceContainerAwsNodePoolUpdate(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		KubeletConfig:     expandContainerAwsNodePoolKubeletConfig(d.Get("kubelet_config")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
@@ -728,6 +779,7 @@ func resourceContainerAwsNodePoolDelete(d *schema.ResourceData, meta interface{}
 		SubnetId:          dcl.String(d.Get("subnet_id").(string)),
 		Version:           dcl.String(d.Get("version").(string)),
 		Annotations:       tpgresource.CheckStringMap(d.Get("effective_annotations")),
+		KubeletConfig:     expandContainerAwsNodePoolKubeletConfig(d.Get("kubelet_config")),
 		Management:        expandContainerAwsNodePoolManagement(d.Get("management")),
 		Project:           dcl.String(project),
 		UpdateSettings:    expandContainerAwsNodePoolUpdateSettings(d.Get("update_settings")),
@@ -1074,6 +1126,38 @@ func flattenContainerAwsNodePoolMaxPodsConstraint(obj *containeraws.NodePoolMaxP
 	}
 	transformed := map[string]interface{}{
 		"max_pods_per_node": obj.MaxPodsPerNode,
+	}
+
+	return []interface{}{transformed}
+
+}
+
+func expandContainerAwsNodePoolKubeletConfig(o interface{}) *containeraws.NodePoolKubeletConfig {
+	if o == nil {
+		return containeraws.EmptyNodePoolKubeletConfig
+	}
+	objArr := o.([]interface{})
+	if len(objArr) == 0 || objArr[0] == nil {
+		return containeraws.EmptyNodePoolKubeletConfig
+	}
+	obj := objArr[0].(map[string]interface{})
+	return &containeraws.NodePoolKubeletConfig{
+		CpuCfsQuota:       dcl.Bool(obj["cpu_cfs_quota"].(bool)),
+		CpuCfsQuotaPeriod: dcl.String(obj["cpu_cfs_quota_period"].(string)),
+		CpuManagerPolicy:  containeraws.NodePoolKubeletConfigCpuManagerPolicyEnumRef(obj["cpu_manager_policy"].(string)),
+		PodPidsLimit:      dcl.Int64(int64(obj["pod_pids_limit"].(int))),
+	}
+}
+
+func flattenContainerAwsNodePoolKubeletConfig(obj *containeraws.NodePoolKubeletConfig) interface{} {
+	if obj == nil || obj.Empty() {
+		return nil
+	}
+	transformed := map[string]interface{}{
+		"cpu_cfs_quota":        obj.CpuCfsQuota,
+		"cpu_cfs_quota_period": obj.CpuCfsQuotaPeriod,
+		"cpu_manager_policy":   obj.CpuManagerPolicy,
+		"pod_pids_limit":       obj.PodPidsLimit,
 	}
 
 	return []interface{}{transformed}
