@@ -1,0 +1,3 @@
+```release-note:bug
+compute: `host_error_timeout_seconds` can now be set to null on `google_compute_instance`
+```
