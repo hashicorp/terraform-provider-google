@@ -24,16 +24,39 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
 
+// waitForNatAddressReady waits for an NatAddress to leave the
+// "CREATING" state and become "RESERVED", to indicate that it's ready.
+func waitForNatAddressReserved(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
+	return retry.Retry(timeout, func() *retry.RetryError {
+		if err := resourceApigeeNatAddressRead(d, config); err != nil {
+			return retry.NonRetryableError(err)
+		}
+
+		id := d.Id()
+		state := d.Get("state").(string)
+		if state == "CREATING" {
+			return retry.RetryableError(fmt.Errorf("NatAddress %q has state %q.", id, state))
+		} else if state == "RESERVED" {
+			log.Printf("[DEBUG] NatAddress %q has state %q.", id, state)
+			return nil
+		} else {
+			return retry.NonRetryableError(fmt.Errorf("NatAddress %q has state %q.", id, state))
+		}
+	})
+}
+
 func ResourceApigeeNatAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApigeeNatAddressCreate,
 		Read:   resourceApigeeNatAddressRead,
+		Update: resourceApigeeNatAddressUpdate,
 		Delete: resourceApigeeNatAddressDelete,
 
 		Importer: &schema.ResourceImporter{
@@ -42,6 +65,7 @@ func ResourceApigeeNatAddress() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -58,6 +82,12 @@ in the format 'organizations/{{org_name}}/instances/{{instance_name}}'.`,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Resource ID of the NAT address.`,
+			},
+			"activate": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Flag that specifies whether the reserved NAT address should be activate.`,
+				Default:     false,
 			},
 			"ip_address": {
 				Type:        schema.TypeString,
@@ -87,6 +117,17 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
 		obj["name"] = nameProp
+	}
+	activateProp, err := expandApigeeNatAddressActivate(d.Get("activate"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("activate"); !tpgresource.IsEmptyValue(reflect.ValueOf(activateProp)) && (ok || !reflect.DeepEqual(v, activateProp)) {
+		obj["activate"] = activateProp
+	}
+
+	obj, err = resourceApigeeNatAddressEncoder(d, meta, obj)
+	if err != nil {
+		return err
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ApigeeBasePath}}{{instance_id}}/natAddresses")
@@ -137,6 +178,14 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error waiting to create NatAddress: %s", err)
 	}
 
+	opRes, err = resourceApigeeNatAddressDecoder(d, meta, opRes)
+	if err != nil {
+		return fmt.Errorf("Error decoding response from operation: %s", err)
+	}
+	if opRes == nil {
+		return fmt.Errorf("Error decoding response from operation, could not find object")
+	}
+
 	if err := d.Set("name", flattenApigeeNatAddressName(opRes["name"], d, config)); err != nil {
 		return err
 	}
@@ -147,6 +196,17 @@ func resourceApigeeNatAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	if d.Get("activate").(bool) {
+		if err := waitForNatAddressReserved(d, config, d.Timeout(schema.TimeoutCreate)-time.Minute); err != nil {
+			return fmt.Errorf("Error waiting for NatAddress %q to be RESERVED during creation: %q", d.Id(), err)
+		}
+
+		log.Printf("[DEBUG] Activating for NatAddress %q to become ACTIVE", d.Id())
+		if err := resourceApigeeNatAddressActivate(config, d, billingProject, userAgent); err != nil {
+			return fmt.Errorf("Error activating NatAddress: %s", err)
+		}
+	}
 
 	log.Printf("[DEBUG] Finished creating NatAddress %q: %#v", d.Id(), res)
 
@@ -185,7 +245,22 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ApigeeNatAddress %q", d.Id()))
 	}
 
+	res, err = resourceApigeeNatAddressDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing ApigeeNatAddress because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("name", flattenApigeeNatAddressName(res["name"], d, config)); err != nil {
+		return fmt.Errorf("Error reading NatAddress: %s", err)
+	}
+	if err := d.Set("activate", flattenApigeeNatAddressActivate(res["activate"], d, config)); err != nil {
 		return fmt.Errorf("Error reading NatAddress: %s", err)
 	}
 	if err := d.Set("ip_address", flattenApigeeNatAddressIpAddress(res["ipAddress"], d, config)); err != nil {
@@ -196,6 +271,44 @@ func resourceApigeeNatAddressRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return nil
+}
+
+func resourceApigeeNatAddressUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*transport_tpg.Config)
+	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
+	if err != nil {
+		return err
+	}
+
+	billingProject := ""
+
+	obj := make(map[string]interface{})
+	nameProp, err := expandApigeeNatAddressName(d.Get("name"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+		obj["name"] = nameProp
+	}
+
+	log.Printf("[DEBUG] Updating NatAddress %q: %#v", d.Id(), obj)
+
+	// err == nil indicates that the billing_project value was found
+	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+		billingProject = bp
+	}
+
+	if d.HasChange("activate") {
+		if !d.Get("activate").(bool) {
+			return fmt.Errorf("NatAddress %q allows only the activation action", d.Id())
+		} else if d.Get("state").(string) == "RESERVED" {
+			log.Printf("[DEBUG] Activating for NatAddress %q to become ACTIVE", d.Id())
+			if err := resourceApigeeNatAddressActivate(config, d, billingProject, userAgent); err != nil {
+				return fmt.Errorf("Error activating NatAddress: %s", err)
+			}
+		}
+	}
+
+	return resourceApigeeNatAddressRead(d, meta)
 }
 
 func resourceApigeeNatAddressDelete(d *schema.ResourceData, meta interface{}) error {
@@ -273,6 +386,10 @@ func flattenApigeeNatAddressName(v interface{}, d *schema.ResourceData, config *
 	return v
 }
 
+func flattenApigeeNatAddressActivate(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenApigeeNatAddressIpAddress(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -283,4 +400,19 @@ func flattenApigeeNatAddressState(v interface{}, d *schema.ResourceData, config 
 
 func expandApigeeNatAddressName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func expandApigeeNatAddressActivate(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func resourceApigeeNatAddressEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
+	// cannot include activate prop in the body
+	delete(obj, "activate")
+	return obj, nil
+}
+
+func resourceApigeeNatAddressDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	res["activate"] = res["state"].(string) == "ACTIVE"
+	return res, nil
 }
