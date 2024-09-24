@@ -249,11 +249,6 @@ provider "google" {
 }
 
 data "google_provider_config_sdk" "default" {}
-
-output "credentials" {
-  value = data.google_provider_config_sdk.default.credentials
-  sensitive = true
-}
 `, context)
 }
 
@@ -262,10 +257,5 @@ output "credentials" {
 func testAccSdkProvider_credentialsInEnvsOnly(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_provider_config_sdk" "default" {}
-
-output "credentials" {
-  value = data.google_provider_config_sdk.default.credentials
-  sensitive = true
-}
 `, context)
 }
