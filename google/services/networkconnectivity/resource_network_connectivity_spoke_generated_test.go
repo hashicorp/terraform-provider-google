@@ -182,6 +182,7 @@ resource "google_network_connectivity_spoke" "primary" {
 }
 
 func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeVpnTunnelBasicExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
 	t.Parallel()
 
 	context := map[string]interface{}{
