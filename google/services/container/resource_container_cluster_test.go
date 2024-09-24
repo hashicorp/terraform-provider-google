@@ -1675,6 +1675,64 @@ func TestAccContainerCluster_withAdvancedMachineFeaturesInNodePool(t *testing.T)
 	})
 }
 
+func TestAccContainerCluster_withNodePoolDefaults(t *testing.T) {
+	t.Parallel()
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := acctest.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := acctest.BootstrapSubnet(t, "gke-cluster", networkName)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_basic(clusterName, networkName, subnetworkName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("google_container_cluster.primary",
+						"node_pool_defaults.0.node_config_defaults.0.gcfs_config.0.enabled"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportStateId:           fmt.Sprintf("us-central1-a/%s", clusterName),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withNodePoolDefaults(clusterName, "true", networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_defaults",
+						"node_pool_defaults.0.node_config_defaults.0.gcfs_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_defaults",
+						"node_pool_defaults.0.node_config_defaults.0.gcfs_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool_defaults",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
+				Config: testAccContainerCluster_withNodePoolDefaults(clusterName, "false", networkName, subnetworkName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_defaults",
+						"node_pool_defaults.0.node_config_defaults.0.gcfs_config.#", "1"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_node_pool_defaults",
+						"node_pool_defaults.0.node_config_defaults.0.gcfs_config.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_node_pool_defaults",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withNodeConfigScopeAlias(t *testing.T) {
 	t.Parallel()
 
@@ -6254,6 +6312,27 @@ resource "google_container_cluster" "with_advanced_machine_features_in_node_pool
   subnetwork    = "%s"
 }
 `, clusterName, nodePoolName, nvEnabled, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodePoolDefaults(clusterName, enabled, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_pool_defaults" {
+  name               = "%s"
+  location           = "us-central1-f"
+  initial_node_count = 1
+
+  node_pool_defaults {
+    node_config_defaults {
+      gcfs_config {
+        enabled = "%s"
+      }
+    }
+  }
+  deletion_protection = false
+  network    = "%s"
+  subnetwork = "%s"
+}
+`, clusterName, enabled, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withNodeConfigUpdate(clusterName, networkName, subnetworkName string) string {
