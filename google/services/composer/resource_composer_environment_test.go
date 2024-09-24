@@ -1838,6 +1838,9 @@ resource "google_composer_environment" "test" {
 
       software_config {
         image_version = "composer-2-airflow-2"
+        cloud_data_lineage_integration {
+          enabled = true
+        }
       }
 
       workloads_config {
@@ -2292,6 +2295,9 @@ resource "google_composer_environment" "test" {
 
       software_config {
         image_version = "composer-2-airflow-2"
+        cloud_data_lineage_integration {
+          enabled = false
+        }
       }
 
       workloads_config {
