@@ -1500,6 +1500,14 @@ func resourceTable(d *schema.ResourceData, meta interface{}) (*bigquery.Table, e
 		table.ExternalDataConfiguration = externalDataConfiguration
 	}
 
+	if v, ok := d.GetOk("biglake_configuration"); ok {
+		biglakeConfiguration, err := expandBigLakeConfiguration(v)
+		if err != nil {
+			return nil, err
+		}
+		table.BiglakeConfiguration = biglakeConfiguration
+	}
+
 	if v, ok := d.GetOk("friendly_name"); ok {
 		table.FriendlyName = v.(string)
 	}
@@ -1787,6 +1795,17 @@ func resourceBigQueryTableRead(d *schema.ResourceData, meta interface{}) error {
 
 		if err := d.Set("external_data_configuration", externalDataConfiguration); err != nil {
 			return fmt.Errorf("Error setting external_data_configuration: %s", err)
+		}
+	}
+
+	if res.BiglakeConfiguration != nil {
+		bigLakeConfiguration, err := flattenBigLakeConfiguration(res.BiglakeConfiguration)
+		if err != nil {
+			return err
+		}
+
+		if err := d.Set("biglake_configuration", bigLakeConfiguration); err != nil {
+			return fmt.Errorf("Error setting biglake_configuration: %s", err)
 		}
 	}
 
@@ -2751,6 +2770,41 @@ func flattenMaterializedView(mvd *bigquery.MaterializedViewDefinition) []map[str
 	result["allow_non_incremental_definition"] = mvd.AllowNonIncrementalDefinition
 
 	return []map[string]interface{}{result}
+}
+
+func flattenBigLakeConfiguration(blc *bigquery.BigLakeConfiguration) ([]map[string]interface{}, error) {
+	result := map[string]interface{}{}
+
+	result["connection_id"] = blc.ConnectionId
+	result["storage_uri"] = blc.StorageUri
+	result["file_format"] = blc.FileFormat
+	result["table_format"] = blc.TableFormat
+
+	return []map[string]interface{}{result}, nil
+}
+
+func expandBigLakeConfiguration(cfg interface{}) (*bigquery.BigLakeConfiguration, error) {
+	raw := cfg.([]interface{})[0].(map[string]interface{})
+
+	blc := &bigquery.BigLakeConfiguration{}
+
+	if v, ok := raw["connection_id"]; ok {
+		blc.ConnectionId = v.(string)
+	}
+
+	if v, ok := raw["storage_uri"]; ok {
+		blc.StorageUri = v.(string)
+	}
+
+	if v, ok := raw["file_format"]; ok {
+		blc.FileFormat = v.(string)
+	}
+
+	if v, ok := raw["table_format"]; ok {
+		blc.TableFormat = v.(string)
+	}
+
+	return blc, nil
 }
 
 func expandPrimaryKey(configured interface{}) *bigquery.TableConstraintsPrimaryKey {
