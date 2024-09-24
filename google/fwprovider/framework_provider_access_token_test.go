@@ -66,7 +66,8 @@ func testAccFwProvider_access_token_configPrecedenceOverEnvironmentVariables(t *
 				Config: testAccFwProvider_access_tokenInProviderBlock(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.google_provider_config_plugin_framework.default", "access_token", providerAccessToken),
-				)},
+				),
+			},
 		},
 	})
 }
