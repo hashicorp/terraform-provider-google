@@ -306,6 +306,12 @@ func TestAccBigQueryBigLakeManagedTable(t *testing.T) {
 			{
 				Config: testAccBigLakeManagedTable(bucketName, connectionID, datasetID, tableID, TEST_SIMPLE_CSV_SCHEMA),
 			},
+			{
+				ResourceName:            "google_bigquery_table.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
 		},
 	})
 }
@@ -325,13 +331,14 @@ func testAccBigLakeManagedTable(bucketName, connectionID, datasetID, tableID, sc
 			cloud_resource {}
 		}
 		resource "google_project_iam_member" "test" {
-			role = "roles/storage.objectViewer"
+			role = "roles/storage.objectAdmin"
 			project = data.google_project.project.id
 			member = "serviceAccount:${google_bigquery_connection.test.cloud_resource[0].service_account_id}"
 		}
 		resource "google_bigquery_dataset" "test" {
 		  dataset_id = "%s"
 		}
+
 		resource "google_bigquery_table" "test" {
 			deletion_protection = false
 			table_id   = "%s"
