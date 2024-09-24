@@ -37,6 +37,9 @@ To get more information about NetworkPeeringRoutesConfig, see:
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
   </a>
 </div>
+
+~> **Note:** The `peering_name` attribute is `null` on private clusters created with Private Service Connect(PSC) enabled. [Release notes](https://cloud.google.com/kubernetes-engine/docs/release-notes#March_11_2024) indicate versions 1.29.0-gke.1384000 and newer are affected.
+
 ## Example Usage - Network Peering Routes Config Basic
 
 
