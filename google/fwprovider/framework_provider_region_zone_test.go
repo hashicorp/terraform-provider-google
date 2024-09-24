@@ -345,11 +345,6 @@ provider "google" {
 }
 
 data "google_provider_config_plugin_framework" "default" {}
-
-output "region" {
-  value = data.google_provider_config_plugin_framework.default.region
-  sensitive = true
-}
 `, context)
 }
 
@@ -358,11 +353,6 @@ output "region" {
 func testAccFwProvider_regionInEnvsOnly(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_provider_config_plugin_framework" "default" {}
-
-output "region" {
-  value = data.google_provider_config_plugin_framework.default.region
-  sensitive = true
-}
 `, context)
 }
 
@@ -375,11 +365,6 @@ provider "google" {
 }
 
 data "google_provider_config_plugin_framework" "default" {}
-
-output "zone" {
-  value = data.google_provider_config_plugin_framework.default.zone
-  sensitive = true
-}
 `, context)
 }
 
@@ -388,10 +373,5 @@ output "zone" {
 func testAccFwProvider_zoneInEnvsOnly(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_provider_config_plugin_framework" "default" {}
-
-output "zone" {
-  value = data.google_provider_config_plugin_framework.default.zone
-  sensitive = true
-}
 `, context)
 }
