@@ -152,6 +152,7 @@ func clusterSchemaNodePoolDefaults() *schema.Schema {
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"containerd_config":                      schemaContainerdConfig(),
+							"gcfs_config":                            schemaGcfsConfig(),
 							"insecure_kubelet_readonly_port_enabled": schemaInsecureKubeletReadonlyPortEnabled(),
 							"logging_variant":                        schemaLoggingVariant(),
 						},
@@ -4082,6 +4083,27 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 			}
 
 			log.Printf("[INFO] GKE cluster %s node pool logging configuration defaults have been updated", d.Id())
+		}
+	}
+
+	if d.HasChange("node_pool_defaults") && d.HasChange("node_pool_defaults.0.node_config_defaults.0.gcfs_config") {
+		if v, ok := d.GetOk("node_pool_defaults.0.node_config_defaults.0.gcfs_config"); ok {
+			gcfsConfig := v.([]interface{})[0].(map[string]interface{})
+			req := &container.UpdateClusterRequest{
+				Update: &container.ClusterUpdate{
+					DesiredGcfsConfig: &container.GcfsConfig{
+						Enabled: gcfsConfig["enabled"].(bool),
+					},
+				},
+			}
+
+			updateF := updateFunc(req, "updating GKE cluster desired gcfs config.")
+			// Call update serially.
+			if err := transport_tpg.LockedCall(lockKey, updateF); err != nil {
+				return err
+			}
+
+			log.Printf("[INFO] GKE cluster %s default gcfs config has been updated", d.Id())
 		}
 	}
 

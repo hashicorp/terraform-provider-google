@@ -795,6 +795,14 @@ func expandNodeConfigDefaults(configured interface{}) *container.NodeConfigDefau
 			},
 		}
 	}
+
+	if v, ok := config["gcfs_config"]; ok && len(v.([]interface{})) > 0 {
+		gcfsConfig := v.([]interface{})[0].(map[string]interface{})
+		nodeConfigDefaults.GcfsConfig = &container.GcfsConfig{
+			Enabled: gcfsConfig["enabled"].(bool),
+		}
+	}
+
 	return nodeConfigDefaults
 }
 
@@ -1378,6 +1386,8 @@ func flattenNodeConfigDefaults(c *container.NodeConfigDefaults) []map[string]int
 	result[0]["insecure_kubelet_readonly_port_enabled"] = flattenInsecureKubeletReadonlyPortEnabled(c.NodeKubeletConfig)
 
 	result[0]["logging_variant"] = flattenLoggingVariant(c.LoggingConfig)
+
+	result[0]["gcfs_config"] = flattenGcfsConfig(c.GcfsConfig)
 
 	return result
 }
