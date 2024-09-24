@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: marked `customer_name` and `location` fields as optional in `google_compute_interconnect` resource to support cross cloud interconnect
+```
