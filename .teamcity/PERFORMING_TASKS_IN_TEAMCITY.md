@@ -39,12 +39,17 @@ Google Cloud/
 
 ### Looking at nightly test results
 
-A CRON trigger causes all acceptance tests for the GA and Beta providers to run overnight, Mon-Sun. These tests use the `main` branches of hashicorp/terraform-provider-google(-beta) repos. The tests interact fully with Google APIs and are used to identify any breaking changes introduced by either a recent PR or a change in the API itself.
+What is the `nightly-test` branch?:
+* A branch created by the [`TeamCity - nightly` Github Action](https://github.com/hashicorp/terraform-provider-google/actions/workflows/teamcity-nightly-workflow.yaml) as a way to select a recent commit on main that all tests should run on
+* The branch is recreated each night
+* If we use the main branch directly instead: Services are separated in their own builds and are sent into an agent queue. Depending on the timing of the queue a build could potentially have a different commit from the rest if `main` received a commit prior to exiting.
+
+The tests interact fully with Google APIs and are used to identify any breaking changes introduced by either a recent PR or a change in the API itself.
 
 You can find the builds for nightly tests at:
 
-* [Google > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?mode=builds#all-projects)
-* [Google Beta > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS#all-projects)
+* [Google > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
+* [Google Beta > Nightly Tests](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_NIGHTLYTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 
 These projects contain a build configuration per service package.
 
@@ -70,7 +75,7 @@ To do this you should:
 * On the page for the service's build configuation, look in the top right of the page for two buttons, one with the text "Run" and the other containing "...". Click on the righthand-side "..." button to launch the Custom Build modal.
 * Launching a [Custom Build](https://www.jetbrains.com/help/teamcity/running-custom-build.html):
   * Select which branch to test
-     * By default the `Nightly Tests` projects will use `main`.
+     * By default the `Nightly Tests` projects will use the `nightly-test` branch.
      * To change to a different branch, open the `Changes` tab, and select the branch from the `Build branch` dropdown. For more info [see the documentation on build branches](https://www.jetbrains.com/help/teamcity/running-custom-build.html#Build+Branch).
   * Change parameters for the Custom Build you're preparing to launch
     * Click the `Parameters` tab
@@ -87,8 +92,8 @@ To do this you should:
 When reviewing a PR you may need to run acceptance tests using the code shown in the Diff Report, present in branches in the modular-magician/terraform-provider-google(-beta) repositories.
 
 To do this you should navigate to either of these projects and run a custom build:
-* [`Google > Upstream MM Testing`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_MMUPSTREAMTESTS#all-projects)
-* [`Google Beta > Upstream MM Testing`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_MMUPSTREAMTESTS#all-projects)
+* [`Google > Upstream MM Testing`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_MMUPSTREAMTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
+* [`Google Beta > Upstream MM Testing`](https://hashicorp.teamcity.com/project/TerraformProviders_GoogleCloud_GOOGLE_BETA_MMUPSTREAMTESTS?branch=refs%2Fheads%2Fnightly-test&mode=builds#all-projects)
 
 Builds in these projects will test the code present in the Modular Magician's forks and will run tests against the VCR testing project in GCP.
 
