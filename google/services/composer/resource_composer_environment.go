@@ -53,6 +53,7 @@ var (
 		"config.0.software_config.0.image_version",
 		"config.0.software_config.0.python_version",
 		"config.0.software_config.0.scheduler_count",
+		"config.0.software_config.0.cloud_data_lineage_integration",
 	}
 
 	composerConfigKeys = []string{
@@ -438,6 +439,23 @@ func ResourceComposerEnvironment() *schema.Resource {
 										AtLeastOneOf: composerSoftwareConfigKeys,
 										Computed:     true,
 										Description:  `The number of schedulers for Airflow. This field is supported for Cloud Composer environments in versions composer-1.*.*-airflow-2.*.*.`,
+									},
+									"cloud_data_lineage_integration": {
+										Type:         schema.TypeList,
+										Optional:     true,
+										Computed:     true,
+										AtLeastOneOf: composerSoftwareConfigKeys,
+										MaxItems:     1,
+										Description:  `The configuration for Cloud Data Lineage integration. Supported for Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and newer`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: `Whether or not Cloud Data Lineage integration is enabled.`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -1105,6 +1123,21 @@ func resourceComposerEnvironmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
+		if d.HasChange("config.0.software_config.0.cloud_data_lineage_integration") {
+			patchObj := &composer.Environment{
+				Config: &composer.EnvironmentConfig{
+					SoftwareConfig: &composer.SoftwareConfig{},
+				},
+			}
+			if config != nil && config.SoftwareConfig != nil {
+				patchObj.Config.SoftwareConfig.CloudDataLineageIntegration = config.SoftwareConfig.CloudDataLineageIntegration
+			}
+			err = resourceComposerEnvironmentPatchField("config.softwareConfig.cloudDataLineageIntegration", userAgent, patchObj, d, tfConfig)
+			if err != nil {
+				return err
+			}
+		}
+
 		if d.HasChange("config.0.software_config.0.airflow_config_overrides") {
 			patchObj := &composer.Environment{
 				Config: &composer.EnvironmentConfig{
@@ -1690,6 +1723,18 @@ func flattenComposerEnvironmentConfigSoftwareConfig(softwareCfg *composer.Softwa
 	transformed["pypi_packages"] = softwareCfg.PypiPackages
 	transformed["env_variables"] = softwareCfg.EnvVariables
 	transformed["scheduler_count"] = softwareCfg.SchedulerCount
+	transformed["cloud_data_lineage_integration"] = flattenComposerEnvironmentConfigSoftwareConfigCloudDataLineageIntegration(softwareCfg.CloudDataLineageIntegration)
+	return []interface{}{transformed}
+}
+
+func flattenComposerEnvironmentConfigSoftwareConfigCloudDataLineageIntegration(cloudDataLineageIntegration *composer.CloudDataLineageIntegration) interface{} {
+	if cloudDataLineageIntegration == nil {
+		return nil
+	}
+
+	transformed := make(map[string]interface{})
+	transformed["enabled"] = cloudDataLineageIntegration.Enabled
+
 	return []interface{}{transformed}
 }
 
@@ -2354,6 +2399,12 @@ func expandComposerEnvironmentConfigSoftwareConfig(v interface{}, d *schema.Reso
 	transformed.EnvVariables = expandComposerEnvironmentConfigSoftwareConfigStringMap(original, "env_variables")
 	transformed.SchedulerCount = int64(original["scheduler_count"].(int))
 
+	transformedCloudDataLineageIntegration, err := expandComposerEnvironmentConfigSoftwareConfigCloudDataLineageIntegration(original["cloud_data_lineage_integration"], d, config)
+	if err != nil {
+		return nil, err
+	}
+	transformed.CloudDataLineageIntegration = transformedCloudDataLineageIntegration
+
 	return transformed, nil
 }
 
@@ -2363,6 +2414,20 @@ func expandComposerEnvironmentConfigSoftwareConfigStringMap(softwareConfig map[s
 		return tpgresource.ConvertStringMap(v.(map[string]interface{}))
 	}
 	return map[string]string{}
+}
+
+func expandComposerEnvironmentConfigSoftwareConfigCloudDataLineageIntegration(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) (*composer.CloudDataLineageIntegration, error) {
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+
+	transformed := &composer.CloudDataLineageIntegration{}
+	transformed.Enabled = original["enabled"].(bool)
+
+	return transformed, nil
 }
 
 func validateComposerEnvironmentPypiPackages(v interface{}, k string) (ws []string, errors []error) {
