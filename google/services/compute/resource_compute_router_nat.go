@@ -685,6 +685,7 @@ func resourceComputeRouterNatCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	headers := make(http.Header)
+
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
 		Method:    "PATCH",

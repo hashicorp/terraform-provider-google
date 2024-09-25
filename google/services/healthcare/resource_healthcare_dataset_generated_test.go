@@ -126,6 +126,7 @@ resource "google_kms_crypto_key_iam_binding" "healthcare_cmek_keyuser" {
     "serviceAccount:service-${data.google_project.project.number}@gcp-sa-healthcare.iam.gserviceaccount.com",
   ]
 }
+
 `, context)
 }
 

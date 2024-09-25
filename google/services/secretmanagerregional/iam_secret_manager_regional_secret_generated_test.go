@@ -346,7 +346,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -381,7 +380,6 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_secret_manager_regional_secret_iam_policy" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -389,7 +387,6 @@ resource "google_secret_manager_regional_secret_iam_policy" "foo" {
 }
 
 data "google_secret_manager_regional_secret_iam_policy" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -421,7 +418,6 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_secret_manager_regional_secret_iam_policy" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -448,7 +444,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -476,7 +471,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -504,7 +498,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -537,7 +530,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -546,7 +538,6 @@ resource "google_secret_manager_regional_secret_iam_binding" "foo" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo2" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -560,7 +551,6 @@ resource "google_secret_manager_regional_secret_iam_binding" "foo2" {
 }
 
 resource "google_secret_manager_regional_secret_iam_binding" "foo3" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -594,7 +584,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -627,7 +616,6 @@ resource "google_secret_manager_regional_secret" "regional-secret-basic" {
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -636,7 +624,6 @@ resource "google_secret_manager_regional_secret_iam_member" "foo" {
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo2" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -650,7 +637,6 @@ resource "google_secret_manager_regional_secret_iam_member" "foo2" {
 }
 
 resource "google_secret_manager_regional_secret_iam_member" "foo3" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -706,7 +692,6 @@ data "google_iam_policy" "foo" {
 }
 
 resource "google_secret_manager_regional_secret_iam_policy" "foo" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id

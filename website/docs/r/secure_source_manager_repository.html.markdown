@@ -23,7 +23,6 @@ Repositories store source code. It supports all Git SCM client commands and has 
 
 
 To get more information about Repository, see:
-
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/secure-source-manager/docs/overview)
 

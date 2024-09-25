@@ -325,7 +325,6 @@ The following arguments are supported:
     If it is not provided, the provider project is used.
 
 
-
 <a name="nested_basic_sli"></a>The `basic_sli` block supports:
 
 * `method` -
