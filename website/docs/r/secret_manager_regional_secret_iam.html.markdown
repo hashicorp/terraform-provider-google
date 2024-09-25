@@ -48,7 +48,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_secret_manager_regional_secret_iam_policy" "policy" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -75,7 +74,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_secret_manager_regional_secret_iam_policy" "policy" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -86,7 +84,6 @@ resource "google_secret_manager_regional_secret_iam_policy" "policy" {
 
 ```hcl
 resource "google_secret_manager_regional_secret_iam_binding" "binding" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -101,7 +98,6 @@ With IAM Conditions:
 
 ```hcl
 resource "google_secret_manager_regional_secret_iam_binding" "binding" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -121,7 +117,6 @@ resource "google_secret_manager_regional_secret_iam_binding" "binding" {
 
 ```hcl
 resource "google_secret_manager_regional_secret_iam_member" "member" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id
@@ -134,7 +129,6 @@ With IAM Conditions:
 
 ```hcl
 resource "google_secret_manager_regional_secret_iam_member" "member" {
-
   project = google_secret_manager_regional_secret.regional-secret-basic.project
   location = google_secret_manager_regional_secret.regional-secret-basic.location
   secret_id = google_secret_manager_regional_secret.regional-secret-basic.secret_id

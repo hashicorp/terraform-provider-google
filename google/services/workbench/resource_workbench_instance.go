@@ -218,7 +218,6 @@ func WorkbenchInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData
 	}
 	return false
 }
-
 func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, response map[string]interface{}) error {
 	var opRes map[string]interface{}
 	err := WorkbenchOperationWaitTimeWithResponse(

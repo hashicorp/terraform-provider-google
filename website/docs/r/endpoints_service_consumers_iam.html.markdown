@@ -47,7 +47,6 @@ data "google_iam_policy" "admin" {
 }
 
 resource "google_endpoints_service_consumers_iam_policy" "policy" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   policy_data = data.google_iam_policy.admin.policy_data
@@ -58,7 +57,6 @@ resource "google_endpoints_service_consumers_iam_policy" "policy" {
 
 ```hcl
 resource "google_endpoints_service_consumers_iam_binding" "binding" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   role = "roles/servicemanagement.serviceController"
@@ -72,7 +70,6 @@ resource "google_endpoints_service_consumers_iam_binding" "binding" {
 
 ```hcl
 resource "google_endpoints_service_consumers_iam_member" "member" {
-
   service_name = google_endpoints_service.endpoints_service.service_name
   consumer_project = "%{consumer_project}"
   role = "roles/servicemanagement.serviceController"

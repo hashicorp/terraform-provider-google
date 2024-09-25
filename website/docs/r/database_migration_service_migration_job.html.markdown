@@ -139,6 +139,8 @@ resource "google_database_migration_service_migration_job" "mysqltomysql" {
   destination     = google_database_migration_service_connection_profile.destination_cp.name
   type            = "CONTINUOUS"
 }
+
+
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_migration_job_postgres_to_postgres&open_in_editor=main.tf" target="_blank">
@@ -236,6 +238,8 @@ resource "google_database_migration_service_migration_job" "psqltopsql" {
   destination     = google_database_migration_service_connection_profile.destination_cp.name
   type            = "CONTINUOUS"
 }
+
+
 ```
 <div class = "oics-button" style="float: right; margin: 0 0 -15px">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=database_migration_service_migration_job_postgres_to_alloydb&open_in_editor=main.tf" target="_blank">
@@ -363,6 +367,8 @@ resource "google_database_migration_service_migration_job" "psqltoalloydb" {
   destination     = google_database_migration_service_connection_profile.destination_cp.name
   type            = "CONTINUOUS"
 }
+
+
 ```
 
 ## Argument Reference

@@ -42,6 +42,7 @@ resource "google_edgenetwork_network" "example_network" {
     "environment" : "dev"
   }
 }
+
 ```
 
 ## Argument Reference
