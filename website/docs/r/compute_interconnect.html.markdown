@@ -58,10 +58,6 @@ The following arguments are supported:
   character must be a lowercase letter, and all following characters must be a dash,
   lowercase letter, or digit, except the last character, which cannot be a dash.
 
-* `location` -
-  (Required)
-  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
-
 * `link_type` -
   (Required)
   Type of link requested. Note that this field indicates the speed of each of the links in the
@@ -82,11 +78,6 @@ The following arguments are supported:
     - DEDICATED: A dedicated physical interconnection with the customer.
   Possible values are: `DEDICATED`, `PARTNER`, `IT_PRIVATE`.
 
-* `customer_name` -
-  (Required)
-  Customer name, to put in the Letter of Authorization as the party authorized to request a
-  crossconnect.
-
 
 - - -
 
@@ -94,6 +85,11 @@ The following arguments are supported:
 * `description` -
   (Optional)
   An optional description of this resource. Provide this property when you create the resource.
+
+* `location` -
+  (Optional)
+  URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+  Specifies the location inside Google's Networks, should not be passed in case of cross-cloud interconnect.
 
 * `admin_enabled` -
   (Optional)
@@ -108,6 +104,12 @@ The following arguments are supported:
   all other forms described, such as Cloud Monitoring logs alerting and Cloud Notifications.
   This field is required for users who sign up for Cloud Interconnect using workforce identity
   federation.
+
+* `customer_name` -
+  (Optional)
+  Customer name, to put in the Letter of Authorization as the party authorized to request a
+  crossconnect. This field is required for Dedicated and Partner Interconnect, should not be specified
+  for cross-cloud interconnect.
 
 * `labels` -
   (Optional)

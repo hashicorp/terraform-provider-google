@@ -1037,8 +1037,7 @@ The following arguments are supported:
   major Cloud Composer or Apache Airflow versions (from `1.x.x` to `2.x.x`). To do so, create a new environment.
 
 * `cloud_data_lineage_integration` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and newer)
+  (Optional, Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and newer)
   The configuration for Cloud Data Lineage integration. Structure is
   [documented below](#nested_cloud_data_lineage_integration_c2).
 
@@ -1465,8 +1464,7 @@ The following arguments are supported:
   **Important**: In-place upgrade for Composer 3 is not yet supported.
 
 * `cloud_data_lineage_integration` -
-  (Optional, [Beta](https://terraform.io/docs/providers/google/guides/provider_versions.html),
-  Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and later)
+  (Optional, Cloud Composer environments in versions composer-2.1.2-airflow-*.*.* and later)
   The configuration for Cloud Data Lineage integration. Structure is
   [documented below](#nested_cloud_data_lineage_integration_c3).
 

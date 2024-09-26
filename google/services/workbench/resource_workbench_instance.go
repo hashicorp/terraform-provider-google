@@ -218,7 +218,6 @@ func WorkbenchInstanceKmsDiffSuppress(_, old, new string, _ *schema.ResourceData
 	}
 	return false
 }
-
 func waitForWorkbenchOperation(config *transport_tpg.Config, d *schema.ResourceData, project string, billingProject string, userAgent string, response map[string]interface{}) error {
 	var opRes map[string]interface{}
 	err := WorkbenchOperationWaitTimeWithResponse(
@@ -272,6 +271,26 @@ func resizeWorkbenchInstanceDisk(config *transport_tpg.Config, d *schema.Resourc
 	}
 
 	return nil
+}
+
+// mergeLabels takes two maps of labels and returns a new map with the labels merged.
+// If a key exists in old_labels but not in new_labels, it is added to the new map with an empty value.
+func mergeLabels(oldLabels, newLabels map[string]interface{}) map[string]string {
+	modifiedLabels := make(map[string]string)
+
+	// Add all labels from newLabels to modifiedLabels
+	for k, v := range newLabels {
+		modifiedLabels[k] = v.(string)
+	}
+
+	// Add any keys from oldLabels that are not in newLabels with an empty value
+	for k := range oldLabels {
+		if _, ok := newLabels[k]; !ok {
+			modifiedLabels[k] = ""
+		}
+	}
+
+	return modifiedLabels
 }
 
 func ResourceWorkbenchInstance() *schema.Resource {
@@ -1102,6 +1121,13 @@ func resourceWorkbenchInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(newUpdateMask, ",")})
 	if err != nil {
 		return err
+	}
+
+	if d.HasChange("effective_labels") {
+		old_labels_interface, new_labels_interface := d.GetChange("effective_labels")
+		old_labels := old_labels_interface.(map[string]interface{})
+		new_labels := new_labels_interface.(map[string]interface{})
+		obj["labels"] = mergeLabels(old_labels, new_labels)
 	}
 
 	name := d.Get("name").(string)

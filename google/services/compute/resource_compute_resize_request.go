@@ -684,6 +684,7 @@ func resourceComputeResizeRequestDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 	return nil
+
 }
 
 func resourceComputeResizeRequestImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

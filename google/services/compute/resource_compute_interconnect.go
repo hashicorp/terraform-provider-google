@@ -59,13 +59,6 @@ func ResourceComputeInterconnect() *schema.Resource {
 		),
 
 		Schema: map[string]*schema.Schema{
-			"customer_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-				Description: `Customer name, to put in the Letter of Authorization as the party authorized to request a
-crossconnect.`,
-			},
 			"interconnect_type": {
 				Type:             schema.TypeString,
 				Required:         true,
@@ -86,13 +79,6 @@ Can take one of the following values:
 bundle, not the speed of the entire bundle. Can take one of the following values:
   - LINK_TYPE_ETHERNET_10G_LR: A 10G Ethernet with LR optics.
   - LINK_TYPE_ETHERNET_100G_LR: A 100G Ethernet with LR optics. Possible values: ["LINK_TYPE_ETHERNET_10G_LR", "LINK_TYPE_ETHERNET_100G_LR"]`,
-			},
-			"location": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
-				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
-				Description:      `URL of the InterconnectLocation object that represents where this connection is to be provisioned.`,
 			},
 			"name": {
 				Type:         schema.TypeString,
@@ -119,6 +105,14 @@ functional and can carry traffic. When set to false, no packets can be carried o
 interconnect and no BGP routes are exchanged over it. By default, the status is set to true.`,
 				Default: true,
 			},
+			"customer_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: `Customer name, to put in the Letter of Authorization as the party authorized to request a
+crossconnect. This field is required for Dedicated and Partner Interconnect, should not be specified
+for cross-cloud interconnect.`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -134,6 +128,14 @@ method. Each label key/value pair must comply with RFC1035. Label values may be 
 **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
+			},
+			"location": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `URL of the InterconnectLocation object that represents where this connection is to be provisioned.
+Specifies the location inside Google's Networks, should not be passed in case of cross-cloud interconnect.`,
 			},
 			"macsec": {
 				Type:     schema.TypeList,
@@ -582,6 +584,66 @@ func resourceComputeInterconnectCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error waiting to create Interconnect: %s", err)
 	}
 
+	if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+		labels := d.Get("labels")
+		terraformLables := d.Get("terraform_labels")
+
+		// Labels cannot be set in a create.  We'll have to set them here.
+		err = resourceComputeInterconnectRead(d, meta)
+		if err != nil {
+			return err
+		}
+
+		obj := make(map[string]interface{})
+		// d.Get("effective_labels") will have been overridden by the Read call.
+		labelsProp, err := expandComputeInterconnectEffectiveLabels(v, d, config)
+		if err != nil {
+			return err
+		}
+		obj["labels"] = labelsProp
+		labelFingerprintProp := d.Get("label_fingerprint")
+		obj["labelFingerprint"] = labelFingerprintProp
+
+		url, err = tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnects/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   project,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+		})
+		if err != nil {
+			return fmt.Errorf("Error adding labels to ComputeInterconnect %q: %s", d.Id(), err)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating ComputeInterconnect Labels", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+
+		if err != nil {
+			return err
+		}
+
+		// Set back the labels field, as it is needed to decide the value of "labels" in the state in the read function.
+		if err := d.Set("labels", labels); err != nil {
+			return fmt.Errorf("Error setting back labels: %s", err)
+		}
+
+		// Set back the terraform_labels field, as it is needed to decide the value of "terraform_labels" in the state in the read function.
+		if err := d.Set("terraform_labels", terraformLables); err != nil {
+			return fmt.Errorf("Error setting back terraform_labels: %s", err)
+		}
+
+		// Set back the effective_labels field, as it is needed to decide the value of "effective_labels" in the state in the read function.
+		if err := d.Set("effective_labels", v); err != nil {
+			return fmt.Errorf("Error setting back effective_labels: %s", err)
+		}
+	}
+
 	log.Printf("[DEBUG] Finished creating Interconnect %q: %#v", d.Id(), res)
 
 	return resourceComputeInterconnectRead(d, meta)
@@ -754,12 +816,6 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("noc_contact_email"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, nocContactEmailProp)) {
 		obj["nocContactEmail"] = nocContactEmailProp
 	}
-	labelFingerprintProp, err := expandComputeInterconnectLabelFingerprint(d.Get("label_fingerprint"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
-		obj["labelFingerprint"] = labelFingerprintProp
-	}
 	macsecProp, err := expandComputeInterconnectMacsec(d.Get("macsec"), d, config)
 	if err != nil {
 		return err
@@ -771,12 +827,6 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	} else if v, ok := d.GetOkExists("macsec_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, macsecEnabledProp)) {
 		obj["macsecEnabled"] = macsecEnabledProp
-	}
-	labelsProp, err := expandComputeInterconnectEffectiveLabels(d.Get("effective_labels"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
-		obj["labels"] = labelsProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnects/{{name}}")
@@ -816,6 +866,61 @@ func resourceComputeInterconnectUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	d.Partial(true)
+
+	if d.HasChange("label_fingerprint") || d.HasChange("effective_labels") {
+		obj := make(map[string]interface{})
+
+		labelFingerprintProp, err := expandComputeInterconnectLabelFingerprint(d.Get("label_fingerprint"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("label_fingerprint"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelFingerprintProp)) {
+			obj["labelFingerprint"] = labelFingerprintProp
+		}
+		labelsProp, err := expandComputeInterconnectEffectiveLabels(d.Get("effective_labels"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("effective_labels"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, labelsProp)) {
+			obj["labels"] = labelsProp
+		}
+
+		url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/global/interconnects/{{name}}/setLabels")
+		if err != nil {
+			return err
+		}
+
+		headers := make(http.Header)
+
+		// err == nil indicates that the billing_project value was found
+		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
+			billingProject = bp
+		}
+
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "POST",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Body:      obj,
+			Timeout:   d.Timeout(schema.TimeoutUpdate),
+			Headers:   headers,
+		})
+		if err != nil {
+			return fmt.Errorf("Error updating Interconnect %q: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] Finished updating Interconnect %q: %#v", d.Id(), res)
+		}
+
+		err = ComputeOperationWaitTime(
+			config, res, project, "Updating Interconnect", userAgent,
+			d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+	}
+
+	d.Partial(false)
 
 	return resourceComputeInterconnectRead(d, meta)
 }
