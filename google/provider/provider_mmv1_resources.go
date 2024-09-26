@@ -1227,6 +1227,7 @@ var handwrittenResources = map[string]*schema.Resource{
 	"google_service_account":                        resourcemanager.ResourceGoogleServiceAccount(),
 	"google_service_account_key":                    resourcemanager.ResourceGoogleServiceAccountKey(),
 	"google_service_networking_peered_dns_domain":   servicenetworking.ResourceGoogleServiceNetworkingPeeredDNSDomain(),
+	"google_site_verification_owner":                siteverification.ResourceSiteVerificationOwner(),
 	"google_storage_bucket":                         storage.ResourceStorageBucket(),
 	"google_storage_bucket_acl":                     storage.ResourceStorageBucketAcl(),
 	"google_storage_bucket_object":                  storage.ResourceStorageBucketObject(),
