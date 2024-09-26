@@ -2078,6 +2078,41 @@ func TestAccSqlDatabaseInstance_rootPasswordShouldBeUpdatable(t *testing.T) {
 	})
 }
 
+func TestAccSqlDatabaseInstance_SqlServerTimezoneUpdate(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-" + acctest.RandString(t, 10)
+	rootPassword := acctest.RandString(t, 15)
+	timezone := "Eastern Standard Time"
+	timezoneUpdate := "Pacific Standard Time"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabaseInstance_SqlServerTimezone(instanceName, rootPassword, timezone),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+			{
+				Config: testGoogleSqlDatabaseInstance_SqlServerTimezone(instanceName, rootPassword, timezoneUpdate),
+			},
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "root_password"},
+			},
+		},
+	})
+}
+
 func TestAccSqlDatabaseInstance_activationPolicy(t *testing.T) {
 	t.Parallel()
 
@@ -2684,6 +2719,25 @@ resource "google_sql_database_instance" "instance" {
     }
   }
 }`, instanceName, tier, edition)
+}
+
+func testGoogleSqlDatabaseInstance_SqlServerTimezone(instance, rootPassword, timezone string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name             = "%s"
+  region           = "us-central1"
+  database_version = "SQLSERVER_2017_STANDARD"
+  root_password    = "%s"
+  deletion_protection = false
+  settings {
+    tier = "db-custom-1-3840"
+    ip_configuration {
+      ipv4_enabled       = "true"
+    }
+    time_zone = "%s"
+  }
+}
+`, instance, rootPassword, timezone)
 }
 
 func testGoogleSqlDatabaseInstance_SqlServerAuditConfig(databaseName, rootPassword, bucketName, uploadInterval, retentionInterval string) string {

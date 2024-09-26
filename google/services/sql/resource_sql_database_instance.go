@@ -286,7 +286,6 @@ func ResourceSqlDatabaseInstance() *schema.Resource {
 						},
 						"time_zone": {
 							Type:        schema.TypeString,
-							ForceNew:    true,
 							Optional:    true,
 							Description: `The time_zone to be used by the database engine (supported only for SQL Server), in SQL Server timezone format.`,
 						},
@@ -1978,6 +1977,31 @@ func resourceSqlDatabaseInstanceUpdate(d *schema.ResourceData, meta interface{})
 			if err != nil {
 				return err
 			}
+		}
+	}
+
+	// Check if timezone is updated
+	if d.HasChange("settings.0.time_zone") {
+		timezone := d.Get("settings.0.time_zone").(string)
+		instance = &sqladmin.DatabaseInstance{Settings: &sqladmin.Settings{TimeZone: timezone}}
+		err = transport_tpg.Retry(transport_tpg.RetryOptions{
+			RetryFunc: func() (rerr error) {
+				op, rerr = config.NewSqlAdminClient(userAgent).Instances.Patch(project, d.Get("name").(string), instance).Do()
+				return err
+			},
+			Timeout:              d.Timeout(schema.TimeoutUpdate),
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsSqlOperationInProgressError},
+		})
+		if err != nil {
+			return fmt.Errorf("Error, failed to patch instance settings for %s: %s", instance.Name, err)
+		}
+		err = SqlAdminOperationWaitTime(config, op, project, "Patch Instance", userAgent, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return err
+		}
+		err = resourceSqlDatabaseInstanceRead(d, meta)
+		if err != nil {
+			return err
 		}
 	}
 
