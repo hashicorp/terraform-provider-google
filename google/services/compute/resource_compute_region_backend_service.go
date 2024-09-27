@@ -871,9 +871,56 @@ If it is not provided, the provider region is used.`,
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
-				ValidateFunc: verify.ValidateEnum([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION", ""}),
+				ValidateFunc: verify.ValidateEnum([]string{"NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION", "STRONG_COOKIE_AFFINITY", ""}),
 				Description: `Type of session affinity to use. The default is NONE. Session affinity is
-not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION"]`,
+not applicable if the protocol is UDP. Possible values: ["NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO", "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE", "CLIENT_IP_NO_DESTINATION", "STRONG_COOKIE_AFFINITY"]`,
+			},
+			"strong_session_affinity_cookie": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Describes the HTTP cookie used for stateful session affinity. This field is applicable and required if the sessionAffinity is set to STRONG_COOKIE_AFFINITY.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Name of the cookie.`,
+							AtLeastOneOf: []string{"strong_session_affinity_cookie.0.ttl", "strong_session_affinity_cookie.0.name", "strong_session_affinity_cookie.0.path"},
+						},
+						"path": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  `Path to set for the cookie.`,
+							AtLeastOneOf: []string{"strong_session_affinity_cookie.0.ttl", "strong_session_affinity_cookie.0.name", "strong_session_affinity_cookie.0.path"},
+						},
+						"ttl": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Lifetime of the cookie.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"seconds": {
+										Type:     schema.TypeInt,
+										Required: true,
+										Description: `Span of time at a resolution of a second.
+Must be from 0 to 315,576,000,000 inclusive.`,
+									},
+									"nanos": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Description: `Span of time that's a fraction of a second at nanosecond
+resolution. Durations less than one second are represented
+with a 0 seconds field and a positive nanos field. Must
+be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
+							AtLeastOneOf: []string{"strong_session_affinity_cookie.0.ttl", "strong_session_affinity_cookie.0.name", "strong_session_affinity_cookie.0.path"},
+						},
+					},
+				},
 			},
 			"timeout_sec": {
 				Type:     schema.TypeInt,
@@ -1177,6 +1224,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("session_affinity"); !tpgresource.IsEmptyValue(reflect.ValueOf(sessionAffinityProp)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
 		obj["sessionAffinity"] = sessionAffinityProp
 	}
+	strongSessionAffinityCookieProp, err := expandComputeRegionBackendServiceStrongSessionAffinityCookie(d.Get("strong_session_affinity_cookie"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("strong_session_affinity_cookie"); !tpgresource.IsEmptyValue(reflect.ValueOf(strongSessionAffinityCookieProp)) && (ok || !reflect.DeepEqual(v, strongSessionAffinityCookieProp)) {
+		obj["strongSessionAffinityCookie"] = strongSessionAffinityCookieProp
+	}
 	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
 	if err != nil {
 		return err
@@ -1392,6 +1445,9 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 	if err := d.Set("session_affinity", flattenComputeRegionBackendServiceSessionAffinity(res["sessionAffinity"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
+	if err := d.Set("strong_session_affinity_cookie", flattenComputeRegionBackendServiceStrongSessionAffinityCookie(res["strongSessionAffinityCookie"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
 	if err := d.Set("timeout_sec", flattenComputeRegionBackendServiceTimeoutSec(res["timeoutSec"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
@@ -1540,6 +1596,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		return err
 	} else if v, ok := d.GetOkExists("session_affinity"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, sessionAffinityProp)) {
 		obj["sessionAffinity"] = sessionAffinityProp
+	}
+	strongSessionAffinityCookieProp, err := expandComputeRegionBackendServiceStrongSessionAffinityCookie(d.Get("strong_session_affinity_cookie"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("strong_session_affinity_cookie"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, strongSessionAffinityCookieProp)) {
+		obj["strongSessionAffinityCookie"] = strongSessionAffinityCookieProp
 	}
 	timeoutSecProp, err := expandComputeRegionBackendServiceTimeoutSec(d.Get("timeout_sec"), d, config)
 	if err != nil {
@@ -2708,6 +2770,80 @@ func flattenComputeRegionBackendServiceSessionAffinity(v interface{}, d *schema.
 	return v
 }
 
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookie(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ttl"] =
+		flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtl(original["ttl"], d, config)
+	transformed["name"] =
+		flattenComputeRegionBackendServiceStrongSessionAffinityCookieName(original["name"], d, config)
+	transformed["path"] =
+		flattenComputeRegionBackendServiceStrongSessionAffinityCookiePath(original["path"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["seconds"] =
+		flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtlSeconds(original["seconds"], d, config)
+	transformed["nanos"] =
+		flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtlNanos(original["nanos"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtlSeconds(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookieTtlNanos(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookieName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceStrongSessionAffinityCookiePath(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeRegionBackendServiceTimeoutSec(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	// Handles the string fixed64 format
 	if strVal, ok := v.(string); ok {
@@ -3654,6 +3790,81 @@ func expandComputeRegionBackendServiceProtocol(v interface{}, d tpgresource.Terr
 }
 
 func expandComputeRegionBackendServiceSessionAffinity(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookie(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedTtl, err := expandComputeRegionBackendServiceStrongSessionAffinityCookieTtl(original["ttl"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTtl); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ttl"] = transformedTtl
+	}
+
+	transformedName, err := expandComputeRegionBackendServiceStrongSessionAffinityCookieName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedPath, err := expandComputeRegionBackendServiceStrongSessionAffinityCookiePath(original["path"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPath); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["path"] = transformedPath
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookieTtl(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSeconds, err := expandComputeRegionBackendServiceStrongSessionAffinityCookieTtlSeconds(original["seconds"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSeconds); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["seconds"] = transformedSeconds
+	}
+
+	transformedNanos, err := expandComputeRegionBackendServiceStrongSessionAffinityCookieTtlNanos(original["nanos"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNanos); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["nanos"] = transformedNanos
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookieTtlSeconds(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookieTtlNanos(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookieName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceStrongSessionAffinityCookiePath(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

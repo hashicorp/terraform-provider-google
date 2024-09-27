@@ -1,0 +1,3 @@
+```release-note:enhancement
+compute: added enum STATEFUL_COOKIE_AFFINITY and `strong_session_affinity_cookie` field to `google_compute_backend_service` and `google_compute_region_backend_service` resource
+```
