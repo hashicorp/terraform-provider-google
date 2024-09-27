@@ -14,6 +14,7 @@ FEATURES:
 * **New Resource:** `google_scc_folder_scc_big_query_export` ([#19480](https://github.com/hashicorp/terraform-provider-google/pull/19480))
 * **New Resource:** `google_scc_organization_scc_big_query_export` ([#19465](https://github.com/hashicorp/terraform-provider-google/pull/19465))
 * **New Resource:** `google_scc_project_scc_big_query_export` ([#19466](https://github.com/hashicorp/terraform-provider-google/pull/19466))
+* **New Resource:** `google_scc_v2_organization_scc_big_query_export` ([#19457](https://github.com/hashicorp/terraform-provider-google/pull/19457))
 * **New Resource:** `google_secret_manager_regional_secret_version` ([#19504](https://github.com/hashicorp/terraform-provider-google/pull/19504))
 * **New Resource:** `google_secret_manager_regional_secret` ([#19461](https://github.com/hashicorp/terraform-provider-google/pull/19461))
 * **New Resource:** `google_site_verification_web_resource` ([#19477](https://github.com/hashicorp/terraform-provider-google/pull/19477))
