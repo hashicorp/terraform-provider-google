@@ -1,5 +1,46 @@
 ## 6.5.0 (Unreleased)
 
+DEPRECATIONS:
+* compute: deprecated `macsec.pre_shared_keys.fail_open` field in `google_compute_interconnect` resource. Use the new `macsec.fail_open` field instead ([#19572](https://github.com/hashicorp/terraform-provider-google/pull/19572))
+
+FEATURES:
+* **New Data Source:** `google_compute_region_instance_group_manager` ([#19589](https://github.com/hashicorp/terraform-provider-google/pull/19589))
+* **New Data Source:** `google_privileged_access_manager_entitlement` ([#19580](https://github.com/hashicorp/terraform-provider-google/pull/19580))
+* **New Data Source:** `google_secret_manager_regional_secret_version_access` ([#19538](https://github.com/hashicorp/terraform-provider-google/pull/19538))
+* **New Data Source:** `google_secret_manager_regional_secret_version` ([#19514](https://github.com/hashicorp/terraform-provider-google/pull/19514))
+* **New Data Source:** `google_secret_manager_regional_secrets` ([#19532](https://github.com/hashicorp/terraform-provider-google/pull/19532))
+* **New Resource:** `google_compute_router_nat_address` ([#19550](https://github.com/hashicorp/terraform-provider-google/pull/19550))
+* **New Resource:** `google_logging_log_scope` ([#19559](https://github.com/hashicorp/terraform-provider-google/pull/19559))
+
+IMPROVEMENTS:
+* apigee: added `activate` field to `google_apigee_nat_address` resource ([#19591](https://github.com/hashicorp/terraform-provider-google/pull/19591))
+* bigquery: added `biglake_configuration` field to `google_bigquery_table` resource to support BigLake Managed Tables ([#19541](https://github.com/hashicorp/terraform-provider-google/pull/19541))
+* cloudrunv2: promoted `scaling` field in `google_cloud_run_v2_service` resource to GA ([#19588](https://github.com/hashicorp/terraform-provider-google/pull/19588))
+* composer: promoted `config.workloads_config.cloud_data_lineage_integration` field in `google_composer_environment` resource to GA ([#19612](https://github.com/hashicorp/terraform-provider-google/pull/19612))
+* compute: added `existing_reservations` field to `google_compute_region_commitment` resource ([#19585](https://github.com/hashicorp/terraform-provider-google/pull/19585))
+* compute: added `hostname` field to `google_compute_instance` data source ([#19607](https://github.com/hashicorp/terraform-provider-google/pull/19607))
+* compute: added `initial_nat_ip` field to `google_compute_router_nat` resource ([#19550](https://github.com/hashicorp/terraform-provider-google/pull/19550))
+* compute: added `macsec.fail_open` field to `google_compute_interconnect` resource ([#19572](https://github.com/hashicorp/terraform-provider-google/pull/19572))
+* compute: added `SUSPENDED` as a possible value to `desired_state` field in `google_compute_instance` resource ([#19586](https://github.com/hashicorp/terraform-provider-google/pull/19586))
+* compute: added import support for `projects/{{project}}/meta-data/{{key}}` format for `google_compute_project_metadata_item` resource ([#19613](https://github.com/hashicorp/terraform-provider-google/pull/19613))
+* compute: marked `customer_name` and `location` fields as optional in `google_compute_interconnect` resource to support cross cloud interconnect ([#19619](https://github.com/hashicorp/terraform-provider-google/pull/19619))
+* compute: promoted `client_destination_port` and `instance` fields in `google_compute_region_network_endpoint` resource to GA ([#19574](https://github.com/hashicorp/terraform-provider-google/pull/19574))
+* container: added `linux_node_config.hugepages_config` field to `google_container_node_pool` resource ([#19521](https://github.com/hashicorp/terraform-provider-google/pull/19521))
+* container: promoted `gcfs_config` field in `google_container_cluster` resource to GA ([#19617](https://github.com/hashicorp/terraform-provider-google/pull/19617))
+* looker: added `psc_enabled` and `psc_config` fields to `google_looker_instance` resource ([#19523](https://github.com/hashicorp/terraform-provider-google/pull/19523))
+* networkconnectivity: added `include_import_ranges` field to `google_network_connectivity_spoke` resource for `linked_vpn_tunnels`, `linked_interconnect_attachments` and `linked_router_appliance_instances` ([#19530](https://github.com/hashicorp/terraform-provider-google/pull/19530))
+* secretmanagerregional: added `version_aliases` field to `google_secret_manager_regional_secret` resource ([#19514](https://github.com/hashicorp/terraform-provider-google/pull/19514))
+* workbench: increased create timeout to 20 minutes for `google_workbench_instance` resource ([#19551](https://github.com/hashicorp/terraform-provider-google/pull/19551))
+
+BUG FIXES:
+* bigquery: fixed in-place update of `google_bigquery_table` resource when `external_data_configuration.schema` field is set ([#19558](https://github.com/hashicorp/terraform-provider-google/pull/19558))
+* bigquerydatapolicy: fixed permadiff on `policy_tag` field in `google_bigquery_datapolicy_data_policy` resource ([#19563](https://github.com/hashicorp/terraform-provider-google/pull/19563))
+* composer: fixed `storage_config.bucket` field to support a bucket name with or without "gs://" prefix ([#19552](https://github.com/hashicorp/terraform-provider-google/pull/19552))
+* container: added support for setting `addons_config.gcp_filestore_csi_driver_config` and `enable_autopilot` in the same `google_container_cluster` ([#19590](https://github.com/hashicorp/terraform-provider-google/pull/19590))
+* container: fixed `node_config.kubelet_config` updates in `google_container_cluster` resource ([#19562](https://github.com/hashicorp/terraform-provider-google/pull/19562))
+* container: fixed a bug where specifying `node_pool_defaults.node_config_defaults` with `enable_autopilot = true` would cause `google_container_cluster` resource creation failure ([#19543](https://github.com/hashicorp/terraform-provider-google/pull/19543))
+* workbench: fixed a bug in the `google_workbench_instance` resource where the removal of `labels` was not functioning as expected ([#19620](https://github.com/hashicorp/terraform-provider-google/pull/19620))
+
 ## 6.4.0 (September 23, 2024)
 
 DEPRECATIONS:
