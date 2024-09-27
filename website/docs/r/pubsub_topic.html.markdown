@@ -131,6 +131,34 @@ resource "google_pubsub_topic" "example" {
   }
 }
 ```
+<div class = "oics-button" style="float: right; margin: 0 0 -15px">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=pubsub_topic_ingestion_cloud_storage&open_in_editor=main.tf" target="_blank">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; margin: 32px auto; max-width: 100%;">
+  </a>
+</div>
+## Example Usage - Pubsub Topic Ingestion Cloud Storage
+
+
+```hcl
+resource "google_pubsub_topic" "example" {
+  name = "example-topic"
+
+  # Outside of automated terraform-provider-google CI tests, these values must be of actual Cloud Storage resources for the test to pass.
+  ingestion_data_source_settings {
+    cloud_storage {
+        bucket = "test-bucket"
+        text_format {
+            delimiter = " "
+        }
+        minimum_object_create_time = "2024-01-01T00:00:00Z"
+        match_glob = "foo/**"
+    }
+    platform_logs_settings {
+        severity = "WARNING"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -225,6 +253,17 @@ The following arguments are supported:
   Settings for ingestion from Amazon Kinesis Data Streams.
   Structure is [documented below](#nested_aws_kinesis).
 
+* `cloud_storage` -
+  (Optional)
+  Settings for ingestion from Cloud Storage.
+  Structure is [documented below](#nested_cloud_storage).
+
+* `platform_logs_settings` -
+  (Optional)
+  Settings for Platform Logs regarding ingestion to Pub/Sub. If unset,
+  no Platform Logs will be generated.'
+  Structure is [documented below](#nested_platform_logs_settings).
+
 
 <a name="nested_aws_kinesis"></a>The `aws_kinesis` block supports:
 
@@ -250,6 +289,63 @@ The following arguments are supported:
   with Kinesis (via a `AssumeRoleWithWebIdentity` call for the provided
   role). The `awsRoleArn` must be set up with `accounts.google.com:sub`
   equals to this service account number.
+
+<a name="nested_cloud_storage"></a>The `cloud_storage` block supports:
+
+* `bucket` -
+  (Required)
+  Cloud Storage bucket. The bucket name must be without any
+  prefix like "gs://". See the bucket naming requirements:
+  https://cloud.google.com/storage/docs/buckets#naming.
+
+* `text_format` -
+  (Optional)
+  Configuration for reading Cloud Storage data in text format. Each line of
+  text as specified by the delimiter will be set to the `data` field of a
+  Pub/Sub message.
+  Structure is [documented below](#nested_text_format).
+
+* `avro_format` -
+  (Optional)
+  Configuration for reading Cloud Storage data in Avro binary format. The
+  bytes of each object will be set to the `data` field of a Pub/Sub message.
+
+* `pubsub_avro_format` -
+  (Optional)
+  Configuration for reading Cloud Storage data written via Cloud Storage
+  subscriptions(See https://cloud.google.com/pubsub/docs/cloudstorage). The
+  data and attributes fields of the originally exported Pub/Sub message
+  will be restored when publishing.
+
+* `minimum_object_create_time` -
+  (Optional)
+  The timestamp set in RFC3339 text format. If set, only objects with a
+  larger or equal timestamp will be ingested. Unset by default, meaning
+  all objects will be ingested.
+
+* `match_glob` -
+  (Optional)
+  Glob pattern used to match objects that will be ingested. If unset, all
+  objects will be ingested. See the supported patterns:
+  https://cloud.google.com/storage/docs/json_api/v1/objects/list#list-objects-and-prefixes-using-glob
+
+
+<a name="nested_text_format"></a>The `text_format` block supports:
+
+* `delimiter` -
+  (Optional)
+  The delimiter to use when using the 'text' format. Each line of text as
+  specified by the delimiter will be set to the 'data' field of a Pub/Sub
+  message. When unset, '\n' is used.
+
+<a name="nested_platform_logs_settings"></a>The `platform_logs_settings` block supports:
+
+* `severity` -
+  (Optional)
+  The minimum severity level of Platform Logs that will be written. If unspecified,
+  no Platform Logs will be written.
+  Default value is `SEVERITY_UNSPECIFIED`.
+  Possible values are: `SEVERITY_UNSPECIFIED`, `DISABLED`, `DEBUG`, `INFO`, `WARNING`, `ERROR`.
 
 ## Attributes Reference
 
